@@ -18,7 +18,7 @@ function Analyze_2P_DataNotes(msExcel_File)
 % Read the image info from the formated xls file, save as a RawData file with surface, penetrating arterioles and capillaries separate.
 [~, ~, alldata] = xlsread(msExcel_File);
 for row = 2:size(alldata, 1)   % Loop through all rows of the excel sheet
-    clear OrgData
+    clear MScanData
     %% Notes
     tempData.Notes.date = num2str(alldata{row, 1});
     tempData.Notes.animalID = alldata{row, 2};
@@ -34,24 +34,24 @@ for row = 2:size(alldata, 1)   % Loop through all rows of the excel sheet
     tempData.Notes.vesselID = alldata{row, 12};
     tempData.Notes.drug = alldata{row, 13};
     
-    currentFileID = ([tempData.Notes.animalID '_' tempData.Notes.date '_' tempData.Notes.imageID '_OrgData.mat']);
+    currentFileID = ([tempData.Notes.animalID '_' tempData.Notes.imageID '_' tempData.Notes.date '_MScanData.mat']);
     if ~exist(currentFileID) %#ok<EXIST>
         %% Vessel diameter calculation for movie surface vessels
         if strcmp(tempData.Notes.movieType, 'MS')
-            OrgData = DiamCalc_SurfaceVessel(tempData, [tempData.Notes.date '_' tempData.Notes.imageID]);
+            MScanData = DiamCalc_SurfaceVessel(tempData, [tempData.Notes.date '_' tempData.Notes.imageID]);
             
             % Vessel diameter calculation for movie penetrating
         elseif strcmp(tempData.Notes.movieType, 'MP')
-            OrgData = DiamCalc_PenetratingVessel(tempData, [tempData.Notes.date '_' tempData.Notes.imageID]);
+            MScanData = DiamCalc_PenetratingVessel(tempData, [tempData.Notes.date '_' tempData.Notes.imageID]);
             
             % Vessel diameter calculation for capillaries
         elseif strcmp(tempData.Notes.movieType, 'C')
-            OrgData = Capillary_LineScan(tempData, [tempData.Notes.date '_' tempData.Notes.imageID]);
+            MScanData = Capillary_LineScan(tempData, [tempData.Notes.date '_' tempData.Notes.imageID]);
         end
         
         % Save the RawData file for the current movie type
-        disp(['File Created. Saving OrgData File ' num2str(row - 1) '...']); disp(' ')
-        save([tempData.Notes.animalID '_' tempData.Notes.date '_' tempData.Notes.imageID '_OrgData'], 'OrgData')
+        disp(['File Created. Saving MScanData File ' num2str(row - 1) '...']); disp(' ')
+        save([tempData.Notes.animalID '_' tempData.Notes.imageID '_' tempData.Notes.date '_MScanData'], 'MScanData')
         close all
     end
 end

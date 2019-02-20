@@ -1,4 +1,4 @@
-function OrgData = DiamCalc_SurfaceVessel(tempData, imageID)
+function MscanData = DiamCalc_SurfaceVessel(tempData, imageID)
 %________________________________________________________________________________________________________________________
 % Edited by Kevin L. Turner 
 % Ph.D. Candidate, Department of Bioengineering 
@@ -17,7 +17,7 @@ function OrgData = DiamCalc_SurfaceVessel(tempData, imageID)
 %   Last Revised: February 19th, 2019    
 %________________________________________________________________________________________________________________________
 
-clear OrgData
+clear MscanData
 movieInfo = imfinfo([imageID '.TIF']);   % Pull information from graphics file
 
 %take file info and extrac magnification and frame rate
@@ -104,7 +104,7 @@ tempData.Notes.xFactor = xFactor;
 tempData.Notes.vesselType = input('What is the type of this vessel? (A, V, PA, AV): ', 's'); disp(' ');
 tempData.Notes.vessel.order = input('what is the order of this vessel? (number): ', 's'); disp(' ')
 
-OrgData = tempData;
+MscanData = tempData;
 
 %% Save the file to directory.
 [pathstr, ~, ~] = fileparts(cd);
@@ -114,6 +114,6 @@ if ~exist(dirpath, 'dir')
     mkdir(dirpath); 
 end
 
-savefig(vesselROI, [dirpath tempData.Notes.animalID '_' tempData.Notes.date '_' tempData.Notes.imageID '_VesslROI']);
+savefig(vesselROI, [dirpath tempData.Notes.animalID '_' tempData.Notes.date '_' tempData.Notes.imageID '_VesselROI']);
 
 end

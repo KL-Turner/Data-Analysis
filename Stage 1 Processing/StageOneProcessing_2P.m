@@ -18,7 +18,7 @@ function StageOneProcessing_2P(fileNames, trackWhiskers)
 %   Inputs: fileNames - [cell array] list of filames with the extension _dalsa.bin.
 %           TrackWhiskers - [binary] tells code whether to track the whiskers or not.
 %
-%   Outputs: A processed RawData file for each filename that is saved to the current directory.
+%   Outputs: A processed LabVIEWData file for each filename that is saved to the current directory.
 %
 %   Last Revised: January 18th, 2019
 %________________________________________________________________________________________________________________________
@@ -47,8 +47,8 @@ if iscell(fileNames) == 0
     fileNames = 1;
 end
 
-%% BLOCK PURPOSE: [1] Preparing to create RawData files.
-disp('Analyzing Block [1] Preparing to create RawData file.'); disp(' ')
+%% BLOCK PURPOSE: [1] Preparing to create LabVIEWData files.
+disp('Analyzing Block [1] Preparing to create LabVIEWData file.'); disp(' ')
 % Load in each file one at a time, looping through the list.
 for fileNumber = 1:length(fileNames)
     disp(['Analyzing file ' num2str(fileNumber) ' of ' num2str(length(fileNames)) '...']); disp(' ')
@@ -64,8 +64,8 @@ for fileNumber = 1:length(fileNames)
     % Pull out the file ID for the file - this is the numerical string after the animal name/hem
     [~, ~, ~, fileID] = GetFileInfo(indFile);
     
-    % Determine if a RawData file has already been created for this file. If it has, skip it.
-    fileExist = ls(['*' fileID '_RawData.mat']);
+    % Determine if a LabVIEWData file has already been created for this file. If it has, skip it.
+    fileExist = ls(['*' fileID '_LabVIEWData.mat']);
     if not(isempty(fileExist))
         disp('File already exists. Continuing...'); disp(' ')
     end
@@ -88,28 +88,28 @@ for fileNumber = 1:length(fileNames)
     end
     
     %% BLOCK PURPOSE: [4] Evaluate Data and Save
-    disp('Analyzing Block [4] Evaluating data to save to RawData file.'); disp(' ')
+    disp('Analyzing Block [4] Evaluating data to save to LabVIEWData file.'); disp(' ')
     % Notes - all variables are descriptive
-    RawData.Notes.experimenter = trialData.experimenter;
-    RawData.Notes.animalID = trialData.animalID;
-    RawData.Notes.imagedHemisphere = trialData.imagedHemisphere;
-    RawData.Notes.isofluraneTime_Military = str2double(trialData.isofluraneTime_Military);
-    RawData.Notes.sessionID = trialData.sessionID;
-    RawData.Notes.amplifierGain = str2double(trialData.amplifierGain);
-    RawData.Notes.whiskerCamSamplingRate = str2double(trialData.whiskerCamSamplingRate);
-    RawData.Notes.analogSamplingRate = str2double(trialData.analogSamplingRate);
-    RawData.Notes.trialDuration_Seconds = str2double(trialData.trialDuration_Seconds);
-    RawData.Notes.whiskerCamPixelHeight = str2double(trialData.whiskerCamPixelHeight);
-    RawData.Notes.whiskerCamPixelWidth = str2double(trialData.whiskerCamPixelWidth);
-    RawData.Notes.numberDroppedWhiskerCamFrames = str2double(trialData.numberDroppedWhiskerCamFrames);
-    RawData.Notes.droppedWhiskerCamFrameIndex = trialData.droppedWhiskerCamFrameIndex;
+    LabVIEWData.Notes.experimenter = trialData.experimenter;
+    LabVIEWData.Notes.animalID = trialData.animalID;
+    LabVIEWData.Notes.imagedHemisphere = trialData.imagedHemisphere;
+    LabVIEWData.Notes.isofluraneTime_Military = str2double(trialData.isofluraneTime_Military);
+    LabVIEWData.Notes.sessionID = trialData.sessionID;
+    LabVIEWData.Notes.amplifierGain = str2double(trialData.amplifierGain);
+    LabVIEWData.Notes.whiskerCamSamplingRate = str2double(trialData.whiskerCamSamplingRate);
+    LabVIEWData.Notes.analogSamplingRate = str2double(trialData.analogSamplingRate);
+    LabVIEWData.Notes.trialDuration_Seconds = str2double(trialData.trialDuration_Seconds);
+    LabVIEWData.Notes.whiskerCamPixelHeight = str2double(trialData.whiskerCamPixelHeight);
+    LabVIEWData.Notes.whiskerCamPixelWidth = str2double(trialData.whiskerCamPixelWidth);
+    LabVIEWData.Notes.numberDroppedWhiskerCamFrames = str2double(trialData.numberDroppedWhiskerCamFrames);
+    LabVIEWData.Notes.droppedWhiskerCamFrameIndex = trialData.droppedWhiskerCamFrameIndex;
     
     % Data
-    RawData.Data.Force_Sensor = Force_Sensor;
-    RawData.Data.WhiskerAngle = WhiskerAngle;
+    LabVIEWData.Data.Force_Sensor = Force_Sensor;
+    LabVIEWData.Data.WhiskerAngle = WhiskerAngle;
     
-    disp(['File Created. Saving RawData File ' num2str(fileNumber) '...']); disp(' ')
-    save([trialData.animalID '_' trialData.imagedHemisphere '_' fileID '_RawData'], 'RawData')
+    disp(['File Created. Saving LabVIEWData File ' num2str(fileNumber) '...']); disp(' ')
+    save([trialData.animalID '_' trialData.imagedHemisphere '_' fileID '_LabVIEWData'], 'LabVIEWData')
 end
 
 disp('Stage One Processing - Complete.'); disp(' ')

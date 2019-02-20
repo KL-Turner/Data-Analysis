@@ -19,57 +19,27 @@
 %________________________________________________________________________________________________________________________
 
 msExcel_File = uigetfile('*.xlsx');
-Analyze_2P_DataNotes(msExcel_File)
+Analyze_2P_DataNotes(msExcel_File);
 
-directoryInfo = dir(fullfile('*_OrgData.mat'));
-Analyze_2P_Diameter(directoryInfo);
+mscanDirectory = dir('*_MScanData.mat');
+mscanDataFiles = {mscanDirectory.name}';
+mscanDataFiles = char(mscanDataFiles);
+
+Analyze_2P_Diameter(mscanDirectory);
+
+labviewDirectory = dir('*_LabVIEWData.mat');
+labviewDataFiles = {labviewDirectory.name}';
+labviewDataFiles = char(labviewDataFiles);
+
+Combine_LabVIEW_MScan_Files(labviewDataFiles, mscanDataFiles)
+
+combDirectory = dir('*_CombData.mat');
+combDataFiles = {combDirectory.name}';
+combDataFiles = char(combDataFiles);
+
+Correct_LabVIEW_Offset(combDataFiles)
+
+ProcessCombDataFile(combDataFiles)
 
 
 
-
-
-
-
-%% BLOCK PURPOSE: [0] Load the script's necessary variables and data structures.
-% Clear the workspace variables and command window.
-clc;
-clear;
-disp('Analyzing Block [0] Preparing the workspace and loading variables.'); disp(' ')
-
-[animal, hem, ~, ~, ~, ~, ~, ~, ~] = LoadDataStructs();
-
-% Character list of all RawData files
-rawDataFileStruct = dir('*_RawData.mat');
-rawDataFiles = {rawDataFileStruct.name}';
-rawDataFiles = char(rawDataFiles);
-
-procDataFileStruct = dir('*_ProcData.mat');
-procDataFiles = {procDataFileStruct.name}';
-procDataFiles = char(procDataFiles);
-
-disp('Block [0] structs loaded.'); disp(' ')
-
-%% BLOCK PURPOSE: [1] Create Bilateral ROIs
-disp('Analyzing Block [1] Create Bilateral ROIs.'); disp(' ')
-CreateBilateralROI(animal, hem, rawDataFiles)   % Create bilateral regions of interest for the windows
-ROIFile = ls('*ROIs.mat');
-load(ROIFile);
-
-%% BLOCK PURPOSE: [2] Process the RawData structure -> Create Threshold data structure and ProcData structure.
-disp('Analyzing Block [2] Create ProcData files and analyze neural data.'); disp(' ')
-for fileNumber = 1:size(rawDataFiles, 1)
-    fileName = rawDataFiles(fileNumber, :);
-    disp(['Analyzing file ' num2str(fileNumber) ' of ' num2str(size(rawDataFiles, 1)) '...']); disp(' ')
-    ProcessRawDataFile(fileName)
-    close all;
-end
-
-%% BLOCK PURPOSE: [3] Add Heart Rate to the ProcData structures.
-disp('Analyzing Block [3] Add heart rate to ProcData files.'); disp(' ')
-for fileNumber = 1:size(procDataFiles, 1)
-    fileName = procDataFiles(fileNumber, :);
-    disp(['Adding the heart rate to ProcData file ' num2str(fileNumber) ' of ' num2str(size(procDataFiles, 1)) '...']); disp(' ')
-    AddHeartRate(fileName)
-end
-
-disp('Stage Two Processing - Complete.'); disp(' ')

@@ -21,7 +21,6 @@ function [thresh1,thresh2] = CreateWhiskThreshold(angl, fs)
 
 isok = 'n';
 dd_wwf = abs((diff(angl, 2)))*fs^2;
-figure; plot(dd_wwf);
 
 while strcmp(isok,'y') == 0
     close all; 

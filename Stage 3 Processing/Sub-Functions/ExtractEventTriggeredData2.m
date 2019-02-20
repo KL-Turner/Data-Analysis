@@ -1,4 +1,4 @@
-function [EventData] = ExtractEventTriggeredData(CombDataFiles, dataTypes)
+function [EventData] = ExtractEventTriggeredData2(combDataFiles, dataTypes)
 %___________________________________________________________________________________________________
 % Edited by Kevin L. Turner 
 % Ph.D. Candidate, Department of Bioengineering 
@@ -18,7 +18,7 @@ function [EventData] = ExtractEventTriggeredData(CombDataFiles, dataTypes)
 %   
 %_______________________________________________________________
 %   PARAMETERS:             
-%                   CombDataFiles - [matrix] names of files organized as rows.
+%                   combDataFiles - [matrix] names of files organized as rows.
 %                   Files should already be processed using the script
 %                   "ProcessRawDataFile.m" or "CalculatePredictedCBV.m".
 %
@@ -50,87 +50,61 @@ if not(iscell(dataTypes))
 end
 
 for dT = 1:length(dataTypes)
-    dataType = char(dataTypes(dT));
-    if strcmp(dataType, 'CBV')
-        hemisphereDataTypes = {'LH', 'LH_Electrode', 'RH', 'RH_Electrode'};
-    else
-        hemisphereDataTypes = {'LH', 'RH'};
-    end
-
     temp = struct();
+    dataType = dataTypes{dT};
     
-    for f = 1:size(CombDataFiles, 1)    
+    for f = 1:size(combDataFiles, 1)    
         % Load CombData File
-        filename = CombDataFiles(f, :);
+        filename = combDataFiles(f, :);
         load(filename);
 
         % Get the date and file ID to include in the EventData structure
-        [animal, ~, fileDate, fileID] = GetFileInfo(CombDataFiles(f,:));
+        [animal, fileDate, fileID, ~] = GetFileInfo2(combDataFiles(f,:));
 
         % Get the types of behaviors present in the file (stim,whisk,rest)
         holdData = fieldnames(CombData.Flags);
         behaviorFields = holdData([1 2],1);
-
-        for hDT = 1:length(hemisphereDataTypes)
-            data = [];
-            hemisphereDataType = char(hemisphereDataTypes(hDT));
-
-            % Set the sampling frequency for the dataType
-            samplingRate = CombData.Notes.CBVCamSamplingRate;
-
+        
+        % Sampling frequency for element of dataTypes
+        if strcmp(dataType, 'Vessel_Diameter')
+            Fs = floor(CombData.Notes.MScan.frameRate);
+        else
+            Fs = 30;
+        end
             % Loop over the behaviors present in the file
             for bF = 1:length(behaviorFields)
-
-                %Preallocate space for unknown number of events using a
-                %'temporary' structure of cells
-                if not(isfield(temp, hemisphereDataType))
-                    temp.(hemisphereDataType) = [];
-                end
-
                 % Create behavioral subfields for the temp structure, if needed
-                if not(isfield(temp.(hemisphereDataType), behaviorFields{bF}))
+                if not(isfield(temp, behaviorFields{bF}))
                     subFields = fieldnames(CombData.Flags.(behaviorFields{bF}));
-                    blankCell = cell(1, size(CombDataFiles, 1));
+                    blankCell = cell(1, size(combDataFiles, 1));
                     structVals = cell(size(subFields));
                     structVals(:) = {blankCell};
-                    temp.(hemisphereDataType).(behaviorFields{bF}) = cell2struct(structVals, subFields, 1)';
-                    temp.(hemisphereDataType).(behaviorFields{bF}).fileIDs = blankCell;
-                    temp.(hemisphereDataType).(behaviorFields{bF}).fileDates = blankCell;
-                    temp.(hemisphereDataType).(behaviorFields{bF}).data = blankCell;
+                    temp.(behaviorFields{bF}) = cell2struct(structVals, subFields, 1)';
+                    temp.(behaviorFields{bF}).fileIDs = blankCell;
+                    temp.(behaviorFields{bF}).fileDates = blankCell;
+                    temp.(behaviorFields{bF}).data = blankCell;
                 end
 
                 % Assemble a structure to send to the sub-functions
-                fieldName2 = dataType;
-
-                if isempty(fieldName2)
-                    data = CombData;
-                else
-                    data = CombData.Data.(fieldName2);
-                end
-
+                data = CombData.Data;
                 data.Flags = CombData.Flags;
                 data.Notes = CombData.Notes;
 
                 % Extract the data from the epoch surrounding the event
-                disp(['Extracting event-triggered ' hemisphereDataType ' ' dataType ' ' behaviorFields{bF} ' data from file ' num2str(f) ' of ' num2str(size(CombDataFiles, 1)) '...']); disp(' ');
-                [chunkData, evFilter] = ExtractBehavioralData(data, epoch, hemisphereDataType, behaviorFields{bF});
+                disp(['Extracting event-triggered ' dataType ' ' behaviorFields{bF} ' data from file ' num2str(f) ' of ' num2str(size(combDataFiles, 1)) '...']); disp(' ');
+                [chunkData, evFilter] = ExtractBehavioralData(data, epoch, dataType, Fs, behaviorFields{bF});
 
                 % Add epoch details to temp struct
-                [temp] = AddEpochInfo(data, hemisphereDataType, behaviorFields{bF}, temp, fileID, fileDate, evFilter, f);
-                temp.(hemisphereDataType).(behaviorFields{bF}).data{f} = chunkData;
-
-                % Add the sampling frequency, assume all Fs are the same for given
-                % dataType
-                temp.(hemisphereDataType).(behaviorFields{bF}).samplingRate = {samplingRate};
+                [temp] = AddEpochInfo(data, behaviorFields{bF}, temp, fileID, fileDate, evFilter, f);
+                temp.(behaviorFields{bF}).data{f} = chunkData;
             end 
-        end
     end
     % Convert the temporary stuct into a final structure
     [EventData] = ProcessTempStruct(EventData, dataType, temp, epoch);
 end
 save([animal '_EventData.mat'], 'EventData');
 
-function [chunkData, evFilter] = ExtractBehavioralData(data, epoch, dataType, behavior)
+function [chunkData, evFilter] = ExtractBehavioralData(data, epoch, dataType, Fs, behavior)
 %
 %   Author: Aaron Winder
 %   Affiliation: Engineering Science and Mechanics, Penn State University
@@ -148,8 +122,7 @@ function [chunkData, evFilter] = ExtractBehavioralData(data, epoch, dataType, be
 
 % Setup variables
 eventTimes = data.Flags.(behavior).eventTime;
-trialDuration = data.Notes.trialDuration_Seconds;
-samplingRate = data.Notes.CBVCamSamplingRate;
+trialDuration = (data.Notes.LabVIEW.trialDuration_Seconds - 10);
 
 % Get the content from Data.(dataType)
 data = getfield(data, {}, dataType, {});
@@ -170,12 +143,12 @@ evFilter = logical(startFilter.*stopFilter);
 % Convert the starts from seconds to samples, round down to the nearest
 % sample, coerce the value above 1.
 
-epochStarts = max(floor(allEpochStarts(evFilter)*samplingRate),1);
+epochStarts = max(floor(allEpochStarts(evFilter)*Fs),1);
 
 % Calculate stops indices using the duration of the epoch, this avoids
 % potential matrix dimension erros caused by differences in rounding when
 % converting from seconds to samples.
-sampleDur = round(epoch.duration*samplingRate);
+sampleDur = round(epoch.duration*Fs);
 epochStops = epochStarts + sampleDur*ones(size(epochStarts));
 
 % Extract the chunk of data from the trial
@@ -187,7 +160,7 @@ for eS = 1:length(epochStarts)
 end
 
 
-function [temp] = AddEpochInfo(data, dataType, behavior, temp, fileID, fileDate, evFilter, f)
+function [temp] = AddEpochInfo(data, behavior, temp, fileID, fileDate, evFilter, f)
 %   function [temp] = AddEpochInfo(Data,dataType,Beh,temp,fileID,FileDate,EvFilter,f)
 %
 %   Author: Aaron Winder
@@ -210,13 +183,13 @@ fields = fieldnames(data.Flags.(behavior));
 % Filter out the events which are too close to the trial edge
 for flds = 1:length(fields)
     field = fields{flds};
-    temp.(dataType).(behavior).(field){f} = data.Flags.(behavior).(field)(evFilter,:)';
+    temp.(behavior).(field){f} = data.Flags.(behavior).(field)(evFilter,:)';
 end
 
 % Tag each event with the file ID, arrange cell array horizontally for
 % later processing.
-temp.(dataType).(behavior).fileIDs{f} = repmat({fileID}, 1, sum(evFilter));
-temp.(dataType).(behavior).fileDates{f} = repmat({fileDate}, 1, sum(evFilter));
+temp.(behavior).fileIDs{f} = repmat({fileID}, 1, sum(evFilter));
+temp.(behavior).fileDates{f} = repmat({fileDate}, 1, sum(evFilter));
 
 
 function [EventData] = ProcessTempStruct(EventData, dataType, temp, epoch)
@@ -237,33 +210,29 @@ function [EventData] = ProcessTempStruct(EventData, dataType, temp, epoch)
 %______________________________________________________________
 
 % Get the dataTypes from temp
-hemisphereDataTypes = fieldnames(temp);
 
-for hDT = 1:length(hemisphereDataTypes)
-    hemisphereDataType = hemisphereDataTypes{hDT};
+
+% Get dataType names
+behaviorFields = fieldnames(temp);
+
+% Intialize Behavior fields of the dataType sub-structure
+structArray2 = cell(size(behaviorFields));
+EventData.(dataType) = cell2struct(structArray2, behaviorFields, 1);
+
+for bF = 1:length(behaviorFields)
+    behavior = behaviorFields{bF};
     
-    % Get dataType names
-    behaviorFields = fieldnames(temp.(hemisphereDataType));
+    % Get Behavior names
+    eventFields = fieldnames(temp.(behavior));
     
-    % Intialize Behavior fields of the dataType sub-structure
-    structArray2 = cell(size(behaviorFields));
-    EventData.(dataType).(hemisphereDataType) = cell2struct(structArray2, behaviorFields, 1);
+    % Initialize Event fields for the Behavior sub-structure
+    structArray3 = cell(size(eventFields));
+    EventData.(dataType).(behavior) = cell2struct(structArray3, eventFields, 1);
     
-    for bF = 1:length(behaviorFields)
-        behavior = behaviorFields{bF};
-        
-        % Get Behavior names
-        eventFields = fieldnames(temp.(hemisphereDataType).(behavior));
-        
-        % Initialize Event fields for the Behavior sub-structure
-        structArray3 = cell(size(eventFields));
-        EventData.(dataType).(hemisphereDataType).(behavior) = cell2struct(structArray3, eventFields, 1);
-        
-        for eF = 1:length(eventFields)
-            evField = eventFields{eF};
-            transferArray = [temp.(hemisphereDataType).(behavior).(evField){:}];
-            EventData.(dataType).(hemisphereDataType).(behavior).(evField) = permute(transferArray, unique([2, 1, ndims(transferArray)], 'stable'));
-        end
-        EventData.(dataType).(hemisphereDataType).(behavior).epoch = epoch;
+    for eF = 1:length(eventFields)
+        evField = eventFields{eF};
+        transferArray = [temp.(behavior).(evField){:}];
+        EventData.(dataType).(behavior).(evField) = permute(transferArray, unique([2, 1, ndims(transferArray)], 'stable'));
     end
+    EventData.(dataType).(behavior).epoch = epoch;
 end
