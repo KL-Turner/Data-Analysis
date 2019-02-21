@@ -99,7 +99,7 @@ for f = 1:size(mscanDataFiles, 1)
     %     MScanData.Notes.downsampledEMGSamplingRate = emgDownSampledSamplingRate;
     % end
     
-    save([animalID '_' imageID '_' date '_MScanData'], 'MScanData') 
+    save([animalID '_' date '_' imageID '_MScanData'], 'MScanData') 
 end
 
 %% LabVIEW data file analysis

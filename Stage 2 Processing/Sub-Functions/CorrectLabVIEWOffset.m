@@ -15,7 +15,7 @@ function CorrectLabVIEWOffset(labviewDataFiles, mscanDataFiles)
 %   Last Revised: February 20th, 2019    
 %________________________________________________________________________________________________________________________
 
-for f = 1:size(mscanDataFiles, 1)
+for f = 3:size(mscanDataFiles, 1)
     %% Find offset between the two force sensor signals using the cross correlation
     disp(['Correcting offset in file number ' num2str(f) ' of ' num2str(size(mscanDataFiles, 1)) '...']); disp(' '); 
     mscanDataFile = mscanDataFiles(f, :);
@@ -23,7 +23,7 @@ for f = 1:size(mscanDataFiles, 1)
     labviewDataFile = labviewDataFiles(f, :);
     load(labviewDataFile)
     
-    [animalID, hem, ~, fileID] = GetFileInfo(labviewDataFile);
+    [animalID, hem, fileDate, fileID] = GetFileInfo(labviewDataFile);
     imageID = MScanData.Notes.imageID;
 
     analogSamplingRate = LabVIEWData.Notes.analogSamplingRate;
@@ -45,18 +45,19 @@ for f = 1:size(mscanDataFiles, 1)
     [~, index] = max(r);
     offset = lags(index);
     analog_offset = analog_lags(analog_index);
+    analog_forceOffset = round(abs(analog_offset)/analogSamplingRate);
     analog_whiskerOffset = round(abs(analog_offset)/whiskerCamSamplingRate);
     dsOffset = round(dsSamplingRate*(abs(offset)/dsSamplingRate));
     
     if offset > 0
-        analog_forceShift = analog_labviewForce(analog_offset:end);
+        analog_forceShift = analog_labviewForce(analog_forceOffset:end);
         analog_whiskerShift = LabVIEWData.Data.WhiskerAngle(analog_whiskerOffset:end);
         dsForceShift = labviewForce(offset:end);
         dsWhiskShift = LabVIEWData.Data.dsWhisker_Angle(offset:end);
         binForceShift = LabVIEWData.Data.binForce_Sensor_L(offset:end);
         binWhiskShift = LabVIEWData.Data.binWhisker_Angle(offset:end);
     elseif offset <= 0
-        analog_fpad = zeros(1, abs(analog_offset));
+        analog_fpad = zeros(1, abs(analog_forceOffset));
         analog_wpad = zeros(1, abs(analog_whiskerOffset));
         pad = zeros(1, abs(dsOffset));
         analog_forceShift = horzcat(analog_fpad, analog_labviewForce);
@@ -108,7 +109,7 @@ for f = 1:size(mscanDataFiles, 1)
         mkdir(dirpath);
     end
     
-    saveas(corrOffset, [dirpath animalID '_' imageID '_' fileID '_CorrectedOffset'], 'tiff');
+    saveas(corrOffset, [dirpath animalID '_' fileID '_' imageID '_CorrectedOffset'], 'tiff');
     close all
     
     %% Apply correction to the data, and trim excess time
@@ -164,7 +165,7 @@ for f = 1:size(mscanDataFiles, 1)
     LabVIEWData.Data.binForce_Sensor_L = binForceShift(frontCut*dsSamplingRate:end - (labview_binForceCut + 1));
 
     disp('Updating MScanData and LabVIEW Files...'); disp(' ')
-    save([animalID '_' imageID '_' date '_MScanData'], 'MScanData') 
+    save([animalID '_' fileDate '_' imageID '_MScanData'], 'MScanData') 
     save([animalID '_' hem '_' fileID '_LabVIEWData'], 'LabVIEWData')
  
 end

@@ -1,4 +1,4 @@
-function [] = CategorizeData2(fileName)
+function [] = CategorizeData_2P(fileName)
 %___________________________________________________________________________________________________
 % Edited by Kevin L. Turner 
 % Ph.D. Candidate, Department of Bioengineering 

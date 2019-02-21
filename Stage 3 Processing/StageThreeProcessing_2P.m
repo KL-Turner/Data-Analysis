@@ -4,64 +4,68 @@
 % The Pennsylvania State University
 %________________________________________________________________________________________________________________________
 %
-%   Purpose: 1) Categorize data using previously processed MergedData data structures, add 'flags'  
-%            2) Create RestData structure that contains periods of rest.
-%            3) Create EventData structure that contains periods after stimuli and whisks.
-%            4) Uses periods when animal is not being stimulated or moving to establish a 
-%               baseline for a given session of imaging.
-%            5) Normalizes the different data structures.
-%________________________________________________________________________________________________________________________
-%
-%   Inputs: 1) Select all _MergedData files from all days. Follow the command window prompts.
-%           2) Select one single _RawData file for the animal information. The MergedData files are
-%              already in the list and will be used to run the function.
-%           3) No inputs. MergedData files already loaded.
-%           4) No inputs. RestData.mat is already loaded.
-%           5) No inputs. RestData.mat and EventData.mat are already loaded.
-%
-%   Outputs: 1) Additions to the MergedData structure including flags and scores.
+%   Purpse:  1) Additions to the MergedData structure including flags and scores.
 %            2) A RestData.mat structure with periods of rest.
 %            3) A EventData.mat structure with event-related information.
-%            4) Baselines.mat containing the baselines for individual resting periods.
-%            5) Creates NormData in the rest/event structures.
+%            4) Find the resting baseline for vessel diameter and neural data.
+%            5) Normalize RestData and EventData structs using resting baselines.
+%________________________________________________________________________________________________________________________
 %
-%   Last Revised: October 5th, 2018
+%   Inputs: MergedData files, followed by newly created RestData and EventData structs for normalization 
+%           by the unique day and vessel's resting baseline.
+%
+%   Outputs: 1) Additions to the MergedData structure including behavioral flags and scores.
+%            2) A RestData.mat structure with periods of rest.
+%            3) A EventData.mat structure with event-related information.
+%            4) A Baselines.mat structure with resting baselines.
+%            5) Normalized RestData and EventData folders in the respectived structs using the resting baselines.
+%
+%   Last Revised: February 21st, 2019
 %________________________________________________________________________________________________________________________
 
+%% BLOCK PURPOSE: [0] Load the script's necessary variables and data structures.
+% Clear the workspace variables and command window.
+clc;
+clear;
+disp('Analyzing Block [0] Preparing the workspace and loading variables.'); disp(' ')
+
+[animalID, ~, ~, ~, ~, ~, ~, ~] = LoadDataStructs_2P;
+
 combDirectory = dir('*_MergedData.mat');
-MergedDataFiles = {combDirectory.name}';
-MergedDataFiles = char(MergedDataFiles);
-animalID = 'DK12';
+mergedDataFiles = {combDirectory.name}';
+mergedDataFiles = char(mergedDataFiles);
 dataTypes = {'Vessel_Diameter', 'DeltaBand_Power', 'ThetaBand_Power', 'AlphaBand_Power', 'BetaBand_Power', 'GammaBand_Power', 'MUA_Power'};
 
+disp('Block [0] structs loaded.'); disp(' ')
+
 %% BLOCK PURPOSE: [1] Categorize data 
-disp('Analyzing Block [1] Categorizing data.'); disp(' ')
-for fileNumber = 1:size(MergedDataFiles, 1)
-    fileName = MergedDataFiles(fileNumber, :);
-    disp(['Analyzing file ' num2str(fileNumber) ' of ' num2str(size(MergedDataFiles, 1)) '...']); disp(' ')
-    CategorizeData2(fileName)
+disp('Analyzing Block [1] Categorizing behavioral data, adding flags to MergedData structures.'); disp(' ')
+for fileNumber = 1:size(mergedDataFiles, 1)
+    fileName = mergedDataFiles(fileNumber, :);
+    disp(['Analyzing file ' num2str(fileNumber) ' of ' num2str(size(mergedDataFiles, 1)) '...']); disp(' ')
+    CategorizeData_2P(fileName)
 end
 
 %% BLOCK PURPOSE: [2] Create RestData data structure
-disp('Analyzing Block [2] Create RestData struct for CBV and neural data.'); disp(' ')
-[RestData] = ExtractRestingData2(MergedDataFiles, dataTypes);
+disp('Analyzing Block [2] Creating RestData struct for vessels and neural data.'); disp(' ')
+[RestData] = ExtractRestingData_2P(mergedDataFiles, dataTypes);
     
 %% BLOCK PURPOSE: [3] Create EventData data structure
-disp('Analyzing Block [3] Create EventData struct for CBV and neural data.'); disp(' ')
-[EventData] = ExtractEventTriggeredData2(MergedDataFiles, dataTypes);
+disp('Analyzing Block [3] Creating EventData struct for vessels and neural data.'); disp(' ')
+[EventData] = ExtractEventTriggeredData_2P(mergedDataFiles, dataTypes);
 
 %% BLOCK PURPOSE: [4] Create Baselines data structure
-disp('Analyzing Block [4] Create Baselines struct for CBV and neural data.'); disp(' ')
+disp('Analyzing Block [4] Finding the resting baseline for vessel diameter and neural data.'); disp(' ')
 targetMinutes = 15;
 disp(['Calculating the resting baselines for the first ' num2str(targetMinutes) ' minutes of each unique day...']);
-[RestingBaselines] = CalculateRestingBaselines2(animalID, MergedDataFiles, targetMinutes, RestData);
+[RestingBaselines] = CalculateRestingBaselines_2P(animalID, mergedDataFiles, targetMinutes, RestData);
 
-% %% BLOCK PURPOSE: [5] Normalize RestData and behavioral data
-% disp('Analyzing Block [5] Normalize EventData struct using Baselines for CBV and neural data.'); disp(' ')
-% [RestData] = NormBehavioralDataStruct(RestData, RestingBaselines);
-% [EventData] = NormBehavioralDataStruct(EventData, RestingBaselines);
-% 
-% save([animal '_RestData.mat'], 'RestData')
-% save([animal '_EventData.mat'], 'EventData')
-% 
-% disp('Stage Three Processing - Complete.'); disp(' ')
+%% BLOCK PURPOSE: [5] Normalize RestData and behavioral data
+disp('Analyzing Block [5] Normalizing RestData and EventData structs using resting baselines.'); disp(' ')
+[RestData] = NormBehavioralDataStruct_2P(RestData, RestingBaselines);
+[EventData] = NormBehavioralDataStruct_2P(EventData, RestingBaselines);
+
+save([animalID '_RestData.mat'], 'RestData')
+save([animalID '_EventData.mat'], 'EventData')
+
+disp('Two Photon Stage Three Processing - Complete.'); disp(' ')

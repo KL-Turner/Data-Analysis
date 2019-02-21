@@ -1,4 +1,4 @@
-function [RestData] = ExtractRestingData2(mergedDataFiles, dataTypes)
+function [RestData] = ExtractRestingData_2P(mergedDataFiles, dataTypes)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % Ph.D. Candidate, Department of Bioengineering
@@ -25,6 +25,7 @@ for dT = 1:length(dataTypes)
     puffDistances = cell(size(mergedDataFiles, 1), 1);
     fileIDs = cell(size(mergedDataFiles, 1), 1);
     fileDates = cell(size(mergedDataFiles, 1), 1);
+    vesselIDs = cell(size(mergedDataFiles, 1), 1);
     
     for f = 1:size(mergedDataFiles, 1)
         disp(['Gathering rest ' char(dataType) ' data from file ' num2str(f) ' of ' num2str(size(mergedDataFiles, 1)) '...']); disp(' ')
@@ -32,7 +33,7 @@ for dT = 1:length(dataTypes)
         load(filename);
         
         % Get the date and file identifier for the data to be saved with each resting event
-        [animalID, fileDate, fileID, ~] = GetFileInfo2(filename);
+        [animalID, fileDate, fileID, vesselID] = GetFileInfo_2P(filename);
         
         % Sampling frequency for element of dataTypes
         if strcmp(dataType, 'Vessel_Diameter')
@@ -76,6 +77,7 @@ for dT = 1:length(dataTypes)
         puffDistances{f} = trialPuffDistances';
         fileIDs{f} = repmat({fileID}, 1, length(trialEventTimes));
         fileDates{f} = repmat({fileDate}, 1, length(trialEventTimes));
+        vesselIDs{f} = repmat({vesselID}, 1, length(trialEventTimes));
     end
     
     RestData.(dataTypes{dT}).data = [restVals{:}]';
@@ -84,6 +86,7 @@ for dT = 1:length(dataTypes)
     RestData.(dataTypes{dT}).puffDistances = [puffDistances{:}]';
     RestData.(dataTypes{dT}).fileIDs = [fileIDs{:}]';
     RestData.(dataTypes{dT}).fileDates = [fileDates{:}]';
+    RestData.(dataTypes{dT}).vesselIDs = [vesselIDs{:}]';
     RestData.(dataTypes{dT}).samplingRate = Fs;
 end
 

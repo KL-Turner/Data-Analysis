@@ -43,7 +43,7 @@ for f = 1:size(labviewDataFiles, 1)
     MergedData.Data.binForce_Sensor_M = MScanData.Data.binForce_Sensor_M;
     MergedData.Data.Vessel_Diameter = MScanData.Data.Vessel_Diameter;
     
-    save([animalID '_' fileID '_' vesselID '_MergedData'], 'MergedData')
+    save([animalID '_' vesselID '_' fileID '_MergedData'], 'MergedData')
 end
  
 end

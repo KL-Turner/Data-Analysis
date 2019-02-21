@@ -1,4 +1,4 @@
-function [animal, hem, Thresholds, EventData, RestData, RestingBaselines,...
+function [animalID, hem, Thresholds, EventData, RestData, RestingBaselines,...
     SleepData, ComparisonData] = LoadDataStructs_2P()
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
@@ -19,7 +19,7 @@ function [animal, hem, Thresholds, EventData, RestData, RestingBaselines,...
 labviewDataFiles = dir('*_LabVIEWData.mat');
 labviewDataFileIDs = {labviewDataFiles.name}';
 labviewDataFileID = labviewDataFileIDs{1,1};
-[animal, hem, ~, ~] = GetFileInfo(labviewDataFileID);
+[animalID, hem, ~, ~] = GetFileInfo(labviewDataFileID);
 
 ThresholdsFile = dir('*_Thresholds.mat');
 if ~isempty(ThresholdsFile)

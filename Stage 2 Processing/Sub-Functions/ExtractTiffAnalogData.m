@@ -1,4 +1,4 @@
-function [MscanData] = ExtractTiffAnalogData(MscanData, fileID)
+function [MScanData] = ExtractTiffAnalogData(MScanData, fileID)
 %________________________________________________________________________________________________________________________
 % Edited by Kevin L. Turner 
 % Ph.D. Candidate, Department of Bioengineering 
@@ -21,33 +21,33 @@ function [MscanData] = ExtractTiffAnalogData(MscanData, fileID)
 MScan_analogData = [fileID '.TXT'];
 disp(['Loading MScan file: ' MScan_analogData '...']); disp(' ');
 analogData = load(MScan_analogData);
-MscanData.Data.MScan_Force_Sensor = analogData(:, 2);
-MscanData.Data.MScan_Neural_Data = analogData(:, 3);
-MscanData.Notes.MScan_analogSamplingRate = 20000;
+MScanData.Data.MScan_Force_Sensor = analogData(:, 2);
+MScanData.Data.MScan_Neural_Data = analogData(:, 3);
+MScanData.Notes.MScan_analogSamplingRate = 20000;
 
 disp('Analyzing vessel projections from defined polygons...'); disp(' ');
-[MscanData] = GetDiametersFromMovie(MscanData, fileID);
+[MScanData] = GetDiametersFromMovie(MScanData, fileID);
 
 try
-    [MscanData] = FWHM_MovieProjection(MscanData, [MscanData.Notes.startframe MscanData.Notes.endframe]);
+    [MScanData] = FWHM_MovieProjection(MScanData, [MScanData.Notes.startframe MScanData.Notes.endframe]);
 catch
-    disp([MscanData.Notes.imageID ' FWHM calculation failed!'])
+    disp([MScanData.Notes.imageID ' FWHM calculation failed!'])
 end
 
 try
     % 1 dural/vein, >40% changes spline, artery: >60% spline
     % 2 dural/vein, >30% changes interpolate, artery: >50% interpolate
-    if strcmp(MscanData.Notes.vesselType, 'D') || strcmp(MscanData.Notes.vesselType, 'V')
-        MscanData.Data.Vessel_Diameter = RemoveMotion(MscanData.Data.Vessel_TempDiameter, MscanData.Notes.vessel.modalFixedDiameter, 2, 0.3);
+    if strcmp(MScanData.Notes.vesselType, 'D') || strcmp(MScanData.Notes.vesselType, 'V')
+        MScanData.Data.Vessel_Diameter = RemoveMotion(MScanData.Data.Vessel_TempDiameter, MScanData.Notes.vessel.modalFixedDiameter, 2, 0.3);
     else
-        MscanData.Data.Vessel_Diameter = RemoveMotion(MscanData.Data.Vessel_TempDiameter, MscanData.Notes.vessel.modalFixedDiameter, 2, 0.5);
+        MScanData.Data.Vessel_Diameter = RemoveMotion(MScanData.Data.Vessel_TempDiameter, MScanData.Notes.vessel.modalFixedDiameter, 2, 0.5);
     end
-    [diamPerc, S, f] = DiamPercPower(MscanData.Data.Vessel_Diameter, MscanData.Notes.vessel.modalFixedDiameter, MscanData.Notes.frameRate);
-    MscanData.Notes.vessel.diamPerc = diamPerc;
-    MscanData.Notes.vessel.power_f = f;
-    MscanData.Notes.vessel.power_S = S;
+    [diamPerc, S, f] = DiamPercPower(MScanData.Data.Vessel_Diameter, MScanData.Notes.vessel.modalFixedDiameter, MScanData.Notes.frameRate);
+    MScanData.Notes.vessel.diamPerc = diamPerc;
+    MScanData.Notes.vessel.power_f = f;
+    MScanData.Notes.vessel.power_S = S;
 catch
-    disp([MscanData.Notes.imageID ' Diameter percentage analysis failed!'])
+    disp([MScanData.Notes.imageID ' Diameter percentage analysis failed!'])
 end
 
 end

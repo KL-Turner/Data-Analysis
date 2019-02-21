@@ -112,6 +112,6 @@ for fileNumber = 1:length(fileNames)
     save([trialData.animalID '_' trialData.imagedHemisphere '_' fileID '_LabVIEWData'], 'LabVIEWData')
 end
 
-disp('Stage One Processing - Complete.'); disp(' ')
+disp('Two Photon Stage One Processing - Complete.'); disp(' ')
 
 end
