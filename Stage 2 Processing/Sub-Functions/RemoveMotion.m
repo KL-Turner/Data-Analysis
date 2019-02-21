@@ -1,4 +1,4 @@
-function newVesselDiameter = Remove_Motion(vesselDiameter, baseline, diffThresh, rawThresh)
+function newVesselDiameter = RemoveMotion(vesselDiameter, baseline, diffThresh, rawThresh)
 %________________________________________________________________________________________________________________________
 % Edited by Kevin L. Turner 
 % Ph.D. Candidate, Department of Bioengineering 

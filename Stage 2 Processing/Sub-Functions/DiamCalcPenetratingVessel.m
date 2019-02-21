@@ -1,4 +1,4 @@
-function mv_mpP=DiamCalc_PenetratingVessel(mv_mpP,ImageID)
+function mv_mpP=DiamCalcPenetratingVessel(mv_mpP,ImageID)
 % get the movie info
 % draw the pa area
 

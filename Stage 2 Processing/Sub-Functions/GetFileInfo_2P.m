@@ -1,4 +1,4 @@
-function [animalID, fileDate, fileID, vesselID] = GetFileInfo2(fileName)
+function [animalID, fileDate, fileID, vesselID] = GetFileInfo_2P(fileName)
 %________________________________________________________________________________________________________________________
 % Edited by Kevin L. Turner
 % Ph.D. Candidate, Department of Bioengineering

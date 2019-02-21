@@ -1,4 +1,4 @@
-function Analyze_2P_Diameter(directoryInfo)
+function Analyze2PDiameter(directoryInfo)
 %________________________________________________________________________________________________________________________
 % Edited by Kevin L. Turner 
 % Ph.D. Candidate, Department of Bioengineering 
@@ -22,7 +22,7 @@ for f = 1:length(directoryInfo)
     load(directoryInfo(f).name);
     
     if strcmp(MScanData.Notes.movieType, 'MS') || strcmp(MScanData.Notes.movieType, 'MD')
-        [MScanData] = Extract_Tiff_Analog_Data(MScanData, [MScanData.Notes.date '_' MScanData.Notes.imageID]);
+        [MScanData] = ExtractTiffAnalogData(MScanData, [MScanData.Notes.date '_' MScanData.Notes.imageID]);
         save([MScanData.Notes.animalID '_' MScanData.Notes.date '_' MScanData.Notes.imageID '_MScanData'], 'MScanData')
         
     elseif strcmp(MScanData.Notes.movieType, 'MP')

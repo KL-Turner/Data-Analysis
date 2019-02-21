@@ -1,4 +1,4 @@
-function mv_mpP=Capillary_LineScan(mv_mpP,ImageID)
+function mv_mpP=CapillaryLineScan(mv_mpP,ImageID)
 % get the image information
 % draw the vessel boxes
 

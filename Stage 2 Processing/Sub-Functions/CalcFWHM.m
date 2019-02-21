@@ -1,4 +1,4 @@
-function width = calcFWHM(data,smoothing,threshold)
+function width = CalcFWHM(data,smoothing,threshold)
 % function which takes data and calculates the full-width, half max value
 % half-max values are found looking in from the sides, i.e., the program will work
 % even if the data dips to a lower value in the middle

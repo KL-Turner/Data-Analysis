@@ -1,4 +1,4 @@
-function [Neuro, neuroFs] = ProcessNeuro2(CombData, NeurType, Neural_Hem)
+function [neuro, neuroFs] = ProcessNeuro_2P(MScanData, NeurType, Neural_Hem)
 %________________________________________________________________________________________________________________________
 % Edited by Kevin L. Turner
 % Ph.D. Candidate, Department of Bioengineering
@@ -10,8 +10,8 @@ function [Neuro, neuroFs] = ProcessNeuro2(CombData, NeurType, Neural_Hem)
 %________________________________________________________________________________________________________________________
 
 %% Thresholds and Neurtype switch
-neuralData = CombData.Data.(Neural_Hem);
-analogFs = CombData.Notes.LabVIEW.analogSamplingRate;
+neuralData = MScanData.Data.(Neural_Hem);
+analogFs = MScanData.Notes.MScan_analogSamplingRate;
 
 switch NeurType
     case 'MUApower'
@@ -38,7 +38,7 @@ if ismember(NeurType, [{'MUApower'}, {'Gam'}, {'Beta'}, {'Alpha'}, {'Theta'}, {'
     [z1, p1, k1] = butter(4, 10 / (analogFs / 2), 'low');
     [sos1, g1] = zp2sos(z1, p1, k1);
     Long_Neuro = filtfilt(sos1, g1, filtNeuro.^2);
-    Neuro = max(resample(Long_Neuro, neuroFs, analogFs), 0);
+    neuro = max(resample(Long_Neuro, neuroFs, analogFs), 0);
 end
 
 end

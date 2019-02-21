@@ -1,4 +1,4 @@
-function Analyze_2P_DataNotes(msExcel_File)
+function Analyze2PDataNotes(msExcel_File)
 %________________________________________________________________________________________________________________________
 % Edited by Kevin L. Turner 
 % Ph.D. Candidate, Department of Bioengineering 
@@ -38,20 +38,20 @@ for row = 2:size(alldata, 1)   % Loop through all rows of the excel sheet
     if ~exist(currentFileID) %#ok<EXIST>
         %% Vessel diameter calculation for movie surface vessels
         if strcmp(tempData.Notes.movieType, 'MS')
-            MScanData = DiamCalc_SurfaceVessel(tempData, [tempData.Notes.date '_' tempData.Notes.imageID]);
+            MScanData = DiamCalcSurfaceVessel(tempData, [tempData.Notes.date '_' tempData.Notes.imageID]);
             
             % Vessel diameter calculation for movie penetrating
         elseif strcmp(tempData.Notes.movieType, 'MP')
-            MScanData = DiamCalc_PenetratingVessel(tempData, [tempData.Notes.date '_' tempData.Notes.imageID]);
+            MScanData = DiamCalcPenetratingVessel(tempData, [tempData.Notes.date '_' tempData.Notes.imageID]);
             
             % Vessel diameter calculation for capillaries
         elseif strcmp(tempData.Notes.movieType, 'C')
-            MScanData = Capillary_LineScan(tempData, [tempData.Notes.date '_' tempData.Notes.imageID]);
+            MScanData = CapillaryLineScan(tempData, [tempData.Notes.date '_' tempData.Notes.imageID]);
         end
         
         % Save the RawData file for the current movie type
         disp(['File Created. Saving MScanData File ' num2str(row - 1) '...']); disp(' ')
-        save([tempData.Notes.animalID '_' tempData.Notes.imageID '_' tempData.Notes.date '_MScanData'], 'MScanData')
+        save([tempData.Notes.animalID '_' tempData.Notes.date '_' tempData.Notes.imageID '_MScanData'], 'MScanData')
         close all
     end
 end

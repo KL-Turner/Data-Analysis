@@ -1,4 +1,4 @@
-function MscanData = DiamCalc_SurfaceVessel(tempData, imageID)
+function MscanData = DiamCalcSurfaceVessel(tempData, imageID)
 %________________________________________________________________________________________________________________________
 % Edited by Kevin L. Turner 
 % Ph.D. Candidate, Department of Bioengineering 

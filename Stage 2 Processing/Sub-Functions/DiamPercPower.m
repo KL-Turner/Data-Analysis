@@ -1,4 +1,4 @@
-function [diamPerc, S, f] = diamPerc_Power(rawDiameter, baseDiameter, samplingRate)
+function [diamPerc, S, f] = DiamPercPower(rawDiameter, baseDiameter, samplingRate)
 %________________________________________________________________________________________________________________________
 % Edited by Kevin L. Turner 
 % Ph.D. Candidate, Department of Bioengineering 
