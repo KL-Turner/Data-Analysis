@@ -1,4 +1,4 @@
-function [animalID, fileDate, fileID, imageID] = GetFileInfo2(fileName)
+function [animalID, fileDate, fileID, vesselID] = GetFileInfo2(fileName)
 %________________________________________________________________________________________________________________________
 % Edited by Kevin L. Turner
 % Ph.D. Candidate, Department of Bioengineering
@@ -41,7 +41,7 @@ fileBreaks = strfind(fileName(1, :), '_');
 switch extension
     case 'bin'
         animalID = [];
-        imageID = [];
+        vesselID = [];
         fileDate = fileName(:, 1:fileBreaks(1) - 1);
         fileID = fileName(:, 1:fileBreaks(4) - 1);
     case 'mat'
@@ -50,7 +50,7 @@ switch extension
         fileDate = fileName(:, fileBreaks(1) + 1:fileBreaks(2) - 1);
         if numel(fileBreaks) > 3
             fileID = fileName(:, fileBreaks(1) + 1:fileBreaks(5) - 1);
-            imageID = fileName(:, fileBreaks(5) + 1:fileBreaks(6) - 1);
+            vesselID = fileName(:, fileBreaks(5) + 1:fileBreaks(6) - 1);
         else
             fileDate = [];
             fileID = [];

@@ -33,13 +33,13 @@ labviewDataFiles = char(labviewDataFiles);
 
 Combine_LabVIEW_MScan_Files(labviewDataFiles, mscanDataFiles)
 
-combDirectory = dir('*_CombData.mat');
-combDataFiles = {combDirectory.name}';
-combDataFiles = char(combDataFiles);
+mergedDirectory = dir('*_MergedData.mat');
+mergedDataFiles = {mergedDirectory.name}';
+mergedDataFiles = char(mergedDataFiles);
 
-Correct_LabVIEW_Offset(combDataFiles)
+Correct_LabVIEW_Offset(mergedDataFiles)
 
-ProcessCombDataFile(combDataFiles)
+ProcessCombDataFile(mergedDataFiles)
 
 
 

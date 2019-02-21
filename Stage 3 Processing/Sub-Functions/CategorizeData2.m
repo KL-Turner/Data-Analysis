@@ -53,13 +53,13 @@ function [] = CategorizeData2(fileName)
 %_______________________________________________________________
 %   RETURN:                     
 %                           None, output of the script is additions to the
-%                           CombData structure.
+%                           MergedData structure.
 %_______________________________________________________________
 
 %% Load and Setup
 disp(['Categorizing data for: ' fileName]); disp(' ')
 load(fileName)
-whiskerSamplingRate = CombData.Notes.LabVIEW.downsampledWhiskerSamplingRate;
+whiskerSamplingRate = MergedData.Notes.LabVIEW.downsampledWhiskerSamplingRate;
 
 %% Process binary whisking waveform to detect whisking events
 % Setup parameters for link_binary_events
@@ -70,7 +70,7 @@ breakThresh = 0;   % seconds changed by atw on 2/6/18 from 0.07
 % trial time. This will link any event occurring within "link_thresh"
 % seconds to the beginning/end of the trial rather than assuming that it is
 % a new/isolated event.
-modBinWhiskers = CombData.Data.binWhisker_Angle;
+modBinWhiskers = MergedData.Data.binWhisker_Angle;
 
 % Link the binarized whisking for use in GetWhiskingData function
 binWhiskers = LinkBinaryEvents(gt(modBinWhiskers,0), [linkThresh breakThresh]*whiskerSamplingRate);
@@ -93,16 +93,16 @@ end
 
 %% Categorize data by behavior
 % Retrieve details on whisking events
-[CombData.Flags.whisk] = GetWhiskingData(CombData, binWhiskers);
+[MergedData.Flags.whisk] = GetWhiskingData(MergedData, binWhiskers);
 
 % Identify and separate resting data
-[CombData.Flags.rest] = GetRestData(CombData);
+[MergedData.Flags.rest] = GetRestData(MergedData);
 
-% Save CombData structure
-save(fileName, 'CombData');
+% Save MergedData structure
+save(fileName, 'MergedData');
 
 function [puffTimes] = GetPuffTimes(~)
-%   function [Puff_Times] = GetPuffTimes(CombData)
+%   function [Puff_Times] = GetPuffTimes(MergedData)
 %
 %   Author: Aaron Winder
 %   Affiliation: Engineering Science and Mechanics, Penn State University
@@ -113,7 +113,7 @@ function [puffTimes] = GetPuffTimes(~)
 %   
 %_______________________________________________________________
 %   PARAMETERS:             
-%                       CombData - [struct] structure obtained using the 
+%                       MergedData - [struct] structure obtained using the 
 %                       function ProcessRawDataFile.
 %_______________________________________________________________
 %   RETURN:                     
@@ -123,8 +123,8 @@ function [puffTimes] = GetPuffTimes(~)
 puffList = [];
 puffTimes = cell2mat(puffList);
 
-function [Whisk] = GetWhiskingData(CombData, binarizedWhiskers)
-%   function [Whisk] = GetWhiskingData(CombData, Bin_wwf)
+function [Whisk] = GetWhiskingData(MergedData, binarizedWhiskers)
+%   function [Whisk] = GetWhiskingData(MergedData, Bin_wwf)
 %
 %   Author: Aaron Winder
 %   Affiliation: Engineering Science and Mechanics, Penn State University
@@ -150,7 +150,7 @@ function [Whisk] = GetWhiskingData(CombData, binarizedWhiskers)
 %                           administered during the trial.
 %_______________________________________________________________
 %   PARAMETERS:             
-%                       CombData - [struct] structure obtained using the 
+%                       MergedData - [struct] structure obtained using the 
 %                       function ProcessRawDataFile.    
 %_______________________________________________________________
 %   RETURN:                     
@@ -159,11 +159,11 @@ function [Whisk] = GetWhiskingData(CombData, binarizedWhiskers)
 %_______________________________________________________________
 
 %% Setup
-whiskerSamplingRate = CombData.Notes.LabVIEW.downsampledWhiskerSamplingRate;
-forceSensorSamplingRate = CombData.Notes.LabVIEW.downsampledForceSensorSamplingRate;
+whiskerSamplingRate = MergedData.Notes.LabVIEW.downsampledWhiskerSamplingRate;
+forceSensorSamplingRate = MergedData.Notes.LabVIEW.downsampledForceSensorSamplingRate;
 
 %% Get Puff Times
-[puffTimes] = GetPuffTimes(CombData);
+[puffTimes] = GetPuffTimes(MergedData);
 
 %% Find the starts of whisking
 whiskEdge = diff(binarizedWhiskers);
@@ -201,7 +201,7 @@ if not(binarizedWhiskers(end))
 end
 
 
-% Calculate the whisking intensity -> sum(CombData.Bin_wwf)/sum(Bin_wwf)
+% Calculate the whisking intensity -> sum(MergedData.Bin_wwf)/sum(Bin_wwf)
 % over the duration of the whisk. Calculate the movement intensity over the
 % same interval.
 whiskInt = zeros(size(whiskStarts));
@@ -210,13 +210,13 @@ movementInt = zeros(size(whiskStarts));
 for wS = 1:length(whiskSamples)
     % Whisking intensity
     whiskInds = whiskSamples(wS):whiskSamples(wS) + whiskLength(wS);
-    whiskInt(wS) = sum(CombData.Data.binWhisker_Angle(whiskInds)) / numel(whiskInds);
+    whiskInt(wS) = sum(MergedData.Data.binWhisker_Angle(whiskInds)) / numel(whiskInds);
     
     % Movement intensity
     movementStart = round(whiskStarts(wS)*forceSensorSamplingRate);
     movementDur = round(whiskDur(wS)*forceSensorSamplingRate);
-    movementInds = max(movementStart, 1):min(movementStart + movementDur, length(CombData.Data.binForce_Sensor_M));
-    movementInt(wS) = sum(CombData.Data.binForce_Sensor_M(movementInds)) / numel(movementInds);
+    movementInds = max(movementStart, 1):min(movementStart + movementDur, length(MergedData.Data.binForce_Sensor_M));
+    movementInt(wS) = sum(MergedData.Data.binForce_Sensor_M(movementInds)) / numel(movementInds);
 end
 
 % Calculate the time to the closest puff
@@ -233,7 +233,6 @@ puffTimeElapsed = abs(whiskMat - puffMat);
 puffTimeCell = mat2cell(puffTimeElapsed, ones(length(whiskStarts), 1));
 
 %% Error handle
-
 if length(restDur) ~= length(whiskDur)
     disp('Error in GetWhiskData! The number of whisks does not equal the number of rests...')
     disp(' ')
@@ -248,8 +247,8 @@ Whisk.whiskScore = whiskInt';
 Whisk.movementScore = movementInt';
 Whisk.puffDistance = puffTimeCell;
 
-function [Rest] = GetRestData(CombData)
-%   function [Rest] = GetRestData(CombData)
+function [Rest] = GetRestData(MergedData)
+%   function [Rest] = GetRestData(MergedData)
 %
 %   Author: Aaron Winder
 %   Affiliation: Engineering Science and Mechanics, Penn State University
@@ -263,7 +262,7 @@ function [Rest] = GetRestData(CombData)
 %                           the cessation of all volitional movement.   
 %_______________________________________________________________
 %   PARAMETERS:             
-%                       CombData - [struct] structure obtained using the 
+%                       MergedData - [struct] structure obtained using the 
 %                       function ProcessRawDataFile.    
 %_______________________________________________________________
 %   RETURN:                     
@@ -272,11 +271,11 @@ function [Rest] = GetRestData(CombData)
 %_______________________________________________________________
 
 % Setup
-whiskerSamplingRate = CombData.Notes.LabVIEW.downsampledWhiskerSamplingRate;
-forceSensorSamplingRate = CombData.Notes.LabVIEW.downsampledForceSensorSamplingRate;
+whiskerSamplingRate = MergedData.Notes.LabVIEW.downsampledWhiskerSamplingRate;
+forceSensorSamplingRate = MergedData.Notes.LabVIEW.downsampledForceSensorSamplingRate;
 
 %% Get stimulation times
-[puffTimes] = GetPuffTimes(CombData);
+[puffTimes] = GetPuffTimes(MergedData);
 
 %% Recalculate linked binarized wwf without omitting any possible whisks,
 % this avoids inclusion of brief whisker movements in periods of rest.
@@ -285,10 +284,10 @@ forceSensorSamplingRate = CombData.Notes.LabVIEW.downsampledForceSensorSamplingR
 % trial time. This will link any event occurring within "link_thresh"
 % seconds to the beginning/end of the trial rather than assuming that it is
 % a new/isolated event.
-modBinarizedWhiskers = CombData.Data.binWhisker_Angle;
+modBinarizedWhiskers = MergedData.Data.binWhisker_Angle;
 modBinarizedWhiskers([1, end]) = 1;
 
-modBinarizedForceSensor = CombData.Data.binForce_Sensor_M;
+modBinarizedForceSensor = MergedData.Data.binForce_Sensor_M;
 modBinarizedForceSensor([1, end]) = 1;
 
 linkThresh = 0.5; % seconds

@@ -1,4 +1,4 @@
-function [EventData] = ExtractEventTriggeredData2(combDataFiles, dataTypes)
+function [EventData] = ExtractEventTriggeredData2(MergedDataFiles, dataTypes)
 %___________________________________________________________________________________________________
 % Edited by Kevin L. Turner 
 % Ph.D. Candidate, Department of Bioengineering 
@@ -18,7 +18,7 @@ function [EventData] = ExtractEventTriggeredData2(combDataFiles, dataTypes)
 %   
 %_______________________________________________________________
 %   PARAMETERS:             
-%                   combDataFiles - [matrix] names of files organized as rows.
+%                   MergedDataFiles - [matrix] names of files organized as rows.
 %                   Files should already be processed using the script
 %                   "ProcessRawDataFile.m" or "CalculatePredictedCBV.m".
 %
@@ -53,21 +53,21 @@ for dT = 1:length(dataTypes)
     temp = struct();
     dataType = dataTypes{dT};
     
-    for f = 1:size(combDataFiles, 1)    
-        % Load CombData File
-        filename = combDataFiles(f, :);
+    for f = 1:size(MergedDataFiles, 1)    
+        % Load MergedData File
+        filename = MergedDataFiles(f, :);
         load(filename);
 
         % Get the date and file ID to include in the EventData structure
-        [animal, fileDate, fileID, ~] = GetFileInfo2(combDataFiles(f,:));
+        [animal, fileDate, fileID, ~] = GetFileInfo2(MergedDataFiles(f,:));
 
         % Get the types of behaviors present in the file (stim,whisk,rest)
-        holdData = fieldnames(CombData.Flags);
+        holdData = fieldnames(MergedData.Flags);
         behaviorFields = holdData([1 2],1);
         
         % Sampling frequency for element of dataTypes
         if strcmp(dataType, 'Vessel_Diameter')
-            Fs = floor(CombData.Notes.MScan.frameRate);
+            Fs = floor(MergedData.Notes.MScan.frameRate);
         else
             Fs = 30;
         end
@@ -75,8 +75,8 @@ for dT = 1:length(dataTypes)
             for bF = 1:length(behaviorFields)
                 % Create behavioral subfields for the temp structure, if needed
                 if not(isfield(temp, behaviorFields{bF}))
-                    subFields = fieldnames(CombData.Flags.(behaviorFields{bF}));
-                    blankCell = cell(1, size(combDataFiles, 1));
+                    subFields = fieldnames(MergedData.Flags.(behaviorFields{bF}));
+                    blankCell = cell(1, size(MergedDataFiles, 1));
                     structVals = cell(size(subFields));
                     structVals(:) = {blankCell};
                     temp.(behaviorFields{bF}) = cell2struct(structVals, subFields, 1)';
@@ -86,12 +86,12 @@ for dT = 1:length(dataTypes)
                 end
 
                 % Assemble a structure to send to the sub-functions
-                data = CombData.Data;
-                data.Flags = CombData.Flags;
-                data.Notes = CombData.Notes;
+                data = MergedData.Data;
+                data.Flags = MergedData.Flags;
+                data.Notes = MergedData.Notes;
 
                 % Extract the data from the epoch surrounding the event
-                disp(['Extracting event-triggered ' dataType ' ' behaviorFields{bF} ' data from file ' num2str(f) ' of ' num2str(size(combDataFiles, 1)) '...']); disp(' ');
+                disp(['Extracting event-triggered ' dataType ' ' behaviorFields{bF} ' data from file ' num2str(f) ' of ' num2str(size(MergedDataFiles, 1)) '...']); disp(' ');
                 [chunkData, evFilter] = ExtractBehavioralData(data, epoch, dataType, Fs, behaviorFields{bF});
 
                 % Add epoch details to temp struct

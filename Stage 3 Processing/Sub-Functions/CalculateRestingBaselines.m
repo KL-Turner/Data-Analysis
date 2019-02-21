@@ -119,8 +119,8 @@ for dT = 1:length(dataTypes)
 end
 
 RestingBaselines.baselineFileInfo.fileIDs = finalFileIDs;
-RestingBaselines.baselineFileInfo.eventTimes = finalFileDurations;
-RestingBaselines.baselineFileInfo.durations = finalFileEventTimes;
+RestingBaselines.baselineFileInfo.eventTimes = finalFileEventTimes;
+RestingBaselines.baselineFileInfo.durations = finalFileDurations;
 RestingBaselines.targetMinutes = targetMinutes;
 save([animal '_RestingBaselines.mat'], 'RestingBaselines');
 

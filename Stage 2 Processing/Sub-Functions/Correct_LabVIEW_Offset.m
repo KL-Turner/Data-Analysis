@@ -1,4 +1,4 @@
-function Correct_LabVIEW_Offset(combDataFiles)
+function Correct_LabVIEW_Offset(mergedDataFiles)
 %________________________________________________________________________________________________________________________
 % Edited by Kevin L. Turner 
 % Ph.D. Candidate, Department of Bioengineering 
@@ -15,19 +15,19 @@ function Correct_LabVIEW_Offset(combDataFiles)
 %   Last Revised: February 20th, 2019    
 %________________________________________________________________________________________________________________________
 
-for f = 1:size(combDataFiles, 1)
+for f = 1:size(mergedDataFiles, 1)
     %% Find offset between the two force sensor signals using the cross correlation
-    disp(['Correcting offset in file number ' num2str(f) ' of ' num2str(size(combDataFiles, 1)) '...']); disp(' '); 
-    combDataFile = combDataFiles(f, :);
-    load(combDataFile);
-    [animalID, ~, fileID, imageID] = GetFileInfo2(combDataFile);
+    disp(['Correcting offset in file number ' num2str(f) ' of ' num2str(size(mergedDataFiles, 1)) '...']); disp(' '); 
+    mergedDataFile = mergedDataFiles(f, :);
+    load(mergedDataFile);
+    [animalID, ~, fileID, vesselID] = GetFileInfo2(mergedDataFile);
 
-    analogSamplingRate = CombData.Notes.LabVIEW.analogSamplingRate;
-    whiskerSamplingRate = CombData.Notes.LabVIEW.whiskerCamSamplingRate;
-    vesselSamplingRate = floor(CombData.Notes.MScan.frameRate);
+    analogSamplingRate = MergedData.Notes.LabVIEW.analogSamplingRate;
+    whiskerSamplingRate = MergedData.Notes.LabVIEW.whiskerCamSamplingRate;
+    vesselSamplingRate = floor(MergedData.Notes.MScan.frameRate);
     
-    labviewForce = detrend(CombData.Data.Force_Sensor_L, 'constant');
-    mscanForce = detrend(CombData.Data.Force_Sensor_M, 'constant');
+    labviewForce = detrend(MergedData.Data.Force_Sensor_L, 'constant');
+    mscanForce = detrend(MergedData.Data.Force_Sensor_M, 'constant');
     
     maxLag = 30*analogSamplingRate;
     [r, lags] = xcorr(labviewForce, mscanForce, maxLag);
@@ -37,12 +37,12 @@ for f = 1:size(combDataFiles, 1)
     
     if offset > 0
         labviewShift = labviewForce(offset:end);
-        whiskerShift = CombData.Data.Whisker_Angle(whiskerOffset:end);
+        whiskerShift = MergedData.Data.Whisker_Angle(whiskerOffset:end);
     elseif offset <= 0
         fpad = zeros(1, abs(offset));
         wpad = zeros(1, abs(whiskerOffset));
         labviewShift = horzcat(fpad, labviewForce);
-        whiskerShift = horzcat(wpad, CombData.Data.Whisker_Angle);
+        whiskerShift = horzcat(wpad, MergedData.Data.Whisker_Angle);
     end
     
     %% Original and Corrected figure
@@ -51,7 +51,7 @@ for f = 1:size(combDataFiles, 1)
     plot((1:length(mscanForce))/analogSamplingRate, mscanForce, 'k')
     hold on;
     plot((1:length(labviewForce))/analogSamplingRate, labviewForce, 'r')
-    title({[animalID ' ' fileID ' ' imageID ' force sensor data'], 'Offset correction between MScan and LabVIEW DAQ'})
+    title({[animalID ' ' fileID ' ' vesselID ' force sensor data'], 'Offset correction between MScan and LabVIEW DAQ'})
     legend('Original MScan', 'Original LabVIEW')
     ylabel('A.U.')
     xlabel('Time (sec)')
@@ -86,30 +86,30 @@ for f = 1:size(combDataFiles, 1)
         mkdir(dirpath);
     end
     
-    saveas(corrOffset, [dirpath animalID '_' imageID '_' fileID '_CorrectedOffset'], 'tiff');
+    saveas(corrOffset, [dirpath animalID '_' vesselID '_' fileID '_CorrectedOffset'], 'tiff');
     close all
     
     %% Apply correction to the data, and trim excess time
     frontCut = 5;
     endCut = 5;
     
-    mscanAnalogSampleDiff = analogSamplingRate*CombData.Notes.LabVIEW.trialDuration_Seconds - length(CombData.Data.Neural_Data);
+    mscanAnalogSampleDiff = analogSamplingRate*MergedData.Notes.LabVIEW.trialDuration_Seconds - length(MergedData.Data.Neural_Data);
     mscanAnalogCut = endCut*analogSamplingRate - mscanAnalogSampleDiff;
     
-    labviewAnalogSampleDiff = analogSamplingRate*CombData.Notes.LabVIEW.trialDuration_Seconds - length(labviewShift);
+    labviewAnalogSampleDiff = analogSamplingRate*MergedData.Notes.LabVIEW.trialDuration_Seconds - length(labviewShift);
     labviewAnalogCut = endCut*analogSamplingRate - labviewAnalogSampleDiff;
     
-    labviewWhiskerSampleDiff = whiskerSamplingRate*CombData.Notes.LabVIEW.trialDuration_Seconds - length(whiskerShift);
+    labviewWhiskerSampleDiff = whiskerSamplingRate*MergedData.Notes.LabVIEW.trialDuration_Seconds - length(whiskerShift);
     labviewWhiskerCut = endCut*whiskerSamplingRate - labviewWhiskerSampleDiff;
     
-    CombData.Data.Vessel_Diameter = CombData.Data.Vessel_Diameter(frontCut*vesselSamplingRate:end - (endCut*vesselSamplingRate + 1));
-    CombData.Data.Force_Sensor_M = CombData.Data.Force_Sensor_M(frontCut*analogSamplingRate:end - (mscanAnalogCut + 1));
-    CombData.Data.Neural_Data = CombData.Data.Neural_Data(frontCut*analogSamplingRate:end - (mscanAnalogCut + 1));
+    MergedData.Data.Vessel_Diameter = MergedData.Data.Vessel_Diameter(frontCut*vesselSamplingRate:end - (endCut*vesselSamplingRate + 1));
+    MergedData.Data.Force_Sensor_M = MergedData.Data.Force_Sensor_M(frontCut*analogSamplingRate:end - (mscanAnalogCut + 1));
+    MergedData.Data.Neural_Data = MergedData.Data.Neural_Data(frontCut*analogSamplingRate:end - (mscanAnalogCut + 1));
     
-    CombData.Data.Whisker_Angle = whiskerShift(frontCut*whiskerSamplingRate:end - (labviewWhiskerCut + 1));
-    CombData.Data.Force_Sensor_L = labviewShift(frontCut*analogSamplingRate:end - (labviewAnalogCut + 1));
+    MergedData.Data.Whisker_Angle = whiskerShift(frontCut*whiskerSamplingRate:end - (labviewWhiskerCut + 1));
+    MergedData.Data.Force_Sensor_L = labviewShift(frontCut*analogSamplingRate:end - (labviewAnalogCut + 1));
     
-     disp('Updating CombData File...'); disp(' ')
-     save([animalID '_' fileID '_' imageID '_CombData'], 'CombData')
+    disp('Updating MergedData File...'); disp(' ')
+    save([animalID '_' fileID '_' vesselID '_MergedData'], 'MergedData')
      
 end
