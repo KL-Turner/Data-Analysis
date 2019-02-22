@@ -27,7 +27,7 @@ clc;
 clear;
 disp('Analyzing Block [0] Preparing the workspace and loading variables.'); disp(' ')
 
-[animalID, ~, ~, ~, ~, ~, ~, ~] = LoadDataStructs_2P;
+[animalID, ~, ~, EventData, RestData, ~, ~, ~, ~] = LoadDataStructs_2P; %#ok<ASGLU>
 
 mergedDirectory = dir('*_MergedData.mat');
 mergedDataFiles = {mergedDirectory.name}';

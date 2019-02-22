@@ -13,6 +13,7 @@ function [RestingBaselines] = CalculateSpectrogramBaselines_2P(animal, RestingBa
 %   Outputs: //
 %________________________________________________________________________________________________________________________
 
+
 restFileList = unique(RestingBaselines.baselineFileInfo.fileIDs);      % Obtain the list of unique fileIDs
 
 % Obtain the spectrogram information from all the resting files
@@ -44,9 +45,9 @@ for ii = 1:length(restFileList)
     S5_data = Neural_restS5{ii, 1};
     s1Length = size(S1_data, 2);
     s5Length = size(S5_data, 2);                                  % Length of the data across time (number of samples)
-    binSize1 = ceil(s1Length / 300);                              % Find the number of bins needed to divide this into 300 seconds
-    binSize5 = ceil(s5Length / 300);                              % Find the number of bins needed to divide this into 300 seconds
-    samplingRate = 30;
+    binSize1 = ceil(s1Length / 300);                              % Find the number of bins needed to divide this into 290 seconds
+    binSize5 = ceil(s5Length / 300);                              % Find the number of bins needed to divide this into 290 seconds
+    samplingRate = 28;
     samplingDiff1 = samplingRate / binSize1;
     samplingDiff5 = samplingRate / binSize5;  
     S1_trialRest = [];
@@ -98,9 +99,9 @@ for day = 1:length(dayFields)
         dayVals1 = [dayVals1, S_avgs.OneSec.(dayFields{day}){x, 1}];
         dayVals5 = [dayVals5, S_avgs.FiveSec.(dayFields{day}){x, 1}];
     end
-    disp(['Adding ' (dataType) ' spectrogram baseline to baseline file for ' dayFields{day} '...']); disp(' ')
-    RestingBaselines.Spectrograms.(dataType).OneSec.(dayFields{day}) = mean(dayVals1, 2);
-    RestingBaselines.Spectrograms.(dataType).FiveSec.(dayFields{day}) = mean(dayVals5, 2);
+    disp(['Adding spectrogram baseline to baseline file for ' dayFields{day} '...']); disp(' ')
+    RestingBaselines.Spectrograms.OneSec.(dayFields{day}) = mean(dayVals1, 2);
+    RestingBaselines.Spectrograms.FiveSec.(dayFields{day}) = mean(dayVals5, 2);
 end
 
 save([animal '_RestingBaselines.mat'], 'RestingBaselines');

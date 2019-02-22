@@ -24,7 +24,7 @@ clc;
 clear;
 disp('Analyzing Block [0] Preparing the workspace and loading variables.'); disp(' ')
 
-[~, ~, ~, ~, ~, ~, ~, ~] = LoadDataStructs_2P;
+[~, ~, ~, ~, ~, ~, ~, ~, ~] = LoadDataStructs_2P;
 
 msExcel_File = uigetfile('*.xlsx');
 Analyze2PDataNotes(msExcel_File);

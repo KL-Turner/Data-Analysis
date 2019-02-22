@@ -1,5 +1,5 @@
 function [animal, hem, ROIs, Thresholds, EventData, RestData, RestingBaselines,...
-    SleepData, ComparisonData] = LoadDataStructs()
+    SpectrogramData, SleepData, ComparisonData] = LoadDataStructs()
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % Ph.D. Candidate, Department of Bioengineering
@@ -54,6 +54,13 @@ if ~isempty(RestingBaselinesFile)
     load(RestingBaselinesFile.name);
 else
     RestingBaselines = [];
+end
+
+SpectrogramDataFile = dir('*_SpectrogramData.mat');
+if ~isempty(SpectrogramDataFile)
+    load(SpectrogramDataFile.name);
+else
+    SpectrogramData = [];
 end
 
 SleepDataFile = dir('*_SleepData.mat');

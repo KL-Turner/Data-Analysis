@@ -20,7 +20,7 @@ clc;
 clear;
 disp('Analyzing Block [0] Preparing the workspace and loading variables.'); disp(' ')
 
-[animalID, ~, ~, ~, RestData, RestingBaselines, SpectrogramData, ~] = LoadDataStructs_2P;
+[animalID, ~, ~, ~, RestData, RestingBaselines, SpectrogramData, ~, ~] = LoadDataStructs_2P;
 
 mergedDirectory = dir('*_MergedData.mat');
 mergedDataFiles = {mergedDirectory.name}';
@@ -33,23 +33,19 @@ disp('Analyzing Block [1] Analyzing the spectrogram for each file and normalizin
 [SpectrogramData] = CreateTrialSpectrograms_2P(animalID, mergedDataFiles, SpectrogramData);
 
 % Find spectrogram baselines for each day
-[RestingBaselines] = CalculateSpectrogramBaselines(animalID, RestingBaselines, SpectrogramData);
+[RestingBaselines] = CalculateSpectrogramBaselines_2P(animalID, RestingBaselines, SpectrogramData);
 
 % Normalize spectrogram by baseline
-[SpectrogramData] = NormalizeSpectrograms(animalID, RestingBaselines, SpectrogramData);
+[SpectrogramData] = NormalizeSpectrograms_2P(animalID, RestingBaselines, SpectrogramData);
 
 %% BLOCK PURPOSE: [2] Single Trial Checks
 disp('Analyzing Block [2] Creating single trial figures for each 5 minute session.'); disp(' ')
-for pDF = 1:size(procDataFiles, 1)
-    procDataFile = procDataFiles(pDF, :);
-    disp(['Creating single trial figure for file number ' num2str(pDF) ' of ' num2str(size(procDataFiles, 1)) '...']); disp(' ')
-    CreateSingleTrialFigs(procDataFile, RestingBaselines, SpectrogramData)
-    close all
-end
+CreateSingleTrialFigs_2P(mergedDataFiles, RestingBaselines, SpectrogramData)
 
-%% BLOCK PURPOSE: [3] Sleep scoring
-disp('Analyzing Block [3] Running Sleep scoring analysis.'); disp(' ')
-electrodeInput = input('Which electrode(s) would you like to use to sleep score? (L, R, B): ', 's'); disp(' ')
-[SleepData] = SleepScore(animal, hem, rawDataFiles, procDataFiles, electrodeInput, RestingBaselines, SpectrogramData);
+
+% %% BLOCK PURPOSE: [3] Sleep scoring
+% disp('Analyzing Block [3] Running Sleep scoring analysis.'); disp(' ')
+% electrodeInput = input('Which electrode(s) would you like to use to sleep score? (L, R, B): ', 's'); disp(' ')
+% [SleepData] = SleepScore(animal, hem, rawDataFiles, procDataFiles, electrodeInput, RestingBaselines, SpectrogramData);
 
 disp('Stage five analysis - complete'); disp(' ')

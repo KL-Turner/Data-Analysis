@@ -48,6 +48,10 @@ for b = 1:length(uniqueDates)
     uniqueDays{b, 1} = ConvertDate(uniqueDates{b, 1});
 end
 
+tempBaseFileIDs = {};
+tempBaseEventTimes = [];
+tempBaseDurations = [];
+
 % Find the fieldnames of RestData and loop through each field. Each fieldname should be a different dataType of interest.
 % These will typically be CBV, Delta, Theta, Gamma, and MUA
 for u = 1:length(uniqueVessels)
@@ -137,9 +141,18 @@ for u = 1:length(uniqueVessels)
             RestingBaselines.(uV).(uD).(dT).eventTimes = baselineVesselEventTimes;
             RestingBaselines.(uV).(uD).(dT).vesselIDs = baselineVesselIDs;
             RestingBaselines.(uV).(uD).(dT).restData = baselineVesselData;
+            RestingBaselines.targetMinutes = targetMinutes;
         end
+        tempBaseFileIDs = vertcat(tempBaseFileIDs, baselineVesselFileIDs);
+        tempBaseEventTimes = vertcat(tempBaseEventTimes, baselineVesselEventTimes);
+        tempBaseDurations = vertcat(tempBaseDurations, baselineVesselDurations);
     end
 end
-    save([animalID '_RestingBaselines.mat'], 'RestingBaselines');
-    
+
+RestingBaselines.targetMinutes = targetMinutes;
+RestingBaselines.baselineFileInfo.fileIDs = tempBaseFileIDs;
+RestingBaselines.baselineFileInfo.eventTimes = tempBaseEventTimes;
+RestingBaselines.baselineFileInfo.durations = tempBaseDurations;
+save([animalID '_RestingBaselines.mat'], 'RestingBaselines');
+
 end

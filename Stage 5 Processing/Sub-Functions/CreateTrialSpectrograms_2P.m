@@ -19,17 +19,21 @@ for fileNumber = 1:size(mergedDataFiles, 1)
     [~, ~, fileID, vesselID] = GetFileInfo_2P(mergedDataFileID);
     RawNeuro = MergedData.Data.Raw_NeuralData;
     
+    w0 = 60/(20000/2);  bw = w0/35;
+    [num,den] = iirnotch(w0, bw);
+    RawNeuro2 = filtfilt(num, den, RawNeuro);
+
     % Spectrogram parameters
     params.tapers = [5 9];
     params.Fs = MergedData.Notes.MScan.MScan_analogSamplingRate;
-    params.fpass = [1 100];
+    params.fpass = [0.1 100];
     movingwin1 = [1 1/5];
     movingwin5 = [5 1/5];
 
     disp(['Creating spectrogram for file number ' num2str(fileNumber) ' of ' num2str(size(mergedDataFiles, 1)) '...']); disp(' ')
     
-    [Neural_S1, Neural_T1, Neural_F1] = mtspecgramc(RawNeuro, movingwin1, params);
-    [Neural_S5, Neural_T5, Neural_F5] = mtspecgramc(RawNeuro, movingwin5, params);
+    [Neural_S1, Neural_T1, Neural_F1] = mtspecgramc(RawNeuro2, movingwin1, params);
+    [Neural_S5, Neural_T5, Neural_F5] = mtspecgramc(RawNeuro2, movingwin5, params);
     
     SpectrogramData.FiveSec.S{fileNumber, 1} = Neural_S5';
     SpectrogramData.FiveSec.T{fileNumber, 1} = Neural_T5;
