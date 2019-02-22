@@ -29,8 +29,8 @@ disp('Analyzing Block [0] Preparing the workspace and loading variables.'); disp
 
 [animalID, ~, ~, ~, ~, ~, ~, ~] = LoadDataStructs_2P;
 
-combDirectory = dir('*_MergedData.mat');
-mergedDataFiles = {combDirectory.name}';
+mergedDirectory = dir('*_MergedData.mat');
+mergedDataFiles = {mergedDirectory.name}';
 mergedDataFiles = char(mergedDataFiles);
 dataTypes = {'Vessel_Diameter', 'DeltaBand_Power', 'ThetaBand_Power', 'AlphaBand_Power', 'BetaBand_Power', 'GammaBand_Power', 'MUA_Power'};
 

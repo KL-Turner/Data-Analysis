@@ -4,7 +4,9 @@
 % The Pennsylvania State University
 %________________________________________________________________________________________________________________________
 %
-%   Purpose: 
+%   Purpose: 1) Analyze the spectrogram for each file and normalizing by the resting baseline.
+%            2) Creating single trial figures for each 5 minute session.
+%            3) Run Sleep scoring analysis.
 %________________________________________________________________________________________________________________________
 %
 %   Inputs: 
@@ -18,33 +20,23 @@ clc;
 clear;
 disp('Analyzing Block [0] Preparing the workspace and loading variables.'); disp(' ')
 
-[animal, hem, ~, ~, ~, ~, RestingBaselines, SpectrogramData, ~, ~] = LoadDataStructs();
+[animalID, ~, ~, ~, RestData, RestingBaselines, SpectrogramData, ~] = LoadDataStructs_2P;
 
-dataTypes = {'LH', 'RH'};
-windowCamFiles = ls('*_WindowCam.bin');
-procDataFiles = ls('*_ProcData.mat');
-rawDataFiles = ls('*_RawData.mat');
+mergedDirectory = dir('*_MergedData.mat');
+mergedDataFiles = {mergedDirectory.name}';
+mergedDataFiles = char(mergedDataFiles);
 
 disp('Block [0] structs loaded.'); disp(' ')
 
 %% BLOCK PURPOSE: [1] Create spectrograms for each file
-disp('Analyzing Block [1] Analyzing the spectrogram for each file.'); disp(' ')
-for neuralDT = 1:length(dataTypes)
-    dataType = dataTypes{neuralDT};
-    [SpectrogramData] = CreateTrialSpectrograms(animal, dataType, rawDataFiles, SpectrogramData);
-end
+disp('Analyzing Block [1] Analyzing the spectrogram for each file and normalizing by the resting baseline.'); disp(' ')
+[SpectrogramData] = CreateTrialSpectrograms_2P(animalID, mergedDataFiles, SpectrogramData);
 
 % Find spectrogram baselines for each day
-for neuralDT = 1:length(dataTypes)
-    dataType = dataTypes{neuralDT};
-    [RestingBaselines] = CalculateSpectrogramBaselines(animal, dataType, RestingBaselines, SpectrogramData);
-end
+[RestingBaselines] = CalculateSpectrogramBaselines(animalID, RestingBaselines, SpectrogramData);
 
 % Normalize spectrogram by baseline
-for neuralDT = 1:length(dataTypes)
-    dataType = dataTypes{neuralDT};
-    [SpectrogramData] = NormalizeSpectrograms(animal, dataType, RestingBaselines, SpectrogramData);
-end
+[SpectrogramData] = NormalizeSpectrograms(animalID, RestingBaselines, SpectrogramData);
 
 %% BLOCK PURPOSE: [2] Single Trial Checks
 disp('Analyzing Block [2] Creating single trial figures for each 5 minute session.'); disp(' ')
@@ -56,7 +48,7 @@ for pDF = 1:size(procDataFiles, 1)
 end
 
 %% BLOCK PURPOSE: [3] Sleep scoring
-disp('Analyzing Block [3] Running Sleep scoring analysis...'); disp(' ')
+disp('Analyzing Block [3] Running Sleep scoring analysis.'); disp(' ')
 electrodeInput = input('Which electrode(s) would you like to use to sleep score? (L, R, B): ', 's'); disp(' ')
 [SleepData] = SleepScore(animal, hem, rawDataFiles, procDataFiles, electrodeInput, RestingBaselines, SpectrogramData);
 
