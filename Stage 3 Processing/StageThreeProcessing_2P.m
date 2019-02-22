@@ -8,7 +8,6 @@
 %            2) A RestData.mat structure with periods of rest.
 %            3) A EventData.mat structure with event-related information.
 %            4) Find the resting baseline for vessel diameter and neural data.
-%            5) Normalize RestData and EventData structs using resting baselines.
 %________________________________________________________________________________________________________________________
 %
 %   Inputs: MergedData files, followed by newly created RestData and EventData structs for normalization 
@@ -18,7 +17,6 @@
 %            2) A RestData.mat structure with periods of rest.
 %            3) A EventData.mat structure with event-related information.
 %            4) A Baselines.mat structure with resting baselines.
-%            5) Normalized RestData and EventData folders in the respectived structs using the resting baselines.
 %
 %   Last Revised: February 21st, 2019
 %________________________________________________________________________________________________________________________
@@ -57,15 +55,6 @@ disp('Analyzing Block [3] Creating EventData struct for vessels and neural data.
 %% BLOCK PURPOSE: [4] Create Baselines data structure
 disp('Analyzing Block [4] Finding the resting baseline for vessel diameter and neural data.'); disp(' ')
 targetMinutes = 15;
-disp(['Calculating the resting baselines for the first ' num2str(targetMinutes) ' minutes of each unique day...']);
-[RestingBaselines] = CalculateRestingBaselines_2P(animalID, mergedDataFiles, targetMinutes, RestData);
-
-%% BLOCK PURPOSE: [5] Normalize RestData and behavioral data
-disp('Analyzing Block [5] Normalizing RestData and EventData structs using resting baselines.'); disp(' ')
-[RestData] = NormBehavioralDataStruct_2P(RestData, RestingBaselines);
-[EventData] = NormBehavioralDataStruct_2P(EventData, RestingBaselines);
-
-save([animalID '_RestData.mat'], 'RestData')
-save([animalID '_EventData.mat'], 'EventData')
+[RestingBaselines] = CalculateRestingBaselines_2P(animalID, targetMinutes, RestData);
 
 disp('Two Photon Stage Three Processing - Complete.'); disp(' ')

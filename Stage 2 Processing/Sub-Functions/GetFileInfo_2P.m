@@ -47,10 +47,10 @@ switch extension
     case 'mat'
         % Use the known format to parse
         animalID = fileName(:, 1:fileBreaks(1) - 1);
-        fileDate = fileName(:, fileBreaks(1) + 1:fileBreaks(2) - 1);
+        fileDate = fileName(:, fileBreaks(2) + 1:fileBreaks(3) - 1);
         if numel(fileBreaks) > 3
-            fileID = fileName(:, fileBreaks(1) + 1:fileBreaks(5) - 1);
-            vesselID = fileName(:, fileBreaks(5) + 1:fileBreaks(6) - 1);
+            fileID = fileName(:, fileBreaks(2) + 1:fileBreaks(6) - 1);
+            vesselID = fileName(:, fileBreaks(1) + 1:fileBreaks(2) - 1);
         else
             fileDate = [];
             fileID = [];

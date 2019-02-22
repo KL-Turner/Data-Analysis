@@ -190,7 +190,7 @@ end
 % later processing.
 temp.(behavior).fileIDs{f} = repmat({fileID}, 1, sum(evFilter));
 temp.(behavior).fileDates{f} = repmat({fileDate}, 1, sum(evFilter));
-temp.(behavior).vesselIDs{f} = repmant({vesselID}, 1, sum(evFilter));
+temp.(behavior).vesselIDs{f} = repmat({vesselID}, 1, sum(evFilter));
 
 
 function [EventData] = ProcessTempStruct(EventData, dataType, temp, epoch)
