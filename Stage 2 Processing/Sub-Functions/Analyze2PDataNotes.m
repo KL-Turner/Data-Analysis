@@ -51,7 +51,7 @@ for row = 2:size(alldata, 1)   % Loop through all rows of the excel sheet
         
         % Save the RawData file for the current movie type
         disp(['File Created. Saving MScanData File ' num2str(row - 1) '...']); disp(' ')
-        save([tempData.Notes.animalID '_' tempData.Notes.date '_' tempData.Notes.imageID '_MScanData'], 'MScanData')
+        save([MScanData.Notes.animalID '_' MScanData.Notes.date '_' MScanData.Notes.imageID '_MScanData'], 'MScanData')
         close all
     end
 end
