@@ -1,4 +1,14 @@
 function [tapers,pad,Fs,fpass,err,trialave,params]=getparams(params)
+%________________________________________________________________________________________________________________________
+% Utilized in analysis by Kevin L. Turner
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
+%
+% Code unchanged with the exception of this title block for record keeping
+%
+%   Last Opened: February 23rd, 2019
+%________________________________________________________________________________________________________________________
+%
 % Helper function to convert structure params to variables used by the
 % various routines - also performs checks to ensure that parameters are
 % defined; returns default values if they are not defined.

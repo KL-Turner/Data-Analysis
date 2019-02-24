@@ -1,4 +1,14 @@
 function [tapers,eigs]=dpsschk(tapers,N,Fs)
+%________________________________________________________________________________________________________________________
+% Utilized in analysis by Kevin L. Turner
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
+%
+% Code unchanged with the exception of this title block for record keeping
+%
+%   Last Opened: February 23rd, 2019
+%________________________________________________________________________________________________________________________
+%
 % Helper function to calculate tapers and, if precalculated tapers are supplied, 
 % to check that they (the precalculated tapers) the same length in time as
 % the time series being studied. The length of the time series is specified

@@ -1,4 +1,14 @@
 function [f,findx]=getfgrid(Fs,nfft,fpass)
+%________________________________________________________________________________________________________________________
+% Utilized in analysis by Kevin L. Turner
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
+%
+% Code unchanged with the exception of this title block for record keeping
+%
+%   Last Opened: February 23rd, 2019
+%________________________________________________________________________________________________________________________
+%
 % Helper function that gets the frequency grid associated with a given fft based computation
 % Called by spectral estimation routines to generate the frequency axes 
 % Usage: [f,findx]=getfgrid(Fs,nfft,fpass)

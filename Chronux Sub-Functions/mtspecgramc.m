@@ -1,4 +1,14 @@
 function [S,t,f,Serr]=mtspecgramc(data,movingwin,params)
+%________________________________________________________________________________________________________________________
+% Utilized in analysis by Kevin L. Turner
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
+%
+% Code unchanged with the exception of this title block for record keeping
+%
+%   Last Opened: February 23rd, 2019
+%________________________________________________________________________________________________________________________
+%
 % Multi-taper time-frequency spectrum - continuous process
 %
 % Usage:

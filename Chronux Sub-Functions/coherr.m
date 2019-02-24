@@ -1,4 +1,14 @@
 function [confC,phistd,Cerr]=coherr(C,J1,J2,err,trialave,numsp1,numsp2)
+%________________________________________________________________________________________________________________________
+% Utilized in analysis by Kevin L. Turner
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
+%
+% Code unchanged with the exception of this title block for record keeping
+%
+%   Last Opened: February 23rd, 2019
+%________________________________________________________________________________________________________________________
+%
 % Function to compute lower and upper confidence intervals on the coherency 
 % given the tapered fourier transforms, errchk, trialave.
 %

@@ -1,12 +1,12 @@
 function [ConvertedData, ConvertVer] = ConvertTDMS(SaveConvertedFile, filename)
 %________________________________________________________________________________________________________________________
-% Written by Kevin L. Turner
+% Utilized in analysis by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %
 % Code unchanged with the exception of this title block for record keeping
 %
-%   Last Opened: August 4th, 2018
+%   Last Opened: February 23rd, 2019
 %________________________________________________________________________________________________________________________
 %
 %Function to load LabView TDMS data file(s) into variables in the MATLAB workspace.
