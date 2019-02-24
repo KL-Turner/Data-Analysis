@@ -1,4 +1,22 @@
 function mv_mpP=CapillaryLineScan(mv_mpP,ImageID)
+%________________________________________________________________________________________________________________________
+% Written by Kevin L. Turner
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
+%
+% Adapted from code written by Dr. Patrick J. Drew: https://github.com/DrewLab
+%________________________________________________________________________________________________________________________
+%
+%   Purpose: 
+%________________________________________________________________________________________________________________________
+%
+%   Inputs: 
+%
+%   Outputs:
+%
+%   Last Revised: February 29th, 2019
+%________________________________________________________________________________________________________________________
+
 % get the image information
 % draw the vessel boxes
 

@@ -1,29 +1,21 @@
 function [days] = ConvertDate(dateTag)
 %________________________________________________________________________________________________________________________
-% Edited by Kevin L. Turner
-% Ph.D. Candidate, Department of Bioengineering
-% The Pennsylvania State University
+% Written by Kevin L. Turner
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
 %
-% Originally written by Aaron T. Winder
-%
-%   Last Revised: August 4th, 2018
+% Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
 %________________________________________________________________________________________________________________________
 %
-%   Author: Aaron Winder
-%   Affiliation: Engineering Science and Mechanics, Penn State University
-%   https://github.com/awinde
+%   Purpose:
+%________________________________________________________________________________________________________________________
 %
-%   DESCRIPTION: Converts the date format output by the LabVIEW acquisition
-%   program into a date string.
-%   
-%_______________________________________________________________
-%   PARAMETERS:             
-%                   DateTag - [string] date vector output by the LabVIEW
-%                       acquisition
-%_______________________________________________________________
-%   RETURN:                     
-%                               
-%_______________________________________________________________
+%   Inputs:
+%
+%   Outputs: 
+%
+%   Last Revised: February 29th, 2019
+%________________________________________________________________________________________________________________________
 
 days = cell(size(dateTag, 1), 1);
 for f = 1:size(dateTag, 1)

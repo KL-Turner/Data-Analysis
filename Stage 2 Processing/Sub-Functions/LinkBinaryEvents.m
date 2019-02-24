@@ -1,41 +1,21 @@
 function [linkedWF] = LinkBinaryEvents(binWF, dCrit)
 %________________________________________________________________________________________________________________________
-% Edited by Kevin L. Turner
-% Ph.D. Candidate, Department of Bioengineering
-% The Pennsylvania State University
+% Written by Kevin L. Turner
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
 %
-% Originally written by Aaron T. Winder
-%
-%   Last Revised: August 4th, 2018
+% Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
 %________________________________________________________________________________________________________________________
 %
-%   Author: Aaron Winder
-%   Affiliation: Engineering Science and Mechanics, Penn State University
-%   https://github.com/awinde
+%   Purpose:
+%________________________________________________________________________________________________________________________
 %
-%   DESCRIPTION: Takes a binary waveform and links the peaks which
-%   occur within a close period of time of each other creating a single 
-%   peak.   
-%_______________________________________________________________
-%   PARAMETERS:             
-%                   bin_wf - [Array] The binary waveform
+%   Inputs:
 %
-%                   dCrit - [1x2 Array] The distances, in samples, between 
-%                   the falling edge of the previous event and the rising 
-%                   edge of the current waveform. 
-%                       Input should be given as a 2D array: 
-%                           [dCrit for breaks ,dCrit for peaks]. 
-%                       Any events with breaks between them less than dCrit
-%                           for breaks will be merged. 
-%                       Any events that have duration less than dCrit for 
-%                           peaks will be removed. 
-%                       Either dCrit value can be zero to avoid merging or 
-%                           erasing events.                    
-%_______________________________________________________________
-%   RETURN:                     
-%                   linked_wf - [Array] The new, linked binary waveform as 
-%                   an array.
-%_______________________________________________________________
+%   Outputs: 
+%
+%   Last Revised: February 29th, 2019
+%________________________________________________________________________________________________________________________
 
 %% Identify Edges, control for trial start/stop
 dBinWF = diff(gt(binWF, 0));

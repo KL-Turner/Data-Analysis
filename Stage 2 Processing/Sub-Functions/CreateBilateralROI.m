@@ -1,18 +1,18 @@
 function [] = CreateBilateralROI(animal, hem, rawDataFiles)
 %________________________________________________________________________________________________________________________
-% Written by Kevin L. Turner 
-% Ph.D. Candidate, Department of Bioengineering 
-% The Pennsylvania State University
+% Written by Kevin L. Turner
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
 %________________________________________________________________________________________________________________________
 %
-%   Purpose: Call the function that allows for the manual ROI trace for the left and right hemispheres for a given day.
+%   Purpose:
 %________________________________________________________________________________________________________________________
 %
-%   Inputs: Selects all _RawData files from all days. Manually draw the ROIs.
+%   Inputs:
 %
-%   Outputs: an animal_hemisphere_ROIs.mat file with the xi, yi coordinates for each day.
+%   Outputs: 
 %
-%   Last Revised: August 8th, 2018
+%   Last Revised: February 29th, 2019
 %________________________________________________________________________________________________________________________
 
 %% Draw ROIs

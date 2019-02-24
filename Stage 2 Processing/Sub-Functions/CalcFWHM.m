@@ -1,4 +1,22 @@
 function width = CalcFWHM(data,smoothing,threshold)
+%________________________________________________________________________________________________________________________
+% Written by Kevin L. Turner
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
+%
+% Adapted from code written by Dr. Patrick J. Drew: https://github.com/DrewLab
+%________________________________________________________________________________________________________________________
+%
+%   Purpose: 
+%________________________________________________________________________________________________________________________
+%
+%   Inputs: 
+%
+%   Outputs:
+%
+%   Last Revised: February 29th, 2019
+%________________________________________________________________________________________________________________________
+
 % function which takes data and calculates the full-width, half max value
 % half-max values are found looking in from the sides, i.e., the program will work
 % even if the data dips to a lower value in the middle

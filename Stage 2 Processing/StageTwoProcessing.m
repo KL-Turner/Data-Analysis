@@ -1,7 +1,7 @@
 %________________________________________________________________________________________________________________________
-% Written by Kevin L. Turner 
-% Ph.D. Candidate, Department of Bioengineering 
-% The Pennsylvania State University
+% Written by Kevin L. Turner
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
 %________________________________________________________________________________________________________________________
 %
 %   Purpose: 1) Generate bilateral ROIs for CBV analysis.
@@ -24,7 +24,7 @@ clc;
 clear;
 disp('Analyzing Block [0] Preparing the workspace and loading variables.'); disp(' ')
 
-[animal, hem, ~, ~, ~, ~, ~, ~, ~] = LoadDataStructs();
+[animal, hem, ~, ~, ~, ~, ~, ~, ~, ~] = LoadDataStructs();
 
 % Character list of all RawData files
 rawDataFileStruct = dir('*_RawData.mat');

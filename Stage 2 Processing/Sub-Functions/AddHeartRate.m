@@ -1,20 +1,23 @@
 function AddHeartRate(fileName)
 %________________________________________________________________________________________________________________________
-% Written by Kevin L. Turner 
-% Ph.D. Candidate, Department of Bioengineering 
-% The Pennsylvania State University
+% Written by Kevin L. Turner
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
 %________________________________________________________________________________________________________________________
 %
-%   Purpose: 
+%   Purpose: Add the heart rate from IOS data via FindHeartRate.m to the ProcData.mat structure.
 %________________________________________________________________________________________________________________________
 %
-%   Inputs: 
+%   Inputs: ProcData.mat file name.
 %
-%   Outputs: 
+%   Outputs: None - but saves the updated ProcData.mat file to the current folder.
+%
+%   Last Revised: February 29th, 2019
 %________________________________________________________________________________________________________________________
 
-load(fileName)
+load(fileName)   % ProcData file
 
+% Pull out the left and right window heart rate. They should be essentiall6 identical
 [~, tr, ~, LH_HR] = FindHeartRate(ProcData.Data.CBV.LH, ProcData.Notes.CBVCamSamplingRate);
 [~, ~, ~, RH_HR] = FindHeartRate(ProcData.Data.CBV.RH, ProcData.Notes.CBVCamSamplingRate);
 HR = (LH_HR + RH_HR)/ 2;   % Average the two signals from the left and right windows

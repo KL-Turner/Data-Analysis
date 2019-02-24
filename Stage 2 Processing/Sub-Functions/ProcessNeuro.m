@@ -1,48 +1,21 @@
 function [Neuro, NeurFs] = ProcessNeuro(RawData, NeurType, Neural_Hem)
 %________________________________________________________________________________________________________________________
-% Edited by Kevin L. Turner
-% Ph.D. Candidate, Department of Bioengineering
-% The Pennsylvania State University
+% Written by Kevin L. Turner
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
 %
-% Originally written by Aaron T. Winder
-%
-%   Last Revised: August 8th, 2018
+% Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
 %________________________________________________________________________________________________________________________
 %
-%   Written by Aaron Winder, Drew Lab, ESM, Penn State University, Nov 2013
-%   Version 1
+%   Purpose:
+%________________________________________________________________________________________________________________________
 %
-%   SUMMARY: Processes neural data according to variable NeurType
-%_______________________________________________________________
-%   INPUTS:
-%                           RawData - [struct] a structure containing
-%                           neural data (RawData.Neuro) and sampling
-%                           frequency (RawData.an_fs)
+%   Inputs:
 %
-%                           NeurType - [string] the type of processing
-%                           desired. This variable references parameters
-%                           which are stored in Global variables and
-%                           ensures that all neural analysis is done in a
-%                           conserved manner.
-%                               Acceptable inputs are:
-%                                   -HiGam
-%_______________________________________________________________
-%   OUTPUTS:
-%                           Neuro - [array] the processed neural data
+%   Outputs: 
 %
-%                           NeurFs - [integer] the sampling frequency of
-%                           the new neural signal
-%_______________________________________________________________
-%   REQUIRED SCRIPTS:
-%       [res_data1, res_data2] = MatchDataLengths(data1,data2)
-%_______________________________________________________________
-%   CALLED BY:
-%                           Process RawDataFile.m
-%_______________________________________________________________
-%   FUTURE VERSIONS:
-%_______________________________________________________________
-%   CHANGES FROM PREV VERS:
-%_______________________________________________________________
+%   Last Revised: February 29th, 2019
+%________________________________________________________________________________________________________________________
 
 %% Thresholds and Neurtype switch
 ExpectedLength = RawData.Notes.trialDuration_Seconds*RawData.Notes.analogSamplingRate;

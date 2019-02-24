@@ -1,29 +1,22 @@
-function [] = AddROIIntensityToRawdataFile(ROIname, rawDataFiles)
-%___________________________________________________________________________________________________
-% Edited by Kevin L. Turner 
-% Ph.D. Candidate, Department of Bioengineering 
-% The Pennsylvania State University
+function AddROIIntensityToRawdataFile(ROIname, rawDataFiles)
+%________________________________________________________________________________________________________________________
+% Written by Kevin L. Turner
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
 %
-% Originally written by Aaron T. Winder
+% Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
+%________________________________________________________________________________________________________________________
 %
-%   Last Revised: August 8th, 2018
-%___________________________________________________________________________________________________
+%   Purpose: Create an ROI from camera frames and average the reflectance from the ROI to get a timeseries. 
+%            Add the result into the RawData.mat file.
+%________________________________________________________________________________________________________________________
 %
-% Author: Aaron Winder
-% Affiliation: Engineering Science and Mechanics, Penn State University
-% https://github.com/awinde
+%   Inputs: ROIname - typically 'LH', 'RH', or an electrode ROI, and a list of the rawDataFiles in the current folder.
 %
-% DESCRIPTION: Create an ROI from camera frames and average the
-% reflectance from the ROI to get a timeseries. Add the result into the
-% *rawdata.mat file.
-%   
-%_______________________________________________________________
-% PARAMETERS:             
-%             ROIname - [string] Description of ROI                        
-%_______________________________________________________________
-% RETURN:                     
-%                               
-%_______________________________________________________________
+%   Outputs: None - but saves the ROI pixel intensity over time as a (1 x n) array in all listed RawData.mat files.
+%
+%   Last Revised: February 29th, 2019
+%________________________________________________________________________________________________________________________
 
 for fileNumber = 1:size(rawDataFiles, 1)
     fileName = rawDataFiles(fileNumber, :);

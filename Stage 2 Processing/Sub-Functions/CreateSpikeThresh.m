@@ -1,4 +1,21 @@
 function [thresh] = CreateSpikeThresh(RawData,Thresholds,strday)
+%________________________________________________________________________________________________________________________
+% Written by Kevin L. Turner
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
+%
+% Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
+%________________________________________________________________________________________________________________________
+%
+%   Purpose:
+%________________________________________________________________________________________________________________________
+%
+%   Inputs:
+%
+%   Outputs: 
+%
+%   Last Revised: February 29th, 2019
+%________________________________________________________________________________________________________________________
 
 stdev = Thresholds.(['MUA_StDev_' strday]);
 [b,a] = butter(2,300/(RawData.Fs.Analog/2),'high');

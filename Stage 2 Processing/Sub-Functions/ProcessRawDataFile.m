@@ -1,23 +1,20 @@
 function ProcessRawDataFile(fileName)
 %________________________________________________________________________________________________________________________
-% Edited by Kevin L. Turner 
-% Ph.D. Candidate, Department of Bioengineering 
-% The Pennsylvania State University
+% Written by Kevin L. Turner
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
 %
-% Originally written by Aaron T. Winder
+% Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
 %________________________________________________________________________________________________________________________
 %
-%   Purpose: Saves processed forms of measured data to the _RawData.mat file in order to reduce
-%            run times in later scripts and increase consistency. No data in the appended data 
-%            will be normalized. Run CreateRawDataStructure_parallel.m to create a RawData
-%            structure. Note: That code was renamed to StageOneProcessing.m
+%   Purpose:
 %________________________________________________________________________________________________________________________
 %
-%   Inputs: filename: [str] name of _RawData.mat file to be processed.
+%   Inputs:
 %
-%   Outputs: Function output is a saved structure called 'ProcData.mat'
+%   Outputs: 
 %
-%   Last Revised: August 8th, 2018
+%   Last Revised: February 29th, 2019
 %________________________________________________________________________________________________________________________
 
 disp(['Processing RawData File: ' fileName]); disp(' ')

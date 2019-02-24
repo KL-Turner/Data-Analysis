@@ -20,7 +20,7 @@ function StageOneProcessing_2P(fileNames, trackWhiskers)
 %
 %   Outputs: A processed LabVIEWData file for each filename that is saved to the current directory.
 %
-%   Last Revised: January 18th, 2019
+%   Last Revised: January 29th, 2019
 %________________________________________________________________________________________________________________________
 
 %% BLOCK PURPOSE: [0] Load the script's necessary variables and data structures.

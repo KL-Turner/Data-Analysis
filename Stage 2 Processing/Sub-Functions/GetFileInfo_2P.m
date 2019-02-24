@@ -1,35 +1,21 @@
 function [animalID, fileDate, fileID, vesselID] = GetFileInfo_2P(fileName)
 %________________________________________________________________________________________________________________________
-% Edited by Kevin L. Turner
-% Ph.D. Candidate, Department of Bioengineering
-% The Pennsylvania State University
+% Written by Kevin L. Turner
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
 %
-% Originally written by Aaron T. Winder
-%
-%   Last Revised: February 20th, 2019
+% Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
 %________________________________________________________________________________________________________________________
 %
-%   Author: Aaron Winder
-%   Affiliation: Engineering Science and Mechanics, Penn State University
-%   https://github.com/awinde
+%   Purpose: 
+%________________________________________________________________________________________________________________________
 %
-%   DESCRIPTION: Uses file name in a standard format to get the animal ID
-%   and hemisphere recorded.
+%   Inputs: 
 %
-%_______________________________________________________________
-%   PARAMETERS:
-%                  filename - [string] filename in a standard format.
-%                       'SubjectID_Hemisphere_Date_HH_mm_ssdd'
-%_______________________________________________________________
-%   RETURN:
-%                   Animal_ID - [string] the subject identifier
+%   Outputs:
 %
-%                   hem - [string] the hemisphere recorded
-%
-%                   filedate - [string] the date the file was recorded
-%
-%                   fileID - [string] the timestamp of the file
-%_______________________________________________________________
+%   Last Revised: February 29th, 2019
+%________________________________________________________________________________________________________________________
 
 % Identify the extension
 extInd = strfind(fileName(1, :), '.');

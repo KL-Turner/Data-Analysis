@@ -1,50 +1,21 @@
 function [ok] = CheckForThreshold(sfield, animal)
 %________________________________________________________________________________________________________________________
-% Edited by Kevin L. Turner
-% Ph.D. Candidate, Department of Bioengineering
-% The Pennsylvania State University
+% Written by Kevin L. Turner
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
 %
-% Originally written by Aaron T. Winder
-%
-%   Last Revised: August 8th, 2018
+% Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
 %________________________________________________________________________________________________________________________
 %
-%   Written by Aaron Winder, Drew Lab, ESM, Penn State University, Nov 2013
-%   Version 1
+%   Purpose:
+%________________________________________________________________________________________________________________________
 %
-%   SUMMARY: This function checks shared variable for baselines that can 
-%               be used to normalize data.
-%_______________________________________________________________
-%   INPUTS:
-%                           sfield - a string giving the subfield name
-%                           (second level) of the shared variables
-%                           structure
-%                                       BinWWF - for binarizing whisker
-%                                       angle measurements
-%                                       BinPSWF - for binarizing pressure
-%                                       sensor measurements
-%                                       Spike - for detecting a spike
+%   Inputs:
 %
-%                           animal - animal name as a string
+%   Outputs: 
 %
-%                           hem - recorded hemisphere as a string
-%                                   [RH/LH]
-%_______________________________________________________________
-%   OUTPUTS:
-%                           ok - output of 1 or 0 to indicate whether
-%                           hemo baseline exist for the given day
-%
-%_______________________________________________________________
-%   REQUIRED SCRIPTS:
-%                           [Q] = DetectMachine(prevpath)
-%_______________________________________________________________
-%   CALLED BY:
-%                           HemoBaseline.m
-%_______________________________________________________________
-%   FUTURE VERSIONS: Make the code generalizable to other shared variables
-%_______________________________________________________________
-%   CHANGES FROM PREV VERS:
-%_______________________________________________________________
+%   Last Revised: February 29th, 2019
+%________________________________________________________________________________________________________________________
 
 % Navigate to Shared Variables folder
 disp(['CheckForThreshold.m: Checking for Threshold field: ' sfield '...']); disp(' ')

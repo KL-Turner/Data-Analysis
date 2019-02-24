@@ -1,8 +1,8 @@
 function CorrectLabVIEWOffset(labviewDataFiles, mscanDataFiles)
 %________________________________________________________________________________________________________________________
-% Edited by Kevin L. Turner 
-% Ph.D. Candidate, Department of Bioengineering 
-% The Pennsylvania State University
+% Written by Kevin L. Turner
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
 %________________________________________________________________________________________________________________________
 %
 %   Purpose:
@@ -10,9 +10,9 @@ function CorrectLabVIEWOffset(labviewDataFiles, mscanDataFiles)
 %
 %   Inputs:
 %
-%   Outputs:
+%   Outputs: 
 %
-%   Last Revised: February 20th, 2019    
+%   Last Revised: February 29th, 2019
 %________________________________________________________________________________________________________________________
 
 for f = 3:size(mscanDataFiles, 1)

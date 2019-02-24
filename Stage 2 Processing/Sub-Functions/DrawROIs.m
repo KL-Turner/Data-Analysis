@@ -1,18 +1,18 @@
 function DrawROIs(animal, hem, ROInames)
 %________________________________________________________________________________________________________________________
-% Written by Kevin L. Turner 
-% Ph.D. Candidate, Department of Bioengineering 
-% The Pennsylvania State University
+% Written by Kevin L. Turner
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
 %________________________________________________________________________________________________________________________
 %
-%   Purpose:
+%   Purpose: 
 %________________________________________________________________________________________________________________________
 %
-%   Inputs:
+%   Inputs: 
 %
-%   Outputs: 
+%   Outputs:
 %
-%   Last Revised: August 15th, 2018
+%   Last Revised: February 29th, 2019
 %________________________________________________________________________________________________________________________
 
 windowCamFiles = ls('*_WindowCam.bin');

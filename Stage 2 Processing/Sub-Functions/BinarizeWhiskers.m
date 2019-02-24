@@ -1,32 +1,21 @@
 function  [bin_wwf] = BinarizeWhiskers(angl, fs, thresh1, thresh2)
 %________________________________________________________________________________________________________________________
-% Edited by Kevin L. Turner
-% Ph.D. Candidate, Department of Bioengineering
-% The Pennsylvania State University
+% Written by Kevin L. Turner
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
 %
-% Originally written by Aaron T. Winder
-%
-%   Last Revised: August 4th, 2018
+% Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
 %________________________________________________________________________________________________________________________
 %
-% Written by Aaron Winder, Drew Lab, ESM, Penn State University, Sept 2013
-% Version 1
+%   Purpose:
+%________________________________________________________________________________________________________________________
 %
-% SUMMARY: Converts a timeseries of whisker angles into a binarized
-% waveform. Binarization is based on the second derivative of the whisker
-% angle so that forces on the whiskers may be considered when defining a
-% threshold.
-%________________________________________________________________________
-% INPUTS:          
-%                   angl - a whisker angle timeseries given as a row vector
+%   Inputs:
 %
-%                   fs - the sampling rate of the whisker angle timeseries
+%   Outputs: 
 %
-%                   thresh - a user-defined threshold. 
-%________________________________________________________________________
-% OUTPUTS:         
-%                   bin_wwf - the binarized waveform as a row vector
-%________________________________________________________________________
+%   Last Revised: February 29th, 2019
+%________________________________________________________________________________________________________________________
 
 % Differentiate, rectify, subtract off noise, rectify
 dd_wwf = abs((diff(angl, 2)))*fs^2;

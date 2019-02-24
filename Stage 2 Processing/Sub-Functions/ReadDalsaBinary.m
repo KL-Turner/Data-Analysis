@@ -1,41 +1,21 @@
 function [image] = ReadDalsaBinary(file, imageHeight, imageWidth)
 %________________________________________________________________________________________________________________________
-% Edited by Kevin L. Turner
-% Ph.D. Candidate, Department of Bioengineering
-% The Pennsylvania State University
+% Written by Kevin L. Turner
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
 %
-% Originally written by Aaron T. Winder
-%
-%   Last Revised: August 8th, 2018
+% Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
 %________________________________________________________________________________________________________________________
 %
-%   Adapted from ReadDalsaBinary2 by Aaron Winder, Drew Lab, ESM, 
-%   Penn State University, Nov 2013
-%   Version 1
+%   Purpose:
+%________________________________________________________________________________________________________________________
 %
-%   SUMMARY: Converts a binary file containing images from a Dalsa 1M60
-%   pantera camera into an image with proper orientation.
-%_______________________________________________________________
-%   INPUTS:
-%                       thefile - the name of the binary file including the
-%                       extension
+%   Inputs:
 %
-%                       image_height - the height of the image in pixels
+%   Outputs: 
 %
-%                       image_width - the width of the image in pixels
-%_______________________________________________________________
-%   OUTPUTS:
-%                       theimage - a cell array containing a stack of
-%                       images
-%_______________________________________________________________
-%   REQUIRED SCRIPTS:
-%_______________________________________________________________
-%   CALLED BY:
-%_______________________________________________________________
-%   FUTURE VERSIONS:
-%_______________________________________________________________
-%   CHANGES FROM PREV VERS:
-%_______________________________________________________________
+%   Last Revised: February 29th, 2019
+%________________________________________________________________________________________________________________________
 
 % imagebasics
 pixelsPerFrame = imageWidth*imageHeight;

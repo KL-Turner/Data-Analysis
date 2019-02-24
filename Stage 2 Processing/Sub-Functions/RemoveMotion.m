@@ -1,20 +1,20 @@
 function newVesselDiameter = RemoveMotion(vesselDiameter, baseline, diffThresh, rawThresh)
 %________________________________________________________________________________________________________________________
-% Edited by Kevin L. Turner 
-% Ph.D. Candidate, Department of Bioengineering 
-% The Pennsylvania State University
+% Written by Kevin L. Turner
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
 %
-% Originally written by Patrick J. Drew and Yurong Gao
+% Adapted from code written by Dr. Patrick J. Drew: https://github.com/DrewLab
 %________________________________________________________________________________________________________________________
 %
-%   Purpose:
+%   Purpose: 
 %________________________________________________________________________________________________________________________
 %
-%   Inputs:
+%   Inputs: 
 %
 %   Outputs:
 %
-%   Last Revised: February 19th, 2019    
+%   Last Revised: February 29th, 2019
 %________________________________________________________________________________________________________________________
 
 indx1 = find(diff(vesselDiameter) > diffThresh);

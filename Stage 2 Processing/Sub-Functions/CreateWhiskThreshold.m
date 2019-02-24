@@ -1,23 +1,21 @@
 function [thresh1,thresh2] = CreateWhiskThreshold(angl, fs)
 %________________________________________________________________________________________________________________________
-% Edited by Kevin L. Turner
-% Ph.D. Candidate, Department of Bioengineering
-% The Pennsylvania State University
+% Written by Kevin L. Turner
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
 %
-% Originally written by Aaron T. Winder
-%
-%   Last Revised: August 4th, 2018
+% Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
 %________________________________________________________________________________________________________________________
 %
-%   Written by Aaron Winder, Drew Lab, ESM, Penn State University, Dec 2013
-%   Version 1
+%   Purpose:
+%________________________________________________________________________________________________________________________
 %
-%   SUMMARY:
-%_______________________________________________________________
-%   INPUTS:
-%_______________________________________________________________
-%   OUTPUTS:
-%_______________________________________________________________
+%   Inputs:
+%
+%   Outputs: 
+%
+%   Last Revised: February 29th, 2019
+%________________________________________________________________________________________________________________________
 
 isok = 'n';
 dd_wwf = abs((diff(angl, 2)))*fs^2;

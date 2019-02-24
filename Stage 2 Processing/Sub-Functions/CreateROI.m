@@ -1,37 +1,22 @@
 function [mask] = CreateROI(img, ROIname, animal, hem)
 %________________________________________________________________________________________________________________________
-% Edited by Kevin L. Turner
-% Ph.D. Candidate, Department of Bioengineering
-% The Pennsylvania State University
+% Written by Kevin L. Turner
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
 %
-% Originally written by Aaron T. Winder
-%
-%   Last Revised: August 4th, 2018
+% Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
 %________________________________________________________________________________________________________________________
 %
-%   Author: Aaron Winder
-%   Affiliation: Engineering Science and Mechanics, Penn State University
-%   https://github.com/awinde
+%   Purpose:
+%________________________________________________________________________________________________________________________
 %
-%   DESCRIPTION: Prompts user to identify a region of interest on an image
-%   and saves the selection to the shared variables.
-%_______________________________________________________________
-%   PARAMETERS:
-%                   img - [matrix] the as output by ReadDalsaBinary.m
+%   Inputs:
 %
-%                   ROIname - [string] a designation for the region of
-%                   interest, usually should have some description and a
-%                   date (i.g. 'Barrels_May20')
+%   Outputs: 
 %
-%                   animal - [string] ID for the animal
-%
-%                   hem - [string] hemisphere recorded
-%_______________________________________________________________
-%   RETURN:
-%                   mask - [matrix] same size as image where pixels within
-%                   the ROI are designated with a '1'. All other elements
-%                   are '0'.
-%_______________________________________________________________
+%   Last Revised: February 29th, 2019
+%________________________________________________________________________________________________________________________
+
 ROIFile = ls('*ROIs.mat');
 if not(isempty(ROIFile))
     load(ROIFile)

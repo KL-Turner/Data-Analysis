@@ -1,18 +1,20 @@
 function Analyze2PDataNotes(msExcel_File)
 %________________________________________________________________________________________________________________________
-% Edited by Kevin L. Turner 
-% Ph.D. Candidate, Department of Bioengineering 
-% The Pennsylvania State University
+% Written by Kevin L. Turner
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
+%
+% Adapted from code written by Dr. Patrick J. Drew: https://github.com/DrewLab
 %________________________________________________________________________________________________________________________
 %
-%   Purpose:
+%   Purpose: 
 %________________________________________________________________________________________________________________________
 %
-%   Inputs:
+%   Inputs: 
 %
 %   Outputs:
 %
-%   Last Revised: February 19th, 2019    
+%   Last Revised: January 29th, 2019
 %________________________________________________________________________________________________________________________
 
 % Read the image info from the formated xls file, save as a RawData file with surface, penetrating arterioles and capillaries separate.

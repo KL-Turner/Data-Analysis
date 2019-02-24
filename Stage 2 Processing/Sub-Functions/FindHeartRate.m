@@ -1,22 +1,22 @@
 function [Sr, tr, fr, HR] = FindHeartRate(r, Fr)
-
-% MultiTaperIOS: multi-taper analysis for IOS signal
-% Written by Qingguang Zhang
-% Adapted by K.L. Turner
-
-% INPUTS:
-%       r: dRR0 data for all pixels within each POI
-%       Fr: frame rate
+%________________________________________________________________________________________________________________________
+% Written by Kevin L. Turner
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
 %
-% OUTPUTS:
-%       Sr: spectrum, a.u.
-%       tr: time, in seconds
-%       fr: frequency, in Hz
-%       HR: heart rate, in Hz
+% Adapted from code written by Dr. Qingguang Zhang
+%________________________________________________________________________________________________________________________
+%
+%   Purpose: 
+%________________________________________________________________________________________________________________________
+%
+%   Inputs: 
+%
+%   Outputs:
+%
+%   Last Revised: February 29th, 2019
+%________________________________________________________________________________________________________________________
 
-% pre-process of IOS signal
-% r = mean(r); % get average of all pixels within ROI
-% r = r(:); % make sure is column vector
 r = r - mean(r); % mean subtract to remove slow drift
 
 % Select taper parameters
