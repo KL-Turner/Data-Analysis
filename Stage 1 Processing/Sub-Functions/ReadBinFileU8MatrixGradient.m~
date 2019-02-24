@@ -1,19 +1,19 @@
 function [imageGrad] = ReadBinFileU8MatrixGradient(fileName, height, width)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
-% The Pennsylvania State University, Dept. of Biomedical Engineering
-% https://github.com/KL-Turner
+% Ph.D. Candidate, Department of Bioengineering
+% The Pennsylvania State University
 %
-% Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
+% Originally written by Aaron T. Winder
 %________________________________________________________________________________________________________________________
 %
-%   Purpose: Analyze the pixel intensity of the whisker movie and output the the intensity vals as w x h x time.
+%   Purpose: Pull the data and notes from the LabVIEW '.tdms' files into a Matlab structure.
 %________________________________________________________________________________________________________________________
 %
-%   Inputs: File name ending in '.WhiskerCam.bin' that contains a movie of the whiskers. image height and width in pixels.
+%   Inputs: File name ending in '.tdms' that contains the LabVIEW aquired analog data and notes from the session.
 %
-%   Outputs: imageout - [array, u8 integer] the measured intensity values organized as
-%            [image width, image height, frame number].
+%   Outputs: Structure containing the data (arranged into rows with corresponding labels in a different field)
+%            and various descriptive variables/strings of the session notes.
 %
 %   Last Revised: February 23rd, 2019
 %________________________________________________________________________________________________________________________
@@ -57,10 +57,10 @@ disp(['ReadBinFileU8MatrixGradient: ' num2str(nFrameToRead) ' frames to read.'])
 
 % PreAllocate
 imageGrad = int8(zeros(width, height, nFrameToRead));
-for n = 1:nFrameToRead
+for n=1:nFrameToRead
     z = fread(fid, pixelsPerFrame, '*uint8', 0, 'l');
     indImg = reshape(z(1:pixelsPerFrame), width, height);
-    imageGrad(:, :, n) = int8(gradient(double(indImg)));
+    imageGrad(:,:,n) = int8(gradient(double(indImg)));
 end
 fclose(fid);
 

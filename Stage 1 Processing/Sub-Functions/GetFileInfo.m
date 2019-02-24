@@ -1,35 +1,24 @@
-function [ID, hem, fileDate, fileID] = GetFileInfo(fileName)
+function [animalID, hem, fileDate, fileID] = GetFileInfo(fileName)
 %________________________________________________________________________________________________________________________
-% Edited by Kevin L. Turner
-% Ph.D. Candidate, Department of Bioengineering
-% The Pennsylvania State University
+% Written by Kevin L. Turner
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
 %
-% Originally written by Aaron T. Winder
-%
-%   Last Revised: August 4th, 2018
+% Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
 %________________________________________________________________________________________________________________________
 %
-%   Author: Aaron Winder
-%   Affiliation: Engineering Science and Mechanics, Penn State University
-%   https://github.com/awinde
+%   Purpose: Identify important aspects of a file name and output each individually.
+%________________________________________________________________________________________________________________________
 %
-%   DESCRIPTION: Uses file name in a standard format to get the animal ID
-%   and hemisphere recorded.
+%   Inputs: Any filename in the format AnimalID_Hemisphere_YYMMDD_HH_MM_SS independent of extension.
 %
-%_______________________________________________________________
-%   PARAMETERS:
-%                  filename - [string] filename in a standard format.
-%                       'SubjectID_Hemisphere_Date_HH_mm_ssdd'
-%_______________________________________________________________
-%   RETURN:
-%                   Animal_ID - [string] the subject identifier
+%   Outputs: animalID - typically Letter(s) followed by number(s)
+%            hemisphere - typically 'LH' (left hem), RH, (right), or 'Both' (bilateral imaging)
+%            fileDate - date in the form Year, Month, Day (YYMMDD) typically 6 numbers
+%            fileID - date followed by the underscores of hour (military time) minutes and seconds. 'YYMMDD_HH_MM_SS'
 %
-%                   hem - [string] the hemisphere recorded
-%
-%                   filedate - [string] the date the file was recorded
-%
-%                   fileID - [string] the timestamp of the file
-%_______________________________________________________________
+%   Last Revised: February 23rd, 2019
+%________________________________________________________________________________________________________________________
 
 % Identify the extension
 extInd = strfind(fileName(1, :), '.');
@@ -40,13 +29,13 @@ fileBreaks = strfind(fileName(1, :), '_');
 
 switch extension
     case 'bin'
-        ID = [];
+        animalID = [];
         hem = [];
         fileDate = fileName(:, 1:fileBreaks(1) - 1);
         fileID = fileName(:, 1:fileBreaks(4) - 1);
     case 'mat'
         % Use the known format to parse
-        ID = fileName(:, 1:fileBreaks(1) - 1);
+        animalID = fileName(:, 1:fileBreaks(1) - 1);
         hem = fileName(:, fileBreaks(1) + 1:fileBreaks(2) - 1);
         if numel(fileBreaks) > 3
             fileDate = fileName(:, fileBreaks(2) + 1:fileBreaks(3) - 1);

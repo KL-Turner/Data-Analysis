@@ -1,8 +1,8 @@
-function [ConvertedData,ConvertVer] = ConvertTDMS(SaveConvertedFile,filename)
+function [ConvertedData, ConvertVer] = ConvertTDMS(SaveConvertedFile, filename)
 %________________________________________________________________________________________________________________________
-% Kevin L. Turner
-% Ph.D. Candidate, Department of Bioengineering
-% The Pennsylvania State University
+% Written by Kevin L. Turner
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
 %
 % Code unchanged with the exception of this title block for record keeping
 %

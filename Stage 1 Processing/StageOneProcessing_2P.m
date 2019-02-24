@@ -1,10 +1,10 @@
 function StageOneProcessing_2P(fileNames, trackWhiskers)
 %________________________________________________________________________________________________________________________
-% Edited by Kevin L. Turner
-% Ph.D. Candidate, Department of Bioengineering
-% The Pennsylvania State University
+% Written by Kevin L. Turner
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
 %
-% Originally written by Aaron T. Winder
+% Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
 %________________________________________________________________________________________________________________________
 %
 %   Purpose: Data acquired during trials must be in a form that MATLAB can work with easily. This code converts the

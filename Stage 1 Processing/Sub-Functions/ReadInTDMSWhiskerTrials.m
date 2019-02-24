@@ -1,28 +1,22 @@
 function [TDMSFile] = ReadInTDMSWhiskerTrials(fileName)
 %________________________________________________________________________________________________________________________
-% Edited by Kevin L. Turner
-% Ph.D. Candidate, Department of Bioengineering
-% The Pennsylvania State University
+% Written by Kevin L. Turner
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
 %
-% Originally written by Aaron T. Winder
-%
-%   Last Revised: August 4th, 2018
+% Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
 %________________________________________________________________________________________________________________________
 %
-%   Purpose: Reads in .TDMS files from a LABVIEW acquisition program using the convertTDMS.m 
-%            script (acquired through Mathworks file exchange)and organizes the acquired data 
-%            into a structure.
+%   Purpose: Pull the data and notes from the LabVIEW '.tdms' files into a Matlab structure.
+%________________________________________________________________________________________________________________________
 %
-%            .bin - Cameras
-%            .tdms - Digital and Analog Data
+%   Inputs: File name ending in '.tdms' that contains the LabVIEW aquired analog data and notes from the session.
 %
-%            http://www.mathworks.com/matlabcentral/fileexchange/44206-converttdms--v10-
-%___________________________________________________________________________________________________
+%   Outputs: Structure containing the data (arranged into rows with corresponding labels in a different field)
+%            and various descriptive variables/strings of the session notes.
 %
-%   Inputs: filenames - 
-%
-%   Outputs: TDMSFile - [struct] contains measured analog data and trial notes from the
-%            LabVIEW acquisition program
+%   Last Revised: February 23rd, 2019
+%________________________________________________________________________________________________________________________
 
 %% Convert the .tdms file into something that Matlab understands
 [TempStruct, ~] = ConvertTDMS(0, fileName);
@@ -49,7 +43,8 @@ TDMSFile.CBVCamExposureTime_Microseconds = TempStruct.Data.Root.CBVCam_Exposure_
 TDMSFile.CBVCamBinning = TempStruct.Data.Root.CBVCam_Binning;
 TDMSFile.numberDroppedWhiskerCamFrames = TempStruct.Data.Root.WhiskerCam_NumberDropped;
 TDMSFile.droppedWhiskerCamFrameIndex = TempStruct.Data.Root.WhiskerCam_DroppedFrameIndex;
-        
+
+% Data is contained in .Vals folder in rows with corresponding labels in .Names
 TDMSFile.Data.Vals = NaN*ones(length(TempStruct.Data.MeasuredData), length(TempStruct.Data.MeasuredData(1).Data));
 TDMSFile.Data.Names = cell(length(TempStruct.Data.MeasuredData), 1) ;
 

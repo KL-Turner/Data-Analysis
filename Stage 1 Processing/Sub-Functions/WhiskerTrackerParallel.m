@@ -1,40 +1,24 @@
 function [angle] = WhiskerTrackerParallel(fileName)
 %________________________________________________________________________________________________________________________
-% Edited by Kevin L. Turner
-% Ph.D. Candidate, Department of Bioengineering
-% The Pennsylvania State University
+% Written by Kevin L. Turner
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
 %
-% Originally written by Aaron T. Winder
-%
-%   Last Revised: August 4th, 2018
+% Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
 %________________________________________________________________________________________________________________________
 %
-%   Written by Aaron Winder, Drew Lab, ESM, Penn State University
+%   Purpose: Analyze the changes in whisker position via the radon transform.
+%________________________________________________________________________________________________________________________
 %
-%   SUMMARY: Tracks the approximate movement of whiskers using the radon
-%           transform of an image of the whiskers. Identifies the whisker
-%           angles by analyzing the column variance of the transformed
-%           image. Columns with the highest variance will correspond to the
-%           correct angle where the highest value of the radon transform
-%           will correspond to the correct angle and y-position in the
-%           image, while the lowest value will correspond to the correct
-%           angle but an incorrect image position.
+%   Inputs: File name ending in '_WhiskerCam.bin' that contains a movie of the whiskers.
 %
-%           This version of the code uses an onboard GPU to speed up the
-%           calculation of the whisker angles.
-%_______________________________________________________________
-%   PARAMETER TYPE:             
-%                               filename - [string] list of filames
-%                               without the extension.
-%_______________________________________________________________
-%   RETURN:                     
-%                               TDMSFile - [struct] contains measured
-%                               analog data and trial notes from the
-%                               LabVIEW acquisition program
-%_______________________________________________________________
+%   Outputs: (1 x n) array containing the whisker angle over n time points.
+%
+%   Last Revised: February 23rd, 2019
+%________________________________________________________________________________________________________________________
 
 % Variable Setup
-theta = -40:80; % Angles used for radon
+theta = -40:80;   % Angles used for radon
 
 % Import whisker movie
 importStart = tic;
