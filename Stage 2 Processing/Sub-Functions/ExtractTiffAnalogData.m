@@ -21,8 +21,9 @@ function [MScanData] = ExtractTiffAnalogData(MScanData, fileID)
 MScan_analogData = [fileID '.TXT'];
 disp(['Loading MScan file: ' MScan_analogData '...']); disp(' ');
 analogData = load(MScan_analogData);
-MScanData.Data.MScan_Force_Sensor = analogData(:, 2);
-MScanData.Data.MScan_Neural_Data = analogData(:, 3);
+MScanData.Data.MScan_EMG = analogData(:, 2);
+MScanData.Data.MScan_Force_Sensor = analogData(:, 3);
+MScanData.Data.MScan_Neural_Data = analogData(:, 4);
 MScanData.Notes.MScan_analogSamplingRate = 20000;
 
 disp('Analyzing vessel projections from defined polygons...'); disp(' ');

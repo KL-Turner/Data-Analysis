@@ -1,4 +1,4 @@
-function SingleTrialSleepCheck(animal, fileID, windowCamFile, ProcData, SleepEventData)
+function GT_SingleTrialSleepCheck(animal, fileID, windowCamFile, ProcData, SleepEventData)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner 
 % Ph.D. Candidate, Department of Bioengineering 

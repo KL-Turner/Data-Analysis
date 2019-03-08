@@ -36,7 +36,7 @@ for row = 2:size(alldata, 1)   % Loop through all rows of the excel sheet
     tempData.Notes.vesselID = alldata{row, 12};
     tempData.Notes.drug = alldata{row, 13};
     
-    currentFileID = ([tempData.Notes.animalID '_' tempData.Notes.imageID '_' tempData.Notes.date '_MScanData.mat']);
+    currentFileID = ([tempData.Notes.animalID '_' tempData.Notes.date '_' tempData.Notes.imageID '_MScanData.mat']);
     if ~exist(currentFileID) %#ok<EXIST>
         %% Vessel diameter calculation for movie surface vessels
         if strcmp(tempData.Notes.movieType, 'MS')
