@@ -27,8 +27,6 @@ disp('Analyzing Block [0] Preparing the workspace and loading variables.'); disp
 [~, ~, ~, ~, ~, ~, ~, ~, ~] = LoadDataStructs_2P;
 
 msExcel_File = uigetfile('*.xlsx');
-Analyze2PDataNotes(msExcel_File);
-
 disp('Block [0] structs loaded.'); disp(' ')
 
 %% BLOCK PURPOSE: [1] Use ms Excel sheet to create MScanData.mat files with vessel information

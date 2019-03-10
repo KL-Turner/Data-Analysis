@@ -10,7 +10,7 @@ function Analyze2PDiameter(directoryInfo)
 %   Purpose: 
 %________________________________________________________________________________________________________________________
 %
-%   Inputs: 
+%   Inputs:
 %
 %   Outputs:
 %
@@ -20,21 +20,24 @@ function Analyze2PDiameter(directoryInfo)
 %% Analyze every image (pial surface/dural/intracortical)
 for f = 1:length(directoryInfo)
     load(directoryInfo(f).name);
-    
-    if strcmp(MScanData.Notes.movieType, 'MS') || strcmp(MScanData.Notes.movieType, 'MD')
-        [MScanData] = ExtractTiffAnalogData(MScanData, [MScanData.Notes.date '_' MScanData.Notes.imageID]);
-        save([MScanData.Notes.animalID '_' MScanData.Notes.date '_' MScanData.Notes.imageID '_MScanData'], 'MScanData')
-        
-    elseif strcmp(MScanData.Notes.movieType, 'MP')
-        [MScanData] = GetArea_PA_Tiff_auto02_new_soft_nowhisk(MScanData,[MScanData(1).ImageID '.TIF']);
-        save([MScanData.Notes.animalID '_' MScanData.Notes.date '_' MScanData.Notes.imageID '_MScanData'], 'MScanData')
+    if MScanData.Notes.checklist.analyzeDiam == false
+        if strcmp(MScanData.Notes.movieType, 'MS') || strcmp(MScanData.Notes.movieType, 'MD')
+            [MScanData] = ExtractTiffAnalogData(MScanData, [MScanData.Notes.date '_' MScanData.Notes.imageID]);
+            MScanData.Notes.checklist.analizeDiam = true;
+            save([MScanData.Notes.animalID '_' MScanData.Notes.date '_' MScanData.Notes.imageID '_MScanData'], 'MScanData')
+            
+        elseif strcmp(MScanData.Notes.movieType, 'MP')
+            [MScanData] = GetArea_PA_Tiff_auto02_new_soft_nowhisk(MScanData,[MScanData(1).ImageID '.TIF']);
+            MScanData.Notes.checklist.analizeDiam = true;         
+            save([MScanData.Notes.animalID '_' MScanData.Notes.date '_' MScanData.Notes.imageID '_MScanData'], 'MScanData')
 
-    elseif strcmp(MScanData.Notes.movieType, 'C')
-        [MScanData] = GetVelocity_LineScan_new_soft_nowhisk_new(MScanData,[MScanData(1).ImageID '.TIF']);
-        save([MScanData.Notes.animalID '_' MScanData.Notes.date '_' MScanData.Notes.imageID '_MScanData'], 'MScanData')
+        elseif strcmp(MScanData.Notes.movieType, 'C')
+            [MScanData] = GetVelocity_LineScan_new_soft_nowhisk_new(MScanData,[MScanData(1).ImageID '.TIF']);
+            MScanData.Notes.checklist.analizeDiam = true;        
+            save([MScanData.Notes.animalID '_' MScanData.Notes.date '_' MScanData.Notes.imageID '_MScanData'], 'MScanData')
+        end
     end
 end
-
 % if strcmp(MScanData.Data.movieType, 'C') ~= 1
 %     [MScanData] = post_process_pial_single3(MScanData);
 % end

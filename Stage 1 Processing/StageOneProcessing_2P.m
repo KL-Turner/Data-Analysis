@@ -107,6 +107,8 @@ for fileNumber = 1:length(fileNames)
     % Data
     LabVIEWData.Data.Force_Sensor = Force_Sensor;
     LabVIEWData.Data.WhiskerAngle = WhiskerAngle;
+    LabVIEWData.Notes.checklist.processData = false;
+    LabVIEWData.Notes.checklist.offsetCorrect = false;
     
     disp(['File Created. Saving LabVIEWData File ' num2str(fileNumber) '...']); disp(' ')
     save([trialData.animalID '_' trialData.imagedHemisphere '_' fileID '_LabVIEWData'], 'LabVIEWData')
