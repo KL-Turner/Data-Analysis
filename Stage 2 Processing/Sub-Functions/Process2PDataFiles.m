@@ -20,39 +20,41 @@ function Process2PDataFiles(labviewDataFiles, mscanDataFiles)
 %% MScan data file analysis
 for f = 1:size(mscanDataFiles, 1)
     %% Find offset between the two force sensor signals using the cross correlation
-    disp(['Analyzing MScan neural bands and analog signals for file number ' num2str(f) ' of ' num2str(size(mscanDataFiles, 1)) '...']); disp(' ');
     MScanDataFile = mscanDataFiles(f, :);
     load(MScanDataFile);
-    animalID = MScanData.Notes.animalID;
-    imageID = MScanData.Notes.imageID;
-    date = MScanData.Notes.date;
-    strDay = ConvertDate(date);
     if MScanData.Notes.checklist.processData == false
+        disp(['Analyzing MScan neural bands and analog signals for file number ' num2str(f) ' of ' num2str(size(mscanDataFiles, 1)) '...']); disp(' ');
+        animalID = MScanData.Notes.animalID;
+        imageID = MScanData.Notes.imageID;
+        date = MScanData.Notes.date;
+        strDay = ConvertDate(date);
         
+        expectedLength = (MScanData.Notes.numberOfFrames/MScanData.Notes.frameRate)*MScanData.Notes.MScan_analogSamplingRate;
         %% Process neural data into its various forms.
         % MUA Band [300 - 3000]
         [MScanData.Data.MUA_Power, MScanData.Notes.MScan.multiUnitSamplingRate] = ...
-            ProcessNeuro_2P(MScanData, 'MUApower', 'MScan_Neural_Data');
+            ProcessNeuro_2P(MScanData, expectedLength, 'MUApower', 'MScan_Neural_Data');
         
         % Gamma Band [40 - 100]
         [MScanData.Data.GammaBand_Power, MScanData.Notes.MScan.gammaBandSamplingRate] = ...
-            ProcessNeuro_2P(MScanData, 'Gam', 'MScan_Neural_Data');
+            ProcessNeuro_2P(MScanData, expectedLength, 'Gam', 'MScan_Neural_Data');
         
         % Beta [13 - 30 Hz]
         [MScanData.Data.BetaBand_Power, MScanData.Notes.MScan.betaBandSamplingRate] = ...
-            ProcessNeuro_2P(MScanData, 'Beta', 'MScan_Neural_Data');
+            ProcessNeuro_2P(MScanData, expectedLength, 'Beta', 'MScan_Neural_Data');
         
         % Alpha [8 - 12 Hz]
         [MScanData.Data.AlphaBand_Power, MScanData.Notes.MScan.alphaBandSamplingRate] = ...
-            ProcessNeuro_2P(MScanData, 'Alpha', 'MScan_Neural_Data');
+            ProcessNeuro_2P(MScanData, expectedLength, 'Alpha', 'MScan_Neural_Data');
         
         % Theta [4 - 8 Hz]
         [MScanData.Data.ThetaBand_Power, MScanData.Notes.MScan.thetaBandSamplingRate] = ...
-            ProcessNeuro_2P(MScanData, 'Theta', 'MScan_Neural_Data');
+            ProcessNeuro_2P(MScanData, expectedLength, 'Theta', 'MScan_Neural_Data');
         
         % Delta [1 - 4 Hz]
         [MScanData.Data.DeltaBand_Power, MScanData.Notes.MScan.deltaBandSamplingRate] = ...
-            ProcessNeuro_2P(MScanData, 'Delta', 'MScan_Neural_Data');
+            ProcessNeuro_2P(MScanData, expectedLength, 'Delta', 'MScan_Neural_Data');
+        
         %% Downsample and binarize the force sensor.
         % Trim any additional data points for resample
         expectedLength = MScanData.Notes.MScan_analogSamplingRate*(MScanData.Notes.numberOfFrames/MScanData.Notes.frameRate);
@@ -100,22 +102,22 @@ for f = 1:size(mscanDataFiles, 1)
         
         MScanData.Data.filtEMG = resample(filteredEMG, emgDownSampledSamplingRate, MScanData.Notes.MScan_analogSamplingRate);
         MScanData.Notes.downsampledEMGSamplingRate = emgDownSampledSamplingRate;
+        
+        MScanData.Notes.checklist.processData = true;
+        save([animalID '_' date '_' imageID '_MScanData'], 'MScanData')
     end
-    
-    MScanData.Notes.checklist.processData = true;
-    save([animalID '_' date '_' imageID '_MScanData'], 'MScanData')
 end
 
 
 %% LabVIEW data file analysis
 for f = 1:size(labviewDataFiles, 1)
     %% Find offset between the two force sensor signals using the cross correlation
-    disp(['Analyzing LabVIEW analog signals and whisker angle for file number ' num2str(f) ' of ' num2str(size(labviewDataFiles, 1)) '...']); disp(' ');
     labviewDataFile = labviewDataFiles(f, :);
     load(labviewDataFile);
-    [animalID, hem, fileDate, fileID] = GetFileInfo(labviewDataFile);
-    strDay = ConvertDate(fileDate);
     if LabVIEWData.Notes.checklist.processData == false
+        disp(['Analyzing LabVIEW analog signals and whisker angle for file number ' num2str(f) ' of ' num2str(size(labviewDataFiles, 1)) '...']); disp(' ');
+        [animalID, hem, fileDate, fileID] = GetFileInfo(labviewDataFile);
+        strDay = ConvertDate(fileDate);
         
         %% Binarize the whisker angle and set the resting angle to zero degrees.
         % Trim any additional frames for resample
@@ -158,7 +160,7 @@ for f = 1:size(labviewDataFiles, 1)
         
         %% Downsample and binarize the force sensor.
         % Trim any additional data points for resample
-        trimmed_lvForce = LabVIEWData.Data.Force_Sensor(1:min(expectedLength, length(LabVIEWData.Data.Force_Sensor)));        
+        trimmed_lvForce = LabVIEWData.Data.Force_Sensor(1:min(expectedLength, length(LabVIEWData.Data.Force_Sensor)));
         % Filter then downsample the Force Sensor waveform to desired frequency
         forceSensorDownSampledSamplingRate = 30;   % Downsample to CBV Camera Fs
         forceSensorFilterThreshold = 20;

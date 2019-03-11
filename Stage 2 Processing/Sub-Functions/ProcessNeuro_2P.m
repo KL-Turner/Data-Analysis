@@ -1,4 +1,4 @@
-function [neuro, neuroFs] = ProcessNeuro_2P(MScanData, NeurType, Neural_Hem)
+function [neuro, neuroFs] = ProcessNeuro_2P(MScanData, expectedLength, NeurType, Neural_Hem)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -18,7 +18,7 @@ function [neuro, neuroFs] = ProcessNeuro_2P(MScanData, NeurType, Neural_Hem)
 %________________________________________________________________________________________________________________________
 
 %% Thresholds and Neurtype switch
-neuralData = MScanData.Data.(Neural_Hem);
+trimmedNeuro = MScanData.Data.(Neural_Hem)(1:min(expectedLength, length(MScanData.Data.MScan_Force_Sensor)));
 analogFs = MScanData.Notes.MScan_analogSamplingRate;
 
 switch NeurType
@@ -42,7 +42,7 @@ if ismember(NeurType, [{'MUApower'}, {'Gam'}, {'Beta'}, {'Alpha'}, {'Theta'}, {'
     neuroFs = 30;
     [z, p, k] = butter(4, fpass / (analogFs / 2));
     [sos, g] = zp2sos(z, p, k);
-    filtNeuro = filtfilt(sos, g, neuralData - mean(neuralData));
+    filtNeuro = filtfilt(sos, g, trimmedNeuro - mean(trimmedNeuro));
     [z1, p1, k1] = butter(4, 10 / (analogFs / 2), 'low');
     [sos1, g1] = zp2sos(z1, p1, k1);
     Long_Neuro = filtfilt(sos1, g1, filtNeuro.^2);

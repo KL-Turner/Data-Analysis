@@ -17,12 +17,12 @@ function CorrectLabVIEWOffset(labviewDataFiles, mscanDataFiles)
 
 for f = 1:size(mscanDataFiles, 1)
     %% Find offset between the two force sensor signals using the cross correlation
-    disp(['Correcting offset in file number ' num2str(f) ' of ' num2str(size(mscanDataFiles, 1)) '...']); disp(' ');
     mscanDataFile = mscanDataFiles(f, :);
     load(mscanDataFile);
-    labviewDataFile = labviewDataFiles(f, :);
-    load(labviewDataFile)
-    if MScanData.Notes.checklist.offSetCorrect == false
+    if MScanData.Notes.checklist.offsetCorrect == false
+        disp(['Correcting offset in file number ' num2str(f) ' of ' num2str(size(mscanDataFiles, 1)) '...']); disp(' ');
+        labviewDataFile = labviewDataFiles(f, :);
+        load(labviewDataFile)
         [animalID, hem, fileDate, fileID] = GetFileInfo(labviewDataFile);
         imageID = MScanData.Notes.imageID;
         
@@ -143,32 +143,35 @@ for f = 1:size(mscanDataFiles, 1)
         labview_binWhiskSamplingDiff = dsSamplingRate*trialDuration - length(binWhiskShift);
         labview_binWhiskCut = endCut*dsSamplingRate - labview_binWhiskSamplingDiff;
         
-        MScanData.Data.MScan_Force_Sensor = MScanData.Data.MScan_Force_Sensor(frontCut*analogSamplingRate:end - (mscanAnalogCut + 1))';
-        MScanData.Data.MScan_Neural_Data = MScanData.Data.MScan_Neural_Data(frontCut*analogSamplingRate:end - (mscanAnalogCut + 1))';
-        MScanData.Data.Vessel_Diameter = MScanData.Data.Vessel_Diameter(frontCut*vesselSamplingRate:end - (endCut*vesselSamplingRate + 1));
-        MScanData.Data.Vessel_RawDiameter = MScanData.Data.Vessel_RawDiameter(frontCut*vesselSamplingRate:end - (endCut*vesselSamplingRate + 1));
-        MScanData.Data.Vessel_TempDiameter = MScanData.Data.Vessel_TempDiameter(frontCut*vesselSamplingRate:end - (endCut*vesselSamplingRate + 1));
-        MScanData.Data.MUA_Power = MScanData.Data.MUA_Power(frontCut*dsSamplingRate:end - (mscan_dsAnalogCut + 1))';
-        MScanData.Data.GammaBand_Power = MScanData.Data.GammaBand_Power(frontCut*dsSamplingRate:end - (mscan_dsAnalogCut + 1))';
-        MScanData.Data.BetaBand_Power = MScanData.Data.BetaBand_Power(frontCut*dsSamplingRate:end - (mscan_dsAnalogCut + 1))';
-        MScanData.Data.AlphaBand_Power = MScanData.Data.AlphaBand_Power(frontCut*dsSamplingRate:end - (mscan_dsAnalogCut + 1))';
-        MScanData.Data.ThetaBand_Power = MScanData.Data.ThetaBand_Power(frontCut*dsSamplingRate:end - (mscan_dsAnalogCut + 1))';
-        MScanData.Data.DeltaBand_Power = MScanData.Data.DeltaBand_Power(frontCut*dsSamplingRate:end - (mscan_dsAnalogCut + 1))';
-        MScanData.Data.dsForce_Sensor_M = MScanData.Data.dsForce_Sensor_M(frontCut*dsSamplingRate:end - (mscan_dsAnalogCut + 1))';
-        MScanData.Data.binForce_Sensor_M = MScanData.Data.binForce_Sensor_M(frontCut*dsSamplingRate:end - (mscan_binForceCut + 1))';
+        MScanData.Data.MScan_Force_Sensor2 = MScanData.Data.MScan_Force_Sensor(frontCut*analogSamplingRate:end - (mscanAnalogCut + 1))';
+        MScanData.Data.MScan_Neural_Data2 = MScanData.Data.MScan_Neural_Data(frontCut*analogSamplingRate:end - (mscanAnalogCut + 1))';
+        MScanData.Data.Vessel_Diameter2 = MScanData.Data.Vessel_Diameter(frontCut*vesselSamplingRate:end - (endCut*vesselSamplingRate + 1));
+        MScanData.Data.Vessel_RawDiameter2 = MScanData.Data.Vessel_RawDiameter(frontCut*vesselSamplingRate:end - (endCut*vesselSamplingRate + 1));
+        MScanData.Data.Vessel_TempDiameter2 = MScanData.Data.Vessel_TempDiameter(frontCut*vesselSamplingRate:end - (endCut*vesselSamplingRate + 1));
+        MScanData.Data.MUA_Power2 = MScanData.Data.MUA_Power(frontCut*dsSamplingRate:end - (mscan_dsAnalogCut + 1))';
+        MScanData.Data.GammaBand_Power2 = MScanData.Data.GammaBand_Power(frontCut*dsSamplingRate:end - (mscan_dsAnalogCut + 1))';
+        MScanData.Data.BetaBand_Power2 = MScanData.Data.BetaBand_Power(frontCut*dsSamplingRate:end - (mscan_dsAnalogCut + 1))';
+        MScanData.Data.AlphaBand_Power2 = MScanData.Data.AlphaBand_Power(frontCut*dsSamplingRate:end - (mscan_dsAnalogCut + 1))';
+        MScanData.Data.ThetaBand_Power2 = MScanData.Data.ThetaBand_Power(frontCut*dsSamplingRate:end - (mscan_dsAnalogCut + 1))';
+        MScanData.Data.DeltaBand_Power2 = MScanData.Data.DeltaBand_Power(frontCut*dsSamplingRate:end - (mscan_dsAnalogCut + 1))';
+        MScanData.Data.dsForce_Sensor_M2 = MScanData.Data.dsForce_Sensor_M(frontCut*dsSamplingRate:end - (mscan_dsAnalogCut + 1))';
+        MScanData.Data.filtEMG2 = MScanData.Data.filtEMG(frontCut*dsSamplingRate:end - (mscan_dsAnalogCut + 1))';
+        MScanData.Data.binForce_Sensor_M2 = MScanData.Data.binForce_Sensor_M(frontCut*dsSamplingRate:end - (mscan_binForceCut + 1))';
         MScanData.Notes.checklist.offsetCorrect = true;
         
-        LabVIEWData.Data.Force_Sensor = analog_forceShift(frontCut*analogSamplingRate:end - (labview_AnalogCut + 1));
-        LabVIEWData.Data.WhiskerAngle = analog_whiskerShift(frontCut*whiskerCamSamplingRate:end - (labview_WhiskerCut + 1));
-        LabVIEWData.Data.dsWhisker_Angle = dsWhiskShift(frontCut*dsSamplingRate:end - (labview_dsWhiskCut + 1));
-        LabVIEWData.Data.binWhisker_Angle = binWhiskShift(frontCut*dsSamplingRate:end - (labview_binWhiskCut + 1));
-        LabVIEWData.Data.dsForce_Sensor_L = dsForceShift(frontCut*dsSamplingRate:end - (labview_dsForceCut + 1));
-        LabVIEWData.Data.binForce_Sensor_L = binForceShift(frontCut*dsSamplingRate:end - (labview_binForceCut + 1));
+        LabVIEWData.Data.Force_Sensor2 = analog_forceShift(frontCut*analogSamplingRate:end - (labview_AnalogCut + 1));
+        LabVIEWData.Data.WhiskerAngle2 = analog_whiskerShift(frontCut*whiskerCamSamplingRate:end - (labview_WhiskerCut + 1));
+        LabVIEWData.Data.dsWhisker_Angle2 = dsWhiskShift(frontCut*dsSamplingRate:end - (labview_dsWhiskCut + 1));
+        LabVIEWData.Data.binWhisker_Angle2 = binWhiskShift(frontCut*dsSamplingRate:end - (labview_binWhiskCut + 1));
+        LabVIEWData.Data.dsForce_Sensor_L2 = dsForceShift(frontCut*dsSamplingRate:end - (labview_dsForceCut + 1));
+        LabVIEWData.Data.binForce_Sensor_L2 = binForceShift(frontCut*dsSamplingRate:end - (labview_binForceCut + 1));
         LabVIEWData.Notes.checklist.offsetCorrect = true;
         
         disp('Updating MScanData and LabVIEW Files...'); disp(' ')
         save([animalID '_' fileDate '_' imageID '_MScanData'], 'MScanData')
         save([animalID '_' hem '_' fileID '_LabVIEWData'], 'LabVIEWData')
-    end
-    
+    end 
 end
+
+end
+
