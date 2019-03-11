@@ -23,7 +23,7 @@ mscanDirectory = dir('*_MScanData.mat');
 mscanDataFiles = {mscanDirectory.name}';
 mscanDataFiles = char(mscanDataFiles);
 
-if ~isempty(mscanDataFiles)
+if isempty(mscanDataFiles)
     for row = 2:size(alldata, 1)   % Loop through all rows of the excel sheet
         clear MScanData
         %% Notes

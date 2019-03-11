@@ -23,17 +23,17 @@ for f = 1:length(directoryInfo)
     if MScanData.Notes.checklist.analyzeDiam == false
         if strcmp(MScanData.Notes.movieType, 'MS') || strcmp(MScanData.Notes.movieType, 'MD')
             [MScanData] = ExtractTiffAnalogData(MScanData, [MScanData.Notes.date '_' MScanData.Notes.imageID]);
-            MScanData.Notes.checklist.analizeDiam = true;
+            MScanData.Notes.checklist.analyzeDiam = true;
             save([MScanData.Notes.animalID '_' MScanData.Notes.date '_' MScanData.Notes.imageID '_MScanData'], 'MScanData')
             
         elseif strcmp(MScanData.Notes.movieType, 'MP')
             [MScanData] = GetArea_PA_Tiff_auto02_new_soft_nowhisk(MScanData,[MScanData(1).ImageID '.TIF']);
-            MScanData.Notes.checklist.analizeDiam = true;         
+            MScanData.Notes.checklist.analyzeDiam = true;         
             save([MScanData.Notes.animalID '_' MScanData.Notes.date '_' MScanData.Notes.imageID '_MScanData'], 'MScanData')
 
         elseif strcmp(MScanData.Notes.movieType, 'C')
             [MScanData] = GetVelocity_LineScan_new_soft_nowhisk_new(MScanData,[MScanData(1).ImageID '.TIF']);
-            MScanData.Notes.checklist.analizeDiam = true;        
+            MScanData.Notes.checklist.analyzeDiam = true;        
             save([MScanData.Notes.animalID '_' MScanData.Notes.date '_' MScanData.Notes.imageID '_MScanData'], 'MScanData')
         end
     end
