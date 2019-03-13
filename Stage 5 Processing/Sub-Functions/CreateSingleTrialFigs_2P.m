@@ -26,7 +26,7 @@ for f = 1:size(mergedDataFiles, 1)
     [B, A] = butter(4, 10 / (30/2), 'low');
     filteredWhiskerAngle = filtfilt(B, A, MergedData.Data.Whisker_Angle);
     filteredForceSensor = filtfilt(B, A, MergedData.Data.Force_Sensor_M);
-    
+    filteredEMG = filtfilt(B, A, MergedData.Data.filtEMG);
     binWhiskers = MergedData.Data.binWhisker_Angle;
     binForce = MergedData.Data.binForce_Sensor_M;
 
@@ -48,22 +48,27 @@ for f = 1:size(mergedDataFiles, 1)
 
     %% Figure
     singleTrialFig = figure;
-    ax1 = subplot(3,1,1);
-    plot((1:length(filteredForceSensor))/30, filteredForceSensor, 'color', colors('dark candy apple red'))
+    ax1 = subplot(4,1,1);
+    plot((1:length(filteredForceSensor))/30, filteredForceSensor, 'color', colors('carrot orange'))
     xlim([0 290])
-    title({[animalID ' Two-photon behavioral characterization and vessel ' vesselID ' diameter changes for ' fileID], 'Force Sensor'})
+    title({[animalID ' Two-photon behavioral characterization and vessel ' vesselID ' diameter changes for ' fileID], 'Force sensor and EMG'})
     xlabel('Time (sec)')
     ylabel('Force Sensor (Volts)')
     
-    ax2 = subplot(3,1,2);
-    plot((1:length(filteredWhiskerAngle))/30, filteredWhiskerAngle, 'color', colors('brandeis blue'))
+    yyaxis right
+    plot((1:length(filteredEMG))/30, filteredEMG, 'color', colors('harvest gold'));
+    ylabel('EMG (Volts)')
+    legend('Force Sensor', 'EMG')
+    
+    ax2 = subplot(4,1,2:3);
+    yyaxis right
+    plot((1:length(filteredWhiskerAngle))/30, filteredWhiskerAngle, 'color', colors('ash grey'))
     xlim([0 290])
-    title('Whisker Angle')
-    xlabel('Time (sec)')
     ylabel('Angle (deg)')
+    ylim([-40 60])
   
-    ax3 = subplot(3,1,3);
-    plot((1:length(filteredVessel_Diameter))/6.06, filteredVessel_Diameter, 'k')
+    yyaxis left
+    plot((1:length(filteredVessel_Diameter))/20, filteredVessel_Diameter, 'color', colors('dark candy apple red'), 'LineWidth', 2)
     hold on;
     whiskInds = binWhiskers.*whisking_YVals;
     forceInds = binForce.*force_YVals;
@@ -76,22 +81,22 @@ for f = 1:size(mergedDataFiles, 1)
             forceInds(1, x) = NaN;
         end
     end
-    scatter((1:length(binForce))/30, forceInds, 'filled', 'MarkerFaceColor', colors('dark candy apple red'));
-    scatter((1:length(binWhiskers))/30, whiskInds, 'filled', 'MarkerFaceColor', colors('brandeis blue'));
+    scatter((1:length(binForce))/30, forceInds, 'filled', 'MarkerFaceColor', colors('rich black'));
+    scatter((1:length(binWhiskers))/30, whiskInds, 'filled', 'MarkerFaceColor', colors('sapphire'));
     xlim([0 290])
     ylim([(min(filteredVessel_Diameter))-0.1 (max(filteredVessel_Diameter))*1.3])
-    title('Vessel Diameter')
+    title('Vessel diameter in response to behavior events')
     xlabel('Time (sec)')
-    ylabel('Percentage Change (Diameter)')
-    legend('Vessel Diameter', 'Movement events', 'Whisking events')
+    ylabel('% change (diameter)')
+    legend('Whisker angle', 'Vessel diameter', 'Binarized movement events', 'binarized whisking events')
 
-    ax4 = subplot(4,1,4);
+    ax3 = subplot(4,1,4);
     imagesc(T,F,S_Norm)
     axis xy
     colorbar
     caxis([-0.5 1])
-    linkaxes([ax1 ax2 ax3 ax4], 'x')
-    title('Hippocampal LFP Spectrogram')
+    linkaxes([ax1 ax2 ax3], 'x')
+    title('Hippocampal (LFP) spectrogram')
     xlabel('Time (sec)')
     ylabel('Frequency (Hz)')
 
@@ -104,7 +109,7 @@ for f = 1:size(mergedDataFiles, 1)
     end
 
     savefig(singleTrialFig, [dirpath animalID '_' vesselID '_' fileID '_SingleTrialFig']);
-    close all
+    closefig(singleTrialFig)
 end
 
 end

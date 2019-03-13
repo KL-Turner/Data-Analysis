@@ -42,7 +42,6 @@ disp('Analyzing Block [1] Analyzing the spectrogram for each file and normalizin
 disp('Analyzing Block [2] Creating single trial figures for each 5 minute session.'); disp(' ')
 CreateSingleTrialFigs_2P(mergedDataFiles, RestingBaselines, SpectrogramData)
 
-
 % %% BLOCK PURPOSE: [3] Sleep scoring
 % disp('Analyzing Block [3] Running Sleep scoring analysis.'); disp(' ')
 % electrodeInput = input('Which electrode(s) would you like to use to sleep score? (L, R, B): ', 's'); disp(' ')
