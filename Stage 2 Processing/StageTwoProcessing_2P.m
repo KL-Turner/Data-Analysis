@@ -49,10 +49,18 @@ Process2PDataFiles(labviewDataFiles, mscanDataFiles)
 
 %% BLOCK PURPOSE: [4] Analyze vessel diameter and add it to MScanData.mat
 disp('Analyzing Block [4] Correcting LabVIEW time offset.'); disp(' ')
-CorrectLabVIEWOffset(labviewDataFiles, mscanDataFiles)
+trimTime = 10;   % sec
+CorrectLabVIEWOffset(labviewDataFiles, mscanDataFiles, trimTime)
 
 %% BLOCK PURPOSE: [5] Analyze vessel diameter and add it to MScanData.mat
 disp('Analyzing Block [5] Combing LabVIEWData and MScan Data files to ceate MergedData.'); disp(' ')
 CombineLabVIEWMScanFiles(labviewDataFiles, mscanDataFiles)
+
+%% BLOCK PURPOSE: [6] Single Trial Figure Checks
+disp('Analyzing Block [6] Generating single trial summary figures for each trial.'); disp(' ')
+mergedDirectory = dir('*_MergedData.mat');
+mergedDataFiles = {mergedDirectory.name}';
+mergedDataFiles = char(mergedDataFiles);
+CreateSingleTrialQCFigs_2P(mergedDataFiles)
 
 disp('Two Photon Stage Two Processing - Complete.'); disp(' ')

@@ -18,8 +18,16 @@ function [animalID, hem, Thresholds, EventData, RestData, RestingBaselines,...
 
 labviewDataFiles = dir('*_LabVIEWData.mat');
 labviewDataFileIDs = {labviewDataFiles.name}';
-labviewDataFileID = labviewDataFileIDs{1,1};
-[animalID, hem, ~, ~] = GetFileInfo(labviewDataFileID);
+mergedDataFiles = dir('*_MergedData.mat');
+mergedDataFileIDs = {mergedDataFiles.name}';
+
+try
+    labviewDataFileID = labviewDataFileIDs{1,1};
+    [animalID, hem, ~, ~] = GetFileInfo(labviewDataFileID);
+catch
+    mergedDataFileID = mergedDataFileIDs{1,1};
+    [animalID, hem, ~, ~] = GetFileInfo(mergedDataFileID);
+end
 
 ThresholdsFile = dir('*_Thresholds.mat');
 if ~isempty(ThresholdsFile)

@@ -1,4 +1,4 @@
-function CorrectLabVIEWOffset(labviewDataFiles, mscanDataFiles)
+function CorrectLabVIEWOffset(labviewDataFiles, mscanDataFiles, trimTime)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -19,7 +19,7 @@ for f = 1:size(mscanDataFiles, 1)
     %% Find offset between the two force sensor signals using the cross correlation
     mscanDataFile = mscanDataFiles(f, :);
     load(mscanDataFile);
-    if MScanData.Notes.checklist.offsetCorrect == false
+%     if MScanData.Notes.checklist.offsetCorrect == false
         disp(['Correcting offset in file number ' num2str(f) ' of ' num2str(size(mscanDataFiles, 1)) '...']); disp(' ');
         labviewDataFile = labviewDataFiles(f, :);
         load(labviewDataFile)
@@ -102,19 +102,18 @@ for f = 1:size(mscanDataFiles, 1)
         linkaxes([ax1 ax3], 'x')
         
         %% Save the file to directory.
-        [pathstr, ~, ~] = fileparts(cd);
-        dirpath = [pathstr '/Figures/Offset Correction/'];
+        dirpath = [cd '/Figures/'];
         
         if ~exist(dirpath, 'dir')
             mkdir(dirpath);
         end
         
-        saveas(corrOffset, [dirpath animalID '_' fileID '_' imageID '_CorrectedOffset'], 'tiff');
-        close all
+        savefig(corrOffset, [dirpath animalID '_' fileID '_' imageID '_CorrectedOffset']);
+        close(corrOffset)
         
         %% Apply correction to the data, and trim excess time
-        frontCut = 5;
-        endCut = 5;
+        frontCut = trimTime;
+        endCut = trimTime;
         
         mscanAnalogSampleDiff = analogSamplingRate*trialDuration - length(MScanData.Data.MScan_Force_Sensor);
         mscanAnalogCut = endCut*analogSamplingRate - mscanAnalogSampleDiff;
@@ -166,11 +165,13 @@ for f = 1:size(mscanDataFiles, 1)
         LabVIEWData.Data.dsForce_Sensor_L2 = dsForceShift(frontCut*dsSamplingRate:end - (labview_dsForceCut + 1));
         LabVIEWData.Data.binForce_Sensor_L2 = binForceShift(frontCut*dsSamplingRate:end - (labview_binForceCut + 1));
         LabVIEWData.Notes.checklist.offsetCorrect = true;
+        LabVIEWData.Notes.trimTime = trimTime;
+        LabVIEWData.Notes.trialDuration2_Seconds = LabVIEWData.Notes.trialDuration_Seconds - 2*trimTime;
         
         disp('Updating MScanData and LabVIEW Files...'); disp(' ')
         save([animalID '_' fileDate '_' imageID '_MScanData'], 'MScanData')
         save([animalID '_' hem '_' fileID '_LabVIEWData'], 'LabVIEWData')
-    end 
+%     end 
 end
 
 end

@@ -37,13 +37,13 @@ for dT = 1:length(dataTypes)
         
         % Sampling frequency for element of dataTypes
         if strcmp(dataType, 'Vessel_Diameter')
-            Fs = floor(MergedData.Notes.MScan.frameRate);
+            Fs = floor(MergedData.Notes.p2Fs);
         else
-            Fs = 30;
+            Fs = floor(MergedData.Notes.dsFs);
         end
         
         % Expected number of samples for element of dataType
-        expectedLength = (MergedData.Notes.LabVIEW.trialDuration_Seconds-10)*Fs;
+        expectedLength = MergedData.Notes.trialDuration_Sec*Fs;
         
         % Get information about periods of rest from the loaded file
         trialEventTimes = MergedData.Flags.rest.eventTime';

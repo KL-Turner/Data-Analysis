@@ -67,9 +67,9 @@ for dT = 1:length(dataTypes)
         
         % Sampling frequency for element of dataTypes
         if strcmp(dataType, 'Vessel_Diameter')
-            Fs = floor(MergedData.Notes.MScan.frameRate);
+            Fs = floor(MergedData.Notes.p2Fs);
         else
-            Fs = 30;
+            Fs = floor(MergedData.Notes.dsFs);
         end
             % Loop over the behaviors present in the file
             for bF = 1:length(behaviorFields)
@@ -123,7 +123,7 @@ function [chunkData, evFilter] = ExtractBehavioralData(data, epoch, dataType, Fs
 
 % Setup variables
 eventTimes = data.Flags.(behavior).eventTime;
-trialDuration = (data.Notes.LabVIEW.trialDuration_Seconds - 10);
+trialDuration = (data.Notes.trialDuration_Sec);
 
 % Get the content from Data.(dataType)
 data = getfield(data, {}, dataType, {});

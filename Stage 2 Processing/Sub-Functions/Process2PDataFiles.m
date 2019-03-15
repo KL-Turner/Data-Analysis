@@ -22,7 +22,7 @@ for f = 1:size(mscanDataFiles, 1)
     %% Find offset between the two force sensor signals using the cross correlation
     MScanDataFile = mscanDataFiles(f, :);
     load(MScanDataFile);
-    if MScanData.Notes.checklist.processData == false
+%     if MScanData.Notes.checklist.processData == false
         disp(['Analyzing MScan neural bands and analog signals for file number ' num2str(f) ' of ' num2str(size(mscanDataFiles, 1)) '...']); disp(' ');
         animalID = MScanData.Notes.animalID;
         imageID = MScanData.Notes.imageID;
@@ -61,15 +61,15 @@ for f = 1:size(mscanDataFiles, 1)
         trimmedForce = MScanData.Data.MScan_Force_Sensor(1:min(expectedLength, length(MScanData.Data.MScan_Force_Sensor)));
         
         % Filter then downsample the Force Sensor waveform to desired frequency
-        forceSensorDownSampledSamplingRate = 30;   % Downsample to CBV Camera Fs
+        downSampledFs = 30;   % Downsample to CBV Camera Fs
         forceSensorFilterThreshold = 20;
         forceSensorFilterOrder = 2;
         [z, p, k] = butter(forceSensorFilterOrder, forceSensorFilterThreshold / (MScanData.Notes.MScan_analogSamplingRate / 2), 'low');
         [sos, g] = zp2sos(z, p, k);
         filteredForceSensor_M = filtfilt(sos, g, trimmedForce);
         
-        MScanData.Data.dsForce_Sensor_M = resample(filteredForceSensor_M, forceSensorDownSampledSamplingRate, MScanData.Notes.MScan_analogSamplingRate);
-        MScanData.Notes.downsampledForceSensorSamplingRate = forceSensorDownSampledSamplingRate;
+        MScanData.Data.dsForce_Sensor_M = resample(filteredForceSensor_M, downSampledFs, MScanData.Notes.MScan_analogSamplingRate);
+        MScanData.Notes.downsampledFs = downSampledFs;
         
         % Binarize the force sensor waveform
         threshfile = dir('*_Thresholds.mat');
@@ -105,7 +105,7 @@ for f = 1:size(mscanDataFiles, 1)
         
         MScanData.Notes.checklist.processData = true;
         save([animalID '_' date '_' imageID '_MScanData'], 'MScanData')
-    end
+%     end
 end
 
 
@@ -114,23 +114,25 @@ for f = 1:size(labviewDataFiles, 1)
     %% Find offset between the two force sensor signals using the cross correlation
     labviewDataFile = labviewDataFiles(f, :);
     load(labviewDataFile);
-    if LabVIEWData.Notes.checklist.processData == false
+%     if LabVIEWData.Notes.checklist.processData == false
         disp(['Analyzing LabVIEW analog signals and whisker angle for file number ' num2str(f) ' of ' num2str(size(labviewDataFiles, 1)) '...']); disp(' ');
         [animalID, hem, fileDate, fileID] = GetFileInfo(labviewDataFile);
         strDay = ConvertDate(fileDate);
-        
+        expectedLength = LabVIEWData.Notes.trialDuration_Seconds*LabVIEWData.Notes.analogSamplingRate;
+
         %% Binarize the whisker angle and set the resting angle to zero degrees.
         % Trim any additional frames for resample
         whiskerAngle = LabVIEWData.Data.WhiskerAngle;
+        [patchedWhiskerAngle] = PatchWhiskerAngle(whiskerAngle, LabVIEWData.Notes.whiskerCamSamplingRate, LabVIEWData.Notes.trialDuration_Seconds, LabVIEWData.Notes.droppedWhiskerCamFrameIndex);
         
         % Create filter for whisking/movement
-        whiskerDownsampledSamplingRate = 30;   % Downsample to CBV Camera Fs
+        downSampledFs = 30;   % Downsample to CBV Camera Fs
         whiskerFilterThreshold = 20;
         whiskerFilterOrder = 2;
         [z, p, k] = butter(whiskerFilterOrder, whiskerFilterThreshold/(LabVIEWData.Notes.whiskerCamSamplingRate/2), 'low');
         [sos, g] = zp2sos(z, p, k);
-        filteredWhiskers = filtfilt(sos, g, whiskerAngle - mean(whiskerAngle));
-        resampledWhiskers = resample(filteredWhiskers, whiskerDownsampledSamplingRate, LabVIEWData.Notes.whiskerCamSamplingRate);
+        filteredWhiskers = filtfilt(sos, g, patchedWhiskerAngle - mean(patchedWhiskerAngle));
+        resampledWhiskers = resample(filteredWhiskers, downSampledFs, LabVIEWData.Notes.whiskerCamSamplingRate);
         
         % Binarize the whisker waveform (wwf)
         threshfile = dir('*_Thresholds.mat');
@@ -141,36 +143,36 @@ for f = 1:size(labviewDataFiles, 1)
         [ok] = CheckForThreshold(['binarizedWhiskersLower_' strDay], animalID);
         
         if ok == 0
-            [whiskersThresh1, whiskersThresh2] = CreateWhiskThreshold(resampledWhiskers, whiskerDownsampledSamplingRate);
+            [whiskersThresh1, whiskersThresh2] = CreateWhiskThreshold(resampledWhiskers, downSampledFs);
             Thresholds.(['binarizedWhiskersLower_' strDay]) = whiskersThresh1;
             Thresholds.(['binarizedWhiskersUpper_' strDay]) = whiskersThresh2;
             save([animalID '_Thresholds.mat'], 'Thresholds');
         end
         
         load([animalID '_Thresholds.mat']);
-        binarizedWhiskers = BinarizeWhiskers(resampledWhiskers, whiskerDownsampledSamplingRate, Thresholds.(['binarizedWhiskersLower_' strDay]), Thresholds.(['binarizedWhiskersUpper_' strDay]));
-        [linkedBinarizedWhiskers] = LinkBinaryEvents(gt(binarizedWhiskers,0), [round(whiskerDownsampledSamplingRate/3), 0]);
+        binarizedWhiskers = BinarizeWhiskers(resampledWhiskers, downSampledFs, Thresholds.(['binarizedWhiskersLower_' strDay]), Thresholds.(['binarizedWhiskersUpper_' strDay]));
+        [linkedBinarizedWhiskers] = LinkBinaryEvents(gt(binarizedWhiskers,0), [round(downSampledFs/3), 0]);
         
         inds = linkedBinarizedWhiskers == 0;
         restAngle = mean(resampledWhiskers(inds));
         
         LabVIEWData.Data.dsWhisker_Angle = resampledWhiskers - restAngle;
         LabVIEWData.Data.binWhisker_Angle = binarizedWhiskers;
-        LabVIEWData.Notes.downsampledWhiskerSamplingRate = whiskerDownsampledSamplingRate;
+        LabVIEWData.Notes.downsampledWhiskerSamplingRate = downSampledFs;
         
         %% Downsample and binarize the force sensor.
         % Trim any additional data points for resample
         trimmed_lvForce = LabVIEWData.Data.Force_Sensor(1:min(expectedLength, length(LabVIEWData.Data.Force_Sensor)));
         % Filter then downsample the Force Sensor waveform to desired frequency
-        forceSensorDownSampledSamplingRate = 30;   % Downsample to CBV Camera Fs
+        downSampledFs = 30;   % Downsample to CBV Camera Fs
         forceSensorFilterThreshold = 20;
         forceSensorFilterOrder = 2;
         [z, p, k] = butter(forceSensorFilterOrder, forceSensorFilterThreshold/(LabVIEWData.Notes.analogSamplingRate/2), 'low');
         [sos, g] = zp2sos(z, p, k);
         filteredForceSensor_L = filtfilt(sos, g, trimmed_lvForce);
         
-        LabVIEWData.Data.dsForce_Sensor_L = resample(filteredForceSensor_L, forceSensorDownSampledSamplingRate, LabVIEWData.Notes.analogSamplingRate);
-        LabVIEWData.Notes.downsampledForceSensorSamplingRate = forceSensorDownSampledSamplingRate;
+        LabVIEWData.Data.dsForce_Sensor_L = resample(filteredForceSensor_L, downSampledFs, LabVIEWData.Notes.analogSamplingRate);
+        LabVIEWData.Notes.downSampledFs = downSampledFs;
         
         % Binarize the force sensor waveform
         [ok] = CheckForThreshold(['binarizedForceSensor_' strDay], animalID);
@@ -184,7 +186,7 @@ for f = 1:size(labviewDataFiles, 1)
         LabVIEWData.Data.binForce_Sensor_L = BinarizeForceSensor(LabVIEWData.Data.dsForce_Sensor_L, Thresholds.(['binarizedForceSensor_' strDay]));
         LabVIEWData.Notes.checklist.processData = true;
         save([animalID '_' hem '_' fileID '_LabVIEWData'], 'LabVIEWData')
-    end
+%     end
 end
 
 end

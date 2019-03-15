@@ -8,8 +8,8 @@ function [RestingBaselines] = CalculateRestingBaselines_2P(animalID, targetMinut
 %   Purpose: This function finds the resting baseline for all fields of the RestData.mat structure, for each unique day
 %________________________________________________________________________________________________________________________
 %
-%   Inputs: animal name (str) for saving purposes, targetMinutes (such as 30, 60, etc) which the code will interpret as 
-%           the number of minutes/files at the beginning of each unique imaging day to use for baseline calculation. 
+%   Inputs: animal name (str) for saving purposes, targetMinutes (such as 30, 60, etc) which the code will interpret as
+%           the number of minutes/files at the beginning of each unique imaging day to use for baseline calculation.
 %           RestData.mat, which should have field names such as CBV, Delta Power, Gamma Power, etc. with ALL resting events
 %
 %   Outputs: SleepRestEventData.mat struct
@@ -21,7 +21,7 @@ function [RestingBaselines] = CalculateRestingBaselines_2P(animalID, targetMinut
 % that is greater than 10 seconds.
 RestCriteria.Fieldname = {'durations'};
 RestCriteria.Comparison = {'gt'};
-RestCriteria.Value = {10};
+RestCriteria.Value = {5};
 
 [restLogical] = FilterEvents(RestData.Vessel_Diameter, RestCriteria);   % RestData output is a logical
 allRestFileIDs = RestData.Vessel_Diameter.fileIDs(restLogical, :);
@@ -67,14 +67,14 @@ for u = 1:length(uniqueVessels)
     end
     validFiles = logical(validFiles);
     validDays = allFileDates(validFiles);
-   
+    
     for v = 1:length(uniqueDays)
         uD = uniqueDays{v};
         
         for w = 1:length(dataTypes)
             dT = char(dataTypes(w));   % Load each loop iteration's fieldname as a character string
             allRestData = RestData.(dT).data(restLogical, :);
-
+            
             disp(['Calculating the resting baseline of ' dT ' for vessel ' uV ' on ' uD '...']); disp(' ')
             
             vesselFilterLogical = zeros(length(allRestVesselIDs), 1);   % Find all the vessels that correspond to this loop's vessel (A1, A2, A3, etc)
@@ -84,7 +84,7 @@ for u = 1:length(uniqueVessels)
                     vesselFilterLogical(vF, 1) = 1;
                 end
             end
-
+            
             vesselFilterLogical = logical(vesselFilterLogical);
             singleVesselFileIDs = allRestFileIDs(vesselFilterLogical);
             singleVesselDurations = allRestDurations(vesselFilterLogical);
@@ -107,34 +107,57 @@ for u = 1:length(uniqueVessels)
             uniqueDayVesselIDs = singleVesselIDs(dayFilterLogical);
             uniqueDayVesselData = singleVesselData(dayFilterLogical);
             
-            uniqueDayFiles = unique(uniqueDayVesselFileIDs);
-            cutOffTime = targetMinutes/5;
-            baselineFiles = {validDays{1:cutOffTime, 1}}';
-            
-            timeFilterLogical = zeros(length(uniqueDayVesselFileIDs), 1);
-            for tF = 1:length(uniqueDayVesselFileIDs)
-                uniqueDayVesselFileID = uniqueDayVesselFileIDs(tF, 1);
-                for bF = 1:length(baselineFiles)
-                    baselineFile = baselineFiles{bF, 1};
-                    if strcmp(baselineFile, uniqueDayVesselFileID)
-                        timeFilterLogical(tF, 1) = 1;
+            if ~isempty(uniqueDayVesselFileIDs)
+                uniqueDayFiles = unique(uniqueDayVesselFileIDs);
+                cutOffTime = targetMinutes/5;
+                dayLog = zeros(length(validDays), 1);
+                for x = 1:length(validDays)
+                    for y = 1:length(uniqueDayFiles)
+                        if strcmp(validDays{x,1}, uniqueDayFiles{y,1})
+                            dayLog(x,1) = 1;
+                        end
                     end
                 end
+                dayLog = logical(dayLog);
+                valDays = validDays(dayLog, :);
+                try
+                    baselineFiles = {valDays{1:cutOffTime, 1}}';
+                catch
+                    baselineFiles = {valDays{1:end, 1}}';
+                end
+                
+                timeFilterLogical = zeros(length(uniqueDayVesselFileIDs), 1);
+                for tF = 1:length(uniqueDayVesselFileIDs)
+                    uniqueDayVesselFileID = uniqueDayVesselFileIDs(tF, 1);
+                    for bF = 1:length(baselineFiles)
+                        baselineFile = baselineFiles{bF, 1};
+                        if strcmp(baselineFile, uniqueDayVesselFileID)
+                            timeFilterLogical(tF, 1) = 1;
+                        end
+                    end
+                end
+                
+                timeFilterLogical = logical(timeFilterLogical);
+                baselineVesselFileIDs = uniqueDayVesselFileIDs(timeFilterLogical);
+                baselineVesselDurations = uniqueDayVesselDurations(timeFilterLogical);
+                baselineVesselEventTimes = uniqueDayVesselEventTimes(timeFilterLogical);
+                baselineVesselIDs = uniqueDayVesselIDs(timeFilterLogical);
+                baselineVesselData = uniqueDayVesselData(timeFilterLogical);
+                
+                % find the means of each the unique vessel from the unique day
+                % for valid files
+                for x = 1:length(baselineVesselData)
+                    tempData_means(1,x) = mean(baselineVesselData{x});
+                end
+            else
+                tempData_means = [];
+                baselineVesselFileIDs = [];
+                baselineVesselDurations = [];
+                baselineVesselEventTimes = [];
+                baselineVesselIDs = [];
+                baselineVesselData = [];
             end
             
-            timeFilterLogical = logical(timeFilterLogical);
-            baselineVesselFileIDs = uniqueDayVesselFileIDs(timeFilterLogical);
-            baselineVesselDurations = uniqueDayVesselDurations(timeFilterLogical);
-            baselineVesselEventTimes = uniqueDayVesselEventTimes(timeFilterLogical);
-            baselineVesselIDs = uniqueDayVesselIDs(timeFilterLogical);
-            baselineVesselData = uniqueDayVesselData(timeFilterLogical);
-
-            % find the means of each the unique vessel from the unique day
-            % for valid files
-            for x = 1:length(baselineVesselData)
-                tempData_means(1,x) = mean(baselineVesselData{x});
-            end
-
             RestingBaselines.(uV).(uD).(dT).baseLine = mean(tempData_means);
             RestingBaselines.(uV).(uD).(dT).fileIDs = baselineVesselFileIDs;
             RestingBaselines.(uV).(uD).(dT).durations = baselineVesselDurations;

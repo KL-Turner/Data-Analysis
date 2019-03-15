@@ -59,7 +59,7 @@ function [] = CategorizeData_2P(fileName)
 %% Load and Setup
 disp(['Categorizing data for: ' fileName]); disp(' ')
 load(fileName)
-whiskerSamplingRate = MergedData.Notes.LabVIEW.downsampledWhiskerSamplingRate;
+whiskerSamplingRate = MergedData.Notes.dsFs;
 
 %% Process binary whisking waveform to detect whisking events
 % Setup parameters for link_binary_events
@@ -159,8 +159,8 @@ function [Whisk] = GetWhiskingData(MergedData, binarizedWhiskers)
 %_______________________________________________________________
 
 %% Setup
-whiskerSamplingRate = MergedData.Notes.LabVIEW.downsampledWhiskerSamplingRate;
-forceSensorSamplingRate = MergedData.Notes.LabVIEW.downsampledForceSensorSamplingRate;
+whiskerSamplingRate = MergedData.Notes.dsFs;
+forceSensorSamplingRate = MergedData.Notes.dsFs;
 
 %% Get Puff Times
 [puffTimes] = GetPuffTimes(MergedData);
@@ -168,7 +168,7 @@ forceSensorSamplingRate = MergedData.Notes.LabVIEW.downsampledForceSensorSamplin
 %% Find the starts of whisking
 whiskEdge = diff(binarizedWhiskers);
 whiskSamples = find(whiskEdge > 0);
-whiskStarts = whiskSamples / whiskerSamplingRate;
+whiskStarts = whiskSamples/whiskerSamplingRate;
 
 %% Classify each whisking event by duration, whisking intensity, rest durations
 sampleVec = 1:length(binarizedWhiskers); 
@@ -186,8 +186,8 @@ dLow = diff(lowSamples);
 % convert from samples to seconds.
 restLength = dHigh(dHigh > 1);
 whiskLength = dLow(dLow > 1);
-restDur = restLength / whiskerSamplingRate;
-whiskDur = whiskLength / whiskerSamplingRate;
+restDur = restLength/whiskerSamplingRate;
+whiskDur = whiskLength/whiskerSamplingRate;
 
 % Control for the beginning/end of the trial to correctly map rests/whisks
 % onto the whisk_starts.
@@ -210,13 +210,13 @@ movementInt = zeros(size(whiskStarts));
 for wS = 1:length(whiskSamples)
     % Whisking intensity
     whiskInds = whiskSamples(wS):whiskSamples(wS) + whiskLength(wS);
-    whiskInt(wS) = sum(MergedData.Data.binWhisker_Angle(whiskInds)) / numel(whiskInds);
+    whiskInt(wS) = sum(MergedData.Data.binWhisker_Angle(whiskInds))/numel(whiskInds);
     
     % Movement intensity
     movementStart = round(whiskStarts(wS)*forceSensorSamplingRate);
     movementDur = round(whiskDur(wS)*forceSensorSamplingRate);
     movementInds = max(movementStart, 1):min(movementStart + movementDur, length(MergedData.Data.binForce_Sensor_M));
-    movementInt(wS) = sum(MergedData.Data.binForce_Sensor_M(movementInds)) / numel(movementInds);
+    movementInt(wS) = sum(MergedData.Data.binForce_Sensor_M(movementInds))/numel(movementInds);
 end
 
 % Calculate the time to the closest puff
@@ -271,8 +271,8 @@ function [Rest] = GetRestData(MergedData)
 %_______________________________________________________________
 
 % Setup
-whiskerSamplingRate = MergedData.Notes.LabVIEW.downsampledWhiskerSamplingRate;
-forceSensorSamplingRate = MergedData.Notes.LabVIEW.downsampledForceSensorSamplingRate;
+whiskerSamplingRate = MergedData.Notes.dsFs;
+forceSensorSamplingRate = MergedData.Notes.dsFs;
 
 %% Get stimulation times
 [puffTimes] = GetPuffTimes(MergedData);

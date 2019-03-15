@@ -31,6 +31,10 @@ for f = 1:size(labviewDataFiles, 1)
     MergedData.Data.Force_Sensor_L = LabVIEWData.Data.dsForce_Sensor_L2;
     MergedData.Data.binForce_Sensor_L = LabVIEWData.Data.binForce_Sensor_L2;
     
+    MergedData.Notes.trialDuration_Sec = LabVIEWData.Notes.trialDuration2_Seconds;
+    MergedData.Notes.p2Fs = MScanData.Notes.frameRate;
+    MergedData.Notes.dsFs = LabVIEWData.Notes.downSampledFs;
+    
     MergedData.Notes.MScan = MScanData.Notes;
     MergedData.Data.Raw_NeuralData = MScanData.Data.MScan_Neural_Data2;
     MergedData.Data.MUA_Power = MScanData.Data.MUA_Power2;
