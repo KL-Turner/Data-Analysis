@@ -50,7 +50,7 @@ end
 
 %%
 [B, A] = butter(4, 2/(p2Fs/2), 'low');
-processedWhiskData = cell(length(whiskData), 1);
+processedWhiskData.data = cell(length(whiskData), 1);
 for x = 1:length(whiskData)
     uniqueVesselIDs = unique(whiskVesselIDs{x,1});
     for y = 1:length(uniqueVesselIDs)
@@ -63,33 +63,40 @@ for x = 1:length(whiskData)
                 strDay = ConvertDate(fileID(1:6));
                 vesselDiam = whiskData{x,1}(z,:);
                 normVesselDiam = (vesselDiam - RestingBaselines.(uniqueVesselID).(strDay).Vessel_Diameter.baseLine)./(RestingBaselines.(vesselID).(strDay).Vessel_Diameter.baseLine);
-                filtVesselDiam = (filtfilt(B, A, normVesselDiam))*100;
-                processedWhiskData{x,1}{y,1}(w,:) = filtVesselDiam;
+                filtVesselDiam = sgolayfilt(normVesselDiam, 10, 101)*100;
+%                 filtVesselDiam = (filtfilt(B, A, normVesselDiam))*100;
+                processedWhiskData.data{x,1}{y,1}(w,:) = filtVesselDiam;
+                processedWhiskData.vesselIDs{x,1}{y,1}{w} = vesselID;
                 w = w + 1;
             end
         end
     end
 end
 
-whiskCritMeans = cell(length(processedWhiskData),1);
-whiskCritSTD = cell(length(processedWhiskData),1);
-for x = 1:length(processedWhiskData)
-    for y = 1:length(processedWhiskData{x,1})
-        whiskCritMeans{x,1}{y,1} = mean(processedWhiskData{x,1}{y,1},1);
-        whiskCritSTD{x,1}{y,1} = std(processedWhiskData{x,1}{y,1},1, 1);
+whiskCritMeans.data = cell(length(processedWhiskData.data),1);
+whiskCritSTD = cell(length(processedWhiskData.data),1);
+for x = 1:length(processedWhiskData.data)
+    for y = 1:length(processedWhiskData.data{x,1})
+        whiskCritMeans.data{x,1}{y,1} = mean(processedWhiskData.data{x,1}{y,1},1);
+        whiskCritMeans.vesselIDs{x,1}{y,1} = unique(processedWhiskData.vesselIDs{x,1}{y,1});
+        whiskCritSTD{x,1}{y,1} = std(processedWhiskData.data{x,1}{y,1},1, 1);
     end
 end
 
-for x = 1:length(whiskCritMeans)
+for x = 1:length(whiskCritMeans.data)
+    legendIDs = [];
     figure('NumberTitle', 'off', 'Name', ['Whisker Criteria ' num2str(x)]);
-    for y = 1:length(whiskCritMeans{x,1})
-        plot(((1:length(whiskCritMeans{x,1}{y,1}))/p2Fs)-2, whiskCritMeans{x,1}{y,1} - mean(whiskCritMeans{x,1}{y,1}(1:40)));
+    for y = 1:length(whiskCritMeans.data{x,1})
+        plot(((1:length(whiskCritMeans.data{x,1}{y,1}))/p2Fs)-2, whiskCritMeans.data{x,1}{y,1} - mean(whiskCritMeans.data{x,1}{y,1}(1:40)));
+        vID = join([string(animalID) string(whiskCritMeans.vesselIDs{x,1}{y,1})]);
+        vID = strrep(vID, ' ', '');
+        legendIDs = [legendIDs vID];
         hold on
     end
     title('Whisking evoked vessel diameter')
     xlabel('Peri-whisk time (sec)')
     ylabel('Diameter change {%}')
-    legend('T76A1', 'T76A2', 'T76A3')
+    legend(legendIDs)
 end
 
 %%
@@ -117,17 +124,14 @@ for x = 1:length(sFiles)   % Loop through each non-unique file
     
     % Take the S_data from the start time throughout the duration
     try
-        whiskS_Vals = whiskS_Data(:, (startTime - (2*whiskBinSize)):(startTime + ((whiskDuration - 2)*whiskBinSize)));
+        whiskS_Vals = whiskS_Data(:, (startTime - (2*whiskBinSize)):(startTime + ((12 - 2)*whiskBinSize)));
     catch
-        whiskS_Vals = whiskS_Data(:, end - (whiskDuration*whiskBinSize):end);
+        whiskS_Vals = whiskS_Data(:, end - (12*whiskBinSize):end);
     end
     
-    % Mean subtract each row with detrend
-    transpWhiskS_Vals = whiskS_Vals';   % Transpose since detrend goes down columns
-    dTWhiskS_Vals = detrend(transpWhiskS_Vals);   % detrend
-    whiskZhold = cat(3, whiskZhold, dTWhiskS_Vals');   % transpose back to original orientation and save into Data.S
+    whiskZhold = cat(3, whiskZhold, whiskS_Vals);
 end
-% 
+
 T = 1:whiskDuration;
 timevec = (T/whiskBinSize)-2;
 F = SpectrogramData.OneSec.F{1, 1};
@@ -136,89 +140,19 @@ whiskS = mean(whiskZhold, 3);
 figure;
 imagesc(timevec,F,whiskS);
 axis xy
-caxis([-1 2])
-ylabel(' ')
+colorbar
+caxis([-1 1])
+title('Hippocampal LFP during extended whisking')
+ylabel('Frequency (Hz)')
+xlabel('Peri-whisk time (sec)')
 
-S = SpectrogramData.OneSec.S_Norm{3,1};
-T = SpectrogramData.OneSec.T{1,1};
-F = SpectrogramData.OneSec.F{1,1};
-figure;
-imagesc(T,F,S)
-axis xy
-caxis([-1 2])
+ComparisonData.Whisk.data = whiskCritMeans.data;
+ComparisonData.Whisk.vesselIDs = whiskCritMeans.vesselIDs;
+ComparisonData.Whisk.std = whiskCritSTD;
+ComparisonData.Whisk.LFP.S = whiskS;
+ComparisonData.Whisk.LFP.T = timevec;
+ComparisonData.Whisk.LFP.F = F;
+
+save([animalID '_ComparisonData.mat'], 'ComparisonData');
 
 end
-
-%%
-% whiskSpecs = cell(length(whiskData), 1);
-% for x = 1:length(whiskData)
-%     uniqueVesselIDs = unique(whiskVesselIDs{x,1});
-%     for y = 1:length(uniqueVesselIDs)
-%         uniqueVesselID = uniqueVesselIDs{y,1};
-%         whiskHold = [];
-%         for z = 1:length(whiskVesselIDs{x,1})
-%             vesselID = whiskVesselIDs{x,1}{z,1};
-%             if strcmp(uniqueVesselID, vesselID) == 1
-%                 fileID = whiskFileIDs{x,1}{z,1};
-%                 for v = 1:length(SpectrogramData.FileIDs)
-%                     specFileID = (SpectrogramData.FileIDs{v,1});
-%                     if strcmp(specFileID, fileID)
-%                         whiskSData = SpectrogramData.OneSec.S_Norm{v,1};
-%                     end
-%                 end
-%                 
-%                 whiskSLength = size(whiskSData, 2);
-%                 whiskBinSize = ceil(whiskSLength/280);
-%                 whiskSamplingDiff = p2Fs/whiskBinSize;
-%                 whiskDuration = (floor(whiskSLength/280))*12;
-%                 startTime = floor(floor(whiskEventTimes{x,1}(z,1)*p2Fs)/whiskSamplingDiff);
-%                 if startTime == 0
-%                     startTime = 1;
-%                 end
-%              
-%                 try
-%                     whiskSVals = whiskSData(:, (startTime - (2*whiskBinSize)):(startTime + ((whiskDuration - 2)*whiskBinSize)));
-%                 catch
-%                     whiskSVals = whiskSData(:, end - (whiskDuration*whiskBinSize):end);
-%                 end
-%                 transpWhiskSVals = whiskSVals';
-%                 dTWhiskSVals = detrend(transpWhiskSVals);
-%                 whiskHold = cat(3, whiskHold, dTWhiskSVals');
-%             end
-%         end
-%         whiskSpecs{x,1}{y,1} = mean(whiskHold, 3);
-%     end
-% end
-% 
-% T = 1:whiskDuration;
-% F = SpectrogramData.OneSec.F{1, 1};
-% 
-% % ax3 =subplot(3,1,3);
-% % plot(timeVector, meanWhiskMUAData)
-% % axis tight
-% % xlabel('Peristimulus time (sec)')
-% % ylabel('Normalized Power')
-% % 
-% % ComparisonData.Evoked.Whisk.(dataType).CBV.data = meanWhiskCBVData;
-% % ComparisonData.Evoked.Whisk.(dataType).CBV.timeVector = timeVector;
-% % ComparisonData.Evoked.Whisk.(dataType).MUA.data = meanWhiskMUAData;
-% % ComparisonData.Evoked.Whisk.(dataType).MUA.timeVector = timeVector;
-% % ComparisonData.Evoked.Whisk.(dataType).LFP.data = whiskS;
-% % ComparisonData.Evoked.Whisk.(dataType).LFP.T = T;
-% % ComparisonData.Evoked.Whisk.(dataType).LFP.F = F;
-% 
-% save([animal '_ComparisonData.mat'], 'ComparisonData');
-% 
-% [pathstr, ~, ~] = fileparts(cd);
-% dirpath = [pathstr '/Figures/Evoked Averages/'];
-% 
-% if ~exist(dirpath, 'dir')
-%     mkdir(dirpath);
-% end
-% 
-% savefig(whiskEvoked, [dirpath animal '_' dataType '_WhiskEvokedAverages']);
-% 
-% end
-% 
-% 
-% 
