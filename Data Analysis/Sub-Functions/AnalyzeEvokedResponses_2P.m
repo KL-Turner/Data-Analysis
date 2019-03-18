@@ -1,4 +1,4 @@
-function [ComparisonData] = AnalyzeEvokedResponses_2P(animalID, RestingBaselines, EventData, SpectrogramData)
+function [ComparisonData] = AnalyzeEvokedResponses_2P(animalID, RestingBaselines, EventData, SpectrogramData, ComparisonData)
 %___________________________________________________________________________________________________
 % Written by Kevin L. Turner, Jr.
 % Adapted from codes credited to Dr. Patrick J. Drew and Aaron T. Winder
@@ -101,50 +101,58 @@ end
 
 %%
 whiskZhold = [];
-sFiles = whiskFileIDs{3,1};
-sEventTimes = whiskEventTimes{3,1};
-for x = 1:length(sFiles)   % Loop through each non-unique file
-    whiskFileID = sFiles{x, 1}; 
-    % Load in Neural Data from rest period
-    for s = 1:length(SpectrogramData.FileIDs)
-        if strcmp(whiskFileID, SpectrogramData.FileIDs{s, 1})
-            whiskS_Data = SpectrogramData.OneSec.S_Norm{s, 1};  % S data for this specific file
+for w = 1:length(whiskFileIDs)
+    whiskZhold = [];
+    sFiles = whiskFileIDs{w,1};
+    sEventTimes = whiskEventTimes{w,1};
+    for x = 1:length(sFiles)   % Loop through each non-unique file
+        whiskFileID = sFiles{x, 1};
+        % Load in Neural Data from rest period
+        for s = 1:length(SpectrogramData.FileIDs)
+            if strcmp(whiskFileID, SpectrogramData.FileIDs{s, 1})
+                whiskS_Data = SpectrogramData.OneSec.S_Norm{s, 1};  % S data for this specific file
+            end
         end
+        whiskSLength = size(whiskS_Data, 2);
+        whiskBinSize = ceil(whiskSLength/280);
+        whiskSamplingDiff = p2Fs/whiskBinSize;
+        
+        % Find the start time and duration
+        whiskDuration = whiskBinSize*12;
+        startTime = floor(floor(sEventTimes(x,1)*p2Fs)/whiskSamplingDiff);
+        if startTime == 0
+            startTime = 1;
+        end
+        
+        % Take the S_data from the start time throughout the duration
+        try
+            whiskS_Vals = whiskS_Data(:, (startTime - (2*whiskBinSize)):(startTime + ((12 - 2)*whiskBinSize)));
+        catch
+            whiskS_Vals = whiskS_Data(:, end - (12*whiskBinSize):end);
+        end
+        
+        whiskZhold = cat(3, whiskZhold, whiskS_Vals);
     end
-    whiskSLength = size(whiskS_Data, 2);                                  % Length of the data across time (number of samples)
-    whiskBinSize = ceil(whiskSLength / 280);                              % Find the number of bins needed to divide this into 300 seconds
-    whiskSamplingDiff = p2Fs/whiskBinSize;                   % Number to divide by for data to be at 5 Hz
-    
-    % Find the start time and duration
-    whiskDuration = whiskBinSize*12;
-    startTime = floor(floor(sEventTimes(x,1)*p2Fs)/whiskSamplingDiff);
-    if startTime == 0
-        startTime = 1;
-    end
-    
-    % Take the S_data from the start time throughout the duration
-    try
-        whiskS_Vals = whiskS_Data(:, (startTime - (2*whiskBinSize)):(startTime + ((12 - 2)*whiskBinSize)));
-    catch
-        whiskS_Vals = whiskS_Data(:, end - (12*whiskBinSize):end);
-    end
-    
-    whiskZhold = cat(3, whiskZhold, whiskS_Vals);
+    whiskZhold_all{w,1} = whiskZhold;
 end
 
 T = 1:whiskDuration;
 timevec = (T/whiskBinSize)-2;
 F = SpectrogramData.OneSec.F{1, 1};
-whiskS = mean(whiskZhold, 3);
+for a = 1:length(whiskZhold_all)
+    whiskS{a,1} = mean(whiskZhold_all{a,1}, 3);
+end
 
-figure;
-imagesc(timevec,F,whiskS);
-axis xy
-colorbar
-caxis([-1 1])
-title('Hippocampal LFP during extended whisking')
-ylabel('Frequency (Hz)')
-xlabel('Peri-whisk time (sec)')
+for b = 1:length(whiskS)
+    figure('NumberTitle', 'off', 'Name', ['Whisker Criteria ' num2str(b)]);
+    imagesc(timevec,F,whiskS{b,1});
+    axis xy
+    colorbar
+    caxis([-1 1])
+    title('Hippocampal LFP during extended whisking')
+    ylabel('Frequency (Hz)')
+    xlabel('Peri-whisk time (sec)')
+end
 
 ComparisonData.Whisk.data = whiskCritMeans.data;
 ComparisonData.Whisk.vesselIDs = whiskCritMeans.vesselIDs;
