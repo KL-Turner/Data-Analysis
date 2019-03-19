@@ -15,6 +15,9 @@ function [ComparisonData] = AnalyzeCoherence_2P(animalID, mergedDataFiles, Compa
 %   Last Revised: March 18th, 2019
 %________________________________________________________________________________________________________________________
 
+p2Fs = 20;
+downSampledFs = 30;
+
 %%
 vesselIDs = {};
 for a = 1:size(mergedDataFiles, 1)
@@ -24,7 +27,7 @@ for a = 1:size(mergedDataFiles, 1)
 end
 
 uniqueVesselIDs = unique(vesselIDs);
-[B, A] = butter(4, 2/(20/2), 'low');
+[B, A] = butter(4, 2/(p2Fs/2), 'low');
 for b = 1:length(uniqueVesselIDs)
     uniqueVesselID = string(uniqueVesselIDs{b,1});
     d = 1;
@@ -34,7 +37,7 @@ for b = 1:length(uniqueVesselIDs)
         if strcmp(uniqueVesselID, mdID) == true
             load(mergedDataFile);
             uniqueVesselData{b,1}(:,d) = detrend(filtfilt(B, A, MergedData.Data.Vessel_Diameter(1:end - 2)), 'constant');
-            uniqueWhiskerData{b,1}(:,d) = abs(diff(resample(MergedData.Data.Whisker_Angle, 20, 30), 2));
+            uniqueWhiskerData{b,1}(:,d) = detrend(abs(diff(resample(MergedData.Data.Whisker_Angle, p2Fs, downSampledFs), 2)), 'constant');
             d = d + 1;
         end
     end
@@ -47,7 +50,7 @@ end
 %%
 params.tapers = [3 5];
 params.pad = 1;
-params.Fs = 20; 
+params.Fs = p2Fs; 
 params.fpass = [0 1]; 
 params.trialave = 1;
 params.err = [2 0.05];

@@ -16,17 +16,20 @@ function [SpectrogramData] = CreateTrialSpectrograms_2P(animalID, mergedDataFile
 for fileNumber = 1:size(mergedDataFiles, 1)
     mergedDataFileID = mergedDataFiles(fileNumber, :);
     load(mergedDataFileID);
+    duration = MergedData.Notes.trialDuration_Sec;
+    analogFs = MergedData.Notes.MScan.MScan_analogSamplingRate;
+    expectedLength = duration*analogFs;
     [~, ~, fileID, vesselID] = GetFileInfo_2P(mergedDataFileID);
-    RawNeuro = MergedData.Data.Raw_NeuralData;
+    RawNeuro = detrend(MergedData.Data.Raw_NeuralData(1:expectedLength), 'constant');
     
-    w0 = 60/(20000/2);  bw = w0/35;
+    w0 = 60/(analogFs/2);  bw = w0/35;
     [num,den] = iirnotch(w0, bw);
     RawNeuro2 = filtfilt(num, den, RawNeuro);
 
     % Spectrogram parameters
     params.tapers = [5 9];
     params.Fs = MergedData.Notes.MScan.MScan_analogSamplingRate;
-    params.fpass = [0.1 100];
+    params.fpass = [1 100];
     movingwin1 = [1 1/5];
     movingwin5 = [5 1/5];
 
@@ -48,6 +51,9 @@ for fileNumber = 1:size(mergedDataFiles, 1)
     SpectrogramData.OneSec.F{fileNumber, 1} = Neural_F1;
     SpectrogramData.Notes.movingwin1 = movingwin1; 
 end
+
+for a = 1:length(SpectrogramData.FiveSec.F)
+    
 
 save([animalID '_SpectrogramData.mat'], 'SpectrogramData', '-v7.3');
 

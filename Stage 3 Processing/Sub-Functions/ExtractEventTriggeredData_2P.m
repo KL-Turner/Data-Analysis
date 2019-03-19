@@ -41,8 +41,8 @@ function [EventData] = ExtractEventTriggeredData_2P(mergedDataFiles, dataTypes)
 %_______________________________________________________________
 
 EventData = [];
-epoch.duration = 12;
-epoch.offset = 2;
+epoch.duration = 14;
+epoch.offset = 4;
 
 % Control for dataTypes as string
 if not(iscell(dataTypes))

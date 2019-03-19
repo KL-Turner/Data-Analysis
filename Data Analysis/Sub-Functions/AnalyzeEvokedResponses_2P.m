@@ -15,6 +15,9 @@ function [ComparisonData] = AnalyzeEvokedResponses_2P(animalID, RestingBaselines
 %___________________________________________________________________________________________________
 
 p2Fs = 20;
+offset = 4;
+duration = 10;
+trialDuration = 280;   % seconds
 
 %%
 whiskCriteria.Fieldname{1,1} = {'duration', 'duration', 'puffDistance'};
@@ -49,7 +52,6 @@ for x = 1:length(whiskCriteria.Fieldname)
 end
 
 %%
-% [B, A] = butter(4, 2/(p2Fs/2), 'low');
 processedWhiskData.data = cell(length(whiskData), 1);
 for x = 1:length(whiskData)
     uniqueVesselIDs = unique(whiskVesselIDs{x,1});
@@ -63,8 +65,7 @@ for x = 1:length(whiskData)
                 strDay = ConvertDate(fileID(1:6));
                 vesselDiam = whiskData{x,1}(z,:);
                 normVesselDiam = (vesselDiam - RestingBaselines.(uniqueVesselID).(strDay).Vessel_Diameter.baseLine)./(RestingBaselines.(vesselID).(strDay).Vessel_Diameter.baseLine);
-                filtVesselDiam = sgolayfilt(normVesselDiam, 10, 101)*100;
-%                 filtVesselDiam = (filtfilt(B, A, normVesselDiam))*100;
+                filtVesselDiam = sgolayfilt(normVesselDiam, 3, 17)*100;
                 processedWhiskData.data{x,1}{y,1}(w,:) = filtVesselDiam;
                 processedWhiskData.vesselIDs{x,1}{y,1}{w} = vesselID;
                 w = w + 1;
@@ -87,8 +88,8 @@ for x = 1:length(whiskCritMeans.data)
     legendIDs = [];
     figure('NumberTitle', 'off', 'Name', ['Whisker Criteria ' num2str(x)]);
     for y = 1:length(whiskCritMeans.data{x,1})
-        plot(((1:length(whiskCritMeans.data{x,1}{y,1}))/p2Fs)-2, whiskCritMeans.data{x,1}{y,1} - mean(whiskCritMeans.data{x,1}{y,1}(1:40)))
-        whiskCritMeans.data{x,1}{y,1} = whiskCritMeans.data{x,1}{y,1} - mean(whiskCritMeans.data{x,1}{y,1}(1:41));
+        plot(((1:length(whiskCritMeans.data{x,1}{y,1}))/p2Fs)-offset, whiskCritMeans.data{x,1}{y,1} - mean(whiskCritMeans.data{x,1}{y,1}(1:(offset*p2Fs))))
+        whiskCritMeans.data{x,1}{y,1} = whiskCritMeans.data{x,1}{y,1} - mean(whiskCritMeans.data{x,1}{y,1}(1:(offset*p2Fs)));
         vID = join([string(animalID) string(whiskCritMeans.vesselIDs{x,1}{y,1})]);
         vID = strrep(vID, ' ', '');
         legendIDs = [legendIDs vID];
@@ -115,11 +116,11 @@ for w = 1:length(whiskFileIDs)
             end
         end
         whiskSLength = size(whiskS_Data, 2);
-        whiskBinSize = ceil(whiskSLength/280);
+        whiskBinSize = ceil(whiskSLength/trialDuration);
         whiskSamplingDiff = p2Fs/whiskBinSize;
         
         % Find the start time and duration
-        whiskDuration = whiskBinSize*12;
+        whiskDuration = whiskBinSize*(offset+duration);
         startTime = floor(floor(sEventTimes(x,1)*p2Fs)/whiskSamplingDiff);
         if startTime == 0
             startTime = 1;
@@ -127,18 +128,17 @@ for w = 1:length(whiskFileIDs)
         
         % Take the S_data from the start time throughout the duration
         try
-            whiskS_Vals = whiskS_Data(:, (startTime - (2*whiskBinSize)):(startTime + ((12 - 2)*whiskBinSize)));
+            whiskS_Vals = whiskS_Data(:, (startTime - (offset*whiskBinSize)):(startTime + ((duration)*whiskBinSize)));
         catch
-            whiskS_Vals = whiskS_Data(:, end - (12*whiskBinSize):end);
+            whiskS_Vals = whiskS_Data(:, end - ((duration+offset)*whiskBinSize):end);
         end
-        
         whiskZhold = cat(3, whiskZhold, whiskS_Vals);
     end
     whiskZhold_all{w,1} = whiskZhold;
 end
 
 T = 1:whiskDuration;
-timevec = (T/whiskBinSize)-2;
+timevec = (T/whiskBinSize)-offset;
 F = SpectrogramData.OneSec.F{1, 1};
 for a = 1:length(whiskZhold_all)
     whiskS{a,1} = mean(whiskZhold_all{a,1}, 3);
@@ -155,12 +155,20 @@ for b = 1:length(whiskS)
     xlabel('Peri-whisk time (sec)')
 end
 
+tblVals.C1.events = length(whiskEventTimes{1,1});
+tblVals.C2.events = length(whiskEventTimes{2,1});
+tblVals.C3.events = length(whiskEventTimes{3,1});
+tblVals.C1.whiskMinutes = (length(whiskEventTimes{1,1})*14)/60;
+tblVals.C2.whiskMinutes = (length(whiskEventTimes{1,1})*14)/60;
+tblVals.C3.whiskMinutes = (length(whiskEventTimes{1,1})*14)/60;
+
 ComparisonData.Whisk.data = whiskCritMeans.data;
 ComparisonData.Whisk.vesselIDs = whiskCritMeans.vesselIDs;
 ComparisonData.Whisk.std = whiskCritSTD;
 ComparisonData.Whisk.LFP.S = whiskS;
 ComparisonData.Whisk.LFP.T = timevec;
 ComparisonData.Whisk.LFP.F = F;
+ComparisonData.Whisk.tblVals = tblVals;
 
 save([animalID '_ComparisonData.mat'], 'ComparisonData');
 
