@@ -17,10 +17,10 @@ function [ComparisonData] = AnalyzeCoherence_2P(animalID, mergedDataFiles, Compa
 
 %%
 vesselIDs = {};
-for a = 1:length(mergedDataFiles)
+for a = 1:size(mergedDataFiles, 1)
     mergedDataFile = mergedDataFiles(a,:);
     [~,~,~, vID] = GetFileInfo_2P(mergedDataFile);
-    vesselIDs = vID{a,1};
+    vesselIDs{a,1} = vID;
 end
 
 uniqueVesselIDs = unique(vesselIDs);
@@ -28,22 +28,27 @@ uniqueVesselIDs = unique(vesselIDs);
 for b = 1:length(uniqueVesselIDs)
     uniqueVesselID = string(uniqueVesselIDs{b,1});
     d = 1;
-    for c = 1:length(mergedDataFiles)
-        [~,~,~, mdID] = GetFileInfo_2P(mergedDataFile(c,:));
+    for c = 1:size(mergedDataFiles, 1)
+        mergedDataFile = mergedDataFiles(c,:);
+        [~,~,~, mdID] = GetFileInfo_2P(mergedDataFile);
         if strcmp(uniqueVesselID, mdID) == true
             load(mergedDataFile);
-            uniqueVesselData{b,1}(d,:) = detrend(filtfilt(B, A, MergedData.Data.Vessel_Diameter), 'constant');
-            uniqueWhiskerData{b,1}(d,:) = abs(diff(MergedData.Data.Whisker_Angle, 2));
+            uniqueVesselData{b,1}(:,d) = detrend(filtfilt(B, A, MergedData.Data.Vessel_Diameter(1:end - 2)), 'constant');
+            uniqueWhiskerData{b,1}(:,d) = abs(diff(resample(MergedData.Data.Whisker_Angle, 20, 30), 2));
             d = d + 1;
         end
     end
+end
+
+for k = 1:length(uniqueVesselIDs)
+    uniqueVesselIDs{k,1} = [animalID uniqueVesselIDs{k,1}];
 end
 
 %%
 params.tapers = [3 5];
 params.pad = 1;
 params.Fs = 20; 
-params.fpass = [0 2]; 
+params.fpass = [0 1]; 
 params.trialave = 1;
 params.err = [2 0.05];
 

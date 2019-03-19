@@ -34,12 +34,4 @@ disp('Analyzing Block [1] Analyzing the whisking-evoked responses.'); disp(' ')
 [ComparisonData] = AnalyzePowerSpectrum_2P(animalID, mergedDataFiles, ComparisonData);
 
 %% BLOCK PURPOSE: [3] Coherence between vessel diameter and whisk acceleration
-
-
-
-
-
-
-
-
-
+[ComparisonData] = AnalyzeCoherence_2P(animalID, mergedDataFiles, ComparisonData);

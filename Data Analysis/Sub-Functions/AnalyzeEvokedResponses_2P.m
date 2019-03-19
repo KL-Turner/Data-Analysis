@@ -49,7 +49,7 @@ for x = 1:length(whiskCriteria.Fieldname)
 end
 
 %%
-[B, A] = butter(4, 2/(p2Fs/2), 'low');
+% [B, A] = butter(4, 2/(p2Fs/2), 'low');
 processedWhiskData.data = cell(length(whiskData), 1);
 for x = 1:length(whiskData)
     uniqueVesselIDs = unique(whiskVesselIDs{x,1});
@@ -87,7 +87,8 @@ for x = 1:length(whiskCritMeans.data)
     legendIDs = [];
     figure('NumberTitle', 'off', 'Name', ['Whisker Criteria ' num2str(x)]);
     for y = 1:length(whiskCritMeans.data{x,1})
-        plot(((1:length(whiskCritMeans.data{x,1}{y,1}))/p2Fs)-2, whiskCritMeans.data{x,1}{y,1} - mean(whiskCritMeans.data{x,1}{y,1}(1:40)));
+        plot(((1:length(whiskCritMeans.data{x,1}{y,1}))/p2Fs)-2, whiskCritMeans.data{x,1}{y,1} - mean(whiskCritMeans.data{x,1}{y,1}(1:40)))
+        whiskCritMeans.data{x,1}{y,1} = whiskCritMeans.data{x,1}{y,1} - mean(whiskCritMeans.data{x,1}{y,1}(1:41));
         vID = join([string(animalID) string(whiskCritMeans.vesselIDs{x,1}{y,1})]);
         vID = strrep(vID, ' ', '');
         legendIDs = [legendIDs vID];
