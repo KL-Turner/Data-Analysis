@@ -50,7 +50,7 @@ for f = 1:size(mergedDataFiles, 1)
     singleTrialFig = figure;
     ax1 = subplot(4,1,1);
     plot((1:length(filteredForceSensor))/30, filteredForceSensor, 'color', colors('sapphire'))
-    xlim([0 290])
+    xlim([0 280])
     title({[animalID ' Two-photon behavioral characterization and vessel ' vesselID ' diameter changes for ' fileID], 'Force sensor and EMG'})
     xlabel('Time (sec)')
     ylabel('Force Sensor (Volts)')
@@ -63,7 +63,7 @@ for f = 1:size(mergedDataFiles, 1)
     ax2 = subplot(4,1,2:3);
     yyaxis right
     plot((1:length(filteredWhiskerAngle))/30, -filteredWhiskerAngle, 'color', colors('ash grey'))
-    xlim([0 290])
+    xlim([0 280])
     ylabel('Angle (deg)')
     ylim([-10 60])
     
@@ -83,7 +83,7 @@ for f = 1:size(mergedDataFiles, 1)
     end
     scatter((1:length(binForce))/30, forceInds, '.', 'MarkerEdgeColor', colors('rich black'));
     scatter((1:length(binWhiskers))/30, whiskInds, '.', 'MarkerEdgeColor', colors('sapphire'));
-    xlim([0 290])
+    xlim([0 280])
     ylim([(min(filteredVessel_Diameter))-0.1 (max(filteredVessel_Diameter))*1.3])
     title('Vessel diameter in response to behavior events')
     xlabel('Time (sec)')

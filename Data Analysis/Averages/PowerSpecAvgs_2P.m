@@ -23,12 +23,10 @@ for a = 1:length(whiskAnimalIDs)
   
     for b = 1:length(ComparisonData.Vessel_PowerSpec.S)
         powerspecVesselData(x, :) = ComparisonData.Vessel_PowerSpec.S{b,1};
-        powerspecWhiskData(x, :) = ComparisonData.Whisk_PowerSpec.S;
         vIDs{x,1} =  ComparisonData.Vessel_PowerSpec.vesselIDs{b,1};
         x = x + 1;
     end 
     powerspecWhiskData(a, :) = ComparisonData.Whisk_PowerSpec.S;
-
 end
 
 vf = ComparisonData.Vessel_PowerSpec.f{1,1};
@@ -42,41 +40,45 @@ powerspecWhiskSTD = std(powerspecWhiskData, 1, 1);
 %%
 specAvgs = figure;
 ax1 = subplot(2,2,1);
-plot(vf, powerspecVesselMean, 'k')
+loglog(vf, powerspecVesselMean, 'k')
 hold on
-plot(vf, powerspecVesselMean + powerspecVesselSTD)
-plot(vf, powerspecVesselMean - powerspecVesselSTD)
-title('Power spec vessel diameter')
+loglog(vf, powerspecVesselMean + powerspecVesselSTD)
+loglog(vf, powerspecVesselMean - powerspecVesselSTD)
+title('Mean power spec vessel diameter')
 xlabel('Frequency (Hz)')
 ylabel('Power')
+xlim([0 0.5])
 
 ax2 = subplot(2,2,2);
 for c = 1:size(powerspecVesselData, 1)
-    plot(vf, powerspecVesselData(c,:));
+    loglog(vf, powerspecVesselData(c,:));
     hold on
 end
-title('Power spec vessel diameter')
+title('Ind power spec vessel diameter')
 xlabel('Frequency (Hz)')
 ylabel('Power')
 legend(vIDs)
 linkaxes([ax1 ax2], 'xy')
+xlim([0 0.5])
 
 ax3 = subplot(2,2,3);
-plot(wf, powerspecWhiskMean, 'k')
+loglog(wf, powerspecWhiskMean, 'k')
 hold on
-plot(wf, powerspecWhiskMean + powerspecWhiskSTD)
-plot(wf, powerspecWhiskMean - powerspecWhiskSTD)
-title('Power spec abs(whiskerAccel)')
+loglog(wf, powerspecWhiskMean + powerspecWhiskSTD)
+loglog(wf, powerspecWhiskMean - powerspecWhiskSTD)
+title('Mean power spec abs(whiskerAccel)')
 xlabel('Frequency (Hz)')
 ylabel('Power')
+xlim([0 0.5])
 
 ax4 = subplot(2,2,4);
 for c = 1:size(powerspecWhiskData, 1)
-    plot(wf, powerspecWhiskData(c,:));
+    loglog(wf, powerspecWhiskData(c,:));
     hold on
 end
-title('Power spec abs(whiskerAccel)')
+title('Ind power spec abs(whiskerAccel)')
 xlabel('Frequency (Hz)')
 ylabel('Power')
 legend(whiskAnimalIDs)
 linkaxes([ax3 ax4], 'xy')
+xlim([0 0.5])

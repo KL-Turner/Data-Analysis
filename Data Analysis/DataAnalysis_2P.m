@@ -31,7 +31,15 @@ disp('Analyzing Block [1] Analyzing the whisking-evoked responses.'); disp(' ')
 [ComparisonData] = AnalyzeEvokedResponses_2P(animalID, RestingBaselines, EventData, SpectrogramData, ComparisonData);
 
 %% BLOCK PURPOSE: [2] Power spectrum analysis
+disp('Analyzing Block [2] Analyzing the vessel and whisking power spectra.'); disp(' ')
 [ComparisonData] = AnalyzePowerSpectrum_2P(animalID, mergedDataFiles, ComparisonData);
 
 %% BLOCK PURPOSE: [3] Coherence between vessel diameter and whisk acceleration
+disp('Analyzing Block [3] Analyzing the coherence between vessel diameter and whisking acceleration.'); disp(' ')
 [ComparisonData] = AnalyzeCoherence_2P(animalID, mergedDataFiles, ComparisonData);
+
+%% BLOCK PURPOSE: [4] Cross correlation between whisk acceleration and vessel diameter
+disp('Analyzing Block [4] Analyzing the cross correlation between vessel diameter and whisker acceleration.'); disp(' ')
+[ComparisonData] = AnalyzeXCorr_2P(animalID, mergedDataFiles, ComparisonData);
+
+disp('Two Photon Data Analysis - Complete.'); disp(' ')

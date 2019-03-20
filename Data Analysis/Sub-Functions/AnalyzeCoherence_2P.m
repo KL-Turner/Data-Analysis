@@ -51,7 +51,7 @@ end
 params.tapers = [3 5];
 params.pad = 1;
 params.Fs = p2Fs; 
-params.fpass = [0 1]; 
+params.fpass = [0 0.5]; 
 params.trialave = 1;
 params.err = [2 0.05];
 

@@ -67,7 +67,7 @@ T = ComparisonData.Whisk.LFP.T;
 F = ComparisonData.Whisk.LFP.F;
 
 %%
-timeVec = ((1:length(whiskData_C1))/20) - 2;
+timeVec = ((1:length(whiskData_C1))/20) - 4;
 evokedAvgs = figure;
 ax1 = subplot(3,3,1);
 legendIDs = [];
@@ -76,7 +76,7 @@ for x = 1:size(whiskData1, 1)
     vID = vIDs1{x,1};
     hold on
 end
-title('0.5 to 2 seconds')
+title('Ind 0.5 to 2 seconds')
 xlabel('Peri-whisk time (sec)')
 ylabel('\Delta Diameter (%)')
 
@@ -87,7 +87,7 @@ for y = 1:size(whiskData2, 1)
     vID = vIDs1{y,1};
     hold on
 end
-title('2 to 5 seconds')
+title('Ind 2 to 5 seconds')
 xlabel('Peri-whisk time (sec)')
 ylabel('\Delta Diameter (%)')
 
@@ -99,7 +99,7 @@ for z = 1:size(whiskData3, 1)
     legendIDs = [legendIDs vID];
     hold on
 end
-title('5 to 10')
+title('Ind 5 to 10 seconds')
 xlabel('Peri-whisk time (sec)')
 ylabel('\Delta Diameter (%)')
 legend(legendIDs)
@@ -111,6 +111,7 @@ plot(timeVec, whiskData_C1, 'k')
 hold on
 plot(timeVec, whiskData_C1 + whiskSTD_C1)
 plot(timeVec, whiskData_C1 - whiskSTD_C1)
+title('Mean 0.5 to 2')
 xlabel('Peri-whisk time (sec)')
 ylabel('\Delta Diameter (%)')
 
@@ -119,6 +120,7 @@ plot(timeVec, whiskData_C2, 'k')
 hold on
 plot(timeVec, whiskData_C2 + whiskSTD_C2)
 plot(timeVec, whiskData_C2 - whiskSTD_C2)
+title('Mean 2 to 5')
 xlabel('Peri-whisk time (sec)')
 ylabel('\Delta Diameter (%)')
 
@@ -127,6 +129,7 @@ plot(timeVec, whiskData_C3, 'k')
 hold on
 plot(timeVec, whiskData_C3 + whiskSTD_C3)
 plot(timeVec, whiskData_C3 - whiskSTD_C3)
+title('Mean 5 to 10')
 xlabel('Peri-whisk time (sec)')
 ylabel('\Delta Diameter (%)')
 linkaxes([ax4 ax5 ax6], 'xy')
@@ -135,20 +138,26 @@ linkaxes([ax4 ax5 ax6], 'xy')
 subplot(3,3,7);
 imagesc(T,F,whiskLFP_C1);
 axis xy
-caxis([-1 1])
+caxis([-.5 0.75])
+ylim([1 100])
+title('Mean 0.5 to 2')
 ylabel('Frequency (Hz)')
 xlabel('Peri-whisk time (sec)')
 
 subplot(3,3,8);
 imagesc(T,F,whiskLFP_C2);
 axis xy
-caxis([-1 1])
+caxis([-.5 0.75])
+ylim([1 100])
+title('Mean 2 to 5')
 ylabel('Frequency (Hz)')
 xlabel('Peri-whisk time (sec)')
 
 subplot(3,3,9);
 imagesc(T,F,whiskLFP_C3);
 axis xy
-caxis([-1 1])
+caxis([-.5 0.75])
+ylim([1 100])
+title('Mean 5 to 10')
 ylabel('Frequency (Hz)')
 xlabel('Peri-whisk time (sec)')

@@ -146,8 +146,9 @@ for u = 1:length(uniqueVessels)
                 
                 % find the means of each the unique vessel from the unique day
                 % for valid files
+                clear tempData_means
                 for x = 1:length(baselineVesselData)
-                    tempData_means(1,x) = mean(baselineVesselData{x});
+                    tempData_means(x,1) = mean(baselineVesselData{x,1});
                 end
             else
                 tempData_means = [];

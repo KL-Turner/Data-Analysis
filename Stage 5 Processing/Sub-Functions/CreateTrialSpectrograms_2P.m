@@ -27,11 +27,11 @@ for fileNumber = 1:size(mergedDataFiles, 1)
     RawNeuro2 = filtfilt(num, den, RawNeuro);
 
     % Spectrogram parameters
-    params.tapers = [5 9];
+    params.tapers = [1 1];
     params.Fs = MergedData.Notes.MScan.MScan_analogSamplingRate;
     params.fpass = [1 100];
-    movingwin1 = [1 1/5];
-    movingwin5 = [5 1/5];
+    movingwin1 = [1 1/10];
+    movingwin5 = [5 1/10];
 
     disp(['Creating spectrogram for file number ' num2str(fileNumber) ' of ' num2str(size(mergedDataFiles, 1)) '...']); disp(' ')
     

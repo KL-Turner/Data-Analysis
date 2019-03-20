@@ -22,36 +22,34 @@ for a = 1:length(whiskAnimalIDs)
     load([animalID '_ComparisonData.mat']);
   
     for b = 1:length(ComparisonData.WhiskVessel_Coherence.C)
-        coherenceData(x, :) = ComparisonData.WhiskVessel_Coherence.C{b,1};
-        vIDs{x,1} =  ComparisonData.Vessel_PowerSpec.vesselIDs{b,1};
+        XCorrData(x, :) = ComparisonData.WhiskVessel_XCorr.XC_means{b,1};
+        vIDs{x,1} =  ComparisonData.WhiskVessel_XCorr.vesselIDs{b,1};
         x = x + 1;
     end 
 end
 
-f = ComparisonData.WhiskVessel_Coherence.f{1,1};
-coherenceMean = mean(coherenceData, 1);
-coherenceSTD = std(coherenceData, 1, 1);
+lags = ComparisonData.WhiskVessel_XCorr.lags;
+xcorrMean = mean(XCorrData, 1);
+xcorrSTD = std(XCorrData, 1, 1);
 
 %%
-cohAvgs = figure;
+xcorrAvgs = figure;
 ax1 = subplot(1,2,1);
-plot(f, coherenceMean, 'k')
+plot(lags, xcorrMean, 'k')
 hold on
-plot(f, coherenceMean + coherenceSTD)
-plot(f, coherenceMean - coherenceSTD)
-title('Mean coherence Abs(whiskAccel) vs. vessel diameter')
-xlabel('Frequency (Hz)')
-ylabel('Coherence')
-xlim([0 0.5])
+plot(lags, xcorrMean + xcorrSTD)
+plot(lags, xcorrMean - xcorrSTD)
+title('Mean XCorr Abs(whiskAccel) vs. vessel diameter')
+ylabel('Correlation')
+xlabel('Lags (sec)')
 
 ax2 = subplot(1,2,2);
-for c = 1:size(coherenceData, 1)
-    plot(f, coherenceData(c,:));
+for c = 1:size(XCorrData, 1)
+    plot(lags, XCorrData(c,:));
     hold on
 end
-title('Ind coherence Abs(whiskAccel) vs. vessel diameter')
-xlabel('Frequency (Hz)')
-ylabel('Coherence')
+title('Ind XCorr Abs(whiskAccel) vs. vessel diameter')
+ylabel('Correlation')
+xlabel('Lags (sec)')
 legend(vIDs)
-xlim([0 0.5])
 linkaxes([ax1 ax2], 'xy')
