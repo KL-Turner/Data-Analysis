@@ -57,4 +57,9 @@ disp('Analyzing Block [4] Finding the resting baseline for vessel diameter and n
 targetMinutes = 15;
 [RestingBaselines] = CalculateRestingBaselines_2P(animalID, targetMinutes, RestData);
 
+%% BLOCK PURPOSE: [5]: Determine vessel statistics
+disp('Analyzing Block [5] Finding the different vessel statistics for each animal.'); disp(' ')
+
+
+
 disp('Two Photon Stage Three Processing - Complete.'); disp(' ')

@@ -1,4 +1,4 @@
-function [ComparisonData] = AnalyzeEvokedResponses_2P(animalID, RestingBaselines, EventData, SpectrogramData, ComparisonData)
+function [ComparisonData] = AnalyzeEvokedResponses_2P(animalID, mergedDataFiles, RestingBaselines, EventData, SpectrogramData, ComparisonData)
 %___________________________________________________________________________________________________
 % Written by Kevin L. Turner, Jr.
 % Adapted from codes credited to Dr. Patrick J. Drew and Aaron T. Winder
@@ -155,12 +155,48 @@ for b = 1:length(whiskS)
     xlabel('Peri-whisk time (sec)')
 end
 
-tblVals.C1.events = length(whiskEventTimes{1,1});
-tblVals.C2.events = length(whiskEventTimes{2,1});
-tblVals.C3.events = length(whiskEventTimes{3,1});
-tblVals.C1.whiskMinutes = (length(whiskEventTimes{1,1})*14)/60;
-tblVals.C2.whiskMinutes = (length(whiskEventTimes{1,1})*14)/60;
-tblVals.C3.whiskMinutes = (length(whiskEventTimes{1,1})*14)/60;
+%%
+for a = 1:length(uniqueVesselIDs)
+    uvID = uniqueVesselIDs{a,1};
+    t = 1;
+    for b = 1:size(mergedDataFiles,1)
+        [~,~,~,vID] = GetFileInfo_2P(mergedDataFiles(b,:));
+        if strcmp(uvID, vID)
+            timePerVessel{a,1} = t*trialDuration;
+            t = t+1;
+        end
+    end
+    vesselBaselines = [];
+    timePerVessel{a,1} = timePerVessel{a,1}/60;
+    fieldnames = fields(RestingBaselines.(uvID));
+    for c = 1:length(fieldnames)
+        fieldname = fieldnames{c,1};
+        if ~isnan(RestingBaselines.(uvID).(fieldname).Vessel_Diameter.baseLine)
+            vesselBaselines = [vesselBaselines RestingBaselines.(uvID).(fieldname).Vessel_Diameter.baseLine];
+        end
+    end
+    vBaselines{a,1} = mean(vesselBaselines);
+end
+%%
+
+for b = 1:length(processedWhiskData.data{1,1})
+    C1events{b,1} = size(processedWhiskData.data{b,1}{1,1},1);
+end
+
+for b = 1:length(processedWhiskData.data{3,1})
+    C2events{b,1} = size(processedWhiskData.data{b,1}{2,1},1);
+end
+
+for b = 1:length(processedWhiskData.data{3,1})
+    C3events{b,1} = size(processedWhiskData.data{b,1}{3,1},1);
+end
+
+tblVals.C1events = C1events;
+tblVals.C2events = C2events;
+tblVals.C3events = C3events;
+tblVals.vesselIDs = uniqueVesselIDs;
+tblVals.timePerVessel = timePerVessel;
+tblVals.baselines = vBaselines;
 
 ComparisonData.Whisk.data = whiskCritMeans.data;
 ComparisonData.Whisk.vesselIDs = whiskCritMeans.vesselIDs;
@@ -168,7 +204,7 @@ ComparisonData.Whisk.std = whiskCritSTD;
 ComparisonData.Whisk.LFP.S = whiskS;
 ComparisonData.Whisk.LFP.T = timevec;
 ComparisonData.Whisk.LFP.F = F;
-ComparisonData.Whisk.tblVals = tblVals;
+ComparisonData.tblVals = tblVals;
 
 save([animalID '_ComparisonData.mat'], 'ComparisonData');
 

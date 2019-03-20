@@ -28,7 +28,7 @@ disp('Block [0] structs loaded.'); disp(' ')
 
 %% BLOCK PURPOSE: [1] Whisking evoked averages
 disp('Analyzing Block [1] Analyzing the whisking-evoked responses.'); disp(' ')
-[ComparisonData] = AnalyzeEvokedResponses_2P(animalID, RestingBaselines, EventData, SpectrogramData, ComparisonData);
+[ComparisonData] = AnalyzeEvokedResponses_2P(animalID,mergedDataFiles, RestingBaselines, EventData, SpectrogramData, ComparisonData);
 
 %% BLOCK PURPOSE: [2] Power spectrum analysis
 disp('Analyzing Block [2] Analyzing the vessel and whisking power spectra.'); disp(' ')
