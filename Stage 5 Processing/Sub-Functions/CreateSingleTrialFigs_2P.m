@@ -68,7 +68,7 @@ for f = 1:size(mergedDataFiles, 1)
     ylim([-10 60])
     
     yyaxis left
-    plot((1:length(filteredVessel_Diameter))/20, filteredVessel_Diameter, 'color', colors('dark candy apple red'), 'LineWidth', 1.5)
+    plot((1:length(filteredVessel_Diameter))/20, filteredVessel_Diameter, 'color', colors('dark candy apple red'))
     hold on;
     whiskInds = binWhiskers.*whisking_YVals;
     forceInds = binForce.*force_YVals;

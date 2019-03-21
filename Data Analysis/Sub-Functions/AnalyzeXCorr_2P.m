@@ -1,4 +1,4 @@
-function [ComparisonData] = AnalyzeXCorr_2P(animalID, mergedDataFiles, ComparisonData)
+function [ComparisonData] = AnalyzeXCorr_(animalID, mergedDataFiles, ComparisonData)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % Ph.D. Candidate, Department of Bioengineering

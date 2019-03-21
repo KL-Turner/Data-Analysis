@@ -180,15 +180,15 @@ end
 %%
 
 for b = 1:length(processedWhiskData.data{1,1})
-    C1events{b,1} = size(processedWhiskData.data{b,1}{1,1},1);
+    C1events{b,1} = size(processedWhiskData.data{1,1}{b,1},1);
 end
 
 for b = 1:length(processedWhiskData.data{3,1})
-    C2events{b,1} = size(processedWhiskData.data{b,1}{2,1},1);
+    C2events{b,1} = size(processedWhiskData.data{2,1}{b,1},1);
 end
 
 for b = 1:length(processedWhiskData.data{3,1})
-    C3events{b,1} = size(processedWhiskData.data{b,1}{3,1},1);
+    C3events{b,1} = size(processedWhiskData.data{3,1}{b,1},1);
 end
 
 tblVals.C1events = C1events;

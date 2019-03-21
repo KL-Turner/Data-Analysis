@@ -54,12 +54,7 @@ disp('Analyzing Block [3] Creating EventData struct for vessels and neural data.
 
 %% BLOCK PURPOSE: [4] Create Baselines data structure
 disp('Analyzing Block [4] Finding the resting baseline for vessel diameter and neural data.'); disp(' ')
-targetMinutes = 15;
+targetMinutes = 30;
 [RestingBaselines] = CalculateRestingBaselines_2P(animalID, targetMinutes, RestData);
-
-%% BLOCK PURPOSE: [5]: Determine vessel statistics
-disp('Analyzing Block [5] Finding the different vessel statistics for each animal.'); disp(' ')
-
-
 
 disp('Two Photon Stage Three Processing - Complete.'); disp(' ')
