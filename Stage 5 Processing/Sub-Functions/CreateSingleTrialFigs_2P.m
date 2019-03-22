@@ -33,7 +33,7 @@ for f = 1:size(mergedDataFiles, 1)
     %% CBV data - normalize and then lowpass filer
     Vessel_Diameter = MergedData.Data.Vessel_Diameter;
     normVessel_Diameter = (Vessel_Diameter - RestingBaselines.(vesselID).(strDay).Vessel_Diameter.baseLine) ./ (RestingBaselines.(vesselID).(strDay).Vessel_Diameter.baseLine);
-    [D, C] = butter(4, 2 / (20 / 2), 'low');
+    [D, C] = butter(4, 1/(20/2), 'low');
     filteredVessel_Diameter = (filtfilt(D, C, normVessel_Diameter))*100;
 
     %% Neural spectrograms
