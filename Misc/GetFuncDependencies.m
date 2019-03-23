@@ -110,7 +110,6 @@ TString = strrep(TString,'<strong>','\bf');
 TString = strrep(TString,'</strong>','\rm');
 TString = strrep(TString,'_','\_');
 FixedWidth = get(0,'FixedWidthFontName');
-annotation(gcf,'Textbox','String',TString,'Interpreter','Tex','FontName',FixedWidth,'Units','Normalized','Position',[0 0 1 1]);
-set(u,'ColumnWidth',{200})
+set(u,'ColumnWidth',{300})
 
 end
