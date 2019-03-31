@@ -62,7 +62,7 @@ for fileNumber = 1:length(fileNames)
     end
     
     % Pull out the file ID for the file - this is the numerical string after the animal name/hem
-    [~, ~, ~, fileID] = GetFileInfo(indFile);
+    [~, ~, ~, fileID] = GetFileInfo_2P(indFile);
     
     % Determine if a LabVIEWData file has already been created for this file. If it has, skip it.
     fileExist = ls(['*' fileID '_LabVIEWData.mat']);
@@ -80,7 +80,7 @@ for fileNumber = 1:length(fileNames)
     %% BLOCK PURPOSE: [3] Start Whisker tracker
     disp('Analyzing Block [3] Starting whisker tracker.'); disp(' ')
     if trackWhiskers   % Logical statement (if trackWhiskers == 1)
-        [WhiskerAngle] = WhiskerTrackerParallel(fileID);
+        [WhiskerAngle] = WhiskerTrackerParallel_2P(fileID);
         inds = isnan(WhiskerAngle) == 1;
         WhiskerAngle(inds) = [];
     else

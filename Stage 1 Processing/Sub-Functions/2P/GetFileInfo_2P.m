@@ -1,6 +1,6 @@
-function [animalID, hem, fileDate, fileID] = GetFileInfo(fileName)
+function [animalID, hem, fileDate, fileID] = GetFileInfo_2P(fileName)
 %________________________________________________________________________________________________________________________
-% Written by Kevin L. Turner
+% Edited by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %
@@ -17,7 +17,7 @@ function [animalID, hem, fileDate, fileID] = GetFileInfo(fileName)
 %            fileDate - date in the form Year, Month, Day (YYMMDD) typically 6 numbers
 %            fileID - date followed by the underscores of hour (military time) minutes and seconds. 'YYMMDD_HH_MM_SS'
 %
-%   Last Revised: February 23rd, 2019
+%   Last Revised: March 21st, 2019
 %________________________________________________________________________________________________________________________
 
 % Identify the extension

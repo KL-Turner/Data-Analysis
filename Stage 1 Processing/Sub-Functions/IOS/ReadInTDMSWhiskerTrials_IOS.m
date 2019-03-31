@@ -1,4 +1,4 @@
-function [TDMSFile] = ReadInTDMSWhiskerTrials(fileName)
+function [TDMSFile] = ReadInTDMSWhiskerTrials_IOS(fileName)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -19,7 +19,7 @@ function [TDMSFile] = ReadInTDMSWhiskerTrials(fileName)
 %________________________________________________________________________________________________________________________
 
 %% Convert the .tdms file into something that Matlab understands
-[TempStruct, ~] = ConvertTDMS(0, fileName);
+[TempStruct, ~] = ConvertTDMS_IOS(0, fileName);
 
 % Extract Whisker Camera info and transfer from TempStruct
 TDMSFile.experimenter = TempStruct.Data.Root.Experimenter;

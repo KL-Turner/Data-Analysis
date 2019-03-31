@@ -1,6 +1,6 @@
-function [angle] = WhiskerTrackerParallel(fileName)
+function [angle] = WhiskerTrackerParallel_2P(fileName)
 %________________________________________________________________________________________________________________________
-% Written by Kevin L. Turner
+% Edited by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %
@@ -22,7 +22,7 @@ theta = -40:80;   % Angles used for radon
 
 % Import whisker movie
 importStart = tic;
-baslerFrames = ReadBinFileU8MatrixGradient([fileName '_WhiskerCam.bin'], 350, 30);
+baslerFrames = ReadBinFileU8MatrixGradient_2P([fileName '_WhiskerCam.bin'], 350, 30);
 importTime = toc(importStart);
 disp(['WhiskerTrackerParallel: Binary file import time was ' num2str(importTime) ' seconds.']); disp(' ')
 
@@ -35,9 +35,9 @@ disp(['WhiskerTrackerParallel: GPU transfer time was ' num2str(gpuTransfer) ' se
 % PreAllocate array of whisker angles, use NaN as a place holder
 angle = NaN*ones(1, length(baslerFrames));
 radonTime1 = tic;
-for f = 1:(length(baslerFrames) - 1)
+for a = 1:(length(baslerFrames) - 1)
     % Radon on individual frame
-    [R, ~] = radon(gpuFrame(:, :, f), theta);
+    [R, ~] = radon(gpuFrame(:,:,a), theta);
     % Get transformed image from GPU and calculate the variance
     colVar = var(gather(R));
     % Sort the columns according to variance
@@ -48,7 +48,7 @@ for f = 1:(length(baslerFrames) - 1)
     % Associate the columns with the corresponding whisker angle
     angles = nonzeros(theta.*sieve);
     % Calculate the average of the whisker angles
-    angle(f) = mean(angles);
+    angle(a) = mean(angles);
 end
 radonTime = toc(radonTime1);
 disp(['WhiskerTrackerParallel: Whisker Tracking time was ' num2str(radonTime) ' seconds.']); disp(' ')

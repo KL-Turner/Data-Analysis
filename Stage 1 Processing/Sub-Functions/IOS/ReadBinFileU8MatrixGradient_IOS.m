@@ -1,4 +1,4 @@
-function [imageGrad] = ReadBinFileU8MatrixGradient(fileName, height, width)
+function [imageGrad] = ReadBinFileU8MatrixGradient_IOS(fileName, height, width)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering

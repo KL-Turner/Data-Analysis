@@ -1,4 +1,4 @@
-function StageOneProcessing(fileNames, trackWhiskers)
+function StageOneProcessing_IOS(fileNames, trackWhiskers)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -62,7 +62,7 @@ for fileNumber = 1:length(fileNames)
     end
     
     % Pull out the file ID for the file - this is the numerical string after the animal name/hem
-    [~, ~, ~, fileID] = GetFileInfo(indFile);
+    [~, ~, ~, fileID] = GetFileInfo_IOS(indFile);
     
     % Determine if a RawData file has already been created for this file. If it has, skip it.
     fileExist = ls(['*' fileID '_RawData.mat']);
@@ -72,7 +72,7 @@ for fileNumber = 1:length(fileNames)
     
     %% BLOCK PURPOSE: [2] Import .tdms data (All channels);
     disp('Analyzing Block [2] Importing .tdms data from all channels.'); disp(' ')
-    trialData = ReadInTDMSWhiskerTrials([fileID '.tdms']);
+    trialData = ReadInTDMSWhiskerTrials_IOS([fileID '.tdms']);
     
     dataRow = strcmp(trialData.Data.Names, 'Neural_LH');   % Left hem neural data
     Neural_LH = trialData.Data.Vals(dataRow,:) / str2double(trialData.amplifierGain);
@@ -107,7 +107,7 @@ for fileNumber = 1:length(fileNames)
     %% BLOCK PURPOSE: [3] Start Whisker tracker
     disp('Analyzing Block [3] Starting whisker tracker.'); disp(' ')
     if trackWhiskers   % Logical statement (if trackWhiskers == 1)
-        [WhiskerAngle] = WhiskerTrackerParallel(fileID);
+        [WhiskerAngle] = WhiskerTrackerParallel_IOS(fileID);
         inds = isnan(WhiskerAngle) == 1;
         WhiskerAngle(inds) = [];
     else

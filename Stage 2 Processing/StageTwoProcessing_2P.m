@@ -23,44 +23,33 @@
 clc;
 clear;
 disp('Analyzing Block [0] Preparing the workspace and loading variables.'); disp(' ')
+msExcelFile = uigetfile('*.xlsx');
 
-[~, ~, ~, ~, ~, ~, ~, ~, ~] = LoadDataStructs_2P;
-
-msExcel_File = uigetfile('*.xlsx');
-disp('Block [0] structs loaded.'); disp(' ')
-
-%% BLOCK PURPOSE: [1] Use ms Excel sheet to create MScanData.mat files with vessel information
+%% BLOCK PURPOSE: [1] Use ms Excel sheet to create MScanData.mat files with vessel information.
 disp('Analyzing Block [1] Pulling vessel notes from Excel sheet.'); disp(' ')
-Analyze2PDataNotes(msExcel_File);
+Analyze2PDataNotes_2P(msExcelFile);
 
-%% BLOCK PURPOSE: [2] Analyze vessel diameter and add it to MScanData.mat
+%% BLOCK PURPOSE: [2] Analyze vessel diameter and add it to MScanData.mat.
 disp('Analyzing Block [2] Analyzing vessel diameter.'); disp(' ')
 mscanDirectory = dir('*_MScanData.mat');
 mscanDataFiles = {mscanDirectory.name}';
 mscanDataFiles = char(mscanDataFiles);
-Analyze2PDiameter(mscanDirectory);
+Analyze2PDiameter_2P(mscanDataFiles);
 
-%% BLOCK PURPOSE: [3] Process neural, whiskers, and force sensor data
+%% BLOCK PURPOSE: [3] Process neural, whiskers, and force sensor data.
 disp('Analyzing Block [3] Analyzing neural bands, force sensors, and whiskers.'); disp(' ')
 labviewDirectory = dir('*_LabVIEWData.mat');
 labviewDataFiles = {labviewDirectory.name}';
 labviewDataFiles = char(labviewDataFiles);
-Process2PDataFiles(labviewDataFiles, mscanDataFiles)
+Process2PDataFiles_2P(labviewDataFiles, mscanDataFiles)
 
-%% BLOCK PURPOSE: [4] Analyze vessel diameter and add it to MScanData.mat
+%% BLOCK PURPOSE: [4] Correct the offset between the MScan and LabVIEW acquisiton.
 disp('Analyzing Block [4] Correcting LabVIEW time offset.'); disp(' ')
 trimTime = 10;   % sec
-CorrectLabVIEWOffset(labviewDataFiles, mscanDataFiles, trimTime)
+CorrectLabVIEWOffset_2P(labviewDataFiles, mscanDataFiles, trimTime)
 
-%% BLOCK PURPOSE: [5] Analyze vessel diameter and add it to MScanData.mat
-disp('Analyzing Block [5] Combing LabVIEWData and MScan Data files to ceate MergedData.'); disp(' ')
-CombineLabVIEWMScanFiles(labviewDataFiles, mscanDataFiles)
-
-%% BLOCK PURPOSE: [6] Single Trial Figure Checks
-disp('Analyzing Block [6] Generating single trial summary figures for each trial.'); disp(' ')
-mergedDirectory = dir('*_MergedData.mat');
-mergedDataFiles = {mergedDirectory.name}';
-mergedDataFiles = char(mergedDataFiles);
-CreateSingleTrialQCFigs_2P(mergedDataFiles)
+%% BLOCK PURPOSE: [5] Combine the MScan and LabVIEW structures into one.
+disp('Analyzing Block [5] Combing LabVIEWData and MScan Data files to create MergedData.'); disp(' ')
+CombineLabVIEWMScanFiles_2P(labviewDataFiles, mscanDataFiles)
 
 disp('Two Photon Stage Two Processing - Complete.'); disp(' ')
