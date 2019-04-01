@@ -35,6 +35,6 @@ params.Fs = samplingRate;
 params.tapers = [NW 2*NW - 1];
 params.err = [1 .01];
 params.fpass = [0.05 3];
-[S,f,~] = mtspectrumc_2P(diamPerc - mean(diamPerc), params);
+[S,f,~] = mtspectrumc(diamPerc - mean(diamPerc), params);
 
 end
