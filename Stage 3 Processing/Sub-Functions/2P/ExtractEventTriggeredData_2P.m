@@ -1,44 +1,22 @@
 function [EventData] = ExtractEventTriggeredData_2P(mergedDataFiles, dataTypes)
-%___________________________________________________________________________________________________
-% Edited by Kevin L. Turner 
-% Ph.D. Candidate, Department of Bioengineering 
-% The Pennsylvania State University
+%________________________________________________________________________________________________________________________
+% Written by Kevin L. Turner
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
 %
-% Originally written by Aaron T. Winder
+% Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
+%________________________________________________________________________________________________________________________
 %
-%   Last Revised: October 3rd, 2018
-%___________________________________________________________________________________________________
+%   Purpose: Separates data corresponding to various behaviors into structures
+%________________________________________________________________________________________________________________________
 %
-%   Author: Aaron Winder
-%   Affiliation: Engineering Science and Mechanics, Penn State University
-%   https://github.com/awinde
+%   Inputs: MergedDataFiles - [matrix] names of files organized as rows.
+%           dataTypes - [cell] the measurements to be chunked into data epochs
 %
-%   DESCRIPTION: Separates data corresponding to various behaviors into
-%   structures
-%   
-%_______________________________________________________________
-%   PARAMETERS:             
-%                   MergedDataFiles - [matrix] names of files organized as rows.
-%                   Files should already be processed using the script
-%                   "ProcessRawDataFile.m" or "CalculatePredictedCBV.m".
+%   Outputs:  EventData - [struct] data chunked around behavioral events
 %
-%                   EventData - [struct] structure of existing data chunked
-%                   around behavioral events
-%
-%                   dataTypes - [dataTypes] the measurements to be
-%                   chunked into data epochs
-%
-%                   epoch - [struct] contains fields:
-%                               duration - [double] the total time of the
-%                               data epoch
-%
-%                               offset - [double] the amount of pre-event
-%                               time (s) to include in the epoch.
-%_______________________________________________________________
-%   RETURN:                     
-%                   EventData - [struct] data chunked around behavioral
-%                   events
-%_______________________________________________________________
+%   Last Revised: March 21st, 2019
+%________________________________________________________________________________________________________________________
 
 EventData = [];
 epoch.duration = 14;
@@ -59,23 +37,23 @@ for dT = 1:length(dataTypes)
         load(filename);
 
         % Get the date and file ID to include in the EventData structure
-        [animalID, fileDate, fileID, vesselID] = GetFileInfo_2P(mergedDataFiles(f,:));
+        [animalID, fileDate, fileID, vesselID, ~] = GetFileInfo2_2P(mergedDataFiles(f,:));
 
         % Get the types of behaviors present in the file (stim,whisk,rest)
-        holdData = fieldnames(MergedData.Flags);
+        holdData = fieldnames(MergedData.flags);
         behaviorFields = holdData([1 2],1);
         
         % Sampling frequency for element of dataTypes
-        if strcmp(dataType, 'Vessel_Diameter')
-            Fs = floor(MergedData.Notes.p2Fs);
+        if strcmp(dataType, 'vesselDiameter')
+            Fs = floor(MergedData.notes.p2Fs);
         else
-            Fs = floor(MergedData.Notes.dsFs);
+            Fs = floor(MergedData.notes.dsFs);
         end
             % Loop over the behaviors present in the file
             for bF = 1:length(behaviorFields)
                 % Create behavioral subfields for the temp structure, if needed
                 if not(isfield(temp, behaviorFields{bF}))
-                    subFields = fieldnames(MergedData.Flags.(behaviorFields{bF}));
+                    subFields = fieldnames(MergedData.flags.(behaviorFields{bF}));
                     blankCell = cell(1, size(mergedDataFiles, 1));
                     structVals = cell(size(subFields));
                     structVals(:) = {blankCell};
@@ -87,45 +65,31 @@ for dT = 1:length(dataTypes)
                 end
 
                 % Assemble a structure to send to the sub-functions
-                data = MergedData.Data;
-                data.Flags = MergedData.Flags;
-                data.Notes = MergedData.Notes;
+                data = MergedData.data;
+                data.flags = MergedData.flags;
+                data.notes = MergedData.notes;
 
                 % Extract the data from the epoch surrounding the event
                 disp(['Extracting event-triggered ' dataType ' ' behaviorFields{bF} ' data from file ' num2str(f) ' of ' num2str(size(mergedDataFiles, 1)) '...']); disp(' ');
-                [chunkData, evFilter] = ExtractBehavioralData(data, epoch, dataType, Fs, behaviorFields{bF});
+                [chunkData, evFilter] = ExtractBehavioralData_2P(data, epoch, dataType, Fs, behaviorFields{bF});
 
                 % Add epoch details to temp struct
-                [temp] = AddEpochInfo(data, behaviorFields{bF}, temp, fileID, fileDate, vesselID, evFilter, f);
+                [temp] = AddEpochInfo_2P(data, behaviorFields{bF}, temp, fileID, fileDate, vesselID, evFilter, f);
                 temp.(behaviorFields{bF}).data{f} = chunkData;
             end 
     end
     % Convert the temporary stuct into a final structure
-    [EventData] = ProcessTempStruct(EventData, dataType, temp, epoch);
+    [EventData] = ProcessTempStruct_2P(EventData, dataType, temp, epoch);
 end
 save([animalID '_EventData.mat'], 'EventData');
 
-function [chunkData, evFilter] = ExtractBehavioralData(data, epoch, dataType, Fs, behavior)
-%
-%   Author: Aaron Winder
-%   Affiliation: Engineering Science and Mechanics, Penn State University
-%   https://github.com/awinde
-%
-%   DESCRIPTION: 
-%   
-%_______________________________________________________________
-%   PARAMETERS:             
-%                               
-%_______________________________________________________________
-%   RETURN:                     
-%                               
-%_______________________________________________________________
+function [chunkData, evFilter] = ExtractBehavioralData_2P(data, epoch, dataType, Fs, behavior)
 
 % Setup variables
-eventTimes = data.Flags.(behavior).eventTime;
-trialDuration = (data.Notes.trialDuration_Sec);
+eventTimes = data.flags.(behavior).eventTime;
+trialDuration = (data.notes.trialDuration_Sec);
 
-% Get the content from Data.(dataType)
+% Get the content from data.(dataType)
 data = getfield(data, {}, dataType, {});
 
 % Calculate start/stop times (seconds) for the events
@@ -161,29 +125,15 @@ for eS = 1:length(epochStarts)
 end
 
 
-function [temp] = AddEpochInfo(data, behavior, temp, fileID, fileDate, vesselID, evFilter, f)
-%
-%   Author: Aaron Winder
-%   Affiliation: Engineering Science and Mechanics, Penn State University
-%   https://github.com/awinde
-%
-%   DESCRIPTION: 
-%   
-%_______________________________________________________________
-%   PARAMETERS:             
-%                               
-%_______________________________________________________________
-%   RETURN:                     
-%                               
-%_______________________________________________________________
+function [temp] = AddEpochInfo_2P(data, behavior, temp, fileID, fileDate, vesselID, evFilter, f)
 
 % Get the field names for each behavior
-fields = fieldnames(data.Flags.(behavior));
+fields = fieldnames(data.flags.(behavior));
 
 % Filter out the events which are too close to the trial edge
 for flds = 1:length(fields)
     field = fields{flds};
-    temp.(behavior).(field){f} = data.Flags.(behavior).(field)(evFilter,:)';
+    temp.(behavior).(field){f} = data.flags.(behavior).(field)(evFilter,:)';
 end
 
 % Tag each event with the file ID, arrange cell array horizontally for
@@ -193,25 +143,7 @@ temp.(behavior).fileDates{f} = repmat({fileDate}, 1, sum(evFilter));
 temp.(behavior).vesselIDs{f} = repmat({vesselID}, 1, sum(evFilter));
 
 
-function [EventData] = ProcessTempStruct(EventData, dataType, temp, epoch)
-%   [EventData] = ProcessTempStruct(EventData,temp,epoch,freqs)
-%
-%   Author: Aaron Winder
-%   Affiliation: Engineering Science and Mechanics, Penn State University
-%   https://github.com/awinde
-%
-%   DESCRIPTION: 
-%   
-%_______________________________________________________________
-%   PARAMETERS:             
-%                               
-%_______________________________________________________________
-%   RETURN:                     
-%                               
-%______________________________________________________________
-
-% Get the dataTypes from temp
-
+function [EventData] = ProcessTempStruct_2P(EventData, dataType, temp, epoch)
 
 % Get dataType names
 behaviorFields = fieldnames(temp);

@@ -1,8 +1,8 @@
 function [RestingBaselines] = CalculateRestingBaselines_2P(animalID, targetMinutes, RestData)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
-% Ph.D. Candidate, Department of Bioengineering
-% The Pennsylvania State University
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
 %________________________________________________________________________________________________________________________
 %
 %   Purpose: This function finds the resting baseline for all fields of the RestData.mat structure, for each unique day
@@ -23,11 +23,11 @@ RestCriteria.Fieldname = {'durations'};
 RestCriteria.Comparison = {'gt'};
 RestCriteria.Value = {5};
 
-[restLogical] = FilterEvents(RestData.Vessel_Diameter, RestCriteria);   % RestData output is a logical
-allRestFileIDs = RestData.Vessel_Diameter.fileIDs(restLogical, :);
-allRestDurations = RestData.Vessel_Diameter.durations(restLogical, :);
-allRestEventTimes = RestData.Vessel_Diameter.eventTimes(restLogical, :);
-allRestVesselIDs = RestData.Vessel_Diameter.vesselIDs(restLogical, :);
+[restLogical] = FilterEvents_2P(RestData.vesselDiameter, RestCriteria);   % RestData output is a logical
+allRestFileIDs = RestData.vesselDiameter.fileIDs(restLogical, :);
+allRestDurations = RestData.vesselDiameter.durations(restLogical, :);
+allRestEventTimes = RestData.vesselDiameter.eventTimes(restLogical, :);
+allRestVesselIDs = RestData.vesselDiameter.vesselIDs(restLogical, :);
 
 uniqueVessels = unique(allRestVesselIDs);   % Total number of unique days in this folder under a single animal
 dataTypes = fieldnames(RestData);
@@ -38,14 +38,14 @@ mergedDataFiles = char(mergedDataFiles);
 
 for a = 1:size(mergedDataFiles)
     mergedDataFile = mergedDataFiles(a, :);
-    [~, ~, fileID, vesselID] = GetFileInfo_2P(mergedDataFile);
+    [~, ~, fileID, vesselID, ~] = GetFileInfo2_2P(mergedDataFile);
     allFileDates{a,1} = fileID;
     allVesselIDs{a,1} = vesselID;
 end
 
-uniqueDates = GetUniqueDays(allFileDates);
+uniqueDates = GetUniqueDays_2P(allFileDates);
 for b = 1:length(uniqueDates)
-    uniqueDays{b, 1} = ConvertDate(uniqueDates{b, 1});
+    uniqueDays{b, 1} = ConvertDate_2P(uniqueDates{b, 1});
 end
 
 tempBaseFileIDs = {};
