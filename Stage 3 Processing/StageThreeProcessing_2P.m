@@ -72,4 +72,6 @@ specDataFiles = char(specDataFiles);
 % Normalize spectrogram by baseline
 NormalizeSpectrograms_2P(specDataFiles, RestingBaselines);
 
+GenerateSingleFigures_2P(mergedDataFiles, RestingBaselines)
+
 disp('Two Photon Stage Three Processing - Complete.'); disp(' ')

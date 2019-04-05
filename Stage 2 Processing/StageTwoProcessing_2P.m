@@ -45,7 +45,7 @@ Process2PDataFiles_2P(labviewDataFiles, mscanDataFiles)
 
 %% BLOCK PURPOSE: [4] Correct the offset between the MScan and LabVIEW acquisiton.
 disp('Analyzing Block [4] Correcting LabVIEW time offset.'); disp(' ')
-trimTime = 10;   % sec
+trimTime = 30;   % sec
 CorrectLabVIEWOffset_2P(labviewDataFiles, mscanDataFiles, trimTime)
 
 %% BLOCK PURPOSE: [5] Combine the MScan and LabVIEW structures into one.

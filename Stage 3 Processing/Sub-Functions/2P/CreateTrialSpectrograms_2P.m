@@ -42,8 +42,8 @@ for a = 1:size(mergedDataFiles, 1)
 
     disp(['Creating spectrogram for file number ' num2str(a) ' of ' num2str(size(mergedDataFiles, 1)) '...']); disp(' ')
     
-    [S1, T1, F1] = mtspecgramc_2P(rawNeuro2, movingwin1, params1);
-    [S5, T5, F5] = mtspecgramc_2P(rawNeuro2, movingwin5, params5);
+    [S1, T1, F1] = mtspecgramc(rawNeuro2, movingwin1, params1);
+    [S5, T5, F5] = mtspecgramc(rawNeuro2, movingwin5, params5);
     
     SpecData.fiveSec.S = S5';
     SpecData.fiveSec.T = T5;

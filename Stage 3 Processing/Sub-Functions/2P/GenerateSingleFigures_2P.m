@@ -1,25 +1,12 @@
-function [] = GenerateSingleFigures_2P(mergedDataFiles, basel)
-% Load the RestingBaselines structure from this animal
-baselineDirectory = dir('*_RestingBaselines.mat');
-baselineDataFile = {baselineDirectory.name}';
-baselineDataFile = char(baselineDataFile);
-load(baselineDataFile, '-mat')
+function [] = GenerateSingleFigures_2P(mergedDataFiles, RestingBaselines)
 
-for a = 1:length(fileNames)
-    % Control for the case that a single file is selected vs. multiple files
-    if iscell(fileNames) == 1
-        indFile = fileNames{1,a};
-    else
-        indFile = fileName;
-    end
+for a = 1:size(mergedDataFiles, 1)
+
+    mergedDataFile = mergedDataFiles(a,:);
+    load(mergedDataFile)
     
-    % Load specific file and pull relevant file information for normalization and figure labels
-    load(indFile, '-mat');
-    if length(fileNames) > 1
-        disp(['Analyzing single trial figure ' num2str(a) ' of ' num2str(size(fileNames,2)) '...']); disp(' ');
-    end
-    [animalID, fileDate, fileID, vesselID, imageID] = GetFileInfo2_SlowOscReview2019(indFile);
-    strDay = ConvertDate_SlowOscReview2019(fileDate);
+    [animalID, fileDate, fileID, vesselID, imageID] = GetFileInfo2_2P(mergedDataFile);
+    strDay = ConvertDate_2P(fileDate);
     
     %% BLOCK PURPOSE: Filter the whisker angle and identify the solenoid timing and location.
     % Setup butterworth filter coefficients for a 10 Hz lowpass based on the sampling rate (30 Hz).
@@ -48,21 +35,21 @@ for a = 1:length(fileNames)
     force_YVals = 1.20*max(detrend(filtVesselDiameter, 'constant'))*ones(size(binForce));
     
     %% Figure
-    figure;
+    singleTrialFig = figure;
     ax1 = subplot(4,1,1);
-    plot((1:length(filtForceSensor))/MergedData.notes.dsFs, filtForceSensor, 'color', colors_SlowOscReview2019('sapphire'))
+    plot((1:length(filtForceSensor))/MergedData.notes.dsFs, filtForceSensor, 'color', colors('sapphire'))
     title({[animalID ' Two-photon behavioral characterization and vessel ' vesselID ' diameter changes for ' fileID], 'Force sensor and whisker angle'})
     xlabel('Time (sec)')
     ylabel('Force Sensor (Volts)')
     xlim([0 MergedData.notes.trialDuration_Sec])  
     yyaxis right
-    plot((1:length(filteredWhiskerAngle))/MergedData.notes.dsFs, -filteredWhiskerAngle, 'color', colors_SlowOscReview2019('ash grey'))
+    plot((1:length(filteredWhiskerAngle))/MergedData.notes.dsFs, -filteredWhiskerAngle, 'color', colors('ash grey'))
     ylabel('Angle (deg)')
     legend('Force sensor', 'Whisker angle')
     xlim([0 MergedData.notes.trialDuration_Sec])
 
     ax2 = subplot(4,1,2:3);
-    plot((1:length(filtVesselDiameter))/MergedData.notes.p2Fs, detrend(filtVesselDiameter, 'constant'), 'color', colors_SlowOscReview2019('dark candy apple red'))
+    plot((1:length(filtVesselDiameter))/MergedData.notes.p2Fs, detrend(filtVesselDiameter, 'constant'), 'color', colors('dark candy apple red'))
     hold on;
     whiskInds = binWhiskers.*whisking_YVals;
     forceInds = binForce.*force_YVals;
@@ -75,8 +62,8 @@ for a = 1:length(fileNames)
             forceInds(1, x) = NaN;
         end
     end
-    scatter((1:length(binForce))/MergedData.notes.dsFs, forceInds, '.', 'MarkerEdgeColor', colors_SlowOscReview2019('rich black'));
-    scatter((1:length(binWhiskers))/MergedData.notes.dsFs, whiskInds, '.', 'MarkerEdgeColor', colors_SlowOscReview2019('sapphire'));
+    scatter((1:length(binForce))/MergedData.notes.dsFs, forceInds, '.', 'MarkerEdgeColor', colors('rich black'));
+    scatter((1:length(binWhiskers))/MergedData.notes.dsFs, whiskInds, '.', 'MarkerEdgeColor', colors('sapphire'));
     title('Vessel diameter in response to behaviorial events')
     xlabel('Time (sec)')
     ylabel('% change (diameter)')
@@ -94,6 +81,17 @@ for a = 1:length(fileNames)
     ylabel('Frequency (Hz)')
     xlim([0 MergedData.notes.trialDuration_Sec])
     pause(1)
+    
+    %% Save the file to directory.
+    [pathstr, ~, ~] = fileparts(cd);
+    dirpath = [pathstr '/Figures/Single Trial Figures/'];
+
+    if ~exist(dirpath, 'dir') 
+        mkdir(dirpath); 
+    end
+
+    savefig(singleTrialFig, [dirpath animalID '_' vesselID '_' fileID '_SingleTrialFig']);
+    close(singleTrialFig)
 end
 
 end
