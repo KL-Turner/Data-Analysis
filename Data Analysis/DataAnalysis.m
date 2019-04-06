@@ -18,7 +18,7 @@ clc;
 clear;
 disp('Analyzing Block [0] Preparing the workspace and loading variables.'); disp(' ')
 
-[animal, hem, ~, ~, EventData, RestData, RestingBaselines, SleepData, ComparisonData] = LoadDataStructs();
+[animal, hem, ~, ~, EventData, RestData, RestingBaselines, SpectrogramData, SleepData, ComparisonData] = LoadDataStructs();
 
 infusionStatement = input('Is this an infusion trial? (y/n): ', 's'); disp(' ')
 params.Infusion = infusionStatement;

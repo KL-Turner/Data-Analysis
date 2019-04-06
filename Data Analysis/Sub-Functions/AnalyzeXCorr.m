@@ -193,7 +193,7 @@ procDataFiles = ls('*_ProcData.mat');
 for pDF = 1:size(procDataFiles, 1)
     procDataFile = procDataFiles(pDF, :);
     load(procDataFile);
-    [~, ~, fileDate, allData_FileID] = GetFileInfo(procDataFile);
+    [~, ~, fileDate, allData_FileID] = GetFileInfo_IOS(procDataFile);
     strDay = ConvertDate(fileDate);
     
     %% Neural Data associated with fileID
@@ -462,6 +462,3 @@ if ~isempty(SleepData)
 end
 
 end
-
-int x
-x = 5

@@ -33,7 +33,7 @@ for f = 1:size(procDataFiles)
     % Handle file number, load each successive file
     procDataFile = procDataFiles(f, :);
     load(procDataFile);
-    [animal, ~, fileDate, fileID] = GetFileInfo(procDataFile);
+    [animal, ~, fileDate, fileID] = GetFileInfo_IOS(procDataFile);
     fileIDs{f, 1} = fileID;
     strDay = ConvertDate(fileDate);
     
@@ -114,7 +114,7 @@ sleepLogical = zeros(size(procDataFiles, 1), 1);
 sleepFiles = unique(SleepData.NREM.FileIDs);
 for f = 1:size(procDataFiles, 1)
     procDataFile = procDataFiles(f, :);
-    [~, ~, ~, procDataFileID] = GetFileInfo(procDataFile);
+    [~, ~, ~, procDataFileID] = GetFileInfo_IOS(procDataFile);
     for ff = 1:size(sleepFiles, 1)
         sleepFileID = char(sleepFiles(ff, 1));
         if strcmp(sleepFileID, procDataFileID)

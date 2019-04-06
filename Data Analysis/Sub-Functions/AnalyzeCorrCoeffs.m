@@ -196,7 +196,7 @@ end
 for pDF = 1:size(procDataFiles, 1)
     procDataFile = procDataFiles(pDF, :);
     load(procDataFile);
-    [~, ~, fileDate, fileID] = GetFileInfo(procDataFile);
+    [~, ~, fileDate, fileID] = GetFileInfo_IOS(procDataFile);
     strDay = ConvertDate(fileDate);
     
     LH_CBV{pDF, 1} = (ProcData.Data.CBV.LH - RestingBaselines.CBV.LH.(strDay)) / RestingBaselines.CBV.LH.(strDay);

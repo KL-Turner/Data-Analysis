@@ -19,7 +19,7 @@ function [animal, hem, ROIs, Thresholds, EventData, RestData, RestingBaselines,.
 rawDataFiles = dir('*_RawData.mat');
 rawDataFileIDs = {rawDataFiles.name}';
 rawDataFileID = rawDataFileIDs{1,1};
-[animal, hem, ~, ~] = GetFileInfo(rawDataFileID);
+[animal, hem, ~, ~] = GetFileInfo_IOS(rawDataFileID);
 
 ROIsFile = dir('*_ROIs.mat');
 if ~isempty(ROIsFile)

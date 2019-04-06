@@ -414,7 +414,7 @@ end
 for pDF = 1:size(procDataFiles, 1)
     procDataFile = procDataFiles(pDF, :);
     load(procDataFile);
-    [~, ~, fileDate, fileID] = GetFileInfo(procDataFile);
+    [~, ~, fileDate, fileID] = GetFileInfo_IOS(procDataFile);
     strDay = ConvertDate(fileDate);
     
     disp(['Adding data from ProcData file ' num2str(pDF) ' of ' num2str(size(procDataFiles, 1))]); disp(' ')

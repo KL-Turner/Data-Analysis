@@ -19,7 +19,7 @@ for fN = 1:fileNumber
     % Handle file number, load each successive file
     procDataFile = procDataFiles(fN, :);
     load(procDataFile);
-    [animal, ~, fileDate, ~] = GetFileInfo(procDataFile);
+    [animal, ~, fileDate, ~] = GetFileInfo_IOS(procDataFile);
     strDay = ConvertDate(fileDate);
     
     %% CBV data - normalize by rest, lowpass filer, detrend
