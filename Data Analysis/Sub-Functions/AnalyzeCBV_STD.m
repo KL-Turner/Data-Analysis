@@ -88,6 +88,8 @@ for ii = 1:length(finalRestCBVData)
     finalRestCBV_STDs(ii, 1) = std(filtfilt(B, A, finalRestCBVData{ii, 1}));
 end
 
+nboot = 1000;
+restCBV_CI = bootci(nboot, @mean, finalRestCBVData);
 restCBV_mean = mean(finalRestCBV_means);
 restCBV_STD = mean(finalRestCBV_STDs);
 
@@ -105,6 +107,7 @@ if ~isempty(SleepData)
         nremCBV_STDs(:, n) = std(nremCBV{n, 1});
     end
     
+    nremCBV_CI = bootci(nboot, @mean, nremCBV);
     nremCBV_mean = mean(nremCBV_means);
     nremCBV_STD = mean(nremCBV_STDs);
     

@@ -109,6 +109,10 @@ for n = 1:length(LH_finalRestCBVData)
     restGAM_R(n, 1) = restGAM_CC(2, 1);
 end
 
+nboot = 1000;
+restCBVCC_CI = bootci(nboot, @mean, restCBV_R);
+restGAMCC_CI = bootci(nboot, @mean, restGAM_R);
+
 restCBV_CC_mean = mean(restCBV_R);
 restCBV_CC_std = std(restCBV_R);
 disp([' Resting CBV correlation coefficient is  ' num2str(restCBV_CC_mean) ' with a STD of: ' num2str(restCBV_CC_std)]); disp(' ')
@@ -143,6 +147,9 @@ if ~isempty(SleepData)
         nremGAM_R(n, 1) = nremGAM_CC(2, 1);
     end
     
+    nremCBVCC_CI = bootci(nboot, @mean, nremCBV_R);
+    nremGAMCC_CI = bootci(nboot, @mean, nremGAM_R);
+
     nremCBV_CC_mean = mean(nremCBV_R);
     nremCBV_CC_std = std(nremCBV_R);
     disp([' NREM CBV correlation coefficient is  ' num2str(nremCBV_CC_mean) ' with a STD of: ' num2str(nremCBV_CC_std)]); disp(' ')
@@ -192,45 +199,45 @@ if ~isempty(SleepData)
     end
 end
 
-%% Load in relevant data from all ProcDataFiles
-for pDF = 1:size(procDataFiles, 1)
-    procDataFile = procDataFiles(pDF, :);
-    load(procDataFile);
-    [~, ~, fileDate, fileID] = GetFileInfo_IOS(procDataFile);
-    strDay = ConvertDate(fileDate);
-    
-    LH_CBV{pDF, 1} = (ProcData.Data.CBV.LH - RestingBaselines.CBV.LH.(strDay)) / RestingBaselines.CBV.LH.(strDay);
-    RH_CBV{pDF, 1} = (ProcData.Data.CBV.RH - RestingBaselines.CBV.RH.(strDay)) / RestingBaselines.CBV.RH.(strDay);
-    LH_GAM{pDF, 1} = (ProcData.Data.GammaBand_Power.LH - RestingBaselines.GammaBand_Power.LH.(strDay)) / RestingBaselines.GammaBand_Power.LH.(strDay);
-    RH_GAM{pDF, 1} = (ProcData.Data.GammaBand_Power.RH - RestingBaselines.GammaBand_Power.RH.(strDay)) / RestingBaselines.GammaBand_Power.RH.(strDay);
-end
-
-for ii = 1:length(LH_CBV)
-    LH_CBV{ii, 1} = detrend(filtfilt(B, A, LH_CBV{ii, 1}), 'constant');
-    RH_CBV{ii, 1} = detrend(filtfilt(B, A, RH_CBV{ii, 1}), 'constant');
-    LH_GAM{ii, 1} = detrend(filtfilt(D, C, LH_GAM{ii, 1}), 'constant');
-    RH_GAM{ii, 1} = detrend(filtfilt(D, C, RH_GAM{ii, 1}), 'constant');
-end
-
-for n = 1:length(LH_CBV)
-    allCBV_CC = corrcoef(LH_CBV{n, 1}, RH_CBV{n, 1});
-    allCBV_R(n, 1) = allCBV_CC(2, 1);
-    allGAM_CC = corrcoef(LH_GAM{n, 1}, RH_GAM{n, 1});
-    allGAM_R(n, 1) = allGAM_CC(2, 1);
-end
-
-allCBV_CC_mean = mean(allCBV_R);
-allCBV_CC_std = std(allCBV_R);
-disp([' all data CBV correlation coefficient is  ' num2str(allCBV_CC_mean) ' with a STD of: ' num2str(allCBV_CC_std)]); disp(' ')
-
-allGAM_CC_mean = mean(allGAM_R);
-allGAM_CC_std = std(allGAM_R);
-disp([' all data Gamma correlation coefficient is  ' num2str(allGAM_CC_mean) ' with a STD of: ' num2str(allGAM_CC_std)]); disp(' ')
-
-ComparisonData.CorrCoeff.AllData.CBV.mean = allCBV_CC_mean;
-ComparisonData.CorrCoeff.AllData.CBV.std = allCBV_CC_std;
-ComparisonData.CorrCoeff.AllData.GAM.mean = allGAM_CC_mean;
-ComparisonData.CorrCoeff.AllData.GAM.std = allGAM_CC_std;
+% %% Load in relevant data from all ProcDataFiles
+% for pDF = 1:size(procDataFiles, 1)
+%     procDataFile = procDataFiles(pDF, :);
+%     load(procDataFile);
+%     [~, ~, fileDate, fileID] = GetFileInfo_IOS(procDataFile);
+%     strDay = ConvertDate(fileDate);
+%     
+%     LH_CBV{pDF, 1} = (ProcData.Data.CBV.LH - RestingBaselines.CBV.LH.(strDay)) / RestingBaselines.CBV.LH.(strDay);
+%     RH_CBV{pDF, 1} = (ProcData.Data.CBV.RH - RestingBaselines.CBV.RH.(strDay)) / RestingBaselines.CBV.RH.(strDay);
+%     LH_GAM{pDF, 1} = (ProcData.Data.GammaBand_Power.LH - RestingBaselines.GammaBand_Power.LH.(strDay)) / RestingBaselines.GammaBand_Power.LH.(strDay);
+%     RH_GAM{pDF, 1} = (ProcData.Data.GammaBand_Power.RH - RestingBaselines.GammaBand_Power.RH.(strDay)) / RestingBaselines.GammaBand_Power.RH.(strDay);
+% end
+% 
+% for ii = 1:length(LH_CBV)
+%     LH_CBV{ii, 1} = detrend(filtfilt(B, A, LH_CBV{ii, 1}), 'constant');
+%     RH_CBV{ii, 1} = detrend(filtfilt(B, A, RH_CBV{ii, 1}), 'constant');
+%     LH_GAM{ii, 1} = detrend(filtfilt(D, C, LH_GAM{ii, 1}), 'constant');
+%     RH_GAM{ii, 1} = detrend(filtfilt(D, C, RH_GAM{ii, 1}), 'constant');
+% end
+% 
+% for n = 1:length(LH_CBV)
+%     allCBV_CC = corrcoef(LH_CBV{n, 1}, RH_CBV{n, 1});
+%     allCBV_R(n, 1) = allCBV_CC(2, 1);
+%     allGAM_CC = corrcoef(LH_GAM{n, 1}, RH_GAM{n, 1});
+%     allGAM_R(n, 1) = allGAM_CC(2, 1);
+% end
+% 
+% allCBV_CC_mean = mean(allCBV_R);
+% allCBV_CC_std = std(allCBV_R);
+% disp([' all data CBV correlation coefficient is  ' num2str(allCBV_CC_mean) ' with a STD of: ' num2str(allCBV_CC_std)]); disp(' ')
+% 
+% allGAM_CC_mean = mean(allGAM_R);
+% allGAM_CC_std = std(allGAM_R);
+% disp([' all data Gamma correlation coefficient is  ' num2str(allGAM_CC_mean) ' with a STD of: ' num2str(allGAM_CC_std)]); disp(' ')
+% 
+% ComparisonData.CorrCoeff.AllData.CBV.mean = allCBV_CC_mean;
+% ComparisonData.CorrCoeff.AllData.CBV.std = allCBV_CC_std;
+% ComparisonData.CorrCoeff.AllData.GAM.mean = allGAM_CC_mean;
+% ComparisonData.CorrCoeff.AllData.GAM.std = allGAM_CC_std;
 
 save([animal '_ComparisonData.mat'], 'ComparisonData');
 

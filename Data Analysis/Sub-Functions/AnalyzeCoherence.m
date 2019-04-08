@@ -18,7 +18,7 @@ samplingRate = RestData.CBV.LH.CBVCamSamplingRate;
 params.tapers = [3 5];   % Tapers [n, 2n - 1]
 params.pad = 1;
 params.Fs = samplingRate;   % Sampling Rate
-params.fpass = [0 2];   % Pass band [0, nyquist] 
+params.fpass = [0 1];   % Pass band [0, nyquist] 
 params.trialave = 1;
 params.err = [2 0.05];
 
@@ -129,32 +129,40 @@ disp('Analyzing the Coherence between the RestData L/R CBV signals...'); disp(' 
 disp('Analyzing the Coherence between the RestData L/R gamma band power signals...'); disp(' ')
 [C_RestGAM, phi_RestGAM, S12_RestGAM, S1_RestGAM, S2_RestGAM, f_RestGAM, confC_RestGAM, phiSTD_RestGAM, cErr_RestGAM] = coherencyc(LH_restGAM, RH_restGAM, params);
 
+nboot = 1000;
+restCBV_CI = bootci(nboot, @coherencyc2, LH_restCBV', RH_restCBV', params);
+restGAM_CI = bootci(nboot, @coherencyc2, LH_restGAM', RH_restGAM', params);
+
 RestCBVCoherence = figure;
 plot(f_RestCBV, C_RestCBV)
 hold on;
 plot(f_RestCBV, cErr_RestCBV)
+hold on;
+plot(f_RestCBV, restCBV_CI)
 xlabel('Frequency (Hz)');
 ylabel('Magnitude of Coherence');
 title([animal  ' L/R CBV Coherence for Resting Data']);
 set(gca, 'Ticklength', [0 0]);
-legend('Coherence', 'Lower', 'Upper', 'Location', 'Southeast');
+legend('Coherence', 'Jackknife Lower', 'JackknifeUpper', 'Bootstrap Lower', 'Bootstrap Upper', 'Location', 'Southeast');
 set(legend, 'FontSize', 6);
 ylim([0 1])
-xlim([0 2])
+xlim([0 1])
 axis square
 
 RestGAMCoherence = figure;
 plot(f_RestGAM, C_RestGAM)
 hold on;
 plot(f_RestGAM, cErr_RestGAM)
+hold on;
+plot(f_RestGAM, restGAM_CI)
 xlabel('Frequency (Hz)');
 ylabel('Magnitude of Coherence');
 title([animal  ' L/R Gamma Coherence for Resting Data']);
 set(gca, 'Ticklength', [0 0]);
-legend('Coherence', 'Lower', 'Upper', 'Location', 'Southeast');
+legend('Coherence', 'Jackknife Lower', 'JackknifeUpper', 'Bootstrap Lower', 'Bootstrap Upper', 'Location', 'Southeast');
 set(legend, 'FontSize', 6);
 ylim([0 1])
-xlim([0 2])
+xlim([0 1])
 axis square
 
 ComparisonData.Coherence.Rest.CBV.C = C_RestCBV;
@@ -205,32 +213,39 @@ if ~isempty(SleepData)
     disp('Analyzing the Coherence between the NREM SleepData L/R gamma band power signals...'); disp(' ')
     [C_nremGAM, phi_nremGAM, S12_nremGAM, S1_nremGAM, S2_nremGAM, f_nremGAM, confC_nremGAM, phiSTD_nremGAM, cErr_nremGAM] = coherencyc(LH_nrem_GAM, RH_nrem_GAM, params);
     
+    nremCBV_CI = bootci(nboot, @coherencyc2, LH_nrem_CBV', RH_nrem_CBV', params);
+    nremGAM_CI = bootci(nboot, @coherencyc2, LH_nrem_GAM', RH_nrem_GAM', params);
+    
     nremCBVCoherence = figure;
     plot(f_nremCBV, C_nremCBV)
     hold on;
     plot(f_nremCBV, cErr_nremCBV)
+    hold on;
+    plot(f_nremCBV, nremCBV_CI)
     xlabel('Frequency (Hz)');
     ylabel('Magnitude of Coherence');
     title([animal  ' L/R CBV Coherence for NREM Data']);
     set(gca, 'Ticklength', [0 0]);
-    legend('Coherence', 'Lower', 'Upper', 'Location', 'Southeast');
+    legend('Coherence', 'Jackknife Lower', 'JackknifeUpper', 'Bootstrap Lower', 'Bootstrap Upper', 'Location', 'Southeast');
     set(legend, 'FontSize', 6);
     ylim([0 1])
-    xlim([0 2])
+    xlim([0 1])
     axis square
     
     nremGAMCoherence = figure;
     plot(f_nremGAM, C_nremGAM)
     hold on;
     plot(f_nremGAM, cErr_nremGAM)
+    hold on;
+    plot(f_nremCBV, nremGAM_CI)
     xlabel('Frequency (Hz)');
     ylabel('Magnitude of Coherence');
     title([animal  ' L/R Gamma Coherence for NREM Data']);
     set(gca, 'Ticklength', [0 0]);
-    legend('Coherence', 'Lower', 'Upper', 'Location', 'Southeast');
+    legend('Coherence', 'Jackknife Lower', 'JackknifeUpper', 'Bootstrap Lower', 'Bootstrap Upper', 'Location', 'Southeast');
     set(legend, 'FontSize', 6);
     ylim([0 1])
-    xlim([0 2])
+    xlim([0 1])
     axis square
     
     ComparisonData.Coherence.NREM.CBV.C = C_nremCBV;
@@ -282,32 +297,39 @@ if ~isempty(SleepData)
         disp('Analyzing the Coherence between the REM SleepData L/R gamma band power signals...'); disp(' ')
         [C_remGAM, phi_remGAM, S12_remGAM, S1_remGAM, S2_remGAM, f_remGAM, confC_remGAM, phiSTD_remGAM, cErr_remGAM] = coherencyc(LH_rem_GAM, RH_rem_GAM, params);
         
+        remCBV_CI = bootci(nboot, @coherencyc2, LH_rem_CBV', RH_rem_CBV', params);
+        remGAM_CI = bootci(nboot, @coherencyc2, LH_rem_GAM', RH_rem_GAM', params);
+        
         remCBVCoherence = figure;
         plot(f_remCBV, C_remCBV)
         hold on;
         plot(f_remCBV, cErr_remCBV)
+        hold on;
+        plot(f_remCBV, remCBV_CI)
         xlabel('Frequency (Hz)');
         ylabel('Magnitude of Coherence');
         title([animal  ' L/R CBV Coherence for REM Data']);
         set(gca, 'Ticklength', [0 0]);
-        legend('Coherence', 'Lower', 'Upper', 'Location', 'Southeast');
+        legend('Coherence', 'Jackknife Lower', 'JackknifeUpper', 'Bootstrap Lower', 'Bootstrap Upper', 'Location', 'Southeast');
         set(legend, 'FontSize', 6);
         ylim([0 1])
-        xlim([0 2])
+        xlim([0 1])
         axis square
         
         remGAMCoherence = figure;
         plot(f_remGAM, C_remGAM)
         hold on;
         plot(f_remGAM, cErr_remGAM)
+        hold on;
+        plot(f_remGAM, remGAM_CI)
         xlabel('Frequency (Hz)');
         ylabel('Magnitude of Coherence');
         title([animal  ' L/R Gamma Coherence for REM Data']);
         set(gca, 'Ticklength', [0 0]);
-        legend('Coherence', 'Lower', 'Upper', 'Location', 'Southeast');
+        legend('Coherence', 'Jackknife Lower', 'JackknifeUpper', 'Bootstrap Lower', 'Bootstrap Upper', 'Location', 'Southeast');
         set(legend, 'FontSize', 6);
         ylim([0 1])
-        xlim([0 2])
+        xlim([0 1])
         axis square
         
         ComparisonData.Coherence.REM.CBV.C = C_remCBV;
@@ -366,45 +388,52 @@ for n = 1:length(LH_CBV)
 end
 
 % Calculate the Coherency between desired signals and save those signals in a the comparison data structure.
-disp('Analyzing the Coherence between all L/R CBV signals...'); disp(' ')
-[C_allCBV, phi_allCBV, S12_allCBV, S1_allCBV, S2_allCBV, f_allCBV, confC_allCBV, phiSTD_allCBV, cErr_allCBV] = coherencyc(LH_allCBV, RH_allCBV, params);
-disp('Analyzing the Coherence between all L/R gamma band power signals...'); disp(' ')
-[C_allGAM, phi_allGAM, S12_allGAM, S1_allGAM, S2_allGAM, f_allGAM, confC_allGAM, phiSTD_allGAM, cErr_allGAM] = coherencyc(LH_allGAM, RH_allGAM, params);
-
-allCBVCoherence = figure;
-plot(f_allCBV, C_allCBV)
-hold on;
-plot(f_allCBV, cErr_allCBV)
-xlabel('Frequency (Hz)');
-ylabel('Magnitude of Coherence');
-title([animal  ' L/R CBV Coherence for All Data']);
-set(gca, 'Ticklength', [0 0]);
-legend('Coherence', 'Lower', 'Upper', 'Location', 'Southeast');
-set(legend, 'FontSize', 6);
-ylim([0 1])
-xlim([0 2])
-axis square
-
-allGAMCoherence = figure;
-plot(f_allGAM, C_allGAM)
-hold on;
-plot(f_allGAM, cErr_allGAM)
-xlabel('Frequency (Hz)');
-ylabel('Magnitude of Coherence');
-title([animal  ' L/R Gamma Coherence for All Data']);
-set(gca, 'Ticklength', [0 0]);
-legend('Coherence', 'Lower', 'Upper', 'Location', 'Southeast');
-set(legend, 'FontSize', 6);
-ylim([0 1])
-xlim([0 2])
-axis square
-
-ComparisonData.Coherence.AllData.CBV.C = C_allCBV;
-ComparisonData.Coherence.AllData.CBV.f = f_allCBV;
-ComparisonData.Coherence.AllData.CBV.cErr = cErr_allCBV;
-ComparisonData.Coherence.AllData.GAM.C = C_allGAM;
-ComparisonData.Coherence.AllData.GAM.f = f_allGAM;
-ComparisonData.Coherence.AllData.GAM.cErr = cErr_allGAM;
+% disp('Analyzing the Coherence between all L/R CBV signals...'); disp(' ')
+% [C_allCBV, phi_allCBV, S12_allCBV, S1_allCBV, S2_allCBV, f_allCBV, confC_allCBV, phiSTD_allCBV, cErr_allCBV] = coherencyc(LH_allCBV, RH_allCBV, params);
+% disp('Analyzing the Coherence between all L/R gamma band power signals...'); disp(' ')
+% [C_allGAM, phi_allGAM, S12_allGAM, S1_allGAM, S2_allGAM, f_allGAM, confC_allGAM, phiSTD_allGAM, cErr_allGAM] = coherencyc(LH_allGAM, RH_allGAM, params);
+% 
+% allCBV_CI = bootci(nboot, @coherencyc2, LH_allCBV', RH_allCBV', params);
+% allGAM_CI = bootci(nboot, @coherencyc2, LH_allGAM', RH_allGAM', params);
+% 
+% allCBVCoherence = figure;
+% plot(f_allCBV, C_allCBV)
+% hold on;
+% plot(f_allCBV, cErr_allCBV)
+% hold on;
+% plot(f_allCBV, allCBV_CI)
+% xlabel('Frequency (Hz)');
+% ylabel('Magnitude of Coherence');
+% title([animal  ' L/R CBV Coherence for All Data']);
+% set(gca, 'Ticklength', [0 0]);
+% legend('Coherence', 'Jackknife Lower', 'JackknifeUpper', 'Bootstrap Lower', 'Bootstrap Upper', 'Location', 'Southeast');
+% set(legend, 'FontSize', 6);
+% ylim([0 1])
+% xlim([0 1])
+% axis square
+% 
+% allGAMCoherence = figure;
+% plot(f_allGAM, C_allGAM)
+% hold on;
+% plot(f_allGAM, cErr_allGAM)
+% hold on;
+% plot(f_allGAM, allGAM_CI)
+% xlabel('Frequency (Hz)');
+% ylabel('Magnitude of Coherence');
+% title([animal  ' L/R Gamma Coherence for All Data']);
+% set(gca, 'Ticklength', [0 0]);
+% legend('Coherence', 'Jackknife Lower', 'JackknifeUpper', 'Bootstrap Lower', 'Bootstrap Upper', 'Location', 'Southeast');
+% set(legend, 'FontSize', 6);
+% ylim([0 1])
+% xlim([0 1])
+% axis square
+% 
+% ComparisonData.Coherence.AllData.CBV.C = C_allCBV;
+% ComparisonData.Coherence.AllData.CBV.f = f_allCBV;
+% ComparisonData.Coherence.AllData.CBV.cErr = cErr_allCBV;
+% ComparisonData.Coherence.AllData.GAM.C = C_allGAM;
+% ComparisonData.Coherence.AllData.GAM.f = f_allGAM;
+% ComparisonData.Coherence.AllData.GAM.cErr = cErr_allGAM;
 
 [pathstr, ~, ~] = fileparts(cd);
 dirpath = [pathstr '/Figures/Coherence/'];

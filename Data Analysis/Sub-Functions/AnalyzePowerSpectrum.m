@@ -18,7 +18,7 @@ samplingRate = RestData.CBV.LH.CBVCamSamplingRate;
 params.tapers = [1 1];   % Tapers [n, 2n - 1]
 params.pad = 1;
 params.Fs = samplingRate;   % Sampling Rate
-params.fpass = [0 2];   % Pass band [0, nyquist] 
+params.fpass = [0 1];   % Pass band [0, nyquist] 
 params.trialave = 1;
 params.err = [2 0.05];
 
@@ -134,24 +134,41 @@ disp('Analyzing the power spectrum of the LH RestData Gamma Band signal...'); di
 disp('Analyzing the power spectrum of the RH RestData Gamma Band signal...'); disp(' ')
 [RH_restGAM_S, RH_restGAM_f, RH_restGAM_sErr] = mtspectrumc(RH_restGAM, params);
 
+nboot = 1000;
+restLHCBV_CI = bootci(nboot, @mtspectrumc2, LH_restCBV', params);
+restRHCBV_CI = bootci(nboot, @mtspectrumc2, RH_restCBV', params);
+restLHGAM_CI = bootci(nboot, @mtspectrumc2, LH_restGAM', params);
+restRHGAM_CI = bootci(nboot, @mtspectrumc2, RH_restGAM', params);
+
 % Rest CBV fig
 RestCBVPowerSpec = figure;
 ax1 = subplot(1,2,1);
 loglog(LH_restCBV_f, LH_restCBV_S)
+hold on; 
+loglog(LH_restCBV_f, LH_restCBV_sErr)
+hold on;
+loglog(LH_restCBV_f, restLHCBV_CI)
 xlabel('Frequency (Hz)')
 ylabel('Power')
 title([animal  ' LH Resting CBV Power Spectrum'])
+legend('Power Spectra', 'Jackknife Lower', 'JackknifeUpper', 'Bootstrap Lower', 'Bootstrap Upper', 'Location', 'Southeast');
 set(gca, 'Ticklength', [0 0])
-xlim([0 2])
+xlim([0 1])
+ylim([1e-7 1e-2])
 axis square
 
 ax2 = subplot(1,2,2);
 loglog(RH_restCBV_f, RH_restCBV_S)
+hold on; 
+loglog(RH_restCBV_f, RH_restCBV_sErr)
+hold on;
+loglog(RH_restCBV_f, restRHCBV_CI)
 xlabel('Frequency (Hz)')
 ylabel('Power')
 title([animal  ' RH Resting CBV Power Spectrum'])
+legend('Power Spectra', 'Jackknife Lower', 'JackknifeUpper', 'Bootstrap Lower', 'Bootstrap Upper', 'Location', 'Southeast');
 set(gca, 'Ticklength', [0 0])
-xlim([0 2])
+xlim([0 1])
 axis square
 linkaxes([ax1 ax2], 'y')
 
@@ -159,20 +176,29 @@ linkaxes([ax1 ax2], 'y')
 RestGammaPowerSpec = figure;
 ax3 = subplot(1,2,1);
 loglog(LH_restGAM_f, LH_restGAM_S)
+hold on; 
+loglog(LH_restGAM_f, LH_restGAM_sErr)
+loglog(LH_restGAM_f, restLHGAM_CI)
 xlabel('Frequency (Hz)')
 ylabel('Power')
 title([animal  ' LH Resting Gamma Power Spectrum'])
+legend('Power Spectra', 'Jackknife Lower', 'JackknifeUpper', 'Bootstrap Lower', 'Bootstrap Upper', 'Location', 'Southeast');
 set(gca, 'Ticklength', [0 0])
-xlim([0 2])
+xlim([0 1])
+ylim([1e-4 1e0])
 axis square
 
 ax4 = subplot(1,2,2);
 loglog(RH_restGAM_f, RH_restGAM_S)
+hold on;
+loglog(RH_restGAM_f, RH_restGAM_sErr)
+loglog(RH_restGAM_f, restRHGAM_CI)
 xlabel('Frequency (Hz)')
 ylabel('Power')
 title([animal  ' RH Resting Gamma Power Spectrum'])
+legend('Power Spectra', 'Jackknife Lower', 'JackknifeUpper', 'Bootstrap Lower', 'Bootstrap Upper', 'Location', 'Southeast');
 set(gca, 'Ticklength', [0 0])
-xlim([0 2])
+xlim([0 1])
 axis square
 linkaxes([ax3 ax4], 'y')
 
@@ -237,24 +263,38 @@ if ~isempty(SleepData)
     disp('Analyzing the power spectrum of the RH NREM SleepData Gamma Band signal...'); disp(' ')
     [RH_nremGAM_S, RH_nremGAM_f, RH_nremGAM_sErr] = mtspectrumc(RH_nrem_GAM, params);
     
+    nremLHCBV_CI = bootci(nboot, @mtspectrumc2, LH_nrem_CBV', params);
+    nremRHCBV_CI = bootci(nboot, @mtspectrumc2, RH_nrem_CBV', params);
+    nremLHGAM_CI = bootci(nboot, @mtspectrumc2, LH_nrem_GAM', params);
+    nremRHGAM_CI = bootci(nboot, @mtspectrumc2, RH_nrem_GAM', params);
+    
     % Rest CBV fig
     nremCBVPowerSpec = figure;
     ax5 = subplot(1,2,1);
     loglog(LH_nremCBV_f, LH_nremCBV_S)
+    hold on;
+    loglog(LH_nremCBV_f, LH_nremCBV_sErr)
+    loglog(LH_nremCBV_f, nremLHCBV_CI)
     xlabel('Frequency (Hz)')
     ylabel('Power')
     title([animal  ' LH NREM CBV Power Spectrum'])
+    legend('Power Spectra', 'Jackknife Lower', 'JackknifeUpper', 'Bootstrap Lower', 'Bootstrap Upper', 'Location', 'Southeast');
     set(gca, 'Ticklength', [0 0])
-    xlim([0 2])
+    xlim([0 1])
+    ylim([1e-7 1e-2])
     axis square
     
     ax6 = subplot(1,2,2);
     loglog(RH_nremCBV_f, RH_nremCBV_S)
+    hold on; 
+    loglog(RH_nremCBV_f, RH_nremCBV_sErr)
+    loglog(RH_nremCBV_f, nremRHCBV_CI)
     xlabel('Frequency (Hz)')
     ylabel('Power')
     title([animal  ' RH NREM CBV Power Spectrum'])
+    legend('Power Spectra', 'Jackknife Lower', 'JackknifeUpper', 'Bootstrap Lower', 'Bootstrap Upper', 'Location', 'Southeast');
     set(gca, 'Ticklength', [0 0])
-    xlim([0 2])
+    xlim([0 1])
     axis square
     linkaxes([ax5 ax6], 'y')
     
@@ -262,20 +302,29 @@ if ~isempty(SleepData)
     nremGammaPowerSpec = figure;
     ax7 = subplot(1,2,1);
     loglog(LH_nremGAM_f, LH_nremGAM_S)
+    hold on; 
+    loglog(RH_nremGAM_f, RH_nremGAM_sErr)
+    loglog(RH_nremGAM_f, nremRHGAM_CI)
     xlabel('Frequency (Hz)')
     ylabel('Power')
     title([animal  ' LH NREM Gamma Power Spectrum'])
+    legend('Power Spectra', 'Jackknife Lower', 'JackknifeUpper', 'Bootstrap Lower', 'Bootstrap Upper', 'Location', 'Southeast');
     set(gca, 'Ticklength', [0 0])
-    xlim([0 2])
+    xlim([0 1])
+    ylim([1e-4 1e0])
     axis square
     
     ax8 = subplot(1,2,2);
     loglog(RH_nremGAM_f, RH_nremGAM_S)
+    hold on; 
+    loglog(RH_nremGAM_f, RH_nremGAM_sErr)
+    loglog(RH_nremGAM_f, nremRHGAM_CI)
     xlabel('Frequency (Hz)')
     ylabel('Power')
     title([animal  ' RH NREM Gamma Power Spectrum'])
+    legend('Power Spectra', 'Jackknife Lower', 'JackknifeUpper', 'Bootstrap Lower', 'Bootstrap Upper', 'Location', 'Southeast');
     set(gca, 'Ticklength', [0 0])
-    xlim([0 2])
+    xlim([0 1])
     axis square
     linkaxes([ax7 ax8], 'y')
     
@@ -348,8 +397,9 @@ if ~isempty(SleepData)
         xlabel('Frequency (Hz)')
         ylabel('Power')
         title([animal  ' LH REM CBV Power Spectrum'])
+        legend('Power Spectra', 'Jackknife Lower', 'JackknifeUpper', 'Bootstrap Lower', 'Bootstrap Upper', 'Location', 'Southeast');
         set(gca, 'Ticklength', [0 0])
-        xlim([0 2])
+        xlim([0 1])
         axis square
         
         ax10 = subplot(1,2,2);
@@ -357,8 +407,9 @@ if ~isempty(SleepData)
         xlabel('Frequency (Hz)')
         ylabel('Power')
         title([animal  ' RH REM CBV Power Spectrum'])
+        legend('Power Spectra', 'Jackknife Lower', 'JackknifeUpper', 'Bootstrap Lower', 'Bootstrap Upper', 'Location', 'Southeast');
         set(gca, 'Ticklength', [0 0])
-        xlim([0 2])
+        xlim([0 1])
         axis square
         linkaxes([ax9 ax10], 'y')
         
@@ -370,7 +421,7 @@ if ~isempty(SleepData)
         ylabel('Power')
         title([animal  ' LH NREM Gamma Power Spectrum'])
         set(gca, 'Ticklength', [0 0])
-        xlim([0 2])
+        xlim([0 1])
         axis square
         
         ax12 = subplot(1,2,2);
@@ -379,7 +430,7 @@ if ~isempty(SleepData)
         ylabel('Power')
         title([animal  ' RH REM Gamma Power Spectrum'])
         set(gca, 'Ticklength', [0 0])
-        xlim([0 2])
+        xlim([0 1])
         axis square
         linkaxes([ax11 ax12], 'y')
         
@@ -410,107 +461,118 @@ if ~isempty(SleepData)
     end
 end
 
-%% Load in relevant data from all ProcDataFiles
-for pDF = 1:size(procDataFiles, 1)
-    procDataFile = procDataFiles(pDF, :);
-    load(procDataFile);
-    [~, ~, fileDate, fileID] = GetFileInfo_IOS(procDataFile);
-    strDay = ConvertDate(fileDate);
-    
-    disp(['Adding data from ProcData file ' num2str(pDF) ' of ' num2str(size(procDataFiles, 1))]); disp(' ')
-    LH_CBV{pDF, 1} = (ProcData.Data.CBV.LH - RestingBaselines.CBV.LH.(strDay)) / RestingBaselines.CBV.LH.(strDay);
-    RH_CBV{pDF, 1} = (ProcData.Data.CBV.RH - RestingBaselines.CBV.RH.(strDay)) / RestingBaselines.CBV.RH.(strDay);
-    LH_GAM{pDF, 1} = (ProcData.Data.GammaBand_Power.LH - RestingBaselines.GammaBand_Power.LH.(strDay)) / RestingBaselines.GammaBand_Power.LH.(strDay);
-    RH_GAM{pDF, 1} = (ProcData.Data.GammaBand_Power.RH - RestingBaselines.GammaBand_Power.RH.(strDay)) / RestingBaselines.GammaBand_Power.RH.(strDay);
-end
-
-for ii = 1:length(LH_CBV)
-    LH_CBV{ii, 1} = detrend(filtfilt(B, A, LH_CBV{ii, 1}), 'constant');
-    RH_CBV{ii, 1} = detrend(filtfilt(B, A, RH_CBV{ii, 1}), 'constant');
-    LH_GAM{ii, 1} = detrend(filtfilt(D, C, LH_GAM{ii, 1}), 'constant');
-    RH_GAM{ii, 1} = detrend(filtfilt(D, C, RH_GAM{ii, 1}), 'constant');
-end
-
-% Input data as time(1st dimension, vertical) by trials (2nd dimension, horizontally) for coherencyc and calc. coherence using chronux toolbox.
-% Pre-allocate sizes
-LH_allCBV = zeros(length(LH_CBV{1, 1}), length(LH_CBV));
-RH_allCBV = zeros(length(RH_CBV{1, 1}), length(RH_CBV));
-LH_allGAM = zeros(length(LH_GAM{1, 1}), length(LH_GAM));
-RH_allGAM = zeros(length(RH_GAM{1, 1}), length(RH_GAM));
-
-for n = 1:length(LH_CBV)
-    LH_allCBV(:, n) = LH_CBV{n, 1};
-    RH_allCBV(:, n) = RH_CBV{n, 1};
-    LH_allGAM(:, n) = LH_GAM{n, 1};
-    RH_allGAM(:, n) = RH_GAM{n, 1};
-end
-
-% Calculate the power spectrum of the desired signals and save those signals in a the comparison data structure.
-disp('Analyzing the power spectrum of the LH all data CBV signal...'); disp(' ')
-[LH_allCBV_S, LH_allCBV_f, LH_allCBV_sErr] = mtspectrumc(LH_allCBV, params);
-disp('Analyzing the power spectrum of the RH all data CBV signal...'); disp(' ')
-[RH_allCBV_S, RH_allCBV_f, RH_allCBV_sErr] = mtspectrumc(RH_allCBV, params);
-
-disp('Analyzing the power spectrum of the LH all data Gamma Band signal...'); disp(' ')
-[LH_allGAM_S, LH_allGAM_f, LH_allGAM_sErr] = mtspectrumc(LH_allGAM, params);
-disp('Analyzing the power spectrum of the RH all data Gamma Band signal...'); disp(' ')
-[RH_allGAM_S, RH_allGAM_f, RH_allGAM_sErr] = mtspectrumc(RH_allGAM, params);
-
-% Rest CBV fig
-allCBVPowerSpec = figure;
-ax13 = subplot(1,2,1);
-loglog(LH_allCBV_f, LH_allCBV_S)
-xlabel('Frequency (Hz)')
-ylabel('Power')
-title([animal  ' LH all CBV Power Spectrum'])
-set(gca, 'Ticklength', [0 0])
-xlim([0 2])
-axis square
-
-ax14 = subplot(1,2,2);
-loglog(RH_allCBV_f, RH_allCBV_S)
-xlabel('Frequency (Hz)')
-ylabel('Power')
-title([animal  ' RH all CBV Power Spectrum'])
-set(gca, 'Ticklength', [0 0])
-xlim([0 2])
-axis square
-linkaxes([ax13 ax14], 'y')
-
-% Rest Gam fig
-allGammaPowerSpec = figure;
-ax15 = subplot(1,2,1);
-loglog(LH_allGAM_f, LH_allGAM_S)
-xlabel('Frequency (Hz)')
-ylabel('Power')
-title([animal  ' LH all Gamma Power Spectrum'])
-set(gca, 'Ticklength', [0 0])
-xlim([0 2])
-axis square
-
-ax16 = subplot(1,2,2);
-loglog(RH_allGAM_f, RH_allGAM_S)
-xlabel('Frequency (Hz)')
-ylabel('Power')
-title([animal  ' RH all Gamma Power Spectrum'])
-set(gca, 'Ticklength', [0 0])
-xlim([0 2])
-axis square
-linkaxes([ax15 ax16], 'y')
-
-ComparisonData.PowerSpectrum.AllData.CBV.LH.S = LH_allCBV_S;
-ComparisonData.PowerSpectrum.AllData.CBV.LH.f = LH_allCBV_f;
-ComparisonData.PowerSpectrum.AllData.CBV.LH.sErr = LH_allCBV_sErr;
-ComparisonData.PowerSpectrum.AllData.CBV.RH.S = RH_allCBV_S;
-ComparisonData.PowerSpectrum.AllData.CBV.RH.f = RH_allCBV_f;
-ComparisonData.PowerSpectrum.AllData.CBV.RH.sErr = RH_allCBV_sErr;
-ComparisonData.PowerSpectrum.AllData.GAM.LH.S = LH_allGAM_S;
-ComparisonData.PowerSpectrum.AllData.GAM.LH.f = LH_allGAM_f;
-ComparisonData.PowerSpectrum.AllData.GAM.LH.sErr = LH_allGAM_sErr;
-ComparisonData.PowerSpectrum.AllData.GAM.RH.S = RH_allGAM_S;
-ComparisonData.PowerSpectrum.AllData.GAM.RH.f = RH_allGAM_f;
-ComparisonData.PowerSpectrum.AllData.GAM.RH.sErr = RH_allGAM_sErr;
-save([animal '_ComparisonData.mat'], 'ComparisonData');
+% %% Load in relevant data from all ProcDataFiles
+% for pDF = 1:size(procDataFiles, 1)
+%     procDataFile = procDataFiles(pDF, :);
+%     load(procDataFile);
+%     [~, ~, fileDate, fileID] = GetFileInfo_IOS(procDataFile);
+%     strDay = ConvertDate(fileDate);
+%     
+%     disp(['Adding data from ProcData file ' num2str(pDF) ' of ' num2str(size(procDataFiles, 1))]); disp(' ')
+%     LH_CBV{pDF, 1} = (ProcData.Data.CBV.LH - RestingBaselines.CBV.LH.(strDay)) / RestingBaselines.CBV.LH.(strDay);
+%     RH_CBV{pDF, 1} = (ProcData.Data.CBV.RH - RestingBaselines.CBV.RH.(strDay)) / RestingBaselines.CBV.RH.(strDay);
+%     LH_GAM{pDF, 1} = (ProcData.Data.GammaBand_Power.LH - RestingBaselines.GammaBand_Power.LH.(strDay)) / RestingBaselines.GammaBand_Power.LH.(strDay);
+%     RH_GAM{pDF, 1} = (ProcData.Data.GammaBand_Power.RH - RestingBaselines.GammaBand_Power.RH.(strDay)) / RestingBaselines.GammaBand_Power.RH.(strDay);
+% end
+% 
+% for ii = 1:length(LH_CBV)
+%     LH_CBV{ii, 1} = detrend(filtfilt(B, A, LH_CBV{ii, 1}), 'constant');
+%     RH_CBV{ii, 1} = detrend(filtfilt(B, A, RH_CBV{ii, 1}), 'constant');
+%     LH_GAM{ii, 1} = detrend(filtfilt(D, C, LH_GAM{ii, 1}), 'constant');
+%     RH_GAM{ii, 1} = detrend(filtfilt(D, C, RH_GAM{ii, 1}), 'constant');
+% end
+% 
+% % Input data as time(1st dimension, vertical) by trials (2nd dimension, horizontally) for coherencyc and calc. coherence using chronux toolbox.
+% % Pre-allocate sizes
+% LH_allCBV = zeros(length(LH_CBV{1, 1}), length(LH_CBV));
+% RH_allCBV = zeros(length(RH_CBV{1, 1}), length(RH_CBV));
+% LH_allGAM = zeros(length(LH_GAM{1, 1}), length(LH_GAM));
+% RH_allGAM = zeros(length(RH_GAM{1, 1}), length(RH_GAM));
+% 
+% for n = 1:length(LH_CBV)
+%     LH_allCBV(:, n) = LH_CBV{n, 1};
+%     RH_allCBV(:, n) = RH_CBV{n, 1};
+%     LH_allGAM(:, n) = LH_GAM{n, 1};
+%     RH_allGAM(:, n) = RH_GAM{n, 1};
+% end
+% 
+% % Calculate the power spectrum of the desired signals and save those signals in a the comparison data structure.
+% disp('Analyzing the power spectrum of the LH all data CBV signal...'); disp(' ')
+% [LH_allCBV_S, LH_allCBV_f, LH_allCBV_sErr] = mtspectrumc(LH_allCBV, params);
+% disp('Analyzing the power spectrum of the RH all data CBV signal...'); disp(' ')
+% [RH_allCBV_S, RH_allCBV_f, RH_allCBV_sErr] = mtspectrumc(RH_allCBV, params);
+% 
+% disp('Analyzing the power spectrum of the LH all data Gamma Band signal...'); disp(' ')
+% [LH_allGAM_S, LH_allGAM_f, LH_allGAM_sErr] = mtspectrumc(LH_allGAM, params);
+% disp('Analyzing the power spectrum of the RH all data Gamma Band signal...'); disp(' ')
+% [RH_allGAM_S, RH_allGAM_f, RH_allGAM_sErr] = mtspectrumc(RH_allGAM, params);
+% 
+% allLHCBV_CI = bootci(nboot, @mtspectrumc2, LH_allCBV', params);
+% allRHCBV_CI = bootci(nboot, @mtspectrumc2, RH_allCBV', params);
+% 
+% % Rest CBV fig
+% allCBVPowerSpec = figure;
+% ax13 = subplot(1,2,1);
+% loglog(LH_allCBV_f, LH_allCBV_S)
+% hold on;
+% loglog(LH_allCBV_f, LH_allCBV_sErr)
+% loglog(LH_allCBV_f, allLHCBV_CI)
+% xlabel('Frequency (Hz)')
+% ylabel('Power')
+% title([animal  ' LH all CBV Power Spectrum'])
+% legend('Power Spectra', 'Jackknife Lower', 'JackknifeUpper', 'Bootstrap Lower', 'Bootstrap Upper', 'Location', 'Southeast');
+% set(gca, 'Ticklength', [0 0])
+% xlim([0 1])
+% axis square
+% 
+% ax14 = subplot(1,2,2);
+% loglog(RH_allCBV_f, RH_allCBV_S)
+% hold on;
+% loglog(RH_allCBV_f, RH_allCBV_sErr)
+% loglog(RH_allCBV_f, allRHCBV_CI)
+% xlabel('Frequency (Hz)')
+% ylabel('Power')
+% title([animal  ' RH all CBV Power Spectrum'])
+% legend('Power Spectra', 'Jackknife Lower', 'JackknifeUpper', 'Bootstrap Lower', 'Bootstrap Upper', 'Location', 'Southeast');
+% set(gca, 'Ticklength', [0 0])
+% xlim([0 1])
+% axis square
+% linkaxes([ax13 ax14], 'y')
+% 
+% % Rest Gam fig
+% allGammaPowerSpec = figure;
+% ax15 = subplot(1,2,1);
+% loglog(LH_allGAM_f, LH_allGAM_S)
+% xlabel('Frequency (Hz)')
+% ylabel('Power')
+% title([animal  ' LH all Gamma Power Spectrum'])
+% set(gca, 'Ticklength', [0 0])
+% xlim([0 1])
+% axis square
+% 
+% ax16 = subplot(1,2,2);
+% loglog(RH_allGAM_f, RH_allGAM_S)
+% xlabel('Frequency (Hz)')
+% ylabel('Power')
+% title([animal  ' RH all Gamma Power Spectrum'])
+% set(gca, 'Ticklength', [0 0])
+% xlim([0 1])
+% axis square
+% linkaxes([ax15 ax16], 'y')
+% 
+% ComparisonData.PowerSpectrum.AllData.CBV.LH.S = LH_allCBV_S;
+% ComparisonData.PowerSpectrum.AllData.CBV.LH.f = LH_allCBV_f;
+% ComparisonData.PowerSpectrum.AllData.CBV.LH.sErr = LH_allCBV_sErr;
+% ComparisonData.PowerSpectrum.AllData.CBV.RH.S = RH_allCBV_S;
+% ComparisonData.PowerSpectrum.AllData.CBV.RH.f = RH_allCBV_f;
+% ComparisonData.PowerSpectrum.AllData.CBV.RH.sErr = RH_allCBV_sErr;
+% ComparisonData.PowerSpectrum.AllData.GAM.LH.S = LH_allGAM_S;
+% ComparisonData.PowerSpectrum.AllData.GAM.LH.f = LH_allGAM_f;
+% ComparisonData.PowerSpectrum.AllData.GAM.LH.sErr = LH_allGAM_sErr;
+% ComparisonData.PowerSpectrum.AllData.GAM.RH.S = RH_allGAM_S;
+% ComparisonData.PowerSpectrum.AllData.GAM.RH.f = RH_allGAM_f;
+% ComparisonData.PowerSpectrum.AllData.GAM.RH.sErr = RH_allGAM_sErr;
+% save([animal '_ComparisonData.mat'], 'ComparisonData');
 
 [pathstr, ~, ~] = fileparts(cd);
 dirpath = [pathstr '/Figures/Power Spectrum/'];

@@ -88,14 +88,14 @@ finalFileDurations = allRestDurations(finalFileFilter, :);
 finalFileEventTimes = allRestEventTimes(finalFileFilter, :);
 finalRestData = allRestingData(finalFileFilter, :);
 
-for ii = 1:length(finalFileIDs)   % Loop through each non-unique file
-    fileID = finalFileIDs{ii, 1};   % Specify the fileID from the list
+for a = 1:length(finalFileIDs)   % Loop through each non-unique file
+    fileID = finalFileIDs{a, 1};   % Specify the fileID from the list
     strDay = fileID(1:6);   % First 6 characters denote the date
     date = ConvertDate(strDay);   % Convert the numeric date string to a month/day
     
     %% Load in CBV from rest period
     CBVSamplingRate = 30;   % CBV sampling rate is typically always 30 Hz
-    CBV = (finalRestData{ii, 1} - RestingBaselines.CBV.(CBVdataType).(date)) /  RestingBaselines.CBV.(CBVdataType).(date);   % Loop through the list of rest CBV data - the index is consistent with the file number
+    CBV = (finalRestData{a, 1} - RestingBaselines.CBV.(CBVdataType).(date)) /  RestingBaselines.CBV.(CBVdataType).(date);   % Loop through the list of rest CBV data - the index is consistent with the file number
     
     % Low pass filter the epoch below 2 Hz
     [B, A] = butter(4, 2 / (30 / 2), 'low');
@@ -108,7 +108,7 @@ for ii = 1:length(finalFileIDs)   % Loop through each non-unique file
     dsCBV = downsample(shortCBV, 6);
     
     % Mean subtract the downsampled epoch
-    Data.CBV{ii, 1} = detrend(dsCBV, 'constant');
+    Data.CBV{a, 1} = detrend(dsCBV, 'constant');
     
     
     %% Load in Neural Data from rest period
@@ -122,8 +122,8 @@ for ii = 1:length(finalFileIDs)   % Loop through each non-unique file
     samplingDiff = CBVSamplingRate / binSize;                   % Number to divide by for data to be at 5 Hz
     
     % Find the start time and duration
-    restDuration = floor(floor(finalFileDurations(ii, 1)*CBVSamplingRate) / samplingDiff);
-    startTime = floor(floor(finalFileEventTimes(ii, 1)*CBVSamplingRate) / samplingDiff);
+    restDuration = floor(floor(finalFileDurations(a, 1)*CBVSamplingRate) / samplingDiff);
+    startTime = floor(floor(finalFileEventTimes(a, 1)*CBVSamplingRate) / samplingDiff);
     if startTime == 0
         startTime = 1;
     end
@@ -141,7 +141,7 @@ for ii = 1:length(finalFileIDs)   % Loop through each non-unique file
     % Mean subtract each row with detrend
     transpRestS_Vals = shortRestS_Vals';        % Transpose since detrend goes down columns
     dtRestS_Vals = detrend(transpRestS_Vals);   % detrend
-    Data.S{ii, 1} = dtRestS_Vals';              % transpose back to original orientation and save into Data.S
+    Data.S{a, 1} = dtRestS_Vals';              % transpose back to original orientation and save into Data.S
 end
 
 F = SpectrogramData.(neuralDataType).OneSec.F{1,1};
@@ -151,11 +151,11 @@ frequency = 5;     % Hz
 maxLag = lagTime*frequency;    % Number of points
 XC_Vals = ones(length(F), 2*maxLag + 1);   % Pre-allocate size of cross-corr matrix
 
-for ii = 1:length(Data.CBV)
-    for iii = 1:size(Data.S{ii, 1}, 1)
-        CBV_array = Data.CBV{ii, 1};
-        Neural_array = Data.S{ii, 1}(iii, :);
-        [XC_Vals(iii, :), lags] = xcorr(CBV_array, Neural_array, maxLag, 'coeff');
+for a = 1:length(Data.CBV)
+    for b = 1:size(Data.S{a, 1}, 1)
+        CBV_array = Data.CBV{a, 1};
+        Neural_array = Data.S{a, 1}(b, :);
+        [XC_Vals(b, :), lags] = xcorr(CBV_array, Neural_array, maxLag, 'coeff');
     end
     z_hold = cat(3, z_hold, XC_Vals);
 end
@@ -173,6 +173,38 @@ ylabel('Freq (Hz)')
 ylim([1 100])
 colorbar
 axis xy
+
+boostrapResults = [];
+for a = 1:length(Data.CBV)
+    disp(['Boostrapping CBV event ' num2str(a) ' of ' num2str(length(Data.CBV))]); disp(' ')
+    for boot = 1:1000
+        shuffledCBV_array_Inds = randperm(length(Data.CBV{a, 1}));
+        shuffledCBV_array = Data.CBV{a,1}(shuffledCBV_array_Inds);
+        shufXC_Vals = ones(length(F), 2*maxLag + 1);   % Pre-allocate size of cross-corr matrix
+        for b = 1:size(Data.S{a, 1}, 1)
+            Neural_array = Data.S{a, 1}(b, :);
+            [shufXC_Vals(b, :), lags] = xcorr(shuffledCBV_array, Neural_array, maxLag, 'coeff');
+        end
+        boostrapResults = cat(3, boostrapResults, shufXC_Vals);
+    end
+end
+
+restBoostrapAvg = mean(boostrapResults, 3);
+
+RestingXCorr = figure;
+imagesc(lags, F, shufmeanXC_Vals)
+title([animal ' ' neuralDataType ' Resting Cross Correlation'])
+xticks([-maxLag -maxLag/2 0 maxLag/2 maxLag])
+xticklabels({'-5', '-2.5', '0', '2.5' '5'})
+xlim([-lagTime*frequency lagTime*frequency])
+xlabel('Lags (sec)')
+ylabel('Freq (Hz)')
+ylim([1 100])
+colorbar
+axis xy
+
+Reshuf95(a,1) = quantile(CC,0.025);
+Reshuf95(a,2) = quantile(CC,0.975);
 
 ComparisonData.XCorr.Rest.(neuralDataType).lags = lags;
 ComparisonData.XCorr.Rest.(neuralDataType).F = F;
