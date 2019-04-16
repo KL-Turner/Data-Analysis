@@ -189,22 +189,8 @@ for a = 1:length(Data.CBV)
     end
 end
 
-restBoostrapAvg = mean(boostrapResults, 3);
-
-RestingXCorr = figure;
-imagesc(lags, F, shufmeanXC_Vals)
-title([animal ' ' neuralDataType ' Resting Cross Correlation'])
-xticks([-maxLag -maxLag/2 0 maxLag/2 maxLag])
-xticklabels({'-5', '-2.5', '0', '2.5' '5'})
-xlim([-lagTime*frequency lagTime*frequency])
-xlabel('Lags (sec)')
-ylabel('Freq (Hz)')
-ylim([1 100])
-colorbar
-axis xy
-
-Reshuf95(a,1) = quantile(CC,0.025);
-Reshuf95(a,2) = quantile(CC,0.975);
+test = prctile(boostrapResults, [2.5 97.5], 3);
+test2 = test(:,:,1) - test(:,:,2);
 
 ComparisonData.XCorr.Rest.(neuralDataType).lags = lags;
 ComparisonData.XCorr.Rest.(neuralDataType).F = F;
@@ -220,76 +206,76 @@ end
 
 savefig(RestingXCorr, [dirpath animal '_' neuralDataType '_RestingXCorr']);
 
-%% BLOCK PURPOSE: All data - no behavioral characterization
-procDataFiles = ls('*_ProcData.mat');
-for pDF = 1:size(procDataFiles, 1)
-    procDataFile = procDataFiles(pDF, :);
-    load(procDataFile);
-    [~, ~, fileDate, allData_FileID] = GetFileInfo_IOS(procDataFile);
-    strDay = ConvertDate(fileDate);
-    
-    %% Neural Data associated with fileID
-    allData_spectrogramFileIDs = SpectrogramData.(neuralDataType).FileIDs;
-    for sID = 1:length(allData_spectrogramFileIDs)
-        allData_specFileID = char(allData_spectrogramFileIDs(sID));
-        if strcmp(allData_FileID, allData_specFileID)
-            allData_S_Data = (SpectrogramData.(neuralDataType).OneSec.S_Norm{sID, 1}(:, 1:1495))';
-        end
-    end
-    
-    dT_allData_S_Data{pDF, 1} = (detrend(allData_S_Data, 'constant'))';
-    
-    %% CBV Data associated with fileID
-    allData_CBV = (ProcData.Data.CBV.(CBVdataType)(1:8970) - RestingBaselines.CBV.(CBVdataType).(strDay)) / RestingBaselines.CBV.(CBVdataType).(strDay);
-    [B, A] = butter(4, 2 / (30 / 2), 'low');
-    filt_allData_CBV = filtfilt(B, A, allData_CBV);
-    dS_allData_CBV = downsample(filt_allData_CBV, 6);
-    dT_allData_CBV{pDF, 1} = detrend(dS_allData_CBV, 'constant');
-end
-
-allData_F = SpectrogramData.(neuralDataType).OneSec.F{pDF, 1};
-allData_z_hold = [];
-allData_lagTime = 5;       % Seconds
-allData_frequency = 5;     % Hz
-allData_maxLag = allData_lagTime*allData_frequency;    % Number of points
-allData_XC_Vals = ones(size(allData_S_Data, 2), 2*allData_maxLag + 1);   % Pre-allocate size of cross-corr matrix
-
-for x = 1:length(dT_allData_S_Data)
-    for y = 1:size(dT_allData_S_Data{x, 1}, 1)
-        allData_CBV_array = dT_allData_CBV{x, 1};
-        allData_Neural_array = dT_allData_S_Data{x, 1}(y, :);
-        [allData_XC_Vals(y, :), allData_lags] = xcorr(allData_CBV_array, allData_Neural_array, allData_maxLag, 'coeff');
-    end
-    allData_z_hold = cat(3, allData_z_hold, allData_XC_Vals);
-end
-allData_meanXC_Vals = mean(allData_z_hold, 3);
-
-AllDataXCorr = figure;
-imagesc(allData_lags, allData_F, allData_meanXC_Vals)
-title([neuralDataType ' No Behavior Cross Correlation, One Sec Bins'])
-xticks([-allData_maxLag -allData_maxLag/2 0 allData_maxLag/2 allData_maxLag])
-xticklabels({'-5', '-2.5', '0', '2.5' '5'})
-xlabel('Lags (sec)')
-ylabel('Freq (Hz)')
-xlim([-allData_lagTime*allData_frequency allData_lagTime*allData_frequency])
-ylim([1 100])
-colorbar
-axis xy
-
-ComparisonData.XCorr.AllData.(neuralDataType).lags = allData_lags;
-ComparisonData.XCorr.AllData.(neuralDataType).F = allData_F;
-ComparisonData.XCorr.AllData.(neuralDataType).XC_Vals = allData_meanXC_Vals;
-save([animal '_ComparisonData.mat'], 'ComparisonData');
-
-[pathstr, ~, ~] = fileparts(cd);
-dirpath = [pathstr '/Figures/XCorr/'];
-
-if ~exist(dirpath, 'dir')
-    mkdir(dirpath);
-end
-
-savefig(AllDataXCorr, [dirpath animal '_' neuralDataType '_AllDataXCorr']);
-
+% %% BLOCK PURPOSE: All data - no behavioral characterization
+% procDataFiles = ls('*_ProcData.mat');
+% for pDF = 1:size(procDataFiles, 1)
+%     procDataFile = procDataFiles(pDF, :);
+%     load(procDataFile);
+%     [~, ~, fileDate, allData_FileID] = GetFileInfo_IOS(procDataFile);
+%     strDay = ConvertDate(fileDate);
+%     
+%     %% Neural Data associated with fileID
+%     allData_spectrogramFileIDs = SpectrogramData.(neuralDataType).FileIDs;
+%     for sID = 1:length(allData_spectrogramFileIDs)
+%         allData_specFileID = char(allData_spectrogramFileIDs(sID));
+%         if strcmp(allData_FileID, allData_specFileID)
+%             allData_S_Data = (SpectrogramData.(neuralDataType).OneSec.S_Norm{sID, 1}(:, 1:1495))';
+%         end
+%     end
+%     
+%     dT_allData_S_Data{pDF, 1} = (detrend(allData_S_Data, 'constant'))';
+%     
+%     %% CBV Data associated with fileID
+%     allData_CBV = (ProcData.Data.CBV.(CBVdataType)(1:8970) - RestingBaselines.CBV.(CBVdataType).(strDay)) / RestingBaselines.CBV.(CBVdataType).(strDay);
+%     [B, A] = butter(4, 2 / (30 / 2), 'low');
+%     filt_allData_CBV = filtfilt(B, A, allData_CBV);
+%     dS_allData_CBV = downsample(filt_allData_CBV, 6);
+%     dT_allData_CBV{pDF, 1} = detrend(dS_allData_CBV, 'constant');
+% end
+% 
+% allData_F = SpectrogramData.(neuralDataType).OneSec.F{pDF, 1};
+% allData_z_hold = [];
+% allData_lagTime = 5;       % Seconds
+% allData_frequency = 5;     % Hz
+% allData_maxLag = allData_lagTime*allData_frequency;    % Number of points
+% allData_XC_Vals = ones(size(allData_S_Data, 2), 2*allData_maxLag + 1);   % Pre-allocate size of cross-corr matrix
+% 
+% for x = 1:length(dT_allData_S_Data)
+%     for y = 1:size(dT_allData_S_Data{x, 1}, 1)
+%         allData_CBV_array = dT_allData_CBV{x, 1};
+%         allData_Neural_array = dT_allData_S_Data{x, 1}(y, :);
+%         [allData_XC_Vals(y, :), allData_lags] = xcorr(allData_CBV_array, allData_Neural_array, allData_maxLag, 'coeff');
+%     end
+%     allData_z_hold = cat(3, allData_z_hold, allData_XC_Vals);
+% end
+% allData_meanXC_Vals = mean(allData_z_hold, 3);
+% 
+% AllDataXCorr = figure;
+% imagesc(allData_lags, allData_F, allData_meanXC_Vals)
+% title([neuralDataType ' No Behavior Cross Correlation, One Sec Bins'])
+% xticks([-allData_maxLag -allData_maxLag/2 0 allData_maxLag/2 allData_maxLag])
+% xticklabels({'-5', '-2.5', '0', '2.5' '5'})
+% xlabel('Lags (sec)')
+% ylabel('Freq (Hz)')
+% xlim([-allData_lagTime*allData_frequency allData_lagTime*allData_frequency])
+% ylim([1 100])
+% colorbar
+% axis xy
+% 
+% ComparisonData.XCorr.AllData.(neuralDataType).lags = allData_lags;
+% ComparisonData.XCorr.AllData.(neuralDataType).F = allData_F;
+% ComparisonData.XCorr.AllData.(neuralDataType).XC_Vals = allData_meanXC_Vals;
+% save([animal '_ComparisonData.mat'], 'ComparisonData');
+% 
+% [pathstr, ~, ~] = fileparts(cd);
+% dirpath = [pathstr '/Figures/XCorr/'];
+% 
+% if ~exist(dirpath, 'dir')
+%     mkdir(dirpath);
+% end
+% 
+% savefig(AllDataXCorr, [dirpath animal '_' neuralDataType '_AllDataXCorr']);
+% 
 %% BLOCK PURPOSE: NREM SleepData
 if ~isempty(SleepData)
     NREM_sleepTime = params.minTime.NREM;   % seconds
@@ -364,6 +350,24 @@ if ~isempty(SleepData)
     end
     NREM_meanXC_Vals = mean(NREM_z_hold, 3);
     
+%     nremboostrapResults = [];
+%     for a = 1:length(Data.CBV)
+%         disp(['Boostrapping CBV event ' num2str(a) ' of ' num2str(length(Data.CBV))]); disp(' ')
+%         for boot = 1:1000
+%             shuffledCBV_array_Inds = randperm(length(NREM_dT_sleepCBV_Vals{a, 1}));
+%             shuffledCBV_array = NREM_dT_sleepCBV_Vals{a,1}(shuffledCBV_array_Inds);
+%             nremshufXC_Vals = ones(length(F), 2*maxLag + 1);   % Pre-allocate size of cross-corr matrix
+%             for b = 1:size(NREM_S_Data{a, 1}, 1)
+%                 NREM_Neural_array = NREM_S_Data{a, 1}(b, :);
+%                 [nremshufXC_Vals(b, :), lags] = xcorr(shuffledCBV_array, NREM_Neural_array, maxLag, 'coeff');
+%             end
+%             nremboostrapResults = cat(3, nremboostrapResults, nremshufXC_Vals);
+%         end
+%     end
+%     
+%     test3 = prctile(nremboostrapResults, [2.5 97.5], 3);
+%     test4 = test3(:,:,1) - test3(:,:,2);
+
     NREMXCorr = figure;
     imagesc(NREM_lags, NREM_F, NREM_meanXC_Vals)
     title([neuralDataType ' NREM Cross Correlation, One Sec Bins'])

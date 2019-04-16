@@ -239,6 +239,19 @@ end
 % ComparisonData.CorrCoeff.AllData.GAM.mean = allGAM_CC_mean;
 % ComparisonData.CorrCoeff.AllData.GAM.std = allGAM_CC_std;
 
+figure;
+errorbar(1, restCBV_CC_mean, abs(restCBV_CC_mean - restCBVCC_CI(1)), abs(restCBV_CC_mean - restCBVCC_CI(2)), 'o')
+hold on
+errorbar(2, restGAM_CC_mean, abs(restGAM_CC_mean - restGAMCC_CI(1)), abs(restGAM_CC_mean - restGAMCC_CI(2)), 'o')
+errorbar(3, nremCBV_CC_mean, abs(nremCBV_CC_mean - nremCBVCC_CI(1)), abs(nremCBV_CC_mean - nremCBVCC_CI(2)), 'o')
+errorbar(4, nremGAM_CC_mean, abs(nremGAM_CC_mean - nremGAMCC_CI(1)), abs(nremGAM_CC_mean - nremGAMCC_CI(2)), 'o')
+xlim([0 5])
+ylim([0 1])
+title('Pearsons correlation coefficient with bootstrap confidence intervals')
+ylabel('Correlation coefficient')
+legend('Rest CBV', 'Rest Gamma', 'NREM CBV', 'NREM Gamma')
+set(gca,'xticklabel',{[]})
+
 save([animal '_ComparisonData.mat'], 'ComparisonData');
 
 end
