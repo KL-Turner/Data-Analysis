@@ -27,6 +27,7 @@ for a = 1:size(mscanDataFiles,1)
         disp(['Analyzing MScan neural bands and analog signals for file number ' num2str(a) ' of ' num2str(size(mscanDataFiles, 1)) '...']); disp(' ');
         animalID = MScanData.notes.animalID;
         imageID = MScanData.notes.imageID;
+        vesselID = MScanData.notes.vesselID;
         date = MScanData.notes.date;
         strDay = ConvertDate_2P(date);
         
@@ -91,7 +92,7 @@ for a = 1:size(mscanDataFiles,1)
 
         %% Save the data, set checklist to true
         MScanData.notes.checklist.processData = true;
-        save([animalID '_' date '_' imageID '_MScanData'], 'MScanData')
+        save([animalID '_' date '_'  vesselID '_' imageID '_MScanData'], 'MScanData')
     else
         disp([mscanDataFile ' has already been processed. Continuing...']); disp(' ');
     end

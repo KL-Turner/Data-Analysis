@@ -6,9 +6,10 @@
 %
 %   Purpose: 1) Pull vessel notes from Excel sheet.
 %            2) Analyze vessel diameter.
-%            3) Analyze neural bands, force sensors, and whisker motion.
-%            4) Correct LabVIEW time offset.
-%            5) Combine LabVIEWData and MScan Data files to ceate MergedData. 
+%            3) Add the LabVIEW filename to each MScan file.
+%            4) Analyze neural bands, force sensors, and whisker motion.
+%            5) Correct LabVIEW time offset.
+%            6) Combine LabVIEWData and MScan Data files to ceate MergedData. 
 %________________________________________________________________________________________________________________________
 %
 %   Inputs: Scan the workspace for filenames *_LabVIEWData.mat' and '*_MScanData.mat'
@@ -36,20 +37,24 @@ mscanDataFiles = {mscanDirectory.name}';
 mscanDataFiles = char(mscanDataFiles);
 Analyze2PDiameter_2P(mscanDataFiles);
 
-%% BLOCK PURPOSE: [3] Process neural, whiskers, and force sensor data.
-disp('Analyzing Block [3] Analyzing neural bands, force sensors, and whiskers.'); disp(' ')
+%% BLOCK PURPOSE: [3] Add LabVIEW filename to MScan file
+disp('Analyzing Block [3] Adding LabVIEW file IDs to MScan data files.'); disp(' ')
 labviewDirectory = dir('*_LabVIEWData.mat');
 labviewDataFiles = {labviewDirectory.name}';
 labviewDataFiles = char(labviewDataFiles);
+AddLabVIEWFileID(mscanDataFiles, labviewDataFiles, msExcelFile);
+
+%% BLOCK PURPOSE: [4] Process neural, whiskers, and force sensor data.
+disp('Analyzing Block [4] Analyzing neural bands, force sensors, and whiskers.'); disp(' ')
 Process2PDataFiles_2P(labviewDataFiles, mscanDataFiles)
 
-%% BLOCK PURPOSE: [4] Correct the offset between the MScan and LabVIEW acquisiton.
-disp('Analyzing Block [4] Correcting LabVIEW time offset.'); disp(' ')
+%% BLOCK PURPOSE: [5] Correct the offset between the MScan and LabVIEW acquisiton.
+disp('Analyzing Block [5] Correcting LabVIEW time offset.'); disp(' ')
 trimTime = 30;   % sec
 CorrectLabVIEWOffset_2P(labviewDataFiles, mscanDataFiles, trimTime)
 
-%% BLOCK PURPOSE: [5] Combine the MScan and LabVIEW structures into one.
-disp('Analyzing Block [5] Combing LabVIEWData and MScan Data files to create MergedData.'); disp(' ')
+%% BLOCK PURPOSE: [6] Combine the MScan and LabVIEW structures into one.
+disp('Analyzing Block [6] Combing LabVIEWData and MScan Data files to create MergedData.'); disp(' ')
 CombineLabVIEWMScanFiles_2P(labviewDataFiles, mscanDataFiles)
 
 disp('Two Photon Stage Two Processing - Complete.'); disp(' ')

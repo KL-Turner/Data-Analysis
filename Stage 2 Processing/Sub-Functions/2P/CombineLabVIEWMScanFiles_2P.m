@@ -15,13 +15,13 @@ function CombineLabVIEWMScanFiles_2P(labviewDataFiles, mscanDataFiles)
 %   Last Revised: February 29th, 2019
 %________________________________________________________________________________________________________________________
 
-for a = 1:size(labviewDataFiles,1)
-    disp(['Combining the data from LabVIEW and MScan file(s) number ' num2str(a) ' of ' num2str(size(labviewDataFiles, 1)) '...']); disp(' ');
-    labviewDataFile = labviewDataFiles(a,:);
+for a = 1:size(mscanDataFiles,1)
+    disp(['Combining the data from LabVIEW and MScan file(s) number ' num2str(a) ' of ' num2str(size(mscanDataFiles, 1)) '...']); disp(' ');
     mscanDataFile = mscanDataFiles(a,:);
-    load(labviewDataFile);
     load(mscanDataFile);
-    
+    labviewDataFile = MScanDataFiles.notes.labviewFileID;
+    load(labviewDataFile);
+
     [animalID, ~, ~, fileID] = GetFileInfo_2P(labviewDataFile);
     vesselID = MScanData.notes.vesselID;
     imageID = MScanData.notes.imageID;

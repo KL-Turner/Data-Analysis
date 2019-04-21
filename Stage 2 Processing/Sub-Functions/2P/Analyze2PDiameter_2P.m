@@ -36,6 +36,8 @@ for a = 1:size(mscanDataFiles, 1)
             % MScanData.notes.checklist.analyzeDiam = true;        
             % save([MScanData.notes.animalID '_' MScanData.notes.date '_' MScanData.notes.imageID '_MScanData'], 'MScanData')
         end
+    else
+        disp([mscanDataFiles(a,:) ' vessel diameter already analyzed. Continuing...']); disp(' ')
     end
 end
 

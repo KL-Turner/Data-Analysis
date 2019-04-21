@@ -22,13 +22,14 @@ for a = 1:size(mscanDataFiles,1)
     %% Find offset between the two force sensor signals using the cross correlation
     mscanDataFile = mscanDataFiles(a, :);
     load(mscanDataFile);
-    labviewDataFile = labviewDataFiles(a, :);
+    labviewDataFile = MScanData.notes.labviewFileID;
     load(labviewDataFile)
     if MScanData.notes.checklist.offsetCorrect == false
         disp(['Correcting offset in file number ' num2str(a) ' of ' num2str(size(mscanDataFiles, 1)) '...']); disp(' ');
         [animalID, hem, fileDate, fileID] = GetFileInfo_2P(labviewDataFile);
         imageID = MScanData.notes.imageID;
-        
+        vesselID = MScanData.notes.vesselID;
+
         analogSamplingRate = LabVIEWData.notes.analogSamplingRate_Hz;
         whiskerCamSamplingRate = LabVIEWData.notes.whiskerCamSamplingRate_Hz;
         dsFs = MScanData.notes.downSampledFs;
@@ -163,7 +164,7 @@ for a = 1:size(mscanDataFiles,1)
         LabVIEWData.notes.trialDuration_Seconds_trim = LabVIEWData.notes.trialDuration_Seconds - 2*trimTime;
         
         disp('Updating MScanData and LabVIEW Files...'); disp(' ')
-        save([animalID '_' fileDate '_' imageID '_MScanData'], 'MScanData')
+        save([animalID '_' fileDate '_' vesselID '_' imageID '_MScanData'], 'MScanData')
         save([animalID '_' hem '_' fileID '_LabVIEWData'], 'LabVIEWData')
     else
         disp(['Offset in ' mscanDataFile ' and ' labviewDataFile ' has already been corrected. Continuing...']); disp(' ');
