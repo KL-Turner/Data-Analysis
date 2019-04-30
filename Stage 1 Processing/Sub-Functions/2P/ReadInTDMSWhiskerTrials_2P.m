@@ -19,7 +19,7 @@ function [TDMSFile] = ReadInTDMSWhiskerTrials_2P(fileName)
 %________________________________________________________________________________________________________________________
 
 %% Convert the .tdms file into something that Matlab understands
-[tempStruct, ~] = ConvertTDMS_SlowOscReview2019(0, fileName);
+[tempStruct, ~] = ConvertTDMS_2P(0, fileName);
 
 % Extract Whisker Camera info and transfer from tempStruct
 TDMSFile.experimenter = tempStruct.Data.Root.Experimenter;

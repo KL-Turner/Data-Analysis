@@ -78,7 +78,7 @@ for a = 1:size(mscanDataFiles,1)
         plot((1:length(mscanForce))/dsFs, mscanForce, 'k')
         hold on;
         plot((1:length(labviewForce))/dsFs, labviewForce, 'r')
-        title({[animalID ' ' fileID ' ' imageID ' force sensor data'], 'Offset correction between MScan and LabVIEW DAQ'})
+        title({[animalID ' ' fileID ' ' vesselID ' ' imageID ' force sensor data'], 'Offset correction between MScan and LabVIEW DAQ'})
         legend('Original MScan', 'Original LabVIEW')
         ylabel('A.U.')
         xlabel('Time (sec)')
@@ -166,6 +166,18 @@ for a = 1:size(mscanDataFiles,1)
         disp('Updating MScanData and LabVIEW Files...'); disp(' ')
         save([animalID '_' fileDate '_' vesselID '_' imageID '_MScanData'], 'MScanData')
         save([animalID '_' hem '_' fileID '_LabVIEWData'], 'LabVIEWData')
+        
+        %% Save the file to directory.
+        [pathstr, ~, ~] = fileparts(cd);
+        dirpath = [pathstr '/Figures/XCorr Shift/'];
+        
+        if ~exist(dirpath, 'dir')
+            mkdir(dirpath);
+        end
+        
+        savefig(corrOffset, [dirpath animalID '_' fileID '_' vesselID '_' imageID '_XCorrShift']);
+        close(corrOffset)
+        
     else
         disp(['Offset in ' mscanDataFile ' and ' labviewDataFile ' has already been corrected. Continuing...']); disp(' ');
     end

@@ -1,4 +1,4 @@
-function CombineLabVIEWMScanFiles_2P(labviewDataFiles, mscanDataFiles)
+function CombineLabVIEWMScanFiles_2P(~, mscanDataFiles)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -19,7 +19,7 @@ for a = 1:size(mscanDataFiles,1)
     disp(['Combining the data from LabVIEW and MScan file(s) number ' num2str(a) ' of ' num2str(size(mscanDataFiles, 1)) '...']); disp(' ');
     mscanDataFile = mscanDataFiles(a,:);
     load(mscanDataFile);
-    labviewDataFile = MScanDataFiles.notes.labviewFileID;
+    labviewDataFile = MScanData.notes.labviewFileID;
     load(labviewDataFile);
 
     [animalID, ~, ~, fileID] = GetFileInfo_2P(labviewDataFile);
