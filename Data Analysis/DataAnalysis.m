@@ -54,12 +54,12 @@ disp('Block [0] structs loaded.'); disp(' ')
 % % end 
 % 
 %% BLOCK PURPOSE: [2] Cross correlation
-disp('Analyzing Block [2] Analzying the cross-correlation between CBV and LFP.'); disp(' ')
-for dT = 1:length(dataTypes)
-    CBVdataType = ([dataTypes{dT} '_Electrode']);
-    neuralDataType = dataTypes{dT};
-    [ComparisonData] = AnalyzeXCorr(animal, CBVdataType, neuralDataType, params, RestData, RestingBaselines, SpectrogramData, SleepData, ComparisonData);
-end
+% disp('Analyzing Block [2] Analzying the cross-correlation between CBV and LFP.'); disp(' ')
+% for dT = 1:length(dataTypes)
+%     CBVdataType = ([dataTypes{dT} '_Electrode']);
+%     neuralDataType = dataTypes{dT};
+%     [ComparisonData] = AnalyzeXCorr(animal, CBVdataType, neuralDataType, params, RestData, RestingBaselines, SpectrogramData, SleepData, ComparisonData);
+% end
 
 %% BLOCK PURPOSE: [3] Coherence
 % disp('Analyzing Block [3] Analyzing the coherence between L/R CBV and Gamma signals.'); disp(' ')
@@ -76,7 +76,7 @@ end
 % end
 
 %% BLOCK PURPOSE: [5] Correlation Coefficients between behaviors
-% [ComparisonData] = AnalyzeCorrCoeffs(animal, params, procDataFiles, RestingBaselines, RestData, SleepData, ComparisonData);
+[ComparisonData] = AnalyzeCorrCoeffs(animal, params, procDataFiles, RestingBaselines, RestData, SleepData, ComparisonData);
 
 %% BLOCK PURPOSE: [6] Hemodynamic response functions
 % for dT = 1:length(dataTypes)
