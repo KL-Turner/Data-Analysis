@@ -37,7 +37,7 @@ for a = 2:size(alldata,1)   % Loop through all rows of the excel sheet except th
     tempData.notes.vesselID = alldata{a,12};
     tempData.notes.drug = alldata{a,13};
     
-    currentFileID = ([tempData.notes.animalID '_' tempData.notes.date '_' tempData.notes.vesselID '_' tempData.notes.imageID '_MScanData.mat']);
+    currentFileID = ([tempData.notes.animalID '_' tempData.notes.date '_' tempData.notes.imageID '_' tempData.notes.vesselID '_MScanData.mat']);
     if ~exist(currentFileID, 'file')   % Only run analysis if the current file doesn't exist yet
         % Vessel diameter calculation for movie surface vessels
         if strcmp(tempData.notes.movieType, 'MS')
@@ -59,7 +59,7 @@ for a = 2:size(alldata,1)   % Loop through all rows of the excel sheet except th
         
         % Save the RawData file for the current movie type
         disp(['File Created. Saving MScanData File ' num2str(a - 1) '...']); disp(' ')
-        save([MScanData.notes.animalID '_' MScanData.notes.date '_' MScanData.notes.vesselID '_' MScanData.notes.imageID '_MScanData'], 'MScanData')
+        save([MScanData.notes.animalID '_' MScanData.notes.date '_' MScanData.notes.imageID '_' MScanData.notes.vesselID '_MScanData'], 'MScanData')
         close all
     else
         disp([currentFileID ' already exists in the current directory. Continuing...']); disp(' ')

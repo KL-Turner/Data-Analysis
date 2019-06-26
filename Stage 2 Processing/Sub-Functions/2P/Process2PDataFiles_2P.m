@@ -92,7 +92,7 @@ for a = 1:size(mscanDataFiles,1)
 
         %% Save the data, set checklist to true
         MScanData.notes.checklist.processData = true;
-        save([animalID '_' date '_'  vesselID '_' imageID '_MScanData'], 'MScanData')
+        save([animalID '_' date '_'  imageID '_' vesselID '_MScanData'], 'MScanData')
     else
         disp([mscanDataFile ' has already been processed. Continuing...']); disp(' ');
     end

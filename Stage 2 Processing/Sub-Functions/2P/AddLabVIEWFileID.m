@@ -16,7 +16,7 @@ for c = 1:size(uniqueImages)
     for d = 1:size(mscanDataFiles,1)
         mscanDataFile = mscanDataFiles(d,:);
         fileBreaks = strfind(mscanDataFile, '_');
-        if strcmp(mscanDataFile(fileBreaks(3) + 1:fileBreaks(4) - 1), imageID)
+        if strcmp(mscanDataFile(fileBreaks(2) + 1:fileBreaks(3) - 1), imageID)
             load(mscanDataFile)
             
             if ~isfield(MScanData.notes, 'labviewFileID')

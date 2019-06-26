@@ -59,8 +59,7 @@ for a = 1:length(fileNames)
     
     % Determine if a LabVIEWData file has already been created for this file. If it has, skip it
     fileExist = ls(['*' fileID '_LabVIEWData.mat']);
-%     if isempty(fileExist)
-        
+    if isempty(fileExist)
         
         %% BLOCK PURPOSE: [2] Import .tdms data (All channels).
         disp('Analyzing Block [2] Importing .tdms data from all channels.'); disp(' ')
@@ -106,10 +105,10 @@ for a = 1:length(fileNames)
         
         disp(['File Created. Saving LabVIEWData File ' num2str(a) '...']); disp(' ')
         save([trialData.animalID '_' trialData.imagedHemisphere '_' fileID '_LabVIEWData'], 'LabVIEWData')
-%     else
-%         disp('File already exists. Continuing...'); disp(' ')
-%     end
-% end
+    else
+        disp('File already exists. Continuing...'); disp(' ')
+    end
+end
 
 disp('Two Photon Stage One Processing - Complete.'); disp(' ')
 
