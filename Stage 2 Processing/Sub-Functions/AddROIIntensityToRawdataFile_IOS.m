@@ -1,4 +1,4 @@
-function AddROIIntensityToRawdataFile(ROIname, rawDataFiles)
+function AddROIIntensityToRawdataFile_IOS(ROIname, rawDataFiles)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -21,7 +21,7 @@ function AddROIIntensityToRawdataFile(ROIname, rawDataFiles)
 for fileNumber = 1:size(rawDataFiles, 1)
     fileName = rawDataFiles(fileNumber, :);
     disp(['Analyzing file ' num2str(fileNumber) ' of ' num2str(size(rawDataFiles, 1)) '...']); disp(' ')
-    [animal, hem, fileDate, fileID] = GetFileInfo(fileName);
+    [animal, hem, fileDate, fileID] = GetFileInfo_IOS(fileName);
     ROIFile = ls('*ROIs.mat');
     if not(isempty(ROIFile))
         load(ROIFile)
@@ -29,19 +29,19 @@ for fileNumber = 1:size(rawDataFiles, 1)
         ROIs = [];
     end
     
-    strDay = ConvertDate(fileDate);
+    strDay = ConvertDate_IOS(fileDate);
     load(fileName)
     
-    [isok] = CheckROI([ROIname '_' strDay]);
-    [frames] = ReadDalsaBinary([fileID '_WindowCam.bin'], RawData.Notes.CBVCamPixelHeight, RawData.Notes.CBVCamPixelWidth);
+    [isok] = CheckROI_IOS([ROIname '_' strDay]);
+    [frames] = ReadDalsaBinary_IOS([fileID '_WindowCam.bin'], RawData.Notes.CBVCamPixelHeight, RawData.Notes.CBVCamPixelWidth);
     
     if not(isok)
-        mask = CreateROI(frames{2},[ROIname '_' strDay], animal, hem);
+        mask = CreateROI_IOS(frames{2},[ROIname '_' strDay], animal, hem);
     elseif isok
-        mask = GetROI(frames{1},[ROIname '_' strDay], animal, hem);
+        mask = GetROI_IOS(frames{1},[ROIname '_' strDay], animal, hem);
     end
     
-    meanIntensity = BinToIntensity([fileID '_WindowCam.bin'], mask, frames);
+    meanIntensity = BinToIntensity_IOS([fileID '_WindowCam.bin'], mask, frames);
     RawData.Data.CBV.(ROIname) = meanIntensity;
     save(fileName, 'RawData')
 end

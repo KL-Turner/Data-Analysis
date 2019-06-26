@@ -1,4 +1,4 @@
-function [UniqueDays, dayIndex, dayID] = GetUniqueDays(DateList)
+function [UniqueDays, dayIndex, dayID] = GetUniqueDays_IOS(DateList)
 %___________________________________________________________________________________________________
 % Edited by Kevin L. Turner 
 % Ph.D. Candidate, Department of Bioengineering 

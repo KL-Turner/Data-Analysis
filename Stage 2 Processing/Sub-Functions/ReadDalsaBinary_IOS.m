@@ -1,4 +1,4 @@
-function [refl] = BinToIntensity(fileName, ROImask, frames)
+function [image] = ReadDalsaBinary_IOS(file, imageHeight, imageWidth)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -17,18 +17,26 @@ function [refl] = BinToIntensity(fileName, ROImask, frames)
 %   Last Revised: February 29th, 2019
 %________________________________________________________________________________________________________________________
 
-% Import camera frames from dalsa file
-if nargin < 3
-    [frames] = ReadDalsaBinary(fileName, 256, 256);
+% imagebasics
+pixelsPerFrame = imageWidth*imageHeight;
+% open the file , get file size , back to the begining
+fid = fopen(file);
+fseek(fid, 0, 'eof');
+fileSize = ftell(fid);
+fseek(fid, 0, 'bof');
+
+% identify the number of frames to read. Each frame has a previously
+% defined width and height (as inputs), along with a grayscale "depth" of 2"
+
+nFramesToRead = floor(fileSize / (2*pixelsPerFrame));
+% preallocate memory
+image = cell(1, nFramesToRead);
+for n = 1:nFramesToRead
+    z = fread(fid, pixelsPerFrame, '*int16', 'b');
+    img = reshape(z(1:pixelsPerFrame), imageHeight, imageWidth);
+    image{n} = rot90(img', 2);
 end
 
-nFrames = length(frames);
-
-
-refl = zeros(1, nFrames);
-for n = 1:nFrames
-    mask = ROImask.*double(frames{n});
-    refl(n) = mean(nonzeros(mask));
-end
+fclose('all');
 
 end

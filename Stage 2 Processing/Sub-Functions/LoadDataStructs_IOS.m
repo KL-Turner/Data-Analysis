@@ -1,5 +1,5 @@
 function [animal, hem, ROIs, Thresholds, EventData, RestData, RestingBaselines,...
-    SpectrogramData, SleepData, ComparisonData] = LoadDataStructs()
+    SpectrogramData, SleepData, ComparisonData] = LoadDataStructs_IOS()
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -16,7 +16,7 @@ function [animal, hem, ROIs, Thresholds, EventData, RestData, RestingBaselines,.
 %   Last Revised: February 29th, 2019
 %________________________________________________________________________________________________________________________
 
-rawDataFiles = dir('*_RawData.mat');
+rawDataFiles = dir('*_LabVIEWRawData.mat');
 rawDataFileIDs = {rawDataFiles.name}';
 rawDataFileID = rawDataFileIDs{1,1};
 [animal, hem, ~, ~] = GetFileInfo_IOS(rawDataFileID);

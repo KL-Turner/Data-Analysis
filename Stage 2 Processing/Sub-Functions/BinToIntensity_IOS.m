@@ -1,4 +1,4 @@
-function [isok] = CheckROI(ROIname)
+function [refl] = BinToIntensity_IOS(fileName, ROImask, frames)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -17,17 +17,18 @@ function [isok] = CheckROI(ROIname)
 %   Last Revised: February 29th, 2019
 %________________________________________________________________________________________________________________________
 
-ROIfile = ls('*ROIs.mat');
-if not(isempty(ROIfile))
-    load(ROIfile)
-else
-    ROIs = [];
+% Import camera frames from dalsa file
+if nargin < 3
+    [frames] = ReadDalsaBinary_IOS(fileName, 256, 256);
 end
 
-if isfield(ROIs, ROIname)
-    isok = 1;
-else
-    isok = 0;
+nFrames = length(frames);
+
+
+refl = zeros(1, nFrames);
+for n = 1:nFrames
+    mask = ROImask.*double(frames{n});
+    refl(n) = mean(nonzeros(mask));
 end
 
 end

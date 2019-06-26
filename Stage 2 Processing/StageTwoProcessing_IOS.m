@@ -24,14 +24,14 @@ clc;
 clear;
 disp('Analyzing Block [0] Preparing the workspace and loading variables.'); disp(' ')
 
-[animal, hem, ~, ~, ~, ~, ~, ~, ~, ~] = LoadDataStructs();
+[animal, hem, ~, ~, ~, ~, ~, ~, ~, ~] = LoadDataStructs_IOS();
 
 % Character list of all RawData files
-rawDataFileStruct = dir('*_RawData.mat');
+rawDataFileStruct = dir('*_LabVIEWRawData.mat');
 rawDataFiles = {rawDataFileStruct.name}';
 rawDataFiles = char(rawDataFiles);
 
-procDataFileStruct = dir('*_ProcData.mat');
+procDataFileStruct = dir('*_LabVIEWProcData.mat');
 procDataFiles = {procDataFileStruct.name}';
 procDataFiles = char(procDataFiles);
 
@@ -39,7 +39,7 @@ disp('Block [0] structs loaded.'); disp(' ')
 
 %% BLOCK PURPOSE: [1] Create Bilateral ROIs
 disp('Analyzing Block [1] Create Bilateral ROIs.'); disp(' ')
-CreateBilateralROI(animal, hem, rawDataFiles)   % Create bilateral regions of interest for the windows
+CreateBilateralROI_IOS(animal, hem, rawDataFiles)   % Create bilateral regions of interest for the windows
 ROIFile = ls('*ROIs.mat');
 load(ROIFile);
 

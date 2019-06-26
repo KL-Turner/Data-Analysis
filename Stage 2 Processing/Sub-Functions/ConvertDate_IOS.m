@@ -1,4 +1,4 @@
-function [mask] = GetROI(img, ROIname, animal, hem)
+function [days] = ConvertDate_IOS(dateTag)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -17,33 +17,13 @@ function [mask] = GetROI(img, ROIname, animal, hem)
 %   Last Revised: February 29th, 2019
 %________________________________________________________________________________________________________________________
 
-isok = 'n';
-ROIfile = ls('*ROIs.mat');
-if not(isempty(ROIfile))
-    load(ROIfile)
-else
-    ROIs = [];
+days = cell(size(dateTag, 1), 1);
+for f = 1:size(dateTag, 1)
+    days{f} = datestr([2000 + str2double(dateTag(f, 1:2)) str2double(dateTag(f, 3:4)) str2double(dateTag(f, 5:6)) 00 00 00], 'mmmdd');
 end
 
-if isfield(ROIs,ROIname)
-    xi = ROIs.(ROIname).xi;
-    yi = ROIs.(ROIname).yi;
-    disp([animal ' ROI for ' ROIname ' found, saving to RawData file.']); disp(' ')
-
-    if strcmp(isok,'y')
-        mask = roipoly(img,xi,yi);
-    end
-    while strcmp(isok,'n') == 1
-        isok = 'y';
-        if strcmp(isok,'y')
-            mask = roipoly(img, xi, yi);
-            continue;
-        elseif strcmp(isok,'n')
-            [mask] = CreateROI(img,animal,hem);
-        end
-    end
-else
-    [mask] = CreateROI(img, ROIname, animal, hem);
+if length(days) == 1
+    days = days{1};
 end
 
 end

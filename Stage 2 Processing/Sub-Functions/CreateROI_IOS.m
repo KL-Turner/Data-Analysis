@@ -1,4 +1,4 @@
-function [image] = ReadDalsaBinary(file, imageHeight, imageWidth)
+function [mask] = CreateROI_IOS(img, ROIname, animal, hem)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -17,26 +17,30 @@ function [image] = ReadDalsaBinary(file, imageHeight, imageWidth)
 %   Last Revised: February 29th, 2019
 %________________________________________________________________________________________________________________________
 
-% imagebasics
-pixelsPerFrame = imageWidth*imageHeight;
-% open the file , get file size , back to the begining
-fid = fopen(file);
-fseek(fid, 0, 'eof');
-fileSize = ftell(fid);
-fseek(fid, 0, 'bof');
-
-% identify the number of frames to read. Each frame has a previously
-% defined width and height (as inputs), along with a grayscale "depth" of 2"
-
-nFramesToRead = floor(fileSize / (2*pixelsPerFrame));
-% preallocate memory
-image = cell(1, nFramesToRead);
-for n = 1:nFramesToRead
-    z = fread(fid, pixelsPerFrame, '*int16', 'b');
-    img = reshape(z(1:pixelsPerFrame), imageHeight, imageWidth);
-    image{n} = rot90(img', 2);
+ROIFile = ls('*ROIs.mat');
+if not(isempty(ROIFile))
+    load(ROIFile)
+else
+    ROIs = [];
 end
 
-fclose('all');
+disp(['Please select your region of interest for ' animal ' ' ROIname '.']); disp(' ')
+figure;
+imagesc(img);
+colormap(gray);
+axis image;
+xlabel('Caudal');
+
+if strcmp(hem,'LH')
+    ylabel('Lateral');
+elseif strcmp(hem,'RH')
+    ylabel('Medial')
+end
+
+[mask, xi, yi] = roipoly;
+ROIs.(ROIname).xi = xi;
+ROIs.(ROIname).yi = yi;
+save([animal '_ROIs.mat'], 'ROIs');
+impoly(gca, [xi, yi]);
 
 end
