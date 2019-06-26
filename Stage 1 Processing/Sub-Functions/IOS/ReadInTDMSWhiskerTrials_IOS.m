@@ -24,33 +24,38 @@ function [TDMSFile] = ReadInTDMSWhiskerTrials_IOS(fileName)
 % Extract Whisker Camera info and transfer from TempStruct
 TDMSFile.experimenter = TempStruct.Data.Root.Experimenter;
 TDMSFile.animalID = TempStruct.Data.Root.Animal_ID;
-TDMSFile.imagedHemisphere = TempStruct.Data.Root.Imaged_Hemisphere;
-TDMSFile.solenoidPressure_PSI = TempStruct.Data.Root.Solenoid_Pressure;
-TDMSFile.isofluraneTime_Military = TempStruct.Data.Root.Isoflurane_time;
+TDMSFile.hemisphere = TempStruct.Data.Root.Hemisphere;
+TDMSFile.solenoidPSI = TempStruct.Data.Root.Solenoid_PSI;
+TDMSFile.isofluraneTime = TempStruct.Data.Root.Isoflurane_time;
 TDMSFile.sessionID = TempStruct.Data.Root.Session_ID;
 TDMSFile.amplifierGain = TempStruct.Data.Root.Amplifier_Gain;
-TDMSFile.CBVCamSamplingRate = TempStruct.Data.Root.CBVCam_Rate;
-TDMSFile.whiskerCamSamplingRate = TempStruct.Data.Root.WhiskerCam_Rate;
-TDMSFile.webCamSamplingRate = TempStruct.Data.Root.WebCam_Rate;
-TDMSFile.analogSamplingRate = TempStruct.Data.Root.Analog_Sampling_Rate;
-TDMSFile.trialDuration_Seconds = TempStruct.Data.Root.TrialDuration_sec;
-TDMSFile.CBVCamPixelHeight = TempStruct.Data.Root.CBV_Cam_Height_pix;
+TDMSFile.CBVCamSamplingRate = TempStruct.Data.Root.CBV_Cam_Fs;
+TDMSFile.whiskerCamSamplingRate = TempStruct.Data.Root.Whisk_Cam_Fs;
+TDMSFile.webCamSamplingRate = TempStruct.Data.Root.Web_Cam_Fs;
+TDMSFile.pupilCamSamplingRate = TempStruct.Data.Root.Pupil_Cam_Fs;
+TDMSFile.analogSamplingRate = TempStruct.Data.Root.Analog_Fs;
+TDMSFile.trialDuration_Sec = TempStruct.Data.Root.TrialDuration_sec;
 TDMSFile.CBVCamPixelWidth = TempStruct.Data.Root.CBV_Cam_Width_pix;
+TDMSFile.CBVCamPixelHeight = TempStruct.Data.Root.CBV_Cam_Height_pix;
 TDMSFile.CBVCamBitDepth = TempStruct.Data.Root.CBV_Cam_Bit_Depth;
-TDMSFile.whiskerCamPixelHeight = TempStruct.Data.Root.Whisker_Cam_Height_pix;
+TDMSFile.pupilCamPixelWidth = TempStruct.Data.Root.Pupil_Cam_Width_pix;
+TDMSFile.pupilCamPixelHeight = TempStruct.Data.Root.Pupil_Cam_Height_pix;
 TDMSFile.whiskerCamPixelWidth = TempStruct.Data.Root.Whisker_Cam_Width_pix;
-TDMSFile.CBVCamExposureTime_Microseconds = TempStruct.Data.Root.CBVCam_Exposure_Time_microsec;
+TDMSFile.whiskerCamPixelHeight = TempStruct.Data.Root.Whisker_Cam_Height_pix;
+TDMSFile.CBVCamExposureTime_microsec = TempStruct.Data.Root.CBVCam_Exposure_Time_microsec;
 TDMSFile.CBVCamBinning = TempStruct.Data.Root.CBVCam_Binning;
-TDMSFile.numberDroppedWhiskerCamFrames = TempStruct.Data.Root.WhiskerCam_NumberDropped;
-TDMSFile.droppedWhiskerCamFrameIndex = TempStruct.Data.Root.WhiskerCam_DroppedFrameIndex;
+TDMSFile.droppedPupilCamFrameIndex = TempStruct.Data.Root.PupilCam_DroppedFrameIndex;
+TDMSFile.numberDroppedPupilCamFrames = TempStruct.Data.Root.PupilCam_NumberDropped;
+TDMSFile.droppedWhiskCamFrameIndex = TempStruct.Data.Root.WhiskCam_DroppedFrameIndex;
+TDMSFile.numberDroppedWhiskCamFrames = TempStruct.Data.Root.WhiskCam_NumberDropped;
 
 % Data is contained in .Vals folder in rows with corresponding labels in .Names
-TDMSFile.Data.Vals = NaN*ones(length(TempStruct.Data.MeasuredData), length(TempStruct.Data.MeasuredData(1).Data));
-TDMSFile.Data.Names = cell(length(TempStruct.Data.MeasuredData), 1) ;
+TDMSFile.data.vals = NaN*ones(length(TempStruct.Data.MeasuredData), length(TempStruct.Data.MeasuredData(1).Data));
+TDMSFile.data.names = cell(length(TempStruct.Data.MeasuredData), 1) ;
 
 for k = 1:length(TempStruct.Data.MeasuredData)
-    TDMSFile.Data.Vals(k,:) = TempStruct.Data.MeasuredData(k).Data;
-    TDMSFile.Data.Names{k} = strrep(TempStruct.Data.MeasuredData(k).Name, 'Analog_Data', '');
+    TDMSFile.data.vals(k,:) = TempStruct.Data.MeasuredData(k).Data;
+    TDMSFile.data.names{k} = strrep(TempStruct.Data.MeasuredData(k).Name, 'Analog_Data', '');
 end
 
 end
