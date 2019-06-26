@@ -17,7 +17,7 @@ function DrawROIs_IOS(animal, hem, ROInames)
 
 windowCamFiles = ls('*_WindowCam.bin');
 [~, ~, fileDates, ~] = GetFileInfo_IOS(windowCamFiles);
-[uniqueDays, ~, DayID] = GetUniqueDays(fileDates);
+[uniqueDays, ~, DayID] = GetUniqueDays_IOS(fileDates);
 firstFileOfDay = cell(1,length(uniqueDays));
 for uD = 1:length(uniqueDays)
     FileInd = DayID == uD;
@@ -27,7 +27,7 @@ end
 
 for ii = 1:length(firstFileOfDay)
     fileID = firstFileOfDay{1, ii};
-    strDay = ConvertDate(fileID);
+    strDay = ConvertDate_IOS(fileID);
     [frames] = ReadDalsaBinary_IOS(fileID, 256, 256);
     for iii = 1:length(ROInames)
         ROIname = ROInames{1, iii};

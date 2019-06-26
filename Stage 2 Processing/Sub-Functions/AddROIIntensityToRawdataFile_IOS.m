@@ -8,12 +8,12 @@ function AddROIIntensityToRawdataFile_IOS(ROIname, rawDataFiles)
 %________________________________________________________________________________________________________________________
 %
 %   Purpose: Create an ROI from camera frames and average the reflectance from the ROI to get a timeseries. 
-%            Add the result into the RawData.mat file.
+%            Add the result into the LabVIEWRawData.mat file.
 %________________________________________________________________________________________________________________________
 %
 %   Inputs: ROIname - typically 'LH', 'RH', or an electrode ROI, and a list of the rawDataFiles in the current folder.
 %
-%   Outputs: None - but saves the ROI pixel intensity over time as a (1 x n) array in all listed RawData.mat files.
+%   Outputs: None - but saves the ROI pixel intensity over time as a (1 x n) array in all listed LabVIEWRawData.mat files.
 %
 %   Last Revised: February 29th, 2019
 %________________________________________________________________________________________________________________________
@@ -33,7 +33,7 @@ for fileNumber = 1:size(rawDataFiles, 1)
     load(fileName)
     
     [isok] = CheckROI_IOS([ROIname '_' strDay]);
-    [frames] = ReadDalsaBinary_IOS([fileID '_WindowCam.bin'], RawData.Notes.CBVCamPixelHeight, RawData.Notes.CBVCamPixelWidth);
+    [frames] = ReadDalsaBinary_IOS([fileID '_WindowCam.bin'], LabVIEWRawData.notes.CBVCamPixelHeight, LabVIEWRawData.notes.CBVCamPixelWidth);
     
     if not(isok)
         mask = CreateROI_IOS(frames{2},[ROIname '_' strDay], animal, hem);
@@ -42,8 +42,8 @@ for fileNumber = 1:size(rawDataFiles, 1)
     end
     
     meanIntensity = BinToIntensity_IOS([fileID '_WindowCam.bin'], mask, frames);
-    RawData.Data.CBV.(ROIname) = meanIntensity;
-    save(fileName, 'RawData')
+    LabVIEWRawData.Data.CBV.(ROIname) = meanIntensity;
+    save(fileName, 'LabVIEWRawData')
 end
 
 end
