@@ -1,4 +1,4 @@
-function [Sr, tr, fr, HR] = FindHeartRate(r, Fr)
+function [Sr, tr, fr, HR] = FindHeartRate_IOS(r, Fr)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering

@@ -1,4 +1,4 @@
-function [thresh] = CreateForceSensorThreshold(PSWF)
+function [thresh] = CreateForceSensorThreshold_IOS(PSWF)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -25,7 +25,7 @@ isok = 'n';
 while strcmp(isok,'y') == 0
     plot(force, 'k');
     thresh = input('No Threshold to binarize pressure sensor found. Please enter a threshold: '); disp(' ')
-    binPSWF = BinarizeForceSensor(PSWF,thresh);
+    binPSWF = BinarizeForceSensor_IOS(PSWF,thresh);
     binInds = find(binPSWF);
     subplot(211)
     plot(PSWF, 'k') 

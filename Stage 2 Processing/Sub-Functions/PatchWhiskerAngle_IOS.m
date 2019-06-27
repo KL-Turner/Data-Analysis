@@ -1,4 +1,4 @@
-function [patchedWhiskerAngle] = PatchWhiskerAngle(whiskerAngle, fs, expectedDuration_Sec, droppedFrameIndex)
+function [patchedWhiskerAngle, sampleDiff] = PatchWhiskerAngle_IOS(whiskerAngle, fs, expectedDuration_Sec, droppedFrameIndex)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -31,12 +31,12 @@ elseif sampleDiff == 0
 elseif sampleDiff < 0
     % never have I see the whisker camera have more than the expected number of frames. But if I do...
     disp('It appears we have found a whisker signal with extra frames. cool.')
-    return
+    keyboard
 elseif mod(sampleDiff, 2) ~= 0
     % whisker camera appears to always drop frames in even numbers. If we ever come across an odd example,
     % we will update this function handle that. Until next time...
     disp('It appears we have found a whisker signal with an odd number of dropped frames. neat.')
-    return
+    keyboard
 end
 
 % loop through each index, linear interpolate the values between the index and the right edge, then shift the samples.
@@ -62,9 +62,12 @@ if ~isempty(droppedFrameIndex)
             snipPatchFrameVals = patchFrameVals(2:end - 1);
             patchedWhiskerAngle = horzcat(whiskerAngle(1:leftEdge), snipPatchFrameVals, whiskerAngle(rightEdge:end));
         else
-            patchFrameVals = interp1(1:length(patchedWhiskerAngle), patchedWhiskerAngle, patchFrameInds);   % linear interp
-            snipPatchFrameVals = patchFrameVals(2:end - 1);
-            patchedWhiskerAngle = horzcat(patchedWhiskerAngle(1:leftEdge), snipPatchFrameVals, patchedWhiskerAngle(rightEdge:end));
+            try
+                patchFrameVals = interp1(1:length(patchedWhiskerAngle), patchedWhiskerAngle, patchFrameInds);   % linear interp
+                snipPatchFrameVals = patchFrameVals(2:end - 1);
+                patchedWhiskerAngle = horzcat(patchedWhiskerAngle(1:leftEdge), snipPatchFrameVals, patchedWhiskerAngle(rightEdge:end));
+            catch
+            end
         end
     end
     patchedWhiskerAngle = patchedWhiskerAngle(1:expectedSamples);

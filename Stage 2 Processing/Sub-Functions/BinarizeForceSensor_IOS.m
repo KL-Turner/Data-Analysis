@@ -1,4 +1,4 @@
-function [binPSWF] = BinarizeForceSensor(PSWF, thresh)
+function [binPSWF] = BinarizeForceSensor_IOS(PSWF, thresh)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering

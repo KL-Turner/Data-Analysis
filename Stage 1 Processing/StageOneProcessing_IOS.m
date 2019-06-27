@@ -72,7 +72,7 @@ for a = 1:length(fileNames)
         dataRow = strcmp(trialData.data.names, 'Neural_RH');
         cortical_RH = trialData.data.vals(dataRow,:) / str2double(trialData.amplifierGain);
         
-        dataRow = strcmp(trialData.data.names, 'Respiration');
+        dataRow = strcmp(trialData.data.names, 'Hippocampus');
         hippocampus = trialData.data.vals(dataRow,:) / str2double(trialData.amplifierGain);
         
         % Left, Right, Auditory solenoids. Combine the arrays together.

@@ -1,28 +1,30 @@
-function  [bin_wwf] = BinarizeWhiskers_IOS(angl, fs, thresh1, thresh2)
+function [] = CheckForNaNs_IOS(ProcData)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%
-% Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
 %________________________________________________________________________________________________________________________
 %
-%   Purpose:
+%   Purpose: 
 %________________________________________________________________________________________________________________________
 %
-%   Inputs:
+%   Inputs: 
 %
-%   Outputs: 
+%   Outputs:     
 %
-%   Last Revised: February 29th, 2019
+%   Last Revised: June 27th, 2019    
 %________________________________________________________________________________________________________________________
 
-% Differentiate, rectify, subtract off noise, rectify
-dd_wwf = abs((diff(angl, 2)))*fs^2;
-bin_wwf1 = gt(dd_wwf, thresh1);   % Acceleration exceeds lower threshold
-bin_wwf2 = gt(dd_wwf, thresh2);   % Acceleration exceeds upper threshold
+CBVfields = fieldnames(ProcData.data.CBV);
+for b = 1:length(CBVfields)
+    nanCheck{b,1} = sum(isnan(ProcData.data.CBV.(CBVfields{b})));
+end
 
-% Combine the two waveforms
-bin_wwf = (bin_wwf1 + bin_wwf2) / 2;
+for b = 1:length(nanCheck)
+    if nanCheck{b,1} ~= 0
+        disp('WARNING - NaNs found in CBV array'); disp(' ')
+        keyboard
+    end
+end
 
 end

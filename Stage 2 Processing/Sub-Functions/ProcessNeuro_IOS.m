@@ -1,4 +1,4 @@
-function [procNeuro, neuroFs] = ProcessNeuro_IOS(MScanData, expectedLength, neurType, neuralFieldName)
+function [procNeuro] = ProcessNeuro_IOS(RawData, expectedLength, neurType, neuralDataType, dsFs)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -18,13 +18,13 @@ function [procNeuro, neuroFs] = ProcessNeuro_IOS(MScanData, expectedLength, neur
 %________________________________________________________________________________________________________________________
 
 %% Thresholds and Neurtype switch
-trimmedNeuro = (1:min(expectedLength, length(MScanData.data.(neuralFieldName))));
-analogFs = MScanData.notes.analogSamplingRate;
+trimmedNeuro = (1:min(expectedLength, length(RawData.data.(neuralDataType))));
+analogFs = RawData.notes.analogSamplingRate;
 
 switch neurType
     case 'MUA'
         fpass = [300 3000];
-    case 'Gam'
+    case 'Gamma'
         fpass = [40 100];
     case 'Beta'
         fpass = [13 30];
@@ -37,16 +37,15 @@ switch neurType
 end
 
 %% CALCULATE NEURAL POWER
-if ismember(neurType, [{'MUA'}, {'Gam'}, {'Beta'}, {'Alpha'}, {'Theta'}, {'Delta'}])
-    disp(['ProcessNeuro.m: Processing ' neuralFieldName ' ' neurType]); disp(' ')
-    neuroFs = 30;
-    [z1, p1, k1] = butter(4, fpass / (analogFs / 2));
+if ismember(neurType, [{'MUA'}, {'Gamma'}, {'Beta'}, {'Alpha'}, {'Theta'}, {'Delta'}])
+    disp(['ProcessNeuro.m: Processing ' neuralDataType ' ' neurType]); disp(' ')
+    [z1, p1, k1] = butter(4, fpass/(analogFs/2));
     [sos1, g1] = zp2sos(z1, p1, k1);
     filtNeuro = filtfilt(sos1, g1, trimmedNeuro - mean(trimmedNeuro));
     [z2, p2, k2] = butter(4, 10/(analogFs/2), 'low');
     [sos2, g2] = zp2sos(z2, p2, k2);
     smoothPower = filtfilt(sos2, g2, filtNeuro.^2);
-    procNeuro = max(resample(smoothPower, neuroFs, analogFs), 0);
+    procNeuro = max(resample(smoothPower, dsFs, analogFs), 0);
 end
 
 end

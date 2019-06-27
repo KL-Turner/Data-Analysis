@@ -1,4 +1,4 @@
-function [linkedWF] = LinkBinaryEvents(binWF, dCrit)
+function [linkedWF] = LinkBinaryEvents_IOS(binWF, dCrit)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering

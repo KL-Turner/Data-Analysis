@@ -1,4 +1,4 @@
-function [thresh1,thresh2] = CreateWhiskThreshold(angl, fs)
+function [thresh1,thresh2] = CreateWhiskThreshold_IOS(angl, fs)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -25,7 +25,7 @@ while strcmp(isok,'y') == 0
     plot(dd_wwf,'k');
     thresh2 = input('No Threshold for volitional whisks found. Please enter a threshold: '); disp(' ')
     thresh1 = input('No Threshold for resting behavior found. Please enter a threshold: '); disp(' ')
-    bin_wwf = BinarizeWhiskers(angl, fs, thresh1, thresh2);
+    bin_wwf = BinarizeWhiskers_IOS(angl, fs, thresh1, thresh2);
     ax1 = subplot(311); 
     plot(angl, 'k'); 
     axis tight; 

@@ -1,4 +1,4 @@
-function [ok] = CheckForThreshold(sfield, animal)
+function [ok] = CheckForThreshold_IOS(sfield, animal)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering

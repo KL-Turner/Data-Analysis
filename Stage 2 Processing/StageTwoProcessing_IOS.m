@@ -47,21 +47,15 @@ end
 disp('Analyzing Block [2] Extracting cerebral blood volume data from each ROI.'); disp(' ')
 ExtractCBVData_IOS(ROIs, ROInames, rawDataFiles)
 
-%% BLOCK PURPOSE: [2] Process the RawData structure -> Create Threshold data structure and ProcData structure.
-disp('Analyzing Block [2] Create ProcData files and analyze neural data.'); disp(' ')
-for fileNumber = 1:size(rawDataFiles, 1)
-    fileName = rawDataFiles(fileNumber, :);
-    disp(['Analyzing file ' num2str(fileNumber) ' of ' num2str(size(rawDataFiles, 1)) '...']); disp(' ')
-    ProcessRawDataFile_IOS(fileName)
-    close all;
-end
+%% BLOCK PURPOSE: [3] Process the RawData structure -> Create Threshold data structure and ProcData structure.
+disp('Analyzing Block [2] Create ProcData files and process analog data.'); disp(' ')
+ProcessRawDataFiles_IOS(rawDataFiles)
 
-%% BLOCK PURPOSE: [3] Add Heart Rate to the ProcData structures.
-disp('Analyzing Block [3] Add heart rate to ProcData files.'); disp(' ')
-for fileNumber = 1:size(procDataFiles, 1)
-    fileName = procDataFiles(fileNumber, :);
-    disp(['Adding the heart rate to ProcData file ' num2str(fileNumber) ' of ' num2str(size(procDataFiles, 1)) '...']); disp(' ')
-    AddHeartRate(fileName)
-end
+%% BLOCK PURPOSE: [4] Add Heart Rate to the ProcData structures.
+disp('Analyzing Block [4] Add heart rate to ProcData files.'); disp(' ')
+procDataFileStruct = dir('*_ProcData.mat');
+procDataFiles = {procDataFileStruct.name}';
+procDataFiles = char(procDataFiles);
+ExtractHeartRate_IOS(procDataFiles)
 
 disp('Stage Two Processing - Complete.'); disp(' ')
