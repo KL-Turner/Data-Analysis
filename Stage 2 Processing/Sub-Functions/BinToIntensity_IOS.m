@@ -24,7 +24,6 @@ end
 
 nFrames = length(frames);
 
-
 refl = zeros(1, nFrames);
 for n = 1:nFrames
     mask = ROImask.*double(frames{n});

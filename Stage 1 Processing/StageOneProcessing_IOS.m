@@ -115,23 +115,21 @@ for a = 1:length(fileNames)
         RawData.notes.sessionID = trialData.sessionID;
         RawData.notes.amplifierGain = str2double(trialData.amplifierGain);
         RawData.notes.CBVCamSamplingRate = str2double(trialData.CBVCamSamplingRate);
-        RawData.notes.whiskerCamSamplingRate = str2double(trialData.whiskerCamSamplingRate);
+        RawData.notes.whiskCamSamplingRate = str2double(trialData.whiskCamSamplingRate);
         RawData.notes.webCamSamplingRate = str2double(trialData.webCamSamplingRate);
         RawData.notes.pupilCamSamplingRate = str2double(trialData.pupilCamSamplingRate);
         RawData.notes.analogSamplingRate = str2double(trialData.analogSamplingRate);
-        RawData.notes.trialDuration_sec = str2double(trialData.trialDuration_Sec);
+        RawData.notes.trialDuration_sec = str2double(trialData.trialDuration_sec);
         RawData.notes.CBVCamPixelWidth = str2double(trialData.CBVCamPixelWidth);
         RawData.notes.CBVCamPixelHeight = str2double(trialData.CBVCamPixelHeight);
         RawData.notes.CBVCamBitDepth = str2double(trialData.CBVCamBitDepth);
         RawData.notes.pupilCamPixelWidth = str2double(trialData.pupilCamPixelWidth);
         RawData.notes.pupilCamPixelHeight = str2double(trialData.pupilCamPixelHeight);
-        RawData.notes.whiskerCamPixelHeight = str2double(trialData.whiskerCamPixelHeight);
-        RawData.notes.whiskerCamPixelWidth = str2double(trialData.whiskerCamPixelWidth);
+        RawData.notes.whiskCamPixelHeight = str2double(trialData.whiskCamPixelHeight);
+        RawData.notes.whiskCamPixelWidth = str2double(trialData.whiskCamPixelWidth);
         RawData.notes.CBVCamExposureTime_microsec = str2double(trialData.CBVCamExposureTime_microsec);
-        RawData.notes.CBVCamBinning = str2double(trialData.CBVCamBinning);
-        RawData.notes.numberDroppedPupilCamFrames = str2double(trialData.numberDroppedPupilCamFrames);
+        RawData.notes.CBVCamBinning = trialData.CBVCamBinning;
         RawData.notes.droppedPupilCamFrameIndex = trialData.droppedPupilCamFrameIndex;
-        RawData.notes.numberDroppedWhiskCamFrames = str2double(trialData.numberDroppedWhiskCamFrames);
         RawData.notes.droppedWhiskCamFrameIndex = trialData.droppedWhiskCamFrameIndex;
         
         % Data
@@ -144,7 +142,7 @@ for a = 1:length(fileNames)
         RawData.data.solenoids = solenoids;
      
         disp(['File Created. Saving RawData File ' num2str(a) '...']); disp(' ')
-        save([trialData.animalID '_' trialData.hemisphere '_' fileID '_RawData'], 'RawData')
+        save([trialData.animalID '_' fileID '_RawData'], 'RawData')
     else
         disp('File already exists. Continuing...'); disp(' ')
     end

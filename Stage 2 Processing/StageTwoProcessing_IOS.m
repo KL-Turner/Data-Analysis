@@ -15,7 +15,7 @@
 %            2) A ProcData.mat structure for each inputed rawdata.mat file, as well as a Thresholds.mat file that serves
 %               as a record for each variable/day's set threshold.        
 %
-%   Last Revised: October 3rd, 2018    
+%   Last Revised: June 26th, 2019    
 %________________________________________________________________________________________________________________________
 
 %% BLOCK PURPOSE: [0] Load the script's necessary variables and data structures.
@@ -24,20 +24,28 @@ clc;
 clear;
 disp('Analyzing Block [0] Preparing the workspace and loading variables.'); disp(' ')
 
-[animal, hem, ~, ~, ~, ~, ~, ~, ~, ~] = LoadDataStructs_IOS();
-
 % Character list of all RawData files
-rawDataFileStruct = dir('*_LabVIEWRawData.mat');
+rawDataFileStruct = dir('*_RawData.mat');
 rawDataFiles = {rawDataFileStruct.name}';
 rawDataFiles = char(rawDataFiles);
+[animalID, ~, ~] = GetFileInfo_IOS(rawDataFiles(1,:));
 
-disp('Block [0] structs loaded.'); disp(' ')
+%% BLOCK PURPOSE: [1] Create bilateral regions of interest for the windows
+disp('Analyzing Block [1] Creating bilateral regions of interest.'); disp(' ')
+ROInames = {'LH', 'RH', 'LH_Electrode', 'RH_Electrode'};
+ROIFileDir = dir('*_ROIs.mat');
+if isempty(ROIFileDir) == true
+    ROIs = [];
+else
+    ROIFileName = {ROIFileDir.name}';
+    ROIFileID = char(ROIFileName);
+    load(ROIFileID);
+end
+[ROIs] = CheckROIDates_IOS(animalID, ROIs, ROInames);
 
-%% BLOCK PURPOSE: [1] Create Bilateral ROIs
-disp('Analyzing Block [1] Create Bilateral ROIs.'); disp(' ')
-CreateBilateralROI_IOS(animal, hem, rawDataFiles)   % Create bilateral regions of interest for the windows
-ROIFile = ls('*ROIs.mat');
-load(ROIFile);
+%% BLOCK PURPOSE: [2] Extract CBV data from each ROI for each RawData file in the directory that hasn't been processed yet.
+disp('Analyzing Block [2] Extracting cerebral blood volume data from each ROI.'); disp(' ')
+ExtractCBVData_IOS(ROIs, ROInames, rawDataFiles)
 
 %% BLOCK PURPOSE: [2] Process the RawData structure -> Create Threshold data structure and ProcData structure.
 disp('Analyzing Block [2] Create ProcData files and analyze neural data.'); disp(' ')
