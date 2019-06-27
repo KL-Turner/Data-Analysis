@@ -18,9 +18,9 @@ function StageOneProcessing_IOS(fileNames, trackWhiskers)
 %   Inputs: fileNames - [cell array] list of filames with the extension '_WhiskerCam.bin'.
 %           TrackWhiskers - [binary] tells code whether to track the whiskers or not.
 %
-%   Outputs: A processed LabVIEWRawData file for each filename that is saved to the current directory.
+%   Outputs: A processed RawData file for each filename that is saved to the current directory.
 %
-%   Last Revised: March 21st, 2019
+%   Last Revised: June 26th, 2019
 %________________________________________________________________________________________________________________________
 
 %% BLOCK PURPOSE: [0] Load the script's necessary variables and data structures.
@@ -41,8 +41,8 @@ if nargin < 2
     trackWhiskers = 1;
 end
 
-%% BLOCK PURPOSE: [1] Preparing to create LabVIEWRawData files.
-disp('Analyzing Block [1] Preparing to create LabVIEWRawData file(s).'); disp(' ')
+%% BLOCK PURPOSE: [1] Preparing to create RawData files.
+disp('Analyzing Block [1] Preparing to create RawData file(s).'); disp(' ')
 % Load in each file one at a time, looping through the list
 for a = 1:length(fileNames)
     disp(['Analyzing file ' num2str(a) ' of ' num2str(length(fileNames)) '...']); disp(' ')
@@ -57,40 +57,43 @@ for a = 1:length(fileNames)
     % Pull out the file ID for the file - this is the numerical string after the animal name/hemisphere
     [~, ~, ~, fileID] = GetFileInfo_IOS(indFile);
     
-    % Determine if a LabVIEWRawData file has already been created for this file. If it has, skip it
-    fileExist = ls(['*' fileID '_LabVIEWRawData.mat']);
+    % Determine if a RawData file has already been created for this file. If it has, skip it
+    fileExist = ls(['*' fileID '_RawData.mat']);
     if isempty(fileExist)
         
         %% BLOCK PURPOSE: [2] Import .tdms data (All channels).
         disp('Analyzing Block [2] Importing .tdms data from all channels.'); disp(' ')
         trialData = ReadInTDMSWhiskerTrials_IOS([fileID '.tdms']);
         
+        % Left, Right, and hippocampal electrodes
         dataRow = strcmp(trialData.data.names, 'Neural_LH');  
         cortical_LH = trialData.data.vals(dataRow,:) / str2double(trialData.amplifierGain);
         
+        dataRow = strcmp(trialData.data.names, 'Neural_RH');
+        cortical_RH = trialData.data.vals(dataRow,:) / str2double(trialData.amplifierGain);
+        
+        dataRow = strcmp(trialData.data.names, 'Respiration');
+        hippocampus = trialData.data.vals(dataRow,:) / str2double(trialData.amplifierGain);
+        
+        % Left, Right, Auditory solenoids. Combine the arrays together.
+        dataRow = strcmp(trialData.data.names, 'LPadSol'); 
+        LPadSol = gt(trialData.data.vals(dataRow,:), 0.5)*1;   % ID amplitude is 1 
+        
+        dataRow = strcmp(trialData.data.names, 'RPadSol'); 
+        RPadSol = gt(trialData.data.vals(dataRow,:), 0.5)*2;   % ID amplitude is 2
+        
+        dataRow = strcmp(trialData.data.names, 'AudSol'); 
+        AudSol = gt(trialData.data.vals(dataRow,:), 0.5)*3;   % ID amplitude is 3
+        
+        solenoids = LPadSol + RPadSol + AudSol;
+              
+        % Force sensor and EMG
         dataRow = strcmp(trialData.data.names, 'Force_Sensor'); 
         forceSensor = trialData.data.vals(dataRow,:);
         
-        dataRow = strcmp(trialData.data.names, 'LPadSol'); 
-        LPadSol = gt(trialData.data.vals(dataRow,:), 0.5)*1;   % Amplitude is 1 
-        
-        dataRow = strcmp(trialData.data.names, 'RPadSol'); 
-        RPadSol = gt(trialData.data.vals(dataRow,:), 0.5)*2;   % Amplitude is 1
-        
-        dataRow = strcmp(trialData.data.names, 'AudSol'); 
-        AudSol = gt(trialData.data.vals(dataRow,:), 0.5)*3;   % Amplitude is 1
-        
-        dataRow = strcmp(trialData.data.names, 'Respiration'); 
-        hippocampus = trialData.data.vals(dataRow,:) / str2double(trialData.amplifierGain);
-        
         dataRow = strcmp(trialData.data.names, 'EMG');
         EMG = trialData.data.vals(dataRow,:) / str2double(trialData.amplifierGain);
-        
-        dataRow = strcmp(trialData.data.names, 'Neural_RH'); 
-        cortical_RH = trialData.data.vals(dataRow,:) / str2double(trialData.amplifierGain);
                
-        solenoids = LPadSol + RPadSol + AudSol;
-
         %% BLOCK PURPOSE: [3] Start Whisker tracker.
         disp('Analyzing Block [3] Starting whisker tracking.'); disp(' ')
         if trackWhiskers == true
@@ -102,46 +105,46 @@ for a = 1:length(fileNames)
         end
         
         %% BLOCK PURPOSE: [4] Save the notes and data.
-        disp('Analyzing Block [4] Evaluating data to save to LabVIEWRawData file.'); disp(' ')
+        disp('Analyzing Block [4] Evaluating data to save to RawData file.'); disp(' ')
         % notes - all variables are descriptive
-        LabVIEWRawData.notes.experimenter = trialData.experimenter;
-        LabVIEWRawData.notes.animalID = trialData.animalID;
-        LabVIEWRawData.notes.hemisphere = trialData.hemisphere;
-        LabVIEWRawData.notes.solenoidPSI = str2double(trialData.solenoidPSI);
-        LabVIEWRawData.notes.isofluraneTime = str2double(trialData.isofluraneTime);
-        LabVIEWRawData.notes.sessionID = trialData.sessionID;
-        LabVIEWRawData.notes.amplifierGain = str2double(trialData.amplifierGain);
-        LabVIEWRawData.notes.CBVCamSamplingRate = str2double(trialData.CBVCamSamplingRate);
-        LabVIEWRawData.notes.whiskerCamSamplingRate = str2double(trialData.whiskerCamSamplingRate);
-        LabVIEWRawData.notes.webCamSamplingRate = str2double(trialData.webCamSamplingRate);
-        LabVIEWRawData.notes.pupilCamSamplingRate = str2double(trialData.pupilCamSamplingRate);
-        LabVIEWRawData.notes.analogSamplingRate = str2double(trialData.analogSamplingRate);
-        LabVIEWRawData.notes.trialDuration_sec = str2double(trialData.trialDuration_Sec);
-        LabVIEWRawData.notes.CBVCamPixelWidth = str2double(trialData.CBVCamPixelWidth);
-        LabVIEWRawData.notes.CBVCamPixelHeight = str2double(trialData.CBVCamPixelHeight);
-        LabVIEWRawData.notes.CBVCamBitDepth = str2double(trialData.CBVCamBitDepth);
-        LabVIEWRawData.notes.pupilCamPixelWidth = str2double(trialData.pupilCamPixelWidth);
-        LabVIEWRawData.notes.pupilCamPixelHeight = str2double(trialData.pupilCamPixelHeight);
-        LabVIEWRawData.notes.whiskerCamPixelHeight = str2double(trialData.whiskerCamPixelHeight);
-        LabVIEWRawData.notes.whiskerCamPixelWidth = str2double(trialData.whiskerCamPixelWidth);
-        LabVIEWRawData.notes.CBVCamExposureTime_microsec = str2double(trialData.CBVCamExposureTime_microsec);
-        LabVIEWRawData.notes.CBVCamBinning = str2double(trialData.CBVCamBinning);
-        LabVIEWRawData.notes.numberDroppedPupilCamFrames = str2double(trialData.numberDroppedPupilCamFrames);
-        LabVIEWRawData.notes.droppedPupilCamFrameIndex = trialData.droppedPupilCamFrameIndex;
-        LabVIEWRawData.notes.numberDroppedWhiskCamFrames = str2double(trialData.numberDroppedWhiskCamFrames);
-        LabVIEWRawData.notes.droppedWhiskCamFrameIndex = trialData.droppedWhiskCamFrameIndex;
+        RawData.notes.experimenter = trialData.experimenter;
+        RawData.notes.animalID = trialData.animalID;
+        RawData.notes.hemisphere = trialData.hemisphere;
+        RawData.notes.solenoidPSI = str2double(trialData.solenoidPSI);
+        RawData.notes.isofluraneTime = str2double(trialData.isofluraneTime);
+        RawData.notes.sessionID = trialData.sessionID;
+        RawData.notes.amplifierGain = str2double(trialData.amplifierGain);
+        RawData.notes.CBVCamSamplingRate = str2double(trialData.CBVCamSamplingRate);
+        RawData.notes.whiskerCamSamplingRate = str2double(trialData.whiskerCamSamplingRate);
+        RawData.notes.webCamSamplingRate = str2double(trialData.webCamSamplingRate);
+        RawData.notes.pupilCamSamplingRate = str2double(trialData.pupilCamSamplingRate);
+        RawData.notes.analogSamplingRate = str2double(trialData.analogSamplingRate);
+        RawData.notes.trialDuration_sec = str2double(trialData.trialDuration_Sec);
+        RawData.notes.CBVCamPixelWidth = str2double(trialData.CBVCamPixelWidth);
+        RawData.notes.CBVCamPixelHeight = str2double(trialData.CBVCamPixelHeight);
+        RawData.notes.CBVCamBitDepth = str2double(trialData.CBVCamBitDepth);
+        RawData.notes.pupilCamPixelWidth = str2double(trialData.pupilCamPixelWidth);
+        RawData.notes.pupilCamPixelHeight = str2double(trialData.pupilCamPixelHeight);
+        RawData.notes.whiskerCamPixelHeight = str2double(trialData.whiskerCamPixelHeight);
+        RawData.notes.whiskerCamPixelWidth = str2double(trialData.whiskerCamPixelWidth);
+        RawData.notes.CBVCamExposureTime_microsec = str2double(trialData.CBVCamExposureTime_microsec);
+        RawData.notes.CBVCamBinning = str2double(trialData.CBVCamBinning);
+        RawData.notes.numberDroppedPupilCamFrames = str2double(trialData.numberDroppedPupilCamFrames);
+        RawData.notes.droppedPupilCamFrameIndex = trialData.droppedPupilCamFrameIndex;
+        RawData.notes.numberDroppedWhiskCamFrames = str2double(trialData.numberDroppedWhiskCamFrames);
+        RawData.notes.droppedWhiskCamFrameIndex = trialData.droppedWhiskCamFrameIndex;
         
         % Data
-        LabVIEWRawData.data.cortical_LH = cortical_LH;
-        LabVIEWRawData.data.cortical_RH = cortical_RH;
-        LabVIEWRawData.data.hippocampus = hippocampus;
-        LabVIEWRawData.data.forceSensor = forceSensor;
-        LabVIEWRawData.data.EMG = EMG;
-        LabVIEWRawData.data.whiskerAngle = whiskerAngle;
-        LabVIEWRawData.data.solenoids = solenoids;
+        RawData.data.cortical_LH = cortical_LH;
+        RawData.data.cortical_RH = cortical_RH;
+        RawData.data.hippocampus = hippocampus;
+        RawData.data.forceSensor = forceSensor;
+        RawData.data.EMG = EMG;
+        RawData.data.whiskerAngle = whiskerAngle;
+        RawData.data.solenoids = solenoids;
      
-        disp(['File Created. Saving LabVIEWRawData File ' num2str(a) '...']); disp(' ')
-        save([trialData.animalID '_' trialData.hemisphere '_' fileID '_LabVIEWRawData'], 'LabVIEWRawData')
+        disp(['File Created. Saving RawData File ' num2str(a) '...']); disp(' ')
+        save([trialData.animalID '_' trialData.hemisphere '_' fileID '_RawData'], 'RawData')
     else
         disp('File already exists. Continuing...'); disp(' ')
     end

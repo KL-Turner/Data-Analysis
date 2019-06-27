@@ -55,7 +55,7 @@ fseek(fid,0, 'bof');
 nFrameToRead = floor(fileSize / (pixelsPerFrame));
 disp(['ReadBinFileU8MatrixGradient: ' num2str(nFrameToRead) ' frames to read.']); disp(' ')
 
-% PreAllocate
+% Pre-allocate
 imageGrad = int8(zeros(width, height, nFrameToRead));
 for n = 1:nFrameToRead
     z = fread(fid, pixelsPerFrame, '*uint8', 0, 'l');

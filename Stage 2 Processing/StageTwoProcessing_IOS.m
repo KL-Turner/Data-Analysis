@@ -31,10 +31,6 @@ rawDataFileStruct = dir('*_LabVIEWRawData.mat');
 rawDataFiles = {rawDataFileStruct.name}';
 rawDataFiles = char(rawDataFiles);
 
-procDataFileStruct = dir('*_LabVIEWProcData.mat');
-procDataFiles = {procDataFileStruct.name}';
-procDataFiles = char(procDataFiles);
-
 disp('Block [0] structs loaded.'); disp(' ')
 
 %% BLOCK PURPOSE: [1] Create Bilateral ROIs
@@ -48,7 +44,7 @@ disp('Analyzing Block [2] Create ProcData files and analyze neural data.'); disp
 for fileNumber = 1:size(rawDataFiles, 1)
     fileName = rawDataFiles(fileNumber, :);
     disp(['Analyzing file ' num2str(fileNumber) ' of ' num2str(size(rawDataFiles, 1)) '...']); disp(' ')
-    ProcessRawDataFile(fileName)
+    ProcessRawDataFile_IOS(fileName)
     close all;
 end
 

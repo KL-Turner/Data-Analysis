@@ -1,4 +1,4 @@
-function [Neuro, NeurFs] = ProcessNeuro(RawData, NeurType, Neural_Hem)
+function [procNeuro, neuroFs] = ProcessNeuro_IOS(MScanData, expectedLength, neurType, neuralFieldName)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -7,29 +7,29 @@ function [Neuro, NeurFs] = ProcessNeuro(RawData, NeurType, Neural_Hem)
 % Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
 %________________________________________________________________________________________________________________________
 %
-%   Purpose:
+%   Purpose: Bandpass filter the desired neural band.
 %________________________________________________________________________________________________________________________
 %
-%   Inputs:
+%   Inputs: Neural data, expected length, and band to filter.
 %
-%   Outputs: 
+%   Outputs: filtered neural data and the downsampled Fs.
 %
 %   Last Revised: February 29th, 2019
 %________________________________________________________________________________________________________________________
 
 %% Thresholds and Neurtype switch
-ExpectedLength = RawData.Notes.trialDuration_Seconds*RawData.Notes.analogSamplingRate;
-Trimmed_Neuro = RawData.Data.(Neural_Hem)(1:min(ExpectedLength, length(RawData.Data.(Neural_Hem))));
+trimmedNeuro = (1:min(expectedLength, length(MScanData.data.(neuralFieldName))));
+analogFs = MScanData.notes.analogSamplingRate;
 
-switch NeurType
-    case 'MUpower'
+switch neurType
+    case 'MUA'
         fpass = [300 3000];
     case 'Gam'
         fpass = [40 100];
-    case 'HiGam'
-        fpass = [60 100];
-    case 'LoGam'
-        fpass = [40 60];
+    case 'Beta'
+        fpass = [13 30];
+    case 'Alpha'
+        fpass = [8 12];
     case 'Theta'
         fpass = [4 8];
     case 'Delta'
@@ -37,27 +37,16 @@ switch NeurType
 end
 
 %% CALCULATE NEURAL POWER
-if ismember(NeurType, [{'MUpower'}, {'Gam'}, {'HiGam'}, {'LoGam'}, {'Theta'}, {'Delta'}])
-    disp(['ProcessNeuro.m: Processing ' Neural_Hem ' ' NeurType]); disp(' ')
-    Fs = RawData.Notes.analogSamplingRate;
-    [z, p, k] = butter(4, fpass / (Fs / 2));
-    [sos, g] = zp2sos(z, p, k);
-    filtNeuro = filtfilt(sos, g, Trimmed_Neuro - mean(Trimmed_Neuro));
-    [z1, p1, k1] = butter(4, 10 / (Fs / 2), 'low');
+if ismember(neurType, [{'MUA'}, {'Gam'}, {'Beta'}, {'Alpha'}, {'Theta'}, {'Delta'}])
+    disp(['ProcessNeuro.m: Processing ' neuralFieldName ' ' neurType]); disp(' ')
+    neuroFs = 30;
+    [z1, p1, k1] = butter(4, fpass / (analogFs / 2));
     [sos1, g1] = zp2sos(z1, p1, k1);
-    Long_Neuro = filtfilt(sos1, g1, filtNeuro.^2);
-    Neuro = max(resample(Long_Neuro, RawData.Notes.CBVCamSamplingRate, RawData.Notes.analogSamplingRate), 0);
-    NeurFs = RawData.Notes.CBVCamSamplingRate;
-    
-% FILTER WIDEBAND LFP    
-elseif strcmp(NeurType, 'Wideband_LFP')
-    display(['ProcessNeuro.m: Processing ' Neural_Hem ' ' NeurType]); disp(' ')
-    Fs = RawData.Notes.analogSamplingRate;
-    [z,p,k] = butter(4,300/(Fs/2),'low');
-    [sos,g] = zp2sos(z,p,k);
-    filtNeuro = filtfilt(sos, g, Trimmed_Neuro-mean(Trimmed_Neuro));
-    NeurFs = 1500;   % 300 Hz * 5 will give adequate oversampling
-    Neuro = resample(filtNeuro, NeurFs, RawData.Notes.analogSamplingRate);
+    filtNeuro = filtfilt(sos1, g1, trimmedNeuro - mean(trimmedNeuro));
+    [z2, p2, k2] = butter(4, 10/(analogFs/2), 'low');
+    [sos2, g2] = zp2sos(z2, p2, k2);
+    smoothPower = filtfilt(sos2, g2, filtNeuro.^2);
+    procNeuro = max(resample(smoothPower, neuroFs, analogFs), 0);
 end
 
 end
