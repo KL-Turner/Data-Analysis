@@ -1,4 +1,4 @@
-function [RestingBaselines] = CalculateRestingBaselines(animal, targetMinutes, RestData)
+function [RestingBaselines] = CalculateRestingBaselines_IOS(animal, targetMinutes, RestData)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % Ph.D. Candidate, Department of Bioengineering
@@ -21,7 +21,7 @@ function [RestingBaselines] = CalculateRestingBaselines(animal, targetMinutes, R
 % that is greater than 10 seconds.
 RestCriteria.Fieldname = {'durations'};
 RestCriteria.Comparison = {'gt'};
-RestCriteria.Value = {5};
+RestCriteria.Value = {10};
 
 puffCriteria.Fieldname = {'puffDistances'};
 puffCriteria.Comparison = {'gt'};
@@ -30,43 +30,43 @@ puffCriteria.Value = {5};
 % Find the fieldnames of RestData and loop through each field. Each fieldname should be a different dataType of interest.
 % These will typically be CBV, Delta, Theta, Gamma, and MUA
 dataTypes = fieldnames(RestData);
-for dT = 1:length(dataTypes)
-    dataType = char(dataTypes(dT));   % Load each loop iteration's fieldname as a character string
-    hemisphereDataTypes = fieldnames(RestData.(dataType));   % Find the hemisphere dataTypes. These are typically LH, RH     
+for a = 1:length(dataTypes)
+    dataType = char(dataTypes(a));   % Load each loop iteration's fieldname as a character string
+    subDataTypes = fieldnames(RestData.(dataType));   % Find the hemisphere dataTypes. These are typically LH, RH     
     
     % Loop through each hemisphere dataType (LH, RH) because they are subfields and will have unique baselines
-    for hDT = 1:length(hemisphereDataTypes)
-        hemDataType = char(hemisphereDataTypes(hDT));   % Load each loop iteration's hemisphere fieldname as a character string
+    for b = 1:length(subDataTypes)
+        subDataType = char(subDataTypes(b));   % Load each loop iteration's hemisphere fieldname as a character string
         
         % Use the RestCriteria we specified earlier to find all resting events that are greater than the criteria
-        [restLogical] = FilterEvents(RestData.(dataType).(hemDataType), RestCriteria);   % Output is a logical
-        [puffLogical] = FilterEvents(RestData.(dataType).(hemDataType), puffCriteria);   % Output is a logical
+        [restLogical] = FilterEvents_IOS(RestData.(dataType).(subDataType), RestCriteria);   % Output is a logical
+        [puffLogical] = FilterEvents_IOS(RestData.(dataType).(subDataType), puffCriteria);   % Output is a logical   
         combRestLogical = logical(restLogical.*puffLogical);
-        allRestFiles = RestData.(dataType).(hemDataType).fileIDs(combRestLogical, :);   % Overall logical for all resting file names that meet criteria
-        allRestDurations = RestData.(dataType).(hemDataType).durations(combRestLogical, :);
-        allRestEventTimes = RestData.(dataType).(hemDataType).eventTimes(combRestLogical, :);
-        restingData = RestData.(dataType).(hemDataType).data(combRestLogical, :);   % Pull out data from all those resting files that meet criteria
+        allRestFiles = RestData.(dataType).(subDataType).fileIDs(combRestLogical, :);   % Overall logical for all resting file names that meet criteria
+        allRestDurations = RestData.(dataType).(subDataType).durations(combRestLogical, :);
+        allRestEventTimes = RestData.(dataType).(subDataType).eventTimes(combRestLogical, :);
+        restingData = RestData.(dataType).(subDataType).data(combRestLogical, :);   % Pull out data from all those resting files that meet criteria
         
-        uniqueDays = GetUniqueDays(RestData.(dataType).(hemDataType).fileIDs);   % Find the unique days of imaging
-        uniqueFiles = unique(RestData.(dataType).(hemDataType).fileIDs);   % Find the unique files from the filelist. This removes duplicates
+        uniqueDays = GetUniqueDays_IOS(RestData.(dataType).(subDataType).fileIDs);   % Find the unique days of imaging
+        uniqueFiles = unique(RestData.(dataType).(subDataType).fileIDs);   % Find the unique files from the filelist. This removes duplicates
                                                                            % since most files have more than one resting event
-        numberOfFiles = length(unique(RestData.(dataType).(hemDataType).fileIDs));   % Find the number of unique files 
+        numberOfFiles = length(unique(RestData.(dataType).(subDataType).fileIDs));   % Find the number of unique files 
         fileTarget = targetMinutes / 5;   % Divide that number of unique files by 5 (minutes) to get the number of files that
                                           % corresponds to the desired targetMinutes
         
         % Loop through each unique day in order to create a logical to filter the file list so that it only includes the first 
         % x number of files that fall within the targetMinutes requirement
-        for uD = 1:length(uniqueDays)
-            day = uniqueDays(uD);
-            x = 1;
+        for c = 1:length(uniqueDays)
+            day = uniqueDays(c);
+            f = 1;
             for nOF = 1:numberOfFiles
                 file = uniqueFiles(nOF);
                 fileID = file{1}(1:6);
-                if strcmp(day, fileID) && x <= fileTarget
-                    filtLogical{uD, 1}(nOF, 1) = 1;
-                    x = x + 1;
+                if strcmp(day, fileID) && f <= fileTarget
+                    filtLogical{c, 1}(nOF, 1) = 1;
+                    f = f + 1;
                 else
-                    filtLogical{uD, 1}(nOF, 1) = 0;
+                    filtLogical{c, 1}(nOF, 1) = 0;
                 end
             end
         end
@@ -76,13 +76,13 @@ for dT = 1:length(dataTypes)
         % Now that the appropriate files from each day are identified, loop through each file name with respect to the original
         % list of ALL resting files, only keeping the ones that fall within the first targetMinutes of each day.
         filtRestFiles = uniqueFiles(finalLogical, :);
-        for rF = 1:length(allRestFiles)
-            logic = strcmp(allRestFiles{rF}, filtRestFiles);
+        for d = 1:length(allRestFiles)
+            logic = strcmp(allRestFiles{d}, filtRestFiles);
             logicSum = sum(logic);
             if logicSum == 1
-                fileFilter(rF, 1) = 1;
+                fileFilter(d, 1) = 1;
             else
-                fileFilter(rF, 1) = 0;
+                fileFilter(d, 1) = 0;
             end
         end
 
@@ -93,26 +93,26 @@ for dT = 1:length(dataTypes)
         finalRestData = restingData(finalFileFilter, :);
         
         % Loop through each unique day and pull out the data that corresponds to the resting files
-        for y = 1:length(uniqueDays)
+        for e = 1:length(uniqueDays)
             z = 1;
-            for x = 1:length(finalFileIDs)
-                fileID = finalFileIDs{x, 1}(1:6);
-                date{y, 1} = ConvertDate(uniqueDays{y, 1});
-                if strcmp(fileID, uniqueDays{y, 1}) == 1     
-                    tempData.(date{y, 1}){z, 1} = finalRestData{x, 1};
+            for f = 1:length(finalFileIDs)
+                fileID = finalFileIDs{f, 1}(1:6);
+                date{e, 1} = ConvertDate_IOS(uniqueDays{e, 1});
+                if strcmp(fileID, uniqueDays{e, 1}) == 1     
+                    tempData.(date{e, 1}){z, 1} = finalRestData{f, 1};
                     z = z + 1;
                 end
             end
         end
         
         % find the means of each unique day
-        for x = 1:size(date, 1)
-            tempData_means{x, 1} = cellfun(@(x) mean(x), tempData.(date{x, 1}));    % LH date-specific means
+        for g = 1:size(date, 1)
+            tempData_means{g, 1} = cellfun(@(x) mean(x), tempData.(date{g, 1}));    % LH date-specific means
         end
         
         % Save the means into the Baseline struct under the current loop iteration with the associated dates
-        for x = 1:length(uniqueDays)
-            RestingBaselines.(dataType).(hemDataType).(date{x, 1}) = mean(tempData_means{x, 1});    % LH date-specific means
+        for h = 1:length(uniqueDays)
+            RestingBaselines.(dataType).(subDataType).(date{h, 1}) = mean(tempData_means{h, 1});    % LH date-specific means
         end
         
     end

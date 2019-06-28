@@ -34,47 +34,64 @@ clc;
 clear;
 disp('Analyzing Block [0] Preparing the workspace and loading variables.'); disp(' ')
 
-[animal, ~, ~, ~, ~, ~, ~, ~, ~] = LoadDataStructs();
-targetMinutes = input('Input the target minutes for the resting baseline: '); disp(' ')
+% Character list of all ProcData files
 procDataFileStruct = dir('*_ProcData.mat');
-
 procDataFiles = {procDataFileStruct.name}';
 procDataFiles = char(procDataFiles);
+[animalID, ~, ~] = GetFileInfo_IOS(procDataFiles(1,:));
 
-dataTypes = {'CBV', 'DeltaBand_Power', 'ThetaBand_Power', 'GammaBand_Power', 'MUA_Power'};
-
-disp('Block [0] structs loaded.'); disp(' ')
+targetMinutes = input('Input the target minutes for the resting baseline: '); disp(' ')
+dataTypes = {'CBV', 'cortical_LH', 'cortical_RH', 'hippocampus'};
 
 %% BLOCK PURPOSE: [1] Categorize data 
 disp('Analyzing Block [1] Categorizing data.'); disp(' ')
-for fileNumber = 1:size(procDataFiles, 1)
-    fileName = procDataFiles(fileNumber, :);
-    disp(['Analyzing file ' num2str(fileNumber) ' of ' num2str(size(procDataFiles, 1)) '...']); disp(' ')
-    CategorizeData(fileName)
+for a = 1:size(procDataFiles, 1)
+    procDataFile = procDataFiles(a, :);
+    disp(['Analyzing file ' num2str(a) ' of ' num2str(size(procDataFiles, 1)) '...']); disp(' ')
+    CategorizeData_IOS(procDataFile)
 end
 
 %% BLOCK PURPOSE: [2] Create RestData data structure
 disp('Analyzing Block [2] Create RestData struct for CBV and neural data.'); disp(' ')
-[RestData] = ExtractRestingData(procDataFiles, dataTypes);
+[RestData] = ExtractRestingData_IOS(procDataFiles, dataTypes);
     
 %% BLOCK PURPOSE: [3] Create EventData data structure
 disp('Analyzing Block [3] Create EventData struct for CBV and neural data.'); disp(' ')
-[EventData] = ExtractEventTriggeredData(procDataFiles, dataTypes);
+[EventData] = ExtractEventTriggeredData_IOS(procDataFiles, dataTypes);
 
 %% BLOCK PURPOSE: [4] Create Baselines data structure
 disp('Analyzing Block [4] Create Baselines struct for CBV and neural data.'); disp(' ')
-disp(['Calculating the resting baselines for the first ' num2str(targetMinutes) ' minutes of each unique day...']);
-[RestingBaselines] = CalculateRestingBaselines(animal, targetMinutes, RestData);
+disp(['Calculating the resting baselines for the first ' num2str(targetMinutes) ' minutes of each unique day...']); disp(' ')
+[RestingBaselines] = CalculateRestingBaselines_IOS(animalID, targetMinutes, RestData);
 
 %% BLOCK PURPOSE: [5] Normalize RestData and behavioral data
 disp('Analyzing Block [5] Normalize EventData struct using Baselines for CBV and neural data.'); disp(' ')
-[RestData] = NormBehavioralDataStruct(RestData, RestingBaselines);
-[EventData] = NormBehavioralDataStruct(EventData, RestingBaselines);
+[RestData] = NormBehavioralDataStruct_IOS(RestData, RestingBaselines);
+save([animalID '_RestData.mat'], 'RestData')
 
-save([animal '_RestData.mat'], 'RestData')
-save([animal '_EventData.mat'], 'EventData')
+[EventData] = NormBehavioralDataStruct_IOS(EventData, RestingBaselines);
+save([animalID '_EventData.mat'], 'EventData')
+
+%% BLOCK PURPOSE: [6]
+
+%% BLOCK PURPOSE: [7]
+%% BLOCK PURPOSE [5] Analyze the spectrogram for each session.
+disp('Analyzing Block [5] Analyzing the spectrogram for each file and normalizing by the resting baseline.'); disp(' ')
+CreateTrialSpectrograms_2P(mergedDataFiles);
+
+% Find spectrogram baselines for each day
+specDirectory = dir('*_SpecData.mat');
+specDataFiles = {specDirectory.name}';
+specDataFiles = char(specDataFiles);
+[RestingBaselines] = CalculateSpectrogramBaselines_2P(animalID, trialDuration_Sec, specDataFiles, RestingBaselines);
+
+% Normalize spectrogram by baseline
+NormalizeSpectrograms_2P(specDataFiles, RestingBaselines);
+
+%% BLOCK PURPOSE [6]
+GenerateSingleFigures_2P(mergedDataFiles, RestingBaselines)
+
+
+
 
 disp('Stage Three Processing - Complete.'); disp(' ')
-
-%% Add EMG to RestData.mat struct
-[RestData, RestingBaselines] = AddEMGtoRestData(procDataFiles, targetMinutes, RestData, RestingBaselines);

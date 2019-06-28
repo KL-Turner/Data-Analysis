@@ -1,4 +1,4 @@
-function [] = CategorizeData(fileName)
+function [] = CategorizeData_IOS(procDataFile)
 %___________________________________________________________________________________________________
 % Edited by Kevin L. Turner 
 % Ph.D. Candidate, Department of Bioengineering 
@@ -57,9 +57,9 @@ function [] = CategorizeData(fileName)
 %_______________________________________________________________
 
 %% Load and Setup
-disp(['Categorizing data for: ' fileName]); disp(' ')
-load(fileName)
-whiskerSamplingRate = ProcData.Notes.downsampledWhiskerSamplingRate;
+disp(['Categorizing data for: ' procDataFile]); disp(' ')
+load(procDataFile)
+whiskerSamplingRate = ProcData.notes.dsFs;
 
 %% Process binary whisking waveform to detect whisking events
 % Setup parameters for link_binary_events
@@ -70,14 +70,14 @@ breakThresh = 0;   % seconds changed by atw on 2/6/18 from 0.07
 % trial time. This will link any event occurring within "link_thresh"
 % seconds to the beginning/end of the trial rather than assuming that it is
 % a new/isolated event.
-modBinWhiskers = ProcData.Data.Behavior.binarizedWhiskers;
+modBinWhiskers = ProcData.data.binWhiskerAngle;
 % modBinWhiskers([1,end]) = 1;
 
-% Link the binarized whisking for use in GetWhiskingData function
-binWhiskers = LinkBinaryEvents(gt(modBinWhiskers,0), [linkThresh breakThresh]*whiskerSamplingRate);
+% Link the binarized whisking for use in GetWhiskingdata function
+binWhiskers = LinkBinaryEvents_IOS(gt(modBinWhiskers,0), [linkThresh breakThresh]*whiskerSamplingRate);
 
 % Added 2/6/18 with atw. Code throws errors if binWhiskers(1)=1 and binWhiskers(2) = 0, or if 
-% binWhiskers(1) = 0 and binWhiskers(2) = 1. This happens in GetWhiskingData because starts of 
+% binWhiskers(1) = 0 and binWhiskers(2) = 1. This happens in GetWhiskingdata because starts of 
 % whisks are detected by taking the derivative of binWhiskers. Purpose of following lines is to 
 % handle trials where the above conditions occur and avoid difficult dimension errors.
 if binWhiskers(1)==0 && binWhiskers(2)==1
@@ -95,18 +95,18 @@ end
 %% Categorize data by behavior
 
 % Retrieve details on whisking events
-[ProcData.Flags.whisk] = GetWhiskingData(ProcData, binWhiskers);
+[ProcData.Flags.whisk] = GetWhiskingdata_IOS(ProcData, binWhiskers);
 
 % Retrieve details on puffing events
-[ProcData.Flags.stim] = GetStimData(ProcData);
+[ProcData.Flags.stim] = GetStimdata_IOS(ProcData);
 
 % Identify and separate resting data
-[ProcData.Flags.rest] = GetRestData(ProcData);
+[ProcData.Flags.rest] = GetRestdata(ProcData);
 
 % Save ProcData structure
-save(fileName, 'ProcData');
+save(procDataFile, 'ProcData');
 
-function [puffTimes] = GetPuffTimes(ProcData)
+function [puffTimes] = GetPuffTimes_IOS(ProcData)
 %   function [Puff_Times] = GetPuffTimes(ProcData)
 %
 %   Author: Aaron Winder
@@ -119,24 +119,24 @@ function [puffTimes] = GetPuffTimes(ProcData)
 %_______________________________________________________________
 %   PARAMETERS:             
 %                       ProcData - [struct] structure obtained using the 
-%                       function ProcessRawDataFile.
+%                       function ProcessRawdataFile.
 %_______________________________________________________________
 %   RETURN:                     
 %                       Puff_Times - [array] time in seconds of all puffs              
 %_______________________________________________________________
 
-solNames = fieldnames(ProcData.Data.Sol);
+solNames = fieldnames(ProcData.data.solenoids);
 puffList = cell(1, length(solNames));
 
 for sN = 1:length(solNames)
-    puffList{sN} = ProcData.Data.Sol.(solNames{sN});
+    puffList{sN} = ProcData.data.solenoids.(solNames{sN});
 end
 
 puffTimes = cell2mat(puffList);
 
 
-function [Stim] = GetStimData(ProcData)
-%   function [Stim] = GetStimData(ProcData)
+function [Stim] = GetStimdata_IOS(ProcData)
+%   function [Stim] = GetStimdata(ProcData)
 %
 %   Author: Aaron Winder
 %   Affiliation: Engineering Science and Mechanics, Penn State University
@@ -155,7 +155,7 @@ function [Stim] = GetStimData(ProcData)
 %_______________________________________________________________
 %   PARAMETERS:             
 %                       ProcData - [struct] structure obtained using the 
-%                       function ProcessRawDataFile.    
+%                       function ProcessRawdataFile.    
 %_______________________________________________________________
 %   RETURN:                     
 %                       Stim - [struct] structure containing a nested 
@@ -165,17 +165,17 @@ function [Stim] = GetStimData(ProcData)
 %_______________________________________________________________
 
 % Setup
-whiskerSamplingRate = ProcData.Notes.downsampledWhiskerSamplingRate;
-forceSensorSamplingRate = ProcData.Notes.downsampledForceSensorSamplingRate;
-puffTimes = GetPuffTimes(ProcData);
-trialDuration = ProcData.Notes.trialDuration_Seconds;
+whiskerSamplingRate = ProcData.notes.dsFs;
+forceSensorSamplingRate = ProcData.notes.dsFs;
+puffTimes = GetPuffTimes_IOS(ProcData);
+trialDuration = ProcData.notes.trialDuration_sec;
 
 % Set time intervals for calculation of the whisk scores
 preTime = 1;
 postTime = 1;
 
 % Get puffer IDs
-solNames = fieldnames(ProcData.Data.Sol);
+solNames = fieldnames(ProcData.data.solenoids);
 Stim.solenoidName = cell(length(puffTimes), 1);
 Stim.eventTime = zeros(length(puffTimes), 1);
 Stim.whiskScore_Pre = zeros(length(puffTimes), 1);
@@ -185,7 +185,7 @@ Stim.movementScore_Post = zeros(length(puffTimes), 1);
 i = 1;
 
 for sN = 1:length(solNames)
-    solPuffTimes = ProcData.Data.Sol.(solNames{sN});
+    solPuffTimes = ProcData.data.solenoids.(solNames{sN});
     for spT = 1:length(solPuffTimes) 
         if trialDuration - solPuffTimes(spT) <= postTime
             disp(['Puff at time: ' solPuffTimes(spT) ' is too close to trial end'])
@@ -201,13 +201,13 @@ for sN = 1:length(solNames)
         
         % Calculate the percent of the pre-stim time that the animal moved
         % or whisked
-        whiskScorePre = sum(ProcData.Data.Behavior.binarizedWhiskers(wPreStart:wPuffInd))...
+        whiskScorePre = sum(ProcData.data.binWhiskerAngle(wPreStart:wPuffInd))...
             /(preTime*whiskerSamplingRate);
-        whiskScorePost = sum(ProcData.Data.Behavior.binarizedWhiskers(wPuffInd:wPostEnd))...
+        whiskScorePost = sum(ProcData.data.binWhiskerAngle(wPuffInd:wPostEnd))...
             /(postTime*whiskerSamplingRate);
-        moveScorePre = sum(ProcData.Data.Behavior.binarizedForceSensor(mPreStart:mPuffInd))...
+        moveScorePre = sum(ProcData.data.binForceSensor(mPreStart:mPuffInd))...
             /(preTime*forceSensorSamplingRate);
-        moveScorePost = sum(ProcData.Data.Behavior.binarizedForceSensor(mPuffInd:mPostEnd))...
+        moveScorePost = sum(ProcData.data.binForceSensor(mPuffInd:mPostEnd))...
             /(postTime*forceSensorSamplingRate);
         
         % Add to Stim structure
@@ -240,8 +240,8 @@ end
 puffTimeCell = mat2cell(puffTimeElapsed', ones(max(length(puffTimes), 1), 1));
 Stim.PuffDistance = puffTimeCell;
 
-function [Whisk] = GetWhiskingData(ProcData, binarizedWhiskers)
-%   function [Whisk] = GetWhiskingData(ProcData, Bin_wwf)
+function [Whisk] = GetWhiskingdata_IOS(ProcData, binWhiskerAngle)
+%   function [Whisk] = GetWhiskingdata(ProcData, Bin_wwf)
 %
 %   Author: Aaron Winder
 %   Affiliation: Engineering Science and Mechanics, Penn State University
@@ -268,7 +268,7 @@ function [Whisk] = GetWhiskingData(ProcData, binarizedWhiskers)
 %_______________________________________________________________
 %   PARAMETERS:             
 %                       ProcData - [struct] structure obtained using the 
-%                       function ProcessRawDataFile.    
+%                       function ProcessRawdataFile.    
 %_______________________________________________________________
 %   RETURN:                     
 %                       Whisk - [struct] structure containing a nested 
@@ -276,24 +276,24 @@ function [Whisk] = GetWhiskingData(ProcData, binarizedWhiskers)
 %_______________________________________________________________
 
 %% Setup
-whiskerSamplingRate = ProcData.Notes.downsampledWhiskerSamplingRate;
-forceSensorSamplingRate = ProcData.Notes.downsampledForceSensorSamplingRate;
+whiskerSamplingRate = ProcData.notes.dsFs;
+forceSensorSamplingRate = ProcData.notes.dsFs;
 
 %% Get Puff Times
-[puffTimes] = GetPuffTimes(ProcData);
+[puffTimes] = GetPuffTimes_IOS(ProcData);
 
 %% Find the starts of whisking
-whiskEdge = diff(binarizedWhiskers);
+whiskEdge = diff(binWhiskerAngle);
 whiskSamples = find(whiskEdge > 0);
 whiskStarts = whiskSamples / whiskerSamplingRate;
 
 %% Classify each whisking event by duration, whisking intensity, rest durations
-sampleVec = 1:length(binarizedWhiskers); 
+sampleVec = 1:length(binWhiskerAngle); 
 
 % Identify periods of whisking/resting, include beginning and end of trial
 % if needed (hence unique command) for correct interval calculation
-highSamples = unique([1, sampleVec(binarizedWhiskers), sampleVec(end)]); 
-lowSamples = unique([1, sampleVec(not(binarizedWhiskers)), sampleVec(end)]);
+highSamples = unique([1, sampleVec(binWhiskerAngle), sampleVec(end)]); 
+lowSamples = unique([1, sampleVec(not(binWhiskerAngle)), sampleVec(end)]);
 
 % Calculate the number of samples between consecutive high/low samples.
 dHigh = diff(highSamples);
@@ -308,12 +308,12 @@ whiskDur = whiskLength / whiskerSamplingRate;
 
 % Control for the beginning/end of the trial to correctly map rests/whisks
 % onto the whisk_starts.
-if binarizedWhiskers(1)
+if binWhiskerAngle(1)
     whiskDur(1) = [];
     whiskLength(1) = [];
 end
 
-if not(binarizedWhiskers(end))
+if not(binWhiskerAngle(end))
     restDur(end) = [];
 end
 
@@ -327,13 +327,13 @@ movementInt = zeros(size(whiskStarts));
 for wS = 1:length(whiskSamples)
     % Whisking intensity
     whiskInds = whiskSamples(wS):whiskSamples(wS) + whiskLength(wS);
-    whiskInt(wS) = sum(ProcData.Data.Behavior.binarizedWhiskers(whiskInds)) / numel(whiskInds);
+    whiskInt(wS) = sum(ProcData.data.binWhiskerAngle(whiskInds)) / numel(whiskInds);
     
     % Movement intensity
     movementStart = round(whiskStarts(wS)*forceSensorSamplingRate);
     movementDur = round(whiskDur(wS)*forceSensorSamplingRate);
-    movementInds = max(movementStart, 1):min(movementStart + movementDur, length(ProcData.Data.Behavior.binarizedForceSensor));
-    movementInt(wS) = sum(ProcData.Data.Behavior.binarizedForceSensor(movementInds)) / numel(movementInds);
+    movementInds = max(movementStart, 1):min(movementStart + movementDur, length(ProcData.data.binForceSensor));
+    movementInt(wS) = sum(ProcData.data.binForceSensor(movementInds)) / numel(movementInds);
 end
 
 % Calculate the time to the closest puff
@@ -352,7 +352,7 @@ puffTimeCell = mat2cell(puffTimeElapsed, ones(length(whiskStarts), 1));
 %% Error handle
 
 if length(restDur) ~= length(whiskDur)
-    disp('Error in GetWhiskData! The number of whisks does not equal the number of rests...')
+    disp('Error in GetWhiskdata! The number of whisks does not equal the number of rests...')
     disp(' ')
     keyboard;
 end
@@ -365,8 +365,8 @@ Whisk.whiskScore = whiskInt';
 Whisk.movementScore = movementInt';
 Whisk.puffDistance = puffTimeCell;
 
-function [Rest] = GetRestData(ProcData)
-%   function [Rest] = GetRestData(ProcData)
+function [Rest] = GetRestdata(ProcData)
+%   function [Rest] = GetRestdata(ProcData)
 %
 %   Author: Aaron Winder
 %   Affiliation: Engineering Science and Mechanics, Penn State University
@@ -381,7 +381,7 @@ function [Rest] = GetRestData(ProcData)
 %_______________________________________________________________
 %   PARAMETERS:             
 %                       ProcData - [struct] structure obtained using the 
-%                       function ProcessRawDataFile.    
+%                       function ProcessRawdataFile.    
 %_______________________________________________________________
 %   RETURN:                     
 %                       Rest - [struct] structure containing a nested 
@@ -389,11 +389,11 @@ function [Rest] = GetRestData(ProcData)
 %_______________________________________________________________
 
 % Setup
-whiskerSamplingRate = ProcData.Notes.downsampledWhiskerSamplingRate;
-forceSensorSamplingRate = ProcData.Notes.downsampledForceSensorSamplingRate;
+whiskerSamplingRate = ProcData.notes.dsFs;
+forceSensorSamplingRate = ProcData.notes.dsFs;
 
 %% Get stimulation times
-[puffTimes] = GetPuffTimes(ProcData);
+[puffTimes] = GetPuffTimes_IOS(ProcData);
 
 %% Recalculate linked binarized wwf without omitting any possible whisks,
 % this avoids inclusion of brief whisker movements in periods of rest.
@@ -402,33 +402,31 @@ forceSensorSamplingRate = ProcData.Notes.downsampledForceSensorSamplingRate;
 % trial time. This will link any event occurring within "link_thresh"
 % seconds to the beginning/end of the trial rather than assuming that it is
 % a new/isolated event.
-modBinarizedWhiskers = ProcData.Data.Behavior.binarizedWhiskers;
+modBinarizedWhiskers = ProcData.data.binWhiskerAngle;
 modBinarizedWhiskers([1, end]) = 1;
 
-modBinarizedForceSensor = ProcData.Data.Behavior.binarizedForceSensor;
+modBinarizedForceSensor = ProcData.data.binForceSensor;
 modBinarizedForceSensor([1, end]) = 1;
 
-linkThresh = 0.5; % seconds
-breakThresh = 0;% seconds
-binarizedWhiskers = LinkBinaryEvents(gt(modBinarizedWhiskers, 0),...
-    [linkThresh breakThresh]*whiskerSamplingRate);
-binarizedForceSensor = LinkBinaryEvents(modBinarizedForceSensor,...
-    [linkThresh breakThresh]*forceSensorSamplingRate);
+linkThresh = 0.5;   % seconds
+breakThresh = 0;   % seconds
+binWhiskerAngle = LinkBinaryEvents_IOS(gt(modBinarizedWhiskers, 0), [linkThresh breakThresh]*whiskerSamplingRate);
+binForceSensor = LinkBinaryEvents_IOS(modBinarizedForceSensor, [linkThresh breakThresh]*forceSensorSamplingRate);
 
-%% Combine binarizedWhiskers, binarizedForceSensor, and puffTimes, to find periods of rest. 
+%% Combine binWhiskerAngle, binForceSensor, and puffTimes, to find periods of rest. 
 
 % Downsample bin_wwf to match length of bin_pswf
-sampleVec = 1:length(binarizedWhiskers); 
-whiskHigh = sampleVec(binarizedWhiskers)/whiskerSamplingRate;
-dsBinarizedWhiskers = zeros(size(binarizedForceSensor));
+sampleVec = 1:length(binWhiskerAngle); 
+whiskHigh = sampleVec(binWhiskerAngle)/whiskerSamplingRate;
+dsBinarizedWhiskers = zeros(size(binForceSensor));
 
 % Find Bin_wwf == 1. Convert indexes into pswf time. Coerce converted indexes
 % between 1 and length(Bin_pswf). Take only unique values.
-dsInds = min(max(round(whiskHigh*forceSensorSamplingRate), 1), length(binarizedForceSensor));
+dsInds = min(max(round(whiskHigh*forceSensorSamplingRate), 1), length(binForceSensor));
 dsBinarizedWhiskers(unique(dsInds)) = 1;
 
 % Combine binarized whisking and body movement
-wfBin = logical(min(dsBinarizedWhiskers + binarizedForceSensor, 1));
+wfBin = logical(min(dsBinarizedWhiskers + binForceSensor, 1));
 Fs = forceSensorSamplingRate;
 
 % Add puff times into the Bin_wf
