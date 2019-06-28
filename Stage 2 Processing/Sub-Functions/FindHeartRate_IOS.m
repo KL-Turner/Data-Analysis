@@ -26,7 +26,7 @@ params_r.Fs=Fr; % Frame rate
 params_r.fpass=[5 15];
 params_r.tapers=tapers_r;
 
-[Sr, tr, fr] = mtspecgramc(r, movingwin_r, params_r);
+[Sr, tr, fr] = mtspecgramc_IOS(r, movingwin_r, params_r);
 % Sr: spectrum; tr: time; fr: frequency
 [~, ridx] = max(Sr, [], 2); % largest elements along the frequency direction
 HR = fr(ridx); % heart rate, in Hz

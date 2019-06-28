@@ -82,16 +82,16 @@ save([animalID '_EventData.mat'], 'EventData')
 disp('Analyzing Block [6] Analyzing the spectrogram for each file and normalizing by the resting baseline.'); disp(' ')
 CreateTrialSpectrograms_IOS(rawDataFileIDs, neuralDataTypes);
 
-% % Find spectrogram baselines for each day
-% specDirectory = dir('*_SpecData.mat');
-% specDataFiles = {specDirectory.name}';
-% specDataFiles = char(specDataFiles);
-% [RestingBaselines] = CalculateSpectrogramBaselines_2P(animalID, specDataFiles, RestingBaselines);
-% 
-% % Normalize spectrogram by baseline
-% NormalizeSpectrograms_2P(specDataFiles, RestingBaselines);
-% 
-% %% BLOCK PURPOSE [7]
-% % GenerateSingleFigures_2P(mergedDataFiles, RestingBaselines)
-% 
-% disp('Stage Three Processing - Complete.'); disp(' ')
+% Find spectrogram baselines for each day
+specDirectory = dir('*_SpecData.mat');
+specDataFiles = {specDirectory.name}';
+specDataFileIDs = char(specDataFiles);
+[RestingBaselines] = CalculateSpectrogramBaselines_IOS(animalID, neuralDataTypes, trialDuration_sec, specDataFileIDs, RestingBaselines);
+
+% Normalize spectrogram by baseline
+NormalizeSpectrograms_IOS(specDataFileIDs, neuralDataTypes, RestingBaselines);
+
+%% BLOCK PURPOSE [7]
+GenerateSingleFigures_IOS(procDataFileIDs, RestingBaselines)
+
+disp('Stage Three Processing - Complete.'); disp(' ')

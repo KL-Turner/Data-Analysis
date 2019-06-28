@@ -1,106 +1,106 @@
-function [RestingBaselines] = CalculateSpectrogramBaselines(animal, dataType, RestingBaselines, SpectrogramData)
+function [RestingBaselines] = CalculateSpectrogramBaselines_IOS(animal, neuralDataTypes, trialDuration_sec, specDataFiles, RestingBaselines)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % Ph.D. Candidate, Department of Bioengineering
 % The Pennsylvania State University
 %________________________________________________________________________________________________________________________
 %
-%   Purpose: //
+%   Purpose: Uses the resting time indeces to extract the average resting power in each frequency bin during periods of
+%            rest to normalize the spectrogram data.
 %________________________________________________________________________________________________________________________
 %
-%   Inputs: //
+%   Inputs: animal ID, trialDuration of the session, list of the SpecData.mat files, and the RestingBaselines.mat struct.
 %
-%   Outputs: //
+%   Outputs: Updates to the RestingBaselines.mat structure containing a resting frequency-dependent power for each day.
 %________________________________________________________________________________________________________________________
 
-restFileList = unique(RestingBaselines.baselineFileInfo.fileIDs);      % Obtain the list of unique fileIDs
-
-% Obtain the spectrogram information from all the resting files
-for ii = 1:length(restFileList)
-    fileID = restFileList{ii, 1};   % FileID of currently loaded file
-    % Load in neural data from current file
-    for iii = 1:length(SpectrogramData.(dataType).FileIDs)
-        if strcmp(fileID, SpectrogramData.(dataType).FileIDs{iii, 1})
-            S1 = SpectrogramData.(dataType).OneSec.S{iii, 1};
-            T1 = SpectrogramData.(dataType).OneSec.T{iii, 1};
-            F1 = SpectrogramData.(dataType).OneSec.F{iii, 1};
-            S5 = SpectrogramData.(dataType).FiveSec.S{iii, 1};
-            T5 = SpectrogramData.(dataType).FiveSec.T{iii, 1};
-            F5 = SpectrogramData.(dataType).FiveSec.F{iii, 1};
-        end
-    end
-    Neural_restS1{ii, 1} = S1;
-    Neural_restT1{ii, 1} = T1;
-    Neural_restF1{ii, 1} = F1;
-    Neural_restS5{ii, 1} = S5;
-    Neural_restT5{ii, 1} = T5;
-    Neural_restF5{ii, 1} = F5;
-end
-
-for ii = 1:length(restFileList)
-    fileID = restFileList{ii, 1};
-    strDay = ConvertDate(fileID(1:6));
-    S1_data = Neural_restS1{ii, 1};
-    S5_data = Neural_restS5{ii, 1};
-    s1Length = size(S1_data, 2);
-    s5Length = size(S5_data, 2);                                  % Length of the data across time (number of samples)
-    binSize1 = ceil(s1Length / 300);                              % Find the number of bins needed to divide this into 300 seconds
-    binSize5 = ceil(s5Length / 300);                              % Find the number of bins needed to divide this into 300 seconds
-    samplingRate = 30;
-    samplingDiff1 = samplingRate / binSize1;
-    samplingDiff5 = samplingRate / binSize5;  
-    S1_trialRest = [];
-    S5_trialRest = [];
-    for iii = 1:length(RestingBaselines.baselineFileInfo.fileIDs)
-        restFileID = RestingBaselines.baselineFileInfo.fileIDs{iii, 1};
-        if strcmp(fileID, restFileID)
-            restDuration1 = floor(floor(RestingBaselines.baselineFileInfo.durations(iii, 1)*samplingRate) / samplingDiff1);
-            restDuration5 = floor(floor(RestingBaselines.baselineFileInfo.durations(iii, 1)*samplingRate) / samplingDiff5);
-            startTime1 = floor(floor(RestingBaselines.baselineFileInfo.eventTimes(iii, 1)*samplingRate) / samplingDiff1);
-            startTime5 = floor(floor(RestingBaselines.baselineFileInfo.eventTimes(iii, 1)*samplingRate) / samplingDiff5);
-            try
-                S1_single_rest = S1_data(:, (startTime1:(startTime1 + restDuration1)));
-                S5_single_rest = S5_data(:, (startTime5:(startTime5 + restDuration5)));
-            catch
-                S1_single_rest = S1_data(:, end - restDuration1:end);
-                S5_single_rest = S5_data(:, end - restDuration5:end);
+for a = 1:length(neuralDataTypes)
+    neuralDataType = neuralDataTypes{1,a};
+    dsFs = 30;
+    restFileList = unique(RestingBaselines.baselineFileInfo.fileIDs);      % Obtain the list of unique fileIDs
+    restS1 = cell(size(restFileList,1), 1);
+    restS5 = cell(size(restFileList,1), 1);
+    % Obtain the spectrogram information from all the resting files
+    for b = 1:length(restFileList)
+        fileID = restFileList{b, 1};   % FileID of currently loaded file
+        % Load in neural data from current file
+        for c = 1:size(specDataFiles, 1)
+            [~, ~, specDataFile] = GetFileInfo_IOS(specDataFiles(c,:));
+            if strcmp(fileID, specDataFile)
+                load(specDataFiles(c,:), '-mat')
+                S1 = SpecData.(neuralDataType).oneSec.S;
+                S5 = SpecData.(neuralDataType).fiveSec.S;
+                break
             end
-            S1_trialRest = [S1_single_rest, S1_trialRest];
-            S5_trialRest = [S5_single_rest, S5_trialRest];
+        end
+        restS1{b,1} = S1;
+        restS5{b,1} = S5;
+    end
+    
+    for d = 1:length(restFileList)
+        fileID = restFileList{d,1};
+        strDay = ConvertDate_IOS(fileID(1:6));
+        S1_data = restS1{d,1};
+        S5_data = restS5{d,1};
+        s1Length = size(S1_data,2);
+        s5Length = size(S5_data,2);
+        binSize1 = ceil(s1Length/trialDuration_sec);
+        binSize5 = ceil(s5Length/trialDuration_sec);
+        samplingDiff1 = dsFs/binSize1;
+        samplingDiff5 = dsFs/binSize5;
+        S1_trialRest = [];
+        S5_trialRest = [];
+        for e = 1:length(RestingBaselines.baselineFileInfo.fileIDs)
+            restFileID = RestingBaselines.baselineFileInfo.fileIDs{e, 1};
+            if strcmp(fileID, restFileID)
+                restDuration1 = floor(floor(RestingBaselines.baselineFileInfo.durations(e, 1)*dsFs) / samplingDiff1);
+                restDuration5 = floor(floor(RestingBaselines.baselineFileInfo.durations(e, 1)*dsFs) / samplingDiff5);
+                startTime1 = floor(floor(RestingBaselines.baselineFileInfo.eventTimes(e, 1)*dsFs) / samplingDiff1);
+                startTime5 = floor(floor(RestingBaselines.baselineFileInfo.eventTimes(e, 1)*dsFs) / samplingDiff5);
+                try
+                    S1_single_rest = S1_data(:, (startTime1:(startTime1 + restDuration1)));
+                    S5_single_rest = S5_data(:, (startTime5:(startTime5 + restDuration5)));
+                catch
+                    S1_single_rest = S1_data(:, end - restDuration1:end);
+                    S5_single_rest = S5_data(:, end - restDuration5:end);
+                end
+                S1_trialRest = [S1_single_rest, S1_trialRest];
+                S5_trialRest = [S5_single_rest, S5_trialRest];
+            end
+        end
+        S_trialAvg1 = mean(S1_trialRest, 2);
+        S_trialAvg5 = mean(S5_trialRest, 2);
+        trialRestData.([strDay '_' fileID]).oneSec.S_avg = S_trialAvg1;
+        trialRestData.([strDay '_' fileID]).fiveSec.S_avg = S_trialAvg5;
+    end
+    
+    fields = fieldnames(trialRestData);
+    uniqueDays = GetUniqueDays_IOS(RestingBaselines.baselineFileInfo.fileIDs);
+    
+    for f = 1:length(uniqueDays)
+        g = 1;
+        for field = 1:length(fields)
+            if strcmp(fields{field}(7:12), uniqueDays{f})
+                stringDay = ConvertDate_IOS(uniqueDays{f});
+                S_avgs.oneSec.(stringDay){g, 1} = trialRestData.(fields{field}).oneSec.S_avg;
+                S_avgs.fiveSec.(stringDay){g, 1} = trialRestData.(fields{field}).fiveSec.S_avg;
+                g = g + 1;
+            end
         end
     end
-    S_trialAvg1 = mean(S1_trialRest, 2);
-    S_trialAvg5 = mean(S5_trialRest, 2);
-    trialRestData.([strDay '_' fileID]).OneSec.S_avg = S_trialAvg1;
-    trialRestData.([strDay '_' fileID]).FiveSec.S_avg = S_trialAvg5;
-end
-
-fields = fieldnames(trialRestData);
-uniqueDays = GetUniqueDays(RestingBaselines.baselineFileInfo.fileIDs);
-
-for day = 1:length(uniqueDays)
-    x = 1;
-    for field = 1:length(fields)
-        if strcmp(fields{field}(7:12), uniqueDays{day})
-            stringDay = ConvertDate(uniqueDays{day});
-            S_avgs.OneSec.(stringDay){x, 1} = trialRestData.(fields{field}).OneSec.S_avg;
-            S_avgs.FiveSec.(stringDay){x, 1} = trialRestData.(fields{field}).FiveSec.S_avg;
-            x = x + 1;
+    
+    dayFields = fieldnames(S_avgs.oneSec);
+    for h = 1:length(dayFields)
+        dayVals1 = [];
+        dayVals5 = [];
+        for j = 1:length(S_avgs.oneSec.(dayFields{h}))
+            dayVals1 = [dayVals1, S_avgs.oneSec.(dayFields{h}){j, 1}];
+            dayVals5 = [dayVals5, S_avgs.fiveSec.(dayFields{h}){j, 1}];
         end
+        disp(['Adding spectrogram baseline to baseline file for ' neuralDataType ' on ' dayFields{h} '...']); disp(' ')
+        RestingBaselines.Spectrograms.(neuralDataType).oneSec.(dayFields{h}) = mean(dayVals1, 2);
+        RestingBaselines.Spectrograms.(neuralDataType).fiveSec.(dayFields{h}) = mean(dayVals5, 2);
     end
-end
-
-dayFields = fieldnames(S_avgs.OneSec);
-for day = 1:length(dayFields)
-    dayVals1 = [];
-    dayVals5 = [];
-    for x = 1:length(S_avgs.OneSec.(dayFields{day}))
-        dayVals1 = [dayVals1, S_avgs.OneSec.(dayFields{day}){x, 1}];
-        dayVals5 = [dayVals5, S_avgs.FiveSec.(dayFields{day}){x, 1}];
-    end
-    disp(['Adding ' (dataType) ' spectrogram baseline to baseline file for ' dayFields{day} '...']); disp(' ')
-    RestingBaselines.Spectrograms.(dataType).OneSec.(dayFields{day}) = mean(dayVals1, 2);
-    RestingBaselines.Spectrograms.(dataType).FiveSec.(dayFields{day}) = mean(dayVals5, 2);
 end
 
 save([animal '_RestingBaselines.mat'], 'RestingBaselines');

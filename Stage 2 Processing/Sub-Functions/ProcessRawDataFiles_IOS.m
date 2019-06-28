@@ -127,8 +127,8 @@ for a = 1:size(rawDataFiles,1)
         filtOrder = 2;
         [z, p, k] = butter(filtOrder, filtThreshold/(ProcData.notes.analogSamplingRate/2), 'low');
         [sos, g] = zp2sos(z, p, k);
-        filtForceSensorM = filtfilt(sos, g, trimmedForce);
-        ProcData.data.forceSensor = resample(filtForceSensorM, ProcData.notes.dsFs, ProcData.notes.analogSamplingRate);
+        filtForceSensor = filtfilt(sos, g, trimmedForce);
+        ProcData.data.forceSensor = resample(filtForceSensor, ProcData.notes.dsFs, ProcData.notes.analogSamplingRate);
         
         % Binarize the force sensor waveform
         threshfile = dir('*_Thresholds.mat');
@@ -148,11 +148,11 @@ for a = 1:size(rawDataFiles,1)
         
         %% EMG
         fpass = [300 3000];
-        trimmedEMG = (1:min(analogExpectedLength, length(RawData.data.EMG)));
+        trimmedEMG = RawData.data.EMG(1:min(analogExpectedLength, length(RawData.data.EMG)));
         [z1, p1, k1] = butter(4, fpass/(ProcData.notes.analogSamplingRate/2));
         [sos1, g1] = zp2sos(z1, p1, k1);
         filtEMG = filtfilt(sos1, g1, trimmedEMG - mean(trimmedEMG));
-        [z2, p2, k2] = butter(4, 10/(ProcData.notes.analogSamplingRate/2), 'low');
+        [z2, p2, k2] = butter(4, 5/(ProcData.notes.analogSamplingRate/2), 'low');
         [sos2, g2] = zp2sos(z2, p2, k2);
         smoothEMGPower = filtfilt(sos2, g2, filtEMG.^2);
         ProcData.data.EMG = max(resample(smoothEMGPower, ProcData.notes.dsFs, ProcData.notes.analogSamplingRate), 0);
