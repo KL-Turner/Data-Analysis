@@ -18,14 +18,19 @@ function CreateTrialSpectrograms_IOS(rawDataFiles, neuralDataTypes)
 for a = 1:size(rawDataFiles, 1)
     rawDataFile = rawDataFiles(a, :);
     load(rawDataFile);
-    duration = RawData.notes.trialDuration_Sec;
+    duration = RawData.notes.trialDuration_sec;
     analogFs = RawData.notes.analogSamplingRate;
     expectedLength = duration*analogFs;
     [animalID, ~, fileID] = GetFileInfo_IOS(rawDataFile);
     
     for b = 1:length(neuralDataTypes)
         neuralDataType = neuralDataTypes{1,b};
-        rawNeuro = detrend(RawData.data.(neuralDataType)(1:expectedLength), 'constant');
+        try
+            rawNeuro = detrend(RawData.data.(neuralDataType)(1:expectedLength), 'constant');
+        catch
+            sampleDiff = expectedLength - length(RawData.data.(neuralDataType));
+            rawNeuro = detrend(horzcat(RawData.data.(neuralDataType), RawData.data.(neuralDataType)(end)*ones(1, sampleDiff)), 'constant');
+        end
         
         w0 = 60/(analogFs/2);
         bw = w0/35;

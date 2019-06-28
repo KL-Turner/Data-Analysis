@@ -1,4 +1,4 @@
-function [RestingBaselines] = CalculateRestingBaselines_IOS(animal, targetMinutes, RestData)
+function [RestingBaselines] = CalculateRestingBaselines_IOS(animal, targetMinutes, trialDuration_sec, RestData)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % Ph.D. Candidate, Department of Bioengineering
@@ -16,6 +16,8 @@ function [RestingBaselines] = CalculateRestingBaselines_IOS(animal, targetMinute
 %
 %   Last Revision: October 4th, 2018
 %________________________________________________________________________________________________________________________
+
+disp(['Calculating the resting baselines for the first ' num2str(targetMinutes) ' minutes of each unique day...']); disp(' ')
 
 % The RestData.mat struct has all resting events, regardless of duration. We want to set the threshold for rest as anything
 % that is greater than 10 seconds.
@@ -51,8 +53,8 @@ for a = 1:length(dataTypes)
         uniqueFiles = unique(RestData.(dataType).(subDataType).fileIDs);   % Find the unique files from the filelist. This removes duplicates
                                                                            % since most files have more than one resting event
         numberOfFiles = length(unique(RestData.(dataType).(subDataType).fileIDs));   % Find the number of unique files 
-        fileTarget = targetMinutes / 5;   % Divide that number of unique files by 5 (minutes) to get the number of files that
-                                          % corresponds to the desired targetMinutes
+        fileTarget = targetMinutes/(trialDuration_sec/60);   % Divide that number of unique files by 5 (minutes) to get the number of files that
+                                        % corresponds to the desired targetMinutes
         
         % Loop through each unique day in order to create a logical to filter the file list so that it only includes the first 
         % x number of files that fall within the targetMinutes requirement

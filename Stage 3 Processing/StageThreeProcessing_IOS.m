@@ -67,8 +67,8 @@ disp('Analyzing Block [3] Create EventData struct for CBV and neural data.'); di
 
 %% BLOCK PURPOSE: [4] Create Baselines data structure
 disp('Analyzing Block [4] Create Baselines struct for CBV and neural data.'); disp(' ')
-disp(['Calculating the resting baselines for the first ' num2str(targetMinutes) ' minutes of each unique day...']); disp(' ')
-[RestingBaselines] = CalculateRestingBaselines_IOS(animalID, targetMinutes, RestData);
+trialDuration_sec = 900;
+[RestingBaselines] = CalculateRestingBaselines_IOS(animalID, targetMinutes, trialDuration_sec, RestData);
 
 %% BLOCK PURPOSE: [5] Normalize RestData and behavioral data
 disp('Analyzing Block [5] Normalize EventData struct using Baselines for CBV and neural data.'); disp(' ')
@@ -80,18 +80,18 @@ save([animalID '_EventData.mat'], 'EventData')
 
 %% BLOCK PURPOSE: [6] Analyze the spectrogram for each session.
 disp('Analyzing Block [6] Analyzing the spectrogram for each file and normalizing by the resting baseline.'); disp(' ')
-CreateTrialSpectrograms_IOS(procDataFiles, neuralDataTypes);
+CreateTrialSpectrograms_IOS(rawDataFileIDs, neuralDataTypes);
 
-% Find spectrogram baselines for each day
-specDirectory = dir('*_SpecData.mat');
-specDataFiles = {specDirectory.name}';
-specDataFiles = char(specDataFiles);
-[RestingBaselines] = CalculateSpectrogramBaselines_2P(animalID, specDataFiles, RestingBaselines);
-
-% Normalize spectrogram by baseline
-NormalizeSpectrograms_2P(specDataFiles, RestingBaselines);
-
-%% BLOCK PURPOSE [7]
-% GenerateSingleFigures_2P(mergedDataFiles, RestingBaselines)
-
-disp('Stage Three Processing - Complete.'); disp(' ')
+% % Find spectrogram baselines for each day
+% specDirectory = dir('*_SpecData.mat');
+% specDataFiles = {specDirectory.name}';
+% specDataFiles = char(specDataFiles);
+% [RestingBaselines] = CalculateSpectrogramBaselines_2P(animalID, specDataFiles, RestingBaselines);
+% 
+% % Normalize spectrogram by baseline
+% NormalizeSpectrograms_2P(specDataFiles, RestingBaselines);
+% 
+% %% BLOCK PURPOSE [7]
+% % GenerateSingleFigures_2P(mergedDataFiles, RestingBaselines)
+% 
+% disp('Stage Three Processing - Complete.'); disp(' ')
