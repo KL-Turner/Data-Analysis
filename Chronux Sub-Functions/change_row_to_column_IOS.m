@@ -1,4 +1,4 @@
-function data=change_row_to_column(data)
+function data = change_row_to_column_IOS(data)
 %________________________________________________________________________________________________________________________
 % Utilized in analysis by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering

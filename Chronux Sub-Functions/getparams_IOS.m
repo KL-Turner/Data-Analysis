@@ -1,4 +1,4 @@
-function [tapers,pad,Fs,fpass,err,trialave,params]=getparams(params)
+function [tapers,pad,Fs,fpass,err,trialave,params] = getparams_IOS(params)
 %________________________________________________________________________________________________________________________
 % Utilized in analysis by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering

@@ -1,4 +1,4 @@
-function [confC,phistd,Cerr]=coherr(C,J1,J2,err,trialave,numsp1,numsp2)
+function [confC,phistd,Cerr] = coherr_IOS(C,J1,J2,err,trialave,numsp1,numsp2)
 %________________________________________________________________________________________________________________________
 % Utilized in analysis by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering

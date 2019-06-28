@@ -1,4 +1,4 @@
-function [f,findx]=getfgrid(Fs,nfft,fpass)
+function [f,findx] = getfgrid_IOS(Fs,nfft,fpass)
 %________________________________________________________________________________________________________________________
 % Utilized in analysis by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering

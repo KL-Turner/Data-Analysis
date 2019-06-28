@@ -1,4 +1,4 @@
-function [C,phi,S12,S1,S2,f,confC,phistd,Cerr]=coherencyc2(data1,data2,params)
+function [C,phi,S12,S1,S2,f,confC,phistd,Cerr] = coherencyc_IOS(data1,data2,params)
 %________________________________________________________________________________________________________________________
 % Utilized in analysis by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -63,14 +63,11 @@ function [C,phi,S12,S1,S2,f,confC,phistd,Cerr]=coherencyc2(data1,data2,params)
 %                bands for phi - only for err(1)>=1 
 %       Cerr  (Jackknife error bars for C - use only for Jackknife - err(1)=2)
 
-data1 = data1';
-data2 = data2';
-
 if nargin < 2; error('Need data1 and data2'); end;
-data1=change_row_to_column(data1);
-data2=change_row_to_column(data2);
-if nargin < 2; params=[]; end;
-[tapers,pad,Fs,fpass,err,trialave]=getparams(params);
+data1=change_row_to_column_IOS(data1);
+data2=change_row_to_column_IOS(data2);
+if nargin < 3; params=[]; end;
+[tapers,pad,Fs,fpass,err,trialave]=getparams_IOS(params);
 if nargout > 8 && err(1)~=2; 
     error('Cerr computed only for Jackknife. Correct inputs and run again');
 end;
@@ -78,12 +75,12 @@ if nargout > 6 && err(1)==0;
 %   Errors computed only if err(1) is nonzero. Need to change params and run again.
     error('When errors are desired, err(1) has to be non-zero.');
 end;
-N=check_consistency(data1,data2);
+N=check_consistency_IOS(data1,data2);
 nfft=max(2^(nextpow2(N)+pad),N);
-[f,findx]=getfgrid(Fs,nfft,fpass); 
-tapers=dpsschk(tapers,N,Fs); % check tapers
-J1=mtfftc(data1,tapers,nfft,Fs);
-J2=mtfftc(data2,tapers,nfft,Fs);
+[f,findx]=getfgrid_IOS(Fs,nfft,fpass); 
+tapers=dpsschk_IOS(tapers,N,Fs); % check tapers
+J1=mtfftc_IOS(data1,tapers,nfft,Fs);
+J2=mtfftc_IOS(data2,tapers,nfft,Fs);
 J1=J1(findx,:,:); J2=J2(findx,:,:);
 S12=squeeze(mean(conj(J1).*J2,2));
 S1=squeeze(mean(conj(J1).*J1,2));
@@ -93,7 +90,7 @@ C12=S12./sqrt(S1.*S2);
 C=abs(C12); 
 phi=angle(C12);
 if nargout>=9; 
-     [confC,phistd,Cerr]=coherr(C,J1,J2,err,trialave);
+     [confC,phistd,Cerr]=coherr_IOS(C,J1,J2,err,trialave);
 elseif nargout==8;
-     [confC,phistd]=coherr(C,J1,J2,err,trialave);
+     [confC,phistd]=coherr_IOS(C,J1,J2,err,trialave);
 end;

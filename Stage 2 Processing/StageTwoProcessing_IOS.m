@@ -27,8 +27,8 @@ disp('Analyzing Block [0] Preparing the workspace and loading variables.'); disp
 % Character list of all RawData files
 rawDataFileStruct = dir('*_RawData.mat');
 rawDataFiles = {rawDataFileStruct.name}';
-rawDataFiles = char(rawDataFiles);
-[animalID, ~, ~] = GetFileInfo_IOS(rawDataFiles(1,:));
+rawDataFileIDs = char(rawDataFiles);
+[animalID, ~, ~] = GetFileInfo_IOS(rawDataFileIDs(1,:));
 
 %% BLOCK PURPOSE: [1] Create bilateral regions of interest for the windows
 disp('Analyzing Block [1] Creating bilateral regions of interest.'); disp(' ')
@@ -45,17 +45,17 @@ end
 
 %% BLOCK PURPOSE: [2] Extract CBV data from each ROI for each RawData file in the directory that hasn't been processed yet.
 disp('Analyzing Block [2] Extracting cerebral blood volume data from each ROI.'); disp(' ')
-ExtractCBVData_IOS(ROIs, ROInames, rawDataFiles)
+ExtractCBVData_IOS(ROIs, ROInames, rawDataFileIDs)
 
 %% BLOCK PURPOSE: [3] Process the RawData structure -> Create Threshold data structure and ProcData structure.
 disp('Analyzing Block [2] Create ProcData files and process analog data.'); disp(' ')
-ProcessRawDataFiles_IOS(rawDataFiles)
+ProcessRawDataFiles_IOS(rawDataFileIDs)
 
 %% BLOCK PURPOSE: [4] Add Heart Rate to the ProcData structures.
 disp('Analyzing Block [4] Add heart rate to ProcData files.'); disp(' ')
 procDataFileStruct = dir('*_ProcData.mat');
 procDataFiles = {procDataFileStruct.name}';
-procDataFiles = char(procDataFiles);
-ExtractHeartRate_IOS(procDataFiles)
+procDataFileIDs = char(procDataFiles);
+ExtractHeartRate_IOS(procDataFileIDs)
 
 disp('Stage Two Processing - Complete.'); disp(' ')

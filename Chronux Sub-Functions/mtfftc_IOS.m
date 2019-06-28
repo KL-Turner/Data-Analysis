@@ -1,4 +1,4 @@
-function J=mtfftc(data,tapers,nfft,Fs)
+function J = mtfftc_IOS(data,tapers,nfft,Fs)
 %________________________________________________________________________________________________________________________
 % Utilized in analysis by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -22,7 +22,7 @@ function J=mtfftc(data,tapers,nfft,Fs)
 % Output:
 %       J (fft in form frequency index x taper index x channels/trials)
 if nargin < 4; error('Need all input arguments'); end;
-data=change_row_to_column(data);
+data=change_row_to_column_IOS(data);
 [NC,C]=size(data); % size of data
 [NK K]=size(tapers); % size of tapers
 if NK~=NC; error('length of tapers is incompatible with length of data'); end;

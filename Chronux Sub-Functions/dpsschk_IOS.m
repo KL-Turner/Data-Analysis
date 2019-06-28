@@ -1,4 +1,4 @@
-function [tapers,eigs]=dpsschk(tapers,N,Fs)
+function [tapers,eigs] = dpsschk_IOS(tapers,N,Fs)
 %________________________________________________________________________________________________________________________
 % Utilized in analysis by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering

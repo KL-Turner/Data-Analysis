@@ -1,4 +1,4 @@
-function [S,f,Serr]=mtspectrumc2(data,params)
+function [S,t,f,Serr] = mtspecgramc_IOS(data,movingwin,params)
 %________________________________________________________________________________________________________________________
 % Utilized in analysis by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -9,16 +9,21 @@ function [S,f,Serr]=mtspectrumc2(data,params)
 %   Last Opened: February 23rd, 2019
 %________________________________________________________________________________________________________________________
 %
-% Multi-taper spectrum - continuous process
+% Multi-taper time-frequency spectrum - continuous process
 %
 % Usage:
-%
-% [S,f,Serr]=mtspectrumc(data,params)
+% [S,t,f,Serr]=mtspecgramc(data,movingwin,params)
 % Input: 
-% Note units have to be consistent. See chronux.m for more information.
-%       data (in form samples x channels/trials) -- required
+% Note units have to be consistent. Thus, if movingwin is in seconds, Fs
+% has to be in Hz. see chronux.m for more information.
+%       data        (in form samples x channels/trials) -- required
+%       movingwin         (in the form [window winstep] i.e length of moving
+%                                                 window and step size)
+%                                                 Note that units here have
+%                                                 to be consistent with
+%                                                 units of Fs - required
 %       params: structure with fields tapers, pad, Fs, fpass, err, trialave
-%       -optional
+%       - optional
 %           tapers : precalculated tapers from dpss or in the one of the following
 %                    forms: 
 %                    (1) A numeric vector [TW K] where TW is the
@@ -36,6 +41,7 @@ function [S,f,Serr]=mtspectrumc2(data,params)
 %                        be consistent with the units of params.Fs: W can
 %                        be in Hz if and only if params.Fs is in Hz.
 %                        The default is to use form 1 with TW=3 and K=5
+%                     Note that T has to be equal to movingwin(1).
 %
 %	        pad		    (padding factor for the FFT) - optional (can take values -1,0,1,2...). 
 %                    -1 corresponds to no padding, 0 corresponds to padding
@@ -51,28 +57,56 @@ function [S,f,Serr]=mtspectrumc2(data,params)
 %                                   [0 p] or 0 - no error bars) - optional. Default 0.
 %           trialave (average over trials/channels when 1, don't average when 0) - optional. Default 0
 % Output:
-%       S       (spectrum in form frequency x channels/trials if trialave=0; 
-%               in the form frequency if trialave=1)
+%       S       (spectrum in form time x frequency x channels/trials if trialave=0; 
+%               in the form time x frequency if trialave=1)
+%       t       (times)
 %       f       (frequencies)
 %       Serr    (error bars) only for err(1)>=1
 
-data = data';
-if nargin < 1; error('Need data'); end;
-if nargin < 2; params=[]; end;
-[tapers,pad,Fs,fpass,err,trialave,params]=getparams(params);
-if nargout > 2 && err(1)==0; 
-%   Cannot compute error bars with err(1)=0. Change params and run again. 
+if nargin < 2; error('Need data and window parameters'); end;
+if nargin < 3; params=[]; end;
+
+if length(params.tapers)==3 & movingwin(1)~=params.tapers(2);
+    error('Duration of data in params.tapers is inconsistent with movingwin(1), modify params.tapers(2) to proceed')
+end
+
+[tapers,pad,Fs,fpass,err,trialave,params]=getparams_IOS(params);
+if nargout > 3 && err(1)==0; 
+%   Cannot compute error bars with err(1)=0. change params and run again.
     error('When Serr is desired, err(1) has to be non-zero.');
 end;
-data=change_row_to_column(data);
-N=size(data,1);
-nfft=max(2^(nextpow2(N)+pad),N);
-[f,findx]=getfgrid(Fs,nfft,fpass); 
-tapers=dpsschk(tapers,N,Fs); % check tapers
-J=mtfftc(data,tapers,nfft,Fs);
-J=J(findx,:,:);
-S=squeeze(mean(conj(J).*J,2));
-if trialave; S=squeeze(mean(S,2));end;
-if nargout==3; 
-   Serr=specerr(S,J,err,trialave);
+data=change_row_to_column_IOS(data);
+[N,Ch]=size(data);
+Nwin=round(Fs*movingwin(1)); % number of samples in window
+Nstep=round(movingwin(2)*Fs); % number of samples to step through
+nfft=max(2^(nextpow2(Nwin)+pad),Nwin);
+f=getfgrid_IOS(Fs,nfft,fpass); Nf=length(f);
+params.tapers=dpsschk_IOS(tapers,Nwin,Fs); % check tapers
+
+winstart=1:Nstep:N-Nwin+1;
+nw=length(winstart); 
+
+if trialave
+    S = zeros(nw,Nf);
+    if nargout==4; Serr=zeros(2,nw,Nf); end;
+else
+    S = zeros(nw,Nf,Ch);
+    if nargout==4; Serr=zeros(2,nw,Nf,Ch); end;
+end
+
+for n=1:nw;
+   indx=winstart(n):winstart(n)+Nwin-1;
+   datawin=data(indx,:);
+   if nargout==4
+     [s,f,serr]=mtspectrumc_IOS(datawin,params);
+     Serr(1,n,:,:)=squeeze(serr(1,:,:));
+     Serr(2,n,:,:)=squeeze(serr(2,:,:));
+   else
+     [s,f]=mtspectrumc_IOS(datawin,params);
+   end
+   S(n,:,:)=s;
 end;
+S=squeeze(S); 
+if nargout==4;Serr=squeeze(Serr);end;
+winmid=winstart+round(Nwin/2);
+t=winmid/Fs;
