@@ -81,10 +81,13 @@ for a = 2:size(procDataFileIDs, 1)
     
     %% Figure
     singleTrialFig = figure;
+    figTemplet = tight_subplot_IOS(6,1,[.005 .005],[.045 .04],[.025 .025]);
+    
     % Force sensor and EMG
-    ax1 = subplot(7,1,1);
+    axes(figTemplet(1));
+    fileID2 = strrep(fileID, '_', ' ');
     plot((1:length(filtForceSensor))/ProcData.notes.dsFs, filtForceSensor, 'color', colors_IOS('sapphire'))
-    title({[animalID ' IOS behavioral characterization and CBV dynamics for ' fileID], 'Force sensor and EMG'})
+    title([animalID ' IOS behavioral characterization and CBV dynamics for ' fileID2])
     ylabel('Force Sensor (Volts)')
     xlim([0 ProcData.notes.trialDuration_sec])
     yyaxis right
@@ -93,13 +96,13 @@ for a = 2:size(procDataFileIDs, 1)
     legend('Force sensor', 'EMG')
     xlim([0 ProcData.notes.trialDuration_sec])
     set(gca,'TickLength',[0, 0])
+    set(gca,'Xticklabel',[])
     set(gca,'box','off')
     axis tight
     
     % Whisker angle and heart rate
-    ax2 = subplot(7,1,2);
+    axes(figTemplet(2));
     plot((1:length(filteredWhiskerAngle))/ProcData.notes.dsFs, -filteredWhiskerAngle, 'color', colors_IOS('electric purple'))
-    title('Whisker angle and heart rate')
     ylabel('Angle (deg)')
     xlim([0 ProcData.notes.trialDuration_sec])
     yyaxis right
@@ -107,11 +110,12 @@ for a = 2:size(procDataFileIDs, 1)
     ylabel('Heart Rate (Hz)')
     legend('Whisker angle', 'Heart rate')
     set(gca,'TickLength',[0, 0])
+    set(gca,'Xticklabel',[])
     set(gca,'box','off')
     axis tight
     
     % CBV and behavioral indeces
-    ax3 = subplot(7,1,3:4);
+    axes(figTemplet(3));
     plot((1:length(filtLH_CBV))/ProcData.notes.CBVCamSamplingRate, filtLH_CBV, 'color', colors_IOS('dark candy apple red'))
     hold on;
     plot((1:length(filtRH_CBV))/ProcData.notes.CBVCamSamplingRate, filtRH_CBV, 'color', colors_IOS('rich black'))
@@ -122,59 +126,69 @@ for a = 2:size(procDataFileIDs, 1)
     scatter(RPadSol, RPad_Yvals, 'v', 'MarkerEdgeColor', 'k', 'MarkerFaceColor', 'm');
     scatter(AudSol, Aud_Yvals, 'v', 'MarkerEdgeColor', 'k', 'MarkerFaceColor', 'g');
     
-    title('Cerebral blood volume in response to behaviorial events')
     ylabel('% change (\DeltaR/R)')
     legend('LH CBV', 'RH CBV', 'Movement', 'Whisking', 'LPadSol', 'RPadSol', 'AudSol')
     xlim([0 ProcData.notes.trialDuration_sec])
     set(gca,'TickLength',[0, 0])
+    set(gca,'Xticklabel',[])
     set(gca,'box','off')
     axis tight
     
     % Left cortical electrode spectrogram
-    ax4 = subplot(7,1,5);
-    imagesc(T, F, cortical_LHnormS)
+    axes(figTemplet(4));
+    semilog_imagesc_IOS(T, F, cortical_LHnormS, 'y')
     axis xy
     caxis([-1 2])
-    title('LH cortical (LFP) spectrogram')
     ylabel('Frequency (Hz)')
+    set(gca,'Yticklabel', '10^1')
     xlim([0 ProcData.notes.trialDuration_sec])
     set(gca,'TickLength',[0, 0])
+    set(gca,'Xticklabel',[])
     set(gca,'box','off')
+    yyaxis right
+    ylabel('Left cortical LFP')
+    set(gca,'Yticklabel', [])
     
     % Right cortical electrode spectrogram
-    ax5 = subplot(7,1,6);
-    imagesc(T, F, cortical_RHnormS)
+    axes(figTemplet(5));
+    semilog_imagesc_IOS(T, F, cortical_RHnormS, 'y')
     axis xy
     caxis([-1 2])
-    title('RH cortical (LFP) spectrogram')
     ylabel('Frequency (Hz)')
+    set(gca,'Yticklabel', '10^1')
     xlim([0 ProcData.notes.trialDuration_sec])
     set(gca,'TickLength',[0, 0])
+    set(gca,'Xticklabel',[])
     set(gca,'box','off')
+    yyaxis right
+    ylabel('Right cortical LFP')
+    set(gca,'Yticklabel', [])
     
     % Hippocampal electrode spectrogram
-    ax6 = subplot(7,1,7);
-    imagesc(T, F, hippocampusNormS)
-    axis xy
+    axes(figTemplet(6));
+    semilog_imagesc_IOS(T, F, hippocampusNormS, 'y')
     caxis([-0.5 0.75])
-    title('Hippocampal (LFP) spectrogram')
     xlabel('Time (sec)')
     ylabel('Frequency (Hz)')
+    set(gca,'Yticklabel', '10^1')
+    set(gca,'Xticklabel', [0 100 200 300 400 500 600 700 800 900])
     xlim([0 ProcData.notes.trialDuration_sec])
     set(gca,'TickLength',[0, 0])
     set(gca,'box','off')
-    pause(1)
+    yyaxis right
+    ylabel('Hippocampal LFP')
+    set(gca,'Yticklabel', [])
     
-    linkaxes([ax1 ax2 ax3 ax4 ax5 ax6], 'x');
+    pause(1)
     
     %% Save the file to directory.
     [pathstr, ~, ~] = fileparts(cd);
     dirpath = [pathstr '/Figures/Single Trial Figures/'];
-
-    if ~exist(dirpath, 'dir') 
-        mkdir(dirpath); 
+    
+    if ~exist(dirpath, 'dir')
+        mkdir(dirpath);
     end
-
+    
     savefig(singleTrialFig, [dirpath animalID '_' fileID '_SingleTrialFig']);
     close(singleTrialFig)
 end
