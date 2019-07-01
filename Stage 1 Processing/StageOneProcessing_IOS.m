@@ -55,7 +55,7 @@ for a = 1:length(fileNames)
     end
     
     % Pull out the file ID for the file - this is the numerical string after the animal name/hemisphere
-    [~, ~, ~, fileID] = GetFileInfo_IOS(indFile);
+    [~, ~, fileID] = GetFileInfo_IOS(indFile);
     
     % Determine if a RawData file has already been created for this file. If it has, skip it
     fileExist = ls(['*' fileID '_RawData.mat']);
@@ -66,14 +66,14 @@ for a = 1:length(fileNames)
         trialData = ReadInTDMSWhiskerTrials_IOS([fileID '.tdms']);
         
         % Left, Right, and hippocampal electrodes
-        dataRow = strcmp(trialData.data.names, 'Neural_LH');  
-        cortical_LH = trialData.data.vals(dataRow,:) / str2double(trialData.amplifierGain);
+        dataRow = strcmp(trialData.data.names, 'Cortical_LH');  
+        cortical_LH = trialData.data.vals(dataRow,:)/str2double(trialData.amplifierGain);
         
-        dataRow = strcmp(trialData.data.names, 'Neural_RH');
-        cortical_RH = trialData.data.vals(dataRow,:) / str2double(trialData.amplifierGain);
+        dataRow = strcmp(trialData.data.names, 'Cortical_RH');
+        cortical_RH = trialData.data.vals(dataRow,:)/str2double(trialData.amplifierGain);
         
         dataRow = strcmp(trialData.data.names, 'Hippocampus');
-        hippocampus = trialData.data.vals(dataRow,:) / str2double(trialData.amplifierGain);
+        hippocampus = trialData.data.vals(dataRow,:)/str2double(trialData.amplifierGain);
         
         % Left, Right, Auditory solenoids. Combine the arrays together.
         dataRow = strcmp(trialData.data.names, 'LPadSol'); 
