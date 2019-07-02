@@ -15,7 +15,7 @@ function [] = GenerateSingleFigures_IOS(procDataFileIDs, RestingBaselines)
 %   Last Revised: June 30th, 2019    
 %________________________________________________________________________________________________________________________
 
-for a = 2:size(procDataFileIDs, 1)
+for a = 1:size(procDataFileIDs, 1)
 
     procDataFile = procDataFileIDs(a,:);
     load(procDataFile)

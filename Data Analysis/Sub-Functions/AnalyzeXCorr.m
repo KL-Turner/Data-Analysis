@@ -88,6 +88,9 @@ finalFileDurations = allRestDurations(finalFileFilter, :);
 finalFileEventTimes = allRestEventTimes(finalFileFilter, :);
 finalRestData = allRestingData(finalFileFilter, :);
 
+disp('Add lowpass to neural data'); disp(' ')
+keyboard
+
 for a = 1:length(finalFileIDs)   % Loop through each non-unique file
     fileID = finalFileIDs{a, 1};   % Specify the fileID from the list
     strDay = fileID(1:6);   % First 6 characters denote the date
