@@ -70,7 +70,12 @@ if ~isempty(droppedFrameIndex)
             end
         end
     end
-    patchedWhiskerAngle = patchedWhiskerAngle(1:expectedSamples);
+    try
+        patchedWhiskerAngle = patchedWhiskerAngle(1:expectedSamples);
+    catch
+        missingFrames = expectedSamples - length(patchedWhiskerAngle);
+        patchedWhiskerAngle = horzcat(patchedWhiskerAngle, patchedWhiskerAngle(end)*ones(1,missingFrames));
+    end
 else
     patchedWhiskerAngle = whiskerAngle(1:expectedSamples);
 end
