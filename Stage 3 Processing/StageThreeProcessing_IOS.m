@@ -4,6 +4,7 @@
 % The Pennsylvania State University
 %________________________________________________________________________________________________________________________
 %
+
 %   Purpose: 1) Categorize data using previously processed ProcData data structures, add 'flags'  
 %            2) Create RestData structure that contains periods of rest.
 %            3) Create EventData structure that contains periods after stimuli and whisks.
