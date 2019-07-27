@@ -94,7 +94,7 @@ for a = 1:size(procDataFileIDs, 1)
     ProcData.sleep.parameters.gammaBandPower.LH = LH_tempGammaStruct;
     ProcData.sleep.parameters.gammaBandPower.RH = RH_tempGammaStruct;
 
-    %% BLOCK PURPOSE: Create folder for binarized whisking
+    %% BLOCK PURPOSE: Create folder for binarized whisking and binarized force sensor
     binWhiskerAngle = ProcData.data.binWhiskerAngle;
     binForceSensor = ProcData.data.binForceSensor;
     
@@ -120,6 +120,20 @@ for a = 1:size(procDataFileIDs, 1)
     
     ProcData.sleep.parameters.binWhiskerAngle = tempWhiskerStruct;
     ProcData.sleep.parameters.binForceSensor = tempForceStruct;
+    
+    %% Create folder for the EMG
+    EMG = log(ProcData.data.EMG);
+    tempEMGStruct = cell(180, 1);
+    
+    for EMGBins = 1:180
+        if EMGBins == 1
+            tempEMGStruct(EMGBins,1) = {EMG(EMGBins:150)};
+        else
+            tempEMGStruct(EMGBins,1) = {EMG((((150*(EMGBins-1))+1)):(150*EMGBins))};
+        end
+    end
+    
+    ProcData.sleep.parameters.EMG = tempEMGStruct;
     
     %% BLOCK PURPOSE: Create folder for the Heart Rate
     % Find the heart rate from the current ProcData file
@@ -179,7 +193,7 @@ for a = 1:size(procDataFileIDs, 1)
     ProcData.sleep.parameters.CBV.LH_Electrode = LH_tempElectrodeCBVStruct;
     ProcData.sleep.parameters.CBV.RH_Electrode = RH_tempElectrodeCBVStruct;
     
-    save('procDataFileID', 'ProcData');
+    save(procDataFileID, 'ProcData');
 end
 
 end
