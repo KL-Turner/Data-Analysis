@@ -15,10 +15,11 @@ function [] = CreateTrainingDataSet_SVM(procDataFileIDs, RestingBaselines)
 %   Last Revised: July 26th, 2019
 %________________________________________________________________________________________________________________________
 
+global buttonState
 for a = 1:size(procDataFileIDs, 1)
     procDataFileID = procDataFileIDs(a,:);
     tableFileID = [procDataFileID(1:end-12) 'TrainingTable.mat'];
-    if ~exist(tableFileID)
+    if ~exist(tableFileID, 'file')
         disp(['Loading ' procDataFileID ' for manual sleep scoring.' ]); disp(' ')
         load(procDataFileID)
         
@@ -29,7 +30,6 @@ for a = 1:size(procDataFileIDs, 1)
         behavioralState = cell(180,1);
         for b = 1:numBins
             clear global buttonState
-            global buttonState
             buttonState = 0;
             subplot(6,1,3)
             ylimits = ylim;
@@ -109,7 +109,6 @@ for a = 1:size(procDataFileIDs, 1)
             maxLH_Theta_column, maxRH_Theta_column, maxLH_Gamma_column, maxRH_Gamma_column,...
             numWhiskEvents_column, numForceEvents_column, avgEMG_column, avgHeartRate_column,...
             behavioralState, 'VariableNames', variableNames);
-        
         save(tableFileID, 'T')
     end
     disp([tableFileID ' already exists. Continuing...']); disp(' ')

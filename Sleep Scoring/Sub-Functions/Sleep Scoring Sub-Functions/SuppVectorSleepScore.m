@@ -32,6 +32,14 @@ AddSleepParameters_SVM(procDataFileIDs, RestingBaselines)
 %%
 CreateTrainingDataSet_SVM(procDataFileIDs, RestingBaselines)
 
+%%
+trainingTableFileStruct = dir('*_TrainingTables.mat');
+trainingTableFiles = {trainingTableFileStruct.name}';
+trainingTableFileIDs = char(trainingTableFiles);
+[SVMModel] = TrainModel_SVM(trainingTableFileIDs);
+
+%%
+PredictBehaviorEvents_SVM(procDataFileIDs, SVMModel)
 
 
 

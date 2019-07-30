@@ -104,7 +104,6 @@ xlim([0 ProcData.notes.trialDuration_sec])
 yyaxis right
 plot((1:length(EMG))/ProcData.notes.dsFs, log10(EMG), 'color', colors_IOS('deep carrot orange'))
 ylabel('EMG (Volts^2)')
-legend('Force sensor', 'EMG')
 xlim([0 ProcData.notes.trialDuration_sec])
 set(gca,'TickLength',[0, 0])
 set(gca,'Xticklabel',[])
@@ -119,7 +118,6 @@ xlim([0 ProcData.notes.trialDuration_sec])
 yyaxis right
 plot((1:length(heartRate)), heartRate, 'color', colors_IOS('dark sea green'), 'LineWidth', 2)
 ylabel('Heart Rate (Hz)')
-legend('Whisker angle', 'Heart rate')
 set(gca,'TickLength',[0, 0])
 set(gca,'Xticklabel',[])
 set(gca,'box','off')
@@ -138,7 +136,6 @@ scatter(RPadSol, RPad_Yvals, 'v', 'MarkerEdgeColor', 'k', 'MarkerFaceColor', 'm'
 scatter(AudSol, Aud_Yvals, 'v', 'MarkerEdgeColor', 'k', 'MarkerFaceColor', 'g');
 
 ylabel('% change (\DeltaR/R)')
-legend('LH CBV', 'RH CBV', 'Movement', 'Whisking', 'LPadSol', 'RPadSol', 'AudSol')
 xlim([0 ProcData.notes.trialDuration_sec])
 set(gca,'TickLength',[0, 0])
 set(gca,'Xticklabel',[])
