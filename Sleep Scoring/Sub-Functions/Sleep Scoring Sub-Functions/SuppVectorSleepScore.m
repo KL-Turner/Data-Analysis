@@ -26,29 +26,40 @@ baselinesFile = {baselinesFileStruct.name}';
 baselinesFileID = char(baselinesFile);
 load(baselinesFileID)
 
-%%
-AddSleepParameters_SVM(procDataFileIDs, RestingBaselines)
+trainModel = input('Train SVM model? (y/n): ','s'); disp(' ')
+createTrainingSet = input('Add additional data to SVM training set? (y/n): ','s'); disp(' ')
+if strcmp(trainModel,'n') == true
+    disp('Select trained model location:'); disp(' ')
+    modelLocation = uigetdir;
+    disp(['Loading model from: ' modelLocation]); disp(' ')
+    AddSleepParameters_SVM(procDataFileIDs, RestingBaselines)
+    CreateModelDataSet_SVM(procDataFileIDs)
+else
+    AddSleepParameters_SVM(procDataFileIDs, RestingBaselines)
+    CreateModelDataSet_SVM(procDataFileIDs)
+    if createTrainingSet == true
+        CreateTrainingDataSet_SVM(procDataFileIDs, RestingBaselines)
+    end
+    trainingTableFileStruct = dir('*_TrainingTable.mat');
+    trainingTableFiles = {trainingTableFileStruct.name}';
+    trainingTableFileIDs = char(trainingTableFiles);
+    [SVMModel] = TrainModel_SVM(trainingTableFileIDs);
+end
 
 %%
-CreateTrainingDataSet_SVM(procDataFileIDs, RestingBaselines)
-
-%%
-trainingTableFileStruct = dir('*_TrainingTables.mat');
-trainingTableFiles = {trainingTableFileStruct.name}';
-trainingTableFileIDs = char(trainingTableFiles);
-[SVMModel] = TrainModel_SVM(trainingTableFileIDs);
-
-%%
-PredictBehaviorEvents_SVM(procDataFileIDs, SVMModel)
-
-
-
-
-
-
-
-
-
-
-
+if strcmp(trainModel,'y') == true
+    PredictBehaviorEvents_SVM(procDataFileIDs, SVMModel)
+else
+    curDir = cd;
+    cd(modelLocation)
+    modelFileStruct = dir('*_TrainingTable.mat');
+    modelFileName = {modelFileStruct.name}';
+    modelFile = char(modelFileName);
+    load(modelFile)
+    cd(curDir)
+    modelDataFileStruct = dir('*_ModelData.mat');
+    modelDataFiles = {modelDataFileStruct.name}';
+    modelDataFileIDs = char(modelDataFiles);
+    PredictBehaviorEvents_SVM(modelDataFileIDs, SVMModel)
+end
 

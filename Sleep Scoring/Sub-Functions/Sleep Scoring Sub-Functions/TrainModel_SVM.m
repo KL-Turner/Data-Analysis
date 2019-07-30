@@ -22,11 +22,16 @@ for a = 1:size(trainingTableFileIDs,1)
        joinedTable = T;
    else
        load(trainingTableFileID)
-       joinedTable = join(joinedTable, T);
+       joinedTable = vertcat(joinedTable, T);
    end
 end
 
-SVMModel = fitcecoc(joinedTable,'behaviorState');
+[animalID,~,~] = GetFileInfo_IOS(trainingTableFileID);
+X = joinedTable(:,1:12);
+Y = joinedTable(:,13);
+t = templateSVM('Standardize',true,'KernelFunction','gaussian');
+SVMModel = fitcecoc(X, Y,'Learners',t,'FitPosterior',true,'ClassNames',{'Awake','Transition', 'NREM','REM'}, 'Verbose',2);
+save([animalID '_SVM_SleepScoringModel.mat'], 'SVMModel')
 
 end
 

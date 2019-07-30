@@ -15,7 +15,6 @@ function [] = CreateTrainingDataSet_SVM(procDataFileIDs, RestingBaselines)
 %   Last Revised: July 26th, 2019
 %________________________________________________________________________________________________________________________
 
-global buttonState
 for a = 1:size(procDataFileIDs, 1)
     procDataFileID = procDataFileIDs(a,:);
     tableFileID = [procDataFileID(1:end-12) 'TrainingTable.mat'];
@@ -29,7 +28,7 @@ for a = 1:size(procDataFileIDs, 1)
         
         behavioralState = cell(180,1);
         for b = 1:numBins
-            clear global buttonState
+            global buttonState %#ok<TLEV>
             buttonState = 0;
             subplot(6,1,3)
             ylimits = ylim;
@@ -75,34 +74,34 @@ for a = 1:size(procDataFileIDs, 1)
         
         variableNames = {'maxLH_CBV', 'maxRH_CBV', 'maxLH_Delta', 'maxRH_Delta', 'maxLH_Theta', 'maxRH_Theta',...
             'maxLH_Gamma', 'maxRH_Gamma', 'numWhiskEvents', 'numForceEvents', 'avgEMG', 'avgHeartRate', 'behavState'};
-        maxLH_CBV_column = cell(180,1);
-        maxRH_CBV_column = cell(180,1);
-        maxLH_Delta_column = cell(180,1);
-        maxRH_Delta_column = cell(180,1);
-        maxLH_Theta_column = cell(180,1);
-        maxRH_Theta_column = cell(180,1);
-        maxLH_Gamma_column = cell(180,1);
-        maxRH_Gamma_column = cell(180,1);
-        numWhiskEvents_column = cell(180,1);
-        numForceEvents_column = cell(180,1);
-        avgEMG_column = cell(180,1);
-        avgHeartRate_column = cell(180,1);
+        maxLH_CBV_column = zeros(180,1);
+        maxRH_CBV_column = zeros(180,1);
+        maxLH_Delta_column = zeros(180,1);
+        maxRH_Delta_column = zeros(180,1);
+        maxLH_Theta_column = zeros(180,1);
+        maxRH_Theta_column = zeros(180,1);
+        maxLH_Gamma_column = zeros(180,1);
+        maxRH_Gamma_column = zeros(180,1);
+        numWhiskEvents_column = zeros(180,1);
+        numForceEvents_column = zeros(180,1);
+        avgEMG_column = zeros(180,1);
+        avgHeartRate_column = zeros(180,1);
         
         for c = 1:length(maxLH_CBV_column)
-            maxLH_CBV_column{c,1} = min(ProcData.sleep.parameters.CBV.LH{c,1});
-            maxRH_CBV_column{c,1} = min(ProcData.sleep.parameters.CBV.RH{c,1});
-            maxLH_Delta_column{c,1} = max(ProcData.sleep.parameters.deltaBandPower.LH{c,1});
-            maxRH_Delta_column{c,1} = max(ProcData.sleep.parameters.deltaBandPower.RH{c,1});
-            maxLH_Theta_column{c,1} = max(ProcData.sleep.parameters.thetaBandPower.LH{c,1});
-            maxRH_Theta_column{c,1} = max(ProcData.sleep.parameters.thetaBandPower.RH{c,1});
-            maxLH_Gamma_column{c,1} = max(ProcData.sleep.parameters.gammaBandPower.LH{c,1});
-            maxRH_Gamma_column{c,1} = max(ProcData.sleep.parameters.gammaBandPower.RH{c,1});
-            numWhiskEvents_column{c,1} = sum(ProcData.sleep.parameters.binWhiskerAngle{c,1});
-            numForceEvents_column{c,1} = sum(ProcData.sleep.parameters.binForceSensor{c,1});
+            maxLH_CBV_column(c,1) = min(ProcData.sleep.parameters.CBV.LH{c,1});
+            maxRH_CBV_column(c,1) = min(ProcData.sleep.parameters.CBV.RH{c,1});
+            maxLH_Delta_column(c,1) = max(ProcData.sleep.parameters.deltaBandPower.LH{c,1});
+            maxRH_Delta_column(c,1) = max(ProcData.sleep.parameters.deltaBandPower.RH{c,1});
+            maxLH_Theta_column(c,1) = max(ProcData.sleep.parameters.thetaBandPower.LH{c,1});
+            maxRH_Theta_column(c,1) = max(ProcData.sleep.parameters.thetaBandPower.RH{c,1});
+            maxLH_Gamma_column(c,1) = max(ProcData.sleep.parameters.gammaBandPower.LH{c,1});
+            maxRH_Gamma_column(c,1) = max(ProcData.sleep.parameters.gammaBandPower.RH{c,1});
+            numWhiskEvents_column(c,1) = sum(ProcData.sleep.parameters.binWhiskerAngle{c,1});
+            numForceEvents_column(c,1) = sum(ProcData.sleep.parameters.binForceSensor{c,1});
             TF = ~isinf(ProcData.sleep.parameters.EMG{c,1});
             EMG2 = ProcData.sleep.parameters.EMG{c,1}(TF);
-            avgEMG_column{c,1} = mean(EMG2);
-            avgHeartRate_column{c,1} = mean(ProcData.sleep.parameters.heartRate{c,1});
+            avgEMG_column(c,1) = mean(EMG2);
+            avgHeartRate_column(c,1) = mean(ProcData.sleep.parameters.heartRate{c,1});
         end
         
         T = table(maxLH_CBV_column, maxRH_CBV_column, maxLH_Delta_column, maxRH_Delta_column,...

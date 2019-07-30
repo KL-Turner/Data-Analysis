@@ -19,7 +19,7 @@ for a = 1:size(procDataFileIDs,1)
     procDataFileID = procDataFileIDs(a,:);
     disp(['Sleep scoring ' procDataFileID ' through support vector machine model...']); disp(' ')
     load(procDataFileID)
-    if ~isfield(ProcData.sleep, 'SVM')
+%     if ~isfield(ProcData.sleep, 'SVM')
         %% Create table to send into SVM model
         variableNames = {'maxLH_CBV', 'maxRH_CBV', 'maxLH_Delta', 'maxRH_Delta', 'maxLH_Theta', 'maxRH_Theta',...
             'maxLH_Gamma', 'maxRH_Gamma', 'numWhiskEvents', 'numForceEvents', 'avgEMG', 'avgHeartRate'};
@@ -59,12 +59,16 @@ for a = 1:size(procDataFileIDs,1)
             numWhiskEvents_column, numForceEvents_column, avgEMG_column, avgHeartRate_column,...
             'VariableNames', variableNames);
         
+        for c = 1:length(variableNames)
+            paramsTable.(variableNames{1,c}) = cell2mat(paramsTable.(variableNames{1,c}));
+        end
+
         %% Obtain the label/score from the model
         [label,score] = predict(SVMModel, paramsTable);
         ProcData.sleep.SVM.label = label;
         ProcData.sleep.SVM.score = score;
         save(procDataFileID, 'ProcData')
-    else
-        disp([procDataFileID ' already evaluated. Continuing...']); disp(' ')
-    end
+%     else
+%         disp([procDataFileID ' already evaluated. Continuing...']); disp(' ')
+%     end
 end
