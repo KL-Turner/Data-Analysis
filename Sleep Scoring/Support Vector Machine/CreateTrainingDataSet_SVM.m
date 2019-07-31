@@ -1,4 +1,4 @@
-function [] = CreateTrainingDataSet_SVM(procDataFileIDs, RestingBaselines)
+function [] = CreateTrainingDataSet_SVM(RestingBaselines)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -15,10 +15,11 @@ function [] = CreateTrainingDataSet_SVM(procDataFileIDs, RestingBaselines)
 %   Last Revised: July 26th, 2019
 %________________________________________________________________________________________________________________________
 
-for a = 1:size(procDataFileIDs, 1)
-    procDataFileID = procDataFileIDs(a,:);
-    tableFileID = [procDataFileID(1:end-12) 'TrainingTable.mat'];
-    if ~exist(tableFileID, 'file')
+procDataFileIDs = uigetfile('*_ProcData.mat','Multiselect','on');
+for a = 1:length(procDataFileIDs)
+    procDataFileID = procDataFileIDs{1,a};
+    trainingDataFileID = [procDataFileID(1:end-12) 'TrainingData.mat'];
+    if ~exist(trainingDataFileID, 'file')
         disp(['Loading ' procDataFileID ' for manual sleep scoring.' ]); disp(' ')
         load(procDataFileID)
         
@@ -108,9 +109,9 @@ for a = 1:size(procDataFileIDs, 1)
             maxLH_Theta_column, maxRH_Theta_column, maxLH_Gamma_column, maxRH_Gamma_column,...
             numWhiskEvents_column, numForceEvents_column, avgEMG_column, avgHeartRate_column,...
             behavioralState, 'VariableNames', variableNames);
-        save(tableFileID, 'T')
+        save(trainingDataFileID, 'T')
     end
-    disp([tableFileID ' already exists. Continuing...']); disp(' ')
+    disp([trainingDataFileID ' already exists. Continuing...']); disp(' ')
 end
 
 end
