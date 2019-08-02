@@ -18,7 +18,7 @@ function [procNeuro] = ProcessNeuro_IOS(RawData, expectedLength, neurType, neura
 %________________________________________________________________________________________________________________________
 
 %% Thresholds and Neurtype switch
-trimmedNeuro = (1:min(expectedLength, length(RawData.data.(neuralDataType))));
+trimmedNeuro = RawData.data.(neuralDataType)(1:min(expectedLength, length(RawData.data.(neuralDataType))));
 analogFs = RawData.notes.analogSamplingRate;
 
 switch neurType
