@@ -32,7 +32,7 @@ Y = joinedTable(:,13);
 t = templateSVM('Standardize',true,'KernelFunction','gaussian');
 
 disp('Training Support Vector Machine...'); disp(' ')
-SVMModel = fitcecoc(X,Y,'Learners',t,'FitPosterior',true,'ClassNames',{'Awake','Transition','NREM','REM'},'Verbose',2);
+SVMModel = fitcecoc(X,Y,'Learners',t,'FitPosterior',true,'ClassNames',{'Not Sleep','NREM','REM'},'Verbose',2);
 
 disp('Cross-validating (10-fold) the support vector machine classifier...'); disp(' ')
 CVSVMModel = crossval(SVMModel);

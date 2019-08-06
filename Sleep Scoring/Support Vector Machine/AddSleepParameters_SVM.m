@@ -22,7 +22,7 @@ for a = 1:size(procDataFileIDs, 1)
     strDay = ConvertDate_IOS(fileDate);
     load(procDataFileID)
     
-    if ~isfield(ProcData, 'sleep') == true
+%     if ~isfield(ProcData, 'sleep') == true
         %% BLOCK PURPOSE: Create folder for the Neural data of each electrode
         % delta
         LH_Delta = ProcData.data.cortical_LH.deltaBandPower;
@@ -195,9 +195,9 @@ for a = 1:size(procDataFileIDs, 1)
         ProcData.sleep.parameters.CBV.RH_Electrode = RH_tempElectrodeCBVStruct;
         
         save(procDataFileID, 'ProcData');
-    else
-        disp('Sleep parameters already added. Continuing...'); disp(' ')
-    end
+%     else
+%         disp('Sleep parameters already added. Continuing...'); disp(' ')
+%     end
 end
 
 end
