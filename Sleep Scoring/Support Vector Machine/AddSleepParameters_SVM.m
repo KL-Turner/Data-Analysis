@@ -32,12 +32,9 @@ for a = 1:size(procDataFileIDs, 1)
         LH_NormDelta = (LH_Delta-LH_baselineDelta)/LH_baselineDelta;
         RH_NormDelta = (RH_Delta-RH_baselineDelta)/RH_baselineDelta;
         % theta
-        LH_Theta = ProcData.data.cortical_LH.thetaBandPower;
-        RH_Theta = ProcData.data.cortical_RH.thetaBandPower;
-        LH_baselineTheta = RestingBaselines.cortical_LH.thetaBandPower.(strDay);
-        RH_baselineTheta = RestingBaselines.cortical_RH.thetaBandPower.(strDay);
-        LH_NormTheta = (LH_Theta-LH_baselineTheta)/LH_baselineTheta;
-        RH_NormTheta = (RH_Theta-RH_baselineTheta)/RH_baselineTheta;
+        hippTheta = ProcData.data.hippocampus.thetaBandPower;
+        hippBaselineTheta = RestingBaselines.hippocampus.thetaBandPower.(strDay);
+        hippNormTheta = (hippTheta-hippBaselineTheta)/hippBaselineTheta;
         % gamma
         LH_Gamma = ProcData.data.cortical_LH.gammaBandPower;
         RH_Gamma = ProcData.data.cortical_RH.gammaBandPower;
@@ -50,16 +47,14 @@ for a = 1:size(procDataFileIDs, 1)
         [B, A] = butter(4, 1/(30/2), 'low');
         LH_DeltaNeuro = filtfilt(B, A, LH_NormDelta);
         RH_DeltaNeuro = filtfilt(B, A, RH_NormDelta);
-        LH_ThetaNeuro = filtfilt(B, A, LH_NormTheta);
-        RH_ThetaNeuro = filtfilt(B, A, RH_NormTheta);
+        hippThetaNeuro = filtfilt(B, A, hippNormTheta);
         LH_GammaNeuro = filtfilt(B, A, LH_NormGamma);
         RH_GammaNeuro = filtfilt(B, A, RH_NormGamma);
         
         % Divide the neural signals into five second bins and put them in a cell array
         LH_tempDeltaStruct = cell(180,1);
         RH_tempDeltaStruct = cell(180,1);
-        LH_tempThetaStruct = cell(180,1);
-        RH_tempThetaStruct = cell(180,1);
+        hipptempThetaStruct = cell(180,1);
         LH_tempGammaStruct = cell(180,1);
         RH_tempGammaStruct = cell(180,1);
         
@@ -67,33 +62,29 @@ for a = 1:size(procDataFileIDs, 1)
             if neuralBins == 1
                 LH_tempDeltaStruct(neuralBins,1) = {LH_DeltaNeuro(neuralBins:150)};
                 RH_tempDeltaStruct(neuralBins,1) = {RH_DeltaNeuro(neuralBins:150)};
-                LH_tempThetaStruct(neuralBins,1) = {LH_ThetaNeuro(neuralBins:150)};
-                RH_tempThetaStruct(neuralBins,1) = {RH_ThetaNeuro(neuralBins:150)};
+                hipptempThetaStruct(neuralBins,1) = {hippThetaNeuro(neuralBins:150)};
                 LH_tempGammaStruct(neuralBins,1) = {LH_GammaNeuro(neuralBins:150)};
                 RH_tempGammaStruct(neuralBins,1) = {RH_GammaNeuro(neuralBins:150)};
             elseif neuralBins == 180
                 LH_tempDeltaStruct(neuralBins,1) = {LH_NormDelta((((150*(neuralBins-1))+1)):end)};
                 RH_tempDeltaStruct(neuralBins,1) = {RH_NormDelta((((150*(neuralBins-1))+1)):end)};
-                LH_tempThetaStruct(neuralBins,1) = {LH_ThetaNeuro((((150*(neuralBins-1))+1)):end)};
-                RH_tempThetaStruct(neuralBins,1) = {RH_ThetaNeuro((((150*(neuralBins-1))+1)):end)};
+                hipptempThetaStruct(neuralBins,1) = {hippThetaNeuro((((150*(neuralBins-1))+1)):end)};
                 LH_tempGammaStruct(neuralBins,1) = {LH_GammaNeuro((((150*(neuralBins-1))+1)):end)};
                 RH_tempGammaStruct(neuralBins,1) = {RH_GammaNeuro((((150*(neuralBins-1))+1)):end)};
             else
                 LH_tempDeltaStruct(neuralBins,1) = {LH_NormDelta((((150*(neuralBins-1))+1)):(150*neuralBins))};
                 RH_tempDeltaStruct(neuralBins,1) = {RH_NormDelta((((150*(neuralBins-1))+1)):(150*neuralBins))};
-                LH_tempThetaStruct(neuralBins,1) = {LH_ThetaNeuro((((150*(neuralBins-1))+1)):(150*neuralBins))};
-                RH_tempThetaStruct(neuralBins,1) = {RH_ThetaNeuro((((150*(neuralBins-1))+1)):(150*neuralBins))};
+                hipptempThetaStruct(neuralBins,1) = {hippThetaNeuro((((150*(neuralBins-1))+1)):(150*neuralBins))};
                 LH_tempGammaStruct(neuralBins,1) = {LH_GammaNeuro((((150*(neuralBins-1))+1)):(150*neuralBins))};
                 RH_tempGammaStruct(neuralBins,1) = {RH_GammaNeuro((((150*(neuralBins-1))+1)):(150*neuralBins))};
             end
         end
         
-        ProcData.sleep.parameters.deltaBandPower.LH = LH_tempDeltaStruct;
-        ProcData.sleep.parameters.deltaBandPower.RH = RH_tempDeltaStruct;
-        ProcData.sleep.parameters.thetaBandPower.LH = LH_tempThetaStruct;
-        ProcData.sleep.parameters.thetaBandPower.RH = RH_tempThetaStruct;
-        ProcData.sleep.parameters.gammaBandPower.LH = LH_tempGammaStruct;
-        ProcData.sleep.parameters.gammaBandPower.RH = RH_tempGammaStruct;
+        ProcData.sleep.parameters.cortical_LH.deltaBandPower = LH_tempDeltaStruct;
+        ProcData.sleep.parameters.cortical_RH.deltaBandPower = RH_tempDeltaStruct;
+        ProcData.sleep.parameters.hippocampus.thetaBandPower = hipptempThetaStruct;
+        ProcData.sleep.parameters.cortical_LH.gammaBandPower = LH_tempGammaStruct;
+        ProcData.sleep.parameters.cortical_RH.gammaBandPower = RH_tempGammaStruct;
         
         %% BLOCK PURPOSE: Create folder for binarized whisking and binarized force sensor
         binWhiskerAngle = ProcData.data.binWhiskerAngle;

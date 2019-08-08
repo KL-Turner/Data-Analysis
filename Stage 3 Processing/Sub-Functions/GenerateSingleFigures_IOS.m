@@ -37,34 +37,6 @@ for a = 1:size(procDataFileIDs, 1)
     
     % EMG
     EMG = ProcData.data.EMG;
-    
-%     % Neural bands
-%     deltaPower_LH = ProcData.data.cortical_LH.deltaBandPower;
-%     thetaPower_LH = ProcData.data.cortical_LH.thetaBandPower;
-%     alphaPower_LH = ProcData.data.cortical_LH.alphaBandPower;
-%     gammaPower_LH = ProcData.data.cortical_LH.gammaBandPower;
-%     deltaPower_RH = ProcData.data.cortical_RH.deltaBandPower;
-%     thetaPower_RH = ProcData.data.cortical_RH.thetaBandPower;
-%     alphaPower_RH = ProcData.data.cortical_RH.alphaBandPower;
-%     gammaPower_RH = ProcData.data.cortical_RH.gammaBandPower;
-%     deltaPower_Hipp = ProcData.data.cortical_RH.deltaBandPower;
-%     thetaPower_Hipp = ProcData.data.cortical_RH.thetaBandPower;
-%     alphaPower_Hipp = ProcData.data.cortical_RH.alphaBandPower;
-%     gammaPower_Hipp = ProcData.data.cortical_RH.gammaBandPower;
-%     figure;
-%     plot(deltaPower_LH)
-%     hold on;
-%     plot(alphaPower_LH)
-%     plot(thetaPower_LH)
-%     plot(gammaPower_LH)
-%     plot(deltaPower_RH)
-%     plot(thetaPower_RH)
-%     plot(alphaPower_RH)
-%     plot(gammaPower_RH)
-%     plot(deltaPower_Hipp)
-%     plot(thetaPower_Hipp)
-%     plot(alphaPower_Hipp)
-%     plot(gammaPower_Hipp)
 
     % Heart Rate
     heartRate = ProcData.data.heartRate;
