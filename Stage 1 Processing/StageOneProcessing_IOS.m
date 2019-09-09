@@ -41,6 +41,8 @@ if nargin < 2
     trackWhiskers = 1;
 end
 
+ldInput = input('Was laser doppler acquired during this trial? (y/n): ', 's'); disp(' ')
+
 %% BLOCK PURPOSE: [1] Preparing to create RawData files.
 disp('Analyzing Block [1] Preparing to create RawData file(s).'); disp(' ')
 % Load in each file one at a time, looping through the list
@@ -51,7 +53,7 @@ for a = 1:length(fileNames)
     if iscell(fileNames) == 1
         indFile = fileNames{a};
     else
-        indFile = fileName;
+        indFile = fileNames;
     end
     
     % Pull out the file ID for the file - this is the numerical string after the animal name/hemisphere
@@ -64,7 +66,7 @@ for a = 1:length(fileNames)
         %% BLOCK PURPOSE: [2] Import .tdms data (All channels).
         disp('Analyzing Block [2] Importing .tdms data from all channels.'); disp(' ')
         trialData = ReadInTDMSWhiskerTrials_IOS([fileID '.tdms']);
-        
+
         % Left, Right, and hippocampal electrodes
         dataRow = strcmp(trialData.data.names, 'Cortical_LH');  
         cortical_LH = trialData.data.vals(dataRow,:)/str2double(trialData.amplifierGain);
@@ -93,7 +95,18 @@ for a = 1:length(fileNames)
         
         dataRow = strcmp(trialData.data.names, 'EMG');
         EMG = trialData.data.vals(dataRow,:) / str2double(trialData.amplifierGain);
-               
+        
+        if strcmp(ldInput, 'y') == true
+            trialData2 = ReadInTDMSWhiskerTrials_LD_IOS([fileID '_LD.tdms']);
+            % LD backscatter
+            dataRow = strcmp(trialData2.data.names, 'LD_BackScatter');
+            backScatter = trialData2.data.vals(dataRow,:);
+            
+            % LD Flow
+            dataRow = strcmp(trialData2.data.names, 'LD_Flow');
+            flow = trialData2.data.vals(dataRow,:);
+        end
+        
         %% BLOCK PURPOSE: [3] Start Whisker tracker.
         disp('Analyzing Block [3] Starting whisker tracking.'); disp(' ')
         if trackWhiskers == true
@@ -140,6 +153,10 @@ for a = 1:length(fileNames)
         RawData.data.EMG = EMG;
         RawData.data.whiskerAngle = whiskerAngle;
         RawData.data.solenoids = solenoids;
+        if strcmp(ldInput, 'y') == true
+            RawData.data.backScatte = backScatter;
+            RawData.data.flow = flow;
+        end
      
         disp(['File Created. Saving RawData File ' num2str(a) '...']); disp(' ')
         save([trialData.animalID '_' fileID '_RawData'], 'RawData')
