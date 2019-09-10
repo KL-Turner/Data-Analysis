@@ -19,7 +19,7 @@ for a = 1:size(procDataFileIDs, 1)
 
     procDataFile = procDataFileIDs(a,:);
     load(procDataFile)
-    
+    disp(['Creating single trial summary figure ' num2str(a) ' of ' num2str(size(procDataFileIDs,1)) '...']); disp(' ')
     [animalID, fileDate, fileID] = GetFileInfo_IOS(procDataFile);
     strDay = ConvertDate_IOS(fileDate);
     
@@ -52,11 +52,11 @@ for a = 1:size(procDataFileIDs, 1)
     [D, C] = butter(4, 1/(ProcData.notes.CBVCamSamplingRate/2), 'low');
     LH_CBV = ProcData.data.CBV.LH;
     normLH_CBV = (LH_CBV - RestingBaselines.CBV.LH.(strDay))./(RestingBaselines.CBV.LH.(strDay));
-    filtLH_CBV = (filtfilt(D, C, normLH_CBV))*100;
+    filtLH_CBV = filtfilt(D, C, normLH_CBV)*100;
     
     RH_CBV = ProcData.data.CBV.RH;
     normRH_CBV = (RH_CBV - RestingBaselines.CBV.RH.(strDay))./(RestingBaselines.CBV.RH.(strDay));
-    filtRH_CBV = (filtfilt(D, C, normRH_CBV))*100;
+    filtRH_CBV = filtfilt(D, C, normRH_CBV)*100;
     
     %% Normalized neural spectrogram
     specDataFile = [animalID '_' fileID '_SpecData.mat'];
@@ -203,6 +203,7 @@ for a = 1:size(procDataFileIDs, 1)
     if ~exist(dirpath, 'dir')
         mkdir(dirpath);
     end
+    
     
     savefig(singleTrialFig, [dirpath animalID '_' fileID '_SingleTrialFig']);
     close(singleTrialFig)

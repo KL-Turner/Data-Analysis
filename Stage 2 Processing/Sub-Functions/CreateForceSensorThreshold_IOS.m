@@ -19,7 +19,7 @@ function [thresh] = CreateForceSensorThreshold_IOS(PSWF)
 
 y = hilbert(diff(PSWF));
 force = abs(y);
-figure;
+forceFig = figure;
 isok = 'n';
 
 while strcmp(isok,'y') == 0
@@ -40,5 +40,6 @@ while strcmp(isok,'y') == 0
     isok = input('Is this threshold okay? (y/n) ','s'); disp(' ')
     hold off
 end
+close(forceFig)
 
 end

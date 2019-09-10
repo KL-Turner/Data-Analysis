@@ -26,7 +26,7 @@ for a = 1:size(rawDataFiles,1)
     procDataFile = ([animalID '_' fileID '_ProcData.mat']);
     
     % Skip processing the file if it already exists
-%     if ~exist(procDataFile, 'file')
+    if ~exist(procDataFile, 'file')
         disp(['Generating ' procDataFile '...']); disp(' ')
         load(rawDataFile);
         
@@ -160,9 +160,9 @@ for a = 1:size(rawDataFiles,1)
         %% Save the processed data
         save(rawDataFile, 'RawData')
         save(procDataFile, 'ProcData')
-%     else
-%         disp([rawDataFile ' has already been processed. Continuing...']); disp(' ');
-%     end
+    else
+        disp([rawDataFile ' has already been processed. Continuing...']); disp(' ');
+    end
 end
 
 end

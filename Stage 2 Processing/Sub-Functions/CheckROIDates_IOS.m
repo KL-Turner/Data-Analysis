@@ -53,4 +53,13 @@ for b = 1:length(firstsFileOfDay)
     end
 end
 
+for b = 1:length(firstsFileOfDay)
+    fileID = firstsFileOfDay{1, b};
+    strDay = ConvertDate_IOS(fileID);
+    [frames] = ReadDalsaBinary_IOS(fileID, 256, 256);
+    ROIname = 'Cement';
+    [ROIs] = CreateBilateralROIs_IOS(frames{2},[ROIname '_' strDay], animalID, ROIs);
+    save([animalID '_ROIs.mat'], 'ROIs');
+end
+
 end

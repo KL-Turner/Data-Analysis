@@ -19,10 +19,10 @@ for a = 1:size(trainingDataFileIDs,1)
    trainingTableFileID = trainingDataFileIDs(a,:); 
    if a == 1
        load(trainingTableFileID)
-       joinedTable = T;
+       joinedTable = trainingTable;
    else
        load(trainingTableFileID)
-       joinedTable = vertcat(joinedTable, T);
+       joinedTable = vertcat(joinedTable, trainingTable);
    end
 end
 
@@ -33,7 +33,6 @@ t = templateSVM('Standardize',true,'KernelFunction','gaussian');
 
 disp('Training Support Vector Machine...'); disp(' ')
 SVMModel = fitcecoc(X,Y,'Learners',t,'FitPosterior',true,'ClassNames',{'Not Sleep','NREM','REM'},'Verbose',2);
-
 disp('Cross-validating (10-fold) the support vector machine classifier...'); disp(' ')
 CVSVMModel = crossval(SVMModel);
 

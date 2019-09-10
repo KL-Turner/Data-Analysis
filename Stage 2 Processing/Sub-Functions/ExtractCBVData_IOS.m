@@ -22,9 +22,8 @@ for a = 1:size(rawDataFiles, 1)
     strDay = ConvertDate_IOS(fileDate);
     load(rawDataFile)
     
-    [frames] = ReadDalsaBinary_IOS([fileID '_WindowCam.bin'], RawData.notes.CBVCamPixelHeight, RawData.notes.CBVCamPixelWidth);
-    
-    if ~isfield(RawData.data, 'CBV')
+%     if ~isfield(RawData.data, 'CBV')
+        [frames] = ReadDalsaBinary_IOS([fileID '_WindowCam.bin'], RawData.notes.CBVCamPixelHeight, RawData.notes.CBVCamPixelWidth);
         for b = 1:length(ROInames)
             ROIname = [ROInames{1, b} '_' strDay];
             disp(['Extracting ' ROIname ' ROI CBV data from ' rawDataFile '...']); disp(' ')
@@ -35,9 +34,9 @@ for a = 1:size(rawDataFiles, 1)
             RawData.data.CBV.(ROIname) = meanIntensity;
         end
         save(rawDataFile, 'RawData')
-    else
-        disp([rawDataFile ' CBV already extracted. Continuing...']); disp(' ')
-    end
+%     else
+%         disp([rawDataFile ' CBV already extracted. Continuing...']); disp(' ')
+%     end
 end
 
 end

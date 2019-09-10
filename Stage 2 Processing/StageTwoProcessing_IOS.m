@@ -32,7 +32,7 @@ rawDataFileIDs = char(rawDataFiles);
 
 %% BLOCK PURPOSE: [1] Create bilateral regions of interest for the windows
 disp('Analyzing Block [1] Creating bilateral regions of interest.'); disp(' ')
-ROInames = {'LH', 'RH', 'LH_Electrode', 'RH_Electrode'};
+ROInames = {'LH', 'RH', 'LH_Electrode', 'RH_Electrode', 'Cement'};
 ROIFileDir = dir('*_ROIs.mat');
 if isempty(ROIFileDir) == true
     ROIs = [];

@@ -19,9 +19,9 @@ function [thresh1,thresh2] = CreateWhiskThreshold_IOS(angl, fs)
 
 isok = 'n';
 dd_wwf = abs((diff(angl, 2)))*fs^2;
+whiskFig = figure;
 
 while strcmp(isok,'y') == 0
-    close all; 
     plot(dd_wwf,'k');
     thresh2 = input('No Threshold for volitional whisks found. Please enter a threshold: '); disp(' ')
     thresh1 = input('No Threshold for resting behavior found. Please enter a threshold: '); disp(' ')
@@ -41,6 +41,7 @@ while strcmp(isok,'y') == 0
     linkaxes([ax1, ax2, ax3], 'x');
     isok = input('Is this threshold okay? (y/n) ','s'); disp(' ')
 end
+close(whiskFig)
 
 end
 

@@ -48,11 +48,11 @@ AudSol = ProcData.data.solenoids.AudSol;
 [D, C] = butter(4, 1/(ProcData.notes.CBVCamSamplingRate/2), 'low');
 LH_CBV = ProcData.data.CBV.LH;
 normLH_CBV = (LH_CBV - RestingBaselines.CBV.LH.(strDay))./(RestingBaselines.CBV.LH.(strDay));
-filtLH_CBV = (filtfilt(D, C, normLH_CBV))*100;
+filtLH_CBV = detrend((filtfilt(D, C, normLH_CBV))*100, 'constant');
 
 RH_CBV = ProcData.data.CBV.RH;
 normRH_CBV = (RH_CBV - RestingBaselines.CBV.RH.(strDay))./(RestingBaselines.CBV.RH.(strDay));
-filtRH_CBV = (filtfilt(D, C, normRH_CBV))*100;
+filtRH_CBV = detrend((filtfilt(D, C, normRH_CBV))*100, 'constant');
 
 %% Neural data
 deltaPower_LH = ProcData.data.cortical_LH.deltaBandPower;
