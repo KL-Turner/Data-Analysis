@@ -26,7 +26,7 @@ for a = 1:size(rawDataFiles,1)
     procDataFile = ([animalID '_' fileID '_ProcData.mat']);
     
     % Skip processing the file if it already exists
-    if ~exist(procDataFile, 'file')
+%     if ~exist(procDataFile, 'file')
         disp(['Generating ' procDataFile '...']); disp(' ')
         load(rawDataFile);
         
@@ -157,12 +157,20 @@ for a = 1:size(rawDataFiles,1)
         smoothEMGPower = filtfilt(sos2, g2, filtEMG.^2);
         ProcData.data.EMG = max(resample(smoothEMGPower, ProcData.notes.dsFs, ProcData.notes.analogSamplingRate), 0);
         
+        %% Laser Doppler
+        if isfield(RawData.data, 'backScatter') == true
+            trimmedBackScatter = RawData.data.backScatter(1:min(analogExpectedLength, length(RawData.data.backScatter)));
+            trimmedFlow = RawData.data.flow(1:min(analogExpectedLength, length(RawData.data.flow)));
+            ProcData.data.backScatter = max(resample(trimmedBackScatter, ProcData.notes.dsFs, ProcData.notes.analogSamplingRate), 0);
+            ProcData.data.flow = max(resample(trimmedFlow, ProcData.notes.dsFs, ProcData.notes.analogSamplingRate), 0);    
+        end
+        
         %% Save the processed data
         save(rawDataFile, 'RawData')
         save(procDataFile, 'ProcData')
-    else
-        disp([rawDataFile ' has already been processed. Continuing...']); disp(' ');
-    end
+%     else
+%         disp([rawDataFile ' has already been processed. Continuing...']); disp(' ');
+%     end
 end
 
 end

@@ -156,10 +156,10 @@ for a = 1:size(procDataFileIDs, 1)
         RH_NormElectrodeCBV = (RH_ElectrodeCBV-RestingBaselines.CBV.RH_Electrode.(strDay))/RestingBaselines.CBV.RH_Electrode.(strDay);
         
         [D, C] = butter(4, 1/(30/2), 'low');
-        LH_FiltCBV = filtfilt(D, C, LH_NormCBV);
-        RH_FiltCBV = filtfilt(D, C, RH_NormCBV);
-        LH_ElectrodeFiltCBV = filtfilt(D, C, LH_NormElectrodeCBV);
-        RH_ElectrodeFiltCBV = filtfilt(D, C, RH_NormElectrodeCBV);
+        LH_FiltCBV = detrend(filtfilt(D, C, LH_NormCBV), 'constant');
+        RH_FiltCBV = detrend(filtfilt(D, C, RH_NormCBV), 'constant');
+        LH_ElectrodeFiltCBV = detrend(filtfilt(D, C, LH_NormElectrodeCBV), 'constant');
+        RH_ElectrodeFiltCBV = detrend(filtfilt(D, C, RH_NormElectrodeCBV), 'constant');
         
         LH_tempCBVStruct = cell(180,1);   % Pre-allocate cell array
         RH_tempCBVStruct = cell(180,1);

@@ -40,13 +40,13 @@ for a = 1:length(procDataFileIDs)
             xEndVal = b*5;
             xInds = xStartVal:1:xEndVal;
             h1 = scatter(xInds,yInds);
-%             if b <= 60
-%                 xlim([1 300])
-%             elseif b >= 61 && b <= 120
-%                 xlim([300 600])
-%             elseif b >= 121 && b <= 180
-%                 xlim([600 900])
-%             end
+            if b <= 60
+                xlim([1 300])
+            elseif b >= 61 && b <= 120
+                xlim([300 600])
+            elseif b >= 121 && b <= 180
+                xlim([600 900])
+            end
             
             [updatedGUI] = SelectBehavioralStateGUI_SVM;
             while buttonState == 0

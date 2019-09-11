@@ -23,7 +23,7 @@ end
 for b = 1:length(nanCheck)
     if nanCheck{b,1} ~= 0
         disp('WARNING - NaNs found in CBV array'); disp(' ')
-%         keyboard
+        keyboard
     end
 end
 
