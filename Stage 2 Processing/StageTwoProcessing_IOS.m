@@ -58,7 +58,8 @@ procDataFiles = {procDataFileStruct.name}';
 procDataFileIDs = char(procDataFiles);
 ExtractHeartRate_IOS(procDataFileIDs)
 
-%% BLOCK PURPOSE: [5] Check pixel drift 
+%% BLOCK PURPOSE: [5] Check/Correct pixel drift 
 CheckPixelDrift(procDataFileIDs)
+CorrectPixelDrift(procDataFileIDs)
 
 disp('Stage Two Processing - Complete.'); disp(' ')

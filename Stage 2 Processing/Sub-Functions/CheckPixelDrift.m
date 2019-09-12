@@ -37,7 +37,7 @@ for b = 1:length(firstsFileOfDay)
     p = 1;
     for c = 1:size(procDataFileIDs,1)
         procDataFileID = procDataFileIDs(c,:);
-        if strfind(procDataFileID, fileDate) == 6 
+        if strfind(procDataFileID, fileDate) >= 1 
             indDayProcDataFileList{p,1} = procDataFileID;
             p = p + 1;
         end
@@ -49,32 +49,36 @@ for b = 1:length(firstsFileOfDay)
         LH_Data = ProcData.data.CBV.LH;
         RH_Data = ProcData.data.CBV.RH;
         cement_Data = ProcData.data.CBV.Cement; 
-        
         catLH_Data = horzcat(catLH_Data, LH_Data);
         catRH_Data = horzcat(catRH_Data, RH_Data);
         catCement_Data = horzcat(catCement_Data, cement_Data);
     end
     
-    LH_p = polyfit((1:length(catLH_Data))/fs,catLH_Data,3);
-    RH_p = polyfit((1:length(catLH_Data))/fs,catRH_Data,3);
-    
-    LH_y = polyval(LH_p,(1:length(catLH_Data))/fs,LH_p);
-    RH_y = polyval(RH_p,(1:length(catRH_Data))/fs,RH_p);
-    
+      
+    [B, A] = butter(4, 0.1/(30/2), 'low');
+    filtCatCement_Data = filtfilt(B, A, catCement_Data);    % Filtered heart rate signal
+    correctedCatLH_Data = (catLH_Data - filtCatCement_Data);
+    correctedCatRH_Data = (catRH_Data - filtCatCement_Data);
+    LH_DC_reset = mean(correctedCatLH_Data);
+    RH_DC_reset = mean(correctedCatRH_Data);
+    LH_1kDiff = 1000 - LH_DC_reset;
+    RH_1kDiff = 1000 - RH_DC_reset;
+    LH_DC_shift = ones(1,length(correctedCatLH_Data))*LH_1kDiff;
+    RH_DC_shift = ones(1,length(correctedCatRH_Data))*RH_1kDiff;
+    shiftedCorrectedCatLH_Data = correctedCatLH_Data + LH_DC_shift;
+    shiftedCorrectedCatRH_Data = correctedCatRH_Data + RH_DC_shift;
+
     figure;
     plot((1:length(catLH_Data))/fs, catLH_Data, 'r')
     hold on
     plot((1:length(catRH_Data))/fs, catRH_Data, 'b')
     plot((1:length(catCement_Data))/fs, catCement_Data, 'k')
-    plot((1:length(catLH_Data))/fs, LH_y, 'k');
-    plot((1:length(catRH_Data))/fs, RH_y, 'k');
-
+    plot((1:length(catCement_Data))/fs, filtCatCement_Data, 'g')
+    plot((1:length(catCement_Data))/fs, shiftedCorrectedCatLH_Data, 'm')
+    plot((1:length(catCement_Data))/fs, shiftedCorrectedCatRH_Data, 'c')
     title('Pixel Drift')
     xlabel('Time (sec)')
     ylabel('Mean pixel val')
-    legend('LH', 'RH', 'Cement', 'LH polyfit', 'RH polyfit')
-    
-    catLH_Data = catLH_Data - LH_y;
-    catRH_Data = catRH_Data - RH_y;
+    legend('LH', 'RH', 'Cement', 'LH corrected', 'RH corrected')
     
 end
