@@ -32,14 +32,62 @@ for a = 1:length(procDataFileIDs)
         for b = 1:numBins
             global buttonState %#ok<TLEV>
             buttonState = 0;
-            subplot(7,1,3)
-            ylimits = ylim;
-            yMax = ylimits(2);
-            yInds = ones(1,5)*yMax*1.2;
+            
             xStartVal = (b*5)-4;
             xEndVal = b*5;
             xInds = xStartVal:1:xEndVal;
-            h1 = scatter(xInds,yInds);
+                 
+%             subplot(6,1,1)
+%             yyaxis left
+%             ylimits1 = ylim;
+%             yMax1 = ylimits1(2);
+%             yInds1 = ones(1,5)*yMax1*1.2;
+%             hold on
+%             h1 = scatter(xInds,yInds1);
+%             
+%             subplot(6,1,2)
+%             yyaxis left
+%             ylimits2 = ylim;
+%             yMax2 = ylimits2(2);
+%             yInds2 = ones(1,5)*yMax2*1.2;
+%             ylim([-20 yInds2(1)])
+%             hold on
+%             h2 = scatter(xInds,yInds2);
+%             yyaxis right
+%             ylim([5 15])
+            
+            subplot(6,1,3)
+            yyaxis left
+            ylimits3 = ylim;
+            yMax3 = ylimits3(2);
+            yInds3 = ones(1,5)*yMax3*1.2;
+            hold on
+            h3 = scatter(xInds,yInds3);
+%             
+%             subplot(6,1,4)
+%             yyaxis left
+%             ylimits4 = ylim;
+%             yMax4 = ylimits4(2);
+%             yInds4 = ones(1,5)*110;
+%             hold on
+%             h4 = scatter(xInds,yInds4);
+%             
+%             subplot(6,1,5)
+%             yyaxis left
+%             ylimits5 = ylim;
+%             yMax5 = ylimits5(2);
+%             yInds5 = ones(1,5)*110;
+%             hold on
+%             h5 = scatter(xInds,yInds5);
+%             
+%             subplot(6,1,6)
+%             yyaxis left
+%             ylimits6 = ylim;
+%             yMax6 = ylimits6(2);
+%             yInds6 = ones(1,5)*110;
+%             hold on
+%             h6 = scatter(xInds,yInds6);
+            
             if b <= 60
                 xlim([1 300])
             elseif b >= 61 && b <= 120
@@ -68,7 +116,12 @@ for a = 1:length(procDataFileIDs)
                 end
                 ...
             end
-        delete(h1)
+%         delete(h1)
+%         delete(h2)
+        delete(h3)
+%         delete(h4)
+%         delete(h5)
+%         delete(h6)
         end
         close(figHandle)
         paramsTable.behavState = behavioralState;

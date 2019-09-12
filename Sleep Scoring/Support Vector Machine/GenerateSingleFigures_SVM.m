@@ -115,7 +115,7 @@ end
 figHandle = figure;
 
 % Force sensor and EMG
-ax1 = subplot(7,1,1);
+ax1 = subplot(6,1,1);
 fileID2 = strrep(fileID, '_', ' ');
 plot((1:length(filtForceSensor))/ProcData.notes.dsFs, filtForceSensor, 'color', colors_IOS('sapphire'))
 title([animalID ' IOS behavioral characterization and CBV dynamics for ' fileID2])
@@ -131,7 +131,7 @@ set(gca,'box','off')
 axis tight
 
 % Whisker angle and heart rate
-ax2 = subplot(7,1,2);
+ax2 = subplot(6,1,2);
 plot((1:length(filteredWhiskerAngle))/ProcData.notes.dsFs, -filteredWhiskerAngle, 'color', colors_IOS('electric purple'))
 ylabel('Angle (deg)')
 xlim([0 ProcData.notes.trialDuration_sec])
@@ -139,13 +139,14 @@ ylim([-20 60])
 yyaxis right
 plot((1:length(heartRate)), heartRate, 'color', colors_IOS('dark sea green'), 'LineWidth', 2)
 ylabel('Heart Rate (Hz)')
+ylim([6 15])
 set(gca,'TickLength',[0, 0])
 set(gca,'Xticklabel',[])
 set(gca,'box','off')
 axis tight
 
 % CBV and behavioral indeces
-ax3 = subplot(7,1,3);
+ax3 = subplot(6,1,3);
 plot((1:length(filtLH_CBV))/ProcData.notes.CBVCamSamplingRate, filtLH_CBV, 'color', colors_IOS('dark candy apple red'))
 hold on;
 plot((1:length(filtRH_CBV))/ProcData.notes.CBVCamSamplingRate, filtRH_CBV, 'color', colors_IOS('rich black'))
@@ -163,23 +164,23 @@ set(gca,'Xticklabel',[])
 set(gca,'box','off')
 axis tight
 
-% Neural bands
-ax4 = subplot(7,1,4);
-plot((1:length(filtDeltaPower_LH))/ProcData.notes.CBVCamSamplingRate, filtDeltaPower_LH, 'color', colors_IOS('dark candy apple red'))
-hold on
-plot((1:length(filtDeltaPower_RH))/ProcData.notes.CBVCamSamplingRate, filtDeltaPower_RH, 'color', colors_IOS('coral red'))
-plot((1:length(filtGammaPower_LH))/ProcData.notes.CBVCamSamplingRate, filtGammaPower_LH, 'color', colors_IOS('electric blue'))
-plot((1:length(filtGammaPower_RH))/ProcData.notes.CBVCamSamplingRate, filtGammaPower_RH, 'color', colors_IOS('sapphire'))
-plot((1:length(filtThetaPower_Hipp))/ProcData.notes.CBVCamSamplingRate, filtThetaPower_Hipp, 'color', colors_IOS('vegas gold'))
-ylabel('Normalized Power)')
-xlim([0 ProcData.notes.trialDuration_sec])
-set(gca,'TickLength',[0, 0])
-set(gca,'Xticklabel',[])
-set(gca,'box','off')
-axis tight
+% % Neural bands
+% ax4 = subplot(6,1,4);
+% plot((1:length(filtDeltaPower_LH))/ProcData.notes.CBVCamSamplingRate, filtDeltaPower_LH, 'color', colors_IOS('dark candy apple red'))
+% hold on
+% plot((1:length(filtDeltaPower_RH))/ProcData.notes.CBVCamSamplingRate, filtDeltaPower_RH, 'color', colors_IOS('coral red'))
+% plot((1:length(filtGammaPower_LH))/ProcData.notes.CBVCamSamplingRate, filtGammaPower_LH, 'color', colors_IOS('electric blue'))
+% plot((1:length(filtGammaPower_RH))/ProcData.notes.CBVCamSamplingRate, filtGammaPower_RH, 'color', colors_IOS('sapphire'))
+% plot((1:length(filtThetaPower_Hipp))/ProcData.notes.CBVCamSamplingRate, filtThetaPower_Hipp, 'color', colors_IOS('vegas gold'))
+% ylabel('Normalized Power)')
+% xlim([0 ProcData.notes.trialDuration_sec])
+% set(gca,'TickLength',[0, 0])
+% set(gca,'Xticklabel',[])
+% set(gca,'box','off')
+% axis tight
 
 % Left cortical electrode spectrogram
-ax5 = subplot(7,1,5);
+ax4 = subplot(6,1,4);
 semilog_imagesc_IOS(T, F, cortical_LHnormS, 'y')
 axis xy
 caxis([-1 2])
@@ -194,7 +195,7 @@ ylabel('Left cortical LFP')
 set(gca,'Yticklabel', [])
 
 % Right cortical electrode spectrogram
-ax6 = subplot(7,1,6);
+ax5 = subplot(6,1,5);
 semilog_imagesc_IOS(T, F, cortical_RHnormS, 'y')
 axis xy
 caxis([-1 2])
@@ -209,7 +210,7 @@ ylabel('Right cortical LFP')
 set(gca,'Yticklabel', [])
 
 % Hippocampal electrode spectrogram
-ax7 = subplot(7,1,7);
+ax6 = subplot(6,1,6);
 semilog_imagesc_IOS(T, F, hippocampusNormS, 'y')
 caxis([-0.5 0.75])
 xlabel('Time (sec)')
@@ -221,6 +222,6 @@ yyaxis right
 ylabel('Hippocampal LFP')
 set(gca,'Yticklabel', [])
 
-linkaxes([ax1 ax2 ax3 ax4 ax5 ax6 ax7], 'x')
+linkaxes([ax1 ax2 ax3 ax4 ax5 ax6], 'x')
 
 end

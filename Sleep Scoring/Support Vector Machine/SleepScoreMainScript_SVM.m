@@ -68,4 +68,3 @@ cd(curDir)
 %% Use SVM model to sleep score new data
 PredictBehaviorEvents_SVM(procDataFileIDs, SVMModel)
 
-
