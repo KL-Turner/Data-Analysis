@@ -46,25 +46,32 @@ AddSleepParameters_SVM(procDataFileIDs, RestingBaselines)
 % This needs to be run for all testing/unseen data run through the SVM model
 CreateModelDataSet_SVM(procDataFileIDs)
 
+%% Update all '*_TrainingData.mat' files with potentially updated ModelData sets
+UpdateTrainingDataSets(procDataFileIDs)
+
 %% Create '*_TrainingData.mat' files for each selected '*_ProcData.mat' file (uigetfile).
 % Run this to create manually scored behavioral states for SVM model training
-CreateTrainingDataSet_SVM(RestingBaselines)
+CreateTrainingDataSet_SVM(procDataFileIDs,RestingBaselines)
 
 %% Create SVM Model using manually-scored training data from '*_TrainingData.mat' files.
 % Saves model to directory containing the training data
 TrainModel_SVM(trainingDataFileIDs);
+PredictBehaviorEvents_SVM(modelDataFileIDs)
+CompareTrainingSet(modelDataFileIDs, RestingBaselines)
 
-%% Load SVM model
+%% Load SVM model, Use SVM model to sleep score new data
 disp('Select file location of the support vector machine classifier'); disp(' ')
 modelLocation = uigetdir;
 curDir = cd;
 cd(modelLocation)
-modelFileStruct = dir('*_TrainingTable.mat');
+modelFileStruct = dir('*_SleepScoringModel.mat');
 modelFileName = {modelFileStruct.name}';
 modelFile = char(modelFileName);
 load(modelFile)
 cd(curDir)
 
-%% Use SVM model to sleep score new data
-PredictBehaviorEvents_SVM(procDataFileIDs, SVMModel)
+PredictBehaviorEvents_SVM(modelDataFileIDs, SVMModel)
+
+%% Check model predictions
+VerifyModelPredictions(modelDataFileIDs, RestingBaselines)
 

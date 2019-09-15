@@ -1,4 +1,4 @@
-function [] = CreateTrainingDataSet_SVM(RestingBaselines)
+function [] = CreateTrainingDataSet_SVM(procDataFileIDs,RestingBaselines)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -15,9 +15,8 @@ function [] = CreateTrainingDataSet_SVM(RestingBaselines)
 %   Last Revised: July 26th, 2019
 %________________________________________________________________________________________________________________________
 
-procDataFileIDs = uigetfile('*_ProcData.mat','Multiselect','on');
 for a = 1:length(procDataFileIDs)
-    procDataFileID = procDataFileIDs{1,a};
+    procDataFileID = procDataFileIDs(a,:);
     modelDataFileID = [procDataFileID(1:end-12) 'ModelData.mat'];
     trainingDataFileID = [procDataFileID(1:end-12) 'TrainingData.mat'];
     if ~exist(trainingDataFileID, 'file')

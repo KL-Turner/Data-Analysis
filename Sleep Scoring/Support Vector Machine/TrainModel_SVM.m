@@ -27,12 +27,12 @@ for a = 1:size(trainingDataFileIDs,1)
 end
 
 [animalID,~,~] = GetFileInfo_IOS(trainingTableFileID);
-X = joinedTable(:,1:12);
-Y = joinedTable(:,13);
+X = joinedTable(:,1:7);
+Y = joinedTable(:,8);
 t = templateSVM('Standardize',true,'KernelFunction','gaussian');
 
 disp('Training Support Vector Machine...'); disp(' ')
-SVMModel = fitcecoc(X,Y,'Learners',t,'FitPosterior',true,'ClassNames',{'Not Sleep','NREM','REM'},'Verbose',2);
+SVMModel = fitcecoc(X,Y,'Learners',t,'FitPosterior',true,'ClassNames',{'Not Sleep','NREM Sleep','REM Sleep'},'Verbose',2);
 disp('Cross-validating (10-fold) the support vector machine classifier...'); disp(' ')
 CVSVMModel = crossval(SVMModel);
 

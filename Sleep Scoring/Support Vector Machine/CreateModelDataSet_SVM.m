@@ -18,9 +18,8 @@ function [] = CreateModelDataSet_SVM(procDataFileIDs)
 for a = 1:size(procDataFileIDs,1)
     procDataFileID = procDataFileIDs(a,:);
     modelDataSetID = [procDataFileID(1:end-12) 'ModelData.mat'];
-%     if ~exist(modelDataSetID)
         load(procDataFileID)
-        disp(['Creating model data set for ' procDataFileID '(' num2str(a) '/' num2str(size(procDataFileIDs,1)) ')' ]); disp(' ')
+        disp(['Creating model data set for ' procDataFileID '... (' num2str(a) '/' num2str(size(procDataFileIDs,1)) ')' ]); disp(' ')
         %% Create table to send into SVM model
         variableNames = {'minRefl', 'maxCortDelta', 'maxCortGamma', 'maxHippTheta', 'numWhiskEvents', 'numForceEvents', 'avgEMG', 'avgHeartRate'};
         % pre-allocation
@@ -76,7 +75,6 @@ for a = 1:size(procDataFileIDs,1)
             numWhiskEvents_column, numForceEvents_column, avgEMG_column, avgHeartRate_column,...
             'VariableNames', variableNames);
         save(modelDataSetID, 'paramsTable')
-%     end
 end
 
 end
