@@ -46,7 +46,7 @@ procDataFileIDs = char(procDataFiles);
 [animalID, ~, ~] = GetFileInfo_IOS(procDataFileIDs(1,:));
 
 targetMinutes = input('Input the target minutes for the resting baseline: '); disp(' ')
-dataTypes = {'CBV', 'cortical_LH', 'cortical_RH', 'hippocampus'};
+dataTypes = {'CBV', 'cortical_LH', 'cortical_RH', 'hippocampus', 'EMG'};
 neuralDataTypes = {'cortical_LH', 'cortical_RH', 'hippocampus'};
 
 %% BLOCK PURPOSE: [1] Categorize data 

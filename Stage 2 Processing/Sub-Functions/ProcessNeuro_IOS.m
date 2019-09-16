@@ -25,13 +25,13 @@ switch neurType
     case 'MUA'
         fpass = [300 3000];
     case 'Gamma'
-        fpass = [40 100];
+        fpass = [30 100];
     case 'Beta'
         fpass = [13 30];
     case 'Alpha'
-        fpass = [8 12];
+        fpass = [10 13];
     case 'Theta'
-        fpass = [4 8];
+        fpass = [4 10];
     case 'Delta'
         fpass = [1 4];
 end

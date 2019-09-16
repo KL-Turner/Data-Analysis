@@ -33,7 +33,7 @@ filtForceSensor = filtfilt(B, A, ProcData.data.forceSensor);
 binForce = ProcData.data.binForceSensor;
 
 % EMG
-EMG = ProcData.data.EMG;
+EMG = ProcData.data.EMG.emg;
 
 % Heart Rate
 heartRate = ProcData.data.heartRate;
@@ -122,7 +122,7 @@ title([animalID ' IOS behavioral characterization and CBV dynamics for ' fileID2
 ylabel('Force Sensor (Volts)')
 xlim([0 ProcData.notes.trialDuration_sec])
 yyaxis right
-plot((1:length(EMG))/ProcData.notes.dsFs, log10(EMG), 'color', colors_IOS('deep carrot orange'))
+plot((1:length(EMG))/ProcData.notes.dsFs, EMG, 'color', colors_IOS('deep carrot orange'))
 ylabel('EMG (Volts^2)')
 xlim([0 ProcData.notes.trialDuration_sec])
 set(gca,'TickLength',[0, 0])

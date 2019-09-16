@@ -152,10 +152,20 @@ for a = 1:size(rawDataFiles,1)
         [z1, p1, k1] = butter(4, fpass/(ProcData.notes.analogSamplingRate/2));
         [sos1, g1] = zp2sos(z1, p1, k1);
         filtEMG = filtfilt(sos1, g1, trimmedEMG - mean(trimmedEMG));
-        [z2, p2, k2] = butter(4, 5/(ProcData.notes.analogSamplingRate/2), 'low');
-        [sos2, g2] = zp2sos(z2, p2, k2);
-        smoothEMGPower = filtfilt(sos2, g2, filtEMG.^2);
-        ProcData.data.EMG = max(resample(smoothEMGPower, ProcData.notes.dsFs, ProcData.notes.analogSamplingRate), 0);
+        kernelWidth = 0.5;
+        smoothingKernel = gausswin(kernelWidth*ProcData.notes.analogSamplingRate)/sum(gausswin(kernelWidth*ProcData.notes.analogSamplingRate));
+        EMGPwr = log10(conv(filtEMG.^2, smoothingKernel, 'same'));
+        resampEMG = resample(EMGPwr, ProcData.notes.dsFs, ProcData.notes.analogSamplingRate);
+        ProcData.data.EMG.emg = resampEMG;
+        
+        % nancheck
+        if sum(isnan(ProcData.data.EMG.emg)) > 0
+            keyboard
+        end
+        
+        if sum(isinf(ProcData.data.EMG.emg)) > 0
+            keyboard
+        end    
         
         %% Laser Doppler
         if isfield(RawData.data, 'backScatter') == true

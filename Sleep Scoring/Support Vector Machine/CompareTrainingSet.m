@@ -158,8 +158,8 @@ for a = 1:size(modelDataFileIDs,1)
     yInds_manualREMSleep = manualREMSleepInds*yMax6*1.6;
     hold on
     scatter(xInds,yInds_svmNotSleep, 'MarkerEdgeColor', 'k', 'MarkerFaceColor', 'k');
-    scatter(xInds,yInds_svmNREMSleep, 'MarkerEdgeColor', 'b', 'MarkerFaceColor', 'r');
-    scatter(xInds,yInds_svmREMSleep, 'MarkerEdgeColor', 'r', 'MarkerFaceColor', 'b');
+    scatter(xInds,yInds_svmNREMSleep, 'MarkerEdgeColor', 'b', 'MarkerFaceColor', 'b');
+    scatter(xInds,yInds_svmREMSleep, 'MarkerEdgeColor', 'r', 'MarkerFaceColor', 'r');
     scatter(xInds,yInds_manualNotSleep, 'MarkerEdgeColor', 'k', 'MarkerFaceColor', 'k');
     scatter(xInds,yInds_manualNREMSleep, 'MarkerEdgeColor', 'b', 'MarkerFaceColor', 'b');
     scatter(xInds,yInds_manualREMSleep, 'MarkerEdgeColor', 'r', 'MarkerFaceColor', 'r');

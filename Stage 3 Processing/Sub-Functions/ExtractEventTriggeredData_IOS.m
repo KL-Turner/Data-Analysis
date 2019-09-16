@@ -53,6 +53,8 @@ for a = 1:length(dataTypes)
     dataType = char(dataTypes(a));
     if strcmp(dataType, 'CBV')
         subdataTypes = {'LH', 'LH_Electrode', 'RH', 'RH_Electrode'};
+    elseif strcmp(dataType, 'EMG')
+        subdataTypes = {'emg'};
     else
         subdataTypes = {'deltaBandPower', 'thetaBandPower', 'alphaBandPower', 'betaBandPower', 'gammaBandPower'};
     end
@@ -68,7 +70,7 @@ for a = 1:length(dataTypes)
         [animal, fileDate, fileID] = GetFileInfo_IOS(procdataFiles(b,:));
 
         % Get the types of behaviors present in the file (stim,whisk,rest)
-        holddata = fieldnames(ProcData.Flags);
+        holddata = fieldnames(ProcData.flags);
         behaviorFields = holddata([1 2],1);
 
         for c = 1:length(subdataTypes)
@@ -88,7 +90,7 @@ for a = 1:length(dataTypes)
 
                 % Create behavioral subfields for the temp structure, if needed
                 if not(isfield(temp.(sDT), behaviorFields{d}))
-                    subFields = fieldnames(ProcData.Flags.(behaviorFields{d}));
+                    subFields = fieldnames(ProcData.flags.(behaviorFields{d}));
                     blankCell = cell(1, size(procdataFiles, 1));
                     structVals = cell(size(subFields));
                     structVals(:) = {blankCell};
@@ -107,7 +109,7 @@ for a = 1:length(dataTypes)
                     data = ProcData.data.(fieldName2);
                 end
 
-                data.Flags = ProcData.Flags;
+                data.Flags = ProcData.flags;
                 data.notes = ProcData.notes;
 
                 % Extract the data from the epoch surrounding the event

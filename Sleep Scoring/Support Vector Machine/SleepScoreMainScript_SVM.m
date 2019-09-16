@@ -38,6 +38,11 @@ baselinesFile = {baselinesFileStruct.name}';
 baselinesFileID = char(baselinesFile);
 load(baselinesFileID)
 
+modelFileStruct = dir('*_SleepScoringModel.mat');
+modelFileName = {modelFileStruct.name}';
+modelFile = char(modelFileName);
+load(modelFile)
+
 %% Add a 'sleep' folder with a 'parameters' field to each '*_ProcData.mat' file in the directory. 
 % This needs to be run first for all data related to sleep scoring
 AddSleepParameters_SVM(procDataFileIDs, RestingBaselines)
@@ -56,7 +61,7 @@ CreateTrainingDataSet_SVM(procDataFileIDs,RestingBaselines)
 %% Create SVM Model using manually-scored training data from '*_TrainingData.mat' files.
 % Saves model to directory containing the training data
 TrainModel_SVM(trainingDataFileIDs);
-PredictBehaviorEvents_SVM(modelDataFileIDs)
+PredictBehaviorEvents_SVM(modelDataFileIDs, SVMModel)
 CompareTrainingSet(modelDataFileIDs, RestingBaselines)
 
 %% Load SVM model, Use SVM model to sleep score new data

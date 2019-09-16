@@ -95,13 +95,13 @@ end
 %% Categorize data by behavior
 
 % Retrieve details on whisking events
-[ProcData.Flags.whisk] = GetWhiskingdata_IOS(ProcData, binWhiskers);
+[ProcData.flags.whisk] = GetWhiskingdata_IOS(ProcData, binWhiskers);
 
 % Retrieve details on puffing events
-[ProcData.Flags.stim] = GetStimdata_IOS(ProcData);
+[ProcData.flags.stim] = GetStimdata_IOS(ProcData);
 
 % Identify and separate resting data
-[ProcData.Flags.rest] = GetRestdata(ProcData);
+[ProcData.flags.rest] = GetRestdata(ProcData);
 
 % Save ProcData structure
 save(procDataFile, 'ProcData');

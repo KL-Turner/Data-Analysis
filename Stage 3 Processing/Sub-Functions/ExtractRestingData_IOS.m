@@ -21,6 +21,8 @@ for a = 1:length(dataTypes)
     dataType = dataTypes(a);
     if strcmp(dataType, 'CBV')
         subDataTypes = {'LH', 'LH_Electrode', 'RH', 'RH_Electrode'};
+    elseif strcmp(dataType, 'EMG')
+        subDataTypes = {'emg'};
     else
         subDataTypes = {'deltaBandPower', 'thetaBandPower', 'alphaBandPower', 'betaBandPower', 'gammaBandPower'};
     end
@@ -49,9 +51,9 @@ for a = 1:length(dataTypes)
             expectedLength = ProcData.notes.trialDuration_sec*Fs;
 
             % Get information about periods of rest from the loaded file
-            trialEventTimes = ProcData.Flags.rest.eventTime';
-            trialPuffDistances = ProcData.Flags.rest.puffDistance;
-            trialDurations = ProcData.Flags.rest.duration';
+            trialEventTimes = ProcData.flags.rest.eventTime';
+            trialPuffDistances = ProcData.flags.rest.puffDistance;
+            trialDurations = ProcData.flags.rest.duration';
 
             % Initialize cell array for all periods of rest from the loaded file
             trialRestVals = cell(size(trialEventTimes'));
