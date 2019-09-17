@@ -36,7 +36,7 @@ for a = 1:size(procDataFileIDs, 1)
     binForce = ProcData.data.binForceSensor;
     
     % EMG
-    EMG = ProcData.data.EMG;
+    EMG = ProcData.data.EMG.emg;
 
     % Heart Rate
     heartRate = ProcData.data.heartRate;
@@ -106,7 +106,7 @@ for a = 1:size(procDataFileIDs, 1)
     ylabel('Force Sensor (Volts)')
     xlim([0 ProcData.notes.trialDuration_sec])
     yyaxis right
-    plot((1:length(EMG))/ProcData.notes.dsFs, log10(EMG), 'color', colors_IOS('deep carrot orange'))
+    plot((1:length(EMG))/ProcData.notes.dsFs, EMG, 'color', colors_IOS('deep carrot orange'))
     ylabel('EMG (Volts^2)')
     legend('Force sensor', 'EMG')
     xlim([0 ProcData.notes.trialDuration_sec])

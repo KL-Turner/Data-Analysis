@@ -1,4 +1,4 @@
-function [SVMModel] = TrainModel_SVM(trainingDataFileIDs)
+function [SVMModel] = TrainModel_SVM(animalIDs, driveLetters)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -15,18 +15,24 @@ function [SVMModel] = TrainModel_SVM(trainingDataFileIDs)
 %   Last Revised: July 27th, 2019
 %________________________________________________________________________________________________________________________
 
-for a = 1:size(trainingDataFileIDs,1)
-   trainingTableFileID = trainingDataFileIDs(a,:); 
-   if a == 1
-       load(trainingTableFileID)
-       joinedTable = trainingTable;
-   else
-       load(trainingTableFileID)
-       joinedTable = vertcat(joinedTable, trainingTable);
+for a = 1:length(animalIDs)
+   fileLoc = [driveLetters{1,a} ':\' animalIDs{1,a} '\Combined Imaging\SVM Training Set'];
+   cd(fileLoc)
+   trainingDataFileStruct = dir('*_TrainingData.mat');
+   trainingDataFiles = {trainingDataFileStruct.name}';
+   trainingDataFileIDs = char(trainingDataFiles);
+   for b = 1:size(trainingDataFileIDs,1)
+       trainingTableFileID = trainingDataFileIDs(b,:);
+       if a == 1 && b == 1
+           load(trainingTableFileID)
+           joinedTable = trainingTable;
+       else
+           load(trainingTableFileID)
+           joinedTable = vertcat(joinedTable, trainingTable); %#ok<AGROW>
+       end
    end
 end
 
-[animalID,~,~] = GetFileInfo_IOS(trainingTableFileID);
 X = joinedTable(:,1:7);
 Y = joinedTable(:,8);
 t = templateSVM('Standardize',true,'KernelFunction','gaussian');
@@ -39,8 +45,9 @@ CVSVMModel = crossval(SVMModel);
 loss = kfoldLoss(CVSVMModel);
 disp(['k-fold loss classification error: ' num2str(loss*100) '%']); disp(' ')
 
-save([animalID '_SVM_SleepScoringModel.mat'], 'SVMModel')
-save([animalID '_SVM_ModelCrossValidation.mat'], 'CVSVMModel')
+saveLoc = 'C:\Users\klt8\Documents\';
+save([saveLoc 'SVM_SleepScoringModel.mat'], 'SVMModel')
+save([saveLoc 'SVM_ModelCrossValidation.mat'], 'CVSVMModel')
 
 end
 

@@ -15,7 +15,7 @@ function [] = CreateTrainingDataSet_SVM(procDataFileIDs,RestingBaselines)
 %   Last Revised: July 26th, 2019
 %________________________________________________________________________________________________________________________
 
-for a = 1:length(procDataFileIDs)
+for a = 1:size(procDataFileIDs,1)
     procDataFileID = procDataFileIDs(a,:);
     modelDataFileID = [procDataFileID(1:end-12) 'ModelData.mat'];
     trainingDataFileID = [procDataFileID(1:end-12) 'TrainingData.mat'];
