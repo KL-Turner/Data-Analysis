@@ -212,7 +212,7 @@ set(gca,'Yticklabel', [])
 % Hippocampal electrode spectrogram
 ax6 = subplot(6,1,6);
 semilog_imagesc_IOS(T, F, hippocampusNormS, 'y')
-caxis([-1 6])
+caxis([-0.5 .75])
 xlabel('Time (sec)')
 ylabel('Frequency (Hz)')
 xlim([0 ProcData.notes.trialDuration_sec])

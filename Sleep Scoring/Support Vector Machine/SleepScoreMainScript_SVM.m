@@ -44,12 +44,11 @@ UpdateTrainingDataSets(procDataFileIDs)
 CreateTrainingDataSet_SVM(procDataFileIDs, RestingBaselines)
 
 %% Create SVM Model using manually-scored training data from '*_TrainingData.mat' files.
-animalIDs = {'T101', 'T102'};
-driveLetters = {'E', 'E'};
+animalIDs = {'T99', 'T101', 'T102', 'T103', 'T105'};
+driveLetters = {'E', 'E', 'E', 'E', 'F'};
 TrainModel_SVM(animalIDs, driveLetters);
 
 %% Load SVM model, Use SVM model to sleep score new data
-disp('Select file location of the support vector machine classifier'); disp(' ')
 curDir = cd;
 modelLocation = 'C:\Users\klt8\Documents\';
 cd(modelLocation)
@@ -63,4 +62,9 @@ modelDataFileIDs = char(modelDataFiles);
 PredictBehaviorEvents_SVM(modelDataFileIDs, SVMModel)
 
 %% Check model predictions
-VerifyModelPredictions(animalIDs, driveLetters)
+curDir = cd;
+modelLocation = 'C:\Users\klt8\Documents\';
+cd(modelLocation)
+load('SVM_SleepScoringModel.mat')
+cd(curDir)
+VerifyModelPredictions(animalIDs, driveLetters, SVMModel)
