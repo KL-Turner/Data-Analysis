@@ -29,7 +29,7 @@ Frame_Start_Time = floor(Start_Time)*Fs;      % Convert to frame # and round dow
 Frame_End_Time = floor(End_Time)*Fs;         
 FrameInds = Frame_Start_Time:Frame_End_Time;  % Range of implay
 
-CBV_Frames = GetCBVFrameSubset(filename, image_height, image_width, FrameInds);  % Obtain subset of desired frames
+CBV_Frames = GetCBVFrameSubset_IOS(filename, image_height, image_width, FrameInds);  % Obtain subset of desired frames
 Baseline_Frame = mean(CBV_Frames, 3);   % Average in the 3rd dimension (time) to create a baseline
 
 %% Create a figure to show the baseline frame in color and grey-scale
@@ -61,6 +61,6 @@ end
 
 min = 0.95;
 max = 1.05;
-ImplayAutoColorMap(N_cbv_frames, min, max);
+ImplayAutoColorMap_IOS(N_cbv_frames, min, max);
 
 Prompt = msgbox('Warning: May need to edit implay colormap range for best results');

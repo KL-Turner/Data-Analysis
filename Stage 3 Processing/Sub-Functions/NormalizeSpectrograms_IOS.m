@@ -1,4 +1,4 @@
-function [SpecData] = NormalizeSpectrograms_IOS(specDataFiles, neuralDataTypes, RestingBaselines)
+function [SpecData] = NormalizeSpectrograms_IOS(specDataFiles, neuralDataTypes, RestingBaselines, baselineType)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering

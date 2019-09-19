@@ -44,8 +44,8 @@ UpdateTrainingDataSets(procDataFileIDs)
 CreateTrainingDataSet_SVM(procDataFileIDs, RestingBaselines)
 
 %% Create SVM Model using manually-scored training data from '*_TrainingData.mat' files.
-animalIDs = {'T99', 'T101', 'T102', 'T103', 'T105'};
-driveLetters = {'E', 'E', 'E', 'E', 'F'};
+animalIDs = {'T99', 'T101', 'T102', 'T103', 'T105', 'T108', 'T109'};
+driveLetters = {'E', 'E', 'E', 'E', 'F', 'F', 'F'};
 TrainModel_SVM(animalIDs, driveLetters);
 
 %% Load SVM model, Use SVM model to sleep score new data

@@ -45,7 +45,8 @@ procDataFiles = {procDataFileStruct.name}';
 procDataFileIDs = char(procDataFiles);
 [animalID, ~, ~] = GetFileInfo_IOS(procDataFileIDs(1,:));
 
-targetMinutes = input('Input the target minutes for the resting baseline: '); disp(' ')
+targetMinutes = 30;
+baselineType = 'manualSelection';
 dataTypes = {'CBV', 'cortical_LH', 'cortical_RH', 'hippocampus', 'EMG'};
 neuralDataTypes = {'cortical_LH', 'cortical_RH', 'hippocampus'};
 
@@ -68,30 +69,36 @@ disp('Analyzing Block [3] Create EventData struct for CBV and neural data.'); di
 %% BLOCK PURPOSE: [4] Create Baselines data structure
 disp('Analyzing Block [4] Create Baselines struct for CBV and neural data.'); disp(' ')
 trialDuration_sec = 900;
-[RestingBaselines] = CalculateRestingBaselines_IOS(animalID, targetMinutes, trialDuration_sec, RestData);
+[RestingBaselines] = CalculateRestingBaselines_IOS(animalID, targetMinutes, trialDuration_sec, RestData, RestingBaselines);
 
-%% BLOCK PURPOSE: [5] Normalize RestData and behavioral data
-disp('Analyzing Block [5] Normalize EventData struct using Baselines for CBV and neural data.'); disp(' ')
-[RestData] = NormBehavioralDataStruct_IOS(RestData, RestingBaselines);
+%% BLOCK PURPOSE: [5] Manually select files for custom baseline calculation
+disp('Analyzing Block [5] Manually select files for custom baseline calculation.'); disp(' ')
+[RestingBaselines] = CalculateManualRestingBaselines_IOS(animalID, procDataFileIDs, RestData, RestingBaselines);
+
+%% BLOCK PURPOSE: [6] Normalize RestData and EventData structures by the resting baseline
+disp('Analyzing Block [6] Normalizing RestData and EventData structures by the resting baseline.'); disp(' ')
+[RestData] = NormBehavioralDataStruct_IOS(RestData, RestingBaselines, baselineType);
 save([animalID '_RestData.mat'], 'RestData')
 
-[EventData] = NormBehavioralDataStruct_IOS(EventData, RestingBaselines);
+[EventData] = NormBehavioralDataStruct_IOS(EventData, RestingBaselines, baselineType);
 save([animalID '_EventData.mat'], 'EventData')
 
-%% BLOCK PURPOSE: [6] Analyze the spectrogram for each session.
-disp('Analyzing Block [6] Analyzing the spectrogram for each file and normalizing by the resting baseline.'); disp(' ')
+%% BLOCK PURPOSE: [7] Analyze the spectrogram for each session.
+disp('Analyzing Block [7] Analyzing the spectrogram for each file and normalizing by the resting baseline.'); disp(' ')
 CreateTrialSpectrograms_IOS(rawDataFileIDs, neuralDataTypes);
 
 % Find spectrogram baselines for each day
 specDirectory = dir('*_SpecData.mat');
 specDataFiles = {specDirectory.name}';
 specDataFileIDs = char(specDataFiles);
-[RestingBaselines] = CalculateSpectrogramBaselines_IOS(animalID, neuralDataTypes, trialDuration_sec, specDataFileIDs, RestingBaselines);
+[RestingBaselines] = CalculateSpectrogramBaselines_IOS(animalID, neuralDataTypes, trialDuration_sec, specDataFileIDs, RestingBaselines, baselineType);
 
 % Normalize spectrogram by baseline
-NormalizeSpectrograms_IOS(specDataFileIDs, neuralDataTypes, RestingBaselines);
+NormalizeSpectrograms_IOS(specDataFileIDs, neuralDataTypes, RestingBaselines, baselineType);
 
-%% BLOCK PURPOSE [7]
-GenerateSingleFigures_IOS(procDataFileIDs, RestingBaselines)
+%% BLOCK PURPOSE [8] Generate single trial figures
+disp('Analyzing Block [8] Generating single trial summary figures'); disp(' ')
+saveFigs = 'y';
+GenerateSingleFigures_IOS(procDataFileIDs, RestingBaselines, baselineType, saveFigs)
 
 disp('Stage Three Processing - Complete.'); disp(' ')

@@ -1,4 +1,4 @@
-function [] = GenerateSingleFigures_IOS(procDataFileIDs, RestingBaselines)
+function [singleTrialFig] = GenerateSingleFigures_IOS(procDataFileIDs, RestingBaselines, baselineType, saveFigs)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -51,11 +51,11 @@ for a = 1:size(procDataFileIDs, 1)
     % Setup butterworth filter coefficients for a 1 Hz lowpass based on the sampling rate (20 Hz).
     [D, C] = butter(4, 1/(ProcData.notes.CBVCamSamplingRate/2), 'low');
     LH_CBV = ProcData.data.CBV.LH;
-    normLH_CBV = (LH_CBV - RestingBaselines.CBV.LH.(strDay))./(RestingBaselines.CBV.LH.(strDay));
+    normLH_CBV = (LH_CBV - RestingBaselines.(baselineType).CBV.LH.(strDay))./(RestingBaselines.(baselineType).CBV.LH.(strDay));
     filtLH_CBV = filtfilt(D, C, normLH_CBV)*100;
     
     RH_CBV = ProcData.data.CBV.RH;
-    normRH_CBV = (RH_CBV - RestingBaselines.CBV.RH.(strDay))./(RestingBaselines.CBV.RH.(strDay));
+    normRH_CBV = (RH_CBV - RestingBaselines.(baselineType).CBV.RH.(strDay))./(RestingBaselines.(baselineType).CBV.RH.(strDay));
     filtRH_CBV = filtfilt(D, C, normRH_CBV)*100;
     
     %% Normalized neural spectrogram
@@ -196,17 +196,19 @@ for a = 1:size(procDataFileIDs, 1)
     
     pause(1)
     
-    %% Save the file to directory.
-    [pathstr, ~, ~] = fileparts(cd);
-    dirpath = [pathstr '/Figures/Single Trial Figures/'];
-    
-    if ~exist(dirpath, 'dir')
-        mkdir(dirpath);
+    if strcmp(saveFigs, 'y') == true
+        %% Save the file to directory.
+        [pathstr, ~, ~] = fileparts(cd);
+        dirpath = [pathstr '/Figures/Single Trial Figures/'];
+        
+        if ~exist(dirpath, 'dir')
+            mkdir(dirpath);
+        end
+        
+        
+        savefig(singleTrialFig, [dirpath animalID '_' fileID '_SingleTrialFig']);
+        close(singleTrialFig)
     end
-    
-    
-    savefig(singleTrialFig, [dirpath animalID '_' fileID '_SingleTrialFig']);
-    close(singleTrialFig)
 end
 
 end

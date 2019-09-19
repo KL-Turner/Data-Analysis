@@ -1,4 +1,4 @@
-function [DataStruct] = NormBehavioralDataStruct_IOS(DataStruct, RestingBaselines)
+function [DataStruct] = NormBehavioralDataStruct_IOS(DataStruct, RestingBaselines, baselineType)
 %___________________________________________________________________________________________________
 % Edited by Kevin L. Turner
 % Ph.D. Candidate, Department of Bioengineering
@@ -53,7 +53,7 @@ for dT = 1:length(dataTypes)
                         if iscell(DataStruct.(dataType).(hemDataType).(behField).data)
                             dayData = DataStruct.(dataType).(hemDataType).(behField).data(dayInds);
                             normDayData = cell(size(dayData));
-                            dayBaseline = RestingBaselines.(dataType).(hemDataType).(strDay);
+                            dayBaseline = RestingBaselines.(baselineType).(dataType).(hemDataType).(strDay);
 
                             for dD = 1:size(dayData, 1)
                                 cellBase = dayBaseline*ones(1, size(dayData{dD}, 2));
@@ -61,7 +61,7 @@ for dT = 1:length(dataTypes)
                             end
                             NormData(dayInds) = normDayData;
                         else
-                            dayBaseline = RestingBaselines.(dataType).(hemDataType).(strDay);
+                            dayBaseline = RestingBaselines.(baselineType).(dataType).(hemDataType).(strDay);
                             % Preallocate array and use for permutation
                             normDayData = DataStruct.(dataType).(hemDataType).(behField).data(dayInds, :, :);
 
@@ -91,7 +91,7 @@ for dT = 1:length(dataTypes)
                 if iscell(DataStruct.(dataType).(hemDataType).data)
                     dayData = DataStruct.(dataType).(hemDataType).data(dayInds);
                     normDayData = cell(size(dayData));
-                    dayBaseline = RestingBaselines.(dataType).(hemDataType).(strDay);
+                    dayBaseline = RestingBaselines.(baselineType).(dataType).(hemDataType).(strDay);
                     for dD = 1:size(dayData, 1)
                         cellBase = dayBaseline*ones(1, size(dayData{dD}, 2));
                         normDayData{dD} = dayData{dD} ./ cellBase - 1;

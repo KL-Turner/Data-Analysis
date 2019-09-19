@@ -1,4 +1,4 @@
-function [RestingBaselines] = CalculateSpectrogramBaselines_IOS(animal, neuralDataTypes, trialDuration_sec, specDataFiles, RestingBaselines)
+function [RestingBaselines] = CalculateSpectrogramBaselines_IOS(animal, neuralDataTypes, trialDuration_sec, specDataFiles, RestingBaselines, baselineType)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % Ph.D. Candidate, Department of Bioengineering
@@ -17,7 +17,7 @@ function [RestingBaselines] = CalculateSpectrogramBaselines_IOS(animal, neuralDa
 for a = 1:length(neuralDataTypes)
     neuralDataType = neuralDataTypes{1,a};
     dsFs = 30;
-    restFileList = unique(RestingBaselines.baselineFileInfo.fileIDs);      % Obtain the list of unique fileIDs
+    restFileList = unique(RestingBaselines.(baselineType).baselineFileInfo.fileIDs);      % Obtain the list of unique fileIDs
     restS1 = cell(size(restFileList,1), 1);
     restS5 = cell(size(restFileList,1), 1);
     % Obtain the spectrogram information from all the resting files
@@ -50,13 +50,13 @@ for a = 1:length(neuralDataTypes)
         samplingDiff5 = dsFs/binSize5;
         S1_trialRest = [];
         S5_trialRest = [];
-        for e = 1:length(RestingBaselines.baselineFileInfo.fileIDs)
-            restFileID = RestingBaselines.baselineFileInfo.fileIDs{e, 1};
+        for e = 1:length(RestingBaselines.(baselineType).baselineFileInfo.fileIDs)
+            restFileID = RestingBaselines.(baselineType).baselineFileInfo.fileIDs{e, 1};
             if strcmp(fileID, restFileID)
-                restDuration1 = floor(floor(RestingBaselines.baselineFileInfo.durations(e, 1)*dsFs) / samplingDiff1);
-                restDuration5 = floor(floor(RestingBaselines.baselineFileInfo.durations(e, 1)*dsFs) / samplingDiff5);
-                startTime1 = floor(floor(RestingBaselines.baselineFileInfo.eventTimes(e, 1)*dsFs) / samplingDiff1);
-                startTime5 = floor(floor(RestingBaselines.baselineFileInfo.eventTimes(e, 1)*dsFs) / samplingDiff5);
+                restDuration1 = floor(floor(RestingBaselines.(baselineType).baselineFileInfo.durations(e, 1)*dsFs) / samplingDiff1);
+                restDuration5 = floor(floor(RestingBaselines.(baselineType).baselineFileInfo.durations(e, 1)*dsFs) / samplingDiff5);
+                startTime1 = floor(floor(RestingBaselines.(baselineType).baselineFileInfo.eventTimes(e, 1)*dsFs) / samplingDiff1);
+                startTime5 = floor(floor(RestingBaselines.(baselineType).baselineFileInfo.eventTimes(e, 1)*dsFs) / samplingDiff5);
                 try
                     S1_single_rest = S1_data(:, (startTime1:(startTime1 + restDuration1)));
                     S5_single_rest = S5_data(:, (startTime5:(startTime5 + restDuration5)));
@@ -75,7 +75,7 @@ for a = 1:length(neuralDataTypes)
     end
     
     fields = fieldnames(trialRestData);
-    uniqueDays = GetUniqueDays_IOS(RestingBaselines.baselineFileInfo.fileIDs);
+    uniqueDays = GetUniqueDays_IOS(RestingBaselines.(baselineType).baselineFileInfo.fileIDs);
     
     for f = 1:length(uniqueDays)
         g = 1;
