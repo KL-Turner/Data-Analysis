@@ -18,33 +18,6 @@ clc;
 clear;
 disp('Analyzing Block [0] Preparing the workspace and loading variables.'); disp(' ')
 
-[animal, hem, ~, ~, EventData, RestData, RestingBaselines, SpectrogramData, SleepData, ComparisonData] = LoadDataStructs();
-
-infusionStatement = input('Is this an infusion trial? (y/n): ', 's'); disp(' ')
-params.Infusion = infusionStatement;
-
-targetMinutes = input('What is the target minute mark?: '); disp(' ')
-params.targetMinutes = targetMinutes;
-
-params.minTime.Rest = 10;
-params.minTime.NREM = 30;
-params.minTime.REM = 60;
-
-dataTypes = {'LH', 'RH'};
-
-windowCamFileStruct = dir('*_WindowCam.bin');
-windowCamFiles = {windowCamFileStruct.name}';
-windowCamFiles = char(windowCamFiles);
-
-procDataFileStruct = dir('*_ProcData.mat');
-procDataFiles = {procDataFileStruct.name}';
-procDataFiles = char(procDataFiles);
-
-rawDataFileStruct = dir('*_RawData.mat');
-rawDataFiles = {rawDataFileStruct.name}';
-rawDataFiles = char(rawDataFiles);
-
-disp('Block [0] structs loaded.'); disp(' ')
 
 % %% BLOCK PURPOSE: [1] Stimulus and whisking evoked averages
 % % disp('Analyzing Block [1] Analyzing the stimulus and whisking-evoked responses.'); disp(' ')
@@ -55,11 +28,19 @@ disp('Block [0] structs loaded.'); disp(' ')
 % 
 %% BLOCK PURPOSE: [2] Cross correlation
 % disp('Analyzing Block [2] Analzying the cross-correlation between CBV and LFP.'); disp(' ')
-% for dT = 1:length(dataTypes)
-%     CBVdataType = ([dataTypes{dT} '_Electrode']);
-%     neuralDataType = dataTypes{dT};
-%     [ComparisonData] = AnalyzeXCorr(animal, CBVdataType, neuralDataType, params, RestData, RestingBaselines, SpectrogramData, SleepData, ComparisonData);
-% end
+xcorr_CBVdataTypes = {'LH', 'RH', 'LH_Electrode', 'RH_Electrode'};
+xcorr_neuralDataTypes = {'LH', 'RH', 'LH', 'RH'};
+params.targetMinutes = 30;
+
+params.minTime.Rest = 10;
+params.minTime.NREM = 60;
+params.minTime.REM = 60;
+
+for dT = 1:length(xcorr_CBVdataTypes)
+    xcorr_CBVdataType = xcorr_CBVdataTypes{dT};
+    xcorr_neuralDataType = xcorr_CBVdataTypes{dT};
+    [AnalysisResults] = AnalyzeXCorr(xcorr_CBVdataType, xcorr_neuralDataType, params, AnalysisResults);
+end
 
 %% BLOCK PURPOSE: [3] Coherence
 % disp('Analyzing Block [3] Analyzing the coherence between L/R CBV and Gamma signals.'); disp(' ')
@@ -76,7 +57,7 @@ disp('Block [0] structs loaded.'); disp(' ')
 % end
 
 %% BLOCK PURPOSE: [5] Correlation Coefficients between behaviors
-[ComparisonData] = AnalyzeCorrCoeffs(animal, params, procDataFiles, RestingBaselines, RestData, SleepData, ComparisonData);
+[AnalysisResults] = AnalyzeCorrCoeffs(animal, params, procDataFiles, RestingBaselines, RestData, SleepData, AnalysisResults);
 
 %% BLOCK PURPOSE: [6] Hemodynamic response functions
 % for dT = 1:length(dataTypes)

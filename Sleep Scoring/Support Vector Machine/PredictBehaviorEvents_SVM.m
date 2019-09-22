@@ -1,4 +1,4 @@
-function [] = PredictBehaviorEvents_SVM(modelDataFileIDs, SVMModel)
+function [SVMResults] = PredictBehaviorEvents_SVM(modelDataFileIDs, SVMModel)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering

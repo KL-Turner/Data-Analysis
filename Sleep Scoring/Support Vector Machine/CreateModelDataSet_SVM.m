@@ -43,8 +43,8 @@ for a = 1:size(procDataFileIDs,1)
             end
             
             % Cortical delta
-            maxLHcortDelta = round(max(ProcData.sleep.parameters.cortical_LH.specDeltaBandPower{b,1}),1);
-            maxRHcortDelta = round(max(ProcData.sleep.parameters.cortical_RH.specDeltaBandPower{b,1}),1);
+            maxLHcortDelta = mean(ProcData.sleep.parameters.cortical_LH.specDeltaBandPower{b,1});
+            maxRHcortDelta = mean(ProcData.sleep.parameters.cortical_RH.specDeltaBandPower{b,1});
             if maxLHcortDelta >= maxRHcortDelta
                 maxCortDelta_column(b,1) = maxLHcortDelta;
             else
@@ -52,8 +52,8 @@ for a = 1:size(procDataFileIDs,1)
             end
             
             % Cortical beta
-            maxLHcortBeta = round(max(ProcData.sleep.parameters.cortical_LH.specBetaBandPower{b,1}),1);
-            maxRHcortBeta = round(max(ProcData.sleep.parameters.cortical_RH.specBetaBandPower{b,1}),1);
+            maxLHcortBeta = mean(ProcData.sleep.parameters.cortical_LH.specBetaBandPower{b,1});
+            maxRHcortBeta = mean(ProcData.sleep.parameters.cortical_RH.specBetaBandPower{b,1});
             if maxLHcortBeta >= maxRHcortBeta
                 maxCortBeta_column(b,1) = maxLHcortBeta;
             else
@@ -61,15 +61,21 @@ for a = 1:size(procDataFileIDs,1)
             end
             
             % Cortical gamma
-            maxLHcortGamma = round(max(ProcData.sleep.parameters.cortical_LH.specGammaBandPower{b,1}),1);
-            maxRHcortGamma = round(max(ProcData.sleep.parameters.cortical_RH.specGammaBandPower{b,1}),1);
+            maxLHcortGamma = mean(ProcData.sleep.parameters.cortical_LH.specGammaBandPower{b,1});
+            maxRHcortGamma = mean(ProcData.sleep.parameters.cortical_RH.specGammaBandPower{b,1});
             if maxLHcortGamma >= maxRHcortGamma
                 maxCortGamma_column(b,1) = maxLHcortGamma;
             else
                 maxCortGamma_column(b,1) = maxRHcortGamma;
             end
+            % Hippocampal delta
+            maxHippDelta_column(b,1) = mean(ProcData.sleep.parameters.hippocampus.specDeltaBandPower{b,1});
             % Hippocampal theta
-            maxHippTheta_column(b,1) = round(max(ProcData.sleep.parameters.hippocampus.specThetaBandPower{b,1}),1);
+            maxHippTheta_column(b,1) = mean(ProcData.sleep.parameters.hippocampus.specThetaBandPower{b,1});
+            % Hippocampal beta
+            maxHippBeta_column(b,1) = mean(ProcData.sleep.parameters.hippocampus.specBetaBandPower{b,1});
+            % Hippocampal gamma
+            maxHippGamma_column(b,1) = mean(ProcData.sleep.parameters.hippocampus.specGammaBandPower{b,1});
             % number of binarized whisking events
             numWhiskEvents_column(b,1) = sum(ProcData.sleep.parameters.binWhiskerAngle{b,1});
             % number of binarized force sensor events
@@ -81,8 +87,8 @@ for a = 1:size(procDataFileIDs,1)
             avgHeartRate_column(b,1) = round(mean(ProcData.sleep.parameters.heartRate{b,1}),1);
         end
         % create table
-        paramsTable = table(maxCortDelta_column, maxCortBeta_column, maxCortGamma_column, maxHippTheta_column, ...
-            numWhiskEvents_column, avgEMG_column, avgHeartRate_column,...
+        paramsTable = table(maxCortDelta_column, maxCortBeta_column, maxCortGamma_column, ...
+            maxHippTheta_column, numWhiskEvents_column, avgEMG_column, avgHeartRate_column,...
             'VariableNames', variableNames);
         save(modelDataSetID, 'paramsTable')
 end

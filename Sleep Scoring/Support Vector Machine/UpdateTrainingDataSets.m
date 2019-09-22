@@ -22,7 +22,7 @@ for a = 1:size(procDataFileIDs,1)
     if exist(trainingDataSetID) > 1
         load(modelDataSetID)
         load(trainingDataSetID)
-        disp(['Updating training data set for ' trainingDataSetID '...' ]); disp(' ')
+%         disp(['Updating training data set for ' trainingDataSetID '...' ]); disp(' ')
         paramsTable.behavState = trainingTable.behavState;
         trainingTable = paramsTable;
         save(trainingDataSetID, 'trainingTable')

@@ -1,4 +1,4 @@
-function [figHandle] = GenerateSingleFigures_SVM(procDataFileID, RestingBaselines)
+function [figHandle] = GenerateSingleFigures_SVM(procDataFileID, RestingBaselines, baselineType)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -47,32 +47,44 @@ AudSol = ProcData.data.solenoids.AudSol;
 % Setup butterworth filter coefficients for a 1 Hz lowpass based on the sampling rate (20 Hz).
 [D, C] = butter(4, 1/(ProcData.notes.CBVCamSamplingRate/2), 'low');
 LH_CBV = ProcData.data.CBV.LH;
-normLH_CBV = (LH_CBV - RestingBaselines.CBV.LH.(strDay))./(RestingBaselines.CBV.LH.(strDay));
-filtLH_CBV = detrend((filtfilt(D, C, normLH_CBV))*100, 'constant');
-
 RH_CBV = ProcData.data.CBV.RH;
-normRH_CBV = (RH_CBV - RestingBaselines.CBV.RH.(strDay))./(RestingBaselines.CBV.RH.(strDay));
+ledType = 'M530L3';
+bandfilterType = 'FB530-10';
+cutfilterType = 'EO46540';
+conv2um = 1e6;
+[~,~,weightedcoeffHbT] = getHbcoeffs_IOS(ledType,bandfilterType,cutfilterType);
+LH_CBV = ProcData.data.CBV.LH;
+RH_CBV = ProcData.data.CBV.RH;
+
+hbtLH_CBV = (log(LH_CBV/RestingBaselines.(baselineType).CBV.LH.(strDay)))*weightedcoeffHbT*conv2um;
+filtHbtLH_CBV = detrend(filtfilt(D, C, hbtLH_CBV), 'constant');
+hbtRH_CBV = (log(RH_CBV/ RestingBaselines.(baselineType).CBV.RH.(strDay)))*weightedcoeffHbT*conv2um;
+filtHbtRH_CBV = detrend(filtfilt(D, C, hbtRH_CBV), 'constant');
+
+normLH_CBV = (LH_CBV - RestingBaselines.(baselineType).CBV.LH.(strDay))./(RestingBaselines.(baselineType).CBV.LH.(strDay));
+filtLH_CBV = detrend((filtfilt(D, C, normLH_CBV))*100, 'constant');
+normRH_CBV = (RH_CBV - RestingBaselines.(baselineType).CBV.RH.(strDay))./(RestingBaselines.(baselineType).CBV.RH.(strDay));
 filtRH_CBV = detrend((filtfilt(D, C, normRH_CBV))*100, 'constant');
 
 %% Neural data
 deltaPower_LH = ProcData.data.cortical_LH.deltaBandPower;
-normDeltaPower_LH = (deltaPower_LH - RestingBaselines.cortical_LH.deltaBandPower.(strDay))./(RestingBaselines.cortical_LH.deltaBandPower.(strDay));
+normDeltaPower_LH = (deltaPower_LH - RestingBaselines.(baselineType).cortical_LH.deltaBandPower.(strDay))./(RestingBaselines.(baselineType).cortical_LH.deltaBandPower.(strDay));
 filtDeltaPower_LH = filtfilt(D, C, normDeltaPower_LH);
 
 deltaPower_RH = ProcData.data.cortical_RH.deltaBandPower;
-normDeltaPower_RH = (deltaPower_RH - RestingBaselines.cortical_RH.deltaBandPower.(strDay))./(RestingBaselines.cortical_RH.deltaBandPower.(strDay));
+normDeltaPower_RH = (deltaPower_RH - RestingBaselines.(baselineType).cortical_RH.deltaBandPower.(strDay))./(RestingBaselines.(baselineType).cortical_RH.deltaBandPower.(strDay));
 filtDeltaPower_RH = filtfilt(D, C, normDeltaPower_RH);
 
 gammaPower_LH = ProcData.data.cortical_LH.gammaBandPower;
-normGammaPower_LH = (gammaPower_LH - RestingBaselines.cortical_LH.gammaBandPower.(strDay))./(RestingBaselines.cortical_LH.gammaBandPower.(strDay));
+normGammaPower_LH = (gammaPower_LH - RestingBaselines.(baselineType).cortical_LH.gammaBandPower.(strDay))./(RestingBaselines.(baselineType).cortical_LH.gammaBandPower.(strDay));
 filtGammaPower_LH = filtfilt(D, C, normGammaPower_LH);
 
 gammaPower_RH = ProcData.data.cortical_RH.gammaBandPower;
-normGammaPower_RH = (gammaPower_RH - RestingBaselines.cortical_RH.gammaBandPower.(strDay))./(RestingBaselines.cortical_RH.gammaBandPower.(strDay));
+normGammaPower_RH = (gammaPower_RH - RestingBaselines.(baselineType).cortical_RH.gammaBandPower.(strDay))./(RestingBaselines.(baselineType).cortical_RH.gammaBandPower.(strDay));
 filtGammaPower_RH = filtfilt(D, C, normGammaPower_RH);
 
 thetaPower_Hipp = ProcData.data.hippocampus.thetaBandPower;
-normThetaPower_Hipp = (thetaPower_Hipp - RestingBaselines.hippocampus.thetaBandPower.(strDay))./(RestingBaselines.hippocampus.thetaBandPower.(strDay));
+normThetaPower_Hipp = (thetaPower_Hipp - RestingBaselines.(baselineType).hippocampus.thetaBandPower.(strDay))./(RestingBaselines.(baselineType).hippocampus.thetaBandPower.(strDay));
 filtThetaPower_Hipp = filtfilt(D, C, normThetaPower_Hipp);
 
 %% Normalized neural spectrogram
@@ -158,6 +170,18 @@ scatter(RPadSol, RPad_Yvals, 'v', 'MarkerEdgeColor', 'k', 'MarkerFaceColor', 'm'
 scatter(AudSol, Aud_Yvals, 'v', 'MarkerEdgeColor', 'k', 'MarkerFaceColor', 'g');
 
 ylabel('% change (\DeltaR/R)')
+xlim([0 ProcData.notes.trialDuration_sec])
+set(gca,'TickLength',[0, 0])
+set(gca,'Xticklabel',[])
+set(gca,'box','off')
+axis tight
+
+yyaxis right
+plot((1:length(filtHbtLH_CBV))/ProcData.notes.CBVCamSamplingRate, filtHbtLH_CBV, 'color', colors_IOS('coral red'))
+hold on;
+plot((1:length(filtHbtRH_CBV))/ProcData.notes.CBVCamSamplingRate, filtHbtRH_CBV, 'color', colors_IOS('battleship grey'))
+ylabel('\DeltaHbT')
+
 xlim([0 ProcData.notes.trialDuration_sec])
 set(gca,'TickLength',[0, 0])
 set(gca,'Xticklabel',[])

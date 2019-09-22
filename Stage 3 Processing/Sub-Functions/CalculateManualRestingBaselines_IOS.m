@@ -38,6 +38,7 @@ manualFileID = char(manualFile);
 if ~exist(manualFileID)
     validFiles = cell(size(procDataFileIDs,1),1);
     for a = 1:size(procDataFileIDs,1)
+        disp(['Loading file ' num2str(a) ' of ' num2str(size(procDataFileIDs,1)) '...']); disp(' ')
         procDataFileID = procDataFileIDs(a,:);
         saveFigs = 'n';
         baselineType = 'setDuration';

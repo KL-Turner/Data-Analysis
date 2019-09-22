@@ -69,7 +69,7 @@ disp('Analyzing Block [3] Create EventData struct for CBV and neural data.'); di
 %% BLOCK PURPOSE: [4] Create Baselines data structure
 disp('Analyzing Block [4] Create Baselines struct for CBV and neural data.'); disp(' ')
 trialDuration_sec = 900;
-[RestingBaselines] = CalculateRestingBaselines_IOS(animalID, targetMinutes, trialDuration_sec, RestData, RestingBaselines);
+[RestingBaselines] = CalculateRestingBaselines_IOS(animalID, targetMinutes, trialDuration_sec, RestData);
 
 %% BLOCK PURPOSE: [5] Manually select files for custom baseline calculation
 disp('Analyzing Block [5] Manually select files for custom baseline calculation.'); disp(' ')
@@ -97,7 +97,7 @@ specDataFileIDs = char(specDataFiles);
 NormalizeSpectrograms_IOS(specDataFileIDs, neuralDataTypes, RestingBaselines, baselineType);
 
 %% BLOCK PURPOSE [8] Generate single trial figures
-disp('Analyzing Block [8] Generating single trial summary figures'); disp(' ')
+disp('Analyzing Block [8] Gennerating single trial summary figures'); disp(' ')
 saveFigs = 'y';
 GenerateSingleFigures_IOS(procDataFileIDs, RestingBaselines, baselineType, saveFigs)
 
