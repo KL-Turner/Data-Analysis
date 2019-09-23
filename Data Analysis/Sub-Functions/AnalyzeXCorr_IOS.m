@@ -43,7 +43,7 @@ trialDuration = 900;   % sec
 trialDurationMin = 15;   % min
 sleepBinWidth = 5;   % sec
 fiveSecSpecFs = 5;   % sec
-CBVsamplingRate = RestData.data.CBV.LH.CBVCamSamplingRate;
+CBVsamplingRate = RestData.CBV.LH.CBVCamSamplingRate;
 
 %% Cross-correlation analysis for resting data
 disp(['AnalyzeXCorr: ' CBVdataType ' vs ' neuralDataType ' during Rest.']); disp(' ')
@@ -122,7 +122,7 @@ for e = 1:length(finalFileIDs)
     filtCBV = filtfilt(B, A, CBV);
     
     % Only take the first 10 seconds of the epoch
-    shortCBV = filtCBV(1:params.minTime.Rest*CBVSamplingRate);
+    shortCBV = filtCBV(1:params.minTime.Rest*CBVsamplingRate);
     
     % Downsample the 10 second epoch to 5 Hz
     dsCBV = downsample(shortCBV, 6);
@@ -137,11 +137,11 @@ for e = 1:length(finalFileIDs)
     S_data = SpecData.(neuralDataType).fiveSec.normS;
     sLength = size(S_data, 2);                                  
     binSize = ceil(sLength/trialDuration); 
-    samplingDiff = CBVSamplingRate/binSize;
+    samplingDiff = CBVsamplingRate/binSize;
     
     % Find the start time and duration
-    restDuration = floor(floor(finalFileDurations(e, 1)*CBVSamplingRate)/samplingDiff);
-    startTime = floor(floor(finalFileEventTimes(e, 1)*CBVSamplingRate)/samplingDiff);
+    restDuration = floor(floor(finalFileDurations(e, 1)*CBVsamplingRate)/samplingDiff);
+    startTime = floor(floor(finalFileEventTimes(e, 1)*CBVsamplingRate)/samplingDiff);
     if startTime == 0
         startTime = 1;
     end
@@ -254,7 +254,7 @@ end
 
 % CBV
 for CBV = 1:length(SleepData.NREM.data.CBV.(CBVdataType))
-    NREM_CBV_Vals = SleepData.NREM.data.CBV.(CBVdataType){CBV, 1}(1:(NREM_sleepTime*CBVSamplingRate));
+    NREM_CBV_Vals = SleepData.NREM.data.CBV.(CBVdataType){CBV, 1}(1:(NREM_sleepTime*CBVsamplingRate));
     NREM_dsCBV_Vals = downsample(NREM_CBV_Vals, 6);
     NREM_dT_sleepCBV_Vals{CBV, 1} = detrend(NREM_dsCBV_Vals, 'constant');
 end
@@ -349,7 +349,7 @@ end
 
 % CBV
 for CBV = 1:length(SleepData.REM.data.CBV.(CBVdataType))
-    REM_CBV_Vals = SleepData.REM.data.CBV.(CBVdataType){CBV, 1}(1:(REM_sleepTime*CBVSamplingRate));
+    REM_CBV_Vals = SleepData.REM.data.CBV.(CBVdataType){CBV, 1}(1:(REM_sleepTime*CBVsamplingRate));
     REM_dsCBV_Vals = downsample(REM_CBV_Vals, 6);
     REM_dT_sleepCBV_Vals{CBV, 1} = detrend(REM_dsCBV_Vals, 'constant');
 end

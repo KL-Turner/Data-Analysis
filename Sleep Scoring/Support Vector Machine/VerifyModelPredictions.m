@@ -36,7 +36,8 @@ for a = 1:length(animalIDs)
     procDataFiles = {procDataFileStruct.name}';
     procDataFileIDs = char(procDataFiles);
     
-    AddSleepParameters_SVM(procDataFileIDs, RestingBaselines)
+    baselineType = 'manualSelection';
+    AddSleepParameters_SVM(procDataFileIDs, RestingBaselines, baselineType)
     CreateModelDataSet_SVM(procDataFileIDs)
     modelDataFileStruct = dir('*_ModelData.mat');
     modelDataFiles = {modelDataFileStruct.name}';

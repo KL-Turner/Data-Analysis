@@ -172,7 +172,7 @@ xlabel('Frequency (Hz)');
 ylabel('Power');
 title([animalID  ' LH ' dataType ' Power during awake rest']);
 set(gca, 'Ticklength', [0 0]);
-legend('Coherence', 'Jackknife Lower', 'JackknifeUpper', 'Bootstrap Lower', 'Bootstrap Upper', 'Location', 'Southeast');
+legend('Coherence', 'Jackknife Lower', 'JackknifeUpper', 'Location', 'Southeast');
 set(legend, 'FontSize', 6);
 xlim([0 1])
 axis square
@@ -187,7 +187,7 @@ xlabel('Frequency (Hz)');
 ylabel('Power');
 title([animalID  ' RH ' dataType ' Power during awake rest']);
 set(gca, 'Ticklength', [0 0]);
-legend('Coherence', 'Jackknife Lower', 'JackknifeUpper', 'Bootstrap Lower', 'Bootstrap Upper', 'Location', 'Southeast');
+legend('Coherence', 'Jackknife Lower', 'JackknifeUpper', 'Location', 'Southeast');
 set(legend, 'FontSize', 6);
 xlim([0 1])
 axis square
@@ -203,24 +203,24 @@ if strcmp(dataType, 'CBV') == false
     ylabel('Power');
     title([animalID  ' Hippocampal ' dataType ' Power during awake rest']);
     set(gca, 'Ticklength', [0 0]);
-    legend('Coherence', 'Jackknife Lower', 'JackknifeUpper', 'Bootstrap Lower', 'Bootstrap Upper', 'Location', 'Southeast');
+    legend('Coherence', 'Jackknife Lower', 'JackknifeUpper', 'Location', 'Southeast');
     set(legend, 'FontSize', 6);
     xlim([0 1])
     axis square
 end
 
-AnalysisResults.PowerSpectra.Rest.(dataType).S = LH_rest_S;
-AnalysisResults.PowerSpectra.Rest.(dataType).f = LH_rest_f;
-AnalysisResults.PowerSpectra.Rest.(dataType).sErr = LH_rest_sErr;
+AnalysisResults.PowerSpectra.Rest.(dataType).LH.S = LH_rest_S;
+AnalysisResults.PowerSpectra.Rest.(dataType).LH.f = LH_rest_f;
+AnalysisResults.PowerSpectra.Rest.(dataType).LH.sErr = LH_rest_sErr;
 
-AnalysisResults.PowerSpectra.Rest.(dataType).S = RH_rest_S;
-AnalysisResults.PowerSpectra.Rest.(dataType).f = RH_rest_f;
-AnalysisResults.PowerSpectra.Rest.(dataType).sErr = RH_rest_sErr;
+AnalysisResults.PowerSpectra.Rest.(dataType).RH.S = RH_rest_S;
+AnalysisResults.PowerSpectra.Rest.(dataType).RH.f = RH_rest_f;
+AnalysisResults.PowerSpectra.Rest.(dataType).RH.sErr = RH_rest_sErr;
 
 if strcmp(dataType, 'CBV') == false
-    AnalysisResults.PowerSpectra.Rest.(dataType).S = Hip_rest_S;
-    AnalysisResults.PowerSpectra.Rest.(dataType).f = Hip_rest_f;
-    AnalysisResults.PowerSpectra.Rest.(dataType).sErr = Hip_rest_sErr;
+    AnalysisResults.PowerSpectra.Rest.(dataType).Hip.S = Hip_rest_S;
+    AnalysisResults.PowerSpectra.Rest.(dataType).Hip.f = Hip_rest_f;
+    AnalysisResults.PowerSpectra.Rest.(dataType).Hip.sErr = Hip_rest_sErr;
 end
 
 [pathstr, ~, ~] = fileparts(cd);
@@ -295,7 +295,7 @@ xlabel('Frequency (Hz)');
 ylabel('Power');
 title([animalID  ' LH ' dataType ' Power during NREM sleep']);
 set(gca, 'Ticklength', [0 0]);
-legend('Coherence', 'Jackknife Lower', 'JackknifeUpper', 'Bootstrap Lower', 'Bootstrap Upper', 'Location', 'Southeast');
+legend('Coherence', 'Jackknife Lower', 'JackknifeUpper', 'Location', 'Southeast');
 set(legend, 'FontSize', 6);
 xlim([0 1])
 axis square
@@ -310,7 +310,7 @@ xlabel('Frequency (Hz)');
 ylabel('Power');
 title([animalID  ' RH ' dataType ' Power during NREM sleep']);
 set(gca, 'Ticklength', [0 0]);
-legend('Coherence', 'Jackknife Lower', 'JackknifeUpper', 'Bootstrap Lower', 'Bootstrap Upper', 'Location', 'Southeast');
+legend('Coherence', 'Jackknife Lower', 'JackknifeUpper', 'Location', 'Southeast');
 set(legend, 'FontSize', 6);
 xlim([0 1])
 axis square
@@ -326,24 +326,24 @@ if strcmp(dataType, 'CBV') == false
     ylabel('Power');
     title([animalID  ' Hippocampal ' dataType ' Power during NREM sleep']);
     set(gca, 'Ticklength', [0 0]);
-    legend('Coherence', 'Jackknife Lower', 'JackknifeUpper', 'Bootstrap Lower', 'Bootstrap Upper', 'Location', 'Southeast');
+    legend('Coherence', 'Jackknife Lower', 'JackknifeUpper', 'Location', 'Southeast');
     set(legend, 'FontSize', 6);
     xlim([0 1])
     axis square
 end
 
-AnalysisResults.PowerSpectra.NREM.(dataType).S = LH_nrem_S;
-AnalysisResults.PowerSpectra.NREM.(dataType).f = LH_nrem_f;
-AnalysisResults.PowerSpectra.NREM.(dataType).sErr = LH_nrem_sErr;
+AnalysisResults.PowerSpectra.NREM.(dataType).LH.S = LH_nrem_S;
+AnalysisResults.PowerSpectra.NREM.(dataType).LH.f = LH_nrem_f;
+AnalysisResults.PowerSpectra.NREM.(dataType).LH.sErr = LH_nrem_sErr;
 
-AnalysisResults.PowerSpectra.NREM.(dataType).S = RH_nrem_S;
-AnalysisResults.PowerSpectra.NREM.(dataType).f = RH_nrem_f;
-AnalysisResults.PowerSpectra.NREM.(dataType).sErr = RH_nrem_sErr;
+AnalysisResults.PowerSpectra.NREM.(dataType).RH.S = RH_nrem_S;
+AnalysisResults.PowerSpectra.NREM.(dataType).RH.f = RH_nrem_f;
+AnalysisResults.PowerSpectra.NREM.(dataType).RH.sErr = RH_nrem_sErr;
 
 if strcmp(dataType, 'CBV') == false
-    AnalysisResults.PowerSpectra.NREM.(dataType).S = Hip_nrem_S;
-    AnalysisResults.PowerSpectra.NREM.(dataType).f = Hip_nrem_f;
-    AnalysisResults.PowerSpectra.NREM.(dataType).sErr = Hip_nrem_sErr;
+    AnalysisResults.PowerSpectra.NREM.(dataType).Hip.S = Hip_nrem_S;
+    AnalysisResults.PowerSpectra.NREM.(dataType).Hip.f = Hip_nrem_f;
+    AnalysisResults.PowerSpectra.NREM.(dataType).Hip.sErr = Hip_nrem_sErr;
 end
 
 [pathstr, ~, ~] = fileparts(cd);
@@ -418,7 +418,7 @@ xlabel('Frequency (Hz)');
 ylabel('Power');
 title([animalID  ' LH ' dataType ' Power during REM sleep']);
 set(gca, 'Ticklength', [0 0]);
-legend('Coherence', 'Jackknife Lower', 'JackknifeUpper', 'Bootstrap Lower', 'Bootstrap Upper', 'Location', 'Southeast');
+legend('Coherence', 'Jackknife Lower', 'JackknifeUpper', 'Location', 'Southeast');
 set(legend, 'FontSize', 6);
 xlim([0 1])
 axis square
@@ -433,7 +433,7 @@ xlabel('Frequency (Hz)');
 ylabel('Power');
 title([animalID  ' RH ' dataType ' Power during REM sleep']);
 set(gca, 'Ticklength', [0 0]);
-legend('Coherence', 'Jackknife Lower', 'JackknifeUpper', 'Bootstrap Lower', 'Bootstrap Upper', 'Location', 'Southeast');
+legend('Coherence', 'Jackknife Lower', 'JackknifeUpper', 'Location', 'Southeast');
 set(legend, 'FontSize', 6);
 xlim([0 1])
 axis square
@@ -449,24 +449,24 @@ if strcmp(dataType, 'CBV') == false
     ylabel('Power');
     title([animalID  ' Hippocampal ' dataType ' Power during REM sleep']);
     set(gca, 'Ticklength', [0 0]);
-    legend('Coherence', 'Jackknife Lower', 'JackknifeUpper', 'Bootstrap Lower', 'Bootstrap Upper', 'Location', 'Southeast');
+    legend('Coherence', 'Jackknife Lower', 'JackknifeUpper', 'Location', 'Southeast');
     set(legend, 'FontSize', 6);
     xlim([0 1])
     axis square
 end
 
-AnalysisResults.PowerSpectra.REM.(dataType).S = LH_rem_S;
-AnalysisResults.PowerSpectra.REM.(dataType).f = LH_rem_f;
-AnalysisResults.PowerSpectra.REM.(dataType).sErr = LH_rem_sErr;
+AnalysisResults.PowerSpectra.REM.(dataType).LH.S = LH_rem_S;
+AnalysisResults.PowerSpectra.REM.(dataType).LH.f = LH_rem_f;
+AnalysisResults.PowerSpectra.REM.(dataType).LH.sErr = LH_rem_sErr;
 
-AnalysisResults.PowerSpectra.REM.(dataType).S = RH_rem_S;
-AnalysisResults.PowerSpectra.REM.(dataType).f = RH_rem_f;
-AnalysisResults.PowerSpectra.REM.(dataType).sErr = RH_rem_sErr;
+AnalysisResults.PowerSpectra.REM.(dataType).RH.S = RH_rem_S;
+AnalysisResults.PowerSpectra.REM.(dataType).RH.f = RH_rem_f;
+AnalysisResults.PowerSpectra.REM.(dataType).RH.sErr = RH_rem_sErr;
 
 if strcmp(dataType, 'CBV') == false
-    AnalysisResults.PowerSpectra.REM.(dataType).S = Hip_rem_S;
-    AnalysisResults.PowerSpectra.REM.(dataType).f = Hip_rem_f;
-    AnalysisResults.PowerSpectra.REM.(dataType).sErr = Hip_rem_sErr;
+    AnalysisResults.PowerSpectra.REM.(dataType).Hip.S = Hip_rem_S;
+    AnalysisResults.PowerSpectra.REM.(dataType).Hip.f = Hip_rem_f;
+    AnalysisResults.PowerSpectra.REM.(dataType).Hip.sErr = Hip_rem_sErr;
 end
 
 [pathstr, ~, ~] = fileparts(cd);
