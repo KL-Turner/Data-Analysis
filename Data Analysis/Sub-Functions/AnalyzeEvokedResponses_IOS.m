@@ -184,7 +184,7 @@ for a = 1:length(whiskCriteriaNames)
     axis square
     
     subplot(3,1,3);
-    plot(timeVector, meanWhiskHbTData)
+    plot(timeVector, meanWhiskHbTData, 'k')
     hold on
     plot(timeVector, meanWhiskHbTData + stdWhiskHbTData, 'color', colors_IOS('battleship grey'))
     plot(timeVector, meanWhiskHbTData - stdWhiskHbTData, 'color', colors_IOS('battleship grey'))
@@ -362,7 +362,7 @@ for a = 1:length(stimCriteriaNames)
     axis square
     
     subplot(3,1,3);
-    plot(timeVector, meanStimHbTData)
+    plot(timeVector, meanStimHbTData, 'k')
     hold on
     plot(timeVector, meanStimHbTData + stdStimHbTData, 'color', colors_IOS('battleship grey'))
     plot(timeVector, meanStimHbTData - stdStimHbTData, 'color', colors_IOS('battleship grey'))
