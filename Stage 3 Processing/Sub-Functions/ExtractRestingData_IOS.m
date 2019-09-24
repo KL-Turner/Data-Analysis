@@ -19,7 +19,7 @@ end
 
 for a = 1:length(dataTypes)
     dataType = dataTypes(a);
-    if strcmp(dataType, 'CBV')
+    if strcmp(dataType, 'CBV') == true || strcmp(dataType, 'CBV_HbT') == true
         subDataTypes = {'LH', 'LH_Electrode', 'RH', 'RH_Electrode'};
     elseif strcmp(dataType, 'EMG')
         subDataTypes = {'emg'};
@@ -46,10 +46,10 @@ for a = 1:length(dataTypes)
 
             % Sampling frequency for element of dataTypes
             Fs = ProcData.notes.CBVCamSamplingRate;                                     
-
-            % Expected number of samples for element of dataType                      
-            expectedLength = ProcData.notes.trialDuration_sec*Fs;
-
+            
+            % Expected number of samples for element of dataType
+            trialDuration_sec = ProcData.notes.trialDuration_sec;
+            expectedLength = trialDuration_sec*Fs;
             % Get information about periods of rest from the loaded file
             trialEventTimes = ProcData.flags.rest.eventTime';
             trialPuffDistances = ProcData.flags.rest.puffDistance;
@@ -91,6 +91,7 @@ for a = 1:length(dataTypes)
         RestData.(dataTypes{a}).(subDataTypes{b}).fileIDs = [fileIDs{:}]';
         RestData.(dataTypes{a}).(subDataTypes{b}).fileDates = [fileDates{:}]';
         RestData.(dataTypes{a}).(subDataTypes{b}).CBVCamSamplingRate = Fs;
+        RestData.(dataTypes{a}).(subDataTypes{b}).trialDuration_sec = trialDuration_sec;
     end
 end
 

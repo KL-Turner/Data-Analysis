@@ -23,6 +23,6 @@ bin_wwf1 = gt(dd_wwf, thresh1);   % Acceleration exceeds lower threshold
 bin_wwf2 = gt(dd_wwf, thresh2);   % Acceleration exceeds upper threshold
 
 % Combine the two waveforms
-bin_wwf = (bin_wwf1 + bin_wwf2) / 2;
+bin_wwf = (bin_wwf1 + bin_wwf2)/2;
 
 end

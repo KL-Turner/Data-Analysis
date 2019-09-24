@@ -51,7 +51,7 @@ end
 
 for a = 1:length(dataTypes)
     dataType = char(dataTypes(a));
-    if strcmp(dataType, 'CBV')
+    if strcmp(dataType, 'CBV') == true || strcmp(dataType, 'CBV_HbT') == true
         subdataTypes = {'LH', 'LH_Electrode', 'RH', 'RH_Electrode'};
     elseif strcmp(dataType, 'EMG')
         subdataTypes = {'emg'};
@@ -78,6 +78,7 @@ for a = 1:length(dataTypes)
 
             % Set the sampling frequency for the dataType
             samplingRate = ProcData.notes.dsFs;
+            trialDuration_sec = ProcData.notes.trialDuration_sec;
 
             % Loop over the behaviors present in the file
             for d = 1:length(behaviorFields)
@@ -123,6 +124,7 @@ for a = 1:length(dataTypes)
                 % Add the sampling frequency, assume all Fs are the same for given
                 % dataType
                 temp.(sDT).(behaviorFields{d}).samplingRate = {samplingRate};
+                temp.(sDT).(behaviorFields{d}).trialDuration_sec = {trialDuration_sec};
             end 
         end
     end
