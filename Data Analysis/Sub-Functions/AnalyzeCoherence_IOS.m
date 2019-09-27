@@ -53,7 +53,6 @@ manualFileIDs = unique(RestingBaselines.manualSelection.baselineFileInfo.fileIDs
 fileTarget = params.targetMinutes/trialDuration_min;
 filterSets = {'manualSelection','setDuration','entireDuration'};
 
-%% Analyze coherence during periods of rest
 RestCriteria.Fieldname = {'durations'};
 RestCriteria.Comparison = {'gt'};
 RestCriteria.Value = {params.minTime.Rest};
@@ -65,7 +64,8 @@ PuffCriteria.Value = {5};
 for a = 1:length(dataTypes)
     dataType = dataTypes{1,a};
     for b = 1:length(filterSets)
-        filterSet = filterSets{1,b};     
+        filterSet = filterSets{1,b}; 
+        %% Analyze coherence during periods of rest
         % use the RestCriteria we specified earlier to find all resting events that are greater than the criteria
         if strcmp(dataType,'CBV') == true || strcmp(dataType,'CBV_HbT') == true
             [restLogical] = FilterEvents_IOS(RestData.(dataType).LH,RestCriteria);
@@ -362,7 +362,7 @@ for a = 1:length(dataTypes)
         RH_FinalAllData(:,q) = RH_ProcAllData{q,1};
     end
     
-        % calculate the coherence between desired signals
+    % calculate the coherence between desired signals
     disp(['Analyzing the all data coherence between L/R ' dataType ' signals...']); disp(' ')
     [C_allData,~, ~, ~, ~,f_allData, ~, ~,cErr_allData] = coherencyc_IOS(LH_FinalAllData,RH_FinalAllData,params);
     

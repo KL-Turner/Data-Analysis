@@ -67,7 +67,7 @@ params.targetMinutes = 30;   % minutes
 params.minTime.Rest = 10;   % seconds
 params.minTime.NREM = 60;   % seconds
 params.minTime.REM = 60;   % seconds
-[AnalysisResults] = AnalyzePowerSpectrum_IOS(powerspec_dataType, params, AnalysisResults);
+[AnalysisResults] = AnalyzePowerSpectrum_IOS(powerspec_dataTypes,baselineType,params,AnalysisResults);
     
 %% BLOCK PURPOSE: [4] Analyze mean CBV and STD/variance
 % for dT = 1:length(dataTypes)
