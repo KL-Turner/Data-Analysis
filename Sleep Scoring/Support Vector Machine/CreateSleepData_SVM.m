@@ -27,19 +27,19 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
     load(procDataFileID);                             % Load in procDataFile associated with character string
     [animal, ~, fileID] = GetFileInfo_IOS(procDataFileID);     % Gather file info
     
-    clear LH_deltaPower RH_deltaPower LH_thetaPower RH_thetaPower LH_alphaPower RH_alphaPower LH_betaPower RH_betaPower LH_gammaPower RH_gammaPower Hip_deltaPower Hip_thetaPower Hip_alphaPower Hip_betaPower Hip_gammaPower
+    clear LH_deltaPower RH_deltaPower LH_thetaPower RH_thetaPower LH_alphaPower RH_alphaPower LH_betaPower RH_betaPower LH_gammaPower RH_gammaPower LH_muaPower RH_muaPower Hip_deltaPower Hip_thetaPower Hip_alphaPower Hip_betaPower Hip_gammaPower Hip_muaPower
     clear LH_specDeltaPower RH_specDeltaPower LH_specThetaPower RH_specThetaPower LH_specAlphaPower RH_specAlphaPower LH_specBetaPower RH_specBetaPower LH_specGammaPower RH_specGammaPower Hip_specDeltaPower Hip_specThetaPower Hip_specAlphaPower Hip_specBetaPower Hip_specGammaPower
     clear LH_CBV RH_CBV LH_ElectrodeCBV RH_ElectrodeCBV LH_hbtCBV RH_hbtCBV LH_ElectrodehbtCBV RH_ElectrodehbtCBV BinTimes WhiskerAcceleration HeartRate 
     
-    clear cellLH_DeltaPower cellRH_DeltaPower cellLH_ThetaPower cellRH_ThetaPower cellLH_AlphaPower cellRH_AlphaPower cellLH_BetaPower cellRH_BetaPower cellLH_GammaPower cellRH_GammaPower cellHip_DeltaPower cellHip_ThetaPower cellHip_AlphaPower cellHip_BetaPower cellHip_GammaPower
+    clear cellLH_DeltaPower cellRH_DeltaPower cellLH_ThetaPower cellRH_ThetaPower cellLH_AlphaPower cellRH_AlphaPower cellLH_BetaPower cellRH_BetaPower cellLH_GammaPower cellRH_GammaPower cellLH_MUAPower cellRH_MUAPower cellHip_DeltaPower cellHip_ThetaPower cellHip_AlphaPower cellHip_BetaPower cellHip_GammaPower cellHip_MUAPower
     clear cellLH_specDeltaPower cellRH_specDeltaPower cellLH_specThetaPower cellRH_specThetaPower cellLH_specAlphaPower cellRH_specAlphaPower cellLH_specBetaPower cellRH_specBetaPower cellLH_specGammaPower cellRH_specGammaPower cellHip_specDeltaPower cellHip_specThetaPower cellHip_specAlphaPower cellHip_specBetaPower cellHip_specGammaPower
     clear cellLH_CBV cellRH_CBV cellLH_ElectrodeCBV cellRH_ElectrodeCBV cellLH_hbtCBV cellRH_hbtCBV cellLH_ElectrodehbtCBV cellRH_ElectrodehbtCBV cellBinTimes cellWhiskerAcceleration cellHeartRate 
  
-    clear mat2CellLH_DeltaPower mat2CellRH_DeltaPower mat2CellLH_ThetaPower mat2CellRH_ThetaPower mat2CellLH_AlphaPower mat2CellRH_AlphaPower mat2CellLH_BetaPower mat2CellRH_BetaPower mat2CellLH_GammaPower mat2CellRH_GammaPower mat2CellHip_DeltaPower mat2CellHip_ThetaPower mat2CellHip_AlphaPower mat2CellHip_BetaPower mat2CellHip_GammaPower
+    clear mat2CellLH_DeltaPower mat2CellRH_DeltaPower mat2CellLH_ThetaPower mat2CellRH_ThetaPower mat2CellLH_AlphaPower mat2CellRH_AlphaPower mat2CellLH_BetaPower mat2CellRH_BetaPower mat2CellLH_GammaPower mat2CellRH_GammaPower mat2CellLH_MUAPower mat2CellRH_MUAPower mat2CellHip_DeltaPower mat2CellHip_ThetaPower mat2CellHip_AlphaPower mat2CellHip_BetaPower mat2CellHip_GammaPower mat2CellHip_MUAPower
     clear mat2CellLH_specDeltaPower mat2CellRH_specDeltaPower mat2CellLH_specThetaPower mat2CellRH_specThetaPower mat2CellLH_specAlphaPower mat2CellRH_specAlphaPower mat2CellLH_specBetaPower mat2CellRH_specBetaPower mat2CellLH_specGammaPower mat2CellRH_specGammaPower mat2CellHip_specDeltaPower mat2CellHip_specThetaPower mat2CellHip_specAlphaPower mat2CellHip_specBetaPower mat2CellHip_specGammaPower
     clear mat2CellLH_CBV mat2CellRH_CBV mat2CellLH_ElectrodeCBV mat2CellRH_ElectrodeCBV mat2CellLH_hbtCBV mat2CellRH_hbtCBV mat2CellLH_ElectrodehbtCBV mat2CellRH_ElectrodehbtCBV mat2CellBinTimes mat2CellWhiskerAcceleration mat2CellHeartRate 
       
-    clear matLH_DeltaPower matRH_DeltaPower matLH_ThetaPower matRH_ThetaPower matLH_AlphaPower matRH_AlphaPower matLH_BetaPower matRH_BetaPower matLH_GammaPower matRH_GammaPower matHip_DeltaPower matHip_ThetaPower matHip_AlphaPower matHip_BetaPower matHip_GammaPower
+    clear matLH_DeltaPower matRH_DeltaPower matLH_ThetaPower matRH_ThetaPower matLH_AlphaPower matRH_AlphaPower matLH_BetaPower matRH_BetaPower matLH_GammaPower matRH_GammaPower matLH_MUAPower matRH_MUAPower matHip_DeltaPower matHip_ThetaPower matHip_AlphaPower matHip_BetaPower matHip_GammaPower matHip_MUAPower
     clear matLH_specDeltaPower matRH_specDeltaPower matLH_specThetaPower matRH_specThetaPower matLH_specAlphaPower matRH_specAlphaPower matLH_specBetaPower matRH_specBetaPower matLH_specGammaPower matRH_specGammaPower matHip_specDeltaPower matHip_specThetaPower matHip_specAlphaPower matHip_specBetaPower matHip_specGammaPower
     clear matLH_CBV matRH_CBV matLH_ElectrodeCBV matRH_ElectrodeCBV matLH_hbtCBV matRH_hbtCBV matLH_ElectrodehbtCBV matRH_ElectrodehbtCBV matBinTimes matWhiskerAcceleration matHeartRate 
       
@@ -67,13 +67,16 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
             RH_betaPower{indexCount, 1} = ProcData.sleep.parameters.cortical_RH.betaBandPower{fixedSleepIndex(indexCount), 1};
             LH_gammaPower{indexCount, 1} = ProcData.sleep.parameters.cortical_LH.gammaBandPower{fixedSleepIndex(indexCount), 1};
             RH_gammaPower{indexCount, 1} = ProcData.sleep.parameters.cortical_RH.gammaBandPower{fixedSleepIndex(indexCount), 1};
+            LH_muaPower{indexCount, 1} = ProcData.sleep.parameters.cortical_LH.muaPower{fixedSleepIndex(indexCount), 1};
+            RH_muaPower{indexCount, 1} = ProcData.sleep.parameters.cortical_RH.muaPower{fixedSleepIndex(indexCount), 1};
             
             Hip_deltaPower{indexCount, 1} = ProcData.sleep.parameters.hippocampus.deltaBandPower{fixedSleepIndex(indexCount), 1};
             Hip_thetaPower{indexCount, 1} = ProcData.sleep.parameters.hippocampus.thetaBandPower{fixedSleepIndex(indexCount), 1};
             Hip_alphaPower{indexCount, 1} = ProcData.sleep.parameters.hippocampus.alphaBandPower{fixedSleepIndex(indexCount), 1};
             Hip_betaPower{indexCount, 1} = ProcData.sleep.parameters.hippocampus.betaBandPower{fixedSleepIndex(indexCount), 1};
             Hip_gammaPower{indexCount, 1} = ProcData.sleep.parameters.hippocampus.gammaBandPower{fixedSleepIndex(indexCount), 1};
-            
+            Hip_muaPower{indexCount, 1} = ProcData.sleep.parameters.hippocampus.muaPower{fixedSleepIndex(indexCount), 1};
+
             % filtered spectrogram bands
             LH_specDeltaPower{indexCount, 1} = ProcData.sleep.parameters.cortical_LH.specDeltaBandPower{fixedSleepIndex(indexCount), 1};
             RH_specDeltaPower{indexCount, 1} = ProcData.sleep.parameters.cortical_RH.specDeltaBandPower{fixedSleepIndex(indexCount), 1};
@@ -152,6 +155,14 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
             arrayRH_GammaPower = reshape(matRH_GammaPower', [1, size(matRH_GammaPower, 2)*size(matRH_GammaPower, 1)]);
             cellRH_GammaPower = {arrayRH_GammaPower};
                  
+            matLH_MUAPower = cell2mat(LH_muaPower);
+            arrayLH_MUAPower = reshape(matLH_MUAPower', [1, size(matLH_MUAPower, 2)*size(matLH_MUAPower, 1)]);
+            cellLH_MUAPower = {arrayLH_MUAPower};
+            
+            matRH_MUAPower = cell2mat(RH_muaPower);
+            arrayRH_MUAPower = reshape(matRH_MUAPower', [1, size(matRH_MUAPower, 2)*size(matRH_MUAPower, 1)]);
+            cellRH_MUAPower = {arrayRH_MUAPower};
+            
             matHip_DeltaPower = cell2mat(Hip_deltaPower);
             arrayHip_DeltaPower = reshape(matHip_DeltaPower', [1, size(matHip_DeltaPower, 2)*size(matHip_DeltaPower, 1)]);
             cellHip_DeltaPower = {arrayHip_DeltaPower};
@@ -171,6 +182,10 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
             matHip_GammaPower = cell2mat(Hip_gammaPower);
             arrayHip_GammaPower = reshape(matHip_GammaPower', [1, size(matHip_GammaPower, 2)*size(matHip_GammaPower, 1)]);
             cellHip_GammaPower = {arrayHip_GammaPower};
+            
+            matHip_MUAPower = cell2mat(Hip_muaPower);
+            arrayHip_MUAPower = reshape(matHip_MUAPower', [1, size(matHip_MUAPower, 2)*size(matHip_MUAPower, 1)]);
+            cellHip_MUAPower = {arrayHip_MUAPower};
             
              % filtered spectrogram bands
             matLH_specDeltaPower = cell2mat(LH_specDeltaPower);
@@ -329,12 +344,16 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
                 mat2CellRH_BetaPower{matCounter, 1} = RH_betaPower(convertedMat2Cell{matCounter, 1});
                 mat2CellLH_GammaPower{matCounter, 1} = LH_gammaPower(convertedMat2Cell{matCounter, 1});
                 mat2CellRH_GammaPower{matCounter, 1} = RH_gammaPower(convertedMat2Cell{matCounter, 1});
+                mat2CellLH_MUAPower{matCounter, 1} = LH_muaPower(convertedMat2Cell{matCounter, 1});
+                mat2CellRH_MUAPower{matCounter, 1} = RH_muaPower(convertedMat2Cell{matCounter, 1});
+                
                 mat2CellHip_DeltaPower{matCounter, 1} = Hip_deltaPower(convertedMat2Cell{matCounter, 1});
                 mat2CellHip_ThetaPower{matCounter, 1} = Hip_thetaPower(convertedMat2Cell{matCounter, 1});
                 mat2CellHip_AlphaPower{matCounter, 1} = Hip_alphaPower(convertedMat2Cell{matCounter, 1});
                 mat2CellHip_BetaPower{matCounter, 1} = Hip_betaPower(convertedMat2Cell{matCounter, 1});
                 mat2CellHip_GammaPower{matCounter, 1} = Hip_gammaPower(convertedMat2Cell{matCounter, 1});
-                
+                mat2CellHip_MUAPower{matCounter, 1} = Hip_muaPower(convertedMat2Cell{matCounter, 1});
+
                 mat2CellLH_specDeltaPower{matCounter, 1} = LH_specDeltaPower(convertedMat2Cell{matCounter, 1});
                 mat2CellRH_specDeltaPower{matCounter, 1} = RH_specDeltaPower(convertedMat2Cell{matCounter, 1});
                 mat2CellLH_specThetaPower{matCounter, 1} = LH_specThetaPower(convertedMat2Cell{matCounter, 1});
@@ -408,6 +427,14 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
                 arrayRH_GammaPower = reshape(matRH_GammaPower', [1, size(matRH_GammaPower, 2)*size(matRH_GammaPower, 1)]);
                 cellRH_GammaPower{cellCounter, 1} = arrayRH_GammaPower;
                                
+                matLH_MUAPower = cell2mat(mat2CellLH_MUAPower{cellCounter, 1});
+                arrayLH_MUAPower = reshape(matLH_MUAPower', [1, size(matLH_MUAPower, 2)*size(matLH_MUAPower, 1)]);
+                cellLH_MUAPower{cellCounter, 1} = arrayLH_MUAPower;
+                
+                matRH_MUAPower = cell2mat(mat2CellRH_MUAPower{cellCounter, 1});
+                arrayRH_MUAPower = reshape(matRH_MUAPower', [1, size(matRH_MUAPower, 2)*size(matRH_MUAPower, 1)]);
+                cellRH_MUAPower{cellCounter, 1} = arrayRH_MUAPower;
+                
                 matHip_DeltaPower = cell2mat(mat2CellHip_DeltaPower{cellCounter, 1});
                 arrayHip_DeltaPower = reshape(matHip_DeltaPower', [1, size(matHip_DeltaPower, 2)*size(matHip_DeltaPower, 1)]);
                 cellHip_DeltaPower{cellCounter, 1} = arrayHip_DeltaPower;
@@ -428,13 +455,13 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
                 arrayHip_GammaPower = reshape(matHip_GammaPower', [1, size(matHip_GammaPower, 2)*size(matHip_GammaPower, 1)]);
                 cellHip_GammaPower{cellCounter, 1} = arrayHip_GammaPower;
 
-                try
+                matHip_MUAPower = cell2mat(mat2CellHip_MUAPower{cellCounter, 1});
+                arrayHip_MUAPower = reshape(matHip_MUAPower', [1, size(matHip_MUAPower, 2)*size(matHip_MUAPower, 1)]);
+                cellHip_MUAPower{cellCounter, 1} = arrayHip_MUAPower;
+                
                 matLH_specDeltaPower = cell2mat(mat2CellLH_specDeltaPower{cellCounter, 1});
                 arrayLH_specDeltaPower = reshape(matLH_specDeltaPower', [1, size(matLH_specDeltaPower, 2)*size(matLH_specDeltaPower, 1)]);
                 cellLH_specDeltaPower{cellCounter, 1} = arrayLH_specDeltaPower;
-                catch
-                    keyboard
-                end
                 
                 matRH_specDeltaPower = cell2mat(mat2CellRH_specDeltaPower{cellCounter, 1});
                 arrayRH_specDeltaPower = reshape(matRH_specDeltaPower', [1, size(matRH_specDeltaPower, 2)*size(matRH_specDeltaPower, 1)]);
@@ -573,13 +600,16 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
                 SleepData.NREM.data.cortical_RH.betaBandPower{cellLength, 1} = cellRH_BetaPower{1, 1};
                 SleepData.NREM.data.cortical_LH.gammaBandPower{cellLength, 1} = cellLH_GammaPower{1, 1};
                 SleepData.NREM.data.cortical_RH.gammaBandPower{cellLength, 1} = cellRH_GammaPower{1, 1};
+                SleepData.NREM.data.cortical_LH.muaPower{cellLength, 1} = cellLH_MUAPower{1, 1};
+                SleepData.NREM.data.cortical_RH.muaPower{cellLength, 1} = cellRH_MUAPower{1, 1};
                 
                 SleepData.NREM.data.hippocampus.deltaBandPower{cellLength, 1} = cellHip_DeltaPower{1, 1};
                 SleepData.NREM.data.hippocampus.thetaBandPower{cellLength, 1} = cellHip_ThetaPower{1, 1};
                 SleepData.NREM.data.hippocampus.alphaBandPower{cellLength, 1} = cellHip_AlphaPower{1, 1};
                 SleepData.NREM.data.hippocampus.betaBandPower{cellLength, 1} = cellHip_BetaPower{1, 1};
                 SleepData.NREM.data.hippocampus.gammaBandPower{cellLength, 1} = cellHip_GammaPower{1, 1};
-                
+                SleepData.NREM.data.hippocampus.muaPower{cellLength, 1} = cellHip_MUAPower{1, 1};
+
                 SleepData.NREM.data.cortical_LH.specDeltaBandPower{cellLength, 1} = cellLH_specDeltaPower{1, 1};
                 SleepData.NREM.data.cortical_RH.specDeltaBandPower{cellLength, 1} = cellRH_specDeltaPower{1, 1};
                 SleepData.NREM.data.cortical_LH.specThetaBandPower{cellLength, 1} = cellLH_specThetaPower{1, 1};
@@ -602,10 +632,10 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
                 SleepData.NREM.data.CBV.LH_Electrode{cellLength, 1} = cellLH_ElectrodeCBV{1, 1};
                 SleepData.NREM.data.CBV.RH_Electrode{cellLength, 1} = cellRH_ElectrodeCBV{1, 1};
                 
-                SleepData.NREM.data.CBV.hbtLH{cellLength, 1} = cellLH_hbtCBV{1, 1};
-                SleepData.NREM.data.CBV.hbtRH{cellLength, 1} = cellRH_hbtCBV{1, 1};
-                SleepData.NREM.data.CBV.hbtLH_Electrode{cellLength, 1} = cellLH_ElectrodehbtCBV{1, 1};
-                SleepData.NREM.data.CBV.hbtRH_Electrode{cellLength, 1} = cellRH_ElectrodehbtCBV{1, 1};
+                SleepData.NREM.data.CBV_HbT.LH{cellLength, 1} = cellLH_hbtCBV{1, 1};
+                SleepData.NREM.data.CBV_HbT.RH{cellLength, 1} = cellRH_hbtCBV{1, 1};
+                SleepData.NREM.data.CBV_HbT.LH_Electrode{cellLength, 1} = cellLH_ElectrodehbtCBV{1, 1};
+                SleepData.NREM.data.CBV_HbT.RH_Electrode{cellLength, 1} = cellRH_ElectrodehbtCBV{1, 1};
                 
                 SleepData.NREM.data.WhiskerAcceleration{cellLength, 1} = cellWhiskerAcceleration{1, 1};
                 SleepData.NREM.data.HeartRate{cellLength, 1} = cellHeartRate{1, 1};
@@ -624,12 +654,15 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
                 SleepData.NREM.data.cortical_RH.betaBandPower{size(SleepData.NREM.data.cortical_RH.betaBandPower, 1) + 1, 1} = cellRH_BetaPower{cellLength, 1};
                 SleepData.NREM.data.cortical_LH.gammaBandPower{size(SleepData.NREM.data.cortical_LH.gammaBandPower, 1) + 1, 1} = cellLH_GammaPower{cellLength, 1};
                 SleepData.NREM.data.cortical_RH.gammaBandPower{size(SleepData.NREM.data.cortical_RH.gammaBandPower, 1) + 1, 1} = cellRH_GammaPower{cellLength, 1};
+                SleepData.NREM.data.cortical_LH.muaPower{size(SleepData.NREM.data.cortical_LH.muaPower, 1) + 1, 1} = cellLH_MUAPower{cellLength, 1};
+                SleepData.NREM.data.cortical_RH.muaPower{size(SleepData.NREM.data.cortical_RH.muaPower, 1) + 1, 1} = cellRH_MUAPower{cellLength, 1};
 
                 SleepData.NREM.data.hippocampus.deltaBandPower{size(SleepData.NREM.data.hippocampus.deltaBandPower, 1) + 1, 1} = cellHip_DeltaPower{cellLength, 1};
                 SleepData.NREM.data.hippocampus.thetaBandPower{size(SleepData.NREM.data.hippocampus.thetaBandPower, 1) + 1, 1} = cellHip_ThetaPower{cellLength, 1};
                 SleepData.NREM.data.hippocampus.alphaBandPower{size(SleepData.NREM.data.hippocampus.alphaBandPower, 1) + 1, 1} = cellHip_AlphaPower{cellLength, 1};
                 SleepData.NREM.data.hippocampus.betaBandPower{size(SleepData.NREM.data.hippocampus.betaBandPower, 1) + 1, 1} = cellHip_BetaPower{cellLength, 1};
                 SleepData.NREM.data.hippocampus.gammaBandPower{size(SleepData.NREM.data.hippocampus.gammaBandPower, 1) + 1, 1} = cellHip_GammaPower{cellLength, 1};
+                SleepData.NREM.data.hippocampus.muaPower{size(SleepData.NREM.data.hippocampus.muaPower, 1) + 1, 1} = cellHip_MUAPower{cellLength, 1};
 
                 SleepData.NREM.data.cortical_LH.specDeltaBandPower{size(SleepData.NREM.data.cortical_LH.specDeltaBandPower, 1) + 1, 1} = cellLH_specDeltaPower{cellLength, 1};
                 SleepData.NREM.data.cortical_RH.specDeltaBandPower{size(SleepData.NREM.data.cortical_RH.specDeltaBandPower, 1) + 1, 1} = cellRH_specDeltaPower{cellLength, 1};
@@ -653,10 +686,10 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
                 SleepData.NREM.data.CBV.LH_Electrode{size(SleepData.NREM.data.CBV.LH_Electrode, 1) + 1, 1} = cellLH_ElectrodeCBV{cellLength, 1};
                 SleepData.NREM.data.CBV.RH_Electrode{size(SleepData.NREM.data.CBV.RH_Electrode, 1) + 1, 1} = cellRH_ElectrodeCBV{cellLength, 1};
                 
-                SleepData.NREM.data.CBV.hbtLH{size(SleepData.NREM.data.CBV.hbtLH, 1) + 1, 1} = cellLH_hbtCBV{cellLength, 1};
-                SleepData.NREM.data.CBV.hbtRH{size(SleepData.NREM.data.CBV.hbtRH, 1) + 1, 1} = cellRH_hbtCBV{cellLength, 1};
-                SleepData.NREM.data.CBV.hbtLH_Electrode{size(SleepData.NREM.data.CBV.hbtLH_Electrode, 1) + 1, 1} = cellLH_ElectrodehbtCBV{cellLength, 1};
-                SleepData.NREM.data.CBV.hbtRH_Electrode{size(SleepData.NREM.data.CBV.hbtRH_Electrode, 1) + 1, 1} = cellRH_ElectrodehbtCBV{cellLength, 1};
+                SleepData.NREM.data.CBV_HbT.LH{size(SleepData.NREM.data.CBV_HbT.LH, 1) + 1, 1} = cellLH_hbtCBV{cellLength, 1};
+                SleepData.NREM.data.CBV_HbT.RH{size(SleepData.NREM.data.CBV_HbT.RH, 1) + 1, 1} = cellRH_hbtCBV{cellLength, 1};
+                SleepData.NREM.data.CBV_HbT.LH_Electrode{size(SleepData.NREM.data.CBV_HbT.LH_Electrode, 1) + 1, 1} = cellLH_ElectrodehbtCBV{cellLength, 1};
+                SleepData.NREM.data.CBV_HbT.RH_Electrode{size(SleepData.NREM.data.CBV_HbT.RH_Electrode, 1) + 1, 1} = cellRH_ElectrodehbtCBV{cellLength, 1};
                 
                 SleepData.NREM.data.WhiskerAcceleration{size(SleepData.NREM.data.WhiskerAcceleration, 1) + 1, 1} = cellWhiskerAcceleration{cellLength, 1};
                 SleepData.NREM.data.HeartRate{size(SleepData.NREM.data.HeartRate, 1) + 1, 1} = cellHeartRate{cellLength, 1};
@@ -675,22 +708,22 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
     load(procDataFileID);                             % Load in procDataFile associated with character string
     [animal, ~, fileID] = GetFileInfo_IOS(procDataFileID);     % Gather file info
     
-    clear LH_deltaPower RH_deltaPower LH_thetaPower RH_thetaPower LH_alphaPower RH_alphaPower LH_betaPower RH_betaPower LH_gammaPower RH_gammaPower Hip_deltaPower Hip_thetaPower Hip_alphaPower Hip_betaPower Hip_gammaPower
+    clear LH_deltaPower RH_deltaPower LH_thetaPower RH_thetaPower LH_alphaPower RH_alphaPower LH_betaPower RH_betaPower LH_gammaPower RH_gammaPower LH_muaPower RH_muaPower Hip_deltaPower Hip_thetaPower Hip_alphaPower Hip_betaPower Hip_gammaPower Hip_muaPower
     clear LH_specDeltaPower RH_specDeltaPower LH_specThetaPower RH_specThetaPower LH_specAlphaPower RH_specAlphaPower LH_specBetaPower RH_specBetaPower LH_specGammaPower RH_specGammaPower Hip_specDeltaPower Hip_specThetaPower Hip_specAlphaPower Hip_specBetaPower Hip_specGammaPower
-    clear LH_CBV RH_CBV LH_ElectrodeCBV RH_ElectrodeCBV LH_hbtCBV RH_hbtCBV LH_ElectrodehbtCBV RH_ElectrodehbtCBV BinTimes WhiskerAcceleration HeartRate
+    clear LH_CBV RH_CBV LH_ElectrodeCBV RH_ElectrodeCBV LH_hbtCBV RH_hbtCBV LH_ElectrodehbtCBV RH_ElectrodehbtCBV BinTimes WhiskerAcceleration HeartRate 
     
-    clear cellLH_DeltaPower cellRH_DeltaPower cellLH_ThetaPower cellRH_ThetaPower cellLH_AlphaPower cellRH_AlphaPower cellLH_BetaPower cellRH_BetaPower cellLH_GammaPower cellRH_GammaPower cellHip_DeltaPower cellHip_ThetaPower cellHip_AlphaPower cellHip_BetaPower cellHip_GammaPower
+    clear cellLH_DeltaPower cellRH_DeltaPower cellLH_ThetaPower cellRH_ThetaPower cellLH_AlphaPower cellRH_AlphaPower cellLH_BetaPower cellRH_BetaPower cellLH_GammaPower cellRH_GammaPower cellLH_MUAPower cellRH_MUAPower cellHip_DeltaPower cellHip_ThetaPower cellHip_AlphaPower cellHip_BetaPower cellHip_GammaPower cellHip_MUAPower
     clear cellLH_specDeltaPower cellRH_specDeltaPower cellLH_specThetaPower cellRH_specThetaPower cellLH_specAlphaPower cellRH_specAlphaPower cellLH_specBetaPower cellRH_specBetaPower cellLH_specGammaPower cellRH_specGammaPower cellHip_specDeltaPower cellHip_specThetaPower cellHip_specAlphaPower cellHip_specBetaPower cellHip_specGammaPower
-    clear cellLH_CBV cellRH_CBV cellLH_ElectrodeCBV cellRH_ElectrodeCBV cellLH_hbtCBV cellRH_hbtCBV cellLH_ElectrodehbtCBV cellRH_ElectrodehbtCBV cellBinTimes cellWhiskerAcceleration cellHeartRate
-    
-    clear mat2CellLH_DeltaPower mat2CellRH_DeltaPower mat2CellLH_ThetaPower mat2CellRH_ThetaPower mat2CellLH_AlphaPower mat2CellRH_AlphaPower mat2CellLH_BetaPower mat2CellRH_BetaPower mat2CellLH_GammaPower mat2CellRH_GammaPower mat2CellHip_DeltaPower mat2CellHip_ThetaPower mat2CellHip_AlphaPower mat2CellHip_BetaPower mat2CellHip_GammaPower
+    clear cellLH_CBV cellRH_CBV cellLH_ElectrodeCBV cellRH_ElectrodeCBV cellLH_hbtCBV cellRH_hbtCBV cellLH_ElectrodehbtCBV cellRH_ElectrodehbtCBV cellBinTimes cellWhiskerAcceleration cellHeartRate 
+ 
+    clear mat2CellLH_DeltaPower mat2CellRH_DeltaPower mat2CellLH_ThetaPower mat2CellRH_ThetaPower mat2CellLH_AlphaPower mat2CellRH_AlphaPower mat2CellLH_BetaPower mat2CellRH_BetaPower mat2CellLH_GammaPower mat2CellRH_GammaPower mat2CellLH_MUAPower mat2CellRH_MUAPower mat2CellHip_DeltaPower mat2CellHip_ThetaPower mat2CellHip_AlphaPower mat2CellHip_BetaPower mat2CellHip_GammaPower mat2CellHip_MUAPower
     clear mat2CellLH_specDeltaPower mat2CellRH_specDeltaPower mat2CellLH_specThetaPower mat2CellRH_specThetaPower mat2CellLH_specAlphaPower mat2CellRH_specAlphaPower mat2CellLH_specBetaPower mat2CellRH_specBetaPower mat2CellLH_specGammaPower mat2CellRH_specGammaPower mat2CellHip_specDeltaPower mat2CellHip_specThetaPower mat2CellHip_specAlphaPower mat2CellHip_specBetaPower mat2CellHip_specGammaPower
-    clear mat2CellLH_CBV mat2CellRH_CBV mat2CellLH_ElectrodeCBV mat2CellRH_ElectrodeCBV mat2CellLH_hbtCBV mat2CellRH_hbtCBV mat2CellLH_ElectrodehbtCBV mat2CellRH_ElectrodehbtCBV mat2CellBinTimes mat2CellWhiskerAcceleration mat2CellHeartRate
-    
-    clear matLH_DeltaPower matRH_DeltaPower matLH_ThetaPower matRH_ThetaPower matLH_AlphaPower matRH_AlphaPower matLH_BetaPower matRH_BetaPower matLH_GammaPower matRH_GammaPower matHip_DeltaPower matHip_ThetaPower matHip_AlphaPower matHip_BetaPower matHip_GammaPower
+    clear mat2CellLH_CBV mat2CellRH_CBV mat2CellLH_ElectrodeCBV mat2CellRH_ElectrodeCBV mat2CellLH_hbtCBV mat2CellRH_hbtCBV mat2CellLH_ElectrodehbtCBV mat2CellRH_ElectrodehbtCBV mat2CellBinTimes mat2CellWhiskerAcceleration mat2CellHeartRate 
+      
+    clear matLH_DeltaPower matRH_DeltaPower matLH_ThetaPower matRH_ThetaPower matLH_AlphaPower matRH_AlphaPower matLH_BetaPower matRH_BetaPower matLH_GammaPower matRH_GammaPower matLH_MUAPower matRH_MUAPower matHip_DeltaPower matHip_ThetaPower matHip_AlphaPower matHip_BetaPower matHip_GammaPower matHip_MUAPower
     clear matLH_specDeltaPower matRH_specDeltaPower matLH_specThetaPower matRH_specThetaPower matLH_specAlphaPower matRH_specAlphaPower matLH_specBetaPower matRH_specBetaPower matLH_specGammaPower matRH_specGammaPower matHip_specDeltaPower matHip_specThetaPower matHip_specAlphaPower matHip_specBetaPower matHip_specGammaPower
-    clear matLH_CBV matRH_CBV matLH_ElectrodeCBV matRH_ElectrodeCBV matLH_hbtCBV matRH_hbtCBV matLH_ElectrodehbtCBV matRH_ElectrodehbtCBV matBinTimes matWhiskerAcceleration matHeartRate
-    
+    clear matLH_CBV matRH_CBV matLH_ElectrodeCBV matRH_ElectrodeCBV matLH_hbtCBV matRH_hbtCBV matLH_ElectrodehbtCBV matRH_ElectrodehbtCBV matBinTimes matWhiskerAcceleration matHeartRate 
+        
     remLogical = ProcData.sleep.logicals.remLogical;    % Logical - ones denote potential sleep epoches (5 second bins)
     targetTime = ones(1, sleepBins);   % Target time 
     sleepIndex = find(conv(remLogical, targetTime) >= sleepBins) - (sleepBins - 1);   % Find the periods of time where there are at least 11 more
@@ -715,13 +748,16 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
             RH_betaPower{indexCount, 1} = ProcData.sleep.parameters.cortical_RH.betaBandPower{fixedSleepIndex(indexCount), 1};
             LH_gammaPower{indexCount, 1} = ProcData.sleep.parameters.cortical_LH.gammaBandPower{fixedSleepIndex(indexCount), 1};
             RH_gammaPower{indexCount, 1} = ProcData.sleep.parameters.cortical_RH.gammaBandPower{fixedSleepIndex(indexCount), 1};
+            LH_muaPower{indexCount, 1} = ProcData.sleep.parameters.cortical_LH.muaPower{fixedSleepIndex(indexCount), 1};
+            RH_muaPower{indexCount, 1} = ProcData.sleep.parameters.cortical_RH.muaPower{fixedSleepIndex(indexCount), 1};
             
             Hip_deltaPower{indexCount, 1} = ProcData.sleep.parameters.hippocampus.deltaBandPower{fixedSleepIndex(indexCount), 1};
             Hip_thetaPower{indexCount, 1} = ProcData.sleep.parameters.hippocampus.thetaBandPower{fixedSleepIndex(indexCount), 1};
             Hip_alphaPower{indexCount, 1} = ProcData.sleep.parameters.hippocampus.alphaBandPower{fixedSleepIndex(indexCount), 1};
             Hip_betaPower{indexCount, 1} = ProcData.sleep.parameters.hippocampus.betaBandPower{fixedSleepIndex(indexCount), 1};
             Hip_gammaPower{indexCount, 1} = ProcData.sleep.parameters.hippocampus.gammaBandPower{fixedSleepIndex(indexCount), 1};
-            
+            Hip_muaPower{indexCount, 1} = ProcData.sleep.parameters.hippocampus.muaPower{fixedSleepIndex(indexCount), 1};
+
             % filtered spectrogram bands
             LH_specDeltaPower{indexCount, 1} = ProcData.sleep.parameters.cortical_LH.specDeltaBandPower{fixedSleepIndex(indexCount), 1};
             RH_specDeltaPower{indexCount, 1} = ProcData.sleep.parameters.cortical_RH.specDeltaBandPower{fixedSleepIndex(indexCount), 1};
@@ -799,7 +835,15 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
             matRH_GammaPower = cell2mat(RH_gammaPower);
             arrayRH_GammaPower = reshape(matRH_GammaPower', [1, size(matRH_GammaPower, 2)*size(matRH_GammaPower, 1)]);
             cellRH_GammaPower = {arrayRH_GammaPower};
-                 
+            
+            matLH_MUAPower = cell2mat(LH_muaPower);
+            arrayLH_MUAPower = reshape(matLH_MUAPower', [1, size(matLH_MUAPower, 2)*size(matLH_MUAPower, 1)]);
+            cellLH_MUAPower = {arrayLH_MUAPower};
+            
+            matRH_MUAPower = cell2mat(RH_muaPower);
+            arrayRH_MUAPower = reshape(matRH_MUAPower', [1, size(matRH_MUAPower, 2)*size(matRH_MUAPower, 1)]);
+            cellRH_MUAPower = {arrayRH_MUAPower};
+            
             matHip_DeltaPower = cell2mat(Hip_deltaPower);
             arrayHip_DeltaPower = reshape(matHip_DeltaPower', [1, size(matHip_DeltaPower, 2)*size(matHip_DeltaPower, 1)]);
             cellHip_DeltaPower = {arrayHip_DeltaPower};
@@ -820,7 +864,11 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
             arrayHip_GammaPower = reshape(matHip_GammaPower', [1, size(matHip_GammaPower, 2)*size(matHip_GammaPower, 1)]);
             cellHip_GammaPower = {arrayHip_GammaPower};
             
-             % filtered spectrogram bands
+            matHip_MUAPower = cell2mat(Hip_muaPower);
+            arrayHip_MUAPower = reshape(matHip_MUAPower', [1, size(matHip_MUAPower, 2)*size(matHip_MUAPower, 1)]);
+            cellHip_MUAPower = {arrayHip_MUAPower};
+            
+            % filtered spectrogram bands
             matLH_specDeltaPower = cell2mat(LH_specDeltaPower);
             arrayLH_specDeltaPower = reshape(matLH_specDeltaPower', [1, size(matLH_specDeltaPower, 2)*size(matLH_specDeltaPower, 1)]);
             cellLH_specDeltaPower = {arrayLH_specDeltaPower};
@@ -977,12 +1025,16 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
                 mat2CellRH_BetaPower{matCounter, 1} = RH_betaPower(convertedMat2Cell{matCounter, 1});
                 mat2CellLH_GammaPower{matCounter, 1} = LH_gammaPower(convertedMat2Cell{matCounter, 1});
                 mat2CellRH_GammaPower{matCounter, 1} = RH_gammaPower(convertedMat2Cell{matCounter, 1});
+                mat2CellLH_MUAPower{matCounter, 1} = LH_muaPower(convertedMat2Cell{matCounter, 1});
+                mat2CellRH_MUAPower{matCounter, 1} = RH_muaPower(convertedMat2Cell{matCounter, 1});
+                
                 mat2CellHip_DeltaPower{matCounter, 1} = Hip_deltaPower(convertedMat2Cell{matCounter, 1});
                 mat2CellHip_ThetaPower{matCounter, 1} = Hip_thetaPower(convertedMat2Cell{matCounter, 1});
                 mat2CellHip_AlphaPower{matCounter, 1} = Hip_alphaPower(convertedMat2Cell{matCounter, 1});
                 mat2CellHip_BetaPower{matCounter, 1} = Hip_betaPower(convertedMat2Cell{matCounter, 1});
                 mat2CellHip_GammaPower{matCounter, 1} = Hip_gammaPower(convertedMat2Cell{matCounter, 1});
-                
+                mat2CellHip_MUAPower{matCounter, 1} = Hip_muaPower(convertedMat2Cell{matCounter, 1});
+
                 mat2CellLH_specDeltaPower{matCounter, 1} = LH_specDeltaPower(convertedMat2Cell{matCounter, 1});
                 mat2CellRH_specDeltaPower{matCounter, 1} = RH_specDeltaPower(convertedMat2Cell{matCounter, 1});
                 mat2CellLH_specThetaPower{matCounter, 1} = LH_specThetaPower(convertedMat2Cell{matCounter, 1});
@@ -1055,7 +1107,15 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
                 matRH_GammaPower = cell2mat(mat2CellRH_GammaPower{cellCounter, 1});
                 arrayRH_GammaPower = reshape(matRH_GammaPower', [1, size(matRH_GammaPower, 2)*size(matRH_GammaPower, 1)]);
                 cellRH_GammaPower{cellCounter, 1} = arrayRH_GammaPower;
-                               
+                
+                matLH_MUAPower = cell2mat(mat2CellLH_MUAPower{cellCounter, 1});
+                arrayLH_MUAPower = reshape(matLH_MUAPower', [1, size(matLH_MUAPower, 2)*size(matLH_MUAPower, 1)]);
+                cellLH_MUAPower{cellCounter, 1} = arrayLH_MUAPower;
+                
+                matRH_MUAPower = cell2mat(mat2CellRH_MUAPower{cellCounter, 1});
+                arrayRH_MUAPower = reshape(matRH_MUAPower', [1, size(matRH_MUAPower, 2)*size(matRH_MUAPower, 1)]);
+                cellRH_MUAPower{cellCounter, 1} = arrayRH_MUAPower;
+                
                 matHip_DeltaPower = cell2mat(mat2CellHip_DeltaPower{cellCounter, 1});
                 arrayHip_DeltaPower = reshape(matHip_DeltaPower', [1, size(matHip_DeltaPower, 2)*size(matHip_DeltaPower, 1)]);
                 cellHip_DeltaPower{cellCounter, 1} = arrayHip_DeltaPower;
@@ -1075,15 +1135,15 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
                 matHip_GammaPower = cell2mat(mat2CellHip_GammaPower{cellCounter, 1});
                 arrayHip_GammaPower = reshape(matHip_GammaPower', [1, size(matHip_GammaPower, 2)*size(matHip_GammaPower, 1)]);
                 cellHip_GammaPower{cellCounter, 1} = arrayHip_GammaPower;
-
-                try
+                
+                matHip_MUAPower = cell2mat(mat2CellHip_MUAPower{cellCounter, 1});
+                arrayHip_MUAPower = reshape(matHip_MUAPower', [1, size(matHip_MUAPower, 2)*size(matHip_MUAPower, 1)]);
+                cellHip_MUAPower{cellCounter, 1} = arrayHip_MUAPower;
+                
                 matLH_specDeltaPower = cell2mat(mat2CellLH_specDeltaPower{cellCounter, 1});
                 arrayLH_specDeltaPower = reshape(matLH_specDeltaPower', [1, size(matLH_specDeltaPower, 2)*size(matLH_specDeltaPower, 1)]);
                 cellLH_specDeltaPower{cellCounter, 1} = arrayLH_specDeltaPower;
-                catch
-                    keyboard
-                end
-                
+            
                 matRH_specDeltaPower = cell2mat(mat2CellRH_specDeltaPower{cellCounter, 1});
                 arrayRH_specDeltaPower = reshape(matRH_specDeltaPower', [1, size(matRH_specDeltaPower, 2)*size(matRH_specDeltaPower, 1)]);
                 cellRH_specDeltaPower{cellCounter, 1} = arrayRH_specDeltaPower;
@@ -1221,13 +1281,16 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
                 SleepData.REM.data.cortical_RH.betaBandPower{cellLength, 1} = cellRH_BetaPower{1, 1};
                 SleepData.REM.data.cortical_LH.gammaBandPower{cellLength, 1} = cellLH_GammaPower{1, 1};
                 SleepData.REM.data.cortical_RH.gammaBandPower{cellLength, 1} = cellRH_GammaPower{1, 1};
+                SleepData.REM.data.cortical_LH.muaPower{cellLength, 1} = cellLH_MUAPower{1, 1};
+                SleepData.REM.data.cortical_RH.muaPower{cellLength, 1} = cellRH_MUAPower{1, 1};
                 
                 SleepData.REM.data.hippocampus.deltaBandPower{cellLength, 1} = cellHip_DeltaPower{1, 1};
                 SleepData.REM.data.hippocampus.thetaBandPower{cellLength, 1} = cellHip_ThetaPower{1, 1};
                 SleepData.REM.data.hippocampus.alphaBandPower{cellLength, 1} = cellHip_AlphaPower{1, 1};
                 SleepData.REM.data.hippocampus.betaBandPower{cellLength, 1} = cellHip_BetaPower{1, 1};
                 SleepData.REM.data.hippocampus.gammaBandPower{cellLength, 1} = cellHip_GammaPower{1, 1};
-                
+                SleepData.REM.data.hippocampus.muaPower{cellLength, 1} = cellHip_MUAPower{1, 1};
+
                 SleepData.REM.data.cortical_LH.specDeltaBandPower{cellLength, 1} = cellLH_specDeltaPower{1, 1};
                 SleepData.REM.data.cortical_RH.specDeltaBandPower{cellLength, 1} = cellRH_specDeltaPower{1, 1};
                 SleepData.REM.data.cortical_LH.specThetaBandPower{cellLength, 1} = cellLH_specThetaPower{1, 1};
@@ -1250,10 +1313,10 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
                 SleepData.REM.data.CBV.LH_Electrode{cellLength, 1} = cellLH_ElectrodeCBV{1, 1};
                 SleepData.REM.data.CBV.RH_Electrode{cellLength, 1} = cellRH_ElectrodeCBV{1, 1};
                 
-                SleepData.REM.data.CBV.hbtLH{cellLength, 1} = cellLH_hbtCBV{1, 1};
-                SleepData.REM.data.CBV.hbtRH{cellLength, 1} = cellRH_hbtCBV{1, 1};
-                SleepData.REM.data.CBV.hbtLH_Electrode{cellLength, 1} = cellLH_ElectrodehbtCBV{1, 1};
-                SleepData.REM.data.CBV.hbtRH_Electrode{cellLength, 1} = cellRH_ElectrodehbtCBV{1, 1};
+                SleepData.REM.data.CBV_HbT.LH{cellLength, 1} = cellLH_hbtCBV{1, 1};
+                SleepData.REM.data.CBV_HbT.RH{cellLength, 1} = cellRH_hbtCBV{1, 1};
+                SleepData.REM.data.CBV_HbT.LH_Electrode{cellLength, 1} = cellLH_ElectrodehbtCBV{1, 1};
+                SleepData.REM.data.CBV_HbT.RH_Electrode{cellLength, 1} = cellRH_ElectrodehbtCBV{1, 1};
                 
                 SleepData.REM.data.WhiskerAcceleration{cellLength, 1} = cellWhiskerAcceleration{1, 1};
                 SleepData.REM.data.HeartRate{cellLength, 1} = cellHeartRate{1, 1};
@@ -1272,12 +1335,15 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
                 SleepData.REM.data.cortical_RH.betaBandPower{size(SleepData.REM.data.cortical_RH.betaBandPower, 1) + 1, 1} = cellRH_BetaPower{cellLength, 1};
                 SleepData.REM.data.cortical_LH.gammaBandPower{size(SleepData.REM.data.cortical_LH.gammaBandPower, 1) + 1, 1} = cellLH_GammaPower{cellLength, 1};
                 SleepData.REM.data.cortical_RH.gammaBandPower{size(SleepData.REM.data.cortical_RH.gammaBandPower, 1) + 1, 1} = cellRH_GammaPower{cellLength, 1};
+                SleepData.REM.data.cortical_LH.muaPower{size(SleepData.REM.data.cortical_LH.muaPower, 1) + 1, 1} = cellLH_MUAPower{cellLength, 1};
+                SleepData.REM.data.cortical_RH.muaPower{size(SleepData.REM.data.cortical_RH.muaPower, 1) + 1, 1} = cellRH_MUAPower{cellLength, 1};
 
                 SleepData.REM.data.hippocampus.deltaBandPower{size(SleepData.REM.data.hippocampus.deltaBandPower, 1) + 1, 1} = cellHip_DeltaPower{cellLength, 1};
                 SleepData.REM.data.hippocampus.thetaBandPower{size(SleepData.REM.data.hippocampus.thetaBandPower, 1) + 1, 1} = cellHip_ThetaPower{cellLength, 1};
                 SleepData.REM.data.hippocampus.alphaBandPower{size(SleepData.REM.data.hippocampus.alphaBandPower, 1) + 1, 1} = cellHip_AlphaPower{cellLength, 1};
                 SleepData.REM.data.hippocampus.betaBandPower{size(SleepData.REM.data.hippocampus.betaBandPower, 1) + 1, 1} = cellHip_BetaPower{cellLength, 1};
                 SleepData.REM.data.hippocampus.gammaBandPower{size(SleepData.REM.data.hippocampus.gammaBandPower, 1) + 1, 1} = cellHip_GammaPower{cellLength, 1};
+                SleepData.REM.data.hippocampus.muaPower{size(SleepData.REM.data.hippocampus.muaPower, 1) + 1, 1} = cellHip_MUAPower{cellLength, 1};
 
                 SleepData.REM.data.cortical_LH.specDeltaBandPower{size(SleepData.REM.data.cortical_LH.specDeltaBandPower, 1) + 1, 1} = cellLH_specDeltaPower{cellLength, 1};
                 SleepData.REM.data.cortical_RH.specDeltaBandPower{size(SleepData.REM.data.cortical_RH.specDeltaBandPower, 1) + 1, 1} = cellRH_specDeltaPower{cellLength, 1};
@@ -1301,10 +1367,10 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
                 SleepData.REM.data.CBV.LH_Electrode{size(SleepData.REM.data.CBV.LH_Electrode, 1) + 1, 1} = cellLH_ElectrodeCBV{cellLength, 1};
                 SleepData.REM.data.CBV.RH_Electrode{size(SleepData.REM.data.CBV.RH_Electrode, 1) + 1, 1} = cellRH_ElectrodeCBV{cellLength, 1};
                 
-                SleepData.REM.data.CBV.hbtLH{size(SleepData.REM.data.CBV.hbtLH, 1) + 1, 1} = cellLH_hbtCBV{cellLength, 1};
-                SleepData.REM.data.CBV.hbtRH{size(SleepData.REM.data.CBV.hbtRH, 1) + 1, 1} = cellRH_hbtCBV{cellLength, 1};
-                SleepData.REM.data.CBV.hbtLH_Electrode{size(SleepData.REM.data.CBV.hbtLH_Electrode, 1) + 1, 1} = cellLH_ElectrodehbtCBV{cellLength, 1};
-                SleepData.REM.data.CBV.hbtRH_Electrode{size(SleepData.REM.data.CBV.hbtRH_Electrode, 1) + 1, 1} = cellRH_ElectrodehbtCBV{cellLength, 1};
+                SleepData.REM.data.CBV_HbT.LH{size(SleepData.REM.data.CBV_HbT.LH, 1) + 1, 1} = cellLH_hbtCBV{cellLength, 1};
+                SleepData.REM.data.CBV_HbT.RH{size(SleepData.REM.data.CBV_HbT.RH, 1) + 1, 1} = cellRH_hbtCBV{cellLength, 1};
+                SleepData.REM.data.CBV_HbT.LH_Electrode{size(SleepData.REM.data.CBV_HbT.LH_Electrode, 1) + 1, 1} = cellLH_ElectrodehbtCBV{cellLength, 1};
+                SleepData.REM.data.CBV_HbT.RH_Electrode{size(SleepData.REM.data.CBV_HbT.RH_Electrode, 1) + 1, 1} = cellRH_ElectrodehbtCBV{cellLength, 1};
                 
                 SleepData.REM.data.WhiskerAcceleration{size(SleepData.REM.data.WhiskerAcceleration, 1) + 1, 1} = cellWhiskerAcceleration{cellLength, 1};
                 SleepData.REM.data.HeartRate{size(SleepData.REM.data.HeartRate, 1) + 1, 1} = cellHeartRate{cellLength, 1};

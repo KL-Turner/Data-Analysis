@@ -35,10 +35,10 @@ for a = 1:size(rawDataFiles, 1)
                 rawNeuro = detrend(horzcat(RawData.data.(neuralDataType), RawData.data.(neuralDataType)(end)*ones(1, sampleDiff)), 'constant');
             end
             
-            w0 = 60/(analogFs/2);
-            bw = w0/35;
-            [num,den] = iirnotch(w0, bw);
-            rawNeuro2 = filtfilt(num, den, rawNeuro);
+%             w0 = 60/(analogFs/2);
+%             bw = w0/35;
+%             [num,den] = iirnotch(w0, bw);
+%             rawNeuro2 = filtfilt(num, den, rawNeuro);
             
             % Spectrogram parameters
             params1.tapers = [1 1];
@@ -53,8 +53,8 @@ for a = 1:size(rawDataFiles, 1)
             
             disp(['Creating ' neuralDataType ' spectrogram for file number ' num2str(a) ' of ' num2str(size(rawDataFiles, 1)) '...']); disp(' ')
             
-            [S1, T1, F1] = mtspecgramc_IOS(rawNeuro2, movingwin1, params1);
-            [S5, T5, F5] = mtspecgramc_IOS(rawNeuro2, movingwin5, params5);
+            [S1, T1, F1] = mtspecgramc_IOS(rawNeuro, movingwin1, params1);
+            [S5, T5, F5] = mtspecgramc_IOS(rawNeuro, movingwin5, params5);
             
             SpecData.(neuralDataType).fiveSec.S = S5';
             SpecData.(neuralDataType).fiveSec.T = T5;

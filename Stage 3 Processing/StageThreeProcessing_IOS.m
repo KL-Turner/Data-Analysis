@@ -93,17 +93,17 @@ save([animalID '_RestData.mat'], 'RestData')
 save([animalID '_EventData.mat'], 'EventData')
 
 %% BLOCK PURPOSE: [10] Analyze the spectrogram for each session.
-% disp('Analyzing Block [10] Analyzing the spectrogram for each file and normalizing by the resting baseline.'); disp(' ')
-% CreateTrialSpectrograms_IOS(rawDataFileIDs, neuralDataTypes);
-% 
-% % Find spectrogram baselines for each day
-% specDirectory = dir('*_SpecData.mat');
-% specDataFiles = {specDirectory.name}';
-% specDataFileIDs = char(specDataFiles);
-% [RestingBaselines] = CalculateSpectrogramBaselines_IOS(animalID, neuralDataTypes, trialDuration_sec, specDataFileIDs, RestingBaselines, baselineType);
-% 
-% % Normalize spectrogram by baseline
-% NormalizeSpectrograms_IOS(specDataFileIDs, neuralDataTypes, RestingBaselines, baselineType);
+disp('Analyzing Block [10] Analyzing the spectrogram for each file and normalizing by the resting baseline.'); disp(' ')
+CreateTrialSpectrograms_IOS(rawDataFileIDs, neuralDataTypes);
+
+% Find spectrogram baselines for each day
+specDirectory = dir('*_SpecData.mat');
+specDataFiles = {specDirectory.name}';
+specDataFileIDs = char(specDataFiles);
+[RestingBaselines] = CalculateSpectrogramBaselines_IOS(animalID, neuralDataTypes, trialDuration_sec, specDataFileIDs, RestingBaselines, baselineType);
+
+% Normalize spectrogram by baseline
+NormalizeSpectrograms_IOS(specDataFileIDs, neuralDataTypes, RestingBaselines);
 
 %% BLOCK PURPOSE [11] Generate single trial figures
 % disp('Analyzing Block [11] Gennerating single trial summary figures'); disp(' ')

@@ -85,6 +85,18 @@ for a = 1:size(procDataFileIDs, 1)
     LH_NormGamma = (LH_Gamma-LH_baselineGamma)/LH_baselineGamma;
     RH_NormGamma = (RH_Gamma-RH_baselineGamma)/RH_baselineGamma;
     
+    % MUA
+    hippMUA = ProcData.data.hippocampus.muaPower;
+    hippBaselineMUA = RestingBaselines.(baselineType).hippocampus.muaPower.(strDay);
+    hippNormMUA = (hippMUA-hippBaselineMUA)/hippBaselineMUA;
+    
+    LH_MUA = ProcData.data.cortical_LH.muaPower;
+    RH_MUA = ProcData.data.cortical_RH.muaPower;
+    LH_baselineMUA = RestingBaselines.(baselineType).cortical_LH.muaPower.(strDay);
+    RH_baselineMUA = RestingBaselines.(baselineType).cortical_LH.muaPower.(strDay);
+    LH_NormMUA = (LH_MUA-LH_baselineMUA)/LH_baselineMUA;
+    RH_NormMUA = (RH_MUA-RH_baselineMUA)/RH_baselineMUA;
+    
     % Smooth the signal with a 1 Hz low pass 4th-order butterworth filter
     [B, A] = butter(4, 1/(30/2), 'low');
     hippDeltaNeuro = filtfilt(B, A, hippNormDelta);
@@ -92,7 +104,8 @@ for a = 1:size(procDataFileIDs, 1)
     hippAlphaNeuro = filtfilt(B, A, hippNormAlpha);
     hippBetaNeuro = filtfilt(B, A, hippNormBeta);
     hippGammaNeuro = filtfilt(B, A, hippNormGamma);
-    
+    hippMUANeuro = filtfilt(B, A, hippNormMUA);
+
     LH_DeltaNeuro = filtfilt(B, A, LH_NormDelta);
     RH_DeltaNeuro = filtfilt(B, A, RH_NormDelta);
     LH_ThetaNeuro = filtfilt(B, A, LH_NormTheta);
@@ -103,6 +116,8 @@ for a = 1:size(procDataFileIDs, 1)
     RH_BetaNeuro = filtfilt(B, A, RH_NormBeta);
     LH_GammaNeuro = filtfilt(B, A, LH_NormGamma);
     RH_GammaNeuro = filtfilt(B, A, RH_NormGamma);
+    LH_MUANeuro = filtfilt(B, A, LH_NormMUA);
+    RH_MUANeuro = filtfilt(B, A, RH_NormMUA);
     
     % Divide the neural signals into five second bins and put them in a cell array
     hipptempDeltaStruct = cell(180,1);
@@ -110,7 +125,8 @@ for a = 1:size(procDataFileIDs, 1)
     hipptempAlphaStruct = cell(180,1);
     hipptempBetaStruct = cell(180,1);
     hipptempGammaStruct = cell(180,1);
-    
+    hipptempMUAStruct = cell(180,1);
+
     LH_tempDeltaStruct = cell(180,1);
     RH_tempDeltaStruct = cell(180,1);
     LH_tempThetaStruct = cell(180,1);
@@ -121,6 +137,8 @@ for a = 1:size(procDataFileIDs, 1)
     RH_tempBetaStruct = cell(180,1);
     LH_tempGammaStruct = cell(180,1);
     RH_tempGammaStruct = cell(180,1);
+    LH_tempMUAStruct = cell(180,1);
+    RH_tempMUAStruct = cell(180,1);
     
     for neuralBins = 1:180   % loop through all 9000 samples across 5 minutes in 5 second bins (180 total)
         if neuralBins == 1
@@ -129,7 +147,8 @@ for a = 1:size(procDataFileIDs, 1)
             hipptempAlphaStruct(neuralBins,1) = {hippAlphaNeuro(neuralBins:150)};
             hipptempBetaStruct(neuralBins,1) = {hippBetaNeuro(neuralBins:150)};
             hipptempGammaStruct(neuralBins,1) = {hippGammaNeuro(neuralBins:150)};
-            
+            hipptempMUAStruct(neuralBins,1) = {hippMUANeuro(neuralBins:150)};
+
             LH_tempDeltaStruct(neuralBins,1) = {LH_DeltaNeuro(neuralBins:150)};
             RH_tempDeltaStruct(neuralBins,1) = {RH_DeltaNeuro(neuralBins:150)};
             LH_tempThetaStruct(neuralBins,1) = {LH_ThetaNeuro(neuralBins:150)};
@@ -140,13 +159,16 @@ for a = 1:size(procDataFileIDs, 1)
             RH_tempBetaStruct(neuralBins,1) = {RH_BetaNeuro(neuralBins:150)};
             LH_tempGammaStruct(neuralBins,1) = {LH_GammaNeuro(neuralBins:150)};
             RH_tempGammaStruct(neuralBins,1) = {RH_GammaNeuro(neuralBins:150)};
+            LH_tempMUAStruct(neuralBins,1) = {LH_MUANeuro(neuralBins:150)};
+            RH_tempMUAStruct(neuralBins,1) = {RH_MUANeuro(neuralBins:150)};
         elseif neuralBins == 180
             hipptempDeltaStruct(neuralBins,1) = {hippDeltaNeuro((((150*(neuralBins-1))+1)):end)};
             hipptempThetaStruct(neuralBins,1) = {hippThetaNeuro((((150*(neuralBins-1))+1)):end)};
             hipptempAlphaStruct(neuralBins,1) = {hippAlphaNeuro((((150*(neuralBins-1))+1)):end)};
             hipptempBetaStruct(neuralBins,1) = {hippBetaNeuro((((150*(neuralBins-1))+1)):end)};
             hipptempGammaStruct(neuralBins,1) = {hippGammaNeuro((((150*(neuralBins-1))+1)):end)};
-            
+            hipptempMUAStruct(neuralBins,1) = {hippMUANeuro((((150*(neuralBins-1))+1)):end)};
+
             LH_tempDeltaStruct(neuralBins,1) = {LH_DeltaNeuro((((150*(neuralBins-1))+1)):end)};
             RH_tempDeltaStruct(neuralBins,1) = {RH_DeltaNeuro((((150*(neuralBins-1))+1)):end)};
             LH_tempThetaStruct(neuralBins,1) = {LH_ThetaNeuro((((150*(neuralBins-1))+1)):end)};
@@ -157,13 +179,15 @@ for a = 1:size(procDataFileIDs, 1)
             RH_tempBetaStruct(neuralBins,1) = {RH_BetaNeuro((((150*(neuralBins-1))+1)):end)};
             LH_tempGammaStruct(neuralBins,1) = {LH_GammaNeuro((((150*(neuralBins-1))+1)):end)};
             RH_tempGammaStruct(neuralBins,1) = {RH_GammaNeuro((((150*(neuralBins-1))+1)):end)};
+            LH_tempMUAStruct(neuralBins,1) = {LH_MUANeuro((((150*(neuralBins-1))+1)):end)};
+            RH_tempMUAStruct(neuralBins,1) = {RH_MUANeuro((((150*(neuralBins-1))+1)):end)};
         else
             hipptempDeltaStruct(neuralBins,1) = {hippDeltaNeuro((((150*(neuralBins-1))+1)):(150*neuralBins))};
             hipptempThetaStruct(neuralBins,1) = {hippThetaNeuro((((150*(neuralBins-1))+1)):(150*neuralBins))};
             hipptempAlphaStruct(neuralBins,1) = {hippAlphaNeuro((((150*(neuralBins-1))+1)):(150*neuralBins))};
             hipptempBetaStruct(neuralBins,1) = {hippBetaNeuro((((150*(neuralBins-1))+1)):(150*neuralBins))};
             hipptempGammaStruct(neuralBins,1) = {hippGammaNeuro((((150*(neuralBins-1))+1)):(150*neuralBins))};
-            
+            hipptempMUAStruct(neuralBins,1) = {hippMUANeuro((((150*(neuralBins-1))+1)):(150*neuralBins))};
             
             LH_tempDeltaStruct(neuralBins,1) = {LH_DeltaNeuro((((150*(neuralBins-1))+1)):(150*neuralBins))};
             RH_tempDeltaStruct(neuralBins,1) = {RH_DeltaNeuro((((150*(neuralBins-1))+1)):(150*neuralBins))};
@@ -175,6 +199,8 @@ for a = 1:size(procDataFileIDs, 1)
             RH_tempBetaStruct(neuralBins,1) = {RH_BetaNeuro((((150*(neuralBins-1))+1)):(150*neuralBins))};
             LH_tempGammaStruct(neuralBins,1) = {LH_GammaNeuro((((150*(neuralBins-1))+1)):(150*neuralBins))};
             RH_tempGammaStruct(neuralBins,1) = {RH_GammaNeuro((((150*(neuralBins-1))+1)):(150*neuralBins))};
+            LH_tempMUAStruct(neuralBins,1) = {LH_MUANeuro((((150*(neuralBins-1))+1)):(150*neuralBins))};
+            RH_tempMUAStruct(neuralBins,1) = {RH_MUANeuro((((150*(neuralBins-1))+1)):(150*neuralBins))};
         end
     end
     
@@ -183,7 +209,8 @@ for a = 1:size(procDataFileIDs, 1)
     ProcData.sleep.parameters.hippocampus.alphaBandPower = hipptempThetaStruct;
     ProcData.sleep.parameters.hippocampus.betaBandPower = hipptempBetaStruct;
     ProcData.sleep.parameters.hippocampus.gammaBandPower = hipptempGammaStruct;
-    
+    ProcData.sleep.parameters.hippocampus.muaPower = hipptempMUAStruct;
+
     ProcData.sleep.parameters.cortical_LH.deltaBandPower = LH_tempDeltaStruct;
     ProcData.sleep.parameters.cortical_RH.deltaBandPower = RH_tempDeltaStruct;
     ProcData.sleep.parameters.cortical_LH.thetaBandPower = LH_tempThetaStruct;
@@ -194,6 +221,8 @@ for a = 1:size(procDataFileIDs, 1)
     ProcData.sleep.parameters.cortical_RH.betaBandPower = RH_tempBetaStruct;
     ProcData.sleep.parameters.cortical_LH.gammaBandPower = LH_tempGammaStruct;
     ProcData.sleep.parameters.cortical_RH.gammaBandPower = RH_tempGammaStruct;
+    ProcData.sleep.parameters.cortical_LH.muaPower = LH_tempMUAStruct;
+    ProcData.sleep.parameters.cortical_RH.muaPower = RH_tempMUAStruct;
     
     %% BLOCK PURPOSE: Create folder for the Neural spectrogram data of each electrode
     T = SpecData.cortical_LH.fiveSec.T;
@@ -218,7 +247,6 @@ for a = 1:size(procDataFileIDs, 1)
     meanDeltaSpecLH = mean(deltaSpecLH,1);
     meanDeltaSpecRH = mean(deltaSpecRH,1);
 
-    
     % theta
     thetaLow = freqFloor == 7;
     thetaHigh = freqFloor == 10;
@@ -261,7 +289,6 @@ for a = 1:size(procDataFileIDs, 1)
     meanBetaSpecLH = mean(betaSpecLH,1);
     meanBetaSpecRH = mean(betaSpecRH,1);
 
-    
     % gamma
     gammaLow = freqFloor == 30;
     gammaHigh = freqFloor == 99;

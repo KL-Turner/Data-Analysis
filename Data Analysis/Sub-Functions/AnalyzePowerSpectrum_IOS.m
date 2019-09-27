@@ -144,7 +144,6 @@ for n = 1:length(LH_finalRestData)
     end
 end
 
-
 % Calculate the power spectrum of the desired signals and save those signals in a the comparison data structure.
 disp(['Analyzing the power spectrum of the LH RestData ' dataType ' signal power...']); disp(' ')
 [LH_rest_S, LH_rest_f, LH_rest_sErr] = mtspectrumc_IOS(LH_restData, params);

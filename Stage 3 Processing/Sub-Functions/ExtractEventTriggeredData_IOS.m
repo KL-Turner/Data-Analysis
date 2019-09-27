@@ -56,7 +56,7 @@ for a = 1:length(dataTypes)
     elseif strcmp(dataType, 'EMG')
         subdataTypes = {'emg'};
     else
-        subdataTypes = {'deltaBandPower', 'thetaBandPower', 'alphaBandPower', 'betaBandPower', 'gammaBandPower'};
+        subdataTypes = {'deltaBandPower', 'thetaBandPower', 'alphaBandPower', 'betaBandPower', 'gammaBandPower', 'muaPower'};
     end
 
     temp = struct();

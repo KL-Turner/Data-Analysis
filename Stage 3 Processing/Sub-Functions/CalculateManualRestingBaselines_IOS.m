@@ -31,15 +31,16 @@ baselineDataFileStruct = dir('*_RestingBaselines.mat');
 baselineDataFiles = {baselineDataFileStruct.name}';
 baselineDataFileID = char(baselineDataFiles);
 
-manualFileListStruct = dir('*_ManualBaselineFileList.mat');
-manualFile = {manualFileListStruct.name}';
-manualFileID = char(manualFile);
+manualBaselineFileStruct = dir('*_ManualBaselineFileList.mat');
+manualBaselineFiles = {manualBaselineFileStruct.name}';
+manualBaselineFileID = char(manualBaselineFiles);
 
-if ~exist(manualFileID)
+if isfield(RestingBaselines, 'manualSelection') == false && exist(manualBaselineFileID) == false
     validFiles = cell(size(procDataFileIDs,1),1);
     for a = 1:size(procDataFileIDs,1)
         disp(['Loading file ' num2str(a) ' of ' num2str(size(procDataFileIDs,1)) '...']); disp(' ')
         procDataFileID = procDataFileIDs(a,:);
+        p{a,1} = procDataFileIDs(a,:);
         saveFigs = 'n';
         baselineType = 'setDuration';
         x = false;
@@ -56,9 +57,12 @@ if ~exist(manualFileID)
             end
         end
     end
-    save([animalID '_ManualBaselineFileList.mat'], 'validFiles')
 else
-    load(manualFileID)
+    for a = 1:size(procDataFileIDs,1)
+        p{a,1} = procDataFileIDs(a,:);
+    end
+    disp('Manual-scoring already complete. Continuing...'); disp(' ')
+    load(manualBaselineFileID)
 end
 
 q = 1;
@@ -170,6 +174,8 @@ end
 RestingBaselines.manualSelection.baselineFileInfo.fileIDs = finalFileIDs;
 RestingBaselines.manualSelection.baselineFileInfo.eventTimes = finalFileEventTimes;
 RestingBaselines.manualSelection.baselineFileInfo.durations = finalFileDurations;
+RestingBaselines.manualSelection.baselineFileInfo.selections = validFiles;
+RestingBaselines.manualSelection.baselineFileInfo.selectionFiles = p;
 
 save(baselineDataFileID, 'RestingBaselines')
 

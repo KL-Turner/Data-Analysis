@@ -24,7 +24,7 @@ for a = 1:length(dataTypes)
     elseif strcmp(dataType, 'EMG')
         subDataTypes = {'emg'};
     else
-        subDataTypes = {'deltaBandPower', 'thetaBandPower', 'alphaBandPower', 'betaBandPower', 'gammaBandPower'};
+        subDataTypes = {'deltaBandPower', 'thetaBandPower', 'alphaBandPower', 'betaBandPower', 'gammaBandPower', 'muaPower'};
     end
     
     for b = 1:length(subDataTypes)

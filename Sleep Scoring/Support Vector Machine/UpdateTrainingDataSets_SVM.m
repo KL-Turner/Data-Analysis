@@ -1,4 +1,4 @@
-function [] = UpdateTrainingDataSets(procDataFileIDs)
+function [] = UpdateTrainingDataSets_SVM(procDataFileIDs)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
