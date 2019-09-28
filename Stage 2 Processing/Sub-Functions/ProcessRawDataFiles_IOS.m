@@ -41,7 +41,7 @@ for a = 1:size(rawDataFiles,1)
     %% CBV from ROIs.
     CBVfields = fieldnames(RawData.data.CBV);
     for b = 1:length(CBVfields)
-        ProcData.data.CBV_reflectance.(CBVfields{b}(1:end-6)) = RawData.data.CBV.(CBVfields{b})(1:end - 1);
+        ProcData.data.CBV.(CBVfields{b}(1:end-6)) = RawData.data.CBV.(CBVfields{b})(1:end - 1);
     end
     CheckForNaNs_IOS(ProcData);
     

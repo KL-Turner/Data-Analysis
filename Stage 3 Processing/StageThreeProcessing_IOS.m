@@ -87,10 +87,10 @@ disp('Analyzing Block [8] Create EventData struct for CBV and neural data.'); di
 %% BLOCK PURPOSE: [9] Normalize RestData and EventData structures by the resting baseline
 disp('Analyzing Block [9] Normalizing RestData and EventData structures by the resting baseline.'); disp(' ')
 [RestData] = NormBehavioralDataStruct_IOS(RestData, RestingBaselines, baselineType);
-save([animalID '_RestData.mat'], 'RestData')
+save([animalID '_RestData.mat'], 'RestData','-v7.3')
 
 [EventData] = NormBehavioralDataStruct_IOS(EventData, RestingBaselines, baselineType);
-save([animalID '_EventData.mat'], 'EventData')
+save([animalID '_EventData.mat'], 'EventData','-v7.3')
 
 %% BLOCK PURPOSE: [10] Analyze the spectrogram for each session.
 disp('Analyzing Block [10] Analyzing the spectrogram for each file and normalizing by the resting baseline.'); disp(' ')

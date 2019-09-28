@@ -95,6 +95,6 @@ for a = 1:length(dataTypes)
     end
 end
 
-save([animal '_RestData.mat'], 'RestData'); 
+save([animal '_RestData.mat'], 'RestData','-v7.3'); 
 
 end

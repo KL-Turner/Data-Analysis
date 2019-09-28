@@ -141,11 +141,11 @@ for a = 1:length(dataTypes)
                 restFileFilter(f,1) = 0;
             end
         end
-        restFinalFileFilter = logical(restFinalFileFilter);
+        restFinalFileFilter = logical(restFileFilter);
         LH_finalRestData = LH_allRestingData(restFinalFileFilter,:);
         RH_finalRestData = RH_allRestingData(restFinalFileFilter,:);
         if strcmp(dataType,'CBV') == false && strcmp(dataType,'CBV_HbT') == false
-            Hip_finalRestData = Hip_allRestingData(finalFileFilter,:);
+            Hip_finalRestData = Hip_allRestingData(restFinalFileFilter,:);
         end
         
         % only take the first 10 seconds of the epoch. occassionally a sample gets lost from rounding during the
@@ -179,16 +179,16 @@ for a = 1:length(dataTypes)
         end
         
         % input data as time(1st dimension, vertical) by trials (2nd dimension, horizontally)
-        LH_restData = zeros(length(LH_finalRestData{1,1}),length(LH_finalRestData));
-        RH_restData = zeros(length(RH_finalRestData{1,1}),length(RH_finalRestData));
+        LH_restData = zeros(length(LH_ProcRestData{1,1}),length(LH_ProcRestData));
+        RH_restData = zeros(length(RH_ProcRestData{1,1}),length(RH_ProcRestData));
         if strcmp(dataType,'CBV') == false && strcmp(dataType,'CBV_HbT') == false
-            Hip_restData = zeros(length(Hip_finalRestData{1,1}),length(Hip_finalRestData));
+            Hip_restData = zeros(length(Hip_ProcRestData{1,1}),length(Hip_ProcRestData));
         end
-        for n = 1:length(LH_finalRestData)
-            LH_restData(:,n) = LH_finalRestData{n,1};
-            RH_restData(:,n) = RH_finalRestData{n,1};
+        for n = 1:length(LH_ProcRestData)
+            LH_restData(:,n) = LH_ProcRestData{n,1};
+            RH_restData(:,n) = RH_ProcRestData{n,1};
             if strcmp(dataType,'CBV') == false && strcmp(dataType,'CBV_HbT') == false
-                Hip_restData(:, n) = Hip_finalRestData{n,1};
+                Hip_restData(:,n) = Hip_ProcRestData{n,1};
             end
         end
         
@@ -313,12 +313,12 @@ for a = 1:length(dataTypes)
     
     % calculate the power spectra of the desired signals
     disp(['Analyzing the power spectrum of the LH NREM ' dataType ' signal power...']); disp(' ')
-    [LH_nrem_S,LH_nrem_f,LH_nrem_sErr] = mtspectrumc_IOS(LH_nremData,params);
+    [LH_nrem_S,LH_nrem_f,LH_nrem_sErr] = mtspectrumc_IOS(LH_nrem,params);
     disp(['Analyzing the power spectrum of the RH NREM ' dataType ' signal power...']); disp(' ')
-    [RH_nrem_S,RH_nrem_f,RH_nrem_sErr] = mtspectrumc_IOS(RH_nremData,params);
+    [RH_nrem_S,RH_nrem_f,RH_nrem_sErr] = mtspectrumc_IOS(RH_nrem,params);
     if strcmp(dataType,'CBV') == false && strcmp(dataType,'CBV_HbT') == false
         disp(['Analyzing the power spectrum of the Hippocampal NREM ' dataType ' signal power...']); disp(' ')
-        [Hip_nrem_S,Hip_nrem_f,Hip_nrem_sErr] = mtspectrumc_IOS(Hip_nremData,params);
+        [Hip_nrem_S,Hip_nrem_f,Hip_nrem_sErr] = mtspectrumc_IOS(Hip_nrem,params);
     end
     
     % nboot = 1000;
@@ -431,12 +431,12 @@ for a = 1:length(dataTypes)
     
     % calculate the power spectra of the desired signals
     disp(['Analyzing the power spectrum of the LH REM ' dataType ' signal power...']); disp(' ')
-    [LH_rem_S,LH_rem_f,LH_rem_sErr] = mtspectrumc_IOS(LH_remData,params);
+    [LH_rem_S,LH_rem_f,LH_rem_sErr] = mtspectrumc_IOS(LH_rem,params);
     disp(['Analyzing the power spectrum of the RH REM ' dataType ' signal power...']); disp(' ')
-    [RH_rem_S,RH_rem_f,RH_rem_sErr] = mtspectrumc_IOS(RH_remData,params);
+    [RH_rem_S,RH_rem_f,RH_rem_sErr] = mtspectrumc_IOS(RH_rem,params);
     if strcmp(dataType,'CBV') == false && strcmp(dataType,'CBV_HbT') == false
         disp(['Analyzing the power spectrum of the Hippocampal REM ' dataType ' signal power...']); disp(' ')
-        [Hip_rem_S,Hip_rem_f,Hip_rem_sErr] = mtspectrumc_IOS(Hip_remData,params);
+        [Hip_rem_S,Hip_rem_f,Hip_rem_sErr] = mtspectrumc_IOS(Hip_rem,params);
     end
     
     % nboot = 1000;

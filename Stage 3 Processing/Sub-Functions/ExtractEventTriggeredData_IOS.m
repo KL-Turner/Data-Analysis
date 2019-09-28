@@ -131,7 +131,7 @@ for a = 1:length(dataTypes)
     % Convert the temporary stuct into a final structure
     [EventData] = ProcessTempStruct(EventData, dataType, temp, epoch);
 end
-save([animal '_EventData.mat'], 'EventData');
+save([animal '_EventData.mat'], 'EventData','-v7.3');
 
 function [chunkdata, evFilter] = ExtractBehavioraldata(data, epoch, dataType, behavior)
 %
