@@ -1,4 +1,4 @@
-function [SVMModel] = TrainModel_SVM(animalIDs, driveLetters)
+function [SVMModel] = TrainModel_SVM(animalIDs, driveLetters,baselineType)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -33,9 +33,9 @@ for a = 1:length(animalIDs)
    cd(fileLoc)
    
    % Update parameters for the training data set
-   AddSleepParameters_SVM(procDataFileIDs, RestingBaselines)
+   AddSleepParameters_SVM(procDataFileIDs,RestingBaselines,baselineType)
    CreateModelDataSet_SVM(procDataFileIDs)
-   UpdateTrainingDataSets(procDataFileIDs)
+   UpdateTrainingDataSets_SVM(procDataFileIDs)
 
    trainingDataFileStruct = dir('*_TrainingData.mat');
    trainingDataFiles = {trainingDataFileStruct.name}';

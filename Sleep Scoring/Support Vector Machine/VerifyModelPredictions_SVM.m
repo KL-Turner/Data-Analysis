@@ -1,4 +1,4 @@
-function [] = VerifyModelPredictions_SVM(animalIDs, driveLetters, saveFigs)
+function [] = VerifyModelPredictions_SVM(animalIDs,driveLetters,saveFigs,baselineType)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -36,7 +36,6 @@ for a = 1:length(animalIDs)
     procDataFiles = {procDataFileStruct.name}';
     procDataFileIDs = char(procDataFiles);
     
-    baselineType = 'manualSelection';
     AddSleepParameters_SVM(procDataFileIDs, RestingBaselines, baselineType)
     CreateModelDataSet_SVM(procDataFileIDs)
     modelDataFileStruct = dir('*_ModelData.mat');

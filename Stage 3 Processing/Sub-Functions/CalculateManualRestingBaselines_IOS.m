@@ -5,12 +5,12 @@ function [RestingBaselines] = CalculateManualRestingBaselines_IOS(animalID, proc
 % The Pennsylvania State University
 %________________________________________________________________________________________________________________________
 %
-%   Purpose: 
+%   Purpose:
 %________________________________________________________________________________________________________________________
 %
-%   Inputs: 
+%   Inputs:
 %
-%   Outputs: 
+%   Outputs:
 %
 %   Last Revision: October 4th, 2018
 %________________________________________________________________________________________________________________________
@@ -57,6 +57,7 @@ if isfield(RestingBaselines, 'manualSelection') == false && exist(manualBaseline
             end
         end
     end
+    save([animalID '_ManualBaselineFileList.mat'],'validFiles')
 else
     for a = 1:size(procDataFileIDs,1)
         p{a,1} = procDataFileIDs(a,:);
@@ -65,6 +66,7 @@ else
     load(manualBaselineFileID)
 end
 
+ 
 q = 1;
 for b = 1:length(validFiles)
     procDataFileID = procDataFileIDs(b,:);
@@ -80,7 +82,7 @@ end
 dataTypes = fieldnames(RestData);
 for a = 1:length(dataTypes)
     dataType = char(dataTypes(a));   % Load each loop iteration's fieldname as a character string
-    subDataTypes = fieldnames(RestData.(dataType));   % Find the hemisphere dataTypes. These are typically LH, RH     
+    subDataTypes = fieldnames(RestData.(dataType));   % Find the hemisphere dataTypes. These are typically LH, RH
     
     % Loop through each hemisphere dataType (LH, RH) because they are subfields and will have unique baselines
     for b = 1:length(subDataTypes)
@@ -88,7 +90,7 @@ for a = 1:length(dataTypes)
         
         % Use the RestCriteria we specified earlier to find all resting events that are greater than the criteria
         [restLogical] = FilterEvents_IOS(RestData.(dataType).(subDataType), RestCriteria);   % Output is a logical
-        [puffLogical] = FilterEvents_IOS(RestData.(dataType).(subDataType), puffCriteria);   % Output is a logical   
+        [puffLogical] = FilterEvents_IOS(RestData.(dataType).(subDataType), puffCriteria);   % Output is a logical
         combRestLogical = logical(restLogical.*puffLogical);
         allRestFiles = RestData.(dataType).(subDataType).fileIDs(combRestLogical, :);   % Overall logical for all resting file names that meet criteria
         allRestDurations = RestData.(dataType).(subDataType).durations(combRestLogical, :);
@@ -97,10 +99,10 @@ for a = 1:length(dataTypes)
         
         uniqueDays = GetUniqueDays_IOS(RestData.(dataType).(subDataType).fileIDs);   % Find the unique days of imaging
         uniqueFiles = unique(RestData.(dataType).(subDataType).fileIDs);   % Find the unique files from the filelist. This removes duplicates
-                                                                           % since most files have more than one resting event
-        numberOfFiles = length(unique(RestData.(dataType).(subDataType).fileIDs));   % Find the number of unique files 
+        % since most files have more than one resting event
+        numberOfFiles = length(unique(RestData.(dataType).(subDataType).fileIDs));   % Find the number of unique files
         
-        % Loop through each unique day in order to create a logical to filter the file list 
+        % Loop through each unique day in order to create a logical to filter the file list
         for c = 1:length(uniqueDays)
             day = uniqueDays(c);
             f = 1;
@@ -138,7 +140,7 @@ for a = 1:length(dataTypes)
                 fileFilter(d, 1) = 0;
             end
         end
-
+        
         finalFileFilter = logical(fileFilter);
         finalFileIDs = allRestFiles(finalFileFilter, :);
         finalFileDurations = allRestDurations(finalFileFilter, :);
@@ -151,7 +153,7 @@ for a = 1:length(dataTypes)
             for f = 1:length(finalFileIDs)
                 fileID = finalFileIDs{f, 1}(1:6);
                 date{e, 1} = ConvertDate_IOS(uniqueDays{e, 1});
-                if strcmp(fileID, uniqueDays{e, 1}) == 1     
+                if strcmp(fileID, uniqueDays{e, 1}) == 1
                     tempData.(date{e, 1}){z, 1} = finalRestData{f, 1};
                     z = z + 1;
                 end

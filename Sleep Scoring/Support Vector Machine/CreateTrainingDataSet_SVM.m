@@ -1,4 +1,4 @@
-function [] = CreateTrainingDataSet_SVM(procDataFileIDs,RestingBaselines)
+function [] = CreateTrainingDataSet_SVM(procDataFileIDs,RestingBaselines,baselineType)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -23,7 +23,7 @@ for a = 1:size(procDataFileIDs,1)
         disp(['Loading ' procDataFileID ' for manual sleep scoring.' ]); disp(' ')
         load(procDataFileID)
         load(modelDataFileID)
-        [figHandle] = GenerateSingleFigures_SVM(procDataFileID, RestingBaselines);
+        [figHandle] = GenerateSingleFigures_SVM(procDataFileID,RestingBaselines,baselineType);
         trialDuration = ProcData.notes.trialDuration_sec;
         numBins = trialDuration/5;
         
