@@ -54,7 +54,7 @@ puffCriteria.Value = {5};
 
 %% loop through each file and manually designate which files have appropriate amounts of rest
 % if this is already completed, load the struct and skip
-if isfield(RestingBaselines,'manualSelection') == false || exist(manualBaselineFileID) == false
+if isfield(RestingBaselines,'manualSelection') == false && exist(manualBaselineFileID) == false
     for a = 1:size(procDataFileIDs,1)
         disp(['Loading file ' num2str(a) ' of ' num2str(size(procDataFileIDs,1)) '...']); disp(' ')
         procDataFileID = procDataFileIDs(a,:);

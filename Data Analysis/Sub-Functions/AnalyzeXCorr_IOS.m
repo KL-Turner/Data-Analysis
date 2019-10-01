@@ -57,8 +57,8 @@ samplingRate = RestData.CBV.LH.CBVCamSamplingRate;
 trialDuration_sec = RestData.CBV.LH.trialDuration_sec;   % sec
 trialDuration_min = trialDuration_sec/60;   % min
 sleepBinWidth = 5;   % sec
-fiveSecSpecFs = 5;   % sec
-frequencyDiff = 6;   % Hz
+oneSecSpecFs = 10;   % sec   5 for fiveSec, 10 for oneSec
+frequencyDiff = 3;   % Hz    6 for fiveSec, 3 for oneSec
 manualFileIDs = unique(RestingBaselines.manualSelection.baselineFileInfo.fileIDs);
 fileTarget = params.targetMinutes/trialDuration_min;
 filterSets = {'manualSelection','setDuration','entireDuration'};
@@ -169,9 +169,9 @@ for fgl = 1:length(CBVdataTypes)
                 restPadCBV = (ones(1,restChunkSampleDiff))*restFiltCBV(end);
                 restPadHbT = (ones(1,restChunkSampleDiff))*restFiltHbT(end);
                 restPadMUA = (ones(1,restChunkSampleDiff))*restFiltMUA(end);
-                restShortCBV = horzcat(restFiltCBVarray,restPadCBV);
-                restShortHbT = horzcat(restFiltHbTarray,restPadHbT);
-                restShortMUA = horzcat(restFiltMUAarray,restPadMUA);
+                restShortCBV = horzcat(restFiltCBV,restPadCBV);
+                restShortHbT = horzcat(restFiltHbT,restPadHbT);
+                restShortMUA = horzcat(restFiltMUA,restPadMUA);
             else
                 restShortCBV = restFiltCBV(1:params.minTime.Rest*samplingRate);
                 restShortHbT = restFiltHbT(1:params.minTime.Rest*samplingRate);
@@ -179,9 +179,9 @@ for fgl = 1:length(CBVdataTypes)
             end
             
             % downsample the 10 second epoch to 5 Hz
-            restDsCBV = downsample(restShortCBV, frequencyDiff);
-            restDsHbT = downsample(restShortHbT, frequencyDiff);
-            restDsMUA = downsample(restShortMUA, frequencyDiff);
+            restDsCBV = downsample(restShortCBV,frequencyDiff);
+            restDsHbT = downsample(restShortHbT,frequencyDiff);
+            restDsMUA = downsample(restShortMUA,frequencyDiff);
 
             % mean subtract the downsampled epoch
             restProcData.CBV{e, 1} = detrend(restDsCBV,'constant');
@@ -193,8 +193,8 @@ for fgl = 1:length(CBVdataTypes)
             clear S_data
             for g = 1:length(AllSpecData.(neuralDataType).fileIDs)
                 if strcmp(AllSpecData.(neuralDataType).fileIDs{g,1},specDataFileID) == true
-                    rest_S_data = AllSpecData.(neuralDataType).fiveSec.normS{g,1};
-                    rest_F = AllSpecData.(neuralDataType).fiveSec.F{g,1};
+                    rest_S_data = AllSpecData.(neuralDataType).oneSec.normS{g,1};
+                    rest_F = AllSpecData.(neuralDataType).oneSec.F{g,1};
                 end
             end
             restSLength = size(rest_S_data, 2);
@@ -216,7 +216,7 @@ for fgl = 1:length(CBVdataTypes)
             end
             
             % only take the first min rest time seconds
-            shortRestS_Vals = restS_Vals(:,1:params.minTime.Rest*fiveSecSpecFs);
+            shortRestS_Vals = restS_Vals(:,1:params.minTime.Rest*oneSecSpecFs);
             
             % mean subtract with detrend and lowpass filter each column
             restProcData.S{e, 1} = detrend(shortRestS_Vals','constant')';
@@ -226,7 +226,7 @@ for fgl = 1:length(CBVdataTypes)
         restCBVvLFPzhold = [];
         restHbTvLFPzhold = [];
         restLagTime = 5;   % seconds
-        restFrequency = fiveSecSpecFs;   % Hz
+        restFrequency = oneSecSpecFs;   % Hz
         restMaxLag = restLagTime*restFrequency;
         restCBVvLFPxcVals = ones(length(rest_F),2*restMaxLag + 1);
         restHbTvLFPxcVals = ones(length(rest_F),2*restMaxLag + 1);
@@ -351,7 +351,7 @@ for fgl = 1:length(CBVdataTypes)
         % pull out the Spectrogram data that matches the unique NREM sleep file
         NREM_specDataFileID = [animalID '_' NREM_uniqueSleepFileID '_SpecData.mat'];
         load(NREM_specDataFileID)
-        NREM_S_Data = SpecData.(neuralDataType).fiveSec.normS;
+        NREM_S_Data = SpecData.(neuralDataType).oneSec.normS;
         for p = 1:length(NREM_binTimes)
             NREM_Bins = NREM_binTimes{p,1};
             NREM_x_Length = size(NREM_S_Data,2);
@@ -385,11 +385,11 @@ for fgl = 1:length(CBVdataTypes)
     end
     
     % run cross-correlation analysis - average through time
-    NREM_F = SpecData.(neuralDataType).fiveSec.F;
+    NREM_F = SpecData.(neuralDataType).oneSec.F;
     NREM_CBVvLFPzHold = [];
     NREM_HbTvLFPzHold = [];
     NREM_lagTime = 15;   % Seconds
-    NREM_frequency = fiveSecSpecFs;   % Hz
+    NREM_frequency = oneSecSpecFs;   % Hz
     NREM_maxLag = NREM_lagTime*NREM_frequency;
     NREM_CBVvLFPxcVals = ones(size(NREM_ind_sleepNeural_Vals,2),2*NREM_maxLag + 1);
     NREM_HbTvLFPxcVals = ones(size(NREM_ind_sleepNeural_Vals,2),2*NREM_maxLag + 1);
@@ -510,7 +510,7 @@ for fgl = 1:length(CBVdataTypes)
         % pull out the Spectrogram data that matches the unique REM sleep file
         REM_specDataFileID = [animalID '_' REM_uniqueSleepFileID '_SpecData.mat'];
         load(REM_specDataFileID)
-        REM_S_Data = SpecData.(neuralDataType).fiveSec.normS;
+        REM_S_Data = SpecData.(neuralDataType).oneSec.normS;
         for y = 1:length(REM_binTimes)
             REM_Bins = REM_binTimes{y,1};
             REM_x_Length = size(REM_S_Data,2);
@@ -544,11 +544,11 @@ for fgl = 1:length(CBVdataTypes)
     end
     
     % run cross-correlation analysis - average through time
-    REM_F = SpecData.(neuralDataType).fiveSec.F;
+    REM_F = SpecData.(neuralDataType).oneSec.F;
     REM_CBVvLFPzHold = [];
     REM_HbTvLFPzHold = [];
     REM_lagTime = 15;   % Seconds
-    REM_frequency = fiveSecSpecFs;   % Hz
+    REM_frequency = oneSecSpecFs;   % Hz
     REM_maxLag = REM_lagTime*REM_frequency;
     REM_CBVvLFPxcVals = ones(size(REM_ind_sleepNeural_Vals,2),2*REM_maxLag + 1);
     REM_HbTvLFPxcVals = ones(size(REM_ind_sleepNeural_Vals,2),2*REM_maxLag + 1);
@@ -658,8 +658,8 @@ for fgl = 1:length(CBVdataTypes)
         AD_specDataFileID = [procDataFileID(1:end-12) 'SpecData.mat'];
         for ee = 1:length(AllSpecData.(neuralDataType).fileIDs)
             if strcmp(AllSpecData.(neuralDataType).fileIDs{ee,1},AD_specDataFileID) == true
-                AD_S_Data = AllSpecData.(neuralDataType).fiveSec.normS{ee,1};
-                AD_F = AllSpecData.(neuralDataType).fiveSec.F{ee,1};
+                AD_S_Data = AllSpecData.(neuralDataType).oneSec.normS{ee,1};
+                AD_F = AllSpecData.(neuralDataType).oneSec.F{ee,1};
             end
         end
         
@@ -678,9 +678,15 @@ for fgl = 1:length(CBVdataTypes)
         dS_AD_HbT = downsample(filt_AD_HbT,frequencyDiff);
         dS_AD_MUA = downsample(filt_AD_MUA,frequencyDiff);
         AD_SampleDiff = length(dS_AD_CBV) - size(AD_S_Data,2);
-        short_AD_CBV = dS_AD_CBV((AD_SampleDiff/2):(end-(AD_SampleDiff/2))-1);
-        short_AD_HbT = dS_AD_HbT((AD_SampleDiff/2):(end-(AD_SampleDiff/2))-1);
-        short_AD_MUA = dS_AD_MUA((AD_SampleDiff/2):(end-(AD_SampleDiff/2))-1);
+        if rem(AD_SampleDiff,2) == 1
+            short_AD_CBV = dS_AD_CBV(((AD_SampleDiff+1)/2):(end-((AD_SampleDiff+1)/2)));
+            short_AD_HbT = dS_AD_HbT(((AD_SampleDiff+1)/2):(end-((AD_SampleDiff+1)/2)));
+            short_AD_MUA = dS_AD_MUA(((AD_SampleDiff+1)/2):(end-((AD_SampleDiff+1)/2)));
+        else
+            short_AD_CBV = dS_AD_CBV((AD_SampleDiff/2):(end-(AD_SampleDiff/2))-1);
+            short_AD_HbT = dS_AD_HbT((AD_SampleDiff/2):(end-(AD_SampleDiff/2))-1);
+            short_AD_MUA = dS_AD_MUA((AD_SampleDiff/2):(end-(AD_SampleDiff/2))-1);
+        end
         dT_AD_CBV{dd,1} = detrend(short_AD_CBV,'constant');
         dT_AD_HbT{dd,1} = detrend(short_AD_HbT,'constant');
         dT_AD_MUA{dd,1} = detrend(short_AD_MUA,'constant');
@@ -690,7 +696,7 @@ for fgl = 1:length(CBVdataTypes)
     AD_CBVvLFPzHold = [];
     AD_HbTvLFPzHold = [];
     AD_lagTime = 5;   % seconds
-    AD_frequency = fiveSecSpecFs;   % Hz
+    AD_frequency = oneSecSpecFs;   % Hz
     AD_maxLag = AD_lagTime*AD_frequency;
     AD_CBVvLFPxcVals = ones(size(AD_S_Data,1),2*AD_maxLag + 1);
     AD_HbTvLFPxcVals = ones(size(AD_S_Data,1),2*AD_maxLag + 1);

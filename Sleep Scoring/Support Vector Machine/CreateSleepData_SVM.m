@@ -52,9 +52,6 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
     else
         sleepCriteria = (0:(sleepBins - 1));     % This will be used to fix the issue in sleepIndex
         fixedSleepIndex = unique(sleepIndex + sleepCriteria);   % sleep Index now has the proper time stamps from sleep logical
-        if fixedSleepIndex(end) == 180
-            fixedSleepIndex = fixedSleepIndex(1:end-1);
-        end
         for indexCount = 1:length(fixedSleepIndex)    % Loop through the length of sleep Index, and pull out associated data
             % filtered signal bands
             LH_deltaPower{indexCount, 1} = ProcData.sleep.parameters.cortical_LH.deltaBandPower{fixedSleepIndex(indexCount), 1};
@@ -733,9 +730,6 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
     else
         sleepCriteria = (0:(sleepBins - 1));     % This will be used to fix the issue in sleepIndex
         fixedSleepIndex = unique(sleepIndex + sleepCriteria);   % sleep Index now has the proper time stamps from sleep logical
-        if fixedSleepIndex(end) == 180
-            fixedSleepIndex = fixedSleepIndex(1:end-1);
-        end
         for indexCount = 1:length(fixedSleepIndex)    % Loop through the length of sleep Index, and pull out associated data
             % filtered signal bands
             LH_deltaPower{indexCount, 1} = ProcData.sleep.parameters.cortical_LH.deltaBandPower{fixedSleepIndex(indexCount), 1};

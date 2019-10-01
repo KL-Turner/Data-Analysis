@@ -36,15 +36,6 @@ sleepDataFile = {sleepDataFileStruct.name}';
 sleepDataFileID = char(sleepDataFile);
 load(sleepDataFileID)
 
-% parameters for coherencyc_IOS - information available in function
-samplingRate = RestData.CBV.LH.CBVCamSamplingRate;
-params.tapers = [3 5];   % Tapers [n, 2n - 1]
-params.pad = 1;
-params.Fs = samplingRate;   % Sampling Rate
-params.fpass = [0 1];   % Pass band [0, nyquist]
-params.trialave = 1;
-params.err = [2 0.05];
-
 % identify animal's ID and pull important infortmat
 fileBreaks = strfind(restDataFileID, '_');
 animalID = restDataFileID(1:fileBreaks(1)-1);
@@ -192,6 +183,15 @@ for a = 1:length(dataTypes)
             end
         end
         
+        % parameters for coherencyc_IOS - information available in function
+        samplingRate = RestData.CBV.LH.CBVCamSamplingRate;
+        params.tapers = [3 5];   % Tapers [n, 2n - 1]
+        params.pad = 1;
+        params.Fs = samplingRate;   % Sampling Rate
+        params.fpass = [0 1];   % Pass band [0, nyquist]
+        params.trialave = 1;
+        params.err = [2 0.05];
+        
         % calculate the power spectra of the desired signals
         disp(['Analyzing the power spectrum of the LH RestData (' filterSet ') ' dataType ' signal power...']); disp(' ')
         [LH_rest_S,LH_rest_f,LH_rest_sErr] = mtspectrumc_IOS(LH_restData,params);
@@ -252,16 +252,16 @@ for a = 1:length(dataTypes)
         end
         
         % save results
-        AnalysisResults.PowerSpectra.Rest.(dataType).LH.S = LH_rest_S;
-        AnalysisResults.PowerSpectra.Rest.(dataType).LH.f = LH_rest_f;
-        AnalysisResults.PowerSpectra.Rest.(dataType).LH.sErr = LH_rest_sErr;
-        AnalysisResults.PowerSpectra.Rest.(dataType).RH.S = RH_rest_S;
-        AnalysisResults.PowerSpectra.Rest.(dataType).RH.f = RH_rest_f;
-        AnalysisResults.PowerSpectra.Rest.(dataType).RH.sErr = RH_rest_sErr;
+        AnalysisResults.PowerSpectra.Rest.(dataType).(filterSet).LH.S = LH_rest_S;
+        AnalysisResults.PowerSpectra.Rest.(dataType).(filterSet).LH.f = LH_rest_f;
+        AnalysisResults.PowerSpectra.Rest.(dataType).(filterSet).LH.sErr = LH_rest_sErr;
+        AnalysisResults.PowerSpectra.Rest.(dataType).(filterSet).RH.S = RH_rest_S;
+        AnalysisResults.PowerSpectra.Rest.(dataType).(filterSet).RH.f = RH_rest_f;
+        AnalysisResults.PowerSpectra.Rest.(dataType).(filterSet).RH.sErr = RH_rest_sErr;
         if strcmp(dataType,'CBV') == false && strcmp(dataType,'CBV_HbT') == false
-            AnalysisResults.PowerSpectra.Rest.(dataType).Hip.S = Hip_rest_S;
-            AnalysisResults.PowerSpectra.Rest.(dataType).Hip.f = Hip_rest_f;
-            AnalysisResults.PowerSpectra.Rest.(dataType).Hip.sErr = Hip_rest_sErr;
+            AnalysisResults.PowerSpectra.Rest.(dataType).(filterSet).Hip.S = Hip_rest_S;
+            AnalysisResults.PowerSpectra.Rest.(dataType).(filterSet).Hip.f = Hip_rest_f;
+            AnalysisResults.PowerSpectra.Rest.(dataType).(filterSet).Hip.sErr = Hip_rest_sErr;
         end
         
         % save figures
@@ -310,6 +310,15 @@ for a = 1:length(dataTypes)
             Hip_nrem(:,k) = Hip_nremData{k,1};
         end
     end
+    
+    % parameters for coherencyc_IOS - information available in function
+    samplingRate = RestData.CBV.LH.CBVCamSamplingRate;
+    params.tapers = [3 5];   % Tapers [n, 2n - 1]
+    params.pad = 1;
+    params.Fs = samplingRate;   % Sampling Rate
+    params.fpass = [0 1];   % Pass band [0, nyquist]
+    params.trialave = 1;
+    params.err = [2 0.05];
     
     % calculate the power spectra of the desired signals
     disp(['Analyzing the power spectrum of the LH NREM ' dataType ' signal power...']); disp(' ')
@@ -428,6 +437,15 @@ for a = 1:length(dataTypes)
             Hip_rem(:,k) = Hip_remData{k,1};
         end
     end
+    
+    % parameters for coherencyc_IOS - information available in function
+    samplingRate = RestData.CBV.LH.CBVCamSamplingRate;
+    params.tapers = [3 5];   % Tapers [n, 2n - 1]
+    params.pad = 1;
+    params.Fs = samplingRate;   % Sampling Rate
+    params.fpass = [0 1];   % Pass band [0, nyquist]
+    params.trialave = 1;
+    params.err = [2 0.05];
     
     % calculate the power spectra of the desired signals
     disp(['Analyzing the power spectrum of the LH REM ' dataType ' signal power...']); disp(' ')
@@ -558,6 +576,15 @@ for a = 1:length(dataTypes)
             Hip_FinalAllData(:,q) = Hip_ProcAllData{q,1};
         end
     end
+    
+    % parameters for coherencyc_IOS - information available in function
+    samplingRate = RestData.CBV.LH.CBVCamSamplingRate;
+    params.tapers = [5 9];   % Tapers [n, 2n - 1]
+    params.pad = 1;
+    params.Fs = samplingRate;   % Sampling Rate
+    params.fpass = [0 1];   % Pass band [0, nyquist]
+    params.trialave = 1;
+    params.err = [2 0.05];
     
     % calculate the power spectra of the desired signals
     disp(['Analyzing the power spectrum of the LH all data ' dataType ' signal power...']); disp(' ')

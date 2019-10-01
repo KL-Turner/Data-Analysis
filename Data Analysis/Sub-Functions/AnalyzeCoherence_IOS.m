@@ -36,15 +36,6 @@ sleepDataFile = {sleepDataFileStruct.name}';
 sleepDataFileID = char(sleepDataFile);
 load(sleepDataFileID)
 
-% parameters for coherencyc_IOS - information available in function
-samplingRate = RestData.CBV.LH.CBVCamSamplingRate;
-params.tapers = [3 5];   % Tapers [n, 2n - 1]
-params.pad = 1;
-params.Fs = samplingRate;   % Sampling Rate
-params.fpass = [0 1];   % Pass band [0, nyquist]
-params.trialave = 1;
-params.err = [2 0.05];
-
 % identify animal's ID and pull important infortmat
 fileBreaks = strfind(restDataFileID, '_');
 animalID = restDataFileID(1:fileBreaks(1)-1);
@@ -172,9 +163,18 @@ for a = 1:length(dataTypes)
             RH_restData(:,h) = RH_ProcRestData{h,1};
         end
         
+        % parameters for coherencyc_IOS - information available in function
+        samplingRate = RestData.CBV.LH.CBVCamSamplingRate;
+        params.tapers = [3 5];   % Tapers [n, 2n - 1]
+        params.pad = 1;
+        params.Fs = samplingRate;   % Sampling Rate
+        params.fpass = [0 1];   % Pass band [0, nyquist]
+        params.trialave = 1;
+        params.err = [2 0.05];
+        
         % calculate the coherence between desired signals
         disp(['Analyzing the resting coherence (' filterSet ') between L/R ' dataType ' signals...']); disp(' ')
-        [C_RestData,~, ~, ~, ~,f_RestData, ~, ~,cErr_RestData] = coherencyc_IOS(LH_restData,RH_restData,params);
+        [C_RestData,~, ~, ~, ~,f_RestData, confC_RestData, ~,cErr_RestData] = coherencyc_IOS(LH_restData,RH_restData,params);
         
         % nboot = 1000;
         % rest_CI = bootci(nboot, @coherencyc2, LH_restData', RH_restData', params);
@@ -197,6 +197,7 @@ for a = 1:length(dataTypes)
         % save results
         AnalysisResults.Coherence.Rest.(dataType).(filterSet).C = C_RestData;
         AnalysisResults.Coherence.Rest.(dataType).(filterSet).f = f_RestData;
+        AnalysisResults.Coherence.Rest.(dataType).(filterSet).confC = confC_RestData;
         AnalysisResults.Coherence.Rest.(dataType).(filterSet).cErr = cErr_RestData;
         
         % save figure
@@ -232,9 +233,18 @@ for a = 1:length(dataTypes)
         RH_nrem(:,k) = RH_nremData{k,1};
     end
     
+    % parameters for coherencyc_IOS - information available in function
+    samplingRate = RestData.CBV.LH.CBVCamSamplingRate;
+    params.tapers = [3 5];   % Tapers [n, 2n - 1]
+    params.pad = 1;
+    params.Fs = samplingRate;   % Sampling Rate
+    params.fpass = [0 1];   % Pass band [0, nyquist]
+    params.trialave = 1;
+    params.err = [2 0.05];
+    
     % calculate the coherence between desired signals
     disp(['Analyzing the NREM coherence between L/R ' dataType ' signals...']); disp(' ')
-    [C_nrem,~, ~, ~, ~,f_nrem, ~, ~,cErr_nrem] = coherencyc_IOS(LH_nrem,RH_nrem,params);
+    [C_nrem,~, ~, ~, ~,f_nrem, confC_nrem, ~,cErr_nrem] = coherencyc_IOS(LH_nrem,RH_nrem,params);
     
     % nboot = 1000;
     % nrem_CI = bootci(nboot, @coherencyc2, LH_nrem', RH_nrem', params);
@@ -257,6 +267,7 @@ for a = 1:length(dataTypes)
     % save results
     AnalysisResults.Coherence.NREM.(dataType).C = C_nrem;
     AnalysisResults.Coherence.NREM.(dataType).f = f_nrem;
+    AnalysisResults.Coherence.NREM.(dataType).confC = confC_nrem;
     AnalysisResults.Coherence.NREM.(dataType).cErr = cErr_nrem;
     
     % save figure
@@ -291,9 +302,18 @@ for a = 1:length(dataTypes)
         RH_rem(:,n) = RH_remData{n,1};
     end
     
+    % parameters for coherencyc_IOS - information available in function
+    samplingRate = RestData.CBV.LH.CBVCamSamplingRate;
+    params.tapers = [3 5];   % Tapers [n, 2n - 1]
+    params.pad = 1;
+    params.Fs = samplingRate;   % Sampling Rate
+    params.fpass = [0 1];   % Pass band [0, nyquist]
+    params.trialave = 1;
+    params.err = [2 0.05];
+    
     % calculate the coherence between desired signals
     disp(['Analyzing the REM coherence between L/R ' dataType ' signals...']); disp(' ')
-    [C_rem,~, ~, ~, ~,f_rem, ~, ~,cErr_rem] = coherencyc_IOS(LH_rem,RH_rem,params);
+    [C_rem,~, ~, ~, ~,f_rem, confC_rem, ~,cErr_rem] = coherencyc_IOS(LH_rem,RH_rem,params);
     
     % nboot = 1000;
     % rem_CI = bootci(nboot, @coherencyc2, LH_rem', RH_rem', params);
@@ -316,6 +336,7 @@ for a = 1:length(dataTypes)
     % save results
     AnalysisResults.Coherence.REM.(dataType).C = C_rem;
     AnalysisResults.Coherence.REM.(dataType).f = f_rem;
+    AnalysisResults.Coherence.REM.(dataType).confC = confC_rem;
     AnalysisResults.Coherence.REM.(dataType).cErr = cErr_rem;
     
     % save figure
@@ -362,9 +383,18 @@ for a = 1:length(dataTypes)
         RH_FinalAllData(:,q) = RH_ProcAllData{q,1};
     end
     
+    % parameters for coherencyc_IOS - information available in function
+    samplingRate = RestData.CBV.LH.CBVCamSamplingRate;
+    params.tapers = [5 9];   % Tapers [n, 2n - 1]
+    params.pad = 1;
+    params.Fs = samplingRate;   % Sampling Rate
+    params.fpass = [0 1];   % Pass band [0, nyquist]
+    params.trialave = 1;
+    params.err = [2 0.05];
+    
     % calculate the coherence between desired signals
     disp(['Analyzing the all data coherence between L/R ' dataType ' signals...']); disp(' ')
-    [C_allData,~, ~, ~, ~,f_allData, ~, ~,cErr_allData] = coherencyc_IOS(LH_FinalAllData,RH_FinalAllData,params);
+    [C_allData,~, ~, ~, ~,f_allData, confC_allData, ~,cErr_allData] = coherencyc_IOS(LH_FinalAllData,RH_FinalAllData,params);
     
     % nboot = 1000;
     % allData_CI = bootci(nboot, @coherencyc2, LH_FinalAllData', RH_FinalAllData', params);
@@ -387,6 +417,7 @@ for a = 1:length(dataTypes)
     % save results
     AnalysisResults.Coherence.AllData.(dataType).C = C_allData;
     AnalysisResults.Coherence.AllData.(dataType).f = f_allData;
+    AnalysisResults.Coherence.AllData.(dataType).confC = confC_allData;
     AnalysisResults.Coherence.AllData.(dataType).cErr = cErr_allData;
     
     % save figure

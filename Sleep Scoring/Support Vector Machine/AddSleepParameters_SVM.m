@@ -340,22 +340,22 @@ for a = 1:size(procDataFileIDs, 1)
             LH_tempGammaSpecStruct(neuralBins,1) = {meanGammaSpecLH(neuralBins:binWidth)};
             RH_tempGammaSpecStruct(neuralBins,1) = {meanGammaSpecRH(neuralBins:binWidth)};
         elseif neuralBins == 180
-            hipptempDeltaSpecStruct(neuralBins,1) = {meanDeltaSpecHip((((binWidth*(neuralBins-1))+1)):end)};
-            hipptempThetaSpecStruct(neuralBins,1) = {meanThetaSpecHip((((binWidth*(neuralBins-1))+1)):end)};
-            hipptempAlphaSpecStruct(neuralBins,1) = {meanAlphaSpecHip((((binWidth*(neuralBins-1))+1)):end)};
-            hipptempBetaSpecStruct(neuralBins,1) = {meanBetaSpecHip((((binWidth*(neuralBins-1))+1)):end)};
-            hipptempGammaSpecStruct(neuralBins,1) = {meanGammaSpecHip((((binWidth*(neuralBins-1))+1)):end)};
+            hipptempDeltaSpecStruct(neuralBins,1) = {meanDeltaSpecHip(end-(binWidth-1):end)};
+            hipptempThetaSpecStruct(neuralBins,1) = {meanThetaSpecHip(end-(binWidth-1):end)};
+            hipptempAlphaSpecStruct(neuralBins,1) = {meanAlphaSpecHip(end-(binWidth-1):end)};
+            hipptempBetaSpecStruct(neuralBins,1) = {meanBetaSpecHip(end-(binWidth-1):end)};
+            hipptempGammaSpecStruct(neuralBins,1) = {meanGammaSpecHip(end-(binWidth-1):end)};
             
-            LH_tempDeltaSpecStruct(neuralBins,1) = {meanDeltaSpecLH((((binWidth*(neuralBins-1))+1)):end)};
-            RH_tempDeltaSpecStruct(neuralBins,1) = {meanDeltaSpecRH((((binWidth*(neuralBins-1))+1)):end)};
-            LH_tempThetaSpecStruct(neuralBins,1) = {meanThetaSpecLH((((binWidth*(neuralBins-1))+1)):end)};
-            RH_tempThetaSpecStruct(neuralBins,1) = {meanThetaSpecRH((((binWidth*(neuralBins-1))+1)):end)};
-            LH_tempAlphaSpecStruct(neuralBins,1) = {meanAlphaSpecLH((((binWidth*(neuralBins-1))+1)):end)};
-            RH_tempAlphaSpecStruct(neuralBins,1) = {meanAlphaSpecRH((((binWidth*(neuralBins-1))+1)):end)};
-            LH_tempBetaSpecStruct(neuralBins,1) = {meanBetaSpecLH((((binWidth*(neuralBins-1))+1)):end)};
-            RH_tempBetaSpecStruct(neuralBins,1) = {meanBetaSpecRH((((binWidth*(neuralBins-1))+1)):end)};
-            LH_tempGammaSpecStruct(neuralBins,1) = {meanGammaSpecLH((((binWidth*(neuralBins-1))+1)):end)};
-            RH_tempGammaSpecStruct(neuralBins,1) = {meanGammaSpecRH((((binWidth*(neuralBins-1))+1)):end)};
+            LH_tempDeltaSpecStruct(neuralBins,1) = {meanDeltaSpecLH(end-(binWidth-1):end)};
+            RH_tempDeltaSpecStruct(neuralBins,1) = {meanDeltaSpecRH(end-(binWidth-1):end)};
+            LH_tempThetaSpecStruct(neuralBins,1) = {meanThetaSpecLH(end-(binWidth-1):end)};
+            RH_tempThetaSpecStruct(neuralBins,1) = {meanThetaSpecRH(end-(binWidth-1):end)};
+            LH_tempAlphaSpecStruct(neuralBins,1) = {meanAlphaSpecLH(end-(binWidth-1):end)};
+            RH_tempAlphaSpecStruct(neuralBins,1) = {meanAlphaSpecRH(end-(binWidth-1):end)};
+            LH_tempBetaSpecStruct(neuralBins,1) = {meanBetaSpecLH(end-(binWidth-1):end)};
+            RH_tempBetaSpecStruct(neuralBins,1) = {meanBetaSpecRH(end-(binWidth-1):end)};
+            LH_tempGammaSpecStruct(neuralBins,1) = {meanGammaSpecLH(end-(binWidth-1):end)};
+            RH_tempGammaSpecStruct(neuralBins,1) = {meanGammaSpecRH(end-(binWidth-1):end)};
         else
             hipptempDeltaSpecStruct(neuralBins,1) = {meanDeltaSpecHip((((binWidth*(neuralBins-1))+1)):(binWidth*neuralBins))};
             hipptempThetaSpecStruct(neuralBins,1) = {meanThetaSpecHip((((binWidth*(neuralBins-1))+1)):(binWidth*neuralBins))};

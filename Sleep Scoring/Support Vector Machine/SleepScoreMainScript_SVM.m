@@ -18,11 +18,11 @@
 clear; clc; close all
 disp('Loading necessary file names...'); disp(' ')
 
-animalIDs = {'T101','T102','T103','T105','T108','T109','T110'};
-driveLetters = {'E','E','F','F','F','D','D'};
-% 
-% animalIDs = {'T110'};
-% driveLetters = {'D'};
+animalIDs = {'T99','T101','T102','T103','T105','T108','T109','T110'};
+driveLetters = {'E','E','E','F','F','F','D','D'};
+
+% animalIDs = {'T99'};
+% driveLetters = {'E'};
 
 %% BLOCK PURPOSE [1] Create training data set for a specific animal
 % Character list of all '*_ProcData.mat' files
@@ -51,7 +51,7 @@ TrainModel_SVM(animalIDs,driveLetters,baselineType);
 %% BLOCK PURPOSE [3] Validate SVM Model - cycle through each data set and check model accuracy against second training set
 saveFigs = 'n';
 baselineType = 'manualSelection';
-VerifyModelPredictions_SVM(animalIDs, driveLetters, saveFigs,baselineType)
+VerifyModelPredictions_SVM(animalIDs,driveLetters,saveFigs,baselineType)
 
 %% BLOCK PURPOSE [4] Sleep score an animal's data set and create a SleepData.mat structure for SVM classification 
 % Load SVM model, Use SVM model to sleep score new data
@@ -80,5 +80,5 @@ modelDataFileIDs = char(modelDataFiles);
 
 [SVMResults] = PredictBehaviorEvents_SVM(modelDataFileIDs, SVMModel);
 ApplySleepLogical_SVM(procDataFileIDs, SVMResults)
-sleepTime = 60;   % seconds
+sleepTime = 30;   % seconds
 [SleepData] = CreateSleepData_SVM(procDataFileIDs, sleepTime);

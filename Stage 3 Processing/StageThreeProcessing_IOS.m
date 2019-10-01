@@ -66,7 +66,12 @@ disp('Analyzing Block [2] Create RestData struct for CBV and neural data.'); dis
 %% BLOCK PURPOSE: [3] Analyze the spectrogram for each session.
 disp('Analyzing Block [3] Analyzing the spectrogram for each file and normalizing by the resting baseline.'); disp(' ')
 CreateTrialSpectrograms_IOS(rawDataFileIDs, neuralDataTypes);
+
+%% BLOCK PURPOSE: [4] Create Baselines data structure
+disp('Analyzing Block [4] Create Baselines struct for CBV and neural data.'); disp(' ')
 baselineType = 'setDuration';
+trialDuration_sec = 900;
+[RestingBaselines] = CalculateRestingBaselines_IOS(animalID, targetMinutes, trialDuration_sec, RestData);
 
 % Find spectrogram baselines for each day
 specDirectory = dir('*_SpecData.mat');
@@ -76,11 +81,6 @@ specDataFileIDs = char(specDataFiles);
 
 % Normalize spectrogram by baseline
 NormalizeSpectrograms_IOS(specDataFileIDs,neuralDataTypes,RestingBaselines);
-
-%% BLOCK PURPOSE: [4] Create Baselines data structure
-disp('Analyzing Block [4] Create Baselines struct for CBV and neural data.'); disp(' ')
-trialDuration_sec = 900;
-[RestingBaselines] = CalculateRestingBaselines_IOS(animalID, targetMinutes, trialDuration_sec, RestData);
 
 %% BLOCK PURPOSE: [5] Manually select files for custom baseline calculation
 disp('Analyzing Block [5] Manually select files for custom baseline calculation.'); disp(' ')
@@ -123,7 +123,7 @@ specDataFileIDs = char(specDataFiles);
 NormalizeSpectrograms_IOS(specDataFileIDs,neuralDataTypes,RestingBaselines);
 
 % Create a structure with all spectrograms for convenient analysis further downstream
-CreateAllSpecDataStruct_IOS(neuralDataTypes)
+CreateAllSpecDataStruct_IOS(animalID,neuralDataTypes)
 
 %% BLOCK PURPOSE [11] Generate single trial figures
 % disp('Analyzing Block [11] Gennerating single trial summary figures'); disp(' ')
