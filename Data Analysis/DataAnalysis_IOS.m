@@ -31,14 +31,14 @@ else
 end
 
 %% BLOCK PURPOSE: [1] Stimulus and whisking evoked averages
-disp('Analyzing Block [1] Analyzing the whisking-evoked and stimulus-evoked Hemodynamic/neural response.'); disp(' ')
-evoked_dataTypes = {'LH','RH'};
-params.targetMinutes = 30;
-for dT = 1:length(evoked_dataTypes)
-    evoked_dataType = evoked_dataTypes{dT};
-    [AnalysisResults] = AnalyzeEvokedResponses_IOS(evoked_dataType,params,AnalysisResults);
-end 
-close all
+% disp('Analyzing Block [1] Analyzing the whisking-evoked and stimulus-evoked Hemodynamic/neural response.'); disp(' ')
+% evoked_dataTypes = {'LH','RH'};
+% params.targetMinutes = 30;
+% for dT = 1:length(evoked_dataTypes)
+%     evoked_dataType = evoked_dataTypes{dT};
+%     [AnalysisResults] = AnalyzeEvokedResponses_IOS(evoked_dataType,params,AnalysisResults);
+% end 
+% close all
 
 %% BLOCK PURPOSE: [2] Cross correlation
 disp('Analyzing Block [2] Analzying the cross-correlation between hemodynamics and neural data.'); disp(' ')

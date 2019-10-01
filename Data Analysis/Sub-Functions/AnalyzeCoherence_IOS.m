@@ -43,6 +43,7 @@ trialDuration_min = RestData.CBV.LH.trialDuration_sec/60;   % min
 manualFileIDs = unique(RestingBaselines.manualSelection.baselineFileInfo.fileIDs);
 fileTarget = params.targetMinutes/trialDuration_min;
 filterSets = {'manualSelection','setDuration','entireDuration'};
+samplingRate = RestData.CBV.LH.CBVCamSamplingRate;
 
 RestCriteria.Fieldname = {'durations'};
 RestCriteria.Comparison = {'gt'};
@@ -164,7 +165,6 @@ for a = 1:length(dataTypes)
         end
         
         % parameters for coherencyc_IOS - information available in function
-        samplingRate = RestData.CBV.LH.CBVCamSamplingRate;
         params.tapers = [3 5];   % Tapers [n, 2n - 1]
         params.pad = 1;
         params.Fs = samplingRate;   % Sampling Rate
@@ -234,7 +234,6 @@ for a = 1:length(dataTypes)
     end
     
     % parameters for coherencyc_IOS - information available in function
-    samplingRate = RestData.CBV.LH.CBVCamSamplingRate;
     params.tapers = [3 5];   % Tapers [n, 2n - 1]
     params.pad = 1;
     params.Fs = samplingRate;   % Sampling Rate
@@ -303,7 +302,6 @@ for a = 1:length(dataTypes)
     end
     
     % parameters for coherencyc_IOS - information available in function
-    samplingRate = RestData.CBV.LH.CBVCamSamplingRate;
     params.tapers = [3 5];   % Tapers [n, 2n - 1]
     params.pad = 1;
     params.Fs = samplingRate;   % Sampling Rate
@@ -384,7 +382,6 @@ for a = 1:length(dataTypes)
     end
     
     % parameters for coherencyc_IOS - information available in function
-    samplingRate = RestData.CBV.LH.CBVCamSamplingRate;
     params.tapers = [5 9];   % Tapers [n, 2n - 1]
     params.pad = 1;
     params.Fs = samplingRate;   % Sampling Rate
