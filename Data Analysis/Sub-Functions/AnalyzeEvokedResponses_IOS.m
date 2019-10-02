@@ -343,7 +343,8 @@ for a = 1:length(filterSets)
         allStimFilter = FilterEvents_IOS(EventData.CBV.(dataType).stim, stimCriteria);
         [allStimCBVData] = EventData.CBV.(dataType).stim.NormData(allStimFilter,:);
         [allStimHbTData] = EventData.CBV_HbT.(dataType).stim.data(allStimFilter,:);
-        [allStimMUAData] = EventData.(['cortical_' dataType]).muaPower.stim.NormData(allStimFilter,:);
+        [allStimCortMUAData] = EventData.(['cortical_' dataType]).muaPower.stim.NormData(allStimFilter,:);
+        [allStimHipMUAData] = EventData.hippocampus.muaPower.stim.NormData(allStimFilter,:);
         [allStimFileIDs] = EventData.CBV.(dataType).stim.fileIDs(allStimFilter,:);
         [allStimEventTimes] = EventData.CBV.(dataType).stim.eventTime(allStimFilter,:);
         
@@ -401,7 +402,8 @@ for a = 1:length(filterSets)
         finalStimFileFilter = logical(stimFileFilter);
         finalStimCBVData = allStimCBVData(finalStimFileFilter, :);
         finalStimHbTData = allStimHbTData(finalStimFileFilter, :);
-        finalStimMUAData = allStimMUAData(finalStimFileFilter, :);
+        finalStimCortMUAData = allStimCortMUAData(finalStimFileFilter, :);
+        finalStimHipMUAData = allStimHipMUAData(finalStimFileFilter, :);
         finalStimFileIDs = allStimFileIDs(finalStimFileFilter, :);
         finalStimFileEventTimes = allStimEventTimes(finalStimFileFilter, :);
         
@@ -409,23 +411,29 @@ for a = 1:length(filterSets)
         for p = 1:size(finalStimCBVData,1)
             stimCBVarray = finalStimCBVData(p,:);
             stimHbTarray = finalStimHbTData(p,:);
-            stimMUAarray = finalStimMUAData(p,:);
+            stimCortMUAarray = finalStimCortMUAData(p,:);
+            stimHipMUAarray = finalStimHipMUAData(p,:);
             filtStimCBVarray = sgolayfilt(stimCBVarray,3,17)*100;
             filtStimHbTarray = sgolayfilt(stimHbTarray,3,17);
-            filtStimMUAarray = sgolayfilt(stimMUAarray,3,17);
+            filtStimCortMUAarray = sgolayfilt(stimCortMUAarray,3,17);
+            filtStimHipMUAarray = sgolayfilt(stimHipMUAarray,3,17);
             procStimCBVData(p,:) = filtStimCBVarray - mean(filtStimCBVarray(1:(offset*samplingRate)));
             procStimHbTData(p,:) = filtStimHbTarray - mean(filtStimHbTarray(1:(offset*samplingRate)));
-            procStimMUAData(p,:) = filtStimMUAarray - mean(filtStimMUAarray(1:(offset*samplingRate)));
+            procStimCortMUAData(p,:) = filtStimCortMUAarray - mean(filtStimCortMUAarray(1:(offset*samplingRate)));
+            procStimHipMUAData(p,:) = filtStimHipMUAarray - mean(filtStimHipMUAarray(1:(offset*samplingRate)));
         end
         meanStimCBVData = mean(procStimCBVData,1);
         stdStimCBVData = std(procStimCBVData,0,1);
         meanStimHbTData = mean(procStimHbTData,1);
         stdStimHbTData = std(procStimHbTData,0,1);
-        meanStimMUAData = mean(procStimMUAData,1);
-        stdStimMUAData = std(procStimMUAData,0,1);
+        meanStimCortMUAData = mean(procStimCortMUAData,1);
+        stdStimCortMUAData = std(procStimCortMUAData,0,1);
+        meanStimHipMUAData = mean(procStimHipMUAData,1);
+        stdStimHipMUAData = std(procStimHipMUAData,0,1);
         
         % extract LFP from spectrograms associated with the stimuli indecies
-        stimZhold = [];
+        stimCortZhold = [];
+        stimHipZhold = [];
         for q = 1:length(finalStimFileIDs)
             % load normalized one-second bin data from each file
             stimFileID = finalStimFileIDs{q,1};
@@ -433,10 +441,11 @@ for a = 1:length(filterSets)
             stimSpecField = ['cortical_' dataType];
             for r = 1:length(AllSpecData.(stimSpecField).fileIDs)
                 if strcmp(AllSpecData.(stimSpecField).fileIDs{r,1},stimSpecDataFileID) == true
-                    stimS_Data = AllSpecData.(stimSpecField).oneSec.normS{r,1};
+                    stimCortS_Data = AllSpecData.(stimSpecField).oneSec.normS{r,1};
+                    stimHipS_Data = AllSpecData.hippocampus.oneSec.normS{r,1};
                 end
             end
-            stimSLength = size(stimS_Data,2);
+            stimSLength = size(stimCortS_Data,2);
             stimBinSize = ceil(stimSLength/trialDuration_sec);
             stimSamplingDiff = samplingRate/stimBinSize;
             
@@ -449,27 +458,33 @@ for a = 1:length(filterSets)
             
             % take the S_data from the start time throughout the duration
             try
-                stimS_Vals = stimS_Data(:,(stimStartTime - (offset*stimBinSize)):(stimStartTime + ((stimDuration - offset)*stimBinSize)));
+                stimCortS_Vals = stimCortS_Data(:,(stimStartTime - (offset*stimBinSize)):(stimStartTime + ((stimDuration - offset)*stimBinSize)));
+                stimHipS_Vals = stimHipS_Data(:,(stimStartTime - (offset*stimBinSize)):(stimStartTime + ((stimDuration - offset)*stimBinSize)));
             catch
-                stimS_Vals = stimS_Data(:,end - (stimDuration*stimBinSize):end);
+                stimCortS_Vals = stimCortS_Data(:,end - (stimDuration*stimBinSize):end);
+                stimHipS_Vals = stimHipS_Data(:,end - (stimDuration*stimBinSize):end);
             end
             
             % mean subtract each row with detrend
-            transpStimS_Vals = stimS_Vals';   % Transpose since detrend goes down columns
-            dTStimS_Vals = detrend(transpStimS_Vals,'constant');
-            stimZhold = cat(3,stimZhold,dTStimS_Vals');   % transpose back to original orientation
+            transpStimCortS_Vals = stimCortS_Vals';   % Transpose since detrend goes down columns
+            transpStimHipS_Vals = stimHipS_Vals';   % Transpose since detrend goes down columns
+            dTStimCortS_Vals = detrend(transpStimCortS_Vals,'constant');
+            dTStimHipS_Vals = detrend(transpStimHipS_Vals,'constant');
+            stimCortZhold = cat(3,stimCortZhold,dTStimCortS_Vals');   % transpose back to original orientation
+            stimHipZhold = cat(3,stimHipZhold,dTStimHipS_Vals');   % transpose back to original orientation
         end
         
         % figure time/frequency axis and average each S data matrix through time
-        meanStimS = mean(stimZhold,3);
-        
+        meanStimCortS = mean(stimCortZhold,3);
+        meanStimHipS = mean(stimHipZhold,3);
+
         % summary figure
         stimEvoked = figure;
         subplot(2,2,1);
-        plot(timeVector,meanStimMUAData,'k')
+        plot(timeVector,meanStimCortMUAData,'k')
         hold on
-        plot(timeVector,meanStimMUAData + stdStimMUAData,'color',colors_IOS('battleship grey'))
-        plot(timeVector,meanStimMUAData - stdStimMUAData,'color',colors_IOS('battleship grey'))
+        plot(timeVector,meanStimCortMUAData + stdStimCortMUAData,'color',colors_IOS('battleship grey'))
+        plot(timeVector,meanStimCortMUAData - stdStimCortMUAData,'color',colors_IOS('battleship grey'))
         title([animalID ' ' dataType ' ' filterSet ' ' solenoid ' stimulus-evoked averages'])
         xlabel('Time (sec)')
         ylabel('Fold-change (Norm Power)')
@@ -477,7 +492,7 @@ for a = 1:length(filterSets)
         axis square
 
         subplot(2,2,3);
-        imagesc(T,F,meanStimS)
+        imagesc(T,F,meanStimCortS)
         xlabel('Time (sec)')
         ylabel('Freq (Hz)')
         ylim([1 100])
@@ -511,10 +526,13 @@ for a = 1:length(filterSets)
         AnalysisResults.EvokedAvgs.Stim.(dataType).(filterSet).(solenoid).CBV.ReflStD = stdStimCBVData;
         AnalysisResults.EvokedAvgs.Stim.(dataType).(filterSet).(solenoid).CBV.HbT = meanStimHbTData;
         AnalysisResults.EvokedAvgs.Stim.(dataType).(filterSet).(solenoid).CBV.HbTStD = stdStimHbTData;
-        AnalysisResults.EvokedAvgs.Stim.(dataType).(filterSet).(solenoid).MUA.data = meanStimMUAData;
-        AnalysisResults.EvokedAvgs.Stim.(dataType).(filterSet).(solenoid).MUA.StD = stdStimMUAData;
+        AnalysisResults.EvokedAvgs.Stim.(dataType).(filterSet).(solenoid).MUA.cortData = meanStimCortMUAData;
+        AnalysisResults.EvokedAvgs.Stim.(dataType).(filterSet).(solenoid).MUA.cortStD = stdStimCortMUAData;
+        AnalysisResults.EvokedAvgs.Stim.(dataType).(filterSet).(solenoid).MUA.hipData = meanStimHipMUAData;
+        AnalysisResults.EvokedAvgs.Stim.(dataType).(filterSet).(solenoid).MUA.hipStD = stdStimHipMUAData;
         AnalysisResults.EvokedAvgs.Stim.(dataType).(filterSet).(solenoid).timeVector = timeVector;
-        AnalysisResults.EvokedAvgs.Stim.(dataType).(filterSet).(solenoid).LFP.S = meanStimS;
+        AnalysisResults.EvokedAvgs.Stim.(dataType).(filterSet).(solenoid).LFP.cortS = meanStimCortS;
+        AnalysisResults.EvokedAvgs.Stim.(dataType).(filterSet).(solenoid).LFP.cortS = meanStimHipS;
         AnalysisResults.EvokedAvgs.Stim.(dataType).(filterSet).(solenoid).LFP.T = T;
         AnalysisResults.EvokedAvgs.Stim.(dataType).(filterSet).(solenoid).LFP.F = F;
         

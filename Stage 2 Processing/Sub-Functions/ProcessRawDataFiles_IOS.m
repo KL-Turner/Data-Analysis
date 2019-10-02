@@ -24,6 +24,7 @@ for a = 1:size(rawDataFiles,1)
     [animalID, fileDate, fileID] = GetFileInfo_IOS(rawDataFile);
     strDay = ConvertDate_IOS(fileDate);
     procDataFile = ([animalID '_' fileID '_ProcData.mat']);
+    if ~exist(procDataFile)
     disp(['Generating ' procDataFile '...']); disp(' ')
     load(rawDataFile);
     
@@ -175,6 +176,7 @@ for a = 1:size(rawDataFiles,1)
     %% Save the processed data
     save(rawDataFile, 'RawData')
     save(procDataFile, 'ProcData')
+    end
 end
 
 end

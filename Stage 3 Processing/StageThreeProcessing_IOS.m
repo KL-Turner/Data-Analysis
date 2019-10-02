@@ -46,7 +46,7 @@ procDataFileIDs = char(procDataFiles);
 [animalID, ~, ~] = GetFileInfo_IOS(procDataFileIDs(1,:));
 
 targetMinutes = 30;
-timeOverride = 'y';
+timeOverride = 'n';
 dataTypes = {'CBV', 'cortical_LH', 'cortical_RH', 'hippocampus', 'EMG'};
 updatedDataTypes = {'CBV', 'CBV_HbT', 'cortical_LH', 'cortical_RH', 'hippocampus', 'EMG'};
 neuralDataTypes = {'cortical_LH', 'cortical_RH', 'hippocampus'};

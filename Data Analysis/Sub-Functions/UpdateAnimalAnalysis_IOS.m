@@ -27,3 +27,11 @@ for a = 1:length(animalIDs)
     cd(dataPath)
     DataAnalysis_IOS
 end
+
+%% Average figure generation
+AvgCoherence_IOS
+AvgPowerSpectra_IOS
+AvgXCorr_IOS
+AvgStim_IOS
+AvgWhisk_IOS
+

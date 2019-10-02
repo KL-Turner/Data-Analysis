@@ -56,7 +56,7 @@ PuffCriteria.Value = {5};
 for a = 1:length(dataTypes)
     dataType = dataTypes{1,a};
     for b = 1:length(filterSets)
-        filterSet = filterSets{1,b}; 
+        filterSet = filterSets{1,b};
         %% Analyze coherence during periods of rest
         % use the RestCriteria we specified earlier to find all resting events that are greater than the criteria
         if strcmp(dataType,'CBV') == true || strcmp(dataType,'CBV_HbT') == true
@@ -155,7 +155,7 @@ for a = 1:length(dataTypes)
                 RH_ProcRestData{g,1} = detrend(filtfilt(B,A,RH_finalRestData{g,1}(1:(params.minTime.Rest*samplingRate))),'constant');
             end
         end
-       
+        
         % input data as time(1st dimension, vertical) by trials (2nd dimension, horizontally)
         LH_restData = zeros(length(LH_ProcRestData{1,1}),length(LH_ProcRestData));
         RH_restData = zeros(length(RH_ProcRestData{1,1}),length(RH_ProcRestData));
@@ -349,9 +349,19 @@ for a = 1:length(dataTypes)
     for o = 1:size(procDataFileIDs,1)
         procDataFileID = procDataFileIDs(o,:);
         load(procDataFileID);
-        [~,fileDate,~] = GetFileInfo_IOS(procDataFileID);
+        if isempty(ProcData.data.solenoids.LPadSol) == true
+            stimLogical(o,1) = 1;
+        else
+            stimLogical(0,1) = 0;
+        end
+    end
+    stimLogical = logical(stimLogical);
+    unstim_procDataFileIDs = procDataFileIDs(stimLogical);
+    for p = 1:size(unstim_procDataFileIDs)
+        unstim_procDataFileID = unstim_procDataFileIDs{1,p};
+        load(unstim_procDataFileID)
+        [~,fileDate,~] = GetFileInfo_IOS(unstim_procDataFileID);
         AD_strDay = ConvertDate_IOS(fileDate);
-        
         % pull data from each file
         if strcmp(dataType,'CBV') == true || strcmp(dataType,'CBV_HbT') == true
             if strcmp(dataType,'CBV') == true
@@ -366,7 +376,7 @@ for a = 1:length(dataTypes)
             RH_AllData{o,1} = (ProcData.data.cortical_RH.(dataType) - RestingBaselines.(baselineType).cortical_RH.(dataType).(AD_strDay))/RestingBaselines.(baselineType).cortical_RH.(dataType).(AD_strDay);
         end
     end
-   
+    
     % detend and lowpass filter each signal
     for p = 1:length(LH_AllData)
         LH_ProcAllData{p,1} = detrend(filtfilt(B,A,LH_AllData{p,1}),'constant');
@@ -382,7 +392,7 @@ for a = 1:length(dataTypes)
     end
     
     % parameters for coherencyc_IOS - information available in function
-    params.tapers = [5 9];   % Tapers [n, 2n - 1]
+    params.tapers = [3 5];   % Tapers [n, 2n - 1]
     params.pad = 1;
     params.Fs = samplingRate;   % Sampling Rate
     params.fpass = [0 1];   % Pass band [0, nyquist]

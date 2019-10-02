@@ -18,8 +18,10 @@ clc
 
 animalIDs = {'T99','T101','T102','T103','T105','T108','T109','T110'};
 driveLetters = {'E','E','E','F','F','F','D','D'};
-behavFields = {'Rest','AllData','NREM','REM'};
+whiskDataTypes = {'Short','Intermediate','Long'};
+criteriaDataTypes = {'whiskCriteriaA','whiskCriteriaB','whiskCriteriaC'};
 baselineTypes = {'manualSelection','setDuration','entireDuration'};
+dataTypes = {'LH','RH'};
 
 %% cd through each animal's directory and extract the appropriate analysis results
 for a = 1:length(animalIDs)
@@ -28,244 +30,376 @@ for a = 1:length(animalIDs)
     dataPath = [driveLetter ':\' animalID '\Combined Imaging\'];
     cd(dataPath)
     load([animalID '_AnalysisResults.mat']);
-    for b = 1:length(behavFields)
-        behavField = behavFields{1,b};
-        if strcmp(behavField,'Rest') == true
-            for c = 1:length(baselineTypes)
-                baselineType = baselineTypes{1,c};
-                data.(behavField).(baselineType).LH.CBVvLFPxcVals(:,:,a) = AnalysisResults.XCorr.(behavField).LH.(baselineType).CBVvLFPxcVals;
-                data.(behavField).(baselineType).LH.HbTvLFPxcVals(:,:,a) = AnalysisResults.XCorr.(behavField).LH.(baselineType).HbTvLFPxcVals;
-                data.(behavField).(baselineType).LH.LFP_lags(:,:,a) = AnalysisResults.XCorr.(behavField).LH.(baselineType).LFP_lags;
-                data.(behavField).(baselineType).LH.F(:,:,a) = AnalysisResults.XCorr.(behavField).LH.(baselineType).F;
-                
-                data.(behavField).(baselineType).LH.CBVvMUAxcVals(:,a) = AnalysisResults.XCorr.(behavField).LH.(baselineType).CBVvMUAxcVals;
-                data.(behavField).(baselineType).LH.CBVvMUAxcVals_std(:,a) = AnalysisResults.XCorr.(behavField).LH.(baselineType).CBVvMUAxcVals_std;
-                data.(behavField).(baselineType).LH.HbTvMUAxcVals(:,a) = AnalysisResults.XCorr.(behavField).LH.(baselineType).HbTvMUAxcVals;
-                data.(behavField).(baselineType).LH.HbTvMUAxcVals_std(:,a) = AnalysisResults.XCorr.(behavField).LH.(baselineType).HbTvMUAxcVals_std;
-                data.(behavField).(baselineType).LH.MUA_lags(:,a) = AnalysisResults.XCorr.(behavField).LH.(baselineType).LFP_lags;
-                
-                data.(behavField).(baselineType).RH.CBVvLFPxcVals(:,:,a) = AnalysisResults.XCorr.(behavField).RH.(baselineType).CBVvLFPxcVals;
-                data.(behavField).(baselineType).RH.HbTvLFPxcVals(:,:,a) = AnalysisResults.XCorr.(behavField).RH.(baselineType).HbTvLFPxcVals;
-                data.(behavField).(baselineType).RH.LFP_lags(:,:,a) = AnalysisResults.XCorr.(behavField).RH.(baselineType).LFP_lags;
-                data.(behavField).(baselineType).RH.F(:,:,a) = AnalysisResults.XCorr.(behavField).RH.(baselineType).F;
-                
-                data.(behavField).(baselineType).RH.CBVvMUAxcVals(:,a) = AnalysisResults.XCorr.(behavField).RH.(baselineType).CBVvMUAxcVals;
-                data.(behavField).(baselineType).RH.CBVvMUAxcVals_std(:,a) = AnalysisResults.XCorr.(behavField).RH.(baselineType).CBVvMUAxcVals_std;
-                data.(behavField).(baselineType).RH.HbTvMUAxcVals(:,a) = AnalysisResults.XCorr.(behavField).RH.(baselineType).HbTvMUAxcVals;
-                data.(behavField).(baselineType).RH.HbTvMUAxcVals_std(:,a) = AnalysisResults.XCorr.(behavField).RH.(baselineType).HbTvMUAxcVals_std;
-                data.(behavField).(baselineType).RH.MUA_lags(:,a) = AnalysisResults.XCorr.(behavField).RH.(baselineType).LFP_lags;
-            end
-        else
-                data.(behavField).LH.CBVvLFPxcVals(:,:,a) = AnalysisResults.XCorr.(behavField).LH.CBVvLFPxcVals;
-                data.(behavField).LH.HbTvLFPxcVals(:,:,a) = AnalysisResults.XCorr.(behavField).LH.HbTvLFPxcVals;
-                data.(behavField).LH.LFP_lags(:,:,a) = AnalysisResults.XCorr.(behavField).LH.LFP_lags;
-                data.(behavField).LH.F(:,:,a) = AnalysisResults.XCorr.(behavField).LH.F;
-                
-                data.(behavField).LH.CBVvMUAxcVals(:,a) = AnalysisResults.XCorr.(behavField).LH.CBVvMUAxcVals;
-                data.(behavField).LH.CBVvMUAxcVals_std(:,a) = AnalysisResults.XCorr.(behavField).LH.CBVvMUAxcVals_std;
-                data.(behavField).LH.HbTvMUAxcVals(:,a) = AnalysisResults.XCorr.(behavField).LH.HbTvMUAxcVals;
-                data.(behavField).LH.HbTvMUAxcVals_std(:,a) = AnalysisResults.XCorr.(behavField).LH.HbTvMUAxcVals_std;
-                data.(behavField).LH.MUA_lags(:,a) = AnalysisResults.XCorr.(behavField).LH.LFP_lags;
-                
-                data.(behavField).RH.CBVvLFPxcVals(:,:,a) = AnalysisResults.XCorr.(behavField).RH.CBVvLFPxcVals;
-                data.(behavField).RH.HbTvLFPxcVals(:,:,a) = AnalysisResults.XCorr.(behavField).RH.HbTvLFPxcVals;
-                data.(behavField).RH.LFP_lags(:,:,a) = AnalysisResults.XCorr.(behavField).RH.LFP_lags;
-                data.(behavField).RH.F(:,:,a) = AnalysisResults.XCorr.(behavField).RH.F;
-                
-                data.(behavField).RH.CBVvMUAxcVals(:,a) = AnalysisResults.XCorr.(behavField).RH.CBVvMUAxcVals;
-                data.(behavField).RH.CBVvMUAxcVals_std(:,a) = AnalysisResults.XCorr.(behavField).RH.CBVvMUAxcVals_std;
-                data.(behavField).RH.HbTvMUAxcVals(:,a) = AnalysisResults.XCorr.(behavField).RH.HbTvMUAxcVals;
-                data.(behavField).RH.HbTvMUAxcVals_std(:,a) = AnalysisResults.XCorr.(behavField).RH.HbTvMUAxcVals_std;
-                data.(behavField).RH.MUA_lags(:,a) = AnalysisResults.XCorr.(behavField).RH.LFP_lags;
+    for b = 1:length(baselineTypes)
+        baselineType = baselineTypes{1,b};
+        for c = 1:length(whiskDataTypes)
+            whiskDataType = whiskDataTypes{1,c};
+            criteriaDataType = criteriaDataTypes{1,c};
+            data.(baselineType).(whiskDataType).LH.CBV(:,a) = AnalysisResults.EvokedAvgs.Whisk.LH.(baselineType).(criteriaDataType).CBV.Refl;
+            data.(baselineType).(whiskDataType).LH.HbT(:,a) = AnalysisResults.EvokedAvgs.Whisk.LH.(baselineType).(criteriaDataType).CBV.HbT;
+            data.(baselineType).(whiskDataType).LH.cortMUA(:,a) = AnalysisResults.EvokedAvgs.Whisk.LH.(baselineType).(criteriaDataType).MUA.corticalData;
+            data.(baselineType).(whiskDataType).LH.cortS(:,:,a) = AnalysisResults.EvokedAvgs.Whisk.LH.(baselineType).(criteriaDataType).LFP.corticalS;
+            data.(baselineType).(whiskDataType).LH.cortT(:,a) = AnalysisResults.EvokedAvgs.Whisk.LH.(baselineType).(criteriaDataType).LFP.T;
+            data.(baselineType).(whiskDataType).LH.cortF(:,a) = AnalysisResults.EvokedAvgs.Whisk.LH.(baselineType).(criteriaDataType).LFP.F;
+            
+            data.(baselineType).(whiskDataType).RH.CBV(:,a) = AnalysisResults.EvokedAvgs.Whisk.RH.(baselineType).(criteriaDataType).CBV.Refl;
+            data.(baselineType).(whiskDataType).RH.HbT(:,a) = AnalysisResults.EvokedAvgs.Whisk.RH.(baselineType).(criteriaDataType).CBV.HbT;
+            data.(baselineType).(whiskDataType).RH.cortMUA(:,a) = AnalysisResults.EvokedAvgs.Whisk.RH.(baselineType).(criteriaDataType).MUA.corticalData;
+            data.(baselineType).(whiskDataType).RH.cortS(:,:,a) = AnalysisResults.EvokedAvgs.Whisk.RH.(baselineType).(criteriaDataType).LFP.corticalS;
+            data.(baselineType).(whiskDataType).RH.cortT(:,a) = AnalysisResults.EvokedAvgs.Whisk.RH.(baselineType).(criteriaDataType).LFP.T;
+            data.(baselineType).(whiskDataType).RH.cortF(:,a) = AnalysisResults.EvokedAvgs.Whisk.RH.(baselineType).(criteriaDataType).LFP.F;
+            
+            data.(baselineType).(whiskDataType).Hip.hipMUA(:,a) = AnalysisResults.EvokedAvgs.Whisk.LH.(baselineType).(criteriaDataType).MUA.hippocampalData;
+            data.(baselineType).(whiskDataType).Hip.hipS(:,:,a) = AnalysisResults.EvokedAvgs.Whisk.LH.(baselineType).(criteriaDataType).LFP.hippocampalS;
+            data.(baselineType).(whiskDataType).Hip.hipT(:,a) = AnalysisResults.EvokedAvgs.Whisk.LH.(baselineType).(criteriaDataType).LFP.T;
+            data.(baselineType).(whiskDataType).Hip.hipF(:,a) = AnalysisResults.EvokedAvgs.Whisk.LH.(baselineType).(criteriaDataType).LFP.F;
+            
+            data.(baselineType).(whiskDataType).timeVector(:,a) = AnalysisResults.EvokedAvgs.Whisk.LH.(baselineType).(criteriaDataType).timeVector;
         end
     end
 end
 
-% concatenate the data from the left and right hemispheres
-for d = 1:length(behavFields)
-    behavField = behavFields{1,d};
-    if strcmp(behavField,'Rest') == true
-        for e = 1:length(baselineTypes)
-            baselineType = baselineTypes{1,e};
-            data.(behavField).(baselineType).cat_CBVvLFPxcVals = cat(3,data.(behavField).(baselineType).LH.CBVvLFPxcVals, data.(behavField).(baselineType).RH.CBVvLFPxcVals);
-            data.(behavField).(baselineType).cat_HbTvLFPxcVals = cat(3,data.(behavField).(baselineType).LH.HbTvLFPxcVals, data.(behavField).(baselineType).RH.HbTvLFPxcVals);
-            data.(behavField).(baselineType).cat_LFP_lags = cat(3,data.(behavField).(baselineType).LH.LFP_lags, data.(behavField).(baselineType).RH.LFP_lags);
-            data.(behavField).(baselineType).cat_LFP_F = cat(3,data.(behavField).(baselineType).LH.F, data.(behavField).(baselineType).RH.F);
-            
-            data.(behavField).(baselineType).cat_CBVvMUAxcVals = cat(2,data.(behavField).(baselineType).LH.CBVvMUAxcVals, data.(behavField).(baselineType).RH.CBVvMUAxcVals);
-            data.(behavField).(baselineType).cat_HbTvMUAxcVals = cat(2,data.(behavField).(baselineType).LH.HbTvMUAxcVals, data.(behavField).(baselineType).RH.HbTvMUAxcVals);
-            data.(behavField).(baselineType).cat_MUA_lags = cat(2,data.(behavField).(baselineType).LH.MUA_lags, data.(behavField).(baselineType).RH.MUA_lags); 
-        end
-    else
-        data.(behavField).cat_CBVvLFPxcVals = cat(3,data.(behavField).LH.CBVvLFPxcVals, data.(behavField).RH.CBVvLFPxcVals);
-        data.(behavField).cat_HbTvLFPxcVals = cat(3,data.(behavField).LH.HbTvLFPxcVals, data.(behavField).RH.HbTvLFPxcVals);
-        data.(behavField).cat_LFP_lags = cat(3,data.(behavField).LH.LFP_lags, data.(behavField).RH.LFP_lags);
-        data.(behavField).cat_LFP_F = cat(3,data.(behavField).LH.F, data.(behavField).RH.F);
-        
-        data.(behavField).cat_CBVvMUAxcVals = cat(2,data.(behavField).LH.CBVvMUAxcVals, data.(behavField).RH.CBVvMUAxcVals);
-        data.(behavField).cat_HbTvMUAxcVals = cat(2,data.(behavField).LH.HbTvMUAxcVals, data.(behavField).RH.HbTvMUAxcVals);
-        data.(behavField).cat_MUA_lags = cat(2,data.(behavField).LH.MUA_lags, data.(behavField).RH.MUA_lags);
+% concatenate the data from the contra and ipsi data
+for d = 1:length(baselineTypes)
+    baselineType = baselineTypes{1,d};
+    for e = 1:length(whiskDataTypes)
+        whiskDataType = whiskDataTypes{1,e};
+        data.(baselineType).(whiskDataType).CBV = cat(2,data.(baselineType).(whiskDataType).LH.CBV,data.(baselineType).(whiskDataType).RH.CBV);
+        data.(baselineType).(whiskDataType).HbT = cat(2,data.(baselineType).(whiskDataType).LH.HbT,data.(baselineType).(whiskDataType).RH.HbT);
+        data.(baselineType).(whiskDataType).cortMUA = cat(2,data.(baselineType).(whiskDataType).LH.cortMUA,data.(baselineType).(whiskDataType).RH.cortMUA);
+        data.(baselineType).(whiskDataType).cortS = cat(3,data.(baselineType).(whiskDataType).LH.cortS,data.(baselineType).(whiskDataType).RH.cortS);
+        data.(baselineType).(whiskDataType).cortT = cat(2,data.(baselineType).(whiskDataType).LH.cortT,data.(baselineType).(whiskDataType).RH.cortT);
+        data.(baselineType).(whiskDataType).cortF = cat(2,data.(baselineType).(whiskDataType).LH.cortF,data.(baselineType).(whiskDataType).RH.cortF);
     end
 end
 
-% take the averages of each field through the proper dimension
-for f = 1:length(behavFields)
-    behavField = behavFields{1,f};
-    if strcmp(behavField,'Rest') == true
-        for g = 1:length(baselineTypes)
-            baselineType = baselineTypes{1,g};
-            data.(behavField).(baselineType).meanCBVvLFPxcVals = mean(data.(behavField).(baselineType).cat_CBVvLFPxcVals,3);
-            data.(behavField).(baselineType).meanHbTvLFPxcVals = mean(data.(behavField).(baselineType).cat_HbTvLFPxcVals,3);
-            data.(behavField).(baselineType).meanLFP_lags = mean(data.(behavField).(baselineType).cat_LFP_lags,3);
-            data.(behavField).(baselineType).meanLFP_F = mean(data.(behavField).(baselineType).cat_LFP_F,3);
-            
-            data.(behavField).(baselineType).meanCBVvMUAxcVals = mean(data.(behavField).(baselineType).cat_CBVvMUAxcVals,2);
-            data.(behavField).(baselineType).stdCBVvMUAxcVals = std(data.(behavField).(baselineType).cat_CBVvMUAxcVals,0,2);
-            data.(behavField).(baselineType).meanHbTvMUAxcVals = mean(data.(behavField).(baselineType).cat_HbTvMUAxcVals,2);
-            data.(behavField).(baselineType).stdHbTvMUAxcVals = std(data.(behavField).(baselineType).cat_HbTvMUAxcVals,0,2);
-            data.(behavField).(baselineType).meanMUA_lags = mean(data.(behavField).(baselineType).cat_MUA_lags,2);
-        end
-    else
-        data.(behavField).meanCBVvLFPxcVals = mean(data.(behavField).cat_CBVvLFPxcVals,3);
-        data.(behavField).meanHbTvLFPxcVals = mean(data.(behavField).cat_HbTvLFPxcVals,3);
-        data.(behavField).meanLFP_lags = mean(data.(behavField).cat_LFP_lags,3);
-        data.(behavField).meanLFP_F = mean(data.(behavField).cat_LFP_F,3);
+% concatenate the data from the contra and ipsi data
+for d = 1:length(baselineTypes)
+    baselineType = baselineTypes{1,d};
+    for e = 1:length(whiskDataTypes)
+        whiskDataType = whiskDataTypes{1,e};
+        data.(baselineType).(whiskDataType).meanCBV = mean(data.(baselineType).(whiskDataType).CBV,2);
+        data.(baselineType).(whiskDataType).stdCBV = std(data.(baselineType).(whiskDataType).CBV,0,2);
+        data.(baselineType).(whiskDataType).meanHbT = mean(data.(baselineType).(whiskDataType).HbT,2);
+        data.(baselineType).(whiskDataType).stdHbT = std(data.(baselineType).(whiskDataType).HbT,0,2);
+        data.(baselineType).(whiskDataType).meanCortMUA = mean(data.(baselineType).(whiskDataType).cortMUA,2);
+        data.(baselineType).(whiskDataType).stdCortMUA = std(data.(baselineType).(whiskDataType).cortMUA,0,2);
+        data.(baselineType).(whiskDataType).meanCortS = mean(data.(baselineType).(whiskDataType).cortS,3);
+        data.(baselineType).(whiskDataType).meanCortT = mean(data.(baselineType).(whiskDataType).cortT,2);
+        data.(baselineType).(whiskDataType).meanCortF = mean(data.(baselineType).(whiskDataType).cortF,2);
         
-        data.(behavField).meanCBVvMUAxcVals = mean(data.(behavField).cat_CBVvMUAxcVals,2);
-        data.(behavField).stdCBVvMUAxcVals = std(data.(behavField).cat_CBVvMUAxcVals,0,2);
-        data.(behavField).meanHbTvMUAxcVals = mean(data.(behavField).cat_HbTvMUAxcVals,2);
-        data.(behavField).stdHbTvMUAxcVals = std(data.(behavField).cat_HbTvMUAxcVals,0,2);
-        data.(behavField).meanMUA_lags = mean(data.(behavField).cat_MUA_lags,2);
+        data.(baselineType).(whiskDataType).meanHipMUA = mean(data.(baselineType).(whiskDataType).Hip.hipMUA,2);
+        data.(baselineType).(whiskDataType).stdHipMUA = std(data.(baselineType).(whiskDataType).Hip.hipMUA,0,2);
+        data.(baselineType).(whiskDataType).meanHipS = mean(data.(baselineType).(whiskDataType).Hip.hipS,3);
+        data.(baselineType).(whiskDataType).meanHipT = mean(data.(baselineType).(whiskDataType).Hip.hipT,2);
+        data.(baselineType).(whiskDataType).meanHipF = mean(data.(baselineType).(whiskDataType).Hip.hipF,2);
+        
+        data.(baselineType).(whiskDataType).meanTimeVector = mean(data.(baselineType).(whiskDataType).timeVector(:,a),2);
     end
 end
 
 %% summary figure(s)
-hemoDataTypes = {'CBV','HbT'};
-freq = 5;
-lagTime1 = 5;
-% lagTime2 = 15;
-for h = 1:length(baselineTypes)
-    baselineType = baselineTypes{1,h};
-    for j = 1:length(hemoDataTypes)
-        hemoDataType = hemoDataTypes{1,j};
-        summaryFigure = figure;
-        sgtitle({[hemoDataType '-neural cross-correlations - ' baselineType ' for resting data'],' '})
-        
-        %% Rest MUA
-        ax1 = subplot(2,4,1);
-        plot(data.Rest.(baselineType).meanMUA_lags,data.Rest.(baselineType).(['mean' hemoDataType 'vMUAxcVals']),'k')
-        hold on
-        plot(data.Rest.(baselineType).meanMUA_lags,data.Rest.(baselineType).(['mean' hemoDataType 'vMUAxcVals']) + data.Rest.(baselineType).(['std' hemoDataType 'vMUAxcVals']),'color',colors_IOS('battleship grey'))
-        plot(data.Rest.(baselineType).meanMUA_lags,data.Rest.(baselineType).(['mean' hemoDataType 'vMUAxcVals']) - data.Rest.(baselineType).(['std' hemoDataType 'vMUAxcVals']),'color',colors_IOS('battleship grey'))
-        title('Rest')
-        xticks([-lagTime1*freq -lagTime1*freq/2 0 lagTime1*freq/2 lagTime1*freq])
-        xticklabels({'-5','-2.5','0','2.5','5'})
-        xlim([-lagTime1*freq lagTime1*freq])
-        xlabel('lags (sec)')
-        ylabel('cross-correlation')
-        axis square
-        
-        %% All Data MUA
-        ax2 = subplot(2,4,2);
-        plot(data.AllData.meanMUA_lags,data.AllData.(['mean' hemoDataType 'vMUAxcVals']),'k')
-        hold on
-        plot(data.AllData.meanMUA_lags,data.AllData.(['mean' hemoDataType 'vMUAxcVals']) + data.AllData.(['std' hemoDataType 'vMUAxcVals']),'color',colors_IOS('battleship grey'))
-        plot(data.AllData.meanMUA_lags,data.AllData.(['mean' hemoDataType 'vMUAxcVals']) - data.AllData.(['std' hemoDataType 'vMUAxcVals']),'color',colors_IOS('battleship grey'))
-        title('All data')
-        xticks([-lagTime1*freq -lagTime1*freq/2 0 lagTime1*freq/2 lagTime1*freq])
-        xticklabels({'-5','-2.5','0','2.5','5'})
-        xlim([-lagTime1*freq lagTime1*freq])
-        xlabel('lags (sec)')
-        ylabel('cross-correlation')
-        axis square
-        
-        %% NNREM MUA
-        ax3 = subplot(2,4,3);
-        plot(data.NREM.meanMUA_lags,data.NREM.(['mean' hemoDataType 'vMUAxcVals']),'k')
-        hold on
-        plot(data.NREM.meanMUA_lags,data.NREM.(['mean' hemoDataType 'vMUAxcVals']) + data.NREM.(['std' hemoDataType 'vMUAxcVals']),'color',colors_IOS('battleship grey'))
-        plot(data.NREM.meanMUA_lags,data.NREM.(['mean' hemoDataType 'vMUAxcVals']) - data.NREM.(['std' hemoDataType 'vMUAxcVals']),'color',colors_IOS('battleship grey'))
-        title('NREM')
-        xticks([-lagTime1*freq -lagTime1*freq/2 0 lagTime1*freq/2 lagTime1*freq])
-        xticklabels({'-5','-2.5','0','2.5','5'})
-        xlim([-lagTime1*freq lagTime1*freq])
-        xlabel('lags (sec)')
-        ylabel('cross-correlation')
-        axis square
-        
-        %% REM MUA
-        ax4 = subplot(2,4,4);
-        plot(data.REM.meanMUA_lags,data.REM.(['mean' hemoDataType 'vMUAxcVals']),'k')
-        hold on
-        plot(data.REM.meanMUA_lags,data.REM.(['mean' hemoDataType 'vMUAxcVals']) + data.REM.(['std' hemoDataType 'vMUAxcVals']),'color',colors_IOS('battleship grey'))
-        plot(data.REM.meanMUA_lags,data.REM.(['mean' hemoDataType 'vMUAxcVals']) - data.REM.(['std' hemoDataType 'vMUAxcVals']),'color',colors_IOS('battleship grey'))
-        title('REM')
-        xticks([-lagTime1*freq -lagTime1*freq/2 0 lagTime1*freq/2 lagTime1*freq])
-        xticklabels({'-5','-2.5','0','2.5','5'})
-        xlim([-lagTime1*freq lagTime1*freq])
-        xlabel('lags (sec)')
-        ylabel('cross-correlation')
-        axis square
-
-        linkaxes([ax1 ax2 ax3 ax4],'y')
-
-        %% Rest LFP
-        ax5 = subplot(2,4,5);
-        imagesc(data.Rest.(baselineType).meanLFP_lags,data.Rest.(baselineType).meanLFP_F,data.Rest.(baselineType).(['mean' hemoDataType 'vLFPxcVals']))
-        xticks([-lagTime1*freq -lagTime1*freq/2 0 lagTime1*freq/2 lagTime1*freq])
-        xticklabels({'-5','-2.5','0','2.5','5'})
-        xlim([-lagTime1*freq lagTime1*freq])
-        xlabel('lags (sec)')
-        ylabel('Freq (Hz)')
-        ylim([1 100])
-        colorbar
-        axis xy
-        axis square
-        
-        %% All data LFP
-        ax6 = subplot(2,4,6);
-        imagesc(data.AllData.meanLFP_lags,data.AllData.meanLFP_F,data.AllData.(['mean' hemoDataType 'vLFPxcVals']))
-        xticks([-lagTime1*freq -lagTime1*freq/2 0 lagTime1*freq/2 lagTime1*freq])
-        xticklabels({'-5','-2.5','0','2.5','5'})
-        xlim([-lagTime1*freq lagTime1*freq])
-        xlabel('lags (sec)')
-        ylabel('Freq (Hz)')
-        ylim([1 100])
-        colorbar
-        axis xy
-        axis square
-        
-        %% NREM LFP
-        ax7 = subplot(2,4,7);
-        imagesc(data.NREM.meanLFP_lags,data.NREM.meanLFP_F,data.NREM.(['mean' hemoDataType 'vLFPxcVals']))
-        xticks([-lagTime1*freq -lagTime1*freq/2 0 lagTime1*freq/2 lagTime1*freq])
-        xticklabels({'-5','-2.5','0','2.5','5'})
-        xlim([-lagTime1*freq lagTime1*freq])
-        xlabel('lags (sec)')
-        ylabel('Freq (Hz)')
-        ylim([1 100])
-        colorbar
-        axis xy
-        axis square
-        
-        %% REM LFP
-        ax8 = subplot(2,4,8);
-        imagesc(data.REM.meanLFP_lags,data.REM.meanLFP_F,data.REM.(['mean' hemoDataType 'vLFPxcVals']))
-        xticks([-lagTime1*freq -lagTime1*freq/2 0 lagTime1*freq/2 lagTime1*freq])
-        xticklabels({'-5','-2.5','0','2.5','5'})
-        xlim([-lagTime1*freq lagTime1*freq])
-        xlabel('lags (sec)')
-        ylabel('Freq (Hz)')
-        ylim([1 100])
-        colorbar
-        axis xy
-        axis square
-        
-        % save figure(s)
-        dirpath = 'C:\Users\klt8\Documents\Analysis Average Figures\Cross Correlation\';
-        if ~exist(dirpath, 'dir')
-            mkdir(dirpath);
-        end
-        savefig(summaryFigure, [dirpath hemoDataType '_' baselineType '_AverageXCorr']);
+for f = 1:length(baselineTypes)
+    baselineType = baselineTypes{1,f};
+    summaryFigure = figure;
+    sgtitle({['Cortical whisking-evoked averages - ' baselineType],' '})
+    
+    %% Short whisks cortical MUA
+    ax1 = subplot(4,3,1);
+    plot(data.(baselineType).Short.meanTimeVector,data.(baselineType).Short.meanCortMUA,'k');
+    hold on
+    plot(data.(baselineType).Short.meanTimeVector,data.(baselineType).Short.meanCortMUA + data.(baselineType).Short.stdCortMUA,'color',colors_IOS('battleship grey'))
+    plot(data.(baselineType).Short.meanTimeVector,data.(baselineType).Short.meanCortMUA - data.(baselineType).Short.stdCortMUA,'color',colors_IOS('battleship grey'))
+    title('Short whisking cortical MUA')
+    ylabel('Fold-change')
+    xlabel('Time (sec)')
+    axis square
+    
+     %% Intermediate whisks cortical MUA
+    ax2 = subplot(4,3,2);
+    plot(data.(baselineType).Intermediate.meanTimeVector,data.(baselineType).Intermediate.meanCortMUA,'k');
+    hold on
+    plot(data.(baselineType).Intermediate.meanTimeVector,data.(baselineType).Intermediate.meanCortMUA + data.(baselineType).Intermediate.stdCortMUA,'color',colors_IOS('battleship grey'))
+    plot(data.(baselineType).Intermediate.meanTimeVector,data.(baselineType).Intermediate.meanCortMUA - data.(baselineType).Intermediate.stdCortMUA,'color',colors_IOS('battleship grey'))
+    title('Short whisking cortical MUA')
+    ylabel('Fold-change')
+    xlabel('Time (sec)')
+    axis square
+    
+    %% Long whisks cortical MUA
+    ax3 = subplot(4,3,3);
+    plot(data.(baselineType).Long.meanTimeVector,data.(baselineType).Long.meanCortMUA,'k');
+    hold on
+    plot(data.(baselineType).Long.meanTimeVector,data.(baselineType).Long.meanCortMUA + data.(baselineType).Long.stdCortMUA,'color',colors_IOS('battleship grey'))
+    plot(data.(baselineType).Long.meanTimeVector,data.(baselineType).Long.meanCortMUA - data.(baselineType).Long.stdCortMUA,'color',colors_IOS('battleship grey'))
+    title('Short whisking cortical MUA')
+    ylabel('Fold-change')
+    xlabel('Time (sec)')
+    axis square
+    
+    %% Short whisks cortical LFP 
+    ax4 = subplot(4,3,4);
+    imagesc(data.(baselineType).Short.meanCortT,data.(baselineType).Short.meanCortF,data.(baselineType).Short.meanCortS)
+    title('Short whisking cortical LFP')
+    ylabel('Freq (Hz)')
+    xlabel('Time (sec)')
+    colorbar
+    caxis([-0.25 0.5])
+    set(gca,'Ticklength',[0 0])
+    axis square
+    axis xy
+    
+    %% Intermediate whisks cortical LFP 
+    ax5 = subplot(4,3,5);
+    imagesc(data.(baselineType).Intermediate.meanCortT,data.(baselineType).Intermediate.meanCortF,data.(baselineType).Intermediate.meanCortS)
+    title('Intermediate whisking cortical LFP')
+    ylabel('Freq (Hz)')
+    xlabel('Time (sec)')
+    colorbar
+    caxis([-0.25 0.5])
+    set(gca,'Ticklength',[0 0])
+    axis square
+    axis xy
+    
+    %% Long whisks cortical LFP 
+    ax6 = subplot(4,3,6);
+    imagesc(data.(baselineType).Long.meanCortT,data.(baselineType).Long.meanCortF,data.(baselineType).Long.meanCortS)
+    title('Long whisking cortical LFP')
+    ylabel('Freq (Hz)')
+    xlabel('Time (sec)')
+    colorbar
+    caxis([-0.25 0.5])
+    set(gca,'Ticklength',[0 0])
+    axis square
+    axis xy
+    
+    %% Short whisks HbT
+    ax7 = subplot(4,3,7);
+    plot(data.(baselineType).Short.meanTimeVector,data.(baselineType).Short.meanCBV,'k');
+    hold on
+    plot(data.(baselineType).Short.meanTimeVector,data.(baselineType).Short.meanCBV + data.(baselineType).Short.stdCBV,'color',colors_IOS('battleship grey'))
+    plot(data.(baselineType).Short.meanTimeVector,data.(baselineType).Short.meanCBV - data.(baselineType).Short.stdCBV,'color',colors_IOS('battleship grey'))
+    title('Short whisking HbT')
+    ylabel('\DeltaHbT')
+    xlabel('Time (sec)')
+    axis square
+    
+    %% Intermediate whisks HbT
+    ax8 = subplot(4,3,8);
+    plot(data.(baselineType).Intermediate.meanTimeVector,data.(baselineType).Intermediate.meanCBV,'k');
+    hold on
+    plot(data.(baselineType).Intermediate.meanTimeVector,data.(baselineType).Intermediate.meanCBV + data.(baselineType).Intermediate.stdCBV,'color',colors_IOS('battleship grey'))
+    plot(data.(baselineType).Intermediate.meanTimeVector,data.(baselineType).Intermediate.meanCBV - data.(baselineType).Intermediate.stdCBV,'color',colors_IOS('battleship grey'))
+    title('Intermediate whisking HbT')
+    ylabel('\DeltaHbT')
+    xlabel('Time (sec)')
+    axis square
+    
+    %% Long whisks HbT
+    ax9 = subplot(4,3,9);
+    plot(data.(baselineType).Long.meanTimeVector,data.(baselineType).Long.meanCBV,'k');
+    hold on
+    plot(data.(baselineType).Long.meanTimeVector,data.(baselineType).Long.meanCBV + data.(baselineType).Long.stdCBV,'color',colors_IOS('battleship grey'))
+    plot(data.(baselineType).Long.meanTimeVector,data.(baselineType).Long.meanCBV - data.(baselineType).Long.stdCBV,'color',colors_IOS('battleship grey'))
+    title('Long whisking HbT')
+    ylabel('\DeltaHbT')
+    xlabel('Time (sec)')
+    axis square
+    
+    %% Short whisks reflectance
+    ax10 = subplot(4,3,10);
+    plot(data.(baselineType).Short.meanTimeVector,data.(baselineType).Short.meanCBV,'k');
+    hold on
+    plot(data.(baselineType).Short.meanTimeVector,data.(baselineType).Short.meanCBV + data.(baselineType).Short.stdCBV,'color',colors_IOS('battleship grey'))
+    plot(data.(baselineType).Short.meanTimeVector,data.(baselineType).Short.meanCBV - data.(baselineType).Short.stdCBV,'color',colors_IOS('battleship grey'))
+    title('Short whisking reflectance')
+    ylabel('\DeltaR/R')
+    xlabel('Time (sec)')
+    axis square
+    
+    %% Intermediate whisks reflectance
+    ax11 = subplot(4,3,11);
+    plot(data.(baselineType).Intermediate.meanTimeVector,data.(baselineType).Intermediate.meanCBV,'k');
+    hold on
+    plot(data.(baselineType).Intermediate.meanTimeVector,data.(baselineType).Intermediate.meanCBV + data.(baselineType).Intermediate.stdCBV,'color',colors_IOS('battleship grey'))
+    plot(data.(baselineType).Intermediate.meanTimeVector,data.(baselineType).Intermediate.meanCBV - data.(baselineType).Intermediate.stdCBV,'color',colors_IOS('battleship grey'))
+    title('Intermediate whisking reflectance')
+    ylabel('\DeltaR/R')
+    xlabel('Time (sec)')
+    axis square
+    
+    %% Long whisks reflectance
+    ax12 = subplot(4,3,12);
+    plot(data.(baselineType).Long.meanTimeVector,data.(baselineType).Long.meanCBV,'k');
+    hold on
+    plot(data.(baselineType).Long.meanTimeVector,data.(baselineType).Long.meanCBV + data.(baselineType).Long.stdCBV,'color',colors_IOS('battleship grey'))
+    plot(data.(baselineType).Long.meanTimeVector,data.(baselineType).Long.meanCBV - data.(baselineType).Long.stdCBV,'color',colors_IOS('battleship grey'))
+    title('Long whisking reflectance')
+    ylabel('\DeltaR/R')
+    xlabel('Time (sec)')
+    axis square
+    
+    linkaxes([ax1 ax2 ax3],'xy')
+    linkaxes([ax7 ax8 ax9],'xy')
+    linkaxes([ax10 ax11 ax12],'xy')
+    
+    % save figure(s)
+    dirpath = 'C:\Users\klt8\Documents\Analysis Average Figures\Stimulus Responses\';
+    if ~exist(dirpath, 'dir')
+        mkdir(dirpath);
     end
+    savefig(summaryFigure, [dirpath baselineType '_AverageCorticalWhiskResponses']);
+end
+
+%% summary figure(s)
+for f = 1:length(baselineTypes)
+    baselineType = baselineTypes{1,f};
+    summaryFigure = figure;
+    sgtitle({['Hippocampal whisking-evoked averages - ' baselineType],' '})
+    
+    %% Short whisks hippocampal MUA
+    ax1 = subplot(4,3,1);
+    plot(data.(baselineType).Short.meanTimeVector,data.(baselineType).Short.meanHipMUA,'k');
+    hold on
+    plot(data.(baselineType).Short.meanTimeVector,data.(baselineType).Short.meanHipMUA + data.(baselineType).Short.stdHipMUA,'color',colors_IOS('battleship grey'))
+    plot(data.(baselineType).Short.meanTimeVector,data.(baselineType).Short.meanHipMUA - data.(baselineType).Short.stdHipMUA,'color',colors_IOS('battleship grey'))
+    title('Short whisking hippocampal MUA')
+    ylabel('Fold-change')
+    xlabel('Time (sec)')
+    axis square
+    
+     %% Intermediate whisks hippocampal MUA
+    ax2 = subplot(4,3,2);
+    plot(data.(baselineType).Intermediate.meanTimeVector,data.(baselineType).Intermediate.meanHipMUA,'k');
+    hold on
+    plot(data.(baselineType).Intermediate.meanTimeVector,data.(baselineType).Intermediate.meanHipMUA + data.(baselineType).Intermediate.stdHipMUA,'color',colors_IOS('battleship grey'))
+    plot(data.(baselineType).Intermediate.meanTimeVector,data.(baselineType).Intermediate.meanHipMUA - data.(baselineType).Intermediate.stdHipMUA,'color',colors_IOS('battleship grey'))
+    title('Short whisking hippocampal MUA')
+    ylabel('Fold-change')
+    xlabel('Time (sec)')
+    axis square
+    
+    %% Long whisks hippocampal MUA
+    ax3 = subplot(4,3,3);
+    plot(data.(baselineType).Long.meanTimeVector,data.(baselineType).Long.meanHipMUA,'k');
+    hold on
+    plot(data.(baselineType).Long.meanTimeVector,data.(baselineType).Long.meanHipMUA + data.(baselineType).Long.stdHipMUA,'color',colors_IOS('battleship grey'))
+    plot(data.(baselineType).Long.meanTimeVector,data.(baselineType).Long.meanHipMUA - data.(baselineType).Long.stdHipMUA,'color',colors_IOS('battleship grey'))
+    title('Short whisking hippocampal MUA')
+    ylabel('Fold-change')
+    xlabel('Time (sec)')
+    axis square
+    
+    %% Short whisks hippocampal LFP 
+    ax4 = subplot(4,3,4);
+    imagesc(data.(baselineType).Short.meanHipT,data.(baselineType).Short.meanHipF,data.(baselineType).Short.meanHipS)
+    title('Short whisking hippocampal LFP')
+    ylabel('Freq (Hz)')
+    xlabel('Time (sec)')
+    colorbar
+    caxis([-0.25 0.5])
+    set(gca,'Ticklength',[0 0])
+    axis square
+    axis xy
+    
+    %% Intermediate whisks hippocampal LFP 
+    ax5 = subplot(4,3,5);
+    imagesc(data.(baselineType).Intermediate.meanHipT,data.(baselineType).Intermediate.meanHipF,data.(baselineType).Intermediate.meanHipS)
+    title('Intermediate whisking hippocampal LFP')
+    ylabel('Freq (Hz)')
+    xlabel('Time (sec)')
+    colorbar
+    caxis([-0.25 0.5])
+    set(gca,'Ticklength',[0 0])
+    axis square
+    axis xy
+    
+    %% Long whisks hippocampal LFP 
+    ax6 = subplot(4,3,6);
+    imagesc(data.(baselineType).Long.meanHipT,data.(baselineType).Long.meanHipF,data.(baselineType).Long.meanHipS)
+    title('Long whisking hippocampal LFP')
+    ylabel('Freq (Hz)')
+    xlabel('Time (sec)')
+    colorbar
+    caxis([-0.25 0.5])
+    set(gca,'Ticklength',[0 0])
+    axis square
+    axis xy
+    
+    %% Short whisks HbT
+    ax7 = subplot(4,3,7);
+    plot(data.(baselineType).Short.meanTimeVector,data.(baselineType).Short.meanCBV,'k');
+    hold on
+    plot(data.(baselineType).Short.meanTimeVector,data.(baselineType).Short.meanCBV + data.(baselineType).Short.stdCBV,'color',colors_IOS('battleship grey'))
+    plot(data.(baselineType).Short.meanTimeVector,data.(baselineType).Short.meanCBV - data.(baselineType).Short.stdCBV,'color',colors_IOS('battleship grey'))
+    title('Short whisking HbT')
+    ylabel('\DeltaHbT')
+    xlabel('Time (sec)')
+    axis square
+    
+    %% Intermediate whisks HbT
+    ax8 = subplot(4,3,8);
+    plot(data.(baselineType).Intermediate.meanTimeVector,data.(baselineType).Intermediate.meanCBV,'k');
+    hold on
+    plot(data.(baselineType).Intermediate.meanTimeVector,data.(baselineType).Intermediate.meanCBV + data.(baselineType).Intermediate.stdCBV,'color',colors_IOS('battleship grey'))
+    plot(data.(baselineType).Intermediate.meanTimeVector,data.(baselineType).Intermediate.meanCBV - data.(baselineType).Intermediate.stdCBV,'color',colors_IOS('battleship grey'))
+    title('Intermediate whisking HbT')
+    ylabel('\DeltaHbT')
+    xlabel('Time (sec)')
+    axis square
+    
+    %% Long whisks HbT
+    ax9 = subplot(4,3,9);
+    plot(data.(baselineType).Long.meanTimeVector,data.(baselineType).Long.meanCBV,'k');
+    hold on
+    plot(data.(baselineType).Long.meanTimeVector,data.(baselineType).Long.meanCBV + data.(baselineType).Long.stdCBV,'color',colors_IOS('battleship grey'))
+    plot(data.(baselineType).Long.meanTimeVector,data.(baselineType).Long.meanCBV - data.(baselineType).Long.stdCBV,'color',colors_IOS('battleship grey'))
+    title('Long whisking HbT')
+    ylabel('\DeltaHbT')
+    xlabel('Time (sec)')
+    axis square
+    
+    %% Short whisks reflectance
+    ax10 = subplot(4,3,10);
+    plot(data.(baselineType).Short.meanTimeVector,data.(baselineType).Short.meanCBV,'k');
+    hold on
+    plot(data.(baselineType).Short.meanTimeVector,data.(baselineType).Short.meanCBV + data.(baselineType).Short.stdCBV,'color',colors_IOS('battleship grey'))
+    plot(data.(baselineType).Short.meanTimeVector,data.(baselineType).Short.meanCBV - data.(baselineType).Short.stdCBV,'color',colors_IOS('battleship grey'))
+    title('Short whisking reflectance')
+    ylabel('\DeltaR/R')
+    xlabel('Time (sec)')
+    axis square
+    
+    %% Intermediate whisks reflectance
+    ax11 = subplot(4,3,11);
+    plot(data.(baselineType).Intermediate.meanTimeVector,data.(baselineType).Intermediate.meanCBV,'k');
+    hold on
+    plot(data.(baselineType).Intermediate.meanTimeVector,data.(baselineType).Intermediate.meanCBV + data.(baselineType).Intermediate.stdCBV,'color',colors_IOS('battleship grey'))
+    plot(data.(baselineType).Intermediate.meanTimeVector,data.(baselineType).Intermediate.meanCBV - data.(baselineType).Intermediate.stdCBV,'color',colors_IOS('battleship grey'))
+    title('Intermediate whisking reflectance')
+    ylabel('\DeltaR/R')
+    xlabel('Time (sec)')
+    axis square
+    
+    %% Long whisks reflectance
+    ax12 = subplot(4,3,12);
+    plot(data.(baselineType).Long.meanTimeVector,data.(baselineType).Long.meanCBV,'k');
+    hold on
+    plot(data.(baselineType).Long.meanTimeVector,data.(baselineType).Long.meanCBV + data.(baselineType).Long.stdCBV,'color',colors_IOS('battleship grey'))
+    plot(data.(baselineType).Long.meanTimeVector,data.(baselineType).Long.meanCBV - data.(baselineType).Long.stdCBV,'color',colors_IOS('battleship grey'))
+    title('Long whisking reflectance')
+    ylabel('\DeltaR/R')
+    xlabel('Time (sec)')
+    axis square
+    
+    linkaxes([ax1 ax2 ax3],'xy')
+    linkaxes([ax7 ax8 ax9],'xy')
+    linkaxes([ax10 ax11 ax12],'xy')
+    
+    % save figure(s)
+    dirpath = 'C:\Users\klt8\Documents\Analysis Average Figures\Stimulus Responses\';
+    if ~exist(dirpath, 'dir')
+        mkdir(dirpath);
+    end
+    savefig(summaryFigure, [dirpath baselineType '_AverageHippocampalWhiskResponses']);
 end

@@ -136,6 +136,7 @@ for a = 1:length(dataTypes)
         restFinalFileFilter = logical(restFileFilter);
         LH_finalRestData = LH_allRestingData(restFinalFileFilter,:);
         RH_finalRestData = RH_allRestingData(restFinalFileFilter,:);
+        fileIDs = allRestFiles(restFinalFileFilter,:);
         if strcmp(dataType,'CBV') == false && strcmp(dataType,'CBV_HbT') == false
             Hip_finalRestData = Hip_allRestingData(restFinalFileFilter,:);
         end
@@ -200,6 +201,12 @@ for a = 1:length(dataTypes)
         if strcmp(dataType,'CBV') == false && strcmp(dataType,'CBV_HbT') == false
             disp(['Analyzing the power spectrum of the Hippocampal RestData (' filterSet ') ' dataType ' signal power...']); disp(' ')
             [Hip_rest_S,Hip_rest_f,Hip_rest_sErr] = mtspectrumc_IOS(Hip_restData,params);
+        end
+        
+        figure;
+        for a = 1:size(LH_restData,2)
+            plot(LH_restData(:,a))
+            hold on
         end
         
         % nboot = 1000;
