@@ -18,7 +18,7 @@ clc
 
 animalIDs = {'T99','T101','T102','T103','T105','T108','T109','T110'};
 driveLetters = {'E','E','E','F','F','F','D','D'};
-solFields = {'LPadSol','RPadSol','AudSol'};
+solFields = {'Rest','AllData','NREM','REM'};
 baselineTypes = {'manualSelection','setDuration','entireDuration'};
 
  % save results

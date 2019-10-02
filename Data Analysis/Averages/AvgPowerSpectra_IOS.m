@@ -21,7 +21,6 @@ driveLetters = {'E','E','E','F','F','F','D','D'};
 behavFields = {'Rest','AllData','NREM','REM'};
 baselineTypes = {'manualSelection','setDuration','entireDuration'};
 powerSpec_dataTypes = {'CBV','CBV_HbT','deltaBandPower','thetaBandPower','alphaBandPower','betaBandPower','gammaBandPower','muaPower'};
-graphColors = {'sapphire','electric purple','coral red','vegas gold','jungle green','deep carrot orange','battleship grey'}; 
 
 %% cd through each animal's directory and extract the appropriate analysis results
 for a = 1:length(animalIDs)
@@ -61,13 +60,13 @@ for a = 1:length(animalIDs)
 end
 
 % concatenate the data from the left and right hemispheres
-for d = 1:length(behavFields)
-    behavField = behavFields{1,d};
-    for t = 1:length(powerSpec_dataTypes)
-        powerSpec_dataType = powerSpec_dataTypes{1,t};
+for e = 1:length(behavFields)
+    behavField = behavFields{1,e};
+    for f = 1:length(powerSpec_dataTypes)
+        powerSpec_dataType = powerSpec_dataTypes{1,f};
         if strcmp(behavField,'Rest') == true
-            for e = 1:length(baselineTypes)
-                baselineType = baselineTypes{1,e};
+            for g = 1:length(baselineTypes)
+                baselineType = baselineTypes{1,g;
                 data.(behavField).(powerSpec_dataType).(baselineType).cat_S = cat(2,data.(behavField).(powerSpec_dataType).(baselineType).LH.S,data.(behavField).(powerSpec_dataType).(baselineType).RH.S);
                 data.(behavField).(powerSpec_dataType).(baselineType).cat_f = cat(2,data.(behavField).(powerSpec_dataType).(baselineType).LH.f,data.(behavField).(powerSpec_dataType).(baselineType).RH.f);
             end
@@ -79,13 +78,13 @@ for d = 1:length(behavFields)
 end
 
 % take the mean and standard deviation of each set of signals
-for e = 1:length(behavFields)
-    behavField = behavFields{1,e};
-    for f = 1:length(powerSpec_dataTypes)
-        powerSpec_dataType = powerSpec_dataTypes{1,f};
+for h = 1:length(behavFields)
+    behavField = behavFields{1,h};
+    for j = 1:length(powerSpec_dataTypes)
+        powerSpec_dataType = powerSpec_dataTypes{1,j};
         if strcmp(behavField,'Rest')
-            for g = 1:length(baselineTypes)
-                baselineType = baselineTypes{1,g};
+            for k = 1:length(baselineTypes)
+                baselineType = baselineTypes{1,k};
                 data.(behavField).(powerSpec_dataType).(baselineType).meanCortS = mean(data.(behavField).(powerSpec_dataType).(baselineType).cat_S,2);
                 data.(behavField).(powerSpec_dataType).(baselineType).stdCortS = std(data.(behavField).(powerSpec_dataType).(baselineType).cat_S,0,2);
                 data.(behavField).(powerSpec_dataType).(baselineType).meanCortf = mean(data.(behavField).(powerSpec_dataType).(baselineType).cat_f,2);
@@ -109,8 +108,8 @@ for e = 1:length(behavFields)
 end
 
 %% summary figure(s) - cortex
- for h = 1:length(baselineTypes)
-     baselineType = baselineTypes{1,h};
+ for m = 1:length(baselineTypes)
+     baselineType = baselineTypes{1,m};
      
      summaryFigure = figure;
      sgtitle({['CBV and cortical power spectra - ' baselineType ' for resting data'],' '})
@@ -230,8 +229,8 @@ end
  end
  
  %% summary figure(s) - hippocampus
- for h = 1:length(baselineTypes)
-     baselineType = baselineTypes{1,h};
+ for n = 1:length(baselineTypes)
+     baselineType = baselineTypes{1,n};
      
      summaryFigure = figure;
      sgtitle({['CBV and hippocampal power spectra - ' baselineType ' for resting data'],' '})

@@ -507,16 +507,16 @@ for a = 1:length(filterSets)
         axis square
 
         % save results
-        AnalysisResults.EvokedAvgs.Stim.(dataType).(solenoid).CBV.Refl = meanStimCBVData;
-        AnalysisResults.EvokedAvgs.Stim.(dataType).(solenoid).CBV.ReflStD = stdStimCBVData;
-        AnalysisResults.EvokedAvgs.Stim.(dataType).(solenoid).CBV.HbT = meanStimHbTData;
-        AnalysisResults.EvokedAvgs.Stim.(dataType).(solenoid).CBV.HbTStD = stdStimHbTData;
-        AnalysisResults.EvokedAvgs.Stim.(dataType).(solenoid).MUA.data = meanStimMUAData;
-        AnalysisResults.EvokedAvgs.Stim.(dataType).(solenoid).MUA.StD = stdStimMUAData;
-        AnalysisResults.EvokedAvgs.Stim.(dataType).(solenoid).timeVector = timeVector;
-        AnalysisResults.EvokedAvgs.Stim.(dataType).(solenoid).LFP.S = meanStimS;
-        AnalysisResults.EvokedAvgs.Stim.(dataType).(solenoid).LFP.T = T;
-        AnalysisResults.EvokedAvgs.Stim.(dataType).(solenoid).LFP.F = F;
+        AnalysisResults.EvokedAvgs.Stim.(dataType).(filterSet).(solenoid).CBV.Refl = meanStimCBVData;
+        AnalysisResults.EvokedAvgs.Stim.(dataType).(filterSet).(solenoid).CBV.ReflStD = stdStimCBVData;
+        AnalysisResults.EvokedAvgs.Stim.(dataType).(filterSet).(solenoid).CBV.HbT = meanStimHbTData;
+        AnalysisResults.EvokedAvgs.Stim.(dataType).(filterSet).(solenoid).CBV.HbTStD = stdStimHbTData;
+        AnalysisResults.EvokedAvgs.Stim.(dataType).(filterSet).(solenoid).MUA.data = meanStimMUAData;
+        AnalysisResults.EvokedAvgs.Stim.(dataType).(filterSet).(solenoid).MUA.StD = stdStimMUAData;
+        AnalysisResults.EvokedAvgs.Stim.(dataType).(filterSet).(solenoid).timeVector = timeVector;
+        AnalysisResults.EvokedAvgs.Stim.(dataType).(filterSet).(solenoid).LFP.S = meanStimS;
+        AnalysisResults.EvokedAvgs.Stim.(dataType).(filterSet).(solenoid).LFP.T = T;
+        AnalysisResults.EvokedAvgs.Stim.(dataType).(filterSet).(solenoid).LFP.F = F;
         
         % save figure
         [pathstr, ~, ~] = fileparts(cd);
