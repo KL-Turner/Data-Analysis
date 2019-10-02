@@ -18,20 +18,10 @@ clc
 
 animalIDs = {'T99','T101','T102','T103','T105','T108','T109','T110'};
 driveLetters = {'E','E','E','F','F','F','D','D'};
-solFields = {'LPadSol','RPadSol','AudSol'};
+solenoidNames = {'LPadSol','RPadSol','AudSol'};
+compDataTypes = {'Ipsi','Contra','Auditory'};
 baselineTypes = {'manualSelection','setDuration','entireDuration'};
-
- % save results
-        AnalysisResults.EvokedAvgs.Stim.(dataType).(solenoid).CBV.Refl = meanStimCBVData;
-        AnalysisResults.EvokedAvgs.Stim.(dataType).(solenoid).CBV.ReflStD = stdStimCBVData;
-        AnalysisResults.EvokedAvgs.Stim.(dataType).(solenoid).CBV.HbT = meanStimHbTData;
-        AnalysisResults.EvokedAvgs.Stim.(dataType).(solenoid).CBV.HbTStD = stdStimHbTData;
-        AnalysisResults.EvokedAvgs.Stim.(dataType).(solenoid).MUA.data = meanStimMUAData;
-        AnalysisResults.EvokedAvgs.Stim.(dataType).(solenoid).MUA.StD = stdStimMUAData;
-        AnalysisResults.EvokedAvgs.Stim.(dataType).(solenoid).timeVector = timeVector;
-        AnalysisResults.EvokedAvgs.Stim.(dataType).(solenoid).LFP.S = meanStimS;
-        AnalysisResults.EvokedAvgs.Stim.(dataType).(solenoid).LFP.T = T;
-        AnalysisResults.EvokedAvgs.Stim.(dataType).(solenoid).LFP.F = F;
+dataTypes = {'LH','RH'};
 
 %% cd through each animal's directory and extract the appropriate analysis results
 for a = 1:length(animalIDs)
@@ -40,244 +30,213 @@ for a = 1:length(animalIDs)
     dataPath = [driveLetter ':\' animalID '\Combined Imaging\'];
     cd(dataPath)
     load([animalID '_AnalysisResults.mat']);
-    for b = 1:length(solFields)
-        behavField = solFields{1,b};
-        if strcmp(behavField,'Rest') == true
-            for c = 1:length(baselineTypes)
-                baselineType = baselineTypes{1,c};
-                data.(behavField).(baselineType).LH.CBVvLFPxcVals(:,:,a) = AnalysisResults.XCorr.(behavField).LH.(baselineType).CBVvLFPxcVals;
-                data.(behavField).(baselineType).LH.HbTvLFPxcVals(:,:,a) = AnalysisResults.XCorr.(behavField).LH.(baselineType).HbTvLFPxcVals;
-                data.(behavField).(baselineType).LH.LFP_lags(:,:,a) = AnalysisResults.XCorr.(behavField).LH.(baselineType).LFP_lags;
-                data.(behavField).(baselineType).LH.F(:,:,a) = AnalysisResults.XCorr.(behavField).LH.(baselineType).F;
-                
-                data.(behavField).(baselineType).LH.CBVvMUAxcVals(:,a) = AnalysisResults.XCorr.(behavField).LH.(baselineType).CBVvMUAxcVals;
-                data.(behavField).(baselineType).LH.CBVvMUAxcVals_std(:,a) = AnalysisResults.XCorr.(behavField).LH.(baselineType).CBVvMUAxcVals_std;
-                data.(behavField).(baselineType).LH.HbTvMUAxcVals(:,a) = AnalysisResults.XCorr.(behavField).LH.(baselineType).HbTvMUAxcVals;
-                data.(behavField).(baselineType).LH.HbTvMUAxcVals_std(:,a) = AnalysisResults.XCorr.(behavField).LH.(baselineType).HbTvMUAxcVals_std;
-                data.(behavField).(baselineType).LH.MUA_lags(:,a) = AnalysisResults.XCorr.(behavField).LH.(baselineType).LFP_lags;
-                
-                data.(behavField).(baselineType).RH.CBVvLFPxcVals(:,:,a) = AnalysisResults.XCorr.(behavField).RH.(baselineType).CBVvLFPxcVals;
-                data.(behavField).(baselineType).RH.HbTvLFPxcVals(:,:,a) = AnalysisResults.XCorr.(behavField).RH.(baselineType).HbTvLFPxcVals;
-                data.(behavField).(baselineType).RH.LFP_lags(:,:,a) = AnalysisResults.XCorr.(behavField).RH.(baselineType).LFP_lags;
-                data.(behavField).(baselineType).RH.F(:,:,a) = AnalysisResults.XCorr.(behavField).RH.(baselineType).F;
-                
-                data.(behavField).(baselineType).RH.CBVvMUAxcVals(:,a) = AnalysisResults.XCorr.(behavField).RH.(baselineType).CBVvMUAxcVals;
-                data.(behavField).(baselineType).RH.CBVvMUAxcVals_std(:,a) = AnalysisResults.XCorr.(behavField).RH.(baselineType).CBVvMUAxcVals_std;
-                data.(behavField).(baselineType).RH.HbTvMUAxcVals(:,a) = AnalysisResults.XCorr.(behavField).RH.(baselineType).HbTvMUAxcVals;
-                data.(behavField).(baselineType).RH.HbTvMUAxcVals_std(:,a) = AnalysisResults.XCorr.(behavField).RH.(baselineType).HbTvMUAxcVals_std;
-                data.(behavField).(baselineType).RH.MUA_lags(:,a) = AnalysisResults.XCorr.(behavField).RH.(baselineType).LFP_lags;
+    for b = 1:length(dataTypes)
+        dataType = dataTypes{1,b};
+        for c = 1:length(baselineTypes)
+            baselineType = baselineTypes{1,c};
+            for d = 1:length(solenoids)
+                solenoidName = solenoids{1,d};
+                data.(dataType).(baselineType).(solenoidName).CBV(:,a) = AnalysisResults.EvokedAvgs.Stim.(dataType).(baselineType).(solenoidName).CBV.Refl;
+                data.(dataType).(baselineType).(solenoidName).HbT(:,a) = AnalysisResults.EvokedAvgs.Stim.(dataType).(baselineType).(solenoidName).CBV.HbT;
+                data.(dataType).(baselineType).(solenoidName).MUA(:,a) = AnalysisResults.EvokedAvgs.Stim.(dataType).(baselineType).(solenoidName).MUA.data;
+                data.(dataType).(baselineType).(solenoidName).timeVector = AnalysisResults.EvokedAvgs.Stim.(dataType).(baselineType).(solenoidName).timeVector;
+                data.(dataType).(baselineType).(solenoidName).S(:,:,a) = AnalysisResults.EvokedAvgs.Stim.(dataType).(baselineType).(solenoidName).LFP.S;
+                data.(dataType).(baselineType).(solenoidName).T(:,a) = AnalysisResults.EvokedAvgs.Stim.(dataType).(baselineType).(solenoidName).LFP.T;
+                data.(dataType).(baselineType).(solenoidName).F(:,a) = AnalysisResults.EvokedAvgs.Stim.(dataType).(baselineType).(solenoidName).LFP.F;
             end
-        else
-                data.(behavField).LH.CBVvLFPxcVals(:,:,a) = AnalysisResults.XCorr.(behavField).LH.CBVvLFPxcVals;
-                data.(behavField).LH.HbTvLFPxcVals(:,:,a) = AnalysisResults.XCorr.(behavField).LH.HbTvLFPxcVals;
-                data.(behavField).LH.LFP_lags(:,:,a) = AnalysisResults.XCorr.(behavField).LH.LFP_lags;
-                data.(behavField).LH.F(:,:,a) = AnalysisResults.XCorr.(behavField).LH.F;
-                
-                data.(behavField).LH.CBVvMUAxcVals(:,a) = AnalysisResults.XCorr.(behavField).LH.CBVvMUAxcVals;
-                data.(behavField).LH.CBVvMUAxcVals_std(:,a) = AnalysisResults.XCorr.(behavField).LH.CBVvMUAxcVals_std;
-                data.(behavField).LH.HbTvMUAxcVals(:,a) = AnalysisResults.XCorr.(behavField).LH.HbTvMUAxcVals;
-                data.(behavField).LH.HbTvMUAxcVals_std(:,a) = AnalysisResults.XCorr.(behavField).LH.HbTvMUAxcVals_std;
-                data.(behavField).LH.MUA_lags(:,a) = AnalysisResults.XCorr.(behavField).LH.LFP_lags;
-                
-                data.(behavField).RH.CBVvLFPxcVals(:,:,a) = AnalysisResults.XCorr.(behavField).RH.CBVvLFPxcVals;
-                data.(behavField).RH.HbTvLFPxcVals(:,:,a) = AnalysisResults.XCorr.(behavField).RH.HbTvLFPxcVals;
-                data.(behavField).RH.LFP_lags(:,:,a) = AnalysisResults.XCorr.(behavField).RH.LFP_lags;
-                data.(behavField).RH.F(:,:,a) = AnalysisResults.XCorr.(behavField).RH.F;
-                
-                data.(behavField).RH.CBVvMUAxcVals(:,a) = AnalysisResults.XCorr.(behavField).RH.CBVvMUAxcVals;
-                data.(behavField).RH.CBVvMUAxcVals_std(:,a) = AnalysisResults.XCorr.(behavField).RH.CBVvMUAxcVals_std;
-                data.(behavField).RH.HbTvMUAxcVals(:,a) = AnalysisResults.XCorr.(behavField).RH.HbTvMUAxcVals;
-                data.(behavField).RH.HbTvMUAxcVals_std(:,a) = AnalysisResults.XCorr.(behavField).RH.HbTvMUAxcVals_std;
-                data.(behavField).RH.MUA_lags(:,a) = AnalysisResults.XCorr.(behavField).RH.LFP_lags;
         end
     end
 end
 
-% concatenate the data from the left and right hemispheres
-for d = 1:length(solFields)
-    behavField = solFields{1,d};
-    if strcmp(behavField,'Rest') == true
-        for e = 1:length(baselineTypes)
-            baselineType = baselineTypes{1,e};
-            data.(behavField).(baselineType).cat_CBVvLFPxcVals = cat(3,data.(behavField).(baselineType).LH.CBVvLFPxcVals, data.(behavField).(baselineType).RH.CBVvLFPxcVals);
-            data.(behavField).(baselineType).cat_HbTvLFPxcVals = cat(3,data.(behavField).(baselineType).LH.HbTvLFPxcVals, data.(behavField).(baselineType).RH.HbTvLFPxcVals);
-            data.(behavField).(baselineType).cat_LFP_lags = cat(3,data.(behavField).(baselineType).LH.LFP_lags, data.(behavField).(baselineType).RH.LFP_lags);
-            data.(behavField).(baselineType).cat_LFP_F = cat(3,data.(behavField).(baselineType).LH.F, data.(behavField).(baselineType).RH.F);
-            
-            data.(behavField).(baselineType).cat_CBVvMUAxcVals = cat(2,data.(behavField).(baselineType).LH.CBVvMUAxcVals, data.(behavField).(baselineType).RH.CBVvMUAxcVals);
-            data.(behavField).(baselineType).cat_HbTvMUAxcVals = cat(2,data.(behavField).(baselineType).LH.HbTvMUAxcVals, data.(behavField).(baselineType).RH.HbTvMUAxcVals);
-            data.(behavField).(baselineType).cat_MUA_lags = cat(2,data.(behavField).(baselineType).LH.MUA_lags, data.(behavField).(baselineType).RH.MUA_lags); 
-        end
-    else
-        data.(behavField).cat_CBVvLFPxcVals = cat(3,data.(behavField).LH.CBVvLFPxcVals, data.(behavField).RH.CBVvLFPxcVals);
-        data.(behavField).cat_HbTvLFPxcVals = cat(3,data.(behavField).LH.HbTvLFPxcVals, data.(behavField).RH.HbTvLFPxcVals);
-        data.(behavField).cat_LFP_lags = cat(3,data.(behavField).LH.LFP_lags, data.(behavField).RH.LFP_lags);
-        data.(behavField).cat_LFP_F = cat(3,data.(behavField).LH.F, data.(behavField).RH.F);
-        
-        data.(behavField).cat_CBVvMUAxcVals = cat(2,data.(behavField).LH.CBVvMUAxcVals, data.(behavField).RH.CBVvMUAxcVals);
-        data.(behavField).cat_HbTvMUAxcVals = cat(2,data.(behavField).LH.HbTvMUAxcVals, data.(behavField).RH.HbTvMUAxcVals);
-        data.(behavField).cat_MUA_lags = cat(2,data.(behavField).LH.MUA_lags, data.(behavField).RH.MUA_lags);
-    end
+% concatenate the data from the contra and ipsi data
+for e = 1:length(baselineTypes)
+    baselineType = baselineTypes{1,e};
+    data.Ispi.(baselineType).CBV = cat(2,data.LH.(baselineType).RPadSol.CBV,data.RH.(baselineType).LPadSol.CBV);
+    data.Ispi.(baselineType).HbT = cat(2,data.LH.(baselineType).RPadSol.HbT,data.RH.(baselineType).LPadSol.HbT);
+    data.Ispi.(baselineType).MUA = cat(2,data.LH.(baselineType).RPadSol.MUA,data.RH.(baselineType).LPadSol.MUA);
+    data.Ispi.(baselineType).timeVector = cat(2,data.LH.(baselineType).RPadSol.timeVector,data.RH.(baselineType).LPadSol.timeVector);
+    data.Ispi.(baselineType).S = cat(3,data.LH.(baselineType).RPadSol.S,data.RH.(baselineType).LPadSol.S);
+    data.Ispi.(baselineType).T = cat(2,data.LH.(baselineType).RPadSol.T,data.RH.(baselineType).LPadSol.T);
+    data.Ispi.(baselineType).F = cat(2,data.LH.(baselineType).RPadSol.F,data.RH.(baselineType).LPadSol.F);
+
+    data.Contra.(baselineType).CBV = cat(2,data.LH.(baselineType).LPadSol.CBV,data.RH.(baselineType).RPadSol.CBV);
+    data.Contra.(baselineType).HbT = cat(2,data.LH.(baselineType).LPadSol.HbT,data.RH.(baselineType).RPadSol.HbT);
+    data.Contra.(baselineType).MUA = cat(2,data.LH.(baselineType).LPadSol.MUA,data.RH.(baselineType).RPadSol.MUA);
+    data.Contra.(baselineType).timeVector = cat(2,data.LH.(baselineType).LPadSol.timeVector,data.RH.(baselineType).RPadSol.timeVector);
+    data.Contra.(baselineType).S = cat(3,data.LH.(baselineType).LPadSol.S,data.RH.(baselineType).RPadSol.S);
+    data.Contra.(baselineType).T = cat(2,data.LH.(baselineType).LPadSol.T,data.RH.(baselineType).RPadSol.T);
+    data.Contra.(baselineType).F = cat(2,data.LH.(baselineType).LPadSol.F,data.RH.(baselineType).RPadSol.F);
+    
+    data.Auditory.(baselineType).CBV = cat(2,data.LH.(baselineType).AudSol.CBV,data.RH.(baselineType).AudSol.CBV);
+    data.Auditory.(baselineType).HbT = cat(2,data.LH.(baselineType).AudSol.HbT,data.RH.(baselineType).AudSol.HbT);
+    data.Auditory.(baselineType).MUA = cat(2,data.LH.(baselineType).AudSol.MUA,data.RH.(baselineType).AudSol.MUA);
+    data.Auditory.(baselineType).timeVector = cat(2,data.LH.(baselineType).AudSol.timeVector,data.RH.(baselineType).AudSol.timeVector);
+    data.Auditory.(baselineType).S = cat(3,data.LH.(baselineType).AudSol.S,data.RH.(baselineType).AudSol.S);
+    data.Auditory.(baselineType).T = cat(2,data.LH.(baselineType).AudSol.T,data.RH.(baselineType).AudSol.T);
+    data.Auditory.(baselineType).F = cat(2,data.LH.(baselineType).AudSol.F,data.RH.(baselineType).AudSol.F);
 end
 
 % take the averages of each field through the proper dimension
-for f = 1:length(solFields)
-    behavField = solFields{1,f};
-    if strcmp(behavField,'Rest') == true
-        for g = 1:length(baselineTypes)
-            baselineType = baselineTypes{1,g};
-            data.(behavField).(baselineType).meanCBVvLFPxcVals = mean(data.(behavField).(baselineType).cat_CBVvLFPxcVals,3);
-            data.(behavField).(baselineType).meanHbTvLFPxcVals = mean(data.(behavField).(baselineType).cat_HbTvLFPxcVals,3);
-            data.(behavField).(baselineType).meanLFP_lags = mean(data.(behavField).(baselineType).cat_LFP_lags,3);
-            data.(behavField).(baselineType).meanLFP_F = mean(data.(behavField).(baselineType).cat_LFP_F,3);
-            
-            data.(behavField).(baselineType).meanCBVvMUAxcVals = mean(data.(behavField).(baselineType).cat_CBVvMUAxcVals,2);
-            data.(behavField).(baselineType).stdCBVvMUAxcVals = std(data.(behavField).(baselineType).cat_CBVvMUAxcVals,0,2);
-            data.(behavField).(baselineType).meanHbTvMUAxcVals = mean(data.(behavField).(baselineType).cat_HbTvMUAxcVals,2);
-            data.(behavField).(baselineType).stdHbTvMUAxcVals = std(data.(behavField).(baselineType).cat_HbTvMUAxcVals,0,2);
-            data.(behavField).(baselineType).meanMUA_lags = mean(data.(behavField).(baselineType).cat_MUA_lags,2);
-        end
-    else
-        data.(behavField).meanCBVvLFPxcVals = mean(data.(behavField).cat_CBVvLFPxcVals,3);
-        data.(behavField).meanHbTvLFPxcVals = mean(data.(behavField).cat_HbTvLFPxcVals,3);
-        data.(behavField).meanLFP_lags = mean(data.(behavField).cat_LFP_lags,3);
-        data.(behavField).meanLFP_F = mean(data.(behavField).cat_LFP_F,3);
-        
-        data.(behavField).meanCBVvMUAxcVals = mean(data.(behavField).cat_CBVvMUAxcVals,2);
-        data.(behavField).stdCBVvMUAxcVals = std(data.(behavField).cat_CBVvMUAxcVals,0,2);
-        data.(behavField).meanHbTvMUAxcVals = mean(data.(behavField).cat_HbTvMUAxcVals,2);
-        data.(behavField).stdHbTvMUAxcVals = std(data.(behavField).cat_HbTvMUAxcVals,0,2);
-        data.(behavField).meanMUA_lags = mean(data.(behavField).cat_MUA_lags,2);
+for f = 1:length(compDataTypes)
+    compDataType = compDataTypes{1,f};
+    for g = 1:length(baselineDataTypes)
+        baselineType = baselineTypes{1,g};
+        data.(compDataType).(baselineType).mean_CBV = mean(data.(compDataType).(baselineType).CBV,2);
+        data.(compDataType).(baselineType).std_CBV = std(data.(compDataType).(baselineType).CBV,0,2);
+        data.(compDataType).(baselineType).mean_HbT = mean(data.(compDataType).(baselineType).HbT,2);
+        data.(compDataType).(baselineType).std_HbT = std(data.(compDataType).(baselineType).HbT,0,2);
+        data.(compDataType).(baselineType).mean_MUA = mean(data.(compDataType).(baselineType).MUA,2);
+        data.(compDataType).(baselineType).std_MUA = std(data.(compDataType).(baselineType).MUA,0,2);
+        data.(compDataType).(baselineType).mean_timeVector = mean(data.(compDataType).(baselineType).timeVector,2);
+        data.(compDataType).(baselineType).mean_S = mean(data.(compDataType).(baselineType).S,3);
+        data.(compDataType).(baselineType).mean_T = mean(data.(compDataType).(baselineType).T,2);
+        data.(compDataType).(baselineType).mean_F = mean(data.(compDataType).(baselineType).F,2);
     end
 end
 
 %% summary figure(s)
-hemoDataTypes = {'CBV','HbT'};
-freq = 5;
-lagTime1 = 5;
-% lagTime2 = 15;
 for h = 1:length(baselineTypes)
     baselineType = baselineTypes{1,h};
-    for j = 1:length(hemoDataTypes)
-        hemoDataType = hemoDataTypes{1,j};
-        summaryFigure = figure;
-        sgtitle({[hemoDataType '-neural cross-correlations - ' baselineType ' for resting data'],' '})
-        
-        %% Rest MUA
-        ax1 = subplot(2,4,1);
-        plot(data.Rest.(baselineType).meanMUA_lags,data.Rest.(baselineType).(['mean' hemoDataType 'vMUAxcVals']),'k')
-        hold on
-        plot(data.Rest.(baselineType).meanMUA_lags,data.Rest.(baselineType).(['mean' hemoDataType 'vMUAxcVals']) + data.Rest.(baselineType).(['std' hemoDataType 'vMUAxcVals']),'color',colors_IOS('battleship grey'))
-        plot(data.Rest.(baselineType).meanMUA_lags,data.Rest.(baselineType).(['mean' hemoDataType 'vMUAxcVals']) - data.Rest.(baselineType).(['std' hemoDataType 'vMUAxcVals']),'color',colors_IOS('battleship grey'))
-        title('Rest')
-        xticks([-lagTime1*freq -lagTime1*freq/2 0 lagTime1*freq/2 lagTime1*freq])
-        xticklabels({'-5','-2.5','0','2.5','5'})
-        xlim([-lagTime1*freq lagTime1*freq])
-        xlabel('lags (sec)')
-        ylabel('cross-correlation')
-        axis square
-        
-        %% All Data MUA
-        ax2 = subplot(2,4,2);
-        plot(data.AllData.meanMUA_lags,data.AllData.(['mean' hemoDataType 'vMUAxcVals']),'k')
-        hold on
-        plot(data.AllData.meanMUA_lags,data.AllData.(['mean' hemoDataType 'vMUAxcVals']) + data.AllData.(['std' hemoDataType 'vMUAxcVals']),'color',colors_IOS('battleship grey'))
-        plot(data.AllData.meanMUA_lags,data.AllData.(['mean' hemoDataType 'vMUAxcVals']) - data.AllData.(['std' hemoDataType 'vMUAxcVals']),'color',colors_IOS('battleship grey'))
-        title('All data')
-        xticks([-lagTime1*freq -lagTime1*freq/2 0 lagTime1*freq/2 lagTime1*freq])
-        xticklabels({'-5','-2.5','0','2.5','5'})
-        xlim([-lagTime1*freq lagTime1*freq])
-        xlabel('lags (sec)')
-        ylabel('cross-correlation')
-        axis square
-        
-        %% NNREM MUA
-        ax3 = subplot(2,4,3);
-        plot(data.NREM.meanMUA_lags,data.NREM.(['mean' hemoDataType 'vMUAxcVals']),'k')
-        hold on
-        plot(data.NREM.meanMUA_lags,data.NREM.(['mean' hemoDataType 'vMUAxcVals']) + data.NREM.(['std' hemoDataType 'vMUAxcVals']),'color',colors_IOS('battleship grey'))
-        plot(data.NREM.meanMUA_lags,data.NREM.(['mean' hemoDataType 'vMUAxcVals']) - data.NREM.(['std' hemoDataType 'vMUAxcVals']),'color',colors_IOS('battleship grey'))
-        title('NREM')
-        xticks([-lagTime1*freq -lagTime1*freq/2 0 lagTime1*freq/2 lagTime1*freq])
-        xticklabels({'-5','-2.5','0','2.5','5'})
-        xlim([-lagTime1*freq lagTime1*freq])
-        xlabel('lags (sec)')
-        ylabel('cross-correlation')
-        axis square
-        
-        %% REM MUA
-        ax4 = subplot(2,4,4);
-        plot(data.REM.meanMUA_lags,data.REM.(['mean' hemoDataType 'vMUAxcVals']),'k')
-        hold on
-        plot(data.REM.meanMUA_lags,data.REM.(['mean' hemoDataType 'vMUAxcVals']) + data.REM.(['std' hemoDataType 'vMUAxcVals']),'color',colors_IOS('battleship grey'))
-        plot(data.REM.meanMUA_lags,data.REM.(['mean' hemoDataType 'vMUAxcVals']) - data.REM.(['std' hemoDataType 'vMUAxcVals']),'color',colors_IOS('battleship grey'))
-        title('REM')
-        xticks([-lagTime1*freq -lagTime1*freq/2 0 lagTime1*freq/2 lagTime1*freq])
-        xticklabels({'-5','-2.5','0','2.5','5'})
-        xlim([-lagTime1*freq lagTime1*freq])
-        xlabel('lags (sec)')
-        ylabel('cross-correlation')
-        axis square
-
-        linkaxes([ax1 ax2 ax3 ax4],'y')
-
-        %% Rest LFP
-        ax5 = subplot(2,4,5);
-        imagesc(data.Rest.(baselineType).meanLFP_lags,data.Rest.(baselineType).meanLFP_F,data.Rest.(baselineType).(['mean' hemoDataType 'vLFPxcVals']))
-        xticks([-lagTime1*freq -lagTime1*freq/2 0 lagTime1*freq/2 lagTime1*freq])
-        xticklabels({'-5','-2.5','0','2.5','5'})
-        xlim([-lagTime1*freq lagTime1*freq])
-        xlabel('lags (sec)')
-        ylabel('Freq (Hz)')
-        ylim([1 100])
-        colorbar
-        axis xy
-        axis square
-        
-        %% All data LFP
-        ax6 = subplot(2,4,6);
-        imagesc(data.AllData.meanLFP_lags,data.AllData.meanLFP_F,data.AllData.(['mean' hemoDataType 'vLFPxcVals']))
-        xticks([-lagTime1*freq -lagTime1*freq/2 0 lagTime1*freq/2 lagTime1*freq])
-        xticklabels({'-5','-2.5','0','2.5','5'})
-        xlim([-lagTime1*freq lagTime1*freq])
-        xlabel('lags (sec)')
-        ylabel('Freq (Hz)')
-        ylim([1 100])
-        colorbar
-        axis xy
-        axis square
-        
-        %% NREM LFP
-        ax7 = subplot(2,4,7);
-        imagesc(data.NREM.meanLFP_lags,data.NREM.meanLFP_F,data.NREM.(['mean' hemoDataType 'vLFPxcVals']))
-        xticks([-lagTime1*freq -lagTime1*freq/2 0 lagTime1*freq/2 lagTime1*freq])
-        xticklabels({'-5','-2.5','0','2.5','5'})
-        xlim([-lagTime1*freq lagTime1*freq])
-        xlabel('lags (sec)')
-        ylabel('Freq (Hz)')
-        ylim([1 100])
-        colorbar
-        axis xy
-        axis square
-        
-        %% REM LFP
-        ax8 = subplot(2,4,8);
-        imagesc(data.REM.meanLFP_lags,data.REM.meanLFP_F,data.REM.(['mean' hemoDataType 'vLFPxcVals']))
-        xticks([-lagTime1*freq -lagTime1*freq/2 0 lagTime1*freq/2 lagTime1*freq])
-        xticklabels({'-5','-2.5','0','2.5','5'})
-        xlim([-lagTime1*freq lagTime1*freq])
-        xlabel('lags (sec)')
-        ylabel('Freq (Hz)')
-        ylim([1 100])
-        colorbar
-        axis xy
-        axis square
-        
-        % save figure(s)
-        dirpath = 'C:\Users\klt8\Documents\Analysis Average Figures\Cross Correlation\';
-        if ~exist(dirpath, 'dir')
-            mkdir(dirpath);
-        end
-        savefig(summaryFigure, [dirpath hemoDataType '_' baselineType '_AverageXCorr']);
+    summaryFigure = figure;
+    sgtitle({['Stimulus-evoked averages - ' baselineType],' '})
+    
+    %% MUA Contra Stim
+    ax1 = subplot(4,3,1);
+    plot(data.Contra.(baselineType).mean_timeVector,data.Contra.(baselineType).mean_MUA,'k')
+    hold on
+    plot(data.Contra.(baselineType).mean_timeVector,data.Contra.(baselineType).mean_MUA + data.Contra.(baselineType).std_MUA,'color',colors_IOS('battleship grey'))
+    plot(data.Contra.(baselineType).mean_timeVector,data.Contra.(baselineType).mean_MUA - data.Contra.(baselineType).std_MUA,'color',colors_IOS('battleship grey'))
+    title('Contralateral Stim MUA')
+    ylabel('Fold-change')
+    xlabel('Time (sec)')
+    axis square
+    
+    %% MUA Ispi Stim
+    ax2 = subplot(4,3,3);
+    plot(data.Ipsi.(baselineType).mean_timeVector,data.Ipsi.(baselineType).mean_MUA,'k')
+    hold on
+    plot(data.Ipsi.(baselineType).mean_timeVector,data.Ipsi.(baselineType).mean_MUA + data.Ipsi.(baselineType).std_MUA,'color',colors_IOS('battleship grey'))
+    plot(data.Ipsi.(baselineType).mean_timeVector,data.Ipsi.(baselineType).mean_MUA - data.Ipsi.(baselineType).std_MUA,'color',colors_IOS('battleship grey'))
+    title('Ipsilateral Stim MUA')
+    ylabel('Fold-change')
+    xlabel('Time (sec)')
+    axis square
+    
+    %% MUA Auditory Stim
+    ax3 = subplot(4,3,3);
+    plot(data.Auditory.(baselineType).mean_timeVector,data.Auditory.(baselineType).mean_MUA,'k')
+    hold on
+    plot(data.Auditory.(baselineType).mean_timeVector,data.Auditory.(baselineType).mean_MUA + data.Auditory.(baselineType).std_MUA,'color',colors_IOS('battleship grey'))
+    plot(data.Auditory.(baselineType).mean_timeVector,data.Auditory.(baselineType).mean_MUA - data.Auditory.(baselineType).std_MUA,'color',colors_IOS('battleship grey'))
+    title('Auditory Stim MUA')
+    ylabel('Fold-change')
+    xlabel('Time (sec)')
+    axis square
+    
+    %% LFP Contra Stim
+    ax4 = subplot(4,3,4);
+    imagesc(data.Contra.(baselineType).mean_T,data.Contra.(baselineType).mean_F,data.Contra.(baselineType).mean_S)
+    title('Contralateral Stim LFP')
+    ylabel('Freq (Hz)')
+    xlabel('Time (sec)')
+    caxis([-0.5 1])
+    set(gca,'Ticklength',[0 0])
+    axis square
+    
+    %% LFP Ispi Stim
+    ax5 = subplot(4,3,5);
+    imagesc(data.Ipsi.(baselineType).mean_T,data.Ipsi.(baselineType).mean_F,data.Ipsi.(baselineType).mean_S)
+    title('Ipsilateral Stim LFP')
+    ylabel('Freq (Hz)')
+    xlabel('Time (sec)')
+    caxis([-0.5 1])
+    set(gca,'Ticklength',[0 0])
+    axis square
+    
+    %% LFP Auditory Stim
+    ax6 = subplot(4,3,6);
+    imagesc(data.Auditory.(baselineType).mean_T,data.Auditory.(baselineType).mean_F,data.Auditory.(baselineType).mean_S)
+    title('Auditory Stim LFP')
+    ylabel('Freq (Hz)')
+    xlabel('Time (sec)')
+    caxis([-0.5 1])
+    set(gca,'Ticklength',[0 0])
+    axis square
+    
+    %% CBV HbT Contra Stim
+    ax7 = subplot(4,3,7);
+    plot(data.Contra.(baselineType).mean_timeVector,data.Contra.(baselineType).mean_HbT,'k')
+    hold on
+    plot(data.Contra.(baselineType).mean_timeVector,data.Contra.(baselineType).mean_HbT + data.Contra.(baselineType).std_HbT,'color',colors_IOS('battleship grey'))
+    plot(data.Contra.(baselineType).mean_timeVector,data.Contra.(baselineType).mean_HbT - data.Contra.(baselineType).std_HbT,'color',colors_IOS('battleship grey'))
+    title('Contralateral Stim HbT')
+    ylabel('\DeltaHbT')
+    xlabel('Time (sec)')
+    axis square
+    
+    %% CBV HbT Ispi Stim
+    ax8 = subplot(4,3,8);
+    plot(data.Ipsi.(baselineType).mean_timeVector,data.Ipsi.(baselineType).mean_HbT,'k')
+    hold on
+    plot(data.Ipsi.(baselineType).mean_timeVector,data.Ipsi.(baselineType).mean_HbT + data.Ipsi.(baselineType).std_HbT,'color',colors_IOS('battleship grey'))
+    plot(data.Ipsi.(baselineType).mean_timeVector,data.Ipsi.(baselineType).mean_HbT - data.Ipsi.(baselineType).std_HbT,'color',colors_IOS('battleship grey'))
+    title('Ipsilateral Stim HbT')
+    ylabel('\DeltaHbT')
+    xlabel('Time (sec)')
+    axis square
+    
+    %% CBV HbT Auditory Stim
+    ax9 = subplot(4,3,9);
+    plot(data.Auditory.(baselineType).mean_timeVector,data.Auditory.(baselineType).mean_HbT,'k')
+    hold on
+    plot(data.Auditory.(baselineType).mean_timeVector,data.Auditory.(baselineType).mean_HbT + data.Auditory.(baselineType).std_HbT,'color',colors_IOS('battleship grey'))
+    plot(data.Auditory.(baselineType).mean_timeVector,data.Auditory.(baselineType).mean_HbT - data.Auditory.(baselineType).std_HbT,'color',colors_IOS('battleship grey'))
+    title('Auditory Stim HbT')
+    ylabel('\DeltaHbT')
+    xlabel('Time (sec)')
+    axis square
+    
+    %% CBV Refl Contra Stim
+    ax10 = subplot(4,3,10);
+    plot(data.Contra.(baselineType).mean_timeVector,data.Contra.(baselineType).mean_CBV,'k')
+    hold on
+    plot(data.Contra.(baselineType).mean_timeVector,data.Contra.(baselineType).mean_CBV + data.Contra.(baselineType).std_CBV,'color',colors_IOS('battleship grey'))
+    plot(data.Contra.(baselineType).mean_timeVector,data.Contra.(baselineType).mean_CBV - data.Contra.(baselineType).std_CBV,'color',colors_IOS('battleship grey'))
+    title('Contralateral Stim Reflectance')
+    ylabel('\DeltaR/R (%)')
+    xlabel('Time (sec)')
+    axis square
+    
+    %% CBV Refl Ispi Stim
+    ax11 = subplot(4,3,11);
+    plot(data.Ipsi.(baselineType).mean_timeVector,data.Ipsi.(baselineType).mean_CBV,'k')
+    hold on
+    plot(data.Ipsi.(baselineType).mean_timeVector,data.Ipsi.(baselineType).mean_CBV + data.Ipsi.(baselineType).std_CBV,'color',colors_IOS('battleship grey'))
+    plot(data.Ipsi.(baselineType).mean_timeVector,data.Ipsi.(baselineType).mean_CBV - data.Ipsi.(baselineType).std_CBV,'color',colors_IOS('battleship grey'))
+    title('Ipsilateral Stim Reflectance')
+    ylabel('\DeltaR/R (%)')
+    xlabel('Time (sec)')
+    axis square
+    
+    %% CBV Refl Auditory Stim
+    ax12 = subplot(4,3,12);
+    plot(data.Auditory.(baselineType).mean_timeVector,data.Auditory.(baselineType).mean_CBV,'k')
+    hold on
+    plot(data.Auditory.(baselineType).mean_timeVector,data.Auditory.(baselineType).mean_CBV + data.Auditory.(baselineType).std_CBV,'color',colors_IOS('battleship grey'))
+    plot(data.Auditory.(baselineType).mean_timeVector,data.Auditory.(baselineType).mean_CBV - data.Auditory.(baselineType).std_CBV,'color',colors_IOS('battleship grey'))
+    title('Auditory Stim Reflectance')
+    ylabel('\DeltaR/R (%)')
+    xlabel('Time (sec)')
+    axis square
+    
+    linkaxes([ax1 ax2 ax3],'y')
+    linkaxes([ax7 ax8 ax9],'y')
+    linkaxes([ax10 ax11 ax12],'y')
+    
+    % save figure(s)
+    dirpath = 'C:\Users\klt8\Documents\Analysis Average Figures\Stimulus Responses\';
+    if ~exist(dirpath, 'dir')
+        mkdir(dirpath);
     end
+    savefig(summaryFigure, [dirpath baselineType '_AverageStimResponse']);
 end
