@@ -16,7 +16,7 @@ function [AnalysisResults] = AnalyzeXCorr_IOS(CBVdataTypes, neuralDataTypes, bas
 %
 %   Outputs: AnalysisResults (struct) - where to save the data for later between-animal averages and comparisons
 %
-%   Last Revised: September 25th, 2019
+%   Last Revised: October 3rd, 2019
 %________________________________________________________________________________________________________________________
 
 % list of all ProcData.mat files
@@ -340,10 +340,10 @@ for fgl = 1:length(CBVdataTypes)
         NREM_uniqueSleepFileID = char(NREM_uniqueSleepFileIDs(m));
         n = 1;
         clear NREM_binTimes
-        for o = 1:length(NREM_allSleepFileIDs)
-            NREM_sleepFileID = char(NREM_allSleepFileIDs(o));
+        for ee = 1:length(NREM_allSleepFileIDs)
+            NREM_sleepFileID = char(NREM_allSleepFileIDs(ee));
             if strcmp(NREM_uniqueSleepFileID,NREM_sleepFileID)
-                NREM_binTimes{n,1} = SleepData.NREM.BinTimes{o,1};
+                NREM_binTimes{n,1} = SleepData.NREM.BinTimes{ee,1};
                 n = n + 1;
             end
         end
@@ -352,8 +352,8 @@ for fgl = 1:length(CBVdataTypes)
         NREM_specDataFileID = [animalID '_' NREM_uniqueSleepFileID '_SpecData.mat'];
         load(NREM_specDataFileID)
         NREM_S_Data = SpecData.(neuralDataType).oneSec.normS;
-        for p = 1:length(NREM_binTimes)
-            NREM_Bins = NREM_binTimes{p,1};
+        for q = 1:length(NREM_binTimes)
+            NREM_Bins = NREM_binTimes{q,1};
             NREM_x_Length = size(NREM_S_Data,2);
             NREM_x_binLength = ceil(NREM_x_Length/trialDuration_sec);
             try
@@ -366,22 +366,22 @@ for fgl = 1:length(CBVdataTypes)
     end
     
     % detrend spectrogram neural values
-    for q = 1:length(NREM_sleepNeural_Vals)
-        NREM_ind_sleepNeural_Vals = (NREM_sleepNeural_Vals{q,1})';
-        NREM_dT_sleepNeural_Vals{q,1} = (detrend(NREM_ind_sleepNeural_Vals,'constant'))';
+    for r = 1:length(NREM_sleepNeural_Vals)
+        NREM_ind_sleepNeural_Vals = (NREM_sleepNeural_Vals{r,1})';
+        NREM_dT_sleepNeural_Vals{r,1} = (detrend(NREM_ind_sleepNeural_Vals,'constant'))';
     end
     
     % lowpass filter and detrend reflectance and HbT during corresponding sleep events
-    for r = 1:length(SleepData.NREM.data.CBV.(CBVdataType))
-        NREM_CBV_Vals = SleepData.NREM.data.CBV.(CBVdataType){r,1}(1:(NREM_sleepTime*samplingRate));
-        NREM_HbT_Vals = SleepData.NREM.data.CBV_HbT.(CBVdataType){r,1}(1:(NREM_sleepTime*samplingRate));
-        NREM_MUA_Vals = SleepData.NREM.data.(neuralDataType).muaPower{r,1}(1:(NREM_sleepTime*samplingRate));
+    for s = 1:length(SleepData.NREM.data.CBV.(CBVdataType))
+        NREM_CBV_Vals = SleepData.NREM.data.CBV.(CBVdataType){s,1}(1:(NREM_sleepTime*samplingRate));
+        NREM_HbT_Vals = SleepData.NREM.data.CBV_HbT.(CBVdataType){s,1}(1:(NREM_sleepTime*samplingRate));
+        NREM_MUA_Vals = SleepData.NREM.data.(neuralDataType).muaPower{s,1}(1:(NREM_sleepTime*samplingRate));
         NREM_dsCBV_Vals = downsample(NREM_CBV_Vals,frequencyDiff);
         NREM_dsHbT_Vals = downsample(NREM_HbT_Vals,frequencyDiff);
         NREM_dsMUA_Vals = downsample(NREM_MUA_Vals,frequencyDiff);
-        NREM_dT_sleepCBV_Vals{r,1} = detrend(NREM_dsCBV_Vals,'constant');
-        NREM_dT_sleepHbT_Vals{r,1} = detrend(NREM_dsHbT_Vals,'constant');
-        NREM_dT_sleepMUA_Vals{r,1} = detrend(NREM_dsMUA_Vals,'constant');
+        NREM_dT_sleepCBV_Vals{s,1} = detrend(NREM_dsCBV_Vals,'constant');
+        NREM_dT_sleepHbT_Vals{s,1} = detrend(NREM_dsHbT_Vals,'constant');
+        NREM_dT_sleepMUA_Vals{s,1} = detrend(NREM_dsMUA_Vals,'constant');
     end
     
     % run cross-correlation analysis - average through time
@@ -393,17 +393,17 @@ for fgl = 1:length(CBVdataTypes)
     NREM_maxLag = NREM_lagTime*NREM_frequency;
     NREM_CBVvLFPxcVals = ones(size(NREM_ind_sleepNeural_Vals,2),2*NREM_maxLag + 1);
     NREM_HbTvLFPxcVals = ones(size(NREM_ind_sleepNeural_Vals,2),2*NREM_maxLag + 1);
-    for s = 1:length(NREM_dT_sleepNeural_Vals)
-        for t = 1:size(NREM_dT_sleepNeural_Vals{s,1},1)
-            NREM_CBV_array = NREM_dT_sleepCBV_Vals{s,1};
-            NREM_HbT_array = NREM_dT_sleepHbT_Vals{s,1};
-            NREM_MUA_array = NREM_dT_sleepMUA_Vals{s,1};
-            NREM_Neural_array = NREM_dT_sleepNeural_Vals{s,1}(t,:);
-            [NREM_CBVvLFPxcVals(t,:),NREM_LFP_lags] = xcorr(NREM_CBV_array,NREM_Neural_array,NREM_maxLag,'coeff');
-            [NREM_HbTvLFPxcVals(t,:),~] = xcorr(NREM_HbT_array,NREM_Neural_array,NREM_maxLag,'coeff');
+    for t = 1:length(NREM_dT_sleepNeural_Vals)
+        for u = 1:size(NREM_dT_sleepNeural_Vals{t,1},1)
+            NREM_CBV_array = NREM_dT_sleepCBV_Vals{t,1};
+            NREM_HbT_array = NREM_dT_sleepHbT_Vals{t,1};
+            NREM_MUA_array = NREM_dT_sleepMUA_Vals{t,1};
+            NREM_Neural_array = NREM_dT_sleepNeural_Vals{t,1}(u,:);
+            [NREM_CBVvLFPxcVals(u,:),NREM_LFP_lags] = xcorr(NREM_CBV_array,NREM_Neural_array,NREM_maxLag,'coeff');
+            [NREM_HbTvLFPxcVals(u,:),~] = xcorr(NREM_HbT_array,NREM_Neural_array,NREM_maxLag,'coeff');
         end
-        [NREM_CBVvMUAxcVals(s,:),NREM_MUA_lags] = xcorr(NREM_CBV_array,NREM_MUA_array,NREM_maxLag,'coeff');
-        [NREM_HbTvMUAxcVals(s,:),~] = xcorr(NREM_HbT_array,NREM_MUA_array,NREM_maxLag,'coeff');
+        [NREM_CBVvMUAxcVals(t,:),NREM_MUA_lags] = xcorr(NREM_CBV_array,NREM_MUA_array,NREM_maxLag,'coeff');
+        [NREM_HbTvMUAxcVals(t,:),~] = xcorr(NREM_HbT_array,NREM_MUA_array,NREM_maxLag,'coeff');
         NREM_CBVvLFPzHold = cat(3,NREM_CBVvLFPzHold,NREM_CBVvLFPxcVals);
         NREM_HbTvLFPzHold = cat(3,NREM_HbTvLFPzHold,NREM_HbTvLFPxcVals);
     end
@@ -493,17 +493,17 @@ for fgl = 1:length(CBVdataTypes)
     REM_allSleepFileIDs = SleepData.REM.FileIDs;
     REM_uniqueSleepFileIDs = unique(SleepData.REM.FileIDs);
     REM_sleepBins = REM_sleepTime/sleepBinWidth;
-    u = 1;
-    for v = 1:length(REM_uniqueSleepFileIDs)
+    v = 1;
+    for w = 1:length(REM_uniqueSleepFileIDs)
         % pull out the bin times (there may be multiple events) in each unique REM sleep file
-        REM_uniqueSleepFileID = char(REM_uniqueSleepFileIDs(v));
-        w = 1;
+        REM_uniqueSleepFileID = char(REM_uniqueSleepFileIDs(w));
+        x = 1;
         clear REM_binTimes
-        for x = 1:length(REM_allSleepFileIDs)
-            REM_sleepFileID = char(REM_allSleepFileIDs(x));
+        for y = 1:length(REM_allSleepFileIDs)
+            REM_sleepFileID = char(REM_allSleepFileIDs(y));
             if strcmp(REM_uniqueSleepFileID,REM_sleepFileID)
-                REM_binTimes{w,1} = SleepData.REM.BinTimes{x,1};
-                w = w + 1;
+                REM_binTimes{x,1} = SleepData.REM.BinTimes{y,1};
+                x = x + 1;
             end
         end
         
@@ -511,36 +511,36 @@ for fgl = 1:length(CBVdataTypes)
         REM_specDataFileID = [animalID '_' REM_uniqueSleepFileID '_SpecData.mat'];
         load(REM_specDataFileID)
         REM_S_Data = SpecData.(neuralDataType).oneSec.normS;
-        for y = 1:length(REM_binTimes)
-            REM_Bins = REM_binTimes{y,1};
+        for z = 1:length(REM_binTimes)
+            REM_Bins = REM_binTimes{z,1};
             REM_x_Length = size(REM_S_Data,2);
             REM_x_binLength = ceil(REM_x_Length/trialDuration_sec);
             try
-                REM_sleepNeural_Vals{u,1} = REM_S_Data(:,(REM_Bins(1) - sleepBinWidth)*REM_x_binLength + 1:(REM_Bins(REM_sleepBins))*REM_x_binLength);
+                REM_sleepNeural_Vals{v,1} = REM_S_Data(:,(REM_Bins(1) - sleepBinWidth)*REM_x_binLength + 1:(REM_Bins(REM_sleepBins))*REM_x_binLength);
             catch
-                REM_sleepNeural_Vals{u,1} = REM_S_Data(:,end - REM_sleepTime*REM_x_binLength + 1:end);
+                REM_sleepNeural_Vals{v,1} = REM_S_Data(:,end - REM_sleepTime*REM_x_binLength + 1:end);
             end
-            u = u + 1;
+            v = v + 1;
         end
     end
     
     % detrend spectrogram neural values
-    for z = 1:length(REM_sleepNeural_Vals)
-        REM_ind_sleepNeural_Vals = (REM_sleepNeural_Vals{z,1})';
-        REM_dT_sleepNeural_Vals{z,1} = (detrend(REM_ind_sleepNeural_Vals,'constant'))';
+    for aa = 1:length(REM_sleepNeural_Vals)
+        REM_ind_sleepNeural_Vals = (REM_sleepNeural_Vals{aa,1})';
+        REM_dT_sleepNeural_Vals{aa,1} = (detrend(REM_ind_sleepNeural_Vals,'constant'))';
     end
     
     % lowpass filter and detrend reflectance and HbT during corresponding sleep events
-    for r = 1:length(SleepData.REM.data.CBV.(CBVdataType))
-        REM_CBV_Vals = SleepData.REM.data.CBV.(CBVdataType){r,1}(1:(REM_sleepTime*samplingRate));
-        REM_HbT_Vals = SleepData.REM.data.CBV_HbT.(CBVdataType){r,1}(1:(REM_sleepTime*samplingRate));
-        REM_MUA_Vals = SleepData.REM.data.(neuralDataType).muaPower{r,1}(1:(REM_sleepTime*samplingRate));
+    for bb = 1:length(SleepData.REM.data.CBV.(CBVdataType))
+        REM_CBV_Vals = SleepData.REM.data.CBV.(CBVdataType){bb,1}(1:(REM_sleepTime*samplingRate));
+        REM_HbT_Vals = SleepData.REM.data.CBV_HbT.(CBVdataType){bb,1}(1:(REM_sleepTime*samplingRate));
+        REM_MUA_Vals = SleepData.REM.data.(neuralDataType).muaPower{bb,1}(1:(REM_sleepTime*samplingRate));
         REM_dsCBV_Vals = downsample(REM_CBV_Vals,frequencyDiff);
         REM_dsHbT_Vals = downsample(REM_HbT_Vals,frequencyDiff);
         REM_dsMUA_Vals = downsample(REM_MUA_Vals,frequencyDiff);
-        REM_dT_sleepCBV_Vals{r,1} = detrend(REM_dsCBV_Vals,'constant');
-        REM_dT_sleepHbT_Vals{r,1} = detrend(REM_dsHbT_Vals,'constant');
-        REM_dT_sleepMUA_Vals{r,1} = detrend(REM_dsMUA_Vals,'constant');
+        REM_dT_sleepCBV_Vals{bb,1} = detrend(REM_dsCBV_Vals,'constant');
+        REM_dT_sleepHbT_Vals{bb,1} = detrend(REM_dsHbT_Vals,'constant');
+        REM_dT_sleepMUA_Vals{bb,1} = detrend(REM_dsMUA_Vals,'constant');
     end
     
     % run cross-correlation analysis - average through time
@@ -552,17 +552,17 @@ for fgl = 1:length(CBVdataTypes)
     REM_maxLag = REM_lagTime*REM_frequency;
     REM_CBVvLFPxcVals = ones(size(REM_ind_sleepNeural_Vals,2),2*REM_maxLag + 1);
     REM_HbTvLFPxcVals = ones(size(REM_ind_sleepNeural_Vals,2),2*REM_maxLag + 1);
-    for s = 1:length(REM_dT_sleepNeural_Vals)
-        for t = 1:size(REM_dT_sleepNeural_Vals{s,1},1)
-            REM_CBV_array = REM_dT_sleepCBV_Vals{s,1};
-            REM_HbT_array = REM_dT_sleepHbT_Vals{s,1};
-            REM_MUA_array = REM_dT_sleepMUA_Vals{s,1};
-            REM_Neural_array = REM_dT_sleepNeural_Vals{s,1}(t,:);
-            [REM_CBVvLFPxcVals(t,:),REM_LFP_lags] = xcorr(REM_CBV_array,REM_Neural_array,REM_maxLag,'coeff');
-            [REM_HbTvLFPxcVals(t,:),~] = xcorr(REM_HbT_array,REM_Neural_array,REM_maxLag,'coeff');
+    for cc = 1:length(REM_dT_sleepNeural_Vals)
+        for dd = 1:size(REM_dT_sleepNeural_Vals{cc,1},1)
+            REM_CBV_array = REM_dT_sleepCBV_Vals{cc,1};
+            REM_HbT_array = REM_dT_sleepHbT_Vals{cc,1};
+            REM_MUA_array = REM_dT_sleepMUA_Vals{cc,1};
+            REM_Neural_array = REM_dT_sleepNeural_Vals{cc,1}(dd,:);
+            [REM_CBVvLFPxcVals(dd,:),REM_LFP_lags] = xcorr(REM_CBV_array,REM_Neural_array,REM_maxLag,'coeff');
+            [REM_HbTvLFPxcVals(dd,:),~] = xcorr(REM_HbT_array,REM_Neural_array,REM_maxLag,'coeff');
         end
-        [REM_CBVvMUAxcVals(s,:),REM_MUA_lags] = xcorr(REM_CBV_array,REM_MUA_array,REM_maxLag,'coeff');
-        [REM_HbTvMUAxcVals(s,:),~] = xcorr(REM_HbT_array,REM_MUA_array,REM_maxLag,'coeff');
+        [REM_CBVvMUAxcVals(cc,:),REM_MUA_lags] = xcorr(REM_CBV_array,REM_MUA_array,REM_maxLag,'coeff');
+        [REM_HbTvMUAxcVals(cc,:),~] = xcorr(REM_HbT_array,REM_MUA_array,REM_maxLag,'coeff');
         REM_CBVvLFPzHold = cat(3,REM_CBVvLFPzHold,REM_CBVvLFPxcVals);
         REM_HbTvLFPzHold = cat(3,REM_HbTvLFPzHold,REM_HbTvLFPxcVals);
     end
@@ -646,26 +646,184 @@ for fgl = 1:length(CBVdataTypes)
     end
     savefig(REMXCorr, [dirpath animalID '_' CBVdataType '_REMXCorr']);
     
-    %% Cross-correlation analysis for all data - no behavioral characterization
+    %% Cross-correlation analysis for all un-stimulated data - no behavioral characterization
     disp(['AnalyzeXCorr: ' CBVdataType ' vs ' neuralDataType ' during all behaviors.']); disp(' ')
-    for dd = 1:size(procDataFileIDs,1)
-        procDataFileID = procDataFileIDs(dd, :);
+    for ee = 1:size(procDataFileIDs,1)
+        procDataFileID = procDataFileIDs(ee,:);
         load(procDataFileID);
-        [~,AD_fileDate,~] = GetFileInfo_IOS(procDataFileID);
-        AD_Date = ConvertDate_IOS(AD_fileDate);
+        if isempty(ProcData.data.solenoids.LPadSol) == true
+            stimLogical(ee,1) = 1;
+        else
+            stimLogical(ee,1) = 0;
+        end
+    end
+    stimLogical = logical(stimLogical);
+    unstim_procDataFileIDs = procDataFileIDs(stimLogical,:);
+    for ff = 1:size(unstim_procDataFileIDs)
+        unstim_procDataFileID = unstim_procDataFileIDs(ff,:);
+        load(unstim_procDataFileID)
+        [~,fileDate,~] = GetFileInfo_IOS(unstim_procDataFileID);
+        US_Date = ConvertDate_IOS(fileDate);
+        
+        % extract LFP from spectrograms associated with the whisking indecies
+        US_specDataFileID = [unstim_procDataFileID(1:end-12) 'SpecData.mat'];
+        for gg = 1:length(AllSpecData.(neuralDataType).fileIDs)
+            if strcmp(AllSpecData.(neuralDataType).fileIDs{gg,1},US_specDataFileID) == true
+                US_S_Data = AllSpecData.(neuralDataType).oneSec.normS{gg,1};
+                US_F = AllSpecData.(neuralDataType).oneSec.F{gg,1};
+            end
+        end
+        
+        % mean subtract each row with detrend
+        transp_US_S_Vals = US_S_Data';   % Transpose since detrend goes down columns
+        dT_US_S_Data{ff,1} = detrend(transp_US_S_Vals,'constant')';
+        
+        % lowpass filter and detrend reflectance and HbT during corresponding sleep events
+        US_CBV = (ProcData.data.CBV.(CBVdataType) - RestingBaselines.(baselineType).CBV.(CBVdataType).(US_Date))/RestingBaselines.(baselineType).CBV.(CBVdataType).(US_Date);
+        US_MUA = (ProcData.data.(neuralDataType).muaPower - RestingBaselines.(baselineType).(neuralDataType).muaPower.(US_Date))/RestingBaselines.(baselineType).(neuralDataType).muaPower.(US_Date);
+        US_HbT = ProcData.data.CBV_HbT.(CBVdataType);
+        filt_US_CBV = filtfilt(B,A,US_CBV);
+        filt_US_HbT = filtfilt(B,A,US_HbT);
+        filt_US_MUA = filtfilt(B,A,US_MUA);
+        dS_US_CBV = downsample(filt_US_CBV,frequencyDiff);
+        dS_US_HbT = downsample(filt_US_HbT,frequencyDiff);
+        dS_US_MUA = downsample(filt_US_MUA,frequencyDiff);
+        US_SampleDiff = length(dS_US_CBV) - size(US_S_Data,2);
+        if rem(US_SampleDiff,2) == 1
+            short_US_CBV = dS_US_CBV(((US_SampleDiff+1)/2):(end-((US_SampleDiff+1)/2)));
+            short_US_HbT = dS_US_HbT(((US_SampleDiff+1)/2):(end-((US_SampleDiff+1)/2)));
+            short_US_MUA = dS_US_MUA(((US_SampleDiff+1)/2):(end-((US_SampleDiff+1)/2)));
+        else
+            short_US_CBV = dS_US_CBV((US_SampleDiff/2):(end-(US_SampleDiff/2))-1);
+            short_US_HbT = dS_US_HbT((US_SampleDiff/2):(end-(US_SampleDiff/2))-1);
+            short_US_MUA = dS_US_MUA((US_SampleDiff/2):(end-(US_SampleDiff/2))-1);
+        end
+        dT_US_CBV{ff,1} = detrend(short_US_CBV,'constant');
+        dT_US_HbT{ff,1} = detrend(short_US_HbT,'constant');
+        dT_US_MUA{ff,1} = detrend(short_US_MUA,'constant');
+    end
+    
+    % run cross-correlation analysis - average through time
+    US_CBVvLFPzHold = [];
+    US_HbTvLFPzHold = [];
+    US_lagTime = 15;   % seconds
+    US_frequency = oneSecSpecFs;   % Hz
+    US_maxLag = US_lagTime*US_frequency;
+    US_CBVvLFPxcVals = ones(size(US_S_Data,1),2*US_maxLag + 1);
+    US_HbTvLFPxcVals = ones(size(US_S_Data,1),2*US_maxLag + 1);
+    for hh = 1:length(dT_US_S_Data)
+        for jj = 1:size(dT_US_S_Data{hh,1},1)
+            US_CBVarray = dT_US_CBV{hh,1};
+            US_HbTarray = dT_US_HbT{hh,1};
+            US_MUAarray = dT_US_MUA{hh,1};
+            US_neuralArray = dT_US_S_Data{hh,1}(jj,:);
+            [US_CBVvLFPxcVals(jj,:),US_LFP_lags] = xcorr(US_CBVarray,US_neuralArray,US_maxLag,'coeff');
+            [US_HbTvLFPxcVals(jj,:),~] = xcorr(US_HbTarray,US_neuralArray,US_maxLag,'coeff');
+        end
+        [US_CBVvMUAxcVals(hh,:),US_MUA_lags] = xcorr(US_CBVarray,US_MUAarray,US_maxLag,'coeff');
+        [US_HbTvMUAxcVals(hh,:),~] = xcorr(US_HbTarray,US_MUAarray,US_maxLag,'coeff');
+        US_CBVvLFPzHold = cat(3,US_CBVvLFPzHold,US_CBVvLFPxcVals);
+        US_HbTvLFPzHold = cat(3,US_HbTvLFPzHold,US_HbTvLFPxcVals);
+    end
+    US_meanCBVvLFPxcVals = mean(US_CBVvLFPzHold,3);
+    US_meanHbTvLFPxcVals = mean(US_HbTvLFPzHold,3);
+    US_meanCBVvMUAxcVals = mean(US_CBVvMUAxcVals,1);
+    US_stdCBVvMUAxcVals = std(US_CBVvMUAxcVals,0,1);
+    US_meanHbTvMUAxcVals = mean(US_HbTvMUAxcVals,1);
+    US_stdHbTvMUAxcVals = std(US_HbTvMUAxcVals,0,1);
+    
+    % summary figure
+    UnStimDataXCorr = figure;
+    subplot(2,2,1)
+    plot(US_MUA_lags,US_meanCBVvMUAxcVals,'k')
+    hold on
+    plot(US_MUA_lags,US_meanCBVvMUAxcVals + US_stdCBVvMUAxcVals,'color',colors_IOS('battleship grey'))
+    plot(US_MUA_lags,US_meanCBVvMUAxcVals - US_stdCBVvMUAxcVals,'color',colors_IOS('battleship grey'))
+    title([animalID ' ' titleID ' ' filterSet ' CBV Refl all unstim data cross-correlation'])
+    xticks([-US_maxLag -US_maxLag/2 0 US_maxLag/2 US_maxLag])
+    xticklabels({'-15', '-7.5', '0', '7.5' '15'})
+    xlim([-US_lagTime*US_frequency US_lagTime*US_frequency])
+    xlabel('Lags (sec)')
+    ylabel('Cross-correlation')
+    axis xy
+    axis square
+    
+    subplot(2,2,2)
+    plot(US_MUA_lags,US_meanHbTvMUAxcVals,'k')
+    hold on
+    plot(US_MUA_lags,US_meanHbTvMUAxcVals + US_stdHbTvMUAxcVals,'color',colors_IOS('battleship grey'))
+    plot(US_MUA_lags,US_meanHbTvMUAxcVals - US_stdHbTvMUAxcVals,'color',colors_IOS('battleship grey'))
+    title([animalID ' ' titleID ' ' filterSet ' CBV HbT all unstim data cross-correlation'])
+    xticks([-US_maxLag -US_maxLag/2 0 US_maxLag/2 US_maxLag])
+    xticklabels({'-15', '-7.5', '0', '7.5' '15'})
+    xlim([-US_lagTime*US_frequency US_lagTime*US_frequency])
+    xlabel('Lags (sec)')
+    ylabel('Cross-correlation')
+    axis xy
+    axis square
+    
+    subplot(2,2,3)
+    imagesc(US_LFP_lags,US_F,US_meanCBVvLFPxcVals)
+    xticks([-US_maxLag -US_maxLag/2 0 US_maxLag/2 US_maxLag])
+    xticklabels({'-15', '-7.5', '0', '7.5' '15'})
+    xlim([-US_lagTime*US_frequency US_lagTime*US_frequency])
+    xlabel('Lags (sec)')
+    ylabel('Freq (Hz)')
+    ylim([1 100])
+    colorbar
+    axis xy
+    axis square
+    
+    subplot(2,2,4)
+    imagesc(US_LFP_lags,US_F,US_meanHbTvLFPxcVals)
+    xticks([-US_maxLag -US_maxLag/2 0 US_maxLag/2 US_maxLag])
+    xticklabels({'-15', '-7.5', '0', '7.5' '15'})
+    xlim([-US_lagTime*US_frequency US_lagTime*US_frequency])
+    xlabel('Lags (sec)')
+    ylabel('Freq (Hz)')
+    ylim([1 100])
+    colorbar
+    axis xy
+    axis square
+    
+    % save results
+    AnalysisResults.XCorr.Unstim.(CBVdataType).LFP_lags = US_LFP_lags;
+    AnalysisResults.XCorr.Unstim.(CBVdataType).MUA_lags = US_MUA_lags;
+    AnalysisResults.XCorr.Unstim.(CBVdataType).F = US_F;
+    AnalysisResults.XCorr.Unstim.(CBVdataType).CBVvLFPxcVals = US_meanCBVvLFPxcVals;
+    AnalysisResults.XCorr.Unstim.(CBVdataType).HbTvLFPxcVals = US_meanHbTvLFPxcVals;
+    AnalysisResults.XCorr.Unstim.(CBVdataType).CBVvMUAxcVals = US_meanCBVvMUAxcVals;
+    AnalysisResults.XCorr.Unstim.(CBVdataType).CBVvMUAxcVals_std = US_stdCBVvMUAxcVals;
+    AnalysisResults.XCorr.Unstim.(CBVdataType).HbTvMUAxcVals = US_meanHbTvMUAxcVals;
+    AnalysisResults.XCorr.Unstim.(CBVdataType).HbTvMUAxcVals_std = US_stdHbTvMUAxcVals;
+    
+    % save figure
+    [pathstr, ~, ~] = fileparts(cd);
+    dirpath = [pathstr '/Figures/Analysis XCorr/'];
+    if ~exist(dirpath, 'dir')
+        mkdir(dirpath);
+    end
+    savefig(UnStimDataXCorr, [dirpath animalID '_' CBVdataType '_UnStimDataXCorr']);
+    
+    %% Cross-correlation analysis for all data - no behavioral characterization
+    for ff = 1:size(procDataFileIDs)
+        procDataFileID = procDataFileIDs(ff,:);
+        load(procDataFileID)
+        [~,fileDate,~] = GetFileInfo_IOS(procDataFileID);
+        AD_Date = ConvertDate_IOS(fileDate);
         
         % extract LFP from spectrograms associated with the whisking indecies
         AD_specDataFileID = [procDataFileID(1:end-12) 'SpecData.mat'];
-        for ee = 1:length(AllSpecData.(neuralDataType).fileIDs)
-            if strcmp(AllSpecData.(neuralDataType).fileIDs{ee,1},AD_specDataFileID) == true
-                AD_S_Data = AllSpecData.(neuralDataType).oneSec.normS{ee,1};
-                AD_F = AllSpecData.(neuralDataType).oneSec.F{ee,1};
+        for gg = 1:length(AllSpecData.(neuralDataType).fileIDs)
+            if strcmp(AllSpecData.(neuralDataType).fileIDs{gg,1},AD_specDataFileID) == true
+                AD_S_Data = AllSpecData.(neuralDataType).oneSec.normS{gg,1};
+                AD_F = AllSpecData.(neuralDataType).oneSec.F{gg,1};
             end
         end
         
         % mean subtract each row with detrend
         transp_AD_S_Vals = AD_S_Data';   % Transpose since detrend goes down columns
-        dT_AD_S_Data{dd,1} = detrend(transp_AD_S_Vals,'constant')';
+        dT_AD_S_Data{ff,1} = detrend(transp_AD_S_Vals,'constant')';
         
         % lowpass filter and detrend reflectance and HbT during corresponding sleep events
         AD_CBV = (ProcData.data.CBV.(CBVdataType) - RestingBaselines.(baselineType).CBV.(CBVdataType).(AD_Date))/RestingBaselines.(baselineType).CBV.(CBVdataType).(AD_Date);
@@ -687,30 +845,30 @@ for fgl = 1:length(CBVdataTypes)
             short_AD_HbT = dS_AD_HbT((AD_SampleDiff/2):(end-(AD_SampleDiff/2))-1);
             short_AD_MUA = dS_AD_MUA((AD_SampleDiff/2):(end-(AD_SampleDiff/2))-1);
         end
-        dT_AD_CBV{dd,1} = detrend(short_AD_CBV,'constant');
-        dT_AD_HbT{dd,1} = detrend(short_AD_HbT,'constant');
-        dT_AD_MUA{dd,1} = detrend(short_AD_MUA,'constant');
+        dT_AD_CBV{ff,1} = detrend(short_AD_CBV,'constant');
+        dT_AD_HbT{ff,1} = detrend(short_AD_HbT,'constant');
+        dT_AD_MUA{ff,1} = detrend(short_AD_MUA,'constant');
     end
     
     % run cross-correlation analysis - average through time
     AD_CBVvLFPzHold = [];
     AD_HbTvLFPzHold = [];
-    AD_lagTime = 5;   % seconds
+    AD_lagTime = 15;   % seconds
     AD_frequency = oneSecSpecFs;   % Hz
     AD_maxLag = AD_lagTime*AD_frequency;
     AD_CBVvLFPxcVals = ones(size(AD_S_Data,1),2*AD_maxLag + 1);
     AD_HbTvLFPxcVals = ones(size(AD_S_Data,1),2*AD_maxLag + 1);
-    for ff = 1:length(dT_AD_S_Data)
-        for gg = 1:size(dT_AD_S_Data{ff,1},1)
-            AD_CBVarray = dT_AD_CBV{ff,1};
-            AD_HbTarray = dT_AD_HbT{ff,1};
-            AD_MUAarray = dT_AD_MUA{ff,1};
-            AD_neuralArray = dT_AD_S_Data{ff,1}(gg,:);
-            [AD_CBVvLFPxcVals(gg,:),AD_LFP_lags] = xcorr(AD_CBVarray,AD_neuralArray,AD_maxLag,'coeff');
-            [AD_HbTvLFPxcVals(gg,:),~] = xcorr(AD_HbTarray,AD_neuralArray,AD_maxLag,'coeff');
+    for hh = 1:length(dT_AD_S_Data)
+        for jj = 1:size(dT_AD_S_Data{hh,1},1)
+            AD_CBVarray = dT_AD_CBV{hh,1};
+            AD_HbTarray = dT_AD_HbT{hh,1};
+            AD_MUAarray = dT_AD_MUA{hh,1};
+            AD_neuralArray = dT_AD_S_Data{hh,1}(jj,:);
+            [AD_CBVvLFPxcVals(jj,:),AD_LFP_lags] = xcorr(AD_CBVarray,AD_neuralArray,AD_maxLag,'coeff');
+            [AD_HbTvLFPxcVals(jj,:),~] = xcorr(AD_HbTarray,AD_neuralArray,AD_maxLag,'coeff');
         end
-        [AD_CBVvMUAxcVals(ff,:),AD_MUA_lags] = xcorr(AD_CBVarray,AD_MUAarray,AD_maxLag,'coeff');
-        [AD_HbTvMUAxcVals(ff,:),~] = xcorr(AD_HbTarray,AD_MUAarray,AD_maxLag,'coeff');
+        [AD_CBVvMUAxcVals(hh,:),AD_MUA_lags] = xcorr(AD_CBVarray,AD_MUAarray,AD_maxLag,'coeff');
+        [AD_HbTvMUAxcVals(hh,:),~] = xcorr(AD_HbTarray,AD_MUAarray,AD_maxLag,'coeff');
         AD_CBVvLFPzHold = cat(3,AD_CBVvLFPzHold,AD_CBVvLFPxcVals);
         AD_HbTvLFPzHold = cat(3,AD_HbTvLFPzHold,AD_HbTvLFPxcVals);
     end
@@ -730,7 +888,7 @@ for fgl = 1:length(CBVdataTypes)
     plot(AD_MUA_lags,AD_meanCBVvMUAxcVals - AD_stdCBVvMUAxcVals,'color',colors_IOS('battleship grey'))
     title([animalID ' ' titleID ' ' filterSet ' CBV Refl all data cross-correlation'])
     xticks([-AD_maxLag -AD_maxLag/2 0 AD_maxLag/2 AD_maxLag])
-    xticklabels({'-5', '-2.5', '0', '2.5' '5'})
+    xticklabels({'-15', '-7.5', '0', '7.5' '15'})
     xlim([-AD_lagTime*AD_frequency AD_lagTime*AD_frequency])
     xlabel('Lags (sec)')
     ylabel('Cross-correlation')
@@ -744,7 +902,7 @@ for fgl = 1:length(CBVdataTypes)
     plot(AD_MUA_lags,AD_meanHbTvMUAxcVals - AD_stdHbTvMUAxcVals,'color',colors_IOS('battleship grey'))
     title([animalID ' ' titleID ' ' filterSet ' CBV HbT all data cross-correlation'])
     xticks([-AD_maxLag -AD_maxLag/2 0 AD_maxLag/2 AD_maxLag])
-    xticklabels({'-5', '-2.5', '0', '2.5' '5'})
+    xticklabels({'-15', '-7.5', '0', '7.5' '15'})
     xlim([-AD_lagTime*AD_frequency AD_lagTime*AD_frequency])
     xlabel('Lags (sec)')
     ylabel('Cross-correlation')
@@ -754,7 +912,7 @@ for fgl = 1:length(CBVdataTypes)
     subplot(2,2,3)
     imagesc(AD_LFP_lags,AD_F,AD_meanCBVvLFPxcVals)
     xticks([-AD_maxLag -AD_maxLag/2 0 AD_maxLag/2 AD_maxLag])
-    xticklabels({'-5', '-2.5', '0', '2.5' '5'})
+    xticklabels({'-15', '-7.5', '0', '7.5' '15'})
     xlim([-AD_lagTime*AD_frequency AD_lagTime*AD_frequency])
     xlabel('Lags (sec)')
     ylabel('Freq (Hz)')
@@ -766,7 +924,7 @@ for fgl = 1:length(CBVdataTypes)
     subplot(2,2,4)
     imagesc(AD_LFP_lags,AD_F,AD_meanHbTvLFPxcVals)
     xticks([-AD_maxLag -AD_maxLag/2 0 AD_maxLag/2 AD_maxLag])
-    xticklabels({'-5', '-2.5', '0', '2.5' '5'})
+    xticklabels({'-15', '-7.5', '0', '7.5' '15'})
     xlim([-AD_lagTime*AD_frequency AD_lagTime*AD_frequency])
     xlabel('Lags (sec)')
     ylabel('Freq (Hz)')
@@ -776,15 +934,15 @@ for fgl = 1:length(CBVdataTypes)
     axis square
     
     % save results
-    AnalysisResults.XCorr.AllData.(CBVdataType).LFP_lags = AD_LFP_lags;
-    AnalysisResults.XCorr.AllData.(CBVdataType).MUA_lags = AD_MUA_lags;
-    AnalysisResults.XCorr.AllData.(CBVdataType).F = AD_F;
-    AnalysisResults.XCorr.AllData.(CBVdataType).CBVvLFPxcVals = AD_meanCBVvLFPxcVals;
-    AnalysisResults.XCorr.AllData.(CBVdataType).HbTvLFPxcVals = AD_meanHbTvLFPxcVals;
-    AnalysisResults.XCorr.AllData.(CBVdataType).CBVvMUAxcVals = AD_meanCBVvMUAxcVals;
-    AnalysisResults.XCorr.AllData.(CBVdataType).CBVvMUAxcVals_std = AD_stdCBVvMUAxcVals;
-    AnalysisResults.XCorr.AllData.(CBVdataType).HbTvMUAxcVals = AD_meanHbTvMUAxcVals;
-    AnalysisResults.XCorr.AllData.(CBVdataType).HbTvMUAxcVals_std = AD_stdHbTvMUAxcVals;
+    AnalysisResults.XCorr.All.(CBVdataType).LFP_lags = AD_LFP_lags;
+    AnalysisResults.XCorr.All.(CBVdataType).MUA_lags = AD_MUA_lags;
+    AnalysisResults.XCorr.All.(CBVdataType).F = AD_F;
+    AnalysisResults.XCorr.All.(CBVdataType).CBVvLFPxcVals = AD_meanCBVvLFPxcVals;
+    AnalysisResults.XCorr.All.(CBVdataType).HbTvLFPxcVals = AD_meanHbTvLFPxcVals;
+    AnalysisResults.XCorr.All.(CBVdataType).CBVvMUAxcVals = AD_meanCBVvMUAxcVals;
+    AnalysisResults.XCorr.All.(CBVdataType).CBVvMUAxcVals_std = AD_stdCBVvMUAxcVals;
+    AnalysisResults.XCorr.All.(CBVdataType).HbTvMUAxcVals = AD_meanHbTvMUAxcVals;
+    AnalysisResults.XCorr.All.(CBVdataType).HbTvMUAxcVals_std = AD_stdHbTvMUAxcVals;
     
     % save figure
     [pathstr, ~, ~] = fileparts(cd);

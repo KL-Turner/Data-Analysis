@@ -79,6 +79,7 @@ for a = 1:length(filterSets)
         elseif strcmp(whiskCriteriaName,'whiskCriteriaC') == true
             whiskCriteria = whiskCriteriaC;
         end
+        disp(['AnalyzeEvokedResponses: ' whiskCriteriaName ' whisker events - ' filterSet]); disp(' ')
         allWhiskFilter = FilterEvents_IOS(EventData.CBV.(dataType).whisk,whiskCriteria);
         [allWhiskCBVData] = EventData.CBV.(dataType).whisk.NormData(allWhiskFilter,:);
         [allWhiskHbTData] = EventData.CBV_HbT.(dataType).whisk.data(allWhiskFilter,:);
@@ -340,6 +341,7 @@ for a = 1:length(filterSets)
             stimCriteria = stimCriteriaC;
             solenoid = 'AudSol';
         end
+        disp(['AnalyzeEvokedResponses: ' stimCriteriaName ' stimulus events - ' filterSet]); disp(' ')
         allStimFilter = FilterEvents_IOS(EventData.CBV.(dataType).stim, stimCriteria);
         [allStimCBVData] = EventData.CBV.(dataType).stim.NormData(allStimFilter,:);
         [allStimHbTData] = EventData.CBV_HbT.(dataType).stim.data(allStimFilter,:);
@@ -526,13 +528,13 @@ for a = 1:length(filterSets)
         AnalysisResults.EvokedAvgs.Stim.(dataType).(filterSet).(solenoid).CBV.ReflStD = stdStimCBVData;
         AnalysisResults.EvokedAvgs.Stim.(dataType).(filterSet).(solenoid).CBV.HbT = meanStimHbTData;
         AnalysisResults.EvokedAvgs.Stim.(dataType).(filterSet).(solenoid).CBV.HbTStD = stdStimHbTData;
-        AnalysisResults.EvokedAvgs.Stim.(dataType).(filterSet).(solenoid).MUA.cortData = meanStimCortMUAData;
-        AnalysisResults.EvokedAvgs.Stim.(dataType).(filterSet).(solenoid).MUA.cortStD = stdStimCortMUAData;
-        AnalysisResults.EvokedAvgs.Stim.(dataType).(filterSet).(solenoid).MUA.hipData = meanStimHipMUAData;
-        AnalysisResults.EvokedAvgs.Stim.(dataType).(filterSet).(solenoid).MUA.hipStD = stdStimHipMUAData;
+        AnalysisResults.EvokedAvgs.Stim.(dataType).(filterSet).(solenoid).MUA.corticalData = meanStimCortMUAData;
+        AnalysisResults.EvokedAvgs.Stim.(dataType).(filterSet).(solenoid).MUA.corticalStD = stdStimCortMUAData;
+        AnalysisResults.EvokedAvgs.Stim.(dataType).(filterSet).(solenoid).MUA.hippocampalData = meanStimHipMUAData;
+        AnalysisResults.EvokedAvgs.Stim.(dataType).(filterSet).(solenoid).MUA.hippocampalStD = stdStimHipMUAData;
         AnalysisResults.EvokedAvgs.Stim.(dataType).(filterSet).(solenoid).timeVector = timeVector;
-        AnalysisResults.EvokedAvgs.Stim.(dataType).(filterSet).(solenoid).LFP.cortS = meanStimCortS;
-        AnalysisResults.EvokedAvgs.Stim.(dataType).(filterSet).(solenoid).LFP.cortS = meanStimHipS;
+        AnalysisResults.EvokedAvgs.Stim.(dataType).(filterSet).(solenoid).LFP.corticalS = meanStimCortS;
+        AnalysisResults.EvokedAvgs.Stim.(dataType).(filterSet).(solenoid).LFP.hippocampalS = meanStimHipS;
         AnalysisResults.EvokedAvgs.Stim.(dataType).(filterSet).(solenoid).LFP.T = T;
         AnalysisResults.EvokedAvgs.Stim.(dataType).(filterSet).(solenoid).LFP.F = F;
         
@@ -546,6 +548,8 @@ for a = 1:length(filterSets)
     end
 end
 % save results structure
+AnalysisResults.Coherence.Unstim = AnalysisResults.Coherence.NoStimData;
+AnalysisResults.XCorr.Unstim = AnalysisResults.XCorr.NoStimData;
 save([animalID '_AnalysisResults.mat'], 'AnalysisResults');
 
 end

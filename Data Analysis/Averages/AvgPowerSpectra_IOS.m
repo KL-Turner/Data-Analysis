@@ -18,10 +18,14 @@ clc
 
 animalIDs = {'T99','T101','T102','T103','T105','T108','T109','T110'};
 driveLetters = {'E','E','E','F','F','F','D','D'};
-behavFields = {'Rest','AllData','NREM','REM'};
+behavFields = {'Rest','NREM','REM','Unstim','All'};
 baselineTypes = {'manualSelection','setDuration','entireDuration'};
 powerSpec_dataTypes = {'CBV','CBV_HbT','deltaBandPower','thetaBandPower','alphaBandPower','betaBandPower','gammaBandPower','muaPower'};
-graphColors = {'sapphire','electric purple','coral red','vegas gold','jungle green','deep carrot orange','battleship grey'}; 
+colorbrewer_setA_colorA = [0.520000 0.520000 0.510000];
+colorbrewer_setA_colorB = [(31/256) (120/256) (180/256)];
+colorbrewer_setA_colorC = [(255/256) (0/256) (115/256)];
+colorbrewer_setA_colorD = [(51/256) (160/256) (44/256)];
+colorbrewer_setA_colorE = [(255/256) (140/256) (0/256)];
 
 %% cd through each animal's directory and extract the appropriate analysis results
 for a = 1:length(animalIDs)
@@ -110,31 +114,32 @@ end
 
 %% summary figure(s) - cortex
 for m = 1:length(baselineTypes)
-    baselineType = baselineTypes{1,m};
-    
+    baselineType = baselineTypes{1,m}; 
     summaryFigure = figure;
     sgtitle({['CBV and cortical power spectra - ' baselineType ' for resting data'],' '})
     %% CBV
     ax1 = subplot(2,4,1);
-    loglog(data.Rest.CBV.(baselineType).meanCortf,data.Rest.CBV.(baselineType).meanCortS,'color',colors_IOS(graphColors{1,1}),'LineWidth',2)
+    loglog(data.Rest.CBV.(baselineType).meanCortf,data.Rest.CBV.(baselineType).meanCortS,'color',colorbrewer_setA_colorA,'LineWidth',2)
     hold on
-    loglog(data.AllData.CBV.meanCortf,data.AllData.CBV.meanCortS,'color',colors_IOS(graphColors{1,2}),'LineWidth',2)
-    loglog(data.NREM.CBV.meanCortf,data.NREM.CBV.meanCortS,'color',colors_IOS(graphColors{1,3}),'LineWidth',2)
-    loglog(data.REM.CBV.meanCortf,data.REM.CBV.meanCortS,'color',colors_IOS(graphColors{1,4}),'LineWidth',2)
+    loglog(data.NREM.CBV.meanCortf,data.NREM.CBV.meanCortS,'color',colorbrewer_setA_colorB,'LineWidth',2)
+    loglog(data.REM.CBV.meanCortf,data.REM.CBV.meanCortS,'color',colorbrewer_setA_colorC,'LineWidth',2)
+    loglog(data.Unstim.CBV.meanCortf,data.AllData.CBV.meanCortS,'color',colorbrewer_setA_colorD,'LineWidth',2)
+    loglog(data.All.CBV.meanCortf,data.AllData.CBV.meanCortS,'color',colorbrewer_setA_colorE,'LineWidth',2)
     title('CBV Reflectance')
     ylabel('Power')
     xlabel('Freq (Hz)')
-    legend('Rest','AllData','NREM','REM')
+    legend('Rest','NREM','REM','Unstim','All')
     axis square
     xlim([0.05 1])
     
     %% CBV HbT
     ax2 = subplot(2,4,2);
-    loglog(data.Rest.CBV_HbT.(baselineType).meanCortf,data.Rest.CBV_HbT.(baselineType).meanCortS,'color',colors_IOS(graphColors{1,1}),'LineWidth',2)
+    loglog(data.Rest.CBV_HbT.(baselineType).meanCortf,data.Rest.CBV_HbT.(baselineType).meanCortS,'color',colorbrewer_setA_colorA,'LineWidth',2)
     hold on
-    loglog(data.AllData.CBV_HbT.meanCortf,data.AllData.CBV_HbT.meanCortS,'color',colors_IOS(graphColors{1,2}),'LineWidth',2)
-    loglog(data.NREM.CBV_HbT.meanCortf,data.NREM.CBV_HbT.meanCortS,'color',colors_IOS(graphColors{1,3}),'LineWidth',2)
-    loglog(data.REM.CBV_HbT.meanCortf,data.REM.CBV_HbT.meanCortS,'color',colors_IOS(graphColors{1,4}),'LineWidth',2)
+    loglog(data.NREM.CBV_HbT.meanCortf,data.NREM.CBV_HbT.meanCortS,'color',colorbrewer_setA_colorB,'LineWidth',2)
+    loglog(data.REM.CBV_HbT.meanCortf,data.REM.CBV_HbT.meanCortS,'color',colorbrewer_setA_colorC,'LineWidth',2)
+    loglog(data.Unstim.CBV_HbT.meanCortf,data.Unstim.CBV_HbT.meanCortS,'color',colorbrewer_setA_colorD,'LineWidth',2)
+    loglog(data.All.CBV_HbT.meanCortf,data.All.CBV_HbT.meanCortS,'color',colorbrewer_setA_colorE,'LineWidth',2)
     title('CBV HbT')
     ylabel('Power')
     xlabel('Freq (Hz)')
@@ -143,11 +148,12 @@ for m = 1:length(baselineTypes)
     
     %% Delta-band power
     ax3 = subplot(2,4,3);
-    loglog(data.Rest.deltaBandPower.(baselineType).meanCortf,data.Rest.deltaBandPower.(baselineType).meanCortS,'color',colors_IOS(graphColors{1,1}),'LineWidth',2)
+    loglog(data.Rest.deltaBandPower.(baselineType).meanCortf,data.Rest.deltaBandPower.(baselineType).meanCortS,'color',colorbrewer_setA_colorA,'LineWidth',2)
     hold on
-    loglog(data.AllData.deltaBandPower.meanCortf,data.AllData.deltaBandPower.meanCortS,'color',colors_IOS(graphColors{1,2}),'LineWidth',2)
-    loglog(data.NREM.deltaBandPower.meanCortf,data.NREM.deltaBandPower.meanCortS,'color',colors_IOS(graphColors{1,3}),'LineWidth',2)
-    loglog(data.REM.deltaBandPower.meanCortf,data.REM.deltaBandPower.meanCortS,'color',colors_IOS(graphColors{1,4}),'LineWidth',2)
+    loglog(data.NREM.deltaBandPower.meanCortf,data.NREM.deltaBandPower.meanCortS,'color',colorbrewer_setA_colorB,'LineWidth',2)
+    loglog(data.REM.deltaBandPower.meanCortf,data.REM.deltaBandPower.meanCortS,'color',colorbrewer_setA_colorC,'LineWidth',2)
+    loglog(data.Unstim.deltaBandPower.meanCortf,data.Unstim.deltaBandPower.meanCortS,'color',colorbrewer_setA_colorD,'LineWidth',2)
+    loglog(data.All.deltaBandPower.meanCortf,data.All.deltaBandPower.meanCortS,'color',colorbrewer_setA_colorE,'LineWidth',2)
     title('Delta-band power')
     ylabel('Power')
     xlabel('Freq (Hz)')
@@ -156,11 +162,12 @@ for m = 1:length(baselineTypes)
     
     %% Theta-band power
     ax4 = subplot(2,4,4);
-    loglog(data.Rest.thetaBandPower.(baselineType).meanCortf,data.Rest.thetaBandPower.(baselineType).meanCortS,'color',colors_IOS(graphColors{1,1}),'LineWidth',2)
+    loglog(data.Rest.thetaBandPower.(baselineType).meanCortf,data.Rest.thetaBandPower.(baselineType).meanCortS,'color',colorbrewer_setA_colorA,'LineWidth',2)
     hold on
-    loglog(data.AllData.thetaBandPower.meanCortf,data.AllData.thetaBandPower.meanCortS,'color',colors_IOS(graphColors{1,2}),'LineWidth',2)
-    loglog(data.NREM.thetaBandPower.meanCortf,data.NREM.thetaBandPower.meanCortS,'color',colors_IOS(graphColors{1,3}),'LineWidth',2)
-    loglog(data.REM.thetaBandPower.meanCortf,data.REM.thetaBandPower.meanCortS,'color',colors_IOS(graphColors{1,4}),'LineWidth',2)
+    loglog(data.NREM.thetaBandPower.meanCortf,data.NREM.thetaBandPower.meanCortS,'color',colorbrewer_setA_colorB,'LineWidth',2)
+    loglog(data.REM.thetaBandPower.meanCortf,data.REM.thetaBandPower.meanCortS,'color',colorbrewer_setA_colorC,'LineWidth',2)
+    loglog(data.Unstim.thetaBandPower.meanCortf,data.Unstim.thetaBandPower.meanCortS,'color',colorbrewer_setA_colorD,'LineWidth',2)
+    loglog(data.All.thetaBandPower.meanCortf,data.All.thetaBandPower.meanCortS,'color',colorbrewer_setA_colorE,'LineWidth',2)
     title('Theta-band power')
     ylabel('Power')
     xlabel('Freq (Hz)')
@@ -169,11 +176,12 @@ for m = 1:length(baselineTypes)
     
     %% Alpha-band power
     ax5 = subplot(2,4,5);
-    loglog(data.Rest.alphaBandPower.(baselineType).meanCortf,data.Rest.alphaBandPower.(baselineType).meanCortS,'color',colors_IOS(graphColors{1,1}),'LineWidth',2)
+    loglog(data.Rest.alphaBandPower.(baselineType).meanCortf,data.Rest.alphaBandPower.(baselineType).meanCortS,'color',colorbrewer_setA_colorA,'LineWidth',2)
     hold on
-    loglog(data.AllData.alphaBandPower.meanCortf,data.AllData.alphaBandPower.meanCortS,'color',colors_IOS(graphColors{1,2}),'LineWidth',2)
-    loglog(data.NREM.alphaBandPower.meanCortf,data.NREM.alphaBandPower.meanCortS,'color',colors_IOS(graphColors{1,3}),'LineWidth',2)
-    loglog(data.REM.alphaBandPower.meanCortf,data.REM.alphaBandPower.meanCortS,'color',colors_IOS(graphColors{1,4}),'LineWidth',2)
+    loglog(data.NREM.alphaBandPower.meanCortf,data.NREM.alphaBandPower.meanCortS,'color',colorbrewer_setA_colorB,'LineWidth',2)
+    loglog(data.REM.alphaBandPower.meanCortf,data.REM.alphaBandPower.meanCortS,'color',colorbrewer_setA_colorC,'LineWidth',2)
+    loglog(data.Unstim.alphaBandPower.meanCortf,data.Unstim.alphaBandPower.meanCortS,'color',colorbrewer_setA_colorD,'LineWidth',2)
+    loglog(data.All.alphaBandPower.meanCortf,data.All.alphaBandPower.meanCortS,'color',colorbrewer_setA_colorE,'LineWidth',2)
     title('Alpha-band power')
     ylabel('Power')
     xlabel('Freq (Hz)')
@@ -182,11 +190,12 @@ for m = 1:length(baselineTypes)
     
     %% Beta-band power
     ax6 = subplot(2,4,6);
-    loglog(data.Rest.betaBandPower.(baselineType).meanCortf,data.Rest.betaBandPower.(baselineType).meanCortS,'color',colors_IOS(graphColors{1,1}),'LineWidth',2)
+    loglog(data.Rest.betaBandPower.(baselineType).meanCortf,data.Rest.betaBandPower.(baselineType).meanCortS,'color',colorbrewer_setA_colorA,'LineWidth',2)
     hold on
-    loglog(data.AllData.betaBandPower.meanCortf,data.AllData.betaBandPower.meanCortS,'color',colors_IOS(graphColors{1,2}),'LineWidth',2)
-    loglog(data.NREM.betaBandPower.meanCortf,data.NREM.betaBandPower.meanCortS,'color',colors_IOS(graphColors{1,3}),'LineWidth',2)
-    loglog(data.REM.betaBandPower.meanCortf,data.REM.betaBandPower.meanCortS,'color',colors_IOS(graphColors{1,4}),'LineWidth',2)
+    loglog(data.NREM.betaBandPower.meanCortf,data.NREM.betaBandPower.meanCortS,'color',colorbrewer_setA_colorB,'LineWidth',2)
+    loglog(data.REM.betaBandPower.meanCortf,data.REM.betaBandPower.meanCortS,'color',colorbrewer_setA_colorC,'LineWidth',2)
+    loglog(data.Unstim.betaBandPower.meanCortf,data.Unstim.betaBandPower.meanCortS,'color',colorbrewer_setA_colorD,'LineWidth',2)
+    loglog(data.All.betaBandPower.meanCortf,data.All.betaBandPower.meanCortS,'color',colorbrewer_setA_colorE,'LineWidth',2)
     title('Beta-band power')
     ylabel('Power')
     xlabel('Freq (Hz)')
@@ -195,11 +204,12 @@ for m = 1:length(baselineTypes)
     
     %% Gamma-band power
     ax7 = subplot(2,4,7);
-    loglog(data.Rest.gammaBandPower.(baselineType).meanCortf,data.Rest.gammaBandPower.(baselineType).meanCortS,'color',colors_IOS(graphColors{1,1}),'LineWidth',2)
+    loglog(data.Rest.gammaBandPower.(baselineType).meanCortf,data.Rest.gammaBandPower.(baselineType).meanCortS,'color',colorbrewer_setA_colorA,'LineWidth',2)
     hold on
-    loglog(data.AllData.gammaBandPower.meanCortf,data.AllData.gammaBandPower.meanCortS,'color',colors_IOS(graphColors{1,2}),'LineWidth',2)
-    loglog(data.NREM.gammaBandPower.meanCortf,data.NREM.gammaBandPower.meanCortS,'color',colors_IOS(graphColors{1,3}),'LineWidth',2)
-    loglog(data.REM.gammaBandPower.meanCortf,data.REM.gammaBandPower.meanCortS,'color',colors_IOS(graphColors{1,4}),'LineWidth',2)
+    loglog(data.NREM.gammaBandPower.meanCortf,data.NREM.gammaBandPower.meanCortS,'color',colorbrewer_setA_colorB,'LineWidth',2)
+    loglog(data.REM.gammaBandPower.meanCortf,data.REM.gammaBandPower.meanCortS,'color',colorbrewer_setA_colorC,'LineWidth',2)
+    loglog(data.Unstim.gammaBandPower.meanCortf,data.Unstim.gammaBandPower.meanCortS,'color',colorbrewer_setA_colorD,'LineWidth',2)
+    loglog(data.All.gammaBandPower.meanCortf,data.All.gammaBandPower.meanCortS,'color',colorbrewer_setA_colorE,'LineWidth',2)
     title('Gamma-band power')
     ylabel('Power')
     xlabel('Freq (Hz)')
@@ -208,11 +218,12 @@ for m = 1:length(baselineTypes)
     
     %% MUA power
     ax8 = subplot(2,4,8);
-    loglog(data.Rest.muaPower.(baselineType).meanCortf,data.Rest.muaPower.(baselineType).meanCortS,'color',colors_IOS(graphColors{1,1}),'LineWidth',2)
+    loglog(data.Rest.muaPower.(baselineType).meanCortf,data.Rest.muaPower.(baselineType).meanCortS,'color',colorbrewer_setA_colorA,'LineWidth',2)
     hold on
-    loglog(data.AllData.muaPower.meanCortf,data.AllData.muaPower.meanCortS,'color',colors_IOS(graphColors{1,2}),'LineWidth',2)
-    loglog(data.NREM.muaPower.meanCortf,data.NREM.muaPower.meanCortS,'color',colors_IOS(graphColors{1,3}),'LineWidth',2)
-    loglog(data.REM.muaPower.meanCortf,data.REM.muaPower.meanCortS,'color',colors_IOS(graphColors{1,4}),'LineWidth',2)
+    loglog(data.NREM.muaPower.meanCortf,data.NREM.muaPower.meanCortS,'color',colorbrewer_setA_colorB,'LineWidth',2)
+    loglog(data.REM.muaPower.meanCortf,data.REM.muaPower.meanCortS,'color',colorbrewer_setA_colorC,'LineWidth',2)
+    loglog(data.Unstim.muaPower.meanCortf,data.Unstim.muaPower.meanCortS,'color',colorbrewer_setA_colorD,'LineWidth',2)
+    loglog(data.All.muaPower.meanCortf,data.All.muaPower.meanCortS,'color',colorbrewer_setA_colorE,'LineWidth',2)
     title('MUA power')
     ylabel('Power')
     xlabel('Freq (Hz)')
@@ -237,11 +248,11 @@ for n = 1:length(baselineTypes)
     sgtitle({['CBV and hippocampal power spectra - ' baselineType ' for resting data'],' '})
     %% CBV
     ax1 = subplot(2,4,1);
-    loglog(data.Rest.CBV.(baselineType).meanCortf,data.Rest.CBV.(baselineType).meanCortS,'color',colors_IOS(graphColors{1,1}),'LineWidth',2)
+    loglog(data.Rest.CBV.(baselineType).meanCortf,data.Rest.CBV.(baselineType).meanCortS,'color',colorbrewer_setA_colorA,'LineWidth',2)
     hold on
-    loglog(data.AllData.CBV.meanCortf,data.AllData.CBV.meanCortS,'color',colors_IOS(graphColors{1,2}),'LineWidth',2)
-    loglog(data.NREM.CBV.meanCortf,data.NREM.CBV.meanCortS,'color',colors_IOS(graphColors{1,3}),'LineWidth',2)
-    loglog(data.REM.CBV.meanCortf,data.REM.CBV.meanCortS,'color',colors_IOS(graphColors{1,4}),'LineWidth',2)
+    loglog(data.AllData.CBV.meanCortf,data.AllData.CBV.meanCortS,'color',colorbrewer_setA_colorB,'LineWidth',2)
+    loglog(data.NREM.CBV.meanCortf,data.NREM.CBV.meanCortS,'color',colorbrewer_setA_colorC,'LineWidth',2)
+    loglog(data.REM.CBV.meanCortf,data.REM.CBV.meanCortS,'color',colorbrewer_setA_colorD,'LineWidth',2)
     title('CBV Reflectance')
     ylabel('Power')
     xlabel('Freq (Hz)')
@@ -251,11 +262,11 @@ for n = 1:length(baselineTypes)
     
     %% CBV HbT
     ax2 = subplot(2,4,2);
-    loglog(data.Rest.CBV_HbT.(baselineType).meanCortf,data.Rest.CBV_HbT.(baselineType).meanCortS,'color',colors_IOS(graphColors{1,1}),'LineWidth',2)
+    loglog(data.Rest.CBV_HbT.(baselineType).meanCortf,data.Rest.CBV_HbT.(baselineType).meanCortS,'color',colorbrewer_setA_colorA,'LineWidth',2)
     hold on
-    loglog(data.AllData.CBV_HbT.meanCortf,data.AllData.CBV_HbT.meanCortS,'color',colors_IOS(graphColors{1,2}),'LineWidth',2)
-    loglog(data.NREM.CBV_HbT.meanCortf,data.NREM.CBV_HbT.meanCortS,'color',colors_IOS(graphColors{1,3}),'LineWidth',2)
-    loglog(data.REM.CBV_HbT.meanCortf,data.REM.CBV_HbT.meanCortS,'color',colors_IOS(graphColors{1,4}),'LineWidth',2)
+    loglog(data.AllData.CBV_HbT.meanCortf,data.AllData.CBV_HbT.meanCortS,'color',colorbrewer_setA_colorB,'LineWidth',2)
+    loglog(data.NREM.CBV_HbT.meanCortf,data.NREM.CBV_HbT.meanCortS,'color',colorbrewer_setA_colorC,'LineWidth',2)
+    loglog(data.REM.CBV_HbT.meanCortf,data.REM.CBV_HbT.meanCortS,'color',colorbrewer_setA_colorD,'LineWidth',2)
     title('CBV HbT')
     ylabel('Power')
     xlabel('Freq (Hz)')
@@ -264,11 +275,11 @@ for n = 1:length(baselineTypes)
     
     %% Delta-band power
     ax3 = subplot(2,4,3);
-    loglog(data.Rest.deltaBandPower.(baselineType).meanHipf,data.Rest.deltaBandPower.(baselineType).meanHipS,'color',colors_IOS(graphColors{1,1}),'LineWidth',2)
+    loglog(data.Rest.deltaBandPower.(baselineType).meanHipf,data.Rest.deltaBandPower.(baselineType).meanHipS,'color',colorbrewer_setA_colorA,'LineWidth',2)
     hold on
-    loglog(data.AllData.deltaBandPower.meanHipf,data.AllData.deltaBandPower.meanHipS,'color',colors_IOS(graphColors{1,2}),'LineWidth',2)
-    loglog(data.NREM.deltaBandPower.meanHipf,data.NREM.deltaBandPower.meanHipS,'color',colors_IOS(graphColors{1,3}),'LineWidth',2)
-    loglog(data.REM.deltaBandPower.meanHipf,data.REM.deltaBandPower.meanHipS,'color',colors_IOS(graphColors{1,4}),'LineWidth',2)
+    loglog(data.AllData.deltaBandPower.meanHipf,data.AllData.deltaBandPower.meanHipS,'color',colorbrewer_setA_colorB,'LineWidth',2)
+    loglog(data.NREM.deltaBandPower.meanHipf,data.NREM.deltaBandPower.meanHipS,'color',colorbrewer_setA_colorC,'LineWidth',2)
+    loglog(data.REM.deltaBandPower.meanHipf,data.REM.deltaBandPower.meanHipS,'color',colorbrewer_setA_colorD,'LineWidth',2)
     title('Delta-band power')
     ylabel('Power')
     xlabel('Freq (Hz)')
@@ -277,11 +288,11 @@ for n = 1:length(baselineTypes)
     
     %% Theta-band power
     ax4 = subplot(2,4,4);
-    loglog(data.Rest.thetaBandPower.(baselineType).meanHipf,data.Rest.thetaBandPower.(baselineType).meanHipS,'color',colors_IOS(graphColors{1,1}),'LineWidth',2)
+    loglog(data.Rest.thetaBandPower.(baselineType).meanHipf,data.Rest.thetaBandPower.(baselineType).meanHipS,'color',colorbrewer_setA_colorA,'LineWidth',2)
     hold on
-    loglog(data.AllData.thetaBandPower.meanHipf,data.AllData.thetaBandPower.meanHipS,'color',colors_IOS(graphColors{1,2}),'LineWidth',2)
-    loglog(data.NREM.thetaBandPower.meanHipf,data.NREM.thetaBandPower.meanHipS,'color',colors_IOS(graphColors{1,3}),'LineWidth',2)
-    loglog(data.REM.thetaBandPower.meanHipf,data.REM.thetaBandPower.meanHipS,'color',colors_IOS(graphColors{1,4}),'LineWidth',2)
+    loglog(data.AllData.thetaBandPower.meanHipf,data.AllData.thetaBandPower.meanHipS,'color',colorbrewer_setA_colorB,'LineWidth',2)
+    loglog(data.NREM.thetaBandPower.meanHipf,data.NREM.thetaBandPower.meanHipS,'color',colorbrewer_setA_colorC,'LineWidth',2)
+    loglog(data.REM.thetaBandPower.meanHipf,data.REM.thetaBandPower.meanHipS,'color',colorbrewer_setA_colorD,'LineWidth',2)
     title('Theta-band power')
     ylabel('Power')
     xlabel('Freq (Hz)')
@@ -290,11 +301,11 @@ for n = 1:length(baselineTypes)
     
     %% Alpha-band power
     ax5 = subplot(2,4,5);
-    loglog(data.Rest.alphaBandPower.(baselineType).meanHipf,data.Rest.alphaBandPower.(baselineType).meanHipS,'color',colors_IOS(graphColors{1,1}),'LineWidth',2)
+    loglog(data.Rest.alphaBandPower.(baselineType).meanHipf,data.Rest.alphaBandPower.(baselineType).meanHipS,'color',colorbrewer_setA_colorA,'LineWidth',2)
     hold on
-    loglog(data.AllData.alphaBandPower.meanHipf,data.AllData.alphaBandPower.meanHipS,'color',colors_IOS(graphColors{1,2}),'LineWidth',2)
-    loglog(data.NREM.alphaBandPower.meanHipf,data.NREM.alphaBandPower.meanHipS,'color',colors_IOS(graphColors{1,3}),'LineWidth',2)
-    loglog(data.REM.alphaBandPower.meanHipf,data.REM.alphaBandPower.meanHipS,'color',colors_IOS(graphColors{1,4}),'LineWidth',2)
+    loglog(data.AllData.alphaBandPower.meanHipf,data.AllData.alphaBandPower.meanHipS,'color',colorbrewer_setA_colorB,'LineWidth',2)
+    loglog(data.NREM.alphaBandPower.meanHipf,data.NREM.alphaBandPower.meanHipS,'color',colorbrewer_setA_colorC,'LineWidth',2)
+    loglog(data.REM.alphaBandPower.meanHipf,data.REM.alphaBandPower.meanHipS,'color',colorbrewer_setA_colorD,'LineWidth',2)
     title('Alpha-band power')
     ylabel('Power')
     xlabel('Freq (Hz)')
@@ -303,11 +314,11 @@ for n = 1:length(baselineTypes)
     
     %% Beta-band power
     ax6 = subplot(2,4,6);
-    loglog(data.Rest.betaBandPower.(baselineType).meanHipf,data.Rest.betaBandPower.(baselineType).meanHipS,'color',colors_IOS(graphColors{1,1}),'LineWidth',2)
+    loglog(data.Rest.betaBandPower.(baselineType).meanHipf,data.Rest.betaBandPower.(baselineType).meanHipS,'color',colorbrewer_setA_colorA,'LineWidth',2)
     hold on
-    loglog(data.AllData.betaBandPower.meanHipf,data.AllData.betaBandPower.meanHipS,'color',colors_IOS(graphColors{1,2}),'LineWidth',2)
-    loglog(data.NREM.betaBandPower.meanHipf,data.NREM.betaBandPower.meanHipS,'color',colors_IOS(graphColors{1,3}),'LineWidth',2)
-    loglog(data.REM.betaBandPower.meanHipf,data.REM.betaBandPower.meanHipS,'color',colors_IOS(graphColors{1,4}),'LineWidth',2)
+    loglog(data.AllData.betaBandPower.meanHipf,data.AllData.betaBandPower.meanHipS,'color',colorbrewer_setA_colorB,'LineWidth',2)
+    loglog(data.NREM.betaBandPower.meanHipf,data.NREM.betaBandPower.meanHipS,'color',colorbrewer_setA_colorC,'LineWidth',2)
+    loglog(data.REM.betaBandPower.meanHipf,data.REM.betaBandPower.meanHipS,'color',colorbrewer_setA_colorD,'LineWidth',2)
     title('Beta-band power')
     ylabel('Power')
     xlabel('Freq (Hz)')
@@ -316,11 +327,11 @@ for n = 1:length(baselineTypes)
     
     %% Gamma-band power
     ax7 = subplot(2,4,7);
-    loglog(data.Rest.gammaBandPower.(baselineType).meanHipf,data.Rest.gammaBandPower.(baselineType).meanHipS,'color',colors_IOS(graphColors{1,1}),'LineWidth',2)
+    loglog(data.Rest.gammaBandPower.(baselineType).meanHipf,data.Rest.gammaBandPower.(baselineType).meanHipS,'color',colorbrewer_setA_colorA,'LineWidth',2)
     hold on
-    loglog(data.AllData.gammaBandPower.meanHipf,data.AllData.gammaBandPower.meanHipS,'color',colors_IOS(graphColors{1,2}),'LineWidth',2)
-    loglog(data.NREM.gammaBandPower.meanHipf,data.NREM.gammaBandPower.meanHipS,'color',colors_IOS(graphColors{1,3}),'LineWidth',2)
-    loglog(data.REM.gammaBandPower.meanHipf,data.REM.gammaBandPower.meanHipS,'color',colors_IOS(graphColors{1,4}),'LineWidth',2)
+    loglog(data.AllData.gammaBandPower.meanHipf,data.AllData.gammaBandPower.meanHipS,'color',colorbrewer_setA_colorB,'LineWidth',2)
+    loglog(data.NREM.gammaBandPower.meanHipf,data.NREM.gammaBandPower.meanHipS,'color',colorbrewer_setA_colorC,'LineWidth',2)
+    loglog(data.REM.gammaBandPower.meanHipf,data.REM.gammaBandPower.meanHipS,'color',colorbrewer_setA_colorD,'LineWidth',2)
     title('Gamma-band power')
     ylabel('Power')
     xlabel('Freq (Hz)')
@@ -329,11 +340,11 @@ for n = 1:length(baselineTypes)
     
     %% MUA power
     ax8 = subplot(2,4,8);
-    loglog(data.Rest.muaPower.(baselineType).meanHipf,data.Rest.muaPower.(baselineType).meanHipS,'color',colors_IOS(graphColors{1,1}),'LineWidth',2)
+    loglog(data.Rest.muaPower.(baselineType).meanHipf,data.Rest.muaPower.(baselineType).meanHipS,'color',colorbrewer_setA_colorA,'LineWidth',2)
     hold on
-    loglog(data.AllData.muaPower.meanHipf,data.AllData.muaPower.meanHipS,'color',colors_IOS(graphColors{1,2}),'LineWidth',2)
-    loglog(data.NREM.muaPower.meanHipf,data.NREM.muaPower.meanHipS,'color',colors_IOS(graphColors{1,3}),'LineWidth',2)
-    loglog(data.REM.muaPower.meanHipf,data.REM.muaPower.meanHipS,'color',colors_IOS(graphColors{1,4}),'LineWidth',2)
+    loglog(data.AllData.muaPower.meanHipf,data.AllData.muaPower.meanHipS,'color',colorbrewer_setA_colorB,'LineWidth',2)
+    loglog(data.NREM.muaPower.meanHipf,data.NREM.muaPower.meanHipS,'color',colorbrewer_setA_colorC,'LineWidth',2)
+    loglog(data.REM.muaPower.meanHipf,data.REM.muaPower.meanHipS,'color',colorbrewer_setA_colorD,'LineWidth',2)
     title('MUA power')
     ylabel('Power')
     xlabel('Freq (Hz)')

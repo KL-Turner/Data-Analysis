@@ -13,7 +13,7 @@ function [AnalysisResults] = AnalyzeCoherence_IOS(dataTypes,baselineType,params,
 %   Outputs:
 %________________________________________________________________________________________________________________________
 
-% list of all Procdata.mat files
+% list of unstim Procdata.mat files
 procDataFileStruct = dir('*_Procdata.mat');
 procDataFiles = {procDataFileStruct.name}';
 procDataFileIDs = char(procDataFiles);
@@ -57,33 +57,34 @@ for a = 1:length(dataTypes)
     dataType = dataTypes{1,a};
     for b = 1:length(filterSets)
         filterSet = filterSets{1,b};
+        disp(['AnalyzeCoherence: ' dataType ' during Rest - ' filterSet]); disp(' ')
         %% Analyze coherence during periods of rest
-        % use the RestCriteria we specified earlier to find all resting events that are greater than the criteria
+        % use the RestCriteria we specified earlier to find unstim resting events that are greater than the criteria
         if strcmp(dataType,'CBV') == true || strcmp(dataType,'CBV_HbT') == true
             [restLogical] = FilterEvents_IOS(RestData.(dataType).LH,RestCriteria);
             [puffLogical] = FilterEvents_IOS(RestData.(dataType).LH,PuffCriteria);
             combRestLogical = logical(restLogical.*puffLogical);
-            allRestFiles = RestData.(dataType).LH.fileIDs(combRestLogical,:);
+            unstimRestFiles = RestData.(dataType).LH.fileIDs(combRestLogical,:);
             if strcmp(dataType,'CBV') == true
-                LH_allRestingData = RestData.(dataType).LH.NormData(combRestLogical,:);
-                RH_allRestingData = RestData.(dataType).RH.NormData(combRestLogical,:);
+                LH_unstimRestingData = RestData.(dataType).LH.NormData(combRestLogical,:);
+                RH_unstimRestingData = RestData.(dataType).RH.NormData(combRestLogical,:);
             else
-                LH_allRestingData = RestData.(dataType).LH.data(combRestLogical,:);
-                RH_allRestingData = RestData.(dataType).RH.data(combRestLogical,:);
+                LH_unstimRestingData = RestData.(dataType).LH.data(combRestLogical,:);
+                RH_unstimRestingData = RestData.(dataType).RH.data(combRestLogical,:);
             end
         else
             [restLogical] = FilterEvents_IOS(RestData.cortical_LH.(dataType),RestCriteria);
             [puffLogical] = FilterEvents_IOS(RestData.cortical_LH.(dataType),PuffCriteria);
             combRestLogical = logical(restLogical.*puffLogical);
-            allRestFiles = RestData.cortical_LH.(dataType).fileIDs(combRestLogical,:);
-            LH_allRestingData = RestData.cortical_LH.(dataType).NormData(combRestLogical,:);
-            RH_allRestingData = RestData.cortical_RH.(dataType).NormData(combRestLogical,:);
+            unstimRestFiles = RestData.cortical_LH.(dataType).fileIDs(combRestLogical,:);
+            LH_unstimRestingData = RestData.cortical_LH.(dataType).NormData(combRestLogical,:);
+            RH_unstimRestingData = RestData.cortical_RH.(dataType).NormData(combRestLogical,:);
         end
         
-        % identify the unique days and the unique number of files from the list of all resting events
-        restUniqueDays = GetUniqueDays_IOS(allRestFiles);
-        restUniqueFiles = unique(allRestFiles);
-        restNumberOfFiles = length(unique(allRestFiles));
+        % identify the unique days and the unique number of files from the list of unstim resting events
+        restUniqueDays = GetUniqueDays_IOS(unstimRestFiles);
+        restUniqueFiles = unique(unstimRestFiles);
+        restNumberOfFiles = length(unique(unstimRestFiles));
         
         % decimate the file list to only include those files that occur within the desired number of target minutes
         clear restFiltLogical
@@ -119,11 +120,11 @@ for a = 1:length(dataTypes)
         end
         restFinalLogical = any(sum(cell2mat(restFiltLogical'),2),2);
         
-        % extract all the resting events that correspond to the acceptable file list and the acceptable resting criteria
+        % extract unstim the resting events that correspond to the acceptable file list and the acceptable resting criteria
         clear restFileFilter
         filtRestFiles = restUniqueFiles(restFinalLogical,:);
-        for f = 1:length(allRestFiles)
-            restLogic = strcmp(allRestFiles{f},filtRestFiles);
+        for f = 1:length(unstimRestFiles)
+            restLogic = strcmp(unstimRestFiles{f},filtRestFiles);
             restLogicSum = sum(restLogic);
             if restLogicSum == 1
                 restFileFilter(f,1) = 1;
@@ -132,10 +133,10 @@ for a = 1:length(dataTypes)
             end
         end
         restFinalFileFilter = logical(restFileFilter);
-        LH_finalRestData = LH_allRestingData(restFinalFileFilter,:);
-        RH_finalRestData = RH_allRestingData(restFinalFileFilter,:);
+        LH_finalRestData = LH_unstimRestingData(restFinalFileFilter,:);
+        RH_finalRestData = RH_unstimRestingData(restFinalFileFilter,:);
         
-        % only take the first 10 seconds of the epoch. occassionally a sample gets lost from rounding during the
+        % only take the first 10 seconds of the epoch. occassionunstimy a sample gets lost from rounding during the
         % original epoch create so we can add a sample of two back to the end for those just under 10 seconds
         % lowpass filter and detrend each segment
         [B, A] = butter(4,1/(samplingRate/2),'low');
@@ -156,7 +157,7 @@ for a = 1:length(dataTypes)
             end
         end
         
-        % input data as time(1st dimension, vertical) by trials (2nd dimension, horizontally)
+        % input data as time(1st dimension, vertical) by trials (2nd dimension, horizontunstimy)
         LH_restData = zeros(length(LH_ProcRestData{1,1}),length(LH_ProcRestData));
         RH_restData = zeros(length(RH_ProcRestData{1,1}),length(RH_ProcRestData));
         for h = 1:length(LH_ProcRestData)
@@ -211,6 +212,7 @@ for a = 1:length(dataTypes)
     
     %% Analyze coherence during periods of NREM sleep
     % pull data from SleepData.mat structure
+    disp(['AnalyzeCoherence: ' dataType ' during NREM']); disp(' ')
     if strcmp(dataType,'CBV') == true || strcmp(dataType,'CBV_HbT') == true
         LH_nremData = SleepData.NREM.data.(dataType).LH;
         RH_nremData = SleepData.NREM.data.(dataType).RH;
@@ -225,7 +227,7 @@ for a = 1:length(dataTypes)
         RH_nremData{j,1} = detrend(RH_nremData{j,1}(1:(params.minTime.NREM*samplingRate)),'constant');
     end
     
-    % input data as time(1st dimension, vertical) by trials (2nd dimension, horizontally)
+    % input data as time(1st dimension, vertical) by trials (2nd dimension, horizontunstimy)
     LH_nrem = zeros(length(LH_nremData{1,1}),length(LH_nremData));
     RH_nrem = zeros(length(RH_nremData{1,1}),length(RH_nremData));
     for k = 1:length(LH_nremData)
@@ -279,6 +281,7 @@ for a = 1:length(dataTypes)
     
     %% Analyze coherence during periods of REM sleep
     % pull data from SleepData.mat structure
+    disp(['AnalyzeCoherence: ' dataType ' during REM']); disp(' ')
     if strcmp(dataType,'CBV') == true || strcmp(dataType,'CBV_HbT') == true
         LH_remData = SleepData.REM.data.(dataType).LH;
         RH_remData = SleepData.REM.data.(dataType).RH;
@@ -293,7 +296,7 @@ for a = 1:length(dataTypes)
         RH_remData{m,1} = detrend(RH_remData{m,1}(1:(params.minTime.REM*samplingRate)),'constant');
     end
     
-    % input data as time(1st dimension, vertical) by trials (2nd dimension, horizontally)
+    % input data as time(1st dimension, vertical) by trials (2nd dimension, horizontunstimy)
     LH_rem = zeros(length(LH_remData{1,1}),length(LH_remData));
     RH_rem = zeros(length(RH_remData{1,1}),length(RH_remData));
     for n = 1:length(LH_remData)
@@ -345,50 +348,131 @@ for a = 1:length(dataTypes)
     end
     savefig(remCoherence, [dirpath animalID '_REM_' dataType '_Coherence']);
     
-    %% Analyze coherence during all data
+    %% Analyze coherence during unstim data
+    disp(['AnalyzeCoherence: ' dataType ' during all unstimulated data']); disp(' ')
     for o = 1:size(procDataFileIDs,1)
         procDataFileID = procDataFileIDs(o,:);
         load(procDataFileID);
         if isempty(ProcData.data.solenoids.LPadSol) == true
             stimLogical(o,1) = 1;
         else
-            stimLogical(0,1) = 0;
+            stimLogical(o,1) = 0;
         end
     end
     stimLogical = logical(stimLogical);
-    unstim_procDataFileIDs = procDataFileIDs(stimLogical);
+    unstim_procDataFileIDs = procDataFileIDs(stimLogical,:);
     for p = 1:size(unstim_procDataFileIDs)
-        unstim_procDataFileID = unstim_procDataFileIDs{1,p};
+        unstim_procDataFileID = unstim_procDataFileIDs(p,:);
         load(unstim_procDataFileID)
         [~,fileDate,~] = GetFileInfo_IOS(unstim_procDataFileID);
-        AD_strDay = ConvertDate_IOS(fileDate);
+        US_strDay = ConvertDate_IOS(fileDate);
         % pull data from each file
         if strcmp(dataType,'CBV') == true || strcmp(dataType,'CBV_HbT') == true
             if strcmp(dataType,'CBV') == true
-                LH_AllData{o,1} = (ProcData.data.(dataType).LH - RestingBaselines.(baselineType).(dataType).LH.(AD_strDay))/RestingBaselines.(baselineType).(dataType).LH.(AD_strDay);
-                RH_AllData{o,1} = (ProcData.data.(dataType).RH - RestingBaselines.(baselineType).(dataType).RH.(AD_strDay))/RestingBaselines.(baselineType).(dataType).RH.(AD_strDay);
+                LH_UnstimData{p,1} = (ProcData.data.(dataType).LH - RestingBaselines.(baselineType).(dataType).LH.(US_strDay))/RestingBaselines.(baselineType).(dataType).LH.(US_strDay);
+                RH_UnstimData{p,1} = (ProcData.data.(dataType).RH - RestingBaselines.(baselineType).(dataType).RH.(US_strDay))/RestingBaselines.(baselineType).(dataType).RH.(US_strDay);
             else
-                LH_AllData{o,1} = ProcData.data.(dataType).LH;
-                RH_AllData{o,1} = ProcData.data.(dataType).RH;
+                LH_UnstimData{p,1} = ProcData.data.(dataType).LH;
+                RH_UnstimData{p,1} = ProcData.data.(dataType).RH;
             end
         else
-            LH_AllData{o,1} = (ProcData.data.cortical_LH.(dataType) - RestingBaselines.(baselineType).cortical_LH.(dataType).(AD_strDay))/RestingBaselines.(baselineType).cortical_LH.(dataType).(AD_strDay);
-            RH_AllData{o,1} = (ProcData.data.cortical_RH.(dataType) - RestingBaselines.(baselineType).cortical_RH.(dataType).(AD_strDay))/RestingBaselines.(baselineType).cortical_RH.(dataType).(AD_strDay);
+            LH_UnstimData{p,1} = (ProcData.data.cortical_LH.(dataType) - RestingBaselines.(baselineType).cortical_LH.(dataType).(US_strDay))/RestingBaselines.(baselineType).cortical_LH.(dataType).(US_strDay);
+            RH_UnstimData{p,1} = (ProcData.data.cortical_RH.(dataType) - RestingBaselines.(baselineType).cortical_RH.(dataType).(US_strDay))/RestingBaselines.(baselineType).cortical_RH.(dataType).(US_strDay);
         end
     end
     
     % detend and lowpass filter each signal
-    for p = 1:length(LH_AllData)
-        LH_ProcAllData{p,1} = detrend(filtfilt(B,A,LH_AllData{p,1}),'constant');
-        RH_ProcAllData{p,1} = detrend(filtfilt(B,A,RH_AllData{p,1}),'constant');
+    for q = 1:length(LH_UnstimData)
+        LH_ProcUnstimData{q,1} = detrend(filtfilt(B,A,LH_UnstimData{q,1}),'constant');
+        RH_ProcUnstimData{q,1} = detrend(filtfilt(B,A,RH_UnstimData{q,1}),'constant');
+    end
+    
+    % input data as time(1st dimension, vertical) by trials (2nd dimension, horizontunstimy)
+    LH_FinalUnstimData = zeros(length(LH_ProcUnstimData{1,1}),length(LH_ProcUnstimData));
+    RH_FinalUnstimData = zeros(length(RH_ProcUnstimData{1,1}),length(RH_ProcUnstimData));
+    for r = 1:length(LH_ProcUnstimData)
+        LH_FinalUnstimData(:,r) = LH_ProcUnstimData{r,1};
+        RH_FinalUnstimData(:,r) = RH_ProcUnstimData{r,1};
+    end
+    
+    % parameters for coherencyc_IOS - information available in function
+    params.tapers = [3 5];   % Tapers [n, 2n - 1]
+    params.pad = 1;
+    params.Fs = samplingRate;   % Sampling Rate
+    params.fpass = [0 1];   % Pass band [0, nyquist]
+    params.trialave = 1;
+    params.err = [2 0.05];
+    
+    % calculate the coherence between desired signals
+    disp(['Analyzing the unstim data coherence between L/R ' dataType ' signals...']); disp(' ')
+    [C_unstimData,~, ~, ~, ~,f_unstimData, confC_unstimData, ~,cErr_unstimData] = coherencyc_IOS(LH_FinalUnstimData,RH_FinalUnstimData,params);
+    
+    % nboot = 1000;
+    % unstimData_CI = bootci(nboot, @coherencyc2, LH_FinalUnstimData', RH_FinalUnstimData', params);
+    
+    % summary figure
+    noStimCoherence = figure;
+    plot(f_unstimData,C_unstimData,'k')
+    hold on;
+    plot(f_unstimData,cErr_unstimData,'color',colors_IOS('battleship grey'))
+    xlabel('Freq (Hz)');
+    ylabel('Coherence');
+    title([animalID  ' L/R ' dataType ' coherence for unstim data']);
+    set(gca,'Ticklength',[0 0]);
+    legend('Coherence','Jackknife Lower','Jackknife Upper','Location','Southeast');
+    set(legend,'FontSize',6);
+    ylim([0 1])
+    xlim([0 1])
+    axis square
+    
+    % save results
+    AnalysisResults.Coherence.Unstim.(dataType).C = C_unstimData;
+    AnalysisResults.Coherence.Unstim.(dataType).f = f_unstimData;
+    AnalysisResults.Coherence.Unstim.(dataType).confC = confC_unstimData;
+    AnalysisResults.Coherence.Unstim.(dataType).cErr = cErr_unstimData;
+    
+    % save figure
+    [pathstr, ~, ~] = fileparts(cd);
+    dirpath = [pathstr '/Figures/Analysis Coherence/'];
+    if ~exist(dirpath, 'dir')
+        mkdir(dirpath);
+    end
+    savefig(noStimCoherence, [dirpath animalID '_UnstimData_' dataType '_Coherence']);
+    
+    %% Analyze coherence during all data
+    disp(['AnalyzeCoherence: ' dataType ' during all data']); disp(' ')
+    for p = 1:size(procDataFileIDs)
+        procDataFileID = procDataFileIDs(p,:);
+        load(procDataFileID)
+        [~,fileDate,~] = GetFileInfo_IOS(procDataFileID);
+        AD_strDay = ConvertDate_IOS(fileDate);
+        % pull data from each file
+        if strcmp(dataType,'CBV') == true || strcmp(dataType,'CBV_HbT') == true
+            if strcmp(dataType,'CBV') == true
+                LH_AllData{p,1} = (ProcData.data.(dataType).LH - RestingBaselines.(baselineType).(dataType).LH.(AD_strDay))/RestingBaselines.(baselineType).(dataType).LH.(AD_strDay);
+                RH_AllData{p,1} = (ProcData.data.(dataType).RH - RestingBaselines.(baselineType).(dataType).RH.(AD_strDay))/RestingBaselines.(baselineType).(dataType).RH.(AD_strDay);
+            else
+                LH_AllData{p,1} = ProcData.data.(dataType).LH;
+                RH_AllData{p,1} = ProcData.data.(dataType).RH;
+            end
+        else
+            LH_AllData{p,1} = (ProcData.data.cortical_LH.(dataType) - RestingBaselines.(baselineType).cortical_LH.(dataType).(AD_strDay))/RestingBaselines.(baselineType).cortical_LH.(dataType).(AD_strDay);
+            RH_AllData{p,1} = (ProcData.data.cortical_RH.(dataType) - RestingBaselines.(baselineType).cortical_RH.(dataType).(AD_strDay))/RestingBaselines.(baselineType).cortical_RH.(dataType).(AD_strDay);
+        end
+    end
+    
+    % detend and lowpass filter each signal
+    for q = 1:length(LH_AllData)
+        LH_ProcAllData{q,1} = detrend(filtfilt(B,A,LH_AllData{q,1}),'constant');
+        RH_ProcAllData{q,1} = detrend(filtfilt(B,A,RH_AllData{q,1}),'constant');
     end
     
     % input data as time(1st dimension, vertical) by trials (2nd dimension, horizontally)
     LH_FinalAllData = zeros(length(LH_ProcAllData{1,1}),length(LH_ProcAllData));
     RH_FinalAllData = zeros(length(RH_ProcAllData{1,1}),length(RH_ProcAllData));
-    for q = 1:length(LH_ProcAllData)
-        LH_FinalAllData(:,q) = LH_ProcAllData{q,1};
-        RH_FinalAllData(:,q) = RH_ProcAllData{q,1};
+    for r = 1:length(LH_ProcAllData)
+        LH_FinalAllData(:,r) = LH_ProcAllData{r,1};
+        RH_FinalAllData(:,r) = RH_ProcAllData{r,1};
     end
     
     % parameters for coherencyc_IOS - information available in function
@@ -407,7 +491,7 @@ for a = 1:length(dataTypes)
     % allData_CI = bootci(nboot, @coherencyc2, LH_FinalAllData', RH_FinalAllData', params);
     
     % summary figure
-    remCoherence = figure;
+    allDataCoherence = figure;
     plot(f_allData,C_allData,'k')
     hold on;
     plot(f_allData,cErr_allData,'color',colors_IOS('battleship grey'))
@@ -422,10 +506,10 @@ for a = 1:length(dataTypes)
     axis square
     
     % save results
-    AnalysisResults.Coherence.AllData.(dataType).C = C_allData;
-    AnalysisResults.Coherence.AllData.(dataType).f = f_allData;
-    AnalysisResults.Coherence.AllData.(dataType).confC = confC_allData;
-    AnalysisResults.Coherence.AllData.(dataType).cErr = cErr_allData;
+    AnalysisResults.Coherence.All.(dataType).C = C_allData;
+    AnalysisResults.Coherence.All.(dataType).f = f_allData;
+    AnalysisResults.Coherence.All.(dataType).confC = confC_allData;
+    AnalysisResults.Coherence.All.(dataType).cErr = cErr_allData;
     
     % save figure
     [pathstr, ~, ~] = fileparts(cd);
@@ -433,7 +517,7 @@ for a = 1:length(dataTypes)
     if ~exist(dirpath, 'dir')
         mkdir(dirpath);
     end
-    savefig(remCoherence, [dirpath animalID '_AllData_' dataType '_Coherence']);
+    savefig(allDataCoherence, [dirpath animalID '_AllData_' dataType '_Coherence']);
 end
 
 %% save results strucure

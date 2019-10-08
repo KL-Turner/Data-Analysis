@@ -175,10 +175,10 @@ for f = 1:length(baselineTypes)
     
     %% Short whisks HbT
     ax7 = subplot(4,3,7);
-    plot(data.(baselineType).Short.meanTimeVector,data.(baselineType).Short.meanCBV,'k');
+    plot(data.(baselineType).Short.meanTimeVector,data.(baselineType).Short.meanHbT,'k');
     hold on
-    plot(data.(baselineType).Short.meanTimeVector,data.(baselineType).Short.meanCBV + data.(baselineType).Short.stdCBV,'color',colors_IOS('battleship grey'))
-    plot(data.(baselineType).Short.meanTimeVector,data.(baselineType).Short.meanCBV - data.(baselineType).Short.stdCBV,'color',colors_IOS('battleship grey'))
+    plot(data.(baselineType).Short.meanTimeVector,data.(baselineType).Short.meanHbT + data.(baselineType).Short.stdHbT,'color',colors_IOS('battleship grey'))
+    plot(data.(baselineType).Short.meanTimeVector,data.(baselineType).Short.meanHbT - data.(baselineType).Short.stdHbT,'color',colors_IOS('battleship grey'))
     title('Short whisking HbT')
     ylabel('\DeltaHbT')
     xlabel('Time (sec)')
@@ -186,10 +186,10 @@ for f = 1:length(baselineTypes)
     
     %% Intermediate whisks HbT
     ax8 = subplot(4,3,8);
-    plot(data.(baselineType).Intermediate.meanTimeVector,data.(baselineType).Intermediate.meanCBV,'k');
+    plot(data.(baselineType).Intermediate.meanTimeVector,data.(baselineType).Intermediate.meanHbT,'k');
     hold on
-    plot(data.(baselineType).Intermediate.meanTimeVector,data.(baselineType).Intermediate.meanCBV + data.(baselineType).Intermediate.stdCBV,'color',colors_IOS('battleship grey'))
-    plot(data.(baselineType).Intermediate.meanTimeVector,data.(baselineType).Intermediate.meanCBV - data.(baselineType).Intermediate.stdCBV,'color',colors_IOS('battleship grey'))
+    plot(data.(baselineType).Intermediate.meanTimeVector,data.(baselineType).Intermediate.meanHbT + data.(baselineType).Intermediate.stdHbT,'color',colors_IOS('battleship grey'))
+    plot(data.(baselineType).Intermediate.meanTimeVector,data.(baselineType).Intermediate.meanHbT - data.(baselineType).Intermediate.stdHbT,'color',colors_IOS('battleship grey'))
     title('Intermediate whisking HbT')
     ylabel('\DeltaHbT')
     xlabel('Time (sec)')
@@ -197,10 +197,10 @@ for f = 1:length(baselineTypes)
     
     %% Long whisks HbT
     ax9 = subplot(4,3,9);
-    plot(data.(baselineType).Long.meanTimeVector,data.(baselineType).Long.meanCBV,'k');
+    plot(data.(baselineType).Long.meanTimeVector,data.(baselineType).Long.meanHbT,'k');
     hold on
-    plot(data.(baselineType).Long.meanTimeVector,data.(baselineType).Long.meanCBV + data.(baselineType).Long.stdCBV,'color',colors_IOS('battleship grey'))
-    plot(data.(baselineType).Long.meanTimeVector,data.(baselineType).Long.meanCBV - data.(baselineType).Long.stdCBV,'color',colors_IOS('battleship grey'))
+    plot(data.(baselineType).Long.meanTimeVector,data.(baselineType).Long.meanHbT + data.(baselineType).Long.stdHbT,'color',colors_IOS('battleship grey'))
+    plot(data.(baselineType).Long.meanTimeVector,data.(baselineType).Long.meanHbT - data.(baselineType).Long.stdHbT,'color',colors_IOS('battleship grey'))
     title('Long whisking HbT')
     ylabel('\DeltaHbT')
     xlabel('Time (sec)')
@@ -244,7 +244,7 @@ for f = 1:length(baselineTypes)
     linkaxes([ax10 ax11 ax12],'xy')
     
     % save figure(s)
-    dirpath = 'C:\Users\klt8\Documents\Analysis Average Figures\Stimulus Responses\';
+    dirpath = 'C:\Users\klt8\Documents\Analysis Average Figures\Whisking-evoked Responses\';
     if ~exist(dirpath, 'dir')
         mkdir(dirpath);
     end
@@ -328,10 +328,10 @@ for f = 1:length(baselineTypes)
     
     %% Short whisks HbT
     ax7 = subplot(4,3,7);
-    plot(data.(baselineType).Short.meanTimeVector,data.(baselineType).Short.meanCBV,'k');
+    plot(data.(baselineType).Short.meanTimeVector,data.(baselineType).Short.meanHbT,'k');
     hold on
-    plot(data.(baselineType).Short.meanTimeVector,data.(baselineType).Short.meanCBV + data.(baselineType).Short.stdCBV,'color',colors_IOS('battleship grey'))
-    plot(data.(baselineType).Short.meanTimeVector,data.(baselineType).Short.meanCBV - data.(baselineType).Short.stdCBV,'color',colors_IOS('battleship grey'))
+    plot(data.(baselineType).Short.meanTimeVector,data.(baselineType).Short.meanHbT + data.(baselineType).Short.stdHbT,'color',colors_IOS('battleship grey'))
+    plot(data.(baselineType).Short.meanTimeVector,data.(baselineType).Short.meanHbT - data.(baselineType).Short.stdHbT,'color',colors_IOS('battleship grey'))
     title('Short whisking HbT')
     ylabel('\DeltaHbT')
     xlabel('Time (sec)')
@@ -339,10 +339,10 @@ for f = 1:length(baselineTypes)
     
     %% Intermediate whisks HbT
     ax8 = subplot(4,3,8);
-    plot(data.(baselineType).Intermediate.meanTimeVector,data.(baselineType).Intermediate.meanCBV,'k');
+    plot(data.(baselineType).Intermediate.meanTimeVector,data.(baselineType).Intermediate.meanHbT,'k');
     hold on
-    plot(data.(baselineType).Intermediate.meanTimeVector,data.(baselineType).Intermediate.meanCBV + data.(baselineType).Intermediate.stdCBV,'color',colors_IOS('battleship grey'))
-    plot(data.(baselineType).Intermediate.meanTimeVector,data.(baselineType).Intermediate.meanCBV - data.(baselineType).Intermediate.stdCBV,'color',colors_IOS('battleship grey'))
+    plot(data.(baselineType).Intermediate.meanTimeVector,data.(baselineType).Intermediate.meanHbT + data.(baselineType).Intermediate.stdHbT,'color',colors_IOS('battleship grey'))
+    plot(data.(baselineType).Intermediate.meanTimeVector,data.(baselineType).Intermediate.meanHbT - data.(baselineType).Intermediate.stdHbT,'color',colors_IOS('battleship grey'))
     title('Intermediate whisking HbT')
     ylabel('\DeltaHbT')
     xlabel('Time (sec)')
@@ -350,10 +350,10 @@ for f = 1:length(baselineTypes)
     
     %% Long whisks HbT
     ax9 = subplot(4,3,9);
-    plot(data.(baselineType).Long.meanTimeVector,data.(baselineType).Long.meanCBV,'k');
+    plot(data.(baselineType).Long.meanTimeVector,data.(baselineType).Long.meanHbT,'k');
     hold on
-    plot(data.(baselineType).Long.meanTimeVector,data.(baselineType).Long.meanCBV + data.(baselineType).Long.stdCBV,'color',colors_IOS('battleship grey'))
-    plot(data.(baselineType).Long.meanTimeVector,data.(baselineType).Long.meanCBV - data.(baselineType).Long.stdCBV,'color',colors_IOS('battleship grey'))
+    plot(data.(baselineType).Long.meanTimeVector,data.(baselineType).Long.meanHbT + data.(baselineType).Long.stdHbT,'color',colors_IOS('battleship grey'))
+    plot(data.(baselineType).Long.meanTimeVector,data.(baselineType).Long.meanHbT - data.(baselineType).Long.stdHbT,'color',colors_IOS('battleship grey'))
     title('Long whisking HbT')
     ylabel('\DeltaHbT')
     xlabel('Time (sec)')
@@ -397,7 +397,7 @@ for f = 1:length(baselineTypes)
     linkaxes([ax10 ax11 ax12],'xy')
     
     % save figure(s)
-    dirpath = 'C:\Users\klt8\Documents\Analysis Average Figures\Stimulus Responses\';
+    dirpath = 'C:\Users\klt8\Documents\Analysis Average Figures\Whisking-evoked Responses\';
     if ~exist(dirpath, 'dir')
         mkdir(dirpath);
     end

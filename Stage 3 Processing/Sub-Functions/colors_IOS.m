@@ -1,4 +1,4 @@
-function c = colors(colorname)
+function c = colors_IOS(colorname)
 % colors('amber')
 % returns RGB tuples adapted from
 % http://en.wikipedia.org/wiki/List_of_colors
@@ -787,9 +787,10 @@ color_database('yellow-green')=[0.600000 0.800000 0.200000];
 color_database('yellow orange')=[1.000000 0.680000 0.260000];
 color_database('zinnwaldite brown')=[0.170000 0.090000 0.030000];
 color_database('zaffre')=[0.000000 0.080000 0.660000];
+
 if strcmp(colorname,'list')
 k = color_database.keys;
-k'
+k';
 return; end
 try
     c = color_database(lower(colorname));

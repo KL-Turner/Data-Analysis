@@ -24,7 +24,6 @@ for a = 1:size(rawDataFiles,1)
     [animalID, fileDate, fileID] = GetFileInfo_IOS(rawDataFile);
     strDay = ConvertDate_IOS(fileDate);
     procDataFile = ([animalID '_' fileID '_ProcData.mat']);
-    if ~exist(procDataFile)
     disp(['Generating ' procDataFile '...']); disp(' ')
     load(rawDataFile);
     
@@ -147,7 +146,7 @@ for a = 1:size(rawDataFiles,1)
     %% EMG
     fpass = [300 3000];
     trimmedEMG = RawData.data.EMG(1:min(analogExpectedLength, length(RawData.data.EMG)));
-    [z1, p1, k1] = butter(4, fpass/(ProcData.notes.analogSamplingRate/2));
+    [z1, p1, k1] = butter(3, fpass/(ProcData.notes.analogSamplingRate/2));
     [sos1, g1] = zp2sos(z1, p1, k1);
     filtEMG = filtfilt(sos1, g1, trimmedEMG - mean(trimmedEMG));
     kernelWidth = 0.5;
@@ -176,7 +175,6 @@ for a = 1:size(rawDataFiles,1)
     %% Save the processed data
     save(rawDataFile, 'RawData')
     save(procDataFile, 'ProcData')
-    end
 end
 
 end

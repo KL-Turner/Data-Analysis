@@ -13,7 +13,7 @@ function [AnalysisResults] = AnalyzePowerSpectrum_IOS(dataTypes,baselineType,par
 %   Outputs:
 %________________________________________________________________________________________________________________________
 
-% list of all Procdata.mat files
+% list of unstim Procdata.mat files
 procDataFileStruct = dir('*_Procdata.mat');
 procDataFiles = {procDataFileStruct.name}';
 procDataFileIDs = char(procDataFiles);
@@ -58,34 +58,35 @@ for a = 1:length(dataTypes)
     dataType = dataTypes{1,a};
     for b = 1:length(filterSets)
         filterSet = filterSets{1,b};        
+        disp(['AnalyzePowerSpectra: ' dataType ' during Rest - ' filterSet]); disp(' ')
         %% Analyze power spectra during periods of rest
-        % use the RestCriteria we specified earlier to find all resting events that are greater than the criteria
+        % use the RestCriteria we specified earlier to find unstim resting events that are greater than the criteria
         if strcmp(dataType, 'CBV') == true || strcmp(dataType,'CBV_HbT') == true
             [restLogical] = FilterEvents_IOS(RestData.(dataType).LH,RestCriteria);
             [puffLogical] = FilterEvents_IOS(RestData.(dataType).LH,PuffCriteria);
             combRestLogical = logical(restLogical.*puffLogical);
-            allRestFiles = RestData.(dataType).LH.fileIDs(combRestLogical,:);
+            unstimRestFiles = RestData.(dataType).LH.fileIDs(combRestLogical,:);
             if strcmp(dataType,'CBV') == true
-                LH_allRestingData = RestData.(dataType).LH.NormData(combRestLogical,:);
-                RH_allRestingData = RestData.(dataType).RH.NormData(combRestLogical,:);
+                LH_unstimRestingData = RestData.(dataType).LH.NormData(combRestLogical,:);
+                RH_unstimRestingData = RestData.(dataType).RH.NormData(combRestLogical,:);
             else
-                LH_allRestingData = RestData.(dataType).LH.data(combRestLogical,:);
-                RH_allRestingData = RestData.(dataType).RH.data(combRestLogical,:);
+                LH_unstimRestingData = RestData.(dataType).LH.data(combRestLogical,:);
+                RH_unstimRestingData = RestData.(dataType).RH.data(combRestLogical,:);
             end
         else
             [restLogical] = FilterEvents_IOS(RestData.cortical_LH.(dataType),RestCriteria);
             [puffLogical] = FilterEvents_IOS(RestData.cortical_LH.(dataType),PuffCriteria);
             combRestLogical = logical(restLogical.*puffLogical);
-            allRestFiles = RestData.cortical_LH.(dataType).fileIDs(combRestLogical,:);
-            LH_allRestingData =RestData.cortical_LH.(dataType).NormData(combRestLogical,:);
-            RH_allRestingData = RestData.cortical_RH.(dataType).NormData(combRestLogical,:);
-            Hip_allRestingData = RestData.hippocampus.(dataType).NormData(combRestLogical,:);
+            unstimRestFiles = RestData.cortical_LH.(dataType).fileIDs(combRestLogical,:);
+            LH_unstimRestingData =RestData.cortical_LH.(dataType).NormData(combRestLogical,:);
+            RH_unstimRestingData = RestData.cortical_RH.(dataType).NormData(combRestLogical,:);
+            Hip_unstimRestingData = RestData.hippocampus.(dataType).NormData(combRestLogical,:);
         end
         
-        % identify the unique days and the unique number of files from the list of all resting events
-        restUniqueDays = GetUniqueDays_IOS(allRestFiles);
-        restUniqueFiles = unique(allRestFiles);
-        restNumberOfFiles = length(unique(allRestFiles));
+        % identify the unique days and the unique number of files from the list of unstim resting events
+        restUniqueDays = GetUniqueDays_IOS(unstimRestFiles);
+        restUniqueFiles = unique(unstimRestFiles);
+        restNumberOfFiles = length(unique(unstimRestFiles));
         
         % decimate the file list to only include those files that occur within the desired number of target minutes
         clear restFiltLogical
@@ -121,11 +122,11 @@ for a = 1:length(dataTypes)
         end
         restFinalLogical = any(sum(cell2mat(restFiltLogical'),2),2);
         
-        % extract all the resting events that correspond to the acceptable file list and the acceptable resting criteria
+        % extract unstim the resting events that correspond to the acceptable file list and the acceptable resting criteria
         clear restFileFilter
         filtRestFiles = restUniqueFiles(restFinalLogical,:);
-        for f = 1:length(allRestFiles)
-            restLogic = strcmp(allRestFiles{f},filtRestFiles);
+        for f = 1:length(unstimRestFiles)
+            restLogic = strcmp(unstimRestFiles{f},filtRestFiles);
             restLogicSum = sum(restLogic);
             if restLogicSum == 1
                 restFileFilter(f,1) = 1;
@@ -134,14 +135,14 @@ for a = 1:length(dataTypes)
             end
         end
         restFinalFileFilter = logical(restFileFilter);
-        LH_finalRestData = LH_allRestingData(restFinalFileFilter,:);
-        RH_finalRestData = RH_allRestingData(restFinalFileFilter,:);
-        fileIDs = allRestFiles(restFinalFileFilter,:);
+        LH_finalRestData = LH_unstimRestingData(restFinalFileFilter,:);
+        RH_finalRestData = RH_unstimRestingData(restFinalFileFilter,:);
+        fileIDs = unstimRestFiles(restFinalFileFilter,:);
         if strcmp(dataType,'CBV') == false && strcmp(dataType,'CBV_HbT') == false
-            Hip_finalRestData = Hip_allRestingData(restFinalFileFilter,:);
+            Hip_finalRestData = Hip_unstimRestingData(restFinalFileFilter,:);
         end
         
-        % only take the first 10 seconds of the epoch. occassionally a sample gets lost from rounding during the
+        % only take the first 10 seconds of the epoch. occassionunstimy a sample gets lost from rounding during the
         % original epoch create so we can add a sample of two back to the end for those just under 10 seconds
         % lowpass filter and detrend each segment
         [B, A] = butter(4,1/(samplingRate/2),'low');
@@ -171,7 +172,7 @@ for a = 1:length(dataTypes)
             end
         end
         
-        % input data as time(1st dimension, vertical) by trials (2nd dimension, horizontally)
+        % input data as time(1st dimension, vertical) by trials (2nd dimension, horizontunstimy)
         LH_restData = zeros(length(LH_ProcRestData{1,1}),length(LH_ProcRestData));
         RH_restData = zeros(length(RH_ProcRestData{1,1}),length(RH_ProcRestData));
         if strcmp(dataType,'CBV') == false && strcmp(dataType,'CBV_HbT') == false
@@ -201,12 +202,6 @@ for a = 1:length(dataTypes)
         if strcmp(dataType,'CBV') == false && strcmp(dataType,'CBV_HbT') == false
             disp(['Analyzing the power spectrum of the Hippocampal RestData (' filterSet ') ' dataType ' signal power...']); disp(' ')
             [Hip_rest_S,Hip_rest_f,Hip_rest_sErr] = mtspectrumc_IOS(Hip_restData,params);
-        end
-        
-        figure;
-        for a = 1:size(LH_restData,2)
-            plot(LH_restData(:,a))
-            hold on
         end
         
         % nboot = 1000;
@@ -286,6 +281,7 @@ for a = 1:length(dataTypes)
     
     %% Analyze power spectra during periods of NREM sleep
     % pull data from SleepData.mat structure
+    disp(['AnalyzePowerSpectra: ' dataType ' during NREM']); disp(' ')
     if strcmp(dataType,'CBV') == true || strcmp(dataType,'CBV_HbT') == true
         LH_nremData = SleepData.NREM.data.(dataType).LH;
         RH_nremData = SleepData.NREM.data.(dataType).RH;
@@ -304,7 +300,7 @@ for a = 1:length(dataTypes)
         end
     end
     
-    % input data as time(1st dimension, vertical) by trials (2nd dimension, horizontally)
+    % input data as time(1st dimension, vertical) by trials (2nd dimension, horizontunstimy)
     LH_nrem = zeros(length(LH_nremData{1,1}),length(LH_nremData));
     RH_nrem = zeros(length(RH_nremData{1,1}),length(RH_nremData));
     if strcmp(dataType,'CBV') == false && strcmp(dataType,'CBV_HbT') == false
@@ -412,6 +408,7 @@ for a = 1:length(dataTypes)
     
     %% Analyze power spectra during periods of REM sleep
     % pull data from SleepData.mat structure
+    disp(['AnalyzePowerSpectra: ' dataType ' during REM']); disp(' ')
     if strcmp(dataType,'CBV') == true || strcmp(dataType,'CBV_HbT') == true
         LH_remData = SleepData.REM.data.(dataType).LH;
         RH_remData = SleepData.REM.data.(dataType).RH;
@@ -430,7 +427,7 @@ for a = 1:length(dataTypes)
         end
     end
     
-    % input data as time(1st dimension, vertical) by trials (2nd dimension, horizontally)
+    % input data as time(1st dimension, vertical) by trials (2nd dimension, horizontunstimy)
     LH_rem = zeros(length(LH_remData{1,1}),length(LH_remData));
     RH_rem = zeros(length(RH_remData{1,1}),length(RH_remData));
     if strcmp(dataType, 'CBV') == false && strcmp(dataType,'CBV_HbT') == false
@@ -536,7 +533,158 @@ for a = 1:length(dataTypes)
         savefig(Hip_remPower, [dirpath animalID '_REM_Hippocampal_' filterSet '_' dataType '_PowerSpectra']);
     end
     
+    %% Analyze power spectra during unstim data
+    disp(['AnalyzePowerSpectra: ' dataType ' during all unstimulated data']); disp(' ')
+    for o = 1:size(procDataFileIDs,1)
+        procDataFileID = procDataFileIDs(o,:);
+        load(procDataFileID);
+        if isempty(ProcData.data.solenoids.LPadSol) == true
+            stimLogical(o,1) = 1;
+        else
+            stimLogical(o,1) = 0;
+        end
+    end
+    stimLogical = logical(stimLogical);
+    unstim_procDataFileIDs = procDataFileIDs(stimLogical,:);
+    for o = 1:size(unstim_procDataFileIDs,1)
+        unstim_procDataFileID = unstim_procDataFileIDs(o,:);
+        load(unstim_procDataFileID);
+        [~,fileDate,~] = GetFileInfo_IOS(unstim_procDataFileID);
+        US_strDay = ConvertDate_IOS(fileDate);
+        
+        % pull data from each file
+        if strcmp(dataType,'CBV') == true || strcmp(dataType,'CBV_HbT') == true
+            if strcmp(dataType,'CBV') == true
+                LH_UnstimData{o,1} = (ProcData.data.(dataType).LH - RestingBaselines.(baselineType).(dataType).LH.(US_strDay))/RestingBaselines.(baselineType).(dataType).LH.(US_strDay);
+                RH_UnstimData{o,1} = (ProcData.data.(dataType).RH - RestingBaselines.(baselineType).(dataType).RH.(US_strDay))/RestingBaselines.(baselineType).(dataType).RH.(US_strDay);
+            else
+                LH_UnstimData{o,1} = ProcData.data.(dataType).LH;
+                RH_UnstimData{o,1} = ProcData.data.(dataType).RH;
+            end
+        else
+            LH_UnstimData{o,1} = (ProcData.data.cortical_LH.(dataType) - RestingBaselines.(baselineType).cortical_LH.(dataType).(US_strDay))/RestingBaselines.(baselineType).cortical_LH.(dataType).(US_strDay);
+            RH_UnstimData{o,1} = (ProcData.data.cortical_RH.(dataType) - RestingBaselines.(baselineType).cortical_RH.(dataType).(US_strDay))/RestingBaselines.(baselineType).cortical_RH.(dataType).(US_strDay);
+            Hip_UnstimData{o,1} = (ProcData.data.hippocampus.(dataType) - RestingBaselines.(baselineType).hippocampus.(dataType).(US_strDay))/RestingBaselines.(baselineType).hippocampus.(dataType).(US_strDay);
+        end
+    end
+   
+    % detend and lowpass filter each signal
+    for p = 1:length(LH_UnstimData)
+        LH_ProcUnstimData{p,1} = detrend(filtfilt(B,A,LH_UnstimData{p,1}),'constant');
+        RH_ProcUnstimData{p,1} = detrend(filtfilt(B,A,RH_UnstimData{p,1}),'constant');
+        if strcmp(dataType,'CBV') == false && strcmp(dataType,'CBV_HbT') == false
+            Hip_ProcUnstimData{p,1} = detrend(filtfilt(B,A,Hip_UnstimData{p,1}),'constant');
+        end
+    end
+    
+    % input data as time(1st dimension, vertical) by trials (2nd dimension, horizontunstimy)
+    LH_FinalUnstimData = zeros(length(LH_ProcUnstimData{1,1}),length(LH_ProcUnstimData));
+    RH_FinalUnstimData = zeros(length(RH_ProcUnstimData{1,1}),length(RH_ProcUnstimData));
+    if strcmp(dataType,'CBV') == false && strcmp(dataType,'CBV_HbT') == false
+        Hip_FinalUnstimData = zeros(length(Hip_ProcUnstimData{1,1}),length(Hip_ProcUnstimData));
+    end
+    for q = 1:length(LH_ProcUnstimData)
+        LH_FinalUnstimData(:,q) = LH_ProcUnstimData{q,1};
+        RH_FinalUnstimData(:,q) = RH_ProcUnstimData{q,1};
+        if strcmp(dataType,'CBV') == false && strcmp(dataType,'CBV_HbT') == false
+            Hip_FinalUnstimData(:,q) = Hip_ProcUnstimData{q,1};
+        end
+    end
+    
+    % parameters for coherencyc_IOS - information available in function
+    params.tapers = [5 9];   % Tapers [n, 2n - 1]
+    params.pad = 1;
+    params.Fs = samplingRate;   % Sampling Rate
+    params.fpass = [0 1];   % Pass band [0, nyquist]
+    params.trialave = 1;
+    params.err = [2 0.05];
+    
+    % calculate the power spectra of the desired signals
+    disp(['Analyzing the power spectrum of the LH unstim data ' dataType ' signal power...']); disp(' ')
+    [LH_unstimData_S,LH_unstimData_f,LH_unstimData_sErr] = mtspectrumc_IOS(LH_FinalUnstimData,params);
+    disp(['Analyzing the power spectrum of the RH unstim data ' dataType ' signal power...']); disp(' ')
+    [RH_unstimData_S,RH_unstimData_f,RH_unstimData_sErr] = mtspectrumc_IOS(RH_FinalUnstimData,params);
+    if strcmp(dataType,'CBV') == false && strcmp(dataType,'CBV_HbT') == false
+        disp(['Analyzing the power spectrum of the Hippocampal unstim data ' dataType ' signal power...']); disp(' ')
+        [Hip_unstimData_S,Hip_unstimData_f,Hip_unstimData_sErr] = mtspectrumc_IOS(Hip_FinalUnstimData,params);
+    end
+    
+    % nboot = 1000;
+    % LH_unstimDataCI = bootci(nboot,@mtspectrumc2,LH_FinalUnstimData',params);
+    % RH_unstimDataCI = bootci(nboot,@mtspectrumc2,RH_FinalUnstimData',params);
+    % if strcmp(dataType, 'CBV') == false && strcmp(dataType,'CBV_HbT') == false
+    %     Hip_unstimDataCI = bootci(nboot,@mtspectrumc2,Hip_FinalUnstimData',params);
+    % end
+    
+    % summary figures
+    LH_unstimDataPower = figure;
+    loglog(LH_unstimData_f,LH_unstimData_S,'k')
+    hold on;
+    loglog(LH_unstimData_f,LH_unstimData_sErr,'color',colors_IOS('battleship grey'))
+    xlabel('Freq (Hz)');
+    ylabel('Power');
+    title([animalID  ' LH ' dataType ' Power during unstim data']);
+    set(gca,'Ticklength',[0 0]);
+    legend('Coherence','Jackknife Lower','JackknifeUpper','Location','Southeast');
+    set(legend,'FontSize',6);
+    xlim([0 1])
+    axis square
+    
+    RH_unstimDataPower = figure;
+    loglog(RH_unstimData_f,RH_unstimData_S,'k')
+    hold on;
+    loglog(RH_unstimData_f,RH_unstimData_sErr,'color',colors_IOS('battleship grey'))
+    xlabel('Freq (Hz)');
+    ylabel('Power');
+    title([animalID  ' RH ' dataType ' Power during unstim data']);
+    set(gca,'Ticklength',[0 0]);
+    legend('Coherence','Jackknife Lower','JackknifeUpper','Location','Southeast');
+    set(legend,'FontSize',6);
+    xlim([0 1])
+    axis square
+    
+    if strcmp(dataType,'CBV') == false && strcmp(dataType,'CBV_HbT') == false
+        Hip_unstimDataPower = figure;
+        loglog(Hip_unstimData_f,Hip_unstimData_S,'k')
+        hold on;
+        loglog(Hip_unstimData_f,Hip_unstimData_sErr,'color',colors_IOS('battleship grey'))
+        xlabel('Freq (Hz)');
+        ylabel('Power');
+        title([animalID  ' Hippocampal ' dataType ' Power during unstim data']);
+        set(gca,'Ticklength',[0 0]);
+        legend('Coherence','Jackknife Lower','JackknifeUpper','Location','Southeast');
+        set(legend,'FontSize',6);
+        xlim([0 1])
+        axis square
+    end
+    
+    % save results
+    AnalysisResults.PowerSpectra.Unstim.(dataType).LH.S = LH_unstimData_S;
+    AnalysisResults.PowerSpectra.Unstim.(dataType).LH.f = LH_unstimData_f;
+    AnalysisResults.PowerSpectra.Unstim.(dataType).LH.sErr = LH_unstimData_sErr;
+    AnalysisResults.PowerSpectra.Unstim.(dataType).RH.S = RH_unstimData_S;
+    AnalysisResults.PowerSpectra.Unstim.(dataType).RH.f = RH_unstimData_f;
+    AnalysisResults.PowerSpectra.Unstim.(dataType).RH.sErr = RH_unstimData_sErr;
+    if strcmp(dataType, 'CBV') == false && strcmp(dataType,'CBV_HbT') == false
+        AnalysisResults.PowerSpectra.Unstim.(dataType).Hip.S = Hip_unstimData_S;
+        AnalysisResults.PowerSpectra.Unstim.(dataType).Hip.f = Hip_unstimData_f;
+        AnalysisResults.PowerSpectra.Unstim.(dataType).Hip.sErr = Hip_unstimData_sErr;
+    end
+    
+    % save figures
+    [pathstr, ~, ~] = fileparts(cd);
+    dirpath = [pathstr '/Figures/Analysis Power Spectra/'];
+    if ~exist(dirpath, 'dir')
+        mkdir(dirpath);
+    end
+    savefig(LH_unstimDataPower, [dirpath animalID '_UnstimData_LH_' filterSet '_' dataType '_PowerSpectra']);
+    savefig(RH_unstimDataPower, [dirpath animalID '_UnstimData_RH_' filterSet '_' dataType '_PowerSpectra']);
+    if strcmp(dataType,'CBV') == false && strcmp(dataType,'CBV_HbT') == false
+        savefig(Hip_unstimDataPower, [dirpath animalID '_UnstimData_Hippocampal_' filterSet '_' dataType '_PowerSpectra']);
+    end
+    
     %% Analyze power spectra during all data
+    disp(['AnalyzePowerSpectra: ' dataType ' during all data']); disp(' ')
     for o = 1:size(procDataFileIDs,1)
         procDataFileID = procDataFileIDs(o,:);
         load(procDataFileID);
@@ -650,16 +798,16 @@ for a = 1:length(dataTypes)
     end
     
     % save results
-    AnalysisResults.PowerSpectra.AllData.(dataType).LH.S = LH_allData_S;
-    AnalysisResults.PowerSpectra.AllData.(dataType).LH.f = LH_allData_f;
-    AnalysisResults.PowerSpectra.AllData.(dataType).LH.sErr = LH_allData_sErr;
-    AnalysisResults.PowerSpectra.AllData.(dataType).RH.S = RH_allData_S;
-    AnalysisResults.PowerSpectra.AllData.(dataType).RH.f = RH_allData_f;
-    AnalysisResults.PowerSpectra.AllData.(dataType).RH.sErr = RH_allData_sErr;
+    AnalysisResults.PowerSpectra.All.(dataType).LH.S = LH_allData_S;
+    AnalysisResults.PowerSpectra.All.(dataType).LH.f = LH_allData_f;
+    AnalysisResults.PowerSpectra.All.(dataType).LH.sErr = LH_allData_sErr;
+    AnalysisResults.PowerSpectra.All.(dataType).RH.S = RH_allData_S;
+    AnalysisResults.PowerSpectra.All.(dataType).RH.f = RH_allData_f;
+    AnalysisResults.PowerSpectra.All.(dataType).RH.sErr = RH_allData_sErr;
     if strcmp(dataType, 'CBV') == false && strcmp(dataType,'CBV_HbT') == false
-        AnalysisResults.PowerSpectra.AllData.(dataType).Hip.S = Hip_allData_S;
-        AnalysisResults.PowerSpectra.AllData.(dataType).Hip.f = Hip_allData_f;
-        AnalysisResults.PowerSpectra.AllData.(dataType).Hip.sErr = Hip_allData_sErr;
+        AnalysisResults.PowerSpectra.All.(dataType).Hip.S = Hip_allData_S;
+        AnalysisResults.PowerSpectra.All.(dataType).Hip.f = Hip_allData_f;
+        AnalysisResults.PowerSpectra.All.(dataType).Hip.sErr = Hip_allData_sErr;
     end
     
     % save figures

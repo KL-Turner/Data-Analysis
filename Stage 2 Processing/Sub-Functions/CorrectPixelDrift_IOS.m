@@ -1,4 +1,4 @@
-function [] = CorrectPixelDrift(procDataFileIDs)
+function [] = CorrectPixelDrift_IOS(procDataFileIDs)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering

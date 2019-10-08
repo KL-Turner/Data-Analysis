@@ -38,11 +38,11 @@ for a = 1:length(animalIDs)
                 solenoidName = solenoidNames{1,d};
                 data.(dataType).(baselineType).(solenoidName).CBV(:,a) = AnalysisResults.EvokedAvgs.Stim.(dataType).(baselineType).(solenoidName).CBV.Refl;
                 data.(dataType).(baselineType).(solenoidName).HbT(:,a) = AnalysisResults.EvokedAvgs.Stim.(dataType).(baselineType).(solenoidName).CBV.HbT;
-                data.(dataType).(baselineType).(solenoidName).cortMUA(:,a) = AnalysisResults.EvokedAvgs.Stim.(dataType).(baselineType).(solenoidName).MUA.cortData;
-                data.(dataType).(baselineType).(solenoidName).hipMUA(:,a) = AnalysisResults.EvokedAvgs.Stim.(dataType).(baselineType).(solenoidName).MUA.hipData;
+                data.(dataType).(baselineType).(solenoidName).cortMUA(:,a) = AnalysisResults.EvokedAvgs.Stim.(dataType).(baselineType).(solenoidName).MUA.corticalData;
+                data.(dataType).(baselineType).(solenoidName).hipMUA(:,a) = AnalysisResults.EvokedAvgs.Stim.(dataType).(baselineType).(solenoidName).MUA.hippocampalData;
                 data.(dataType).(baselineType).(solenoidName).timeVector(:,a) = AnalysisResults.EvokedAvgs.Stim.(dataType).(baselineType).(solenoidName).timeVector;
-                data.(dataType).(baselineType).(solenoidName).cortS(:,:,a) = AnalysisResults.EvokedAvgs.Stim.(dataType).(baselineType).(solenoidName).LFP.cortS;
-                data.(dataType).(baselineType).(solenoidName).hipS(:,:,a) = AnalysisResults.EvokedAvgs.Stim.(dataType).(baselineType).(solenoidName).LFP.hipS;
+                data.(dataType).(baselineType).(solenoidName).cortS(:,:,a) = AnalysisResults.EvokedAvgs.Stim.(dataType).(baselineType).(solenoidName).LFP.corticalS;
+                data.(dataType).(baselineType).(solenoidName).hipS(:,:,a) = AnalysisResults.EvokedAvgs.Stim.(dataType).(baselineType).(solenoidName).LFP.hippocampalS;
                 data.(dataType).(baselineType).(solenoidName).T(:,a) = AnalysisResults.EvokedAvgs.Stim.(dataType).(baselineType).(solenoidName).LFP.T;
                 data.(dataType).(baselineType).(solenoidName).F(:,a) = AnalysisResults.EvokedAvgs.Stim.(dataType).(baselineType).(solenoidName).LFP.F;
             end
@@ -68,7 +68,7 @@ for e = 1:length(baselineTypes)
     data.Ipsi.(baselineType).cortMUA = cat(2,data.LH.(baselineType).LPadSol.cortMUA,data.RH.(baselineType).RPadSol.cortMUA);
     data.Ipsi.(baselineType).hipMUA = data.RH.(baselineType).LPadSol.hipMUA;
     data.Ipsi.(baselineType).timeVector = cat(2,data.LH.(baselineType).LPadSol.timeVector,data.RH.(baselineType).RPadSol.timeVector);
-    data.Ipsi.(baselineType).S = cat(3,data.LH.(baselineType).LPadSol.cortS,data.RH.(baselineType).RPadSol.cortS);
+    data.Ipsi.(baselineType).cortS = cat(3,data.LH.(baselineType).LPadSol.cortS,data.RH.(baselineType).RPadSol.cortS);
     data.Ipsi.(baselineType).hipS = data.RH.(baselineType).LPadSol.hipS;
     data.Ipsi.(baselineType).T = cat(2,data.LH.(baselineType).LPadSol.T,data.RH.(baselineType).RPadSol.T);
     data.Ipsi.(baselineType).F = cat(2,data.LH.(baselineType).LPadSol.F,data.RH.(baselineType).RPadSol.F);
@@ -78,7 +78,7 @@ for e = 1:length(baselineTypes)
     data.Auditory.(baselineType).cortMUA = cat(2,data.LH.(baselineType).AudSol.cortMUA,data.RH.(baselineType).AudSol.cortMUA);
     data.Auditory.(baselineType).hipMUA = data.RH.(baselineType).AudSol.hipMUA;
     data.Auditory.(baselineType).timeVector = cat(2,data.LH.(baselineType).AudSol.timeVector,data.RH.(baselineType).AudSol.timeVector);
-    data.Auditory.(baselineType).S = cat(3,data.LH.(baselineType).AudSol.cortS,data.RH.(baselineType).AudSol.cortS);
+    data.Auditory.(baselineType).cortS = cat(3,data.LH.(baselineType).AudSol.cortS,data.RH.(baselineType).AudSol.cortS);
     data.Auditory.(baselineType).hipS = data.RH.(baselineType).AudSol.hipS;
     data.Auditory.(baselineType).T = cat(2,data.LH.(baselineType).AudSol.T,data.RH.(baselineType).AudSol.T);
     data.Auditory.(baselineType).F = cat(2,data.LH.(baselineType).AudSol.F,data.RH.(baselineType).AudSol.F);
@@ -251,7 +251,7 @@ for h = 1:length(baselineTypes)
     linkaxes([ax10 ax11 ax12],'xy')
     
     % save figure(s)
-    dirpath = 'C:\Users\klt8\Documents\Analysis Average Figures\Stimulus Responses\';
+    dirpath = 'C:\Users\klt8\Documents\Analysis Average Figures\Stimulus-evoked Responses\';
     if ~exist(dirpath, 'dir')
         mkdir(dirpath);
     end
@@ -404,7 +404,7 @@ for h = 1:length(baselineTypes)
     linkaxes([ax10 ax11 ax12],'xy')
     
     % save figure(s)
-    dirpath = 'C:\Users\klt8\Documents\Analysis Average Figures\Stimulus Responses\';
+    dirpath = 'C:\Users\klt8\Documents\Analysis Average Figures\Stimulus-evoked Responses\';
     if ~exist(dirpath, 'dir')
         mkdir(dirpath);
     end

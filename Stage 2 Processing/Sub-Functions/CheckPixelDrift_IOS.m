@@ -1,4 +1,4 @@
-function [] = CheckPixelDrift(procDataFileIDs)
+function [] = CheckPixelDrift_IOS(procDataFileIDs)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering

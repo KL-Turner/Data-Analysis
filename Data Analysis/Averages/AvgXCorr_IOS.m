@@ -18,7 +18,7 @@ clc
 
 animalIDs = {'T99','T101','T102','T103','T105','T108','T109','T110'};
 driveLetters = {'E','E','E','F','F','F','D','D'};
-behavFields = {'Rest','AllData','NREM','REM'};
+behavFields = {'Rest','NREM','REM','Unstim','All'};
 baselineTypes = {'manualSelection','setDuration','entireDuration'};
 
 %% cd through each animal's directory and extract the appropriate analysis results
@@ -152,7 +152,7 @@ for h = 1:length(baselineTypes)
         sgtitle({[hemoDataType '-neural cross-correlations - ' baselineType ' for resting data'],' '})
         
         %% Rest MUA
-        ax1 = subplot(2,4,1);
+        ax1 = subplot(2,5,1);
         plot(data.Rest.(baselineType).meanMUA_lags,data.Rest.(baselineType).(['mean' hemoDataType 'vMUAxcVals']),'k')
         hold on
         plot(data.Rest.(baselineType).meanMUA_lags,data.Rest.(baselineType).(['mean' hemoDataType 'vMUAxcVals']) + data.Rest.(baselineType).(['std' hemoDataType 'vMUAxcVals']),'color',colors_IOS('battleship grey'))
@@ -164,23 +164,9 @@ for h = 1:length(baselineTypes)
         xlabel('lags (sec)')
         ylabel('cross-correlation')
         axis square
-        
-        %% All Data MUA
-        ax2 = subplot(2,4,2);
-        plot(data.AllData.meanMUA_lags,data.AllData.(['mean' hemoDataType 'vMUAxcVals']),'k')
-        hold on
-        plot(data.AllData.meanMUA_lags,data.AllData.(['mean' hemoDataType 'vMUAxcVals']) + data.AllData.(['std' hemoDataType 'vMUAxcVals']),'color',colors_IOS('battleship grey'))
-        plot(data.AllData.meanMUA_lags,data.AllData.(['mean' hemoDataType 'vMUAxcVals']) - data.AllData.(['std' hemoDataType 'vMUAxcVals']),'color',colors_IOS('battleship grey'))
-        title('All data')
-        xticks([-lagTime1*freq -lagTime1*freq/2 0 lagTime1*freq/2 lagTime1*freq])
-        xticklabels({'-5','-2.5','0','2.5','5'})
-        xlim([-lagTime1*freq lagTime1*freq])
-        xlabel('lags (sec)')
-        ylabel('cross-correlation')
-        axis square
-        
-        %% NNREM MUA
-        ax3 = subplot(2,4,3);
+             
+        %% NREM MUA
+        ax2 = subplot(2,5,2);
         plot(data.NREM.meanMUA_lags,data.NREM.(['mean' hemoDataType 'vMUAxcVals']),'k')
         hold on
         plot(data.NREM.meanMUA_lags,data.NREM.(['mean' hemoDataType 'vMUAxcVals']) + data.NREM.(['std' hemoDataType 'vMUAxcVals']),'color',colors_IOS('battleship grey'))
@@ -194,7 +180,7 @@ for h = 1:length(baselineTypes)
         axis square
         
         %% REM MUA
-        ax4 = subplot(2,4,4);
+        ax3 = subplot(2,5,3);
         plot(data.REM.meanMUA_lags,data.REM.(['mean' hemoDataType 'vMUAxcVals']),'k')
         hold on
         plot(data.REM.meanMUA_lags,data.REM.(['mean' hemoDataType 'vMUAxcVals']) + data.REM.(['std' hemoDataType 'vMUAxcVals']),'color',colors_IOS('battleship grey'))
@@ -207,10 +193,38 @@ for h = 1:length(baselineTypes)
         ylabel('cross-correlation')
         axis square
 
-        linkaxes([ax1 ax2 ax3 ax4],'y')
+        %% Unstim Data MUA
+        ax4 = subplot(2,5,4);
+        plot(data.Unstim.meanMUA_lags,data.Unstim.(['mean' hemoDataType 'vMUAxcVals']),'k')
+        hold on
+        plot(data.Unstim.meanMUA_lags,data.Unstim.(['mean' hemoDataType 'vMUAxcVals']) + data.Unstim.(['std' hemoDataType 'vMUAxcVals']),'color',colors_IOS('battleship grey'))
+        plot(data.Unstim.meanMUA_lags,data.Unstim.(['mean' hemoDataType 'vMUAxcVals']) - data.Unstim.(['std' hemoDataType 'vMUAxcVals']),'color',colors_IOS('battleship grey'))
+        title('Unstim data')
+        xticks([-lagTime1*freq -lagTime1*freq/2 0 lagTime1*freq/2 lagTime1*freq])
+        xticklabels({'-5','-2.5','0','2.5','5'})
+        xlim([-lagTime1*freq lagTime1*freq])
+        xlabel('lags (sec)')
+        ylabel('cross-correlation')
+        axis square
+        
+        %% All Data MUA
+        ax5 = subplot(2,5,5);
+        plot(data.All.meanMUA_lags,data.All.(['mean' hemoDataType 'vMUAxcVals']),'k')
+        hold on
+        plot(data.All.meanMUA_lags,data.All.(['mean' hemoDataType 'vMUAxcVals']) + data.All.(['std' hemoDataType 'vMUAxcVals']),'color',colors_IOS('battleship grey'))
+        plot(data.All.meanMUA_lags,data.All.(['mean' hemoDataType 'vMUAxcVals']) - data.All.(['std' hemoDataType 'vMUAxcVals']),'color',colors_IOS('battleship grey'))
+        title('All data')
+        xticks([-lagTime1*freq -lagTime1*freq/2 0 lagTime1*freq/2 lagTime1*freq])
+        xticklabels({'-5','-2.5','0','2.5','5'})
+        xlim([-lagTime1*freq lagTime1*freq])
+        xlabel('lags (sec)')
+        ylabel('cross-correlation')
+        axis square
+        
+        linkaxes([ax1 ax2 ax3 ax4 ax5],'y')
 
         %% Rest LFP
-        ax5 = subplot(2,4,5);
+        ax6 = subplot(2,5,6);
         imagesc(data.Rest.(baselineType).meanLFP_lags,data.Rest.(baselineType).meanLFP_F,data.Rest.(baselineType).(['mean' hemoDataType 'vLFPxcVals']))
         xticks([-lagTime1*freq -lagTime1*freq/2 0 lagTime1*freq/2 lagTime1*freq])
         xticklabels({'-5','-2.5','0','2.5','5'})
@@ -222,21 +236,8 @@ for h = 1:length(baselineTypes)
         axis xy
         axis square
         
-        %% All data LFP
-        ax6 = subplot(2,4,6);
-        imagesc(data.AllData.meanLFP_lags,data.AllData.meanLFP_F,data.AllData.(['mean' hemoDataType 'vLFPxcVals']))
-        xticks([-lagTime1*freq -lagTime1*freq/2 0 lagTime1*freq/2 lagTime1*freq])
-        xticklabels({'-5','-2.5','0','2.5','5'})
-        xlim([-lagTime1*freq lagTime1*freq])
-        xlabel('lags (sec)')
-        ylabel('Freq (Hz)')
-        ylim([1 100])
-        colorbar
-        axis xy
-        axis square
-        
         %% NREM LFP
-        ax7 = subplot(2,4,7);
+        ax7 = subplot(2,5,7);
         imagesc(data.NREM.meanLFP_lags,data.NREM.meanLFP_F,data.NREM.(['mean' hemoDataType 'vLFPxcVals']))
         xticks([-lagTime1*freq -lagTime1*freq/2 0 lagTime1*freq/2 lagTime1*freq])
         xticklabels({'-5','-2.5','0','2.5','5'})
@@ -249,8 +250,34 @@ for h = 1:length(baselineTypes)
         axis square
         
         %% REM LFP
-        ax8 = subplot(2,4,8);
+        ax8 = subplot(2,5,8);
         imagesc(data.REM.meanLFP_lags,data.REM.meanLFP_F,data.REM.(['mean' hemoDataType 'vLFPxcVals']))
+        xticks([-lagTime1*freq -lagTime1*freq/2 0 lagTime1*freq/2 lagTime1*freq])
+        xticklabels({'-5','-2.5','0','2.5','5'})
+        xlim([-lagTime1*freq lagTime1*freq])
+        xlabel('lags (sec)')
+        ylabel('Freq (Hz)')
+        ylim([1 100])
+        colorbar
+        axis xy
+        axis square
+        
+        %% Unstim data LFP
+        ax9 = subplot(2,5,9);
+        imagesc(data.Unstim.meanLFP_lags,data.Unstim.meanLFP_F,data.Unstim.(['mean' hemoDataType 'vLFPxcVals']))
+        xticks([-lagTime1*freq -lagTime1*freq/2 0 lagTime1*freq/2 lagTime1*freq])
+        xticklabels({'-5','-2.5','0','2.5','5'})
+        xlim([-lagTime1*freq lagTime1*freq])
+        xlabel('lags (sec)')
+        ylabel('Freq (Hz)')
+        ylim([1 100])
+        colorbar
+        axis xy
+        axis square
+        
+        %% All data LFP
+        ax10 = subplot(2,5,10);
+        imagesc(data.All.meanLFP_lags,data.All.meanLFP_F,data.All.(['mean' hemoDataType 'vLFPxcVals']))
         xticks([-lagTime1*freq -lagTime1*freq/2 0 lagTime1*freq/2 lagTime1*freq])
         xticklabels({'-5','-2.5','0','2.5','5'})
         xlim([-lagTime1*freq lagTime1*freq])

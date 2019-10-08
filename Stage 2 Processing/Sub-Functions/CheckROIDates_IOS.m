@@ -1,4 +1,4 @@
-function [ROIs] = CheckROIDates_IOS(animalID, ROIs, ROInames)
+function [ROIs] = CheckROIDates_IOS(animalID,ROIs,ROInames)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -12,15 +12,15 @@ function [ROIs] = CheckROIDates_IOS(animalID, ROIs, ROInames)
 %
 %   Outputs: 
 %
-%   Last Revised: June 26th, 2019
+%   Last Revised:
 %________________________________________________________________________________________________________________________
 
 windowCamFilesDir = dir('*_WindowCam.bin');
 windowCamDataFiles = {windowCamFilesDir.name}';
 windowCamDataFileIDs = char(windowCamDataFiles);
 
-[~, fileDates, ~] = GetFileInfo_IOS(windowCamDataFileIDs);
-[uniqueDays, ~, DayID] = GetUniqueDays_IOS(fileDates);
+[~,fileDates,~] = GetFileInfo_IOS(windowCamDataFileIDs);
+[uniqueDays,~,DayID] = GetUniqueDays_IOS(fileDates);
 firstsFileOfDay = cell(1,length(uniqueDays));
 for a = 1:length(uniqueDays)
     FileInd = DayID == a;
@@ -42,10 +42,10 @@ for b = 1:length(firstsFileOfDay)
     strDay = ConvertDate_IOS(fileID);
     checkROI = [ROInames{1,1} '_' strDay];
     if ~isfield(ROIs, (checkROI))
-        [frames] = ReadDalsaBinary_IOS(fileID, 256, 256);
+        [frames] = ReadDalsaBinary_IOS(fileID,256,256);
         for c = 1:length(ROInames)
             ROIname = ROInames{1, c};
-            [ROIs] = CreateBilateralROIs_IOS(frames{2},[ROIname '_' strDay], animalID, ROIs);
+            [ROIs] = CreateBilateralROIs_IOS(frames{2},[ROIname '_' strDay],animalID,ROIs);
         end
         save([animalID '_ROIs.mat'], 'ROIs');
     else

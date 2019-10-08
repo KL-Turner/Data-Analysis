@@ -32,7 +32,12 @@ rawDataFileIDs = char(rawDataFiles);
 
 %% BLOCK PURPOSE: [1] Create bilateral regions of interest for the windows
 disp('Analyzing Block [1] Creating bilateral regions of interest.'); disp(' ')
-ROInames = {'LH', 'RH', 'LH_Electrode', 'RH_Electrode', 'Cement'};
+imagingType = 'single';
+if strcmp(imagingType,'bilateral') == true
+    ROInames = {'LH','RH','LH_Electrode','RH_Electrode','Cement'};
+elseif strcmp(imagingType,'single') == true
+    ROInames = {'Barrels','Electrode','Cement'};
+end
 ROIFileDir = dir('*_ROIs.mat');
 if isempty(ROIFileDir) == true
     ROIs = [];
@@ -59,7 +64,14 @@ procDataFileIDs = char(procDataFiles);
 ExtractHeartRate_IOS(procDataFileIDs)
 
 %% BLOCK PURPOSE: [5] Check/Correct pixel drift 
-CheckPixelDrift(procDataFileIDs)
-CorrectPixelDrift(procDataFileIDs)
+CheckPixelDrift_IOS(procDataFileIDs)
+CorrectPixelDrift_IOS(procDataFileIDs)
+
+%% BLOCK PURPOSE: [6] IOS vessel diameter analysis
+if strcmp(imagingType,'single') == true
+    CreateIntrinsicTiffStacks_IOS(rawDataFileIDs)
+    DiamCalcSurfaceVessel_IOS(rawDataFileIDs)
+    ExtractTiffData_IOS(rawDataFileIDs)
+end
 
 disp('Stage Two Processing - Complete.'); disp(' ')

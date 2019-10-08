@@ -39,13 +39,13 @@ end
 %% CALCULATE NEURAL POWER
 if ismember(neurType, [{'MUA'}, {'Gamma'}, {'Beta'}, {'Alpha'}, {'Theta'}, {'Delta'}])
     disp(['ProcessNeuro.m: Processing ' neuralDataType ' ' neurType]); disp(' ')
-    [z1, p1, k1] = butter(4, fpass/(analogFs/2));
-    [sos1, g1] = zp2sos(z1, p1, k1);
-    filtNeuro = filtfilt(sos1, g1, trimmedNeuro - mean(trimmedNeuro));
-    [z2, p2, k2] = butter(4, 10/(analogFs/2), 'low');
-    [sos2, g2] = zp2sos(z2, p2, k2);
-    smoothPower = filtfilt(sos2, g2, filtNeuro.^2);
-    procNeuro = max(resample(smoothPower, dsFs, analogFs), 0);
+    [z1, p1, k1] = butter(3,fpass/(analogFs/2));
+    [sos1, g1] = zp2sos(z1,p1,k1);
+    filtNeuro = filtfilt(sos1,g1,trimmedNeuro - mean(trimmedNeuro));
+    [z2, p2, k2] = butter(3,10/(analogFs/2),'low');
+    [sos2, g2] = zp2sos(z2,p2,k2);
+    smoothPower = filtfilt(sos2,g2,filtNeuro.^2);
+    procNeuro = max(resample(smoothPower,dsFs,analogFs),0);
 end
 
 end

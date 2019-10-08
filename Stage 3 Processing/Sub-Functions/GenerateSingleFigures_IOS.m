@@ -53,20 +53,31 @@ for a = 1:size(procDataFileIDs, 1)
     LH_CBV = ProcData.data.CBV.LH;
     normLH_CBV = (LH_CBV - RestingBaselines.(baselineType).CBV.LH.(strDay))./(RestingBaselines.(baselineType).CBV.LH.(strDay));
     filtLH_CBV = filtfilt(D, C, normLH_CBV)*100;
-    
+    filtLH_CBV = filtLH_CBV - mean(filtLH_CBV(1:300*30));
+
     RH_CBV = ProcData.data.CBV.RH;
     normRH_CBV = (RH_CBV - RestingBaselines.(baselineType).CBV.RH.(strDay))./(RestingBaselines.(baselineType).CBV.RH.(strDay));
     filtRH_CBV = filtfilt(D, C, normRH_CBV)*100;
+    filtRH_CBV = filtRH_CBV - mean(filtRH_CBV(1:300*30));
     
     %% Normalized neural spectrogram
     specDataFile = [animalID '_' fileID '_SpecData.mat'];
     load(specDataFile, '-mat');
+    
+    neuralDataTypes = {'cortical_LH','cortical_RH','hippocampus'};
+    for b = 1:length(neuralDataTypes)
+        neuralDataType = neuralDataTypes{1,b};
+        baseLine5 = RestingBaselines.Spectrograms.(neuralDataType).fiveSec.(strDay);
+        S5 = SpecData.(neuralDataType).fiveSec.S;
+        holdMatrix5 = baseLine5.*ones(size(S5));
+        normS5 = (S5 - holdMatrix5)./holdMatrix5;
+        SpecData.(neuralDataType).fiveSec.normS = normS5;
+    end
+    T = SpecData.cortical_LH.fiveSec.T;
+    F = SpecData.cortical_LH.fiveSec.F;
     cortical_LHnormS = SpecData.cortical_LH.fiveSec.normS;
     cortical_RHnormS = SpecData.cortical_RH.fiveSec.normS;
     hippocampusNormS = SpecData.hippocampus.fiveSec.normS;
-    T = SpecData.cortical_LH.fiveSec.T;
-    F = SpecData.cortical_LH.fiveSec.F;
-    
     %% Yvals for behavior Indices
     if max(filtLH_CBV) >= max(filtRH_CBV)
         whisking_Yvals = 1.10*max(filtLH_CBV)*ones(size(binWhiskers));
@@ -207,7 +218,7 @@ for a = 1:size(procDataFileIDs, 1)
         
         
         savefig(singleTrialFig, [dirpath animalID '_' fileID '_SingleTrialFig']);
-        close(singleTrialFig)
+%         close(singleTrialFig)
     end
 end
 

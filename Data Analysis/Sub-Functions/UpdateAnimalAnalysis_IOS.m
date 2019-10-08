@@ -34,4 +34,5 @@ AvgPowerSpectra_IOS
 AvgXCorr_IOS
 AvgStim_IOS
 AvgWhisk_IOS
+AvgCorrCoeff_IOS
 
