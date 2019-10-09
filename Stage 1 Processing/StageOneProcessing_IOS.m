@@ -14,14 +14,6 @@ function StageOneProcessing_IOS(fileNames, trackWhiskers)
 %            .tdms - Digital and Analog Data
 %            .tdms_index - Index for the LabVIEW data in the .tdms file
 %________________________________________________________________________________________________________________________
-%
-%   Inputs: fileNames - [cell array] list of filames with the extension '_WhiskerCam.bin'.
-%           TrackWhiskers - [binary] tells code whether to track the whiskers or not.
-%
-%   Outputs: A processed RawData file for each filename that is saved to the current directory.
-%
-%   Last Revised: June 26th, 2019
-%________________________________________________________________________________________________________________________
 
 %% BLOCK PURPOSE: [0] Load the script's necessary variables and data structures.
 % Note: This function can be run independently of a main script
@@ -32,7 +24,7 @@ disp('Analyzing Block [0] Preparing the workspace and loading variables.'); disp
 
 % If there are no inputs to the function, it asks the user to load all files with a '_WhiskerCam.bin' extension
 if nargin == 0
-    fileNames = uigetfile('*_WhiskerCam.bin', 'MultiSelect', 'on');   % CTL-A to select all files
+    fileNames = uigetfile('*_WhiskerCam.bin','MultiSelect','on');   % CTL-A to select all files
 end
 
 % Default setting - if you automatically play the function, it will track the whiskers
@@ -41,7 +33,7 @@ if nargin < 2
     trackWhiskers = 1;
 end
 
-ldInput = input('Was laser doppler acquired during this trial? (y/n): ', 's'); disp(' ')
+ldInput = input('Was laser doppler acquired during this trial? (y/n): ','s'); disp(' ')
 
 %% BLOCK PURPOSE: [1] Preparing to create RawData files.
 disp('Analyzing Block [1] Preparing to create RawData file(s).'); disp(' ')
@@ -68,42 +60,42 @@ for a = 1:length(fileNames)
         trialData = ReadInTDMSWhiskerTrials_IOS([fileID '.tdms']);
 
         % Left, Right, and hippocampal electrodes
-        dataRow = strcmp(trialData.data.names, 'Cortical_LH');  
+        dataRow = strcmp(trialData.data.names,'Cortical_LH');  
         cortical_LH = trialData.data.vals(dataRow,:)/str2double(trialData.amplifierGain);
         
-        dataRow = strcmp(trialData.data.names, 'Cortical_RH');
+        dataRow = strcmp(trialData.data.names,'Cortical_RH');
         cortical_RH = trialData.data.vals(dataRow,:)/str2double(trialData.amplifierGain);
         
-        dataRow = strcmp(trialData.data.names, 'Hippocampus');
+        dataRow = strcmp(trialData.data.names,'Hippocampus');
         hippocampus = trialData.data.vals(dataRow,:)/str2double(trialData.amplifierGain);
         
         % Left, Right, Auditory solenoids. Combine the arrays together.
-        dataRow = strcmp(trialData.data.names, 'LPadSol'); 
-        LPadSol = gt(trialData.data.vals(dataRow,:), 0.5)*1;   % ID amplitude is 1 
+        dataRow = strcmp(trialData.data.names,'LPadSol'); 
+        LPadSol = gt(trialData.data.vals(dataRow,:),0.5)*1;   % ID amplitude is 1 
         
-        dataRow = strcmp(trialData.data.names, 'RPadSol'); 
-        RPadSol = gt(trialData.data.vals(dataRow,:), 0.5)*2;   % ID amplitude is 2
+        dataRow = strcmp(trialData.data.names,'RPadSol'); 
+        RPadSol = gt(trialData.data.vals(dataRow,:),0.5)*2;   % ID amplitude is 2
         
-        dataRow = strcmp(trialData.data.names, 'AudSol'); 
-        AudSol = gt(trialData.data.vals(dataRow,:), 0.5)*3;   % ID amplitude is 3
+        dataRow = strcmp(trialData.data.names,'AudSol'); 
+        AudSol = gt(trialData.data.vals(dataRow,:),0.5)*3;   % ID amplitude is 3
         
         solenoids = LPadSol + RPadSol + AudSol;
               
         % Force sensor and EMG
-        dataRow = strcmp(trialData.data.names, 'Force_Sensor'); 
+        dataRow = strcmp(trialData.data.names,'Force_Sensor'); 
         forceSensor = trialData.data.vals(dataRow,:);
         
-        dataRow = strcmp(trialData.data.names, 'EMG');
-        EMG = trialData.data.vals(dataRow,:) / str2double(trialData.amplifierGain);
+        dataRow = strcmp(trialData.data.names,'EMG');
+        EMG = trialData.data.vals(dataRow,:)/str2double(trialData.amplifierGain);
         
-        if strcmp(ldInput, 'y') == true
+        if strcmp(ldInput,'y') == true
             trialData2 = ReadInTDMSWhiskerTrials_LD_IOS([fileID '_LD.tdms']);
             % LD backscatter
-            dataRow = strcmp(trialData2.data.names, 'LD_BackScatter');
+            dataRow = strcmp(trialData2.data.names,'LD_BackScatter');
             backScatter = trialData2.data.vals(dataRow,:);
             
             % LD Flow
-            dataRow = strcmp(trialData2.data.names, 'LD_Flow');
+            dataRow = strcmp(trialData2.data.names,'LD_Flow');
             flow = trialData2.data.vals(dataRow,:);
         end
         
@@ -153,13 +145,13 @@ for a = 1:length(fileNames)
         RawData.data.EMG = EMG;
         RawData.data.whiskerAngle = whiskerAngle;
         RawData.data.solenoids = solenoids;
-        if strcmp(ldInput, 'y') == true
-            RawData.data.backScatte = backScatter;
+        if strcmp(ldInput,'y') == true
+            RawData.data.backScatter = backScatter;
             RawData.data.flow = flow;
         end
      
         disp(['File Created. Saving RawData File ' num2str(a) '...']); disp(' ')
-        save([trialData.animalID '_' fileID '_RawData'], 'RawData')
+        save([trialData.animalID '_' fileID '_RawData'],'RawData')
     else
         disp('File already exists. Continuing...'); disp(' ')
     end

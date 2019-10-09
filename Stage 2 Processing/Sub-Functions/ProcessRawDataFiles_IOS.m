@@ -111,7 +111,6 @@ for a = 1:size(rawDataFiles,1)
     [linkedBinarizedWhiskers] = LinkBinaryEvents_IOS(gt(binWhisk,0), [round(ProcData.notes.dsFs/3), 0]);
     inds = linkedBinarizedWhiskers == 0;
     restAngle = mean(resampledWhisk(inds));
-    
     ProcData.data.whiskerAngle = resampledWhisk - restAngle;
     ProcData.data.binWhiskerAngle = binWhisk;
     
@@ -165,11 +164,11 @@ for a = 1:size(rawDataFiles,1)
     end
     
     %% Laser Doppler
-    if isfield(RawData.data, 'backScatter') == true
-        trimmedBackScatter = RawData.data.backScatter(1:min(analogExpectedLength, length(RawData.data.backScatter)));
-        trimmedFlow = RawData.data.flow(1:min(analogExpectedLength, length(RawData.data.flow)));
-        ProcData.data.backScatter = max(resample(trimmedBackScatter, ProcData.notes.dsFs, ProcData.notes.analogSamplingRate), 0);
-        ProcData.data.flow = max(resample(trimmedFlow, ProcData.notes.dsFs, ProcData.notes.analogSamplingRate), 0);
+    if isfield(RawData.data,'flow') == true
+        trimmedBackScatter = RawData.data.backScatter(1:min(analogExpectedLength,length(RawData.data.backScatter)));
+        trimmedFlow = RawData.data.flow(1:min(analogExpectedLength,length(RawData.data.flow)));
+        ProcData.data.backScatter.data = max(resample(trimmedBackScatter,ProcData.notes.dsFs, ProcData.notes.analogSamplingRate),0);
+        ProcData.data.flow.data = max(resample(trimmedFlow,ProcData.notes.dsFs,ProcData.notes.analogSamplingRate),0);
     end
     
     %% Save the processed data

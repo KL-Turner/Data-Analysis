@@ -1,4 +1,4 @@
-function [EventData] = ExtractEventTriggeredData_IOS(procdataFiles, dataTypes)
+function [EventData] = ExtractEventTriggeredData_IOS(procdataFiles,dataTypes,imagingType)
 %___________________________________________________________________________________________________
 % Edited by Kevin L. Turner 
 % Ph.D. Candidate, Department of Bioengineering 
@@ -52,11 +52,17 @@ end
 for a = 1:length(dataTypes)
     dataType = char(dataTypes(a));
     if strcmp(dataType, 'CBV') == true || strcmp(dataType, 'CBV_HbT') == true
-        subdataTypes = {'LH', 'LH_Electrode', 'RH', 'RH_Electrode'};
-    elseif strcmp(dataType, 'EMG')
-        subdataTypes = {'emg'};
+        if strcmp(imagingType,'bilateral') == true
+            subDataTypes = {'LH','LH_Electrode','RH','RH_Electrode'};
+        elseif strcmp(imagingType,'single') == true
+            subDataTypes = {'Barrels','Electrode'};
+        end
+    elseif strcmp(dataType,'EMG') == true
+        subDataTypes = {'emg'};
+    elseif strcmp(dataType,'flow') == true
+        subDataTypes = {'data'};
     else
-        subdataTypes = {'deltaBandPower', 'thetaBandPower', 'alphaBandPower', 'betaBandPower', 'gammaBandPower', 'muaPower'};
+        subDataTypes = {'deltaBandPower', 'thetaBandPower', 'alphaBandPower', 'betaBandPower', 'gammaBandPower', 'muaPower'};
     end
 
     temp = struct();
@@ -73,8 +79,8 @@ for a = 1:length(dataTypes)
         holddata = fieldnames(ProcData.flags);
         behaviorFields = holddata([1 2],1);
 
-        for c = 1:length(subdataTypes)
-            sDT = char(subdataTypes(c));
+        for c = 1:length(subDataTypes)
+            sDT = char(subDataTypes(c));
 
             % Set the sampling frequency for the dataType
             samplingRate = ProcData.notes.dsFs;
@@ -100,23 +106,25 @@ for a = 1:length(dataTypes)
                     temp.(sDT).(behaviorFields{d}).fileDates = blankCell;
                     temp.(sDT).(behaviorFields{d}).data = blankCell;
                 end
-
+                
                 % Assemble a structure to send to the sub-functions
                 fieldName2 = dataType;
-
-                if isempty(fieldName2)
-                    data = ProcData;
-                else
+                try
                     data = ProcData.data.(fieldName2);
+                catch % some files don't have certain fields. Skip those
+                    data = [];
                 end
-
                 data.Flags = ProcData.flags;
                 data.notes = ProcData.notes;
 
                 % Extract the data from the epoch surrounding the event
                 disp(['Extracting ' dataType ' ' sDT ' event-triggered ' behaviorFields{d} ' data from file ' num2str(b) ' of ' num2str(size(procdataFiles, 1)) '...']); disp(' ');
-                [chunkdata, evFilter] = ExtractBehavioraldata(data, epoch, sDT, behaviorFields{d});
-
+                try
+                    [chunkdata, evFilter] = ExtractBehavioraldata(data, epoch, sDT, behaviorFields{d});
+                catch   % some files don't have certain fields. Skip those
+                    chunkdata = [];
+                    evFilter = [];
+                end
                 % Add epoch details to temp struct
                 [temp] = AddEpochInfo(data, sDT, behaviorFields{d}, temp, fileID, fileDate, evFilter, b);
                 temp.(sDT).(behaviorFields{d}).data{b} = chunkdata;

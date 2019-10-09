@@ -4,19 +4,13 @@
 % https://github.com/KL-Turner
 %________________________________________________________________________________________________________________________
 %
-%   Purpose: 1) Generate bilateral ROIs for CBV analysis.
-%            2) Create ProcData structure using threshholds for the observed data.
-%________________________________________________________________________________________________________________________
-%
-%   Inputs: 1) Selects all _RawData files from all days. Draw all left ROIs first, then the right.
-%           2) Selects all _RawData files from all days. Follow the command window prompts for each threshold value.
-%
-%   Outputs: 1) An animal_hemisphere_ROIs.mat file with the xi, yi coordinates for each day.
-%            2) A ProcData.mat structure for each inputed rawdata.mat file, as well as a Thresholds.mat file that serves
-%               as a record for each variable/day's set threshold.        
-%
-%   Last Revised: June 26th, 2019    
-%________________________________________________________________________________________________________________________
+%   Purpose: 1) Draw ROIs for reflectance analysis
+%            2) Extract the average pixel reflectance changes within those ROIs and save to RawData
+%            3) Create ProcData structure using threshholds for the observed data
+%            4) Use spectral analysis of the reflectance data to pull out the animal's heart rate
+%            5) Regress out the pixel drift over the cement from the reflectance data
+%            6) Analyze single vessel diameter changes from the IOS movies
+%________________________________________________________________________________________________________________________   
 
 %% BLOCK PURPOSE: [0] Load the script's necessary variables and data structures.
 % Clear the workspace variables and command window.
@@ -28,11 +22,11 @@ disp('Analyzing Block [0] Preparing the workspace and loading variables.'); disp
 rawDataFileStruct = dir('*_RawData.mat');
 rawDataFiles = {rawDataFileStruct.name}';
 rawDataFileIDs = char(rawDataFiles);
-[animalID, ~, ~] = GetFileInfo_IOS(rawDataFileIDs(1,:));
+[animalID,~,~] = GetFileInfo_IOS(rawDataFileIDs(1,:));
 
-%% BLOCK PURPOSE: [1] Create bilateral regions of interest for the windows
-disp('Analyzing Block [1] Creating bilateral regions of interest.'); disp(' ')
-imagingType = 'single';
+%% BLOCK PURPOSE: [1] Create regions of interest for the windows
+disp('Analyzing Block [1] Creating regions of interest for reflectance data.'); disp(' ')
+imagingType = input('Imaging Type: (bilateral/single): ','s'); disp(' ')
 if strcmp(imagingType,'bilateral') == true
     ROInames = {'LH','RH','LH_Electrode','RH_Electrode','Cement'};
 elseif strcmp(imagingType,'single') == true
@@ -46,11 +40,11 @@ else
     ROIFileID = char(ROIFileName);
     load(ROIFileID);
 end
-[ROIs] = CheckROIDates_IOS(animalID, ROIs, ROInames);
+[ROIs] = CheckROIDates_IOS(animalID,ROIs,ROInames);
 
 %% BLOCK PURPOSE: [2] Extract CBV data from each ROI for each RawData file in the directory that hasn't been processed yet.
-disp('Analyzing Block [2] Extracting cerebral blood volume data from each ROI.'); disp(' ')
-ExtractCBVData_IOS(ROIs, ROInames, rawDataFileIDs)
+disp('Analyzing Block [2] Extracting mean reflectance data from each ROI.'); disp(' ')
+ExtractCBVData_IOS(ROIs,ROInames,rawDataFileIDs)
 
 %% BLOCK PURPOSE: [3] Process the RawData structure -> Create Threshold data structure and ProcData structure.
 disp('Analyzing Block [2] Create ProcData files and process analog data.'); disp(' ')
@@ -61,13 +55,14 @@ disp('Analyzing Block [4] Add heart rate to ProcData files.'); disp(' ')
 procDataFileStruct = dir('*_ProcData.mat');
 procDataFiles = {procDataFileStruct.name}';
 procDataFileIDs = char(procDataFiles);
-ExtractHeartRate_IOS(procDataFileIDs)
+ExtractHeartRate_IOS(procDataFileIDs,imagingType)
 
 %% BLOCK PURPOSE: [5] Check/Correct pixel drift 
-CheckPixelDrift_IOS(procDataFileIDs)
-CorrectPixelDrift_IOS(procDataFileIDs)
+CheckPixelDrift_IOS(procDataFileIDs,imagingType)
+CorrectPixelDrift_IOS(procDataFileIDs,imagingType)
 
 %% BLOCK PURPOSE: [6] IOS vessel diameter analysis
+rawDataFileIDs = rawDataFileIDs(1,:);
 if strcmp(imagingType,'single') == true
     CreateIntrinsicTiffStacks_IOS(rawDataFileIDs)
     DiamCalcSurfaceVessel_IOS(rawDataFileIDs)

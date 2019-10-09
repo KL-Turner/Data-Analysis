@@ -1,31 +1,20 @@
 %________________________________________________________________________________________________________________________
-% Written by Kevin L. Turner 
-% Ph.D. Candidate, Department of Bioengineering 
-% The Pennsylvania State University
+% Written by Kevin L. Turner
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
 %________________________________________________________________________________________________________________________
 %
-%   Purpose: 1) Categorize data using previously processed ProcData data structures, add 'flags'  
-%            2) Create RestData structure that contains periods of rest.
-%            3) Create EventData structure that contains periods after stimuli and whisks.
-%            4) Uses periods when animal is not being stimulated or moving to establish a 
-%               baseline for a given session of imaging.
-%            5) Normalizes the different data structures.
-%________________________________________________________________________________________________________________________
-%
-%   Inputs: 1) Select all _ProcData files from all days. Follow the command window prompts.
-%           2) Select one single _RawData file for the animal information. The ProcData files are
-%              already in the list and will be used to run the function.
-%           3) No inputs. ProcData files already loaded.
-%           4) No inputs. RestData.mat is already loaded.
-%           5) No inputs. RestData.mat and EventData.mat are already loaded.
-%
-%   Outputs: 1) Additions to the ProcData structure including flags and scores.
-%            2) A RestData.mat structure with periods of rest.
-%            3) A EventData.mat structure with event-related information.
-%            4) Baselines.mat containing the baselines for individual resting periods.
-%            5) Creates NormData in the rest/event structures.
-%
-%   Last Revised: October 5th, 2018
+%   Purpose: 1) Categorize behavioral (rest,whisk,stim) data using previously processed data structures, add 'flags'  
+%            2) Create a temporary RestData structure that contains periods of rest - use this for initial figures
+%            3) Analyze neural data and create different spectrograms for each file's electrodes
+%            4) Uses periods when animal is not being stimulated or moving to establish an initial baseline
+%            5) Manually select awake files for a slightly different baseline not based on hard time vals
+%            6) Use the best baseline to convert reflectance changes to total hemoglobin
+%            7) Re-create the RestData structure now that we can deltaHbT
+%            8) Create an EventData structure looking at the different data types after whisking or stimulation
+%            9) Apply the resting baseline to each data type to create a percentage change 
+%            10) Use the time indeces of the resting baseline file to apply a percentage change to the spectrograms
+%            11) Generate a summary figure for all of the analyzed and processed data
 %________________________________________________________________________________________________________________________
 
 %% BLOCK PURPOSE: [0] Load the script's necessary variables and data structures.
@@ -43,13 +32,14 @@ rawDataFileIDs = char(rawDataFiles);
 procDataFileStruct = dir('*_ProcData.mat'); 
 procDataFiles = {procDataFileStruct.name}';
 procDataFileIDs = char(procDataFiles);
-[animalID, ~, ~] = GetFileInfo_IOS(procDataFileIDs(1,:));
+[animalID,~,~] = GetFileInfo_IOS(procDataFileIDs(1,:));
 
 targetMinutes = 30;
 timeOverride = 'n';
-dataTypes = {'CBV', 'cortical_LH', 'cortical_RH', 'hippocampus', 'EMG'};
-updatedDataTypes = {'CBV', 'CBV_HbT', 'cortical_LH', 'cortical_RH', 'hippocampus', 'EMG'};
-neuralDataTypes = {'cortical_LH', 'cortical_RH', 'hippocampus'};
+imagingType = input('Imaging Type: (bilateral/single): ','s'); disp(' ')
+dataTypes = {'CBV','cortical_LH','cortical_RH','hippocampus','EMG','flow'};
+updatedDataTypes = {'CBV','CBV_HbT','cortical_LH','cortical_RH','hippocampus','EMG','flow'};
+neuralDataTypes = {'cortical_LH','cortical_RH','hippocampus'};
 
 %% BLOCK PURPOSE: [1] Categorize data 
 disp('Analyzing Block [1] Categorizing data.'); disp(' ')
@@ -61,17 +51,17 @@ end
 
 %% BLOCK PURPOSE: [2] Create RestData data structure
 disp('Analyzing Block [2] Create RestData struct for CBV and neural data.'); disp(' ')
-[RestData] = ExtractRestingData_IOS(procDataFileIDs, dataTypes);
+[RestData] = ExtractRestingData_IOS(procDataFileIDs,dataTypes,imagingType);
 
 %% BLOCK PURPOSE: [3] Analyze the spectrogram for each session.
 disp('Analyzing Block [3] Analyzing the spectrogram for each file and normalizing by the resting baseline.'); disp(' ')
-CreateTrialSpectrograms_IOS(rawDataFileIDs, neuralDataTypes);
+CreateTrialSpectrograms_IOS(rawDataFileIDs,neuralDataTypes);
 
 %% BLOCK PURPOSE: [4] Create Baselines data structure
 disp('Analyzing Block [4] Create Baselines struct for CBV and neural data.'); disp(' ')
 baselineType = 'setDuration';
 trialDuration_sec = 900;
-[RestingBaselines] = CalculateRestingBaselines_IOS(animalID, targetMinutes, trialDuration_sec, RestData);
+[RestingBaselines] = CalculateRestingBaselines_IOS(animalID,targetMinutes,trialDuration_sec,RestData);
 
 % Find spectrogram baselines for each day
 specDirectory = dir('*_SpecData.mat');
@@ -85,7 +75,7 @@ NormalizeSpectrograms_IOS(specDataFileIDs,neuralDataTypes,RestingBaselines);
 %% BLOCK PURPOSE: [5] Manually select files for custom baseline calculation
 disp('Analyzing Block [5] Manually select files for custom baseline calculation.'); disp(' ')
 if strcmp(timeOverride,'n') == true
-    [RestingBaselines] = CalculateManualRestingBaselines_IOS(animalID, procDataFileIDs, RestData, RestingBaselines);
+    [RestingBaselines] = CalculateManualRestingBaselines_IOS(animalID,procDataFileIDs,RestData,RestingBaselines);
 else
     [RestingBaselines] = CalculateManualRestingBaselinesWithTimeIndeces_IOS();
 end
@@ -93,25 +83,25 @@ end
 %% BLOCK PURPOSE [6] Add delta HbT field to each processed data file
 disp('Analyzing Block [6] Adding delta HbT to each ProcData file.'); disp(' ')
 updatedBaselineType = 'manualSelection';
-UpdateTotalHemoglobin_IOS(procDataFileIDs, RestingBaselines, updatedBaselineType)
+UpdateTotalHemoglobin_IOS(procDataFileIDs, RestingBaselines,updatedBaselineType)
 
 %% BLOCK PURPOSE: [7] Re-create the RestData structure now that HbT is available
 disp('Analyzing Block [7] Creating RestData struct for CBV and neural data.'); disp(' ')
-[RestData] = ExtractRestingData_IOS(procDataFileIDs, updatedDataTypes);
+[RestData] = ExtractRestingData_IOS(procDataFileIDs,updatedDataTypes,imagingType);
 
 %% BLOCK PURPOSE: [8] Create the EventData structure for CBV and neural data
 disp('Analyzing Block [8] Create EventData struct for CBV and neural data.'); disp(' ')
-[EventData] = ExtractEventTriggeredData_IOS(procDataFileIDs, updatedDataTypes);
+[EventData] = ExtractEventTriggeredData_IOS(procDataFileIDs,updatedDataTypes,imagingType);
 
 %% BLOCK PURPOSE: [9] Normalize RestData and EventData structures by the resting baseline
 disp('Analyzing Block [9] Normalizing RestData and EventData structures by the resting baseline.'); disp(' ')
 [RestData] = NormBehavioralDataStruct_IOS(RestData,RestingBaselines,updatedBaselineType);
-save([animalID '_RestData.mat'], 'RestData','-v7.3')
+save([animalID '_RestData.mat'],'RestData','-v7.3')
 
 [EventData] = NormBehavioralDataStruct_IOS(EventData,RestingBaselines,updatedBaselineType);
-save([animalID '_EventData.mat'], 'EventData','-v7.3')
+save([animalID '_EventData.mat'],'EventData','-v7.3')
 
-%% BLOCK PURPOSE: [10] Analyze the spectrogram for each session.
+%% BLOCK PURPOSE: [10] Analyze the spectrogram baseline for each session.
 disp('Analyzing Block [10] Analyzing the spectrogram for each file and normalizing by the resting baseline.'); disp(' ')
 % Find spectrogram baselines for each day
 specDirectory = dir('*_SpecData.mat');

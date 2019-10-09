@@ -1,4 +1,4 @@
-function [] = ExtractHeartRate_IOS(procDataFiles)
+function [] = ExtractHeartRate_IOS(procDataFiles,imagingType)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -22,10 +22,14 @@ for a = 1:size(procDataFiles,1)
     disp(['Extracting heart rate from ProcData file ' num2str(a) ' of ' num2str(size(procDataFiles, 1)) '...']); disp(' ')
     load(procDataFile)
     
-    % Pull out the left and right window heart rate. They should be essentiall6 identical
-    [~, ~, ~, LH_HR] = FindHeartRate_IOS(ProcData.data.CBV.LH, ProcData.notes.CBVCamSamplingRate);
-    [~, ~, ~, RH_HR] = FindHeartRate_IOS(ProcData.data.CBV.RH, ProcData.notes.CBVCamSamplingRate);
-    HR = (LH_HR + RH_HR)/2;   % Average the two signals from the left and right windows
+    if strcmp(imagingType,'bilateral') == true
+        % Pull out the left and right window heart rate. They should be essentiall6 identical
+        [~, ~, ~, LH_HR] = FindHeartRate_IOS(ProcData.data.CBV.LH, ProcData.notes.CBVCamSamplingRate);
+        [~, ~, ~, RH_HR] = FindHeartRate_IOS(ProcData.data.CBV.RH, ProcData.notes.CBVCamSamplingRate);
+        HR = (LH_HR + RH_HR)/2;   % Average the two signals from the left and right windows
+    elseif strcmp(imagingType,'single') == true
+        [~, ~, ~, HR] = FindHeartRate_IOS(ProcData.data.CBV.Barrels, ProcData.notes.CBVCamSamplingRate);
+    end
     patchedHR = horzcat(HR(1), HR, HR(end), HR(end));
     
     % Smooth the signal with a 4 Hz low pass 4th-order butterworth filter

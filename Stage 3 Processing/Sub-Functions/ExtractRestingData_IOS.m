@@ -1,4 +1,4 @@
-function [RestData] = ExtractRestingData_IOS(procdataFiles, dataTypes)
+function [RestData] = ExtractRestingData_IOS(procdataFiles,dataTypes,imagingType)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % Ph.D. Candidate, Department of Bioengineering
@@ -19,12 +19,18 @@ end
 
 for a = 1:length(dataTypes)
     dataType = dataTypes(a);
-    if strcmp(dataType, 'CBV') == true || strcmp(dataType, 'CBV_HbT') == true
-        subDataTypes = {'LH', 'LH_Electrode', 'RH', 'RH_Electrode'};
-    elseif strcmp(dataType, 'EMG')
+    if strcmp(dataType,'CBV') == true || strcmp(dataType,'CBV_HbT') == true
+        if strcmp(imagingType,'bilateral') == true
+            subDataTypes = {'LH','LH_Electrode','RH','RH_Electrode'};
+        elseif strcmp(imagingType,'single') == true
+            subDataTypes = {'Barrels','Electrode'};
+        end
+    elseif strcmp(dataType,'EMG') == true
         subDataTypes = {'emg'};
+    elseif strcmp(dataType,'flow') == true
+        subDataTypes = {'data'};
     else
-        subDataTypes = {'deltaBandPower', 'thetaBandPower', 'alphaBandPower', 'betaBandPower', 'gammaBandPower', 'muaPower'};
+        subDataTypes = {'deltaBandPower','thetaBandPower','alphaBandPower','betaBandPower','gammaBandPower','muaPower'};
     end
     
     for b = 1:length(subDataTypes)
@@ -69,10 +75,15 @@ for a = 1:length(dataTypes)
                 % the trial, assume animal whisks as soon as the trial ends and
                 % give a 200ms buffer.
                 stopInd = min(startInd + dur, expectedLength - round(0.2*Fs));
-
-                % Extract data from the trial and add to the cell array for the current loaded file
-                trialRestVals{d} = ProcData.data.(dataTypes{a}).(subDataTypes{b})(:, startInd:stopInd);            
+                
+                try
+                    % Extract data from the trial and add to the cell array for the current loaded file
+                    trialRestVals{d} = ProcData.data.(dataTypes{a}).(subDataTypes{b})(:, startInd:stopInd);
+                catch % some files don't have certain fields. Skip those
+                    trialRestVals{d} = [];
+                end
             end
+                
             % Add all periods of rest to a cell array for all files
             restVals{c} = trialRestVals';
 

@@ -20,7 +20,7 @@ for a = 1:size(rawDataFiles, 1)
     [animalID, ~, fileID] = GetFileInfo_IOS(rawDataFile);
     specDataFileID = [animalID '_' fileID '_SpecData.mat'];
     
-    if ~exist(specDataFileID, 'file') == true
+%     if ~exist(specDataFileID, 'file') == true
         load(rawDataFile);
         duration = RawData.notes.trialDuration_sec;
         analogFs = RawData.notes.analogSamplingRate;
@@ -70,9 +70,9 @@ for a = 1:size(rawDataFiles, 1)
             
             save(specDataFileID, 'SpecData');
         end
-    else
-        disp([specDataFileID ' already exists. Continuing...']); disp(' ')
-    end
+%     else
+%         disp([specDataFileID ' already exists. Continuing...']); disp(' ')
+%     end
 end
 
 end

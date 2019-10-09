@@ -1,4 +1,4 @@
-function [imageStack] = GetCBVFrameSubset(filename, image_height, image_width, frameInds)
+function [imageStack] = GetCBVFrameSubset_IOS(filename, image_height, image_width, frameInds)
 %___________________________________________________________________________________________________
 % Edited by Kevin L. Turner
 % Ph.D. Candidate, Department of Bioengineering 
