@@ -1,4 +1,4 @@
-function [singleTrialFig] = GenerateSingleFigures_IOS(procDataFileIDs, RestingBaselines, baselineType, saveFigs)
+function [singleTrialFig] = GenerateSingleFigures_IOS(procDataFileIDs, RestingBaselines, baselineType, saveFigs,imagingType)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -50,15 +50,27 @@ for a = 1:size(procDataFileIDs, 1)
     %% CBV data - normalize and then lowpass filer
     % Setup butterworth filter coefficients for a 1 Hz lowpass based on the sampling rate (20 Hz).
     [D, C] = butter(4, 1/(ProcData.notes.CBVCamSamplingRate/2), 'low');
-    LH_CBV = ProcData.data.CBV.LH;
-    normLH_CBV = (LH_CBV - RestingBaselines.(baselineType).CBV.LH.(strDay))./(RestingBaselines.(baselineType).CBV.LH.(strDay));
-    filtLH_CBV = filtfilt(D, C, normLH_CBV)*100;
-    filtLH_CBV = filtLH_CBV - mean(filtLH_CBV(1:300*30));
-
-    RH_CBV = ProcData.data.CBV.RH;
-    normRH_CBV = (RH_CBV - RestingBaselines.(baselineType).CBV.RH.(strDay))./(RestingBaselines.(baselineType).CBV.RH.(strDay));
-    filtRH_CBV = filtfilt(D, C, normRH_CBV)*100;
-    filtRH_CBV = filtRH_CBV - mean(filtRH_CBV(1:300*30));
+    if strcmp(imagingType,'bilateral') == true
+        LH_CBV = ProcData.data.CBV.LH;
+        normLH_CBV = (LH_CBV - RestingBaselines.(baselineType).CBV.LH.(strDay))./(RestingBaselines.(baselineType).CBV.LH.(strDay));
+        filtLH_CBV = filtfilt(D, C, normLH_CBV)*100;
+        RH_CBV = ProcData.data.CBV.RH;
+        normRH_CBV = (RH_CBV - RestingBaselines.(baselineType).CBV.RH.(strDay))./(RestingBaselines.(baselineType).CBV.RH.(strDay));
+        filtRH_CBV = filtfilt(D, C, normRH_CBV)*100;
+    elseif strcmp(imagingType,'isoflurane') == true
+        LH_CBV = ProcData.data.CBV.LH;
+        normLH_CBV = (LH_CBV - RestingBaselines.(baselineType).CBV.LH.(strDay))./(RestingBaselines.(baselineType).CBV.LH.(strDay));
+        filtLH_CBV = filtfilt(D, C, normLH_CBV)*100;
+        filtLH_CBV = filtLH_CBV - mean(filtLH_CBV(1:300*30));
+        RH_CBV = ProcData.data.CBV.RH;
+        normRH_CBV = (RH_CBV - RestingBaselines.(baselineType).CBV.RH.(strDay))./(RestingBaselines.(baselineType).CBV.RH.(strDay));
+        filtRH_CBV = filtfilt(D, C, normRH_CBV)*100;
+        filtRH_CBV = filtRH_CBV - mean(filtRH_CBV(1:300*30));
+    elseif strcmp(imagingType,'single') == true
+        CBV = ProcData.data.CBV.Barrels;
+        normCBV = (CBV - RestingBaselines.(baselineType).CBV.Barrels.(strDay))./(RestingBaselines.(baselineType).CBV.Barrels.(strDay));
+        filtCBV = filtfilt(D,C,normCBV)*100;
+    end
     
     %% Normalized neural spectrogram
     specDataFile = [animalID '_' fileID '_SpecData.mat'];
@@ -79,18 +91,26 @@ for a = 1:size(procDataFileIDs, 1)
     cortical_RHnormS = SpecData.cortical_RH.fiveSec.normS;
     hippocampusNormS = SpecData.hippocampus.fiveSec.normS;
     %% Yvals for behavior Indices
-    if max(filtLH_CBV) >= max(filtRH_CBV)
-        whisking_Yvals = 1.10*max(filtLH_CBV)*ones(size(binWhiskers));
-        force_Yvals = 1.20*max(filtLH_CBV)*ones(size(binForce));
-        LPad_Yvals = 1.30*max(filtLH_CBV)*ones(size(LPadSol));
-        RPad_Yvals = 1.30*max(filtLH_CBV)*ones(size(RPadSol));
-        Aud_Yvals = 1.30*max(filtLH_CBV)*ones(size(AudSol));
-    else
-        whisking_Yvals = 1.10*max(filtRH_CBV)*ones(size(binWhiskers));
-        force_Yvals = 1.20*max(filtRH_CBV)*ones(size(binForce));
-        LPad_Yvals = 1.30*max(filtRH_CBV)*ones(size(LPadSol));
-        RPad_Yvals = 1.30*max(filtRH_CBV)*ones(size(RPadSol));
-        Aud_Yvals = 1.30*max(filtRH_CBV)*ones(size(AudSol));
+    if strcmp(imagingType,'bilateral') == true || strcmp(imagingType,'isoflurane') == true
+        if max(filtLH_CBV) >= max(filtRH_CBV)
+            whisking_Yvals = 1.10*max(filtLH_CBV)*ones(size(binWhiskers));
+            force_Yvals = 1.20*max(filtLH_CBV)*ones(size(binForce));
+            LPad_Yvals = 1.30*max(filtLH_CBV)*ones(size(LPadSol));
+            RPad_Yvals = 1.30*max(filtLH_CBV)*ones(size(RPadSol));
+            Aud_Yvals = 1.30*max(filtLH_CBV)*ones(size(AudSol));
+        else
+            whisking_Yvals = 1.10*max(filtRH_CBV)*ones(size(binWhiskers));
+            force_Yvals = 1.20*max(filtRH_CBV)*ones(size(binForce));
+            LPad_Yvals = 1.30*max(filtRH_CBV)*ones(size(LPadSol));
+            RPad_Yvals = 1.30*max(filtRH_CBV)*ones(size(RPadSol));
+            Aud_Yvals = 1.30*max(filtRH_CBV)*ones(size(AudSol));
+        end
+    elseif strcmp(imagingType,'single') == true     
+        whisking_Yvals = 1.10*max(filtCBV)*ones(size(binWhiskers));
+        force_Yvals = 1.20*max(filtCBV)*ones(size(binForce));
+        LPad_Yvals = 1.30*max(filtCBV)*ones(size(LPadSol));
+        RPad_Yvals = 1.30*max(filtCBV)*ones(size(RPadSol));
+        Aud_Yvals = 1.30*max(filtCBV)*ones(size(AudSol));
     end
     
     whiskInds = binWhiskers.*whisking_Yvals;
@@ -142,23 +162,41 @@ for a = 1:size(procDataFileIDs, 1)
     
     % CBV and behavioral indeces
     axes(figTemplet(3));
-    plot((1:length(filtLH_CBV))/ProcData.notes.CBVCamSamplingRate, filtLH_CBV, 'color', colors_IOS('dark candy apple red'))
-    hold on;
-    plot((1:length(filtRH_CBV))/ProcData.notes.CBVCamSamplingRate, filtRH_CBV, 'color', colors_IOS('rich black'))
-    
-    scatter((1:length(binForce))/ProcData.notes.dsFs, forceInds, '.', 'MarkerEdgeColor', colors_IOS('sapphire'));
-    scatter((1:length(binWhiskers))/ProcData.notes.dsFs, whiskInds, '.', 'MarkerEdgeColor', colors_IOS('electric purple'));
-    scatter(LPadSol, LPad_Yvals, 'v', 'MarkerEdgeColor', 'k', 'MarkerFaceColor', 'c');
-    scatter(RPadSol, RPad_Yvals, 'v', 'MarkerEdgeColor', 'k', 'MarkerFaceColor', 'm');
-    scatter(AudSol, Aud_Yvals, 'v', 'MarkerEdgeColor', 'k', 'MarkerFaceColor', 'g');
-    
-    ylabel('% change (\DeltaR/R)')
-    legend('LH CBV', 'RH CBV', 'Movement', 'Whisking', 'LPadSol', 'RPadSol', 'AudSol')
-    xlim([0 ProcData.notes.trialDuration_sec])
-    set(gca,'TickLength',[0, 0])
-    set(gca,'Xticklabel',[])
-    set(gca,'box','off')
-    axis tight
+    if strcmp(imagingType,'bilateral') == true || strcmp(imagingType,'isoflurane') == true
+        plot((1:length(filtLH_CBV))/ProcData.notes.CBVCamSamplingRate, filtLH_CBV, 'color', colors_IOS('dark candy apple red'))
+        hold on;
+        plot((1:length(filtRH_CBV))/ProcData.notes.CBVCamSamplingRate, filtRH_CBV, 'color', colors_IOS('rich black'))
+        
+        scatter((1:length(binForce))/ProcData.notes.dsFs, forceInds, '.', 'MarkerEdgeColor', colors_IOS('sapphire'));
+        scatter((1:length(binWhiskers))/ProcData.notes.dsFs, whiskInds, '.', 'MarkerEdgeColor', colors_IOS('electric purple'));
+        scatter(LPadSol, LPad_Yvals, 'v', 'MarkerEdgeColor', 'k', 'MarkerFaceColor', 'c');
+        scatter(RPadSol, RPad_Yvals, 'v', 'MarkerEdgeColor', 'k', 'MarkerFaceColor', 'm');
+        scatter(AudSol, Aud_Yvals, 'v', 'MarkerEdgeColor', 'k', 'MarkerFaceColor', 'g');
+        
+        ylabel('% change (\DeltaR/R)')
+        legend('LH CBV', 'RH CBV', 'Movement', 'Whisking', 'LPadSol', 'RPadSol', 'AudSol')
+        xlim([0 ProcData.notes.trialDuration_sec])
+        set(gca,'TickLength',[0, 0])
+        set(gca,'Xticklabel',[])
+        set(gca,'box','off')
+        axis tight
+    elseif strcmp(imagingType,'single') == true
+        plot((1:length(filtCBV))/ProcData.notes.CBVCamSamplingRate, filtCBV, 'color', colors_IOS('dark candy apple red'))
+        hold on;
+        scatter((1:length(binForce))/ProcData.notes.dsFs, forceInds, '.', 'MarkerEdgeColor', colors_IOS('sapphire'));
+        scatter((1:length(binWhiskers))/ProcData.notes.dsFs, whiskInds, '.', 'MarkerEdgeColor', colors_IOS('electric purple'));
+        scatter(LPadSol, LPad_Yvals, 'v', 'MarkerEdgeColor', 'k', 'MarkerFaceColor', 'c');
+        scatter(RPadSol, RPad_Yvals, 'v', 'MarkerEdgeColor', 'k', 'MarkerFaceColor', 'm');
+        scatter(AudSol, Aud_Yvals, 'v', 'MarkerEdgeColor', 'k', 'MarkerFaceColor', 'g');
+        
+        ylabel('% change (\DeltaR/R)')
+        legend('Barrels CBV','Movement','Whisking','LPadSol','RPadSol','AudSol')
+        xlim([0 ProcData.notes.trialDuration_sec])
+        set(gca,'TickLength',[0, 0])
+        set(gca,'Xticklabel',[])
+        set(gca,'box','off')
+        axis tight
+    end
     
     % Left cortical electrode spectrogram
     axes(figTemplet(4));
@@ -199,7 +237,6 @@ for a = 1:size(procDataFileIDs, 1)
     set(gca,'Yticklabel', '10^1')
     set(gca,'Xticklabel', [0 100 200 300 400 500 600 700 800 900])
     xlim([0 ProcData.notes.trialDuration_sec])
-    set(gca,'TickLength',[0, 0])
     set(gca,'box','off')
     yyaxis right
     ylabel('Hippocampal LFP')
@@ -207,18 +244,21 @@ for a = 1:size(procDataFileIDs, 1)
     
     pause(1)
     
+    %% Save the file to directory.
     if strcmp(saveFigs, 'y') == true
-        %% Save the file to directory.
         [pathstr, ~, ~] = fileparts(cd);
-        dirpath = [pathstr '/Figures/Single Trial Figures/'];
-        
+        if strcmp(imagingType,'bilateral') == true
+            dirpath = [pathstr '/Combined Imaging/Figures/Single Trial Summary/'];
+        elseif strcmp(imagingType,'isoflurane') == true
+            dirpath = [pathstr '/Isoflurane Trials/Figures/Single Trial Summary/'];
+        elseif strcmp(imagingType,'single') == true
+            dirpath = [pathstr '/Single Hemisphere/Figures/Single Trial Summary/'];
+        end
         if ~exist(dirpath, 'dir')
             mkdir(dirpath);
         end
-        
-        
         savefig(singleTrialFig, [dirpath animalID '_' fileID '_SingleTrialFig']);
-%         close(singleTrialFig)
+        close(singleTrialFig)
     end
 end
 

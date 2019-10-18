@@ -77,13 +77,13 @@ fftFirstFrame = fft2(double(RawData.notes.(vID).firstFrame));
 X = repmat(1:RawData.notes.xSize, RawData.notes.ySize, 1);
 Y = repmat((1:RawData.notes.ySize)',1,RawData.notes.xSize);
 RawData.notes.(vID).vesselROI.projectionAngle = atand(diff(RawData.notes.(vID).vesselROI.vesselLine.position.xy(:,1))/diff(RawData.notes.(vID).vesselROI.vesselLine.position.xy(:,2)));
-atand(diff(RawData.notes.(vID).vesselROI.vesselLine.position.xy(:,1))/diff(RawData.notes.(vID).vesselROI.vesselLine.position.xy(:, 2)));
+atand(diff(RawData.notes.(vID).vesselROI.vesselLine.position.xy(:,1))/diff(RawData.notes.(vID).vesselROI.vesselLine.position.xy(:,2)));
 % Find the projection for each frame based on the Radon transform
 for f = RawData.notes.startframe:RawData.notes.endframe
     rawFrame = imread(tiffStackFileID,'TIFF','Index',f);
     fftRawFrame = fft2(double(rawFrame));
     [RawData.notes.(vID).pixelShift(:,f),~] = DftRegistration_IOS(fftFirstFrame,fftRawFrame,1);
-    inpolyFrame = inpolygon(X + RawData.notes.(vID).pixelShift(3,f),Y + RawData.notes.(vID).pixelShift(4,f),RawData.notes.(vID).vesselROI.boxPosition.xy(:, 1), RawData.notes.(vID).vesselROI.boxPosition.xy(:,2));
+    inpolyFrame = inpolygon(X + RawData.notes.(vID).pixelShift(3,f),Y + RawData.notes.(vID).pixelShift(4,f),RawData.notes.(vID).vesselROI.boxPosition.xy(:,1),RawData.notes.(vID).vesselROI.boxPosition.xy(:,2));
     boundedrawFrame = rawFrame.*uint16(inpolyFrame);
     RawData.notes.(vID).vesselROI.projection(f,:) = radon(boundedrawFrame,RawData.notes.(vID).vesselROI.projectionAngle);
 end

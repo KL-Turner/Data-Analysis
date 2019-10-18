@@ -1,4 +1,4 @@
-function [RestingBaselines] = CalculateManualRestingBaselines_IOS(animalID, procDataFileIDs, RestData, RestingBaselines)
+function [RestingBaselines] = CalculateManualRestingBaselines_IOS(animalID,procDataFileIDs,RestData,RestingBaselines,imagingType)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % Ph.D. Candidate, Department of Bioengineering
@@ -45,7 +45,7 @@ if isfield(RestingBaselines, 'manualSelection') == false && exist(manualBaseline
         baselineType = 'setDuration';
         x = false;
         while x == false
-            [singleTrialFig] = GenerateSingleFigures_IOS(procDataFileID, RestingBaselines, baselineType, saveFigs);
+            [singleTrialFig] = GenerateSingleFigures_IOS(procDataFileID,RestingBaselines,baselineType,saveFigs,imagingType);
             fileDecision = input(['Use data from ' procDataFileID ' for resting baseline calculation? (y/n): '], 's'); disp(' ')
             if strcmp(fileDecision, 'y') || strcmp(fileDecision, 'n')
                 x = true;

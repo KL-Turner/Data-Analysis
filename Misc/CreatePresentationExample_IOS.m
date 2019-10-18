@@ -19,10 +19,11 @@ clc
 
 % User inputs for file information
 rawDataFileID = uigetfile('*_RawData.mat','MultiSelect','off');
-[animalID,~,fileID] = GetFileInfo_IOS(rawDataFileID);
-windowCamFileID = [animalID '_' fileID '_WindowCam.bin'];
-pupilCamFileID = [animalID '_' fileID '_PupilCam.bin'];
-whiskCamFileID = [animalID '_' fileID '_WhiskerCam.bin'];
+[animalID,fileDate,fileID] = GetFileInfo_IOS(rawDataFileID);
+strDay = ConvertDate_IOS(fileDate);
+windowCamFileID = [fileID '_WindowCam.bin'];
+pupilCamFileID = [fileID '_PupilCam.bin'];
+whiskCamFileID = [fileID '_WhiskerCam.bin'];
 procDataFileID = [animalID '_' fileID '_ProcData.mat'];
 specDataFileID = [animalID '_' fileID '_SpecData.mat'];
 baselineFileID = [animalID '_RestingBaselines.mat'];
@@ -48,258 +49,208 @@ elseif endTime > trialDuration || endTime <= startTime || endTime <= 0
 end
 
 %% CBV reflectance movie
-imageHeight = RawData.notes.CBVCamPixelHeight;                                                                                                            
-imageWidth = RawData.notes.CBVCamPixelWidth;
-Fs = RawData.notes.CBVCamSamplingRate;
+cbvImageHeight = RawData.notes.CBVCamPixelHeight;                                                                                                            
+cbvImageWidth = RawData.notes.CBVCamPixelWidth;
+cbvFs = RawData.notes.CBVCamSamplingRate;
 
-frameStart = floor(startTime)*Fs;
-frameEnd = floor(endTime)*Fs;         
-frameInds = frameStart:frameEnd;
+cbvFrameStart = floor(startTime)*cbvFs;
+cbvFrameEnd = floor(endTime)*cbvFs;         
+cbvFrameInds = cbvFrameStart:cbvFrameEnd;
 
- % Obtain subset of desired frames - normalize by an artificial baseline
-frames = GetCBVFrameSubset_IOS(windowCamFileID,imageHeight,imageWidth,frameInds);
-baselineFrame = mean(frames,3);
-normFrames = zeros(size(frames));
-for a = 1:size(frames,3)
-    disp(['Creating CBV image stack: (' num2str(a) '/' num2str(size(frames,3)) ')']); disp(' ')
-    normFrames(:,:,a) = frames(:,:,a)./baselineFrame;   % Normalize by baseline
+% Obtain subset of desired frames - normalize by an artificial baseline
+cbvFrames = GetCBVFrameSubset_IOS(windowCamFileID,cbvImageHeight,cbvImageWidth,cbvFrameInds);
+% draw a rectangular ROI around the window to remove outside pixels
+boxFig = figure;
+imagesc(cbvFrames(:,:,1))
+colormap gray
+caxis([0 2^12])
+axis image
+boxROI = drawrectangle;
+boxPosition = round(boxROI.Vertices);
+boxX = boxPosition(:,1);
+boxY = boxPosition(:,2);
+boxMask = poly2mask(boxX,boxY,cbvImageWidth,cbvImageHeight);
+close(boxFig)
+
+boxWidth = abs(boxPosition(1,1) - boxPosition(3,1));
+boxHeight = abs(boxPosition(1,2) - boxPosition(2,2));
+
+for a = 1:size(cbvFrames,3)
+    cbvFrame = cbvFrames(:,:,a);
+    boxVals = cbvFrame(boxMask);
+    boxCBVFrames(:,:,a) = reshape(boxVals,boxHeight,boxWidth);
 end
+% 
+% windowFig = figure;
+% imagesc(boxCBVFrames(:,:,1))
+% colormap gray
+% caxis([0 2^12])
+% axis image
+% windowMask = roipoly;
+% close(windowFig)
+% 
+% for w = 1:size(boxCBVFrames,3)
+%     windowFrame = boxCBVFrames(:,:,w);
+%     windowFrame(~windowMask) = NaN;
+%     windowFrames(:,:,w) = windowFrame;
+% end
+
+baselineFrame = mean(boxCBVFrames,3);
+for a = 1:size(boxCBVFrames,3)
+    normCBVFrames(:,:,a) = ((boxCBVFrames(:,:,a) - baselineFrame)./(baselineFrame)).*100;
+end
+
+% cbvHandle = implay(normCBVFrames,cbvFs);
+% cbvHandle.Visual.ColorMap.UserRange = 1; 
+% cbvHandle.Visual.ColorMap.UserRangeMin = -10; 
+% cbvHandle.Visual.ColorMap.UserRangeMax = 10;
+electrodeInput = input('Input the cortical hemisphere (LH/RH): ','s'); disp(' ')
+electrodeHem = ['cortical_' electrodeInput];
 
 %% Whisker 
-imageHeight = RawData.notes.whiskCamPixelHeight;                                                                                                            
-imageWidth = RawData.notes.whiskCamPixelWidth;
-Fs = RawData.notes.whiskCamSamplingRate;
+whiskImageHeight = RawData.notes.whiskCamPixelHeight;                                                                                                            
+whiskImageWidth = RawData.notes.whiskCamPixelWidth;
+whiskFs = RawData.notes.whiskCamSamplingRate;
 
-frameStart = floor(startTime)*Fs;
-frameEnd = floor(endTime)*Fs;         
-frameInds = frameStart:frameEnd;
+whiskFrameStart = floor(startTime)*whiskFs;
+whiskFrameEnd = floor(endTime)*whiskFs;         
+whiskFrameInds = whiskFrameStart:whiskFrameEnd;
 
-pixelsPerFrame = imageWidth*imageHeight;
-skippedPixels = pixelsPerFrame*2; % Multiply by two because there are 16 bits (2 bytes) per pixel
-fid = fopen(whiskCamFileID);
-fseek(fid,0,'eof');
-fileSize = ftell(fid);
-fseek(fid,0,'bof');
-nFramesToRead = length(frameInds);
-imageStack = zeros(imageHeight,imageWidth,nFramesToRead);
-for a = 1:nFramesToRead
-    disp(['Creating image stack: (' num2str(a) '/' num2str(nFramesToRead) ')']); disp(' ')
-    fseek(fid,frameInds(a)*skippedPixels,'bof');
-    z = fread(fid,pixelsPerFrame,'*uint8','b');
-    img = reshape(z(1:pixelsPerFrame),imageWidth,imageHeight);
-    imageStack(:,:,a) = flip(imrotate(img,-90),2);
+whiskerPixelsPerFrame = whiskImageWidth*whiskImageHeight;
+whiskerSkippedPixels = whiskerPixelsPerFrame*2; % Multiply by two because there are 16 bits (2 bytes) per pixel
+whiskFid = fopen(whiskCamFileID);
+fseek(whiskFid,0,'eof');
+whiskNFramesToRead = length(whiskFrameInds);
+whiskImageStack = zeros(whiskImageHeight,whiskImageWidth,whiskNFramesToRead);
+for a = 1:whiskNFramesToRead
+    fseek(whiskFid,whiskFrameInds(a)*whiskerSkippedPixels,'bof');
+    whiskZ = fread(whiskFid,whiskerPixelsPerFrame,'*uint8','b');
+    whiskImg = reshape(whiskZ(1:whiskerPixelsPerFrame),whiskImageWidth,whiskImageHeight);
+    whiskImageStack(:,:,a) = flip(imrotate(whiskImg,-90),2);
 end
 fclose('all');
 
-handle = implay(imageStack,Fs);
-handle.Visual.ColorMap.UserRange = 1; 
-handle.Visual.ColorMap.UserRangeMin = min(img(:)); 
-handle.Visual.ColorMap.UserRangeMax = max(img(:));
+c = 1;
+for b = 1:size(whiskImageStack,3)
+    if rem(b,5) == 1
+        dsWhiskImageStack(:,:,c) = whiskImageStack(:,:,b);
+        c = c + 1;
+    end
+end
+
+% whiskHandle = implay(dsWhiskImageStack,30);
+% whiskHandle.Visual.ColorMap.UserRange = 1; 
+% whiskHandle.Visual.ColorMap.UserRangeMin = min(whiskImg(:)); 
+% whiskHandle.Visual.ColorMap.UserRangeMax = max(whiskImg(:));
 
 %% Pupil
-imageHeight = RawData.notes.pupilCamPixelHeight;                                                                                                            
-imageWidth = RawData.notes.pupilCamPixelWidth;
-Fs = RawData.notes.pupilCamSamplingRate;
+pupilImageHeight = RawData.notes.pupilCamPixelHeight;                                                                                                            
+pupilImageWidth = RawData.notes.pupilCamPixelWidth;
+pupilFs = RawData.notes.pupilCamSamplingRate;
 
-frameStart = floor(startTime)*Fs;
-frameEnd = floor(endTime)*Fs;         
-frameInds = frameStart:frameEnd;
+pupilFrameStart = floor(startTime)*pupilFs;
+pupilFrameEnd = floor(endTime)*pupilFs;         
+pupilFrameInds = pupilFrameStart:pupilFrameEnd;
 
-pixelsPerFrame = imageWidth*imageHeight;
-skippedPixels = pixelsPerFrame*2;   % Multiply by two because there are 16 bits (2 bytes) per pixel
-fid = fopen(pupilCamFileID);
-fseek(fid,0,'eof');
-fileSize = ftell(fid);
-fseek(fid,0,'bof');
-nFramesToRead = length(frameInds);
-imageStack = zeros(imageWidth,imageHeight,nFramesToRead);
-for a = 1:nFramesToRead
-    disp(['Creating image stack: (' num2str(a) '/' num2str(nFramesToRead) ')']); disp(' ')
-    fseek(fid, frameInds(a)*skippedPixels,'bof');
-    z = fread(fid, pixelsPerFrame,'*uint8','b');
-    img = reshape(z(1:pixelsPerFrame),imageHeight,imageWidth);
-    imageStack(:,:,a) = flip(imrotate(img,-90),2);
+pupilPixelsPerFrame = pupilImageWidth*pupilImageHeight;
+pupilSkippedPixels = pupilPixelsPerFrame*2;   % Multiply by two because there are 16 bits (2 bytes) per pixel
+pupilFid = fopen(pupilCamFileID);
+fseek(pupilFid,0,'eof');
+pupilFileSize = ftell(pupilFid);
+fseek(pupilFid,0,'bof');
+pupilNFramesToRead = length(pupilFrameInds);
+pupilImageStack = zeros(pupilImageWidth,pupilImageHeight,pupilNFramesToRead);
+for a = 1:pupilNFramesToRead
+    fseek(pupilFid,pupilFrameInds(a)*pupilSkippedPixels,'bof');
+    pupilZ = fread(pupilFid,pupilPixelsPerFrame,'*uint8','b');
+    pupilImg = reshape(pupilZ(1:pupilPixelsPerFrame),pupilImageHeight,pupilImageWidth);
+    pupilImageStack(:,:,a) = flip(imrotate(pupilImg,-90),2);
 end
 fclose('all');
 
-handle = implay(imageStack, Fs);
-handle.Visual.ColorMap.UserRange = 1; 
-handle.Visual.ColorMap.UserRangeMin = min(img(:)); 
-handle.Visual.ColorMap.UserRangeMax = max(img(:));
+% pupilHandle = implay(pupilImageStack,pupilFs);
+% pupilHandle.Visual.ColorMap.UserRange = 1; 
+% pupilHandle.Visual.ColorMap.UserRangeMin = min(pupilImg(:)); 
+% pupilHandle.Visual.ColorMap.UserRangeMax = max(pupilImg(:));
 
+%% Reflectance data
+[D,C] = butter(3,1/(ProcData.notes.CBVCamSamplingRate/2),'low');
+CBV = ProcData.data.CBV.Barrels;
+normCBV = (CBV - RestingBaselines.setDuration.CBV.Barrels.(strDay))./(RestingBaselines.setDuration.CBV.Barrels.(strDay));
+filtCBV = filtfilt(D,C,normCBV)*100;
 
+%% HbT data
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+%% Neural data
+T = SpecData.(electrodeHem).fiveSec.T;
+F = SpecData.(electrodeHem).fiveSec.F;
+normS = SpecData.(electrodeHem).fiveSec.normS;
 
 %% movie file comparing rgb with original data
-outputVideo = VideoWriter('PresentationMotionVideo_RGBvsOriginalDepth.avi');
-fps = 15;   % default fps from video acquisition
-speedUp = 2;   % speed up by factor of
+outputVideo = VideoWriter([animalID '_' fileID '_PresentationVideo.avi']);
+fps = 30;   % default fps from video acquisition
+speedUp = 1;   % speed up by factor of
 outputVideo.FrameRate = fps*speedUp;
 open(outputVideo);
-fig = figure('Position', get(0, 'Screensize'));
-for a = 1:size(rgbStack,1)
-    subplot(1,2,1)
-    imshow(rgbStack{a,1})
-    subplot(1,2,2)
-    imagesc(originalStack{a,1});
-    colormap jet
-    caxis([0 .52])
+cbvVector = NaN(1,length(filtCBV));
+fig = figure('Position',get(0,'Screensize'));
+T1 = (0:(endTime-startTime))/6;
+T2 = 1;
+neuralMatrix = NaN(length(F),length(T1));
+for a = 1:size(pupilImageStack,3)
+    sgtitle({[animalID ' ' strrep(fileID,'_',' ') ' Presentation Example'],' '})
+    % window movie
+    subplot(3,3,1)
+    imagesc(normCBVFrames(:,:,a))
+    title('Pixel reflectance')
+    colormap(gca,'gray')
+    colorbar
+    caxis([-10 10])
     axis image
     axis off
-    currentFrame = getframe(fig);
-    writeVideo(outputVideo, currentFrame);
-end
-close(outputVideo)
-close(fig)
-
-%% movie file comparing rgb with processed data
-outputVideo = VideoWriter('PresentationMotionVideo_RGBvsProcDepth.avi');
-fps = 15;   % default fps from video acquisition
-speedUp = 2;   % speed up by factor of
-outputVideo.FrameRate = fps*speedUp;
-open(outputVideo);
-fig = figure('Position', get(0, 'Screensize'));
-for a = 1:size(rgbStack,1)
-    subplot(1,2,1)
-    imshow(rgbStack{a,1})
-    subplot(1,2,2)
-    imagesc(procStack(:,:,a));
-    colormap jet
-    caxis(SuppData.caxis)
+    % pupil movie
+    subplot(3,3,2)
+    imagesc(pupilImageStack(:,:,a))
+    title('Pupil camera')
+    colormap(gca,'gray')
+    caxis([min(pupilImg(:)) max(pupilImg(:))])
     axis image
     axis off
-    currentFrame = getframe(fig);
-    writeVideo(outputVideo, currentFrame);
-end
-close(outputVideo)
-close(fig)
-
-%% movie file showing motion and height tracking
-outputVideo = VideoWriter('PresentationMotionVideo_Results.avi');
-fps = 15;   % default fps from video acquisition
-speedUp = 2;   % speed up by factor of
-outputVideo.FrameRate = fps*speedUp;
-open(outputVideo);
-fig = figure('Position', get(0, 'Screensize'));
-avg20Height = NaN(1,length(binStack));
-max_caxis = SuppData.caxis;
-maxVal = max_caxis(2);
-x = [];
-y = [];
-distanceTraveled = 0;
-distancePath = NaN(1,length(binStack));
-binWidth_inches = 14;
-distancePerPixel = (binWidth_inches/SuppData.binWidth)*2.54;   % in to cm
-for a = 1:size(binStack,3)
-    %% Motion
-    imageA = binStack(:,:,a);
-    [yA,xA] = ndgrid(1:size(imageA,1), 1:size(imageA,2));
-    centroidA = mean([xA(logical(imageA)), yA(logical(imageA))]);
-    x = horzcat(x,centroidA(1));
-    y = horzcat(y,centroidA(2));
-    
-    
-    if a > 1
-        imageB = binStack(:,:,a-1);
-        [yB,xB] = ndgrid(1:size(imageB,1), 1:size(imageB,2));
-        centroidB = mean([xB(logical(imageB)), yB(logical(imageB))]);
-        
-        centroidCoord = [centroidB; centroidA];
-        d = pdist(centroidCoord, 'euclidean');
-        if isnan(d) == true
-            d = 0;
-        end
-            distanceTraveled = distanceTraveled+d;
+    % whisker movie
+    subplot(3,3,3)
+    imagesc(dsWhiskImageStack(:,:,a))
+    title('Whisker camera')
+    colormap(gca,'gray')
+    caxis([min(whiskImg(:)) max(whiskImg(:))])
+    axis image
+    axis off
+    % reflectance or HbT
+    subplot(3,3,4:6)
+    cbvVector(1,a) = filtCBV(1,a + startTime*cbvFs);
+    plot((1:length(cbvVector))/cbvFs,cbvVector,'k')
+    title('Mean pixel (CBV) reflectance')
+    xlabel('Time (sec)')
+    ylabel('\DeltaR/R')
+    xlim([0 (size(pupilImageStack,3))/pupilFs])
+    % neural data
+    subplot(3,3,7:9)
+    if rem(a,5) == 1
+        neuralMatrix(:,T2) = normS(:,a + startTime*6);
+        T2 = T2 + 1;
     end
-    distancePath(1,a) = distanceTraveled;
-           
-    %% Rearing
-    depthImg = procStack(:,:,a);
-    maxInds = depthImg == maxVal;
-    depthImg(maxInds) = NaN;
-    validPix = imcomplement(isnan(depthImg));
-    pixelVec = depthImg(validPix);
-    ascendPixelVals = sort(pixelVec(:),'ascend');
-    twentyPercentile = ascendPixelVals(1:ceil(length(ascendPixelVals)*0.2));
-    avg20Height(1,a) = mean(twentyPercentile);
-   
-    %% figure
-    subplot(2,2,[1,3])
-    imagesc(procStack(:,:,a));
-    colormap jet
-    caxis(SuppData.caxis)
-    axis image
-    axis off
-    hold on
-    scatter(centroidA(1), centroidA(2), 'MarkerEdgeColor', 'white', 'MarkerFaceColor', 'white')
-    plot(x,y,'Color','w','LineWidth',2)
-    
-    subplot(2,2,2)
-    plot((1:size(binStack,3))/fps, 100*avg20Height, 'k')
-    set(gca, 'YDir','reverse')
-    title('Distance from camera')
-    ylabel('Height (cm)')
+    semilog_imagesc_IOS(T1,F,neuralMatrix,'y')
+    title('Cortical spectrogram')
     xlabel('Time (sec)')
-    xlim([0 70])
-    ylim([40 48])
-    
-    subplot(2,2,4)
-    plot((1:size(binStack,3))/fps, distancePath.*distancePerPixel, 'k')
-    title('Distance traveled')
-    ylabel('Distance (cm)')
-    xlabel('Time (sec)')
-    xlim([0 70])
-
+    ylabel('Freq (Hz)')
+    xlim([0 (size(pupilImageStack,3))/pupilFs])
+    colormap(gca,'parula')
+    colorbar
+    caxis([-1 2])
+    axis xy
+    set(gca,'TickLength',[0, 0])
+    set(gca,'box','off')
     currentFrame = getframe(fig);
-    writeVideo(outputVideo, currentFrame);
+    writeVideo(outputVideo,currentFrame);
 end
 close(outputVideo)
 close(fig)

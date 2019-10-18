@@ -29,10 +29,10 @@ for a = 1:length(animalIDs)
 end
 
 %% Average figure generation
-AvgCoherence_IOS
-AvgPowerSpectra_IOS
-AvgXCorr_IOS
-AvgStim_IOS
-AvgWhisk_IOS
-AvgCorrCoeff_IOS
+% AvgCoherence_IOS
+% AvgPowerSpectra_IOS
+% AvgXCorr_IOS
+% AvgStim_IOS
+% AvgWhisk_IOS
+% AvgCorrCoeff_IOS
 

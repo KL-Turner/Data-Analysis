@@ -207,7 +207,7 @@ axis tight
 ax4 = subplot(6,1,4);
 semilog_imagesc_IOS(T, F, cortical_LHnormS, 'y')
 axis xy
-caxis([-1 2])
+caxis([-1 1])
 ylabel('Frequency (Hz)')
 set(gca,'Yticklabel', '10^1')
 xlim([0 ProcData.notes.trialDuration_sec])
@@ -222,7 +222,7 @@ set(gca,'Yticklabel', [])
 ax5 = subplot(6,1,5);
 semilog_imagesc_IOS(T, F, cortical_RHnormS, 'y')
 axis xy
-caxis([-1 2])
+caxis([-1 1])
 ylabel('Frequency (Hz)')
 set(gca,'Yticklabel', '10^1')
 xlim([0 ProcData.notes.trialDuration_sec])
@@ -236,7 +236,7 @@ set(gca,'Yticklabel', [])
 % Hippocampal electrode spectrogram
 ax6 = subplot(6,1,6);
 semilog_imagesc_IOS(T, F, hippocampusNormS, 'y')
-caxis([-0.5 .75])
+caxis([-1 1])
 xlabel('Time (sec)')
 ylabel('Frequency (Hz)')
 xlim([0 ProcData.notes.trialDuration_sec])

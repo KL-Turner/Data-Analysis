@@ -28,7 +28,7 @@ rawDataFileIDs = char(rawDataFiles);
 disp('Analyzing Block [1] Creating regions of interest for reflectance data.'); disp(' ')
 imagingType = input('Imaging Type: (bilateral/single): ','s'); disp(' ')
 if strcmp(imagingType,'bilateral') == true
-    ROInames = {'LH','RH','LH_Electrode','RH_Electrode','Cement'};
+    ROInames = {'LH','RH','LH_Electrode','RH_Electrode','LH_Cement','RH_Cement'};
 elseif strcmp(imagingType,'single') == true
     ROInames = {'Barrels','Electrode','Cement'};
 end
@@ -58,15 +58,15 @@ procDataFileIDs = char(procDataFiles);
 ExtractHeartRate_IOS(procDataFileIDs,imagingType)
 
 %% BLOCK PURPOSE: [5] Check/Correct pixel drift 
-CheckPixelDrift_IOS(procDataFileIDs,imagingType)
-CorrectPixelDrift_IOS(procDataFileIDs,imagingType)
+% CheckPixelDrift_IOS(procDataFileIDs,imagingType)
+% CorrectPixelDrift_IOS(procDataFileIDs,imagingType)
 
 %% BLOCK PURPOSE: [6] IOS vessel diameter analysis
-rawDataFileIDs = rawDataFileIDs(1,:);
-if strcmp(imagingType,'single') == true
-    CreateIntrinsicTiffStacks_IOS(rawDataFileIDs)
-    DiamCalcSurfaceVessel_IOS(rawDataFileIDs)
-    ExtractTiffData_IOS(rawDataFileIDs)
-end
+% rawDataFileIDs = rawDataFileIDs(1,:);
+% if strcmp(imagingType,'single') == true
+%     CreateIntrinsicTiffStacks_IOS(rawDataFileIDs)
+%     DiamCalcSurfaceVessel_IOS(rawDataFileIDs)
+%     ExtractTiffData_IOS(rawDataFileIDs)
+% end
 
 disp('Stage Two Processing - Complete.'); disp(' ')

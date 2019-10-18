@@ -14,7 +14,8 @@
 %            8) Create an EventData structure looking at the different data types after whisking or stimulation
 %            9) Apply the resting baseline to each data type to create a percentage change 
 %            10) Use the time indeces of the resting baseline file to apply a percentage change to the spectrograms
-%            11) Generate a summary figure for all of the analyzed and processed data
+%            11) Use the time indeces of the resting baseline file to create a reflectance pixel-based baseline
+%            12) Generate a summary figure for all of the analyzed and processed data
 %________________________________________________________________________________________________________________________
 
 %% BLOCK PURPOSE: [0] Load the script's necessary variables and data structures.
@@ -75,9 +76,9 @@ NormalizeSpectrograms_IOS(specDataFileIDs,neuralDataTypes,RestingBaselines);
 %% BLOCK PURPOSE: [5] Manually select files for custom baseline calculation
 disp('Analyzing Block [5] Manually select files for custom baseline calculation.'); disp(' ')
 if strcmp(timeOverride,'n') == true
-    [RestingBaselines] = CalculateManualRestingBaselines_IOS(animalID,procDataFileIDs,RestData,RestingBaselines);
+    [RestingBaselines] = CalculateManualRestingBaselines_IOS(animalID,procDataFileIDs,RestData,RestingBaselines,imagingType);
 else
-    [RestingBaselines] = CalculateManualRestingBaselinesWithTimeIndeces_IOS();
+    [RestingBaselines] = CalculateManualRestingBaselinesWithTimeIndeces_IOS(imagingType);
 end
 
 %% BLOCK PURPOSE [6] Add delta HbT field to each processed data file
@@ -115,9 +116,15 @@ NormalizeSpectrograms_IOS(specDataFileIDs,neuralDataTypes,RestingBaselines);
 % Create a structure with all spectrograms for convenient analysis further downstream
 CreateAllSpecDataStruct_IOS(animalID,neuralDataTypes)
 
-%% BLOCK PURPOSE [11] Generate single trial figures
-% disp('Analyzing Block [11] Gennerating single trial summary figures'); disp(' ')
-% saveFigs = 'y';
-% GenerateSingleFigures_IOS(procDataFileIDs,RestingBaselines,updatedBaselineType,saveFigs)
+%% BLOCK PURPOSE: [11] Generate pixel baseline from WindowCam.mat files
+disp('Analyzing Block [11] Generating pixel-based resting baselines for reflectance data'); disp(' ')
+if strcmp(imagingType,'single') == true
+    [RestingBaselines] = CalculatePixelBaselines_IOS(procDataFileIDs,RestingBaselines,baselineType);
+end
+
+%% BLOCK PURPOSE [12] Generate single trial figures
+disp('Analyzing Block [12] Generating single trial summary figures'); disp(' ')
+saveFigs = 'y';
+GenerateSingleFigures_IOS(procDataFileIDs,RestingBaselines,updatedBaselineType,saveFigs,imagingType)
 
 disp('Stage Three Processing - Complete.'); disp(' ')

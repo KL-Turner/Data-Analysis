@@ -7,11 +7,6 @@ function [] = DataAnalysis_IOS()
 %
 %   Purpose:
 %________________________________________________________________________________________________________________________
-%
-%   Inputs:
-%
-%   Outputs:
-%________________________________________________________________________________________________________________________
 
 %% BLOCK PURPOSE: [0] Load the script's necessary variables and data structures.
 % Clear the workspace variables and command window.
@@ -39,7 +34,7 @@ end
 % end 
 % close all
 % 
-% %% BLOCK PURPOSE: [2] Cross correlation
+%% BLOCK PURPOSE: [2] Cross correlation
 % disp('Analyzing Block [2] Analzying the cross-correlation between hemodynamics and neural data.'); disp(' ')
 % xcorr_CBVdataTypes = {'LH','RH','LH_Electrode','RH_Electrode'};
 % xcorr_neuralDataTypes = {'cortical_LH','cortical_RH','cortical_LH','cortical_RH'};
@@ -51,7 +46,7 @@ end
 % [AnalysisResults] = AnalyzeXCorr_IOS(xcorr_CBVdataTypes,xcorr_neuralDataTypes,baselineType,params,AnalysisResults);
 % close all
 % 
-% %% BLOCK PURPOSE: [3] Coherence
+%% BLOCK PURPOSE: [3] Coherence
 % disp('Analyzing Block [3] Analyzing the coherence between L/R hemodynamic and neural data.'); disp(' ')
 % coherr_dataTypes = {'CBV','CBV_HbT','deltaBandPower','thetaBandPower','alphaBandPower','betaBandPower','gammaBandPower','muaPower'};
 % baselineType = 'manualSelection';
@@ -62,7 +57,7 @@ end
 % [AnalysisResults] = AnalyzeCoherence_IOS(coherr_dataTypes,baselineType,params, AnalysisResults);
 % close all
 % 
-% %% BLOCK PURPOSE: [4] Power Spectra
+%% BLOCK PURPOSE: [4] Power Spectra
 % disp('Analyzing Block [4] Analyzing the power spectra of hemodynamic and neural data.'); disp(' ')
 % powerspec_dataTypes =  {'CBV','CBV_HbT','deltaBandPower','thetaBandPower','alphaBandPower','betaBandPower','gammaBandPower','muaPower'};
 % baselineType = 'manualSelection';
@@ -73,7 +68,7 @@ end
 % [AnalysisResults] = AnalyzePowerSpectrum_IOS(powerspec_dataTypes,baselineType,params,AnalysisResults);
 % close all
 % 
-% %% BLOCK PURPOSE: [5] Pearson's correlation coefficient
+%% BLOCK PURPOSE: [5] Pearson's correlation coefficient
 % disp('Analyzing Block [5] Analyzing the Pearson''s correlation coefficient between bilateral hemodynamic and neural data.'); disp(' ')
 % corrCoeff_dataTypes =  {'CBV','CBV_HbT','deltaBandPower','thetaBandPower','alphaBandPower','betaBandPower','gammaBandPower','muaPower'};
 % baselineType = 'manualSelection';
@@ -82,30 +77,47 @@ end
 % [AnalysisResults] = AnalyzeCorrCoeffs_IOS(corrCoeff_dataTypes,params,baselineType,AnalysisResults);
 % close all
 
-%% BLOCK PURPOSE: [6] Hemodynamic response functions
-disp('Analyzing Block [6] Analyzing the hemodynamic response function and predictability of awake data.'); disp(' ')
+%% BLOCK PURPOSE: [6] Mean CBV values
+disp('Analyzing Block [6] Analyzing the mean CBV during different behaviors.'); disp(' ')
+meanCBV_dataTypes =  {'CBV','CBV_HbT'};
+baselineType = 'manualSelection';
 params.targetMinutes = 30;   % minutes
-fileSets = {'fileSetA','fileSetB'};
-CBVdataTypes = {'CBV','CBV_HbT'};
-hemDataTypes = {'LH','RH'};
-neuralBands =  {'deltaBandPower','thetaBandPower','alphaBandPower','betaBandPower','gammaBandPower','muaPower'};
-for b = 1:length(fileSets)
-    fileSet = fileSets{1,b};
-    for c = 1:length(CBVdataTypes)
-        CBVdataType = CBVdataTypes{1,c};
-        for d = 1:length(hemDataTypes)
-            hemDataType = hemDataTypes{1,d};
-            for e = 1:length(neuralBands)
-                neuralBand = neuralBands{1,e};
-                [AnalysisResults] = AnalyzeAwakeHRF_IOS(params,fileSet,CBVdataType,hemDataType,neuralBand,AnalysisResults);
-            end
-        end
-    end
-end
+params.minTime.Rest = 10;   % seconds
+[AnalysisResults] = AnalyzeMeanCBV_IOS(meanCBV_dataTypes,params,baselineType,AnalysisResults);
+close all
 
-%% BLOCK PURPOSE: [7] IOS single vessel diameter data analysis
+%% BLOCK PURPOSE: [7] Mean heart rate values
+disp('Analyzing Block [7] Analyzing the mean heart rate during different behaviors.'); disp(' ')
+params.targetMinutes = 30;   % minutes
+params.minTime.Rest = 10;   % seconds
+[AnalysisResults] = AnalyzeMeanHeartRate_IOS(params,AnalysisResults);
+close all
 
-%% BLOCK PURPOSE: [8] Laser doppler data analysis
+%% BLOCK PURPOSE: [8] Hemodynamic response functions
+% disp('Analyzing Block [8] Analyzing the hemodynamic response function and predictability of awake data.'); disp(' ')
+% params.targetMinutes = 30;   % minutes
+% fileSets = {'fileSetA','fileSetB'};
+% CBVdataTypes = {'CBV','CBV_HbT'};
+% hemDataTypes = {'LH','RH'};
+% neuralBands =  {'deltaBandPower','thetaBandPower','alphaBandPower','betaBandPower','gammaBandPower','muaPower'};
+% for b = 1:length(fileSets)
+%     fileSet = fileSets{1,b};
+%     for c = 1:length(CBVdataTypes)
+%         CBVdataType = CBVdataTypes{1,c};
+%         for d = 1:length(hemDataTypes)
+%             hemDataType = hemDataTypes{1,d};
+%             for e = 1:length(neuralBands)
+%                 neuralBand = neuralBands{1,e};
+%                 [AnalysisResults] = AnalyzeAwakeHRF_IOS(params,fileSet,CBVdataType,hemDataType,neuralBand,AnalysisResults);
+%             end
+%         end
+%     end
+% end
+% [AnalysisResults] = PredictHemodynamicChanges(params,fileSets,CBVDataTypes,hemDataTypes,neuralBands,AnalysisResults);
+
+%% BLOCK PURPOSE: [9] IOS single vessel diameter data analysis
+
+%% BLOCK PURPOSE: [10] Laser doppler data analysis
 
 disp('Data Analysis - Complete.'); disp(' ')
 

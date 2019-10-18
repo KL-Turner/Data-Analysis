@@ -30,12 +30,9 @@ for a = 1:size(procDataFileIDs,1)
     cbvFields = fieldnames(ProcData.data.CBV);
     for b = 1:length(cbvFields)
         cbvField = cbvFields{b,1};
-        if strcmp(cbvField, 'Cement') == false
-            ProcData.data.CBV_HbT.(cbvField) = (log(ProcData.data.CBV.(cbvField)/RestingBaselines.(baselineType).CBV.(cbvField).(strDay)))*weightedcoeffHbT*conv2um;
-        end
+        ProcData.data.CBV_HbT.(cbvField) = (log(ProcData.data.CBV.(cbvField)/RestingBaselines.(baselineType).CBV.(cbvField).(strDay)))*weightedcoeffHbT*conv2um;
     end
     save(procDataFileID, 'ProcData')
 end
-
 
 end

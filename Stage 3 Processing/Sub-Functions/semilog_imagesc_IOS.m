@@ -6,7 +6,7 @@ function [] = semilog_imagesc_IOS(x,y,C,logaxis)
 % logaxis - which axis to plot logarithmically: 'x', 'y' or 'xy'
 % 9/2018 Patrick Drew
 
-surface(x,y,zeros(size(C)),(C),'LineStyle','none' );% make a surface at points x,y, of height 0 and with colors given by the matrix C
+surface(x,y,zeros(size(C)),(C),'LineStyle','none');% make a surface at points x,y, of height 0 and with colors given by the matrix C
 q=gca;
 q.Layer='top';% put the axes/ticks on the top layer
 

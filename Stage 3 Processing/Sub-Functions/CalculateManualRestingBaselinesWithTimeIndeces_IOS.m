@@ -1,4 +1,4 @@
-function [RestingBaselines] = CalculateManualRestingBaselinesWithTimeIndeces_IOS()
+function [RestingBaselines] = CalculateManualRestingBaselinesWithTimeIndeces_IOS(imagingType)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -65,7 +65,7 @@ if isfield(RestingBaselines,'manualSelection') == false && exist(manualBaselineF
         while b == false
             % load a figure with the data to visualize which periods are rest. Note that this data is, by default, normalized
             % by the first 30 minutes of data which may or may not reflect accurate normalizations
-            [singleTrialFig] = GenerateSingleFigures_IOS(procDataFileID,RestingBaselines,baselineType,saveFigs);
+            [singleTrialFig] = GenerateSingleFigures_IOS(procDataFileID,RestingBaselines,baselineType,saveFigs,imagingType);
             fileDecision = input(['Use data from ' procDataFileID ' for resting baseline calculation? (y/n): '], 's'); disp(' ')
             if strcmp(fileDecision,'y') || strcmp(fileDecision,'n')
                 b = true;

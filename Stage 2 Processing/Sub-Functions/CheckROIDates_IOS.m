@@ -38,18 +38,15 @@ else
 end
 
 for b = 1:length(firstsFileOfDay)
-    fileID = firstsFileOfDay{1, b};
+    fileID = firstsFileOfDay{1,b};
     strDay = ConvertDate_IOS(fileID);
-    checkROI = [ROInames{1,1} '_' strDay];
-    if ~isfield(ROIs, (checkROI))
-        [frames] = ReadDalsaBinary_IOS(fileID,256,256);
-        for c = 1:length(ROInames)
-            ROIname = ROInames{1, c};
-            [ROIs] = CreateBilateralROIs_IOS(frames{2},[ROIname '_' strDay],animalID,ROIs);
+    for c = 1:length(ROInames)
+        ROIname = [ROInames{1,c} '_' strDay];
+        if ~isfield(ROIs,(ROIname))
+            [frames] = ReadDalsaBinary_IOS(fileID,256,256);
+            [ROIs] = CreateBilateralROIs_IOS(frames{1},ROIname,animalID,ROIs);
+            save([animalID '_ROIs.mat'],'ROIs');
         end
-        save([animalID '_ROIs.mat'], 'ROIs');
-    else
-        disp(['ROIs for ' strDay ' already exist. Continuing...']); disp(' ')
     end
 end
 
