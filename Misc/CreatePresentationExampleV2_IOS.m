@@ -117,9 +117,11 @@ whiskFrameEnd = floor(endTime)*whiskFs;
 whiskFrameInds = whiskFrameStart:whiskFrameEnd;
 
 whiskerPixelsPerFrame = whiskImageWidth*whiskImageHeight;
-whiskerSkippedPixels = whiskerPixelsPerFrame*2; % Multiply by two because there are 16 bits (2 bytes) per pixel
+whiskerSkippedPixels = whiskerPixelsPerFrame; % Multiply by two because there are 16 bits (2 bytes) per pixel
 whiskFid = fopen(whiskCamFileID);
 fseek(whiskFid,0,'eof');
+fileSize = ftell(whiskFid);
+fseek(whiskFid,0,'bof');
 whiskNFramesToRead = length(whiskFrameInds);
 whiskImageStack = zeros(whiskImageHeight,whiskImageWidth,whiskNFramesToRead);
 for a = 1:whiskNFramesToRead
@@ -153,10 +155,10 @@ pupilFrameEnd = floor(endTime)*pupilFs;
 pupilFrameInds = pupilFrameStart:pupilFrameEnd;
 
 pupilPixelsPerFrame = pupilImageWidth*pupilImageHeight;
-pupilSkippedPixels = pupilPixelsPerFrame*2;   % Multiply by two because there are 16 bits (2 bytes) per pixel
+pupilSkippedPixels = pupilPixelsPerFrame;   % Multiply by two because there are 16 bits (2 bytes) per pixel
 pupilFid = fopen(pupilCamFileID);
 fseek(pupilFid,0,'eof');
-pupilFileSize = ftell(pupilFid);
+fileSize = ftell(pupilFid);
 fseek(pupilFid,0,'bof');
 pupilNFramesToRead = length(pupilFrameInds);
 pupilImageStack = zeros(pupilImageWidth,pupilImageHeight,pupilNFramesToRead);
@@ -183,20 +185,23 @@ filtCBV = filtfilt(D,C,normCBV)*100;
 
 %% Neural data
 T = SpecData.(electrodeHem).fiveSec.T;
+TstartInds = floor(T) == startTime;
+Tstart = find(TstartInds,startTime);
+TendInds = floor(T) == endTime;
+Tend = find(TendInds,endTime);
+Tvec = T(Tstart(1):Tend(end));
+Tvec2 = startTime:(1/cbvFs):endTime;
 F = SpecData.(electrodeHem).fiveSec.F;
-normS = SpecData.(electrodeHem).fiveSec.normS;
+cort_normS = SpecData.(electrodeHem).fiveSec.normS;
+hip_normS = SpecData.hippocampus.fiveSec.normS;
 
 %% movie file comparing rgb with original data
 outputVideo = VideoWriter([animalID '_' fileID '_PresentationVideo.avi']);
 fps = 30;   % default fps from video acquisition
-speedUp = 1;   % speed up by factor of
+speedUp = 2;   % speed up by factor of
 outputVideo.FrameRate = fps*speedUp;
 open(outputVideo);
-cbvVector = NaN(1,length(filtCBV));
 fig = figure('Position',get(0,'Screensize'));
-T1 = (0:1/6:(endTime-startTime));
-T2 = 1;
-neuralMatrix = NaN(length(F),length(T1));
 for a = 1:size(pupilImageStack,3)
     sgtitle({[animalID ' ' strrep(fileID,'_',' ') ' Presentation Example'],' '})
     % window movie
@@ -205,9 +210,10 @@ for a = 1:size(pupilImageStack,3)
     title('Pixel reflectance')
     colormap(gca,'gray')
     colorbar
-    caxis([-7.5 7.5])
+    caxis([-10 10])
     axis image
     axis off
+    hold off
     % pupil movie
     s2 = subplot(3,3,2);
     imagesc(pupilImageStack(:,:,a))
@@ -216,6 +222,7 @@ for a = 1:size(pupilImageStack,3)
     caxis([min(pupilImg(:)) max(pupilImg(:))])
     axis image
     axis off
+    hold off
     % whisker movie
     s3 = subplot(3,3,3);
     imagesc(dsWhiskImageStack(:,:,a))
@@ -224,43 +231,65 @@ for a = 1:size(pupilImageStack,3)
     caxis([min(whiskImg(:)) max(whiskImg(:))])
     axis image
     axis off
+    hold off
     % reflectance or HbT
-    s4 = subplot(3,3,4:6);
+    s4 = subplot(3,3,7:9);
     pos = get(gcf, 'Position'); % gives x left, y bottom, width, height
     x = pos(1);
     y = pos(2);
     w = pos(3);
     h = pos(4);
-    cbvVector(1,a) = filtCBV(1,a + startTime*cbvFs);
+    cbvVector = filtCBV(startTime*cbvFs:endTime*cbvFs);
     plot((1:length(cbvVector))/cbvFs,cbvVector,'k')
+    Tvec3 = 0:(1/cbvFs):(endTime - startTime);
+    hold on
+    xline(Tvec3(a),'color',colors_IOS('electric purple'),'LineWidth',2);
     title('Mean pixel (CBV) reflectance')
     xlabel('Time (sec)')
     ylabel('\DeltaR/R')
     xlim([0 (size(pupilImageStack,3))/pupilFs])
+    hold off
     % neural data
-    s5 = subplot(3,3,7:9);
-    if rem(a,5) == 1
-        neuralMatrix(:,T2) = normS(:,a + startTime*6);
-        T2 = T2 + 1;
-    end
-    semilog_imagesc_IOS(T1,F,neuralMatrix,'y')
-    title('Cortical spectrogram')
-    xlabel('Time (sec)')
+    s5 = subplot(3,3,4:6);
+    cortNeuralMatrix = hip_normS(:,Tstart(1):Tend(end));
+    semilog_imagesc_IOS(Tvec,F,cortNeuralMatrix,'y')
+    hold on
+    title('Hippocampal spectrogram')
     ylabel('Freq (Hz)')
-    xlim([0 (size(pupilImageStack,3))/pupilFs])
     colormap(gca,'parula')
-    cbar = colorbar;
+    colorbar;
     caxis([-1 2])
     axis xy
     set(gca,'TickLength',[0, 0])
+    set(gca,'XTickLabel',[]);
     set(gca,'box','off')
+    hold off
+    
+%     s6 = subplot(4,3,4:6);
+%     hipNeuralMatrix = hip_normS(:,Tstart(1):Tend(end));
+%     semilog_imagesc_IOS(Tvec,F,hipNeuralMatrix,'y')
+%     hold on
+%     xline(Tvec2(a),'color',colors_IOS('electric purple'),'LineWidth',2);
+%     title('Hippocampal spectrogram')
+%     ylabel('Freq (Hz)')
+%     colormap(gca,'parula')
+%     colorbar;
+%     caxis([-1 2])
+%     axis xy
+%     set(gca,'TickLength',[0, 0])
+%     set(gca,'XTickLabel',[]);
+%     set(gca,'box','off')
     
     s4Pos = get(s4,'position');
     s5Pos = get(s5,'position');
     s5Pos(3:4) = s4Pos(3:4);
     set(s5,'position',s5Pos);
+%     s6Pos(3:4) = s4Pos(3:4);
+%     set(s6,'position',s6Pos);
     
-    currentFrame = getframe(fig);    writeVideo(outputVideo,currentFrame);
+    hold off
+    currentFrame = getframe(fig);    
+    writeVideo(outputVideo,currentFrame);
 end
 close(outputVideo)
 close(fig)

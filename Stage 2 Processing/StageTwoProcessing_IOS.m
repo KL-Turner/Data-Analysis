@@ -58,7 +58,7 @@ procDataFileIDs = char(procDataFiles);
 ExtractHeartRate_IOS(procDataFileIDs,imagingType)
 
 %% BLOCK PURPOSE: [5] Check/Correct pixel drift 
-CheckPixelDrift_IOS(procDataFileIDs,imagingType)
+% CheckPixelDrift_IOS(procDataFileIDs,imagingType)
 
 %% BLOCK PURPOSE: [6] IOS vessel diameter analysis
 % rawDataFileIDs = rawDataFileIDs(1,:);
