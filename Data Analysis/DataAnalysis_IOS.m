@@ -87,11 +87,11 @@ params.minTime.Rest = 10;   % seconds
 close all
 
 %% BLOCK PURPOSE: [7] Mean heart rate values
-disp('Analyzing Block [7] Analyzing the mean heart rate during different behaviors.'); disp(' ')
-params.targetMinutes = 30;   % minutes
-params.minTime.Rest = 10;   % seconds
-[AnalysisResults] = AnalyzeMeanHeartRate_IOS(params,AnalysisResults);
-close all
+% disp('Analyzing Block [7] Analyzing the mean heart rate during different behaviors.'); disp(' ')
+% params.targetMinutes = 30;   % minutes
+% params.minTime.Rest = 10;   % seconds
+% [AnalysisResults] = AnalyzeMeanHeartRate_IOS(params,AnalysisResults);
+% close all
 
 %% BLOCK PURPOSE: [8] Hemodynamic response functions
 % disp('Analyzing Block [8] Analyzing the hemodynamic response function and predictability of awake data.'); disp(' ')

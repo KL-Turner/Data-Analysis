@@ -101,18 +101,18 @@ for b = 1:length(firstsFileOfDay)
     
     % apply exponential correction to original data
     LH_adjCatA_CBVdata = catLH_CBVdata.*LH_modelFit_flip';
-    LH_rsAdjCatA_CBVdata = reshape(LH_adjCatA_CBVdata,[length(indDayProcDataFileList) samplingRate*trialDuration]);
+    LH_rsAdjCatA_CBVdata = reshape(LH_adjCatA_CBVdata',[samplingRate*trialDuration, length(indDayProcDataFileList)]);
     LH_adjCatB_CBVdata = catLH_CBVdata.*RH_modelFit_flip';
-    LH_rsAdjCatB_CBVdata = reshape(LH_adjCatB_CBVdata,[length(indDayProcDataFileList) samplingRate*trialDuration]);
+    LH_rsAdjCatB_CBVdata = reshape(LH_adjCatB_CBVdata,[samplingRate*trialDuration, length(indDayProcDataFileList)]);
     LH_adjCatC_CBVdata = catLH_CBVdata.*Cement_modelFit_flip';
-    LH_rsAdjCatC_CBVdata = reshape(LH_adjCatC_CBVdata,[length(indDayProcDataFileList) samplingRate*trialDuration]);
+    LH_rsAdjCatC_CBVdata = reshape(LH_adjCatC_CBVdata,[samplingRate*trialDuration, length(indDayProcDataFileList)]);
     
     RH_adjCatA_CBVdata = catRH_CBVdata.*LH_modelFit_flip';
-    RH_rsAdjCatA_CBVdata = reshape(RH_adjCatA_CBVdata,[length(indDayProcDataFileList) samplingRate*trialDuration]);
+    RH_rsAdjCatA_CBVdata = reshape(RH_adjCatA_CBVdata,[samplingRate*trialDuration, length(indDayProcDataFileList)]);
     RH_adjCatB_CBVdata = catRH_CBVdata.*RH_modelFit_flip';
-    RH_rsAdjCatB_CBVdata = reshape(RH_adjCatB_CBVdata,[length(indDayProcDataFileList) samplingRate*trialDuration]);
+    RH_rsAdjCatB_CBVdata = reshape(RH_adjCatB_CBVdata,[samplingRate*trialDuration, length(indDayProcDataFileList)]);
     RH_adjCatC_CBVdata = catRH_CBVdata.*Cement_modelFit_flip';
-    RH_rsAdjCatC_CBVdata = reshape(RH_adjCatC_CBVdata,[length(indDayProcDataFileList) samplingRate*trialDuration]);
+    RH_rsAdjCatC_CBVdata = reshape(RH_adjCatC_CBVdata,[samplingRate*trialDuration, length(indDayProcDataFileList)]);
     
     %% evaluate fits
     LH_Atest = corrcoef(catLH_CBVdata,LH_modelFit_Y);
@@ -130,7 +130,7 @@ for b = 1:length(firstsFileOfDay)
     RH_Ctest_R = RH_Ctest(1,2);
     
     %% comparison showing original LH data and the corrected data
-    LH_fixPixels = figure;
+    fixPixels = figure;
     subplot(4,3,1)
     plot(x,filtCatLH_cementData,'k')
     hold on
@@ -258,8 +258,8 @@ for b = 1:length(firstsFileOfDay)
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
-    savefig(LH_fixPixels, [dirpath animalID '_' strDay '_LH_PixelDriftCorrection']);
-    close(LH_fixPixels)
+    savefig(fixPixels, [dirpath animalID '_' strDay '_PixelDriftCorrection']);
+    close(fixPixels)
     
     %% apply corrected data to each file from reshaped matrix
     for d = 1:length(indDayProcDataFileList)
@@ -270,14 +270,14 @@ for b = 1:length(firstsFileOfDay)
             ProcData.data.CBV.adjLH = ProcData.data.CBV.LH;
             ProcData.data.CBV.adjRH = ProcData.data.CBV.RH;
         elseif strcmp(applyCorrection,'A') == true
-            ProcData.data.CBV.adjLH = LH_rsAdjCatA_CBVdata(d,:);
-            ProcData.data.CBV.adjRH = RH_rsAdjCatA_CBVdata(d,:);
+            ProcData.data.CBV.adjLH = LH_rsAdjCatA_CBVdata(:,d)';
+            ProcData.data.CBV.adjRH = RH_rsAdjCatA_CBVdata(:,d)';
         elseif strcmp(applyCorrection,'B') == true
-            ProcData.data.CBV.adjLH = LH_rsAdjCatB_CBVdata(d,:);
-            ProcData.data.CBV.adjRH = RH_rsAdjCatB_CBVdata(d,:);
+            ProcData.data.CBV.adjLH = LH_rsAdjCatB_CBVdata(:,d)';
+            ProcData.data.CBV.adjRH = RH_rsAdjCatB_CBVdata(:,d)';
         elseif strcmp(applyCorrection,'C') == true
-            ProcData.data.CBV.adjLH = LH_rsAdjCatC_CBVdata(d,:);
-            ProcData.data.CBV.adjRH = RH_rsAdjCatC_CBVdata(d,:);
+            ProcData.data.CBV.adjLH = LH_rsAdjCatC_CBVdata(:,d)';
+            ProcData.data.CBV.adjRH = RH_rsAdjCatC_CBVdata(:,d)';
         end
         disp(['Saving pixel corrections to ' strDay ' ProcData file ' num2str(d) ' of ' num2str(length(indDayProcDataFileList))]); disp(' ')
         save(indDayProcDataFile,'ProcData')
@@ -285,3 +285,4 @@ for b = 1:length(firstsFileOfDay)
 end
 
 end
+

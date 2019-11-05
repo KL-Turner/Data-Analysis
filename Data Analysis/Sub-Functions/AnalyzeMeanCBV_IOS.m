@@ -39,11 +39,11 @@ load(sleepDataFileID)
 % identify animal's ID and pull important infortmat
 fileBreaks = strfind(restDataFileID, '_');
 animalID = restDataFileID(1:fileBreaks(1)-1);
-trialDuration_min = RestData.CBV.LH.trialDuration_sec/60;   % min
+trialDuration_min = RestData.CBV.adjLH.trialDuration_sec/60;   % min
 manualFileIDs = unique(RestingBaselines.manualSelection.baselineFileInfo.fileIDs);
 fileTarget = params.targetMinutes/trialDuration_min;
 filterSets = {'manualSelection','setDuration','entireDuration'};
-samplingRate = RestData.CBV.LH.CBVCamSamplingRate;
+samplingRate = RestData.CBV.adjLH.CBVCamSamplingRate;
 
 RestCriteria.Fieldname = {'durations'};
 RestCriteria.Comparison = {'gt'};
@@ -60,16 +60,16 @@ for a = 1:length(dataTypes)
         %% Analyze coherence during periods of rest
         % use the RestCriteria we specified earlier to find unstim resting events that are greater than the criteria
         if strcmp(dataType,'CBV') == true || strcmp(dataType,'CBV_HbT') == true
-            [restLogical] = FilterEvents_IOS(RestData.(dataType).LH,RestCriteria);
-            [puffLogical] = FilterEvents_IOS(RestData.(dataType).LH,PuffCriteria);
+            [restLogical] = FilterEvents_IOS(RestData.(dataType).adjLH,RestCriteria);
+            [puffLogical] = FilterEvents_IOS(RestData.(dataType).adjLH,PuffCriteria);
             combRestLogical = logical(restLogical.*puffLogical);
-            restFiles = RestData.(dataType).LH.fileIDs(combRestLogical,:);
+            restFiles = RestData.(dataType).adjLH.fileIDs(combRestLogical,:);
             if strcmp(dataType,'CBV') == true
-                LH_RestingData = RestData.(dataType).LH.NormData(combRestLogical,:);
-                RH_RestingData = RestData.(dataType).RH.NormData(combRestLogical,:);
+                LH_RestingData = RestData.(dataType).adjLH.NormData(combRestLogical,:);
+                RH_RestingData = RestData.(dataType).adjRH.NormData(combRestLogical,:);
             else
-                LH_RestingData = RestData.(dataType).LH.data(combRestLogical,:);
-                RH_RestingData = RestData.(dataType).RH.data(combRestLogical,:);
+                LH_RestingData = RestData.(dataType).adjLH.data(combRestLogical,:);
+                RH_RestingData = RestData.(dataType).adjRH.data(combRestLogical,:);
             end
         else
             break
@@ -130,7 +130,7 @@ for a = 1:length(dataTypes)
         LH_finalRestData = LH_RestingData(restFinalFileFilter,:);
         RH_finalRestData = RH_RestingData(restFinalFileFilter,:);
         
-        % only take the first 10 seconds of the epoch. occassionunstimy a sample gets lost from rounding during the
+        % only take the first 10 seconds of the epoch. occassionally a sample gets lost from rounding during the
         % original epoch create so we can add a sample of two back to the end for those just under 10 seconds
         % lowpass filter and detrend each segment
         [B, A] = butter(3,1/(samplingRate/2),'low');
@@ -210,11 +210,11 @@ for a = 1:length(dataTypes)
         % pull data from each file
         if strcmp(dataType,'CBV') == true || strcmp(dataType,'CBV_HbT') == true
             if strcmp(dataType,'CBV') == true
-                LH_UnstimData{p,1} = (ProcData.data.(dataType).LH - RestingBaselines.(baselineType).(dataType).LH.(US_strDay))/RestingBaselines.(baselineType).(dataType).LH.(US_strDay);
-                RH_UnstimData{p,1} = (ProcData.data.(dataType).RH - RestingBaselines.(baselineType).(dataType).RH.(US_strDay))/RestingBaselines.(baselineType).(dataType).RH.(US_strDay);
+                LH_UnstimData{p,1} = (ProcData.data.(dataType).adjLH - RestingBaselines.(baselineType).(dataType).adjLH.(US_strDay))/RestingBaselines.(baselineType).(dataType).adjLH.(US_strDay);
+                RH_UnstimData{p,1} = (ProcData.data.(dataType).adjRH - RestingBaselines.(baselineType).(dataType).adjRH.(US_strDay))/RestingBaselines.(baselineType).(dataType).adjRH.(US_strDay);
             else
-                LH_UnstimData{p,1} = ProcData.data.(dataType).LH;
-                RH_UnstimData{p,1} = ProcData.data.(dataType).RH;
+                LH_UnstimData{p,1} = ProcData.data.(dataType).adjLH;
+                RH_UnstimData{p,1} = ProcData.data.(dataType).adjRH;
             end
             break
         end
@@ -245,11 +245,11 @@ for a = 1:length(dataTypes)
         % pull data from each file
         if strcmp(dataType,'CBV') == true || strcmp(dataType,'CBV_HbT') == true
             if strcmp(dataType,'CBV') == true
-                LH_AllData{p,1} = (ProcData.data.(dataType).LH - RestingBaselines.(baselineType).(dataType).LH.(AD_strDay))/RestingBaselines.(baselineType).(dataType).LH.(AD_strDay);
-                RH_AllData{p,1} = (ProcData.data.(dataType).RH - RestingBaselines.(baselineType).(dataType).RH.(AD_strDay))/RestingBaselines.(baselineType).(dataType).RH.(AD_strDay);
+                LH_AllData{p,1} = (ProcData.data.(dataType).adjLH - RestingBaselines.(baselineType).(dataType).adjLH.(AD_strDay))/RestingBaselines.(baselineType).(dataType).adjLH.(AD_strDay);
+                RH_AllData{p,1} = (ProcData.data.(dataType).adjRH - RestingBaselines.(baselineType).(dataType).adjRH.(AD_strDay))/RestingBaselines.(baselineType).(dataType).adjRH.(AD_strDay);
             else
-                LH_AllData{p,1} = ProcData.data.(dataType).LH;
-                RH_AllData{p,1} = ProcData.data.(dataType).RH;
+                LH_AllData{p,1} = ProcData.data.(dataType).adjLH;
+                RH_AllData{p,1} = ProcData.data.(dataType).adjRH;
             end
         else
             break

@@ -67,7 +67,7 @@ for b = 1:length(firstsFileOfDay)
     
     % apply exponential correction to original data
     adjCatBarrelsData = catBarrelsData.*Cement_modelFit_flip';
-    rsAdjCatBarrelsData = reshape(adjCatBarrelsData,[length(indDayProcDataFileList) samplingRate*trialDuration]);
+    rsAdjCatBarrelsData = reshape(adjCatBarrelsData,[samplingRate*trialDuration, length(indDayProcDataFileList)]);
     
     %% comparison showing original LH data and the corrected data
     fixPixels = figure;
@@ -134,7 +134,7 @@ for b = 1:length(firstsFileOfDay)
         if strcmp(applyCorrection,'O') == true
             ProcData.data.CBV.adjBarrels = ProcData.data.CBV.Barrels;
         elseif strcmp(applyCorrection,'A') == true
-            ProcData.data.CBV.adjBarrels = rsAdjCatBarrelsData(d,:);
+            ProcData.data.CBV.adjBarrels = rsAdjCatBarrelsData(:,d)';
         end
         disp(['Saving pixel corrections to ' strDay ' ProcData file ' num2str(d) ' of ' num2str(length(indDayProcDataFileList))]); disp(' ')
         save(indDayProcDataFile,'ProcData')

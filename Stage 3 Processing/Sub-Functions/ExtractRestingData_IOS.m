@@ -21,9 +21,9 @@ for a = 1:length(dataTypes)
     dataType = dataTypes(a);
     if strcmp(dataType,'CBV') == true || strcmp(dataType,'CBV_HbT') == true
         if strcmp(imagingType,'bilateral') == true
-            subDataTypes = {'adjLH','adjRH'};
+            subDataTypes = {'LH','adjLH','RH','adjRH'};
         elseif strcmp(imagingType,'single') == true
-            subDataTypes = {'adjBarrels'};
+            subDataTypes = {'Barrels','adjBarrels'};
         end
     elseif strcmp(dataType,'EMG') == true
         subDataTypes = {'emg'};

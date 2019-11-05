@@ -28,9 +28,9 @@ for a = 1:size(procDataFileIDs,1)
     [~,fileDate,~] = GetFileInfo_IOS(procDataFileID);
     strDay = ConvertDate_IOS(fileDate);
     if strcmp(imagingType,'bilateral') == true
-            cbvFields = {'adjLH','adjRH'};
+            cbvFields = {'LH','adjLH','RH','adjRH'};
     elseif strcmp(imagingType,'single') == true
-            cbvFields = {'adjBarrels'};
+            cbvFields = {'Barrels','adjBarrels'};
     end
     for b = 1:length(cbvFields)
         cbvField = cbvFields{1,b};
