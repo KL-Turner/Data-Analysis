@@ -66,7 +66,6 @@ else
     load(manualBaselineFileID)
 end
 
- 
 q = 1;
 for b = 1:length(validFiles)
     procDataFileID = procDataFileIDs(b,:);

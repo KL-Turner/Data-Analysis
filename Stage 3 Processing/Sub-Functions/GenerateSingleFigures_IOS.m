@@ -16,7 +16,6 @@ function [singleTrialFig] = GenerateSingleFigures_IOS(procDataFileIDs, RestingBa
 %________________________________________________________________________________________________________________________
 
 for a = 1:size(procDataFileIDs, 1)
-
     procDataFile = procDataFileIDs(a,:);
     load(procDataFile)
     disp(['Creating single trial summary figure ' num2str(a) ' of ' num2str(size(procDataFileIDs,1)) '...']); disp(' ')
@@ -45,31 +44,35 @@ for a = 1:size(procDataFileIDs, 1)
     LPadSol = ProcData.data.solenoids.LPadSol;
     RPadSol = ProcData.data.solenoids.RPadSol;
     AudSol = ProcData.data.solenoids.AudSol;
-
     
     %% CBV data - normalize and then lowpass filer
     % Setup butterworth filter coefficients for a 1 Hz lowpass based on the sampling rate (20 Hz).
     [D, C] = butter(4, 1/(ProcData.notes.CBVCamSamplingRate/2), 'low');
     if strcmp(imagingType,'bilateral') == true
-        LH_CBV = ProcData.data.CBV.LH;
-        normLH_CBV = (LH_CBV - RestingBaselines.(baselineType).CBV.LH.(strDay))./(RestingBaselines.(baselineType).CBV.LH.(strDay));
+        LH_CBV = ProcData.data.CBV.adjLH;
+        normLH_CBV = (LH_CBV - RestingBaselines.(baselineType).CBV.adjLH.(strDay))./(RestingBaselines.(baselineType).CBV.adjLH.(strDay));
         filtLH_CBV = filtfilt(D, C, normLH_CBV)*100;
-        RH_CBV = ProcData.data.CBV.RH;
-        normRH_CBV = (RH_CBV - RestingBaselines.(baselineType).CBV.RH.(strDay))./(RestingBaselines.(baselineType).CBV.RH.(strDay));
+        RH_CBV = ProcData.data.CBV.adjRH;
+        normRH_CBV = (RH_CBV - RestingBaselines.(baselineType).CBV.adjRH.(strDay))./(RestingBaselines.(baselineType).CBV.adjRH.(strDay));
         filtRH_CBV = filtfilt(D, C, normRH_CBV)*100;
+        LH_HbT = ProcData.data.CBV_HbT.adjLH;
+        RH_HbT = ProcData.data.CBV_HbT.adjRH;
     elseif strcmp(imagingType,'isoflurane') == true
-        LH_CBV = ProcData.data.CBV.LH;
-        normLH_CBV = (LH_CBV - RestingBaselines.(baselineType).CBV.LH.(strDay))./(RestingBaselines.(baselineType).CBV.LH.(strDay));
+        LH_CBV = ProcData.data.CBV.adjLH;
+        normLH_CBV = (LH_CBV - RestingBaselines.(baselineType).CBV.adjLH.(strDay))./(RestingBaselines.(baselineType).CBV.adjLH.(strDay));
         filtLH_CBV = filtfilt(D, C, normLH_CBV)*100;
         filtLH_CBV = filtLH_CBV - mean(filtLH_CBV(1:300*30));
         RH_CBV = ProcData.data.CBV.RH;
-        normRH_CBV = (RH_CBV - RestingBaselines.(baselineType).CBV.RH.(strDay))./(RestingBaselines.(baselineType).CBV.RH.(strDay));
+        normRH_CBV = (RH_CBV - RestingBaselines.(baselineType).CBV.adjRH.(strDay))./(RestingBaselines.(baselineType).CBV.adjRH.(strDay));
         filtRH_CBV = filtfilt(D, C, normRH_CBV)*100;
         filtRH_CBV = filtRH_CBV - mean(filtRH_CBV(1:300*30));
+        LH_HbT = ProcData.data.CBV_HbT.adjLH;
+        RH_HbT = ProcData.data.CBV_HbT.adjRH;
     elseif strcmp(imagingType,'single') == true
-        CBV = ProcData.data.CBV.Barrels;
-        normCBV = (CBV - RestingBaselines.(baselineType).CBV.Barrels.(strDay))./(RestingBaselines.(baselineType).CBV.Barrels.(strDay));
+        CBV = ProcData.data.CBV.adjBarrels;
+        normCBV = (CBV - RestingBaselines.(baselineType).CBV.adjBarrels.(strDay))./(RestingBaselines.(baselineType).CBV.adjBarrels.(strDay));
         filtCBV = filtfilt(D,C,normCBV)*100;
+        Barrels_HbT = ProcData.data.CBV_HbT.adjBarrels;
     end
     
     %% Normalized neural spectrogram
@@ -90,6 +93,7 @@ for a = 1:size(procDataFileIDs, 1)
     cortical_LHnormS = SpecData.cortical_LH.fiveSec.normS;
     cortical_RHnormS = SpecData.cortical_RH.fiveSec.normS;
     hippocampusNormS = SpecData.hippocampus.fiveSec.normS;
+    
     %% Yvals for behavior Indices
     if strcmp(imagingType,'bilateral') == true || strcmp(imagingType,'isoflurane') == true
         if max(filtLH_CBV) >= max(filtRH_CBV)

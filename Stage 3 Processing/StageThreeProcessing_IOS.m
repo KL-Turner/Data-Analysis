@@ -37,7 +37,14 @@ procDataFileIDs = char(procDataFiles);
 
 targetMinutes = 30;
 timeOverride = 'n';
-imagingType = input('Imaging Type: (bilateral/single): ','s'); disp(' ')
+curDir = cd;
+dirBreaks = strfind(curDir,'\');
+curFolder = curDir(dirBreaks(end) + 1:end);
+if strcmp(curFolder,'Combined Imaging') == true
+    imagingType = 'bilateral';
+elseif strcmp(curFolder,'Single Hemisphere') == true
+    imagingType = 'single';
+end
 dataTypes = {'CBV','cortical_LH','cortical_RH','hippocampus','EMG','flow'};
 updatedDataTypes = {'CBV','CBV_HbT','cortical_LH','cortical_RH','hippocampus','EMG','flow'};
 neuralDataTypes = {'cortical_LH','cortical_RH','hippocampus'};
@@ -84,7 +91,7 @@ end
 %% BLOCK PURPOSE [6] Add delta HbT field to each processed data file
 disp('Analyzing Block [6] Adding delta HbT to each ProcData file.'); disp(' ')
 updatedBaselineType = 'manualSelection';
-UpdateTotalHemoglobin_IOS(procDataFileIDs, RestingBaselines,updatedBaselineType)
+UpdateTotalHemoglobin_IOS(procDataFileIDs, RestingBaselines,updatedBaselineType,imagingType)
 
 %% BLOCK PURPOSE: [7] Re-create the RestData structure now that HbT is available
 disp('Analyzing Block [7] Creating RestData struct for CBV and neural data.'); disp(' ')
@@ -117,10 +124,10 @@ NormalizeSpectrograms_IOS(specDataFileIDs,neuralDataTypes,RestingBaselines);
 CreateAllSpecDataStruct_IOS(animalID,neuralDataTypes)
 
 %% BLOCK PURPOSE: [11] Generate pixel baseline from WindowCam.mat files
-disp('Analyzing Block [11] Generating pixel-based resting baselines for reflectance data'); disp(' ')
-if strcmp(imagingType,'single') == true
-    [RestingBaselines] = CalculatePixelBaselines_IOS(procDataFileIDs,RestingBaselines,baselineType);
-end
+% disp('Analyzing Block [11] Generating pixel-based resting baselines for reflectance data'); disp(' ')
+% if strcmp(imagingType,'single') == true
+%     [RestingBaselines] = CalculatePixelBaselines_IOS(procDataFileIDs,RestingBaselines,baselineType);
+% end
 
 %% BLOCK PURPOSE [12] Generate single trial figures
 disp('Analyzing Block [12] Generating single trial summary figures'); disp(' ')

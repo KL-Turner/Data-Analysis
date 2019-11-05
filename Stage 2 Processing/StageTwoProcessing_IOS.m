@@ -24,9 +24,21 @@ rawDataFiles = {rawDataFileStruct.name}';
 rawDataFileIDs = char(rawDataFiles);
 [animalID,~,~] = GetFileInfo_IOS(rawDataFileIDs(1,:));
 
+procDataFileStruct = dir('*_ProcData.mat');
+procDataFiles = {procDataFileStruct.name}';
+procDataFileIDs = char(procDataFiles);
+
+curDir = cd;
+dirBreaks = strfind(curDir,'\');
+curFolder = curDir(dirBreaks(end) + 1:end);
+if strcmp(curFolder,'Combined Imaging') == true
+    imagingType = 'bilateral';
+elseif strcmp(curFolder,'Single Hemisphere') == true
+    imagingType = 'single';
+end
+
 %% BLOCK PURPOSE: [1] Create regions of interest for the windows
 disp('Analyzing Block [1] Creating regions of interest for reflectance data.'); disp(' ')
-imagingType = input('Imaging Type: (bilateral/single): ','s'); disp(' ')
 if strcmp(imagingType,'bilateral') == true
     ROInames = {'LH','RH','LH_Cement','RH_Cement','Cement'};
 elseif strcmp(imagingType,'single') == true
@@ -52,9 +64,6 @@ ProcessRawDataFiles_IOS(rawDataFileIDs)
 
 %% BLOCK PURPOSE: [4] Add Heart Rate to the ProcData structures.
 disp('Analyzing Block [4] Add heart rate to ProcData files.'); disp(' ')
-procDataFileStruct = dir('*_ProcData.mat');
-procDataFiles = {procDataFileStruct.name}';
-procDataFileIDs = char(procDataFiles);
 ExtractHeartRate_IOS(procDataFileIDs,imagingType)
 
 %% BLOCK PURPOSE: [5] Check/Correct pixel drift
@@ -65,11 +74,9 @@ elseif strcmp(imagingType,'single') == true
 end
 
 %% BLOCK PURPOSE: [6] IOS vessel diameter analysis
-% rawDataFileIDs = rawDataFileIDs(1,:);
 % if strcmp(imagingType,'single') == true
-%     CreateIntrinsicTiffStacks_IOS(rawDataFileIDs)
-%     DiamCalcSurfaceVessel_IOS(rawDataFileIDs)
-%     ExtractTiffData_IOS(rawDataFileIDs)
+%     DrawVesselROIs_IOS(procDataFileIDs)
+%     CalcVesselDiameterFWHM_IOS(procDataFileIDs)
 % end
 
 disp('Stage Two Processing - Complete.'); disp(' ')

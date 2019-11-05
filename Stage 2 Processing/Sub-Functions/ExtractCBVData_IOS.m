@@ -23,6 +23,9 @@ for a = 1:size(rawDataFileIDs,1)
     load(rawDataFile)
     for b = 1:length(ROInames)
         ROIname = [ROInames{1,b} '_' strDay];
+        if ~isfield(RawData.data,'CBV')
+            RawData.data.CBV = [];
+        end
         if ~isfield(RawData.data.CBV,ROIname)
             [frames] = ReadDalsaBinary_IOS([fileID '_WindowCam.bin'],RawData.notes.CBVCamPixelHeight,RawData.notes.CBVCamPixelWidth);
             disp(['Extracting ' ROIname ' ROI CBV data from ' rawDataFile '...']); disp(' ')

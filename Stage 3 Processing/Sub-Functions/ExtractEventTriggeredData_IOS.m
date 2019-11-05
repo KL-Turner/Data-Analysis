@@ -53,9 +53,9 @@ for a = 1:length(dataTypes)
     dataType = char(dataTypes(a));
     if strcmp(dataType, 'CBV') == true || strcmp(dataType, 'CBV_HbT') == true
         if strcmp(imagingType,'bilateral') == true
-            subDataTypes = {'LH','LH_Electrode','RH','RH_Electrode','LH_Cement','RH_Cement'};
+            subDataTypes = {'adjLH','adjRH'};
         elseif strcmp(imagingType,'single') == true
-            subDataTypes = {'Barrels','Electrode','Cement'};
+            subDataTypes = {'adjBarrels'};
         end
     elseif strcmp(dataType,'EMG') == true
         subDataTypes = {'emg'};
@@ -121,7 +121,7 @@ for a = 1:length(dataTypes)
                 disp(['Extracting ' dataType ' ' sDT ' event-triggered ' behaviorFields{d} ' data from file ' num2str(b) ' of ' num2str(size(procdataFiles, 1)) '...']); disp(' ');
                 try
                     [chunkdata, evFilter] = ExtractBehavioraldata(data, epoch, sDT, behaviorFields{d});
-                catch   % some files don't have certain fields. Skip those
+                catch
                     chunkdata = [];
                     evFilter = [];
                 end
@@ -194,7 +194,7 @@ chunkdata = zeros(sampleDur + 1, length(epochStarts), size(data, 1));
 
 for a = 1:length(epochStarts)
     chunkInds = epochStarts(a):epochStops(a);
-    chunkdata(:, a, :) = data(:, chunkInds)';
+    chunkdata(:,a,:) = data(:,chunkInds)';
 end
 
 

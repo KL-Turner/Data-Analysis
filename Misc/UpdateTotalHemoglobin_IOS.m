@@ -1,4 +1,4 @@
-function [] = UpdateTotalHemoglobin_IOS(procDataFileIDs, RestingBaselines, baselineType)
+function [] = UpdateTotalHemoglobin_IOS(procDataFileIDs, RestingBaselines, baselineType, imagingType)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -27,12 +27,16 @@ for a = 1:size(procDataFileIDs,1)
     load(procDataFileID)
     [~,fileDate,~] = GetFileInfo_IOS(procDataFileID);
     strDay = ConvertDate_IOS(fileDate);
-    cbvFields = fieldnames(ProcData.data.CBV);
+    if strcmp(imagingType,'bilateral') == true
+            cbvFields = {'adjLH','adjRH'};
+    elseif strcmp(imagingType,'single') == true
+            cbvFields = {'adjBarrels'};
+    end
     for b = 1:length(cbvFields)
-        cbvField = cbvFields{b,1};
+        cbvField = cbvFields{1,b};
         ProcData.data.CBV_HbT.(cbvField) = (log(ProcData.data.CBV.(cbvField)/RestingBaselines.(baselineType).CBV.(cbvField).(strDay)))*weightedcoeffHbT*conv2um;
     end
-    save(procDataFileID, 'ProcData')
+    save(procDataFileID,'ProcData')
 end
 
 end
