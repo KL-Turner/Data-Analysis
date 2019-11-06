@@ -19,10 +19,7 @@ clear; clc; close all
 disp('Loading necessary file names...'); disp(' ')
 
 animalIDs = {'T99','T101','T102','T103','T105','T108','T109','T110'};
-driveLetters = {'E','E','E','F','F','F','D','D'};
-
-% animalIDs = {'T99'};
-% driveLetters = {'E'};
+driveLetters = {'E','E','F','F','F','D','D'};
 
 %% BLOCK PURPOSE [1] Create training data set for a specific animal
 % Character list of all '*_ProcData.mat' files
@@ -32,7 +29,8 @@ procDataFileStruct = dir('*_ProcData.mat');
 procDataFiles = {procDataFileStruct.name}';
 procDataFileIDs = char(procDataFiles);
 
-cd ..
+baselineDir = uigetdir;
+cd(baselineDir)
 % Character name for the '*_RestingBaselines.mat' structure
 baselinesFileStruct = dir('*_RestingBaselines.mat');
 baselinesFile = {baselinesFileStruct.name}';

@@ -466,81 +466,47 @@ for a = 1:size(procDataFileIDs, 1)
     ProcData.sleep.parameters.heartRate = tempHRStruct;   % Place the data in the ProcData struct to later be saved
     
     %% BLOCK PURPOSE: Create folder for the left and right CBV data
-    LH_CBV = ProcData.data.CBV.LH;
-    RH_CBV = ProcData.data.CBV.RH;
-    LH_ElectrodeCBV = ProcData.data.CBV.LH_Electrode;
-    RH_ElectrodeCBV = ProcData.data.CBV.RH_Electrode;
-    
-    LH_NormCBV = (LH_CBV-RestingBaselines.(baselineType).CBV.LH.(strDay))/RestingBaselines.(baselineType).CBV.LH.(strDay);
-    RH_NormCBV = (RH_CBV-RestingBaselines.(baselineType).CBV.RH.(strDay))/RestingBaselines.(baselineType).CBV.RH.(strDay);
-    LH_NormElectrodeCBV = (LH_ElectrodeCBV-RestingBaselines.(baselineType).CBV.LH_Electrode.(strDay))/RestingBaselines.(baselineType).CBV.LH_Electrode.(strDay);
-    RH_NormElectrodeCBV = (RH_ElectrodeCBV-RestingBaselines.(baselineType).CBV.RH_Electrode.(strDay))/RestingBaselines.(baselineType).CBV.RH_Electrode.(strDay);
-    
     [D, C] = butter(4, 1/(30/2), 'low');
-    ledType = 'M530L3';
-    bandfilterType = 'FB530-10';
-    cutfilterType = 'EO46540';
-    conv2um = 1e6;
-    [~,~,weightedcoeffHbT] = getHbcoeffs_IOS(ledType,bandfilterType,cutfilterType);
+
+    LH_CBV = ProcData.data.CBV.adjLH;
+    RH_CBV = ProcData.data.CBV.adjRH;  
+    LH_NormCBV = (LH_CBV-RestingBaselines.(baselineType).CBV.adjLH.(strDay))/RestingBaselines.(baselineType).CBV.adjLH.(strDay);
+    RH_NormCBV = (RH_CBV-RestingBaselines.(baselineType).CBV.adjRH.(strDay))/RestingBaselines.(baselineType).CBV.adjRH.(strDay);        
+    LH_FiltCBV = filtfilt(D, C, LH_NormCBV);
+    RH_FiltCBV = filtfilt(D, C, RH_NormCBV);
     
-    hbtLH_CBV = (log(LH_CBV/RestingBaselines.(baselineType).CBV.LH.(strDay)))*weightedcoeffHbT*conv2um;
-    filtHbtLH_CBV = detrend(filtfilt(D, C, hbtLH_CBV), 'constant');
-    hbtRH_CBV = (log(RH_CBV/ RestingBaselines.(baselineType).CBV.RH.(strDay)))*weightedcoeffHbT*conv2um;
-    filtHbtRH_CBV = detrend(filtfilt(D, C, hbtRH_CBV), 'constant');
+    LH_HbT = ProcData.data.CBV_HbT.adjLH;
+    RH_HbT = ProcData.data.CBV_HbT.adjRH;  
+    filtHbtLH_CBV = filtfilt(D,C,LH_HbT);
+    filtHbtRH_CBV = filtfilt(D,C,RH_HbT);
     
-    hbtLH_ElectrodeCBV = (log(LH_CBV/RestingBaselines.(baselineType).CBV.LH_Electrode.(strDay)))*weightedcoeffHbT*conv2um;
-    filtHbtLH_ElectrodeCBV = detrend(filtfilt(D, C, hbtLH_ElectrodeCBV), 'constant');
-    hbtRH_ElectrodeCBV = (log(RH_ElectrodeCBV/ RestingBaselines.(baselineType).CBV.RH_Electrode.(strDay)))*weightedcoeffHbT*conv2um;
-    filtHbtRH_ElectrodeCBV = detrend(filtfilt(D, C, hbtRH_ElectrodeCBV), 'constant');
-    
-    LH_FiltCBV = detrend(filtfilt(D, C, LH_NormCBV), 'constant');
-    RH_FiltCBV = detrend(filtfilt(D, C, RH_NormCBV), 'constant');
-    LH_ElectrodeFiltCBV = detrend(filtfilt(D, C, LH_NormElectrodeCBV), 'constant');
-    RH_ElectrodeFiltCBV = detrend(filtfilt(D, C, RH_NormElectrodeCBV), 'constant');
-    
-    LH_tempCBVStruct = cell(180,1);   % Pre-allocate cell array
+    LH_tempCBVStruct = cell(180,1);
     RH_tempCBVStruct = cell(180,1);
-    LH_tempElectrodeCBVStruct = cell(180,1);
-    RH_tempElectrodeCBVStruct = cell(180,1);
-    
-    hbtLH_tempCBVStruct = cell(180,1);   % Pre-allocate cell array
+  
+    hbtLH_tempCBVStruct = cell(180,1);
     hbtRH_tempCBVStruct = cell(180,1);
-    hbtLH_tempElectrodeCBVStruct = cell(180,1);
-    hbtRH_tempElectrodeCBVStruct = cell(180,1);
     
     for CBVBins = 1:180   % loop through all 9000 samples across 5 minutes in 5 second bins (180 total)
         if CBVBins == 1
             LH_tempCBVStruct(CBVBins,1) = {LH_FiltCBV(CBVBins:150)};  % Samples 1 to 150
             RH_tempCBVStruct(CBVBins,1) = {RH_FiltCBV(CBVBins:150)};
-            LH_tempElectrodeCBVStruct(CBVBins,1) = {LH_ElectrodeFiltCBV(CBVBins:150)};
-            RH_tempElectrodeCBVStruct(CBVBins,1) = {RH_ElectrodeFiltCBV(CBVBins:150)};
             
             hbtLH_tempCBVStruct(CBVBins,1) = {filtHbtLH_CBV(CBVBins:150)};  % Samples 1 to 150
             hbtRH_tempCBVStruct(CBVBins,1) = {filtHbtRH_CBV(CBVBins:150)};
-            hbtLH_tempElectrodeCBVStruct(CBVBins,1) = {filtHbtLH_ElectrodeCBV(CBVBins:150)};
-            hbtRH_tempElectrodeCBVStruct(CBVBins,1) = {filtHbtRH_ElectrodeCBV(CBVBins:150)};
         else
             LH_tempCBVStruct(CBVBins, 1) = {LH_FiltCBV((((150*(CBVBins-1))+1)):(150*CBVBins))};  % Samples 151 to 300, etc...
             RH_tempCBVStruct(CBVBins, 1) = {RH_FiltCBV((((150*(CBVBins-1))+1)):(150*CBVBins))};
-            LH_tempElectrodeCBVStruct(CBVBins, 1) = {LH_ElectrodeFiltCBV((((150*(CBVBins - 1)) + 1)):(150*CBVBins))};
-            RH_tempElectrodeCBVStruct(CBVBins, 1) = {RH_ElectrodeFiltCBV((((150*(CBVBins - 1)) + 1)):(150*CBVBins))};
             
             hbtLH_tempCBVStruct(CBVBins, 1) = {filtHbtLH_CBV((((150*(CBVBins-1))+1)):(150*CBVBins))};  % Samples 151 to 300, etc...
             hbtRH_tempCBVStruct(CBVBins, 1) = {filtHbtRH_CBV((((150*(CBVBins-1))+1)):(150*CBVBins))};
-            hbtLH_tempElectrodeCBVStruct(CBVBins, 1) = {filtHbtLH_ElectrodeCBV((((150*(CBVBins - 1)) + 1)):(150*CBVBins))};
-            hbtRH_tempElectrodeCBVStruct(CBVBins, 1) = {filtHbtRH_ElectrodeCBV((((150*(CBVBins - 1)) + 1)):(150*CBVBins))};
         end
     end
     
-    ProcData.sleep.parameters.CBV.LH = LH_tempCBVStruct;   % Place the data in the ProcData struct to later be saved
+    ProcData.sleep.parameters.CBV.LH = LH_tempCBVStruct;
     ProcData.sleep.parameters.CBV.RH = RH_tempCBVStruct;
-    ProcData.sleep.parameters.CBV.LH_Electrode = LH_tempElectrodeCBVStruct;
-    ProcData.sleep.parameters.CBV.RH_Electrode = RH_tempElectrodeCBVStruct;
     
-    ProcData.sleep.parameters.CBV.hbtLH = hbtLH_tempCBVStruct;   % Place the data in the ProcData struct to later be saved
+    ProcData.sleep.parameters.CBV.hbtLH = hbtLH_tempCBVStruct;
     ProcData.sleep.parameters.CBV.hbtRH = hbtRH_tempCBVStruct;
-    ProcData.sleep.parameters.CBV.hbtLH_Electrode = hbtLH_tempElectrodeCBVStruct;
-    ProcData.sleep.parameters.CBV.hbtRH_Electrode = hbtRH_tempElectrodeCBVStruct;
     
     save(procDataFileID, 'ProcData');
 end

@@ -36,7 +36,7 @@ end
 
 %% Obtain the label/score from the model
 scoringTable = joinedTable;
-[label,score] = predict(SVMModel, scoringTable);
+[label,score] = predict(SVMModel,scoringTable);
 SVMResults.fileIDs = joinedFileList;
 SVMResults.inputData = scoringTable;
 SVMResults.labels = label;

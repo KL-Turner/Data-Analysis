@@ -16,8 +16,8 @@
 clear
 clc
 
-animalIDs = {'T99','T102','T103','T105','T108','T109','T110'};
-driveLetters = {'E','E','F','F','F','D','D'};
+animalIDs = {'T99','T101','T102','T103','T105','T108','T109','T110'};
+driveLetters = {'E','E','E','F','F','F','D','D'};
 
 for a = 1:length(animalIDs)
     animalID = animalIDs{1,a};

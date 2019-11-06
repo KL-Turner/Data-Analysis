@@ -36,7 +36,7 @@ procDataFileIDs = char(procDataFiles);
 [animalID,~,~] = GetFileInfo_IOS(procDataFileIDs(1,:));
 
 targetMinutes = 30;
-timeOverride = 'n';
+timeOverride = 'y';
 curDir = cd;
 dirBreaks = strfind(curDir,'\');
 curFolder = curDir(dirBreaks(end) + 1:end);

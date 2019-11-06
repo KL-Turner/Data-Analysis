@@ -49,11 +49,11 @@ for a = 1:size(procDataFileIDs, 1)
     % Setup butterworth filter coefficients for a 1 Hz lowpass based on the sampling rate (20 Hz).
     [D, C] = butter(4, 1/(ProcData.notes.CBVCamSamplingRate/2), 'low');
     if strcmp(imagingType,'bilateral') == true
-        LH_CBV = ProcData.data.CBV.LH;
-        normLH_CBV = (LH_CBV - RestingBaselines.(baselineType).CBV.LH.(strDay))./(RestingBaselines.(baselineType).CBV.LH.(strDay));
+        LH_CBV = ProcData.data.CBV.adjLH;
+        normLH_CBV = (LH_CBV - RestingBaselines.(baselineType).CBV.adjLH.(strDay))./(RestingBaselines.(baselineType).CBV.adjLH.(strDay));
         filtLH_CBV = filtfilt(D, C, normLH_CBV)*100;
-        RH_CBV = ProcData.data.CBV.RH;
-        normRH_CBV = (RH_CBV - RestingBaselines.(baselineType).CBV.RH.(strDay))./(RestingBaselines.(baselineType).CBV.RH.(strDay));
+        RH_CBV = ProcData.data.CBV.adjRH;
+        normRH_CBV = (RH_CBV - RestingBaselines.(baselineType).CBV.adjRH.(strDay))./(RestingBaselines.(baselineType).CBV.adjRH.(strDay));
         filtRH_CBV = filtfilt(D, C, normRH_CBV)*100;
 %         LH_HbT = ProcData.data.CBV_HbT.LH;
 %         RH_HbT = ProcData.data.CBV_HbT.RH;
@@ -245,9 +245,7 @@ for a = 1:size(procDataFileIDs, 1)
     yyaxis right
     ylabel('Hippocampal LFP')
     set(gca,'Yticklabel', [])
-    
-    pause(1)
-    
+        
     %% Save the file to directory.
     if strcmp(saveFigs, 'y') == true
         [pathstr, ~, ~] = fileparts(cd);
@@ -261,7 +259,7 @@ for a = 1:size(procDataFileIDs, 1)
         if ~exist(dirpath, 'dir')
             mkdir(dirpath);
         end
-        savefig(singleTrialFig, [dirpath animalID '_' fileID '_SingleTrialFig2']);
+        savefig(singleTrialFig, [dirpath animalID '_' fileID '_SingleTrialFig']);
         close(singleTrialFig)
     end
 end

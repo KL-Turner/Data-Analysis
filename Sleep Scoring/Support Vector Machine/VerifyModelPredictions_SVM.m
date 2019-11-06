@@ -29,7 +29,7 @@ for a = 1:length(animalIDs)
     baselinesFileID = char(baselinesFile);
     load(baselinesFileID)
     
-    dataLoc = [driveLetters{1,a} ':\' animalIDs{1,a} '\Combined Imaging\SVM Validation Set'];
+    dataLoc = [driveLetters{1,a} ':\' animalIDs{1,a} '\SVM Validation Set'];
     cd(dataLoc)
     
     procDataFileStruct = dir('*_ProcData.mat');
@@ -52,7 +52,6 @@ for a = 1:length(animalIDs)
     trainingDataFileStruct = dir('*_TrainingData.mat');
     trainingDataFiles = {trainingDataFileStruct.name}';
     trainingDataFileIDs = char(trainingDataFiles);
-    
     
     for b = 1:size(trainingDataFileIDs,1)
 %         disp(['Generating SVM verification figure ' num2str(b) ' of ' num2str(size(trainingDataFileIDs,1)) '...']); disp(' ')
@@ -212,7 +211,7 @@ for a = 1:length(animalIDs)
             scatter(xInds,yInds_manualNREMSleep, 'MarkerEdgeColor', 'b', 'MarkerFaceColor', 'b');
             scatter(xInds,yInds_manualREMSleep, 'MarkerEdgeColor', 'r', 'MarkerFaceColor', 'r');
             
-            dirpath = [driveLetters{1,a} ':\' animalIDs{1,a} '\Figures\SVM Model Validation\'];
+            dirpath = [driveLetters{1,a} ':\' animalIDs{1,a} '\SVM Model Validation\Figures\'];
             
             if ~exist(dirpath, 'dir')
                 mkdir(dirpath);
@@ -222,6 +221,25 @@ for a = 1:length(animalIDs)
             close(figHandle)
         end
     end
+    
+    confMat = figure;
+    cm = confusionchart(allManualScores,allSVMScores);
+    cm.ColumnSummary = 'column-normalized';
+    cm.RowSummary = 'row-normalized';
+    cm.Title = 'T109 SVM Confusion Matrix';
+    ConfMat.manualScores = allManualScores;
+    ConfMat.svmScore = allSVMScores;
+    dirpathA = [driveLetters{1,a} ':\' animalIDs{1,a} '\SVM Validation Set\Figures\'];
+    if ~exist(dirpathA, 'dir')
+        mkdir(dirpathA);
+    end
+    save([dirpathA animalIDs{1,a} '_SVM_ConfusionInputs'],'ConfMat')
+    dirpathB = [driveLetters{1,a} ':\' animalIDs{1,a} '\SVM Validation Set\'];
+    if ~exist(dirpathB, 'dir')
+        mkdir(dirpathB);
+    end
+    savefig(confMat, [dirpathB animalIDs{1,a} '_SVM_ConfusionMatrix']);
+    close(confMat)
     
     totalScores = length(allSVMScores);
     positiveScores = sum(strcmp(allSVMScores, allManualScores));

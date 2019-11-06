@@ -46,25 +46,12 @@ AudSol = ProcData.data.solenoids.AudSol;
 %% CBV data - normalize and then lowpass filer
 % Setup butterworth filter coefficients for a 1 Hz lowpass based on the sampling rate (20 Hz).
 [D, C] = butter(4, 1/(ProcData.notes.CBVCamSamplingRate/2), 'low');
-LH_CBV = ProcData.data.CBV.LH;
-RH_CBV = ProcData.data.CBV.RH;
-ledType = 'M530L3';
-bandfilterType = 'FB530-10';
-cutfilterType = 'EO46540';
-conv2um = 1e6;
-[~,~,weightedcoeffHbT] = getHbcoeffs_IOS(ledType,bandfilterType,cutfilterType);
-LH_CBV = ProcData.data.CBV.LH;
-RH_CBV = ProcData.data.CBV.RH;
-
-hbtLH_CBV = (log(LH_CBV/RestingBaselines.(baselineType).CBV.LH.(strDay)))*weightedcoeffHbT*conv2um;
-filtHbtLH_CBV = detrend(filtfilt(D, C, hbtLH_CBV), 'constant');
-hbtRH_CBV = (log(RH_CBV/ RestingBaselines.(baselineType).CBV.RH.(strDay)))*weightedcoeffHbT*conv2um;
-filtHbtRH_CBV = detrend(filtfilt(D, C, hbtRH_CBV), 'constant');
-
-normLH_CBV = (LH_CBV - RestingBaselines.(baselineType).CBV.LH.(strDay))./(RestingBaselines.(baselineType).CBV.LH.(strDay));
-filtLH_CBV = detrend((filtfilt(D, C, normLH_CBV))*100, 'constant');
-normRH_CBV = (RH_CBV - RestingBaselines.(baselineType).CBV.RH.(strDay))./(RestingBaselines.(baselineType).CBV.RH.(strDay));
-filtRH_CBV = detrend((filtfilt(D, C, normRH_CBV))*100, 'constant');
+LH_CBV = ProcData.data.CBV.adjLH;
+RH_CBV = ProcData.data.CBV.adjRH;
+normLH_CBV = (LH_CBV - RestingBaselines.(baselineType).CBV.adjLH.(strDay))./(RestingBaselines.(baselineType).CBV.adjLH.(strDay));
+filtLH_CBV = (filtfilt(D, C, normLH_CBV))*100;
+normRH_CBV = (RH_CBV - RestingBaselines.(baselineType).CBV.adjRH.(strDay))./(RestingBaselines.(baselineType).CBV.adjRH.(strDay));
+filtRH_CBV = (filtfilt(D, C, normRH_CBV))*100;
 
 %% Neural data
 deltaPower_LH = ProcData.data.cortical_LH.deltaBandPower;
@@ -176,11 +163,11 @@ set(gca,'Xticklabel',[])
 set(gca,'box','off')
 axis tight
 
-yyaxis right
-plot((1:length(filtHbtLH_CBV))/ProcData.notes.CBVCamSamplingRate, filtHbtLH_CBV, 'color', colors_IOS('coral red'))
-hold on;
-plot((1:length(filtHbtRH_CBV))/ProcData.notes.CBVCamSamplingRate, filtHbtRH_CBV, 'color', colors_IOS('battleship grey'))
-ylabel('\DeltaHbT')
+% yyaxis right
+% plot((1:length(filtHbtLH_CBV))/ProcData.notes.CBVCamSamplingRate, filtHbtLH_CBV, 'color', colors_IOS('coral red'))
+% hold on;
+% plot((1:length(filtHbtRH_CBV))/ProcData.notes.CBVCamSamplingRate, filtHbtRH_CBV, 'color', colors_IOS('battleship grey'))
+% ylabel('\DeltaHbT')
 
 xlim([0 ProcData.notes.trialDuration_sec])
 set(gca,'TickLength',[0, 0])
@@ -207,7 +194,7 @@ axis tight
 ax4 = subplot(6,1,4);
 semilog_imagesc_IOS(T, F, cortical_LHnormS, 'y')
 axis xy
-caxis([-1 1])
+caxis([-1 2])
 ylabel('Frequency (Hz)')
 set(gca,'Yticklabel', '10^1')
 xlim([0 ProcData.notes.trialDuration_sec])
@@ -222,7 +209,7 @@ set(gca,'Yticklabel', [])
 ax5 = subplot(6,1,5);
 semilog_imagesc_IOS(T, F, cortical_RHnormS, 'y')
 axis xy
-caxis([-1 1])
+caxis([-1 2])
 ylabel('Frequency (Hz)')
 set(gca,'Yticklabel', '10^1')
 xlim([0 ProcData.notes.trialDuration_sec])
@@ -236,7 +223,7 @@ set(gca,'Yticklabel', [])
 % Hippocampal electrode spectrogram
 ax6 = subplot(6,1,6);
 semilog_imagesc_IOS(T, F, hippocampusNormS, 'y')
-caxis([-1 1])
+caxis([-1 2])
 xlabel('Time (sec)')
 ylabel('Frequency (Hz)')
 xlim([0 ProcData.notes.trialDuration_sec])

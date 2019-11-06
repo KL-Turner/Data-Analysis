@@ -95,13 +95,9 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
             % CBV
             LH_CBV{indexCount, 1} = ProcData.sleep.parameters.CBV.LH{fixedSleepIndex(indexCount), 1};
             RH_CBV{indexCount, 1} = ProcData.sleep.parameters.CBV.RH{fixedSleepIndex(indexCount), 1};
-            LH_ElectrodeCBV{indexCount, 1} = ProcData.sleep.parameters.CBV.LH_Electrode{fixedSleepIndex(indexCount), 1};
-            RH_ElectrodeCBV{indexCount, 1} = ProcData.sleep.parameters.CBV.RH_Electrode{fixedSleepIndex(indexCount), 1};
             
             LH_hbtCBV{indexCount, 1} = ProcData.sleep.parameters.CBV.hbtLH{fixedSleepIndex(indexCount), 1};
             RH_hbtCBV{indexCount, 1} = ProcData.sleep.parameters.CBV.hbtRH{fixedSleepIndex(indexCount), 1};
-            LH_ElectrodehbtCBV{indexCount, 1} = ProcData.sleep.parameters.CBV.hbtLH_Electrode{fixedSleepIndex(indexCount), 1};
-            RH_ElectrodehbtCBV{indexCount, 1} = ProcData.sleep.parameters.CBV.hbtRH_Electrode{fixedSleepIndex(indexCount), 1};
                    
             WhiskerAcceleration{indexCount, 1} = ProcData.sleep.parameters.whiskerAcceleration{fixedSleepIndex(indexCount), 1};
             HeartRate{indexCount, 1} = ProcData.sleep.parameters.heartRate{fixedSleepIndex(indexCount), 1};
@@ -285,14 +281,6 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
             arrayRH_CBV = reshape(matRH_CBV', [1, size(matRH_CBV, 2)*size(matRH_CBV, 1)]);
             cellRH_CBV = {arrayRH_CBV};
             
-            matLH_ElectrodeCBV = cell2mat(LH_ElectrodeCBV);
-            arrayLH_ElectrodeCBV = reshape(matLH_ElectrodeCBV', [1, size(matLH_ElectrodeCBV, 2)*size(matLH_ElectrodeCBV, 1)]);
-            cellLH_ElectrodeCBV = {arrayLH_ElectrodeCBV};
-            
-            matRH_ElectrodeCBV = cell2mat(RH_ElectrodeCBV);
-            arrayRH_ElectrodeCBV = reshape(matRH_ElectrodeCBV', [1, size(matRH_ElectrodeCBV, 2)*size(matRH_ElectrodeCBV, 1)]);
-            cellRH_ElectrodeCBV = {arrayRH_ElectrodeCBV};
-            
             % hbt cbv
             matLH_hbtCBV = cell2mat(LH_hbtCBV);
             arrayLH_hbtCBV = reshape(matLH_hbtCBV', [1, size(matLH_hbtCBV, 2)*size(matLH_hbtCBV, 1)]);
@@ -301,14 +289,6 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
             matRH_hbtCBV = cell2mat(RH_hbtCBV);
             arrayRH_hbtCBV = reshape(matRH_hbtCBV', [1, size(matRH_hbtCBV, 2)*size(matRH_hbtCBV, 1)]);
             cellRH_hbtCBV = {arrayRH_hbtCBV};
-            
-            matLH_ElectrodehbtCBV = cell2mat(LH_ElectrodehbtCBV);
-            arrayLH_ElectrodehbtCBV = reshape(matLH_ElectrodehbtCBV', [1, size(matLH_ElectrodehbtCBV, 2)*size(matLH_ElectrodehbtCBV, 1)]);
-            cellLH_ElectrodehbtCBV = {arrayLH_ElectrodehbtCBV};
-            
-            matRH_ElectrodehbtCBV = cell2mat(RH_ElectrodehbtCBV);
-            arrayRH_ElectrodehbtCBV = reshape(matRH_ElectrodehbtCBV', [1, size(matRH_ElectrodehbtCBV, 2)*size(matRH_ElectrodehbtCBV, 1)]);
-            cellRH_ElectrodehbtCBV = {arrayRH_ElectrodehbtCBV};
             
             matBinTimes = cell2mat(BinTimes);
             arrayBinTimes = reshape(matBinTimes', [1, size(matBinTimes, 2)*size(matBinTimes, 1)]);
@@ -370,13 +350,9 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
                 
                 mat2CellLH_CBV{matCounter, 1} = LH_CBV(convertedMat2Cell{matCounter, 1});
                 mat2CellRH_CBV{matCounter, 1} = RH_CBV(convertedMat2Cell{matCounter, 1});
-                mat2CellLH_ElectrodeCBV{matCounter, 1} = LH_ElectrodeCBV(convertedMat2Cell{matCounter, 1});
-                mat2CellRH_ElectrodeCBV{matCounter, 1} = RH_ElectrodeCBV(convertedMat2Cell{matCounter, 1});
                 
                 mat2CellLH_hbtCBV{matCounter, 1} = LH_hbtCBV(convertedMat2Cell{matCounter, 1});
                 mat2CellRH_hbtCBV{matCounter, 1} = RH_hbtCBV(convertedMat2Cell{matCounter, 1});
-                mat2CellLH_ElectrodehbtCBV{matCounter, 1} = LH_ElectrodehbtCBV(convertedMat2Cell{matCounter, 1});
-                mat2CellRH_ElectrodehbtCBV{matCounter, 1} = RH_ElectrodehbtCBV(convertedMat2Cell{matCounter, 1});
                 
                 mat2CellWhiskerAcceleration{matCounter, 1} = WhiskerAcceleration(convertedMat2Cell{matCounter, 1});
                 mat2CellHeartRate{matCounter, 1} = HeartRate(convertedMat2Cell{matCounter, 1});
@@ -524,14 +500,6 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
                 arrayRH_CBV = reshape(matRH_CBV', [1, size(matRH_CBV, 2)*size(matRH_CBV, 1)]);
                 cellRH_CBV{cellCounter, 1} = arrayRH_CBV;
                 
-                matLH_ElectrodeCBV = cell2mat(mat2CellLH_ElectrodeCBV{cellCounter, 1});
-                arrayLH_ElectrodeCBV = reshape(matLH_ElectrodeCBV', [1, size(matLH_ElectrodeCBV, 2)*size(matLH_ElectrodeCBV, 1)]);
-                cellLH_ElectrodeCBV{cellCounter, 1} = arrayLH_ElectrodeCBV;
-                
-                matRH_ElectrodeCBV = cell2mat(mat2CellRH_ElectrodeCBV{cellCounter, 1});
-                arrayRH_ElectrodeCBV = reshape(matRH_ElectrodeCBV', [1, size(matRH_ElectrodeCBV, 2)*size(matRH_ElectrodeCBV, 1)]);
-                cellRH_ElectrodeCBV{cellCounter, 1} = arrayRH_ElectrodeCBV;
-                
                 matLH_hbtCBV = cell2mat(mat2CellLH_hbtCBV{cellCounter, 1});
                 arrayLH_hbtCBV = reshape(matLH_hbtCBV', [1, size(matLH_hbtCBV, 2)*size(matLH_hbtCBV, 1)]);
                 cellLH_hbtCBV{cellCounter, 1} = arrayLH_hbtCBV;
@@ -539,14 +507,6 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
                 matRH_hbtCBV = cell2mat(mat2CellRH_hbtCBV{cellCounter, 1});
                 arrayRH_hbtCBV = reshape(matRH_hbtCBV', [1, size(matRH_hbtCBV, 2)*size(matRH_hbtCBV, 1)]);
                 cellRH_hbtCBV{cellCounter, 1} = arrayRH_hbtCBV;
-                
-                matLH_ElectrodehbtCBV = cell2mat(mat2CellLH_ElectrodehbtCBV{cellCounter, 1});
-                arrayLH_ElectrodehbtCBV = reshape(matLH_ElectrodehbtCBV', [1, size(matLH_ElectrodehbtCBV, 2)*size(matLH_ElectrodehbtCBV, 1)]);
-                cellLH_ElectrodehbtCBV{cellCounter, 1} = arrayLH_ElectrodehbtCBV;
-                
-                matRH_ElectrodehbtCBV = cell2mat(mat2CellRH_ElectrodehbtCBV{cellCounter, 1});
-                arrayRH_ElectrodehbtCBV = reshape(matRH_ElectrodehbtCBV', [1, size(matRH_ElectrodehbtCBV, 2)*size(matRH_ElectrodehbtCBV, 1)]);
-                cellRH_ElectrodehbtCBV{cellCounter, 1} = arrayRH_ElectrodehbtCBV;
                 
                 for x = 1:size(mat2CellWhiskerAcceleration{cellCounter, 1}, 1)
                     targetPoints = size(mat2CellWhiskerAcceleration{cellCounter, 1}{1, 1}, 2);
@@ -626,13 +586,9 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
                 
                 SleepData.NREM.data.CBV.LH{cellLength, 1} = cellLH_CBV{1, 1};
                 SleepData.NREM.data.CBV.RH{cellLength, 1} = cellRH_CBV{1, 1};
-                SleepData.NREM.data.CBV.LH_Electrode{cellLength, 1} = cellLH_ElectrodeCBV{1, 1};
-                SleepData.NREM.data.CBV.RH_Electrode{cellLength, 1} = cellRH_ElectrodeCBV{1, 1};
                 
                 SleepData.NREM.data.CBV_HbT.LH{cellLength, 1} = cellLH_hbtCBV{1, 1};
                 SleepData.NREM.data.CBV_HbT.RH{cellLength, 1} = cellRH_hbtCBV{1, 1};
-                SleepData.NREM.data.CBV_HbT.LH_Electrode{cellLength, 1} = cellLH_ElectrodehbtCBV{1, 1};
-                SleepData.NREM.data.CBV_HbT.RH_Electrode{cellLength, 1} = cellRH_ElectrodehbtCBV{1, 1};
                 
                 SleepData.NREM.data.WhiskerAcceleration{cellLength, 1} = cellWhiskerAcceleration{1, 1};
                 SleepData.NREM.data.HeartRate{cellLength, 1} = cellHeartRate{1, 1};
@@ -680,13 +636,9 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
                   
                 SleepData.NREM.data.CBV.LH{size(SleepData.NREM.data.CBV.LH, 1) + 1, 1} = cellLH_CBV{cellLength, 1};
                 SleepData.NREM.data.CBV.RH{size(SleepData.NREM.data.CBV.RH, 1) + 1, 1} = cellRH_CBV{cellLength, 1};
-                SleepData.NREM.data.CBV.LH_Electrode{size(SleepData.NREM.data.CBV.LH_Electrode, 1) + 1, 1} = cellLH_ElectrodeCBV{cellLength, 1};
-                SleepData.NREM.data.CBV.RH_Electrode{size(SleepData.NREM.data.CBV.RH_Electrode, 1) + 1, 1} = cellRH_ElectrodeCBV{cellLength, 1};
                 
                 SleepData.NREM.data.CBV_HbT.LH{size(SleepData.NREM.data.CBV_HbT.LH, 1) + 1, 1} = cellLH_hbtCBV{cellLength, 1};
                 SleepData.NREM.data.CBV_HbT.RH{size(SleepData.NREM.data.CBV_HbT.RH, 1) + 1, 1} = cellRH_hbtCBV{cellLength, 1};
-                SleepData.NREM.data.CBV_HbT.LH_Electrode{size(SleepData.NREM.data.CBV_HbT.LH_Electrode, 1) + 1, 1} = cellLH_ElectrodehbtCBV{cellLength, 1};
-                SleepData.NREM.data.CBV_HbT.RH_Electrode{size(SleepData.NREM.data.CBV_HbT.RH_Electrode, 1) + 1, 1} = cellRH_ElectrodehbtCBV{cellLength, 1};
                 
                 SleepData.NREM.data.WhiskerAcceleration{size(SleepData.NREM.data.WhiskerAcceleration, 1) + 1, 1} = cellWhiskerAcceleration{cellLength, 1};
                 SleepData.NREM.data.HeartRate{size(SleepData.NREM.data.HeartRate, 1) + 1, 1} = cellHeartRate{cellLength, 1};
@@ -773,13 +725,9 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
             % CBV
             LH_CBV{indexCount, 1} = ProcData.sleep.parameters.CBV.LH{fixedSleepIndex(indexCount), 1};
             RH_CBV{indexCount, 1} = ProcData.sleep.parameters.CBV.RH{fixedSleepIndex(indexCount), 1};
-            LH_ElectrodeCBV{indexCount, 1} = ProcData.sleep.parameters.CBV.LH_Electrode{fixedSleepIndex(indexCount), 1};
-            RH_ElectrodeCBV{indexCount, 1} = ProcData.sleep.parameters.CBV.RH_Electrode{fixedSleepIndex(indexCount), 1};
             
             LH_hbtCBV{indexCount, 1} = ProcData.sleep.parameters.CBV.hbtLH{fixedSleepIndex(indexCount), 1};
             RH_hbtCBV{indexCount, 1} = ProcData.sleep.parameters.CBV.hbtRH{fixedSleepIndex(indexCount), 1};
-            LH_ElectrodehbtCBV{indexCount, 1} = ProcData.sleep.parameters.CBV.hbtLH_Electrode{fixedSleepIndex(indexCount), 1};
-            RH_ElectrodehbtCBV{indexCount, 1} = ProcData.sleep.parameters.CBV.hbtRH_Electrode{fixedSleepIndex(indexCount), 1};
                    
             WhiskerAcceleration{indexCount, 1} = ProcData.sleep.parameters.whiskerAcceleration{fixedSleepIndex(indexCount), 1};
             HeartRate{indexCount, 1} = ProcData.sleep.parameters.heartRate{fixedSleepIndex(indexCount), 1};
@@ -963,14 +911,6 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
             arrayRH_CBV = reshape(matRH_CBV', [1, size(matRH_CBV, 2)*size(matRH_CBV, 1)]);
             cellRH_CBV = {arrayRH_CBV};
             
-            matLH_ElectrodeCBV = cell2mat(LH_ElectrodeCBV);
-            arrayLH_ElectrodeCBV = reshape(matLH_ElectrodeCBV', [1, size(matLH_ElectrodeCBV, 2)*size(matLH_ElectrodeCBV, 1)]);
-            cellLH_ElectrodeCBV = {arrayLH_ElectrodeCBV};
-            
-            matRH_ElectrodeCBV = cell2mat(RH_ElectrodeCBV);
-            arrayRH_ElectrodeCBV = reshape(matRH_ElectrodeCBV', [1, size(matRH_ElectrodeCBV, 2)*size(matRH_ElectrodeCBV, 1)]);
-            cellRH_ElectrodeCBV = {arrayRH_ElectrodeCBV};
-            
             % hbt cbv
             matLH_hbtCBV = cell2mat(LH_hbtCBV);
             arrayLH_hbtCBV = reshape(matLH_hbtCBV', [1, size(matLH_hbtCBV, 2)*size(matLH_hbtCBV, 1)]);
@@ -979,14 +919,6 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
             matRH_hbtCBV = cell2mat(RH_hbtCBV);
             arrayRH_hbtCBV = reshape(matRH_hbtCBV', [1, size(matRH_hbtCBV, 2)*size(matRH_hbtCBV, 1)]);
             cellRH_hbtCBV = {arrayRH_hbtCBV};
-            
-            matLH_ElectrodehbtCBV = cell2mat(LH_ElectrodehbtCBV);
-            arrayLH_ElectrodehbtCBV = reshape(matLH_ElectrodehbtCBV', [1, size(matLH_ElectrodehbtCBV, 2)*size(matLH_ElectrodehbtCBV, 1)]);
-            cellLH_ElectrodehbtCBV = {arrayLH_ElectrodehbtCBV};
-            
-            matRH_ElectrodehbtCBV = cell2mat(RH_ElectrodehbtCBV);
-            arrayRH_ElectrodehbtCBV = reshape(matRH_ElectrodehbtCBV', [1, size(matRH_ElectrodehbtCBV, 2)*size(matRH_ElectrodehbtCBV, 1)]);
-            cellRH_ElectrodehbtCBV = {arrayRH_ElectrodehbtCBV};
             
             matBinTimes = cell2mat(BinTimes);
             arrayBinTimes = reshape(matBinTimes', [1, size(matBinTimes, 2)*size(matBinTimes, 1)]);
@@ -1048,13 +980,9 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
                 
                 mat2CellLH_CBV{matCounter, 1} = LH_CBV(convertedMat2Cell{matCounter, 1});
                 mat2CellRH_CBV{matCounter, 1} = RH_CBV(convertedMat2Cell{matCounter, 1});
-                mat2CellLH_ElectrodeCBV{matCounter, 1} = LH_ElectrodeCBV(convertedMat2Cell{matCounter, 1});
-                mat2CellRH_ElectrodeCBV{matCounter, 1} = RH_ElectrodeCBV(convertedMat2Cell{matCounter, 1});
                 
                 mat2CellLH_hbtCBV{matCounter, 1} = LH_hbtCBV(convertedMat2Cell{matCounter, 1});
                 mat2CellRH_hbtCBV{matCounter, 1} = RH_hbtCBV(convertedMat2Cell{matCounter, 1});
-                mat2CellLH_ElectrodehbtCBV{matCounter, 1} = LH_ElectrodehbtCBV(convertedMat2Cell{matCounter, 1});
-                mat2CellRH_ElectrodehbtCBV{matCounter, 1} = RH_ElectrodehbtCBV(convertedMat2Cell{matCounter, 1});
                 
                 mat2CellWhiskerAcceleration{matCounter, 1} = WhiskerAcceleration(convertedMat2Cell{matCounter, 1});
                 mat2CellHeartRate{matCounter, 1} = HeartRate(convertedMat2Cell{matCounter, 1});
@@ -1202,14 +1130,6 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
                 arrayRH_CBV = reshape(matRH_CBV', [1, size(matRH_CBV, 2)*size(matRH_CBV, 1)]);
                 cellRH_CBV{cellCounter, 1} = arrayRH_CBV;
                 
-                matLH_ElectrodeCBV = cell2mat(mat2CellLH_ElectrodeCBV{cellCounter, 1});
-                arrayLH_ElectrodeCBV = reshape(matLH_ElectrodeCBV', [1, size(matLH_ElectrodeCBV, 2)*size(matLH_ElectrodeCBV, 1)]);
-                cellLH_ElectrodeCBV{cellCounter, 1} = arrayLH_ElectrodeCBV;
-                
-                matRH_ElectrodeCBV = cell2mat(mat2CellRH_ElectrodeCBV{cellCounter, 1});
-                arrayRH_ElectrodeCBV = reshape(matRH_ElectrodeCBV', [1, size(matRH_ElectrodeCBV, 2)*size(matRH_ElectrodeCBV, 1)]);
-                cellRH_ElectrodeCBV{cellCounter, 1} = arrayRH_ElectrodeCBV;
-                
                 matLH_hbtCBV = cell2mat(mat2CellLH_hbtCBV{cellCounter, 1});
                 arrayLH_hbtCBV = reshape(matLH_hbtCBV', [1, size(matLH_hbtCBV, 2)*size(matLH_hbtCBV, 1)]);
                 cellLH_hbtCBV{cellCounter, 1} = arrayLH_hbtCBV;
@@ -1217,14 +1137,6 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
                 matRH_hbtCBV = cell2mat(mat2CellRH_hbtCBV{cellCounter, 1});
                 arrayRH_hbtCBV = reshape(matRH_hbtCBV', [1, size(matRH_hbtCBV, 2)*size(matRH_hbtCBV, 1)]);
                 cellRH_hbtCBV{cellCounter, 1} = arrayRH_hbtCBV;
-                
-                matLH_ElectrodehbtCBV = cell2mat(mat2CellLH_ElectrodehbtCBV{cellCounter, 1});
-                arrayLH_ElectrodehbtCBV = reshape(matLH_ElectrodehbtCBV', [1, size(matLH_ElectrodehbtCBV, 2)*size(matLH_ElectrodehbtCBV, 1)]);
-                cellLH_ElectrodehbtCBV{cellCounter, 1} = arrayLH_ElectrodehbtCBV;
-                
-                matRH_ElectrodehbtCBV = cell2mat(mat2CellRH_ElectrodehbtCBV{cellCounter, 1});
-                arrayRH_ElectrodehbtCBV = reshape(matRH_ElectrodehbtCBV', [1, size(matRH_ElectrodehbtCBV, 2)*size(matRH_ElectrodehbtCBV, 1)]);
-                cellRH_ElectrodehbtCBV{cellCounter, 1} = arrayRH_ElectrodehbtCBV;
                 
                 for x = 1:size(mat2CellWhiskerAcceleration{cellCounter, 1}, 1)
                     targetPoints = size(mat2CellWhiskerAcceleration{cellCounter, 1}{1, 1}, 2);
@@ -1304,13 +1216,9 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
                 
                 SleepData.REM.data.CBV.LH{cellLength, 1} = cellLH_CBV{1, 1};
                 SleepData.REM.data.CBV.RH{cellLength, 1} = cellRH_CBV{1, 1};
-                SleepData.REM.data.CBV.LH_Electrode{cellLength, 1} = cellLH_ElectrodeCBV{1, 1};
-                SleepData.REM.data.CBV.RH_Electrode{cellLength, 1} = cellRH_ElectrodeCBV{1, 1};
                 
                 SleepData.REM.data.CBV_HbT.LH{cellLength, 1} = cellLH_hbtCBV{1, 1};
                 SleepData.REM.data.CBV_HbT.RH{cellLength, 1} = cellRH_hbtCBV{1, 1};
-                SleepData.REM.data.CBV_HbT.LH_Electrode{cellLength, 1} = cellLH_ElectrodehbtCBV{1, 1};
-                SleepData.REM.data.CBV_HbT.RH_Electrode{cellLength, 1} = cellRH_ElectrodehbtCBV{1, 1};
                 
                 SleepData.REM.data.WhiskerAcceleration{cellLength, 1} = cellWhiskerAcceleration{1, 1};
                 SleepData.REM.data.HeartRate{cellLength, 1} = cellHeartRate{1, 1};
@@ -1358,13 +1266,9 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
                   
                 SleepData.REM.data.CBV.LH{size(SleepData.REM.data.CBV.LH, 1) + 1, 1} = cellLH_CBV{cellLength, 1};
                 SleepData.REM.data.CBV.RH{size(SleepData.REM.data.CBV.RH, 1) + 1, 1} = cellRH_CBV{cellLength, 1};
-                SleepData.REM.data.CBV.LH_Electrode{size(SleepData.REM.data.CBV.LH_Electrode, 1) + 1, 1} = cellLH_ElectrodeCBV{cellLength, 1};
-                SleepData.REM.data.CBV.RH_Electrode{size(SleepData.REM.data.CBV.RH_Electrode, 1) + 1, 1} = cellRH_ElectrodeCBV{cellLength, 1};
                 
                 SleepData.REM.data.CBV_HbT.LH{size(SleepData.REM.data.CBV_HbT.LH, 1) + 1, 1} = cellLH_hbtCBV{cellLength, 1};
                 SleepData.REM.data.CBV_HbT.RH{size(SleepData.REM.data.CBV_HbT.RH, 1) + 1, 1} = cellRH_hbtCBV{cellLength, 1};
-                SleepData.REM.data.CBV_HbT.LH_Electrode{size(SleepData.REM.data.CBV_HbT.LH_Electrode, 1) + 1, 1} = cellLH_ElectrodehbtCBV{cellLength, 1};
-                SleepData.REM.data.CBV_HbT.RH_Electrode{size(SleepData.REM.data.CBV_HbT.RH_Electrode, 1) + 1, 1} = cellRH_ElectrodehbtCBV{cellLength, 1};
                 
                 SleepData.REM.data.WhiskerAcceleration{size(SleepData.REM.data.WhiskerAcceleration, 1) + 1, 1} = cellWhiskerAcceleration{cellLength, 1};
                 SleepData.REM.data.HeartRate{size(SleepData.REM.data.HeartRate, 1) + 1, 1} = cellHeartRate{cellLength, 1};

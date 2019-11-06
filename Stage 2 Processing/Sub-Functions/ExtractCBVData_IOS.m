@@ -18,11 +18,10 @@ function ExtractCBVData_IOS(ROIs, ROInames, rawDataFileIDs)
 for a = 1:size(rawDataFileIDs,1)
     rawDataFile = rawDataFileIDs(a,:);
     disp(['Analyzing RawData file ' num2str(a) ' of ' num2str(size(rawDataFileIDs, 1)) '...']); disp(' ')
-    [~, fileDate, fileID] = GetFileInfo_IOS(rawDataFile);
-    strDay = ConvertDate_IOS(fileDate);
+    [~,~,fileID] = GetFileInfo_IOS(rawDataFile);
     load(rawDataFile)
     for b = 1:length(ROInames)
-        ROIname = [ROInames{1,b} '_' strDay];
+        ROIname = ROInames{1,b};
         if ~isfield(RawData.data,'CBV')
             RawData.data.CBV = [];
         end
