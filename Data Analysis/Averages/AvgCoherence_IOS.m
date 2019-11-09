@@ -79,175 +79,255 @@ for e = 1:length(behavFields)
 end
 
 %% summary figure(s)
- for h = 1:length(baselineTypes)
-     baselineType = baselineTypes{1,h};  
-     summaryFigure = figure;
-     sgtitle({['L/R Coherence - ' baselineType ' for resting data'],' '})
-     %% CBV
-     subplot(2,4,1);
-     plot(data.Rest.CBV.(baselineType).meanf,data.Rest.CBV.(baselineType).meanC,'color',colorbrewer_setA_colorA,'LineWidth',2)
-     hold on
-     plot(data.NREM.CBV.meanf,data.NREM.CBV.meanC,'color',colorbrewer_setA_colorB,'LineWidth',2)
-     plot(data.REM.CBV.meanf,data.REM.CBV.meanC,'color',colorbrewer_setA_colorC,'LineWidth',2)
-     plot(data.Unstim.CBV.meanf,data.Unstim.CBV.meanC,'color',colorbrewer_setA_colorD,'LineWidth',2)
-     plot(data.All.CBV.meanf,data.All.CBV.meanC,'color',colorbrewer_setA_colorE,'LineWidth',2)
-     plot(data.Rest.CBV.(baselineType).meanf,data.Rest.CBV.(baselineType).maxConfC_Y,'color',colorbrewer_setA_colorA,'LineWidth',1)
-     plot(data.NREM.CBV.meanf,data.NREM.CBV.maxConfC_Y,'color',colorbrewer_setA_colorB,'LineWidth',1)
-     plot(data.REM.CBV.meanf,data.REM.CBV.maxConfC_Y,'color',colorbrewer_setA_colorC,'LineWidth',1)
-     plot(data.Unstim.CBV.meanf,data.Unstim.CBV.maxConfC_Y,'color',colorbrewer_setA_colorD','LineWidth',1)
-     plot(data.All.CBV.meanf,data.All.CBV.maxConfC_Y,'color',colorbrewer_setA_colorE','LineWidth',1)
-     title('CBV Reflectance')
-     ylabel('Coherence')
-     xlabel('Freq (Hz)')
-     legend('Rest','NREM','REM','Unstim','All','Rest 95% conf','NREM 95% conf','REM 95% conf','Unstim 95% conf','All data 95% conf')
-     axis square
-     ylim([0 1])
-     xlim([0 1])
-     
-     %% CBV HbT
-     subplot(2,4,2);
-     plot(data.Rest.CBV_HbT.(baselineType).meanf,data.Rest.CBV_HbT.(baselineType).meanC,'color',colorbrewer_setA_colorA,'LineWidth',2)
-     hold on
-     plot(data.NREM.CBV_HbT.meanf,data.NREM.CBV_HbT.meanC,'color',colorbrewer_setA_colorB,'LineWidth',2)
-     plot(data.REM.CBV_HbT.meanf,data.REM.CBV_HbT.meanC,'color',colorbrewer_setA_colorC,'LineWidth',2)
-     plot(data.Unstim.CBV_HbT.meanf,data.Unstim.CBV_HbT.meanC,'color',colorbrewer_setA_colorD,'LineWidth',2)
-     plot(data.All.CBV_HbT.meanf,data.All.CBV_HbT.meanC,'color',colorbrewer_setA_colorE,'LineWidth',2)
-     plot(data.Rest.CBV_HbT.(baselineType).meanf,data.Rest.CBV_HbT.(baselineType).maxConfC_Y,'color',colorbrewer_setA_colorA,'LineWidth',1)
-     plot(data.NREM.CBV_HbT.meanf,data.NREM.CBV_HbT.maxConfC_Y,'color',colorbrewer_setA_colorB,'LineWidth',1)
-     plot(data.REM.CBV_HbT.meanf,data.REM.CBV_HbT.maxConfC_Y,'color',colorbrewer_setA_colorC,'LineWidth',1)
-     plot(data.Unstim.CBV_HbT.meanf,data.Unstim.CBV_HbT.maxConfC_Y,'color',colorbrewer_setA_colorD','LineWidth',1)
-     plot(data.All.CBV_HbT.meanf,data.All.CBV_HbT.maxConfC_Y,'color',colorbrewer_setA_colorE','LineWidth',1)
-     title('CBV HbT')
-     ylabel('Coherence')
-     xlabel('Freq (Hz)')
-     axis square
-     ylim([0 1])
-     xlim([0 1])
-     
-     %% Delta-band power
-     subplot(2,4,3);
-     plot(data.Rest.deltaBandPower.(baselineType).meanf,data.Rest.deltaBandPower.(baselineType).meanC,'color',colorbrewer_setA_colorA,'LineWidth',2)
-     hold on
-     plot(data.NREM.deltaBandPower.meanf,data.NREM.deltaBandPower.meanC,'color',colorbrewer_setA_colorB,'LineWidth',2)
-     plot(data.REM.deltaBandPower.meanf,data.REM.deltaBandPower.meanC,'color',colorbrewer_setA_colorC,'LineWidth',2)
-     plot(data.Unstim.deltaBandPower.meanf,data.Unstim.deltaBandPower.meanC,'color',colorbrewer_setA_colorD,'LineWidth',2)
-     plot(data.All.deltaBandPower.meanf,data.All.deltaBandPower.meanC,'color',colorbrewer_setA_colorE,'LineWidth',2)
-     plot(data.Rest.deltaBandPower.(baselineType).meanf,data.Rest.deltaBandPower.(baselineType).maxConfC_Y,'color',colorbrewer_setA_colorA,'LineWidth',1)
-     plot(data.NREM.deltaBandPower.meanf,data.NREM.deltaBandPower.maxConfC_Y,'color',colorbrewer_setA_colorB,'LineWidth',1)
-     plot(data.REM.deltaBandPower.meanf,data.REM.deltaBandPower.maxConfC_Y,'color',colorbrewer_setA_colorC,'LineWidth',1)
-     plot(data.Unstim.deltaBandPower.meanf,data.Unstim.deltaBandPower.maxConfC_Y,'color',colorbrewer_setA_colorD','LineWidth',1)
-     plot(data.All.deltaBandPower.meanf,data.All.deltaBandPower.maxConfC_Y,'color',colorbrewer_setA_colorE','LineWidth',1)
-     title('Delta-band power')
-     ylabel('Coherence')
-     xlabel('Freq (Hz)')
-     axis square
-     ylim([0 1])
-     xlim([0 1])
-     
-     %% Theta-band power
-     subplot(2,4,4);
-     plot(data.Rest.thetaBandPower.(baselineType).meanf,data.Rest.thetaBandPower.(baselineType).meanC,'color',colorbrewer_setA_colorA,'LineWidth',2)
-     hold on
-     plot(data.NREM.thetaBandPower.meanf,data.NREM.thetaBandPower.meanC,'color',colorbrewer_setA_colorB,'LineWidth',2)
-     plot(data.REM.thetaBandPower.meanf,data.REM.thetaBandPower.meanC,'color',colorbrewer_setA_colorC,'LineWidth',2)
-     plot(data.Unstim.thetaBandPower.meanf,data.Unstim.thetaBandPower.meanC,'color',colorbrewer_setA_colorD,'LineWidth',2)
-     plot(data.All.thetaBandPower.meanf,data.All.thetaBandPower.meanC,'color',colorbrewer_setA_colorE,'LineWidth',2)
-     plot(data.Rest.thetaBandPower.(baselineType).meanf,data.Rest.thetaBandPower.(baselineType).maxConfC_Y,'color',colorbrewer_setA_colorA,'LineWidth',1)
-     plot(data.NREM.thetaBandPower.meanf,data.NREM.thetaBandPower.maxConfC_Y,'color',colorbrewer_setA_colorB,'LineWidth',1)
-     plot(data.REM.thetaBandPower.meanf,data.REM.thetaBandPower.maxConfC_Y,'color',colorbrewer_setA_colorC,'LineWidth',1)
-     plot(data.Unstim.thetaBandPower.meanf,data.Unstim.thetaBandPower.maxConfC_Y,'color',colorbrewer_setA_colorD','LineWidth',1)
-     plot(data.All.thetaBandPower.meanf,data.All.thetaBandPower.maxConfC_Y,'color',colorbrewer_setA_colorE','LineWidth',1)
-     title('Theta-band power')
-     ylabel('Coherence')
-     xlabel('Freq (Hz)')
-     axis square
-     ylim([0 1])
-     xlim([0 1])
-     
-     %% Alpha-band power
-     subplot(2,4,5);
-     plot(data.Rest.alphaBandPower.(baselineType).meanf,data.Rest.alphaBandPower.(baselineType).meanC,'color',colorbrewer_setA_colorA,'LineWidth',2)
-     hold on
-     plot(data.NREM.alphaBandPower.meanf,data.NREM.alphaBandPower.meanC,'color',colorbrewer_setA_colorB,'LineWidth',2)
-     plot(data.REM.alphaBandPower.meanf,data.REM.alphaBandPower.meanC,'color',colorbrewer_setA_colorC,'LineWidth',2)
-     plot(data.Unstim.alphaBandPower.meanf,data.Unstim.alphaBandPower.meanC,'color',colorbrewer_setA_colorD,'LineWidth',2)
-     plot(data.All.alphaBandPower.meanf,data.All.alphaBandPower.meanC,'color',colorbrewer_setA_colorE,'LineWidth',2)
-     plot(data.Rest.alphaBandPower.(baselineType).meanf,data.Rest.alphaBandPower.(baselineType).maxConfC_Y,'color',colorbrewer_setA_colorA,'LineWidth',1)
-     plot(data.NREM.alphaBandPower.meanf,data.NREM.alphaBandPower.maxConfC_Y,'color',colorbrewer_setA_colorB,'LineWidth',1)
-     plot(data.REM.alphaBandPower.meanf,data.REM.alphaBandPower.maxConfC_Y,'color',colorbrewer_setA_colorC,'LineWidth',1)
-     plot(data.Unstim.alphaBandPower.meanf,data.Unstim.alphaBandPower.maxConfC_Y,'color',colorbrewer_setA_colorD','LineWidth',1)
-     plot(data.All.alphaBandPower.meanf,data.All.alphaBandPower.maxConfC_Y,'color',colorbrewer_setA_colorE','LineWidth',1)
-     title('Alpha-band power')
-     ylabel('Coherence')
-     xlabel('Freq (Hz)')
-     axis square
-     ylim([0 1])
-     xlim([0 1])
-     
-     %% Beta-band power
-     subplot(2,4,6);
-     plot(data.Rest.betaBandPower.(baselineType).meanf,data.Rest.betaBandPower.(baselineType).meanC,'color',colorbrewer_setA_colorA,'LineWidth',2)
-     hold on
-     plot(data.NREM.betaBandPower.meanf,data.NREM.betaBandPower.meanC,'color',colorbrewer_setA_colorB,'LineWidth',2)
-     plot(data.REM.betaBandPower.meanf,data.REM.betaBandPower.meanC,'color',colorbrewer_setA_colorC,'LineWidth',2)
-     plot(data.Unstim.betaBandPower.meanf,data.Unstim.betaBandPower.meanC,'color',colorbrewer_setA_colorD,'LineWidth',2)
-     plot(data.All.betaBandPower.meanf,data.All.betaBandPower.meanC,'color',colorbrewer_setA_colorE,'LineWidth',2)
-     plot(data.Rest.betaBandPower.(baselineType).meanf,data.Rest.betaBandPower.(baselineType).maxConfC_Y,'color',colorbrewer_setA_colorA,'LineWidth',1)
-     plot(data.NREM.betaBandPower.meanf,data.NREM.betaBandPower.maxConfC_Y,'color',colorbrewer_setA_colorB,'LineWidth',1)
-     plot(data.REM.betaBandPower.meanf,data.REM.betaBandPower.maxConfC_Y,'color',colorbrewer_setA_colorC,'LineWidth',1)
-     plot(data.Unstim.betaBandPower.meanf,data.Unstim.betaBandPower.maxConfC_Y,'color',colorbrewer_setA_colorD','LineWidth',1)
-     plot(data.All.betaBandPower.meanf,data.All.betaBandPower.maxConfC_Y,'color',colorbrewer_setA_colorE','LineWidth',1)
-     title('Beta-band power')
-     ylabel('Coherence')
-     xlabel('Freq (Hz)')
-     axis square
-     ylim([0 1])
-     xlim([0 1])
-     
-     %% Gamma-band power
-     subplot(2,4,7);
-     plot(data.Rest.gammaBandPower.(baselineType).meanf,data.Rest.gammaBandPower.(baselineType).meanC,'color',colorbrewer_setA_colorA,'LineWidth',2)
-     hold on
-     plot(data.NREM.gammaBandPower.meanf,data.NREM.gammaBandPower.meanC,'color',colorbrewer_setA_colorB,'LineWidth',2)
-     plot(data.REM.gammaBandPower.meanf,data.REM.gammaBandPower.meanC,'color',colorbrewer_setA_colorC,'LineWidth',2)
-     plot(data.Unstim.gammaBandPower.meanf,data.Unstim.gammaBandPower.meanC,'color',colorbrewer_setA_colorD,'LineWidth',2)
-     plot(data.All.gammaBandPower.meanf,data.All.gammaBandPower.meanC,'color',colorbrewer_setA_colorE,'LineWidth',2)
-     plot(data.Rest.gammaBandPower.(baselineType).meanf,data.Rest.gammaBandPower.(baselineType).maxConfC_Y,'color',colorbrewer_setA_colorA,'LineWidth',1)
-     plot(data.NREM.gammaBandPower.meanf,data.NREM.gammaBandPower.maxConfC_Y,'color',colorbrewer_setA_colorB,'LineWidth',1)
-     plot(data.REM.gammaBandPower.meanf,data.REM.gammaBandPower.maxConfC_Y,'color',colorbrewer_setA_colorC,'LineWidth',1)
-     plot(data.Unstim.gammaBandPower.meanf,data.Unstim.gammaBandPower.maxConfC_Y,'color',colorbrewer_setA_colorD','LineWidth',1)
-     plot(data.All.gammaBandPower.meanf,data.All.gammaBandPower.maxConfC_Y,'color',colorbrewer_setA_colorE','LineWidth',1)
-     title('Gamma-band power')
-     ylabel('Coherence')
-     xlabel('Freq (Hz)')
-     axis square
-     ylim([0 1])
-     xlim([0 1])
-     
-     %% MUA power
-     subplot(2,4,8);
-     plot(data.Rest.muaPower.(baselineType).meanf,data.Rest.muaPower.(baselineType).meanC,'color',colorbrewer_setA_colorA,'LineWidth',2)
-     hold on
-     plot(data.NREM.muaPower.meanf,data.NREM.muaPower.meanC,'color',colorbrewer_setA_colorB,'LineWidth',2)
-     plot(data.REM.muaPower.meanf,data.REM.muaPower.meanC,'color',colorbrewer_setA_colorC,'LineWidth',2)
-     plot(data.Unstim.muaPower.meanf,data.Unstim.muaPower.meanC,'color',colorbrewer_setA_colorD,'LineWidth',2)
-     plot(data.All.muaPower.meanf,data.All.muaPower.meanC,'color',colorbrewer_setA_colorE,'LineWidth',2)
-     plot(data.Rest.muaPower.(baselineType).meanf,data.Rest.muaPower.(baselineType).maxConfC_Y,'color',colorbrewer_setA_colorA,'LineWidth',1)
-     plot(data.NREM.muaPower.meanf,data.NREM.muaPower.maxConfC_Y,'color',colorbrewer_setA_colorB,'LineWidth',1)
-     plot(data.REM.muaPower.meanf,data.REM.muaPower.maxConfC_Y,'color',colorbrewer_setA_colorC,'LineWidth',1)
-     plot(data.Unstim.muaPower.meanf,data.Unstim.muaPower.maxConfC_Y,'color',colorbrewer_setA_colorD','LineWidth',1)
-     plot(data.All.muaPower.meanf,data.All.muaPower.maxConfC_Y,'color',colorbrewer_setA_colorE','LineWidth',1)
-     title('MUA power')
-     ylabel('Coherence')
-     xlabel('Freq (Hz)')
-     axis square
-     ylim([0 1])
-     xlim([0 1])
-     
-     % save figure(s)
+for h = 1:length(baselineTypes)
+    baselineType = baselineTypes{1,h};
+    summaryFigure = figure;
+    sgtitle({['L/R Coherence - ' baselineType ' for resting data'],' '})
+    %% CBV
+    subplot(2,4,1);
+    L1 = plot(data.Rest.CBV.(baselineType).meanf,data.Rest.CBV.(baselineType).meanC,'color',colorbrewer_setA_colorA,'LineWidth',2);
+    hold on
+    plot(data.Rest.CBV.(baselineType).meanf,data.Rest.CBV.(baselineType).meanC + data.Rest.CBV.(baselineType).stdC,'color',colorbrewer_setA_colorA,'LineWidth',1)
+    plot(data.Rest.CBV.(baselineType).meanf,data.Rest.CBV.(baselineType).meanC - data.Rest.CBV.(baselineType).stdC,'color',colorbrewer_setA_colorA,'LineWidth',1)
+    L2 = plot(data.NREM.CBV.meanf,data.NREM.CBV.meanC,'color',colorbrewer_setA_colorB,'LineWidth',2);
+    plot(data.NREM.CBV.meanf,data.NREM.CBV.meanC + data.NREM.CBV.stdC,'color',colorbrewer_setA_colorB,'LineWidth',1)
+    plot(data.NREM.CBV.meanf,data.NREM.CBV.meanC - data.NREM.CBV.stdC,'color',colorbrewer_setA_colorB,'LineWidth',1)
+    L3 = plot(data.REM.CBV.meanf,data.REM.CBV.meanC,'color',colorbrewer_setA_colorC,'LineWidth',2);
+    plot(data.REM.CBV.meanf,data.REM.CBV.meanC + data.REM.CBV.stdC,'color',colorbrewer_setA_colorC,'LineWidth',1)
+    plot(data.REM.CBV.meanf,data.REM.CBV.meanC - data.REM.CBV.stdC,'color',colorbrewer_setA_colorC,'LineWidth',1)
+    L4 = plot(data.Unstim.CBV.meanf,data.Unstim.CBV.meanC,'color',colorbrewer_setA_colorD,'LineWidth',2);
+    plot(data.Unstim.CBV.meanf,data.Unstim.CBV.meanC + data.Unstim.CBV.stdC,'color',colorbrewer_setA_colorD,'LineWidth',1)
+    plot(data.Unstim.CBV.meanf,data.Unstim.CBV.meanC - data.Unstim.CBV.stdC,'color',colorbrewer_setA_colorD,'LineWidth',1)
+    L5 = plot(data.All.CBV.meanf,data.All.CBV.meanC,'color',colorbrewer_setA_colorE,'LineWidth',2);
+    plot(data.All.CBV.meanf,data.All.CBV.meanC + data.All.CBV.stdC,'color',colorbrewer_setA_colorE,'LineWidth',1)
+    plot(data.All.CBV.meanf,data.All.CBV.meanC - data.All.CBV.stdC,'color',colorbrewer_setA_colorE,'LineWidth',1)
+    L6 = plot(data.Rest.CBV.(baselineType).meanf,data.Rest.CBV.(baselineType).maxConfC_Y,'color',colorbrewer_setA_colorA,'LineWidth',1);
+    L7 = plot(data.NREM.CBV.meanf,data.NREM.CBV.maxConfC_Y,'color',colorbrewer_setA_colorB,'LineWidth',1);
+    L8 = plot(data.REM.CBV.meanf,data.REM.CBV.maxConfC_Y,'color',colorbrewer_setA_colorC,'LineWidth',1);
+    L9 = plot(data.Unstim.CBV.meanf,data.Unstim.CBV.maxConfC_Y,'color',colorbrewer_setA_colorD','LineWidth',1);
+    L10 = plot(data.All.CBV.meanf,data.All.CBV.maxConfC_Y,'color',colorbrewer_setA_colorE','LineWidth',1);
+    title('CBV Reflectance')
+    ylabel('Coherence')
+    xlabel('Freq (Hz)')
+    legend([L1,L2,L3,L4,L5,L6,L7,L8,L9,L10],'Rest','NREM','REM','Unstim','All','Rest 95% conf','NREM 95% conf','REM 95% conf','Unstim 95% conf','All data 95% conf')
+    axis square
+    ylim([0 1])
+    xlim([0 1])
+    
+    %% CBV HbT
+    subplot(2,4,2)
+    plot(data.Rest.CBV_HbT.(baselineType).meanf,data.Rest.CBV_HbT.(baselineType).meanC,'color',colorbrewer_setA_colorA,'LineWidth',2);
+    hold on
+    plot(data.Rest.CBV_HbT.(baselineType).meanf,data.Rest.CBV_HbT.(baselineType).meanC + data.Rest.CBV_HbT.(baselineType).stdC,'color',colorbrewer_setA_colorA,'LineWidth',1)
+    plot(data.Rest.CBV_HbT.(baselineType).meanf,data.Rest.CBV_HbT.(baselineType).meanC - data.Rest.CBV_HbT.(baselineType).stdC,'color',colorbrewer_setA_colorA,'LineWidth',1)
+    plot(data.NREM.CBV_HbT.meanf,data.NREM.CBV_HbT.meanC,'color',colorbrewer_setA_colorB,'LineWidth',2);
+    plot(data.NREM.CBV_HbT.meanf,data.NREM.CBV_HbT.meanC + data.NREM.CBV_HbT.stdC,'color',colorbrewer_setA_colorB,'LineWidth',1)
+    plot(data.NREM.CBV_HbT.meanf,data.NREM.CBV_HbT.meanC - data.NREM.CBV_HbT.stdC,'color',colorbrewer_setA_colorB,'LineWidth',1)
+    plot(data.REM.CBV_HbT.meanf,data.REM.CBV_HbT.meanC,'color',colorbrewer_setA_colorC,'LineWidth',2);
+    plot(data.REM.CBV_HbT.meanf,data.REM.CBV_HbT.meanC + data.REM.CBV_HbT.stdC,'color',colorbrewer_setA_colorC,'LineWidth',1)
+    plot(data.REM.CBV_HbT.meanf,data.REM.CBV_HbT.meanC - data.REM.CBV_HbT.stdC,'color',colorbrewer_setA_colorC,'LineWidth',1)
+    plot(data.Unstim.CBV_HbT.meanf,data.Unstim.CBV_HbT.meanC,'color',colorbrewer_setA_colorD,'LineWidth',2);
+    plot(data.Unstim.CBV_HbT.meanf,data.Unstim.CBV_HbT.meanC + data.Unstim.CBV_HbT.stdC,'color',colorbrewer_setA_colorD,'LineWidth',1)
+    plot(data.Unstim.CBV_HbT.meanf,data.Unstim.CBV_HbT.meanC - data.Unstim.CBV_HbT.stdC,'color',colorbrewer_setA_colorD,'LineWidth',1)
+    plot(data.All.CBV_HbT.meanf,data.All.CBV_HbT.meanC,'color',colorbrewer_setA_colorE,'LineWidth',2);
+    plot(data.All.CBV_HbT.meanf,data.All.CBV_HbT.meanC + data.All.CBV_HbT.stdC,'color',colorbrewer_setA_colorE,'LineWidth',1)
+    plot(data.All.CBV_HbT.meanf,data.All.CBV_HbT.meanC - data.All.CBV_HbT.stdC,'color',colorbrewer_setA_colorE,'LineWidth',1)
+    plot(data.Rest.CBV_HbT.(baselineType).meanf,data.Rest.CBV_HbT.(baselineType).maxConfC_Y,'color',colorbrewer_setA_colorA,'LineWidth',1);
+    plot(data.NREM.CBV_HbT.meanf,data.NREM.CBV_HbT.maxConfC_Y,'color',colorbrewer_setA_colorB,'LineWidth',1);
+    plot(data.REM.CBV_HbT.meanf,data.REM.CBV_HbT.maxConfC_Y,'color',colorbrewer_setA_colorC,'LineWidth',1);
+    plot(data.Unstim.CBV_HbT.meanf,data.Unstim.CBV_HbT.maxConfC_Y,'color',colorbrewer_setA_colorD','LineWidth',1);
+    plot(data.All.CBV_HbT.meanf,data.All.CBV_HbT.maxConfC_Y,'color',colorbrewer_setA_colorE','LineWidth',1);
+    title('CBV HbT')
+    ylabel('Coherence')
+    xlabel('Freq (Hz)')
+    axis square
+    ylim([0 1])
+    xlim([0 1])
+    
+    %% Delta-band power
+    subplot(2,4,3);
+    plot(data.Rest.deltaBandPower.(baselineType).meanf,data.Rest.deltaBandPower.(baselineType).meanC,'color',colorbrewer_setA_colorA,'LineWidth',2);
+    hold on
+    plot(data.Rest.deltaBandPower.(baselineType).meanf,data.Rest.deltaBandPower.(baselineType).meanC + data.Rest.deltaBandPower.(baselineType).stdC,'color',colorbrewer_setA_colorA,'LineWidth',1)
+    plot(data.Rest.deltaBandPower.(baselineType).meanf,data.Rest.deltaBandPower.(baselineType).meanC - data.Rest.deltaBandPower.(baselineType).stdC,'color',colorbrewer_setA_colorA,'LineWidth',1)
+    plot(data.NREM.deltaBandPower.meanf,data.NREM.deltaBandPower.meanC,'color',colorbrewer_setA_colorB,'LineWidth',2);
+    plot(data.NREM.deltaBandPower.meanf,data.NREM.deltaBandPower.meanC + data.NREM.deltaBandPower.stdC,'color',colorbrewer_setA_colorB,'LineWidth',1)
+    plot(data.NREM.deltaBandPower.meanf,data.NREM.deltaBandPower.meanC - data.NREM.deltaBandPower.stdC,'color',colorbrewer_setA_colorB,'LineWidth',1)
+    plot(data.REM.deltaBandPower.meanf,data.REM.deltaBandPower.meanC,'color',colorbrewer_setA_colorC,'LineWidth',2);
+    plot(data.REM.deltaBandPower.meanf,data.REM.deltaBandPower.meanC + data.REM.deltaBandPower.stdC,'color',colorbrewer_setA_colorC,'LineWidth',1)
+    plot(data.REM.deltaBandPower.meanf,data.REM.deltaBandPower.meanC - data.REM.deltaBandPower.stdC,'color',colorbrewer_setA_colorC,'LineWidth',1)
+    plot(data.Unstim.deltaBandPower.meanf,data.Unstim.deltaBandPower.meanC,'color',colorbrewer_setA_colorD,'LineWidth',2);
+    plot(data.Unstim.deltaBandPower.meanf,data.Unstim.deltaBandPower.meanC + data.Unstim.deltaBandPower.stdC,'color',colorbrewer_setA_colorD,'LineWidth',1)
+    plot(data.Unstim.deltaBandPower.meanf,data.Unstim.deltaBandPower.meanC - data.Unstim.deltaBandPower.stdC,'color',colorbrewer_setA_colorD,'LineWidth',1)
+    plot(data.All.deltaBandPower.meanf,data.All.deltaBandPower.meanC,'color',colorbrewer_setA_colorE,'LineWidth',2);
+    plot(data.All.deltaBandPower.meanf,data.All.deltaBandPower.meanC + data.All.deltaBandPower.stdC,'color',colorbrewer_setA_colorE,'LineWidth',1)
+    plot(data.All.deltaBandPower.meanf,data.All.deltaBandPower.meanC - data.All.deltaBandPower.stdC,'color',colorbrewer_setA_colorE,'LineWidth',1)
+    plot(data.Rest.deltaBandPower.(baselineType).meanf,data.Rest.deltaBandPower.(baselineType).maxConfC_Y,'color',colorbrewer_setA_colorA,'LineWidth',1);
+    plot(data.NREM.deltaBandPower.meanf,data.NREM.deltaBandPower.maxConfC_Y,'color',colorbrewer_setA_colorB,'LineWidth',1);
+    plot(data.REM.deltaBandPower.meanf,data.REM.deltaBandPower.maxConfC_Y,'color',colorbrewer_setA_colorC,'LineWidth',1);
+    plot(data.Unstim.deltaBandPower.meanf,data.Unstim.deltaBandPower.maxConfC_Y,'color',colorbrewer_setA_colorD','LineWidth',1);
+    plot(data.All.deltaBandPower.meanf,data.All.deltaBandPower.maxConfC_Y,'color',colorbrewer_setA_colorE','LineWidth',1);
+    title('Delta-band power')
+    ylabel('Coherence')
+    xlabel('Freq (Hz)')
+    axis square
+    ylim([0 1])
+    xlim([0 1])
+    
+    %% Theta-band power
+    subplot(2,4,4)
+    plot(data.Rest.thetaBandPower.(baselineType).meanf,data.Rest.thetaBandPower.(baselineType).meanC,'color',colorbrewer_setA_colorA,'LineWidth',2);
+    hold on
+    plot(data.Rest.thetaBandPower.(baselineType).meanf,data.Rest.thetaBandPower.(baselineType).meanC + data.Rest.thetaBandPower.(baselineType).stdC,'color',colorbrewer_setA_colorA,'LineWidth',1)
+    plot(data.Rest.thetaBandPower.(baselineType).meanf,data.Rest.thetaBandPower.(baselineType).meanC - data.Rest.thetaBandPower.(baselineType).stdC,'color',colorbrewer_setA_colorA,'LineWidth',1)
+    plot(data.NREM.thetaBandPower.meanf,data.NREM.thetaBandPower.meanC,'color',colorbrewer_setA_colorB,'LineWidth',2);
+    plot(data.NREM.thetaBandPower.meanf,data.NREM.thetaBandPower.meanC + data.NREM.thetaBandPower.stdC,'color',colorbrewer_setA_colorB,'LineWidth',1)
+    plot(data.NREM.thetaBandPower.meanf,data.NREM.thetaBandPower.meanC - data.NREM.thetaBandPower.stdC,'color',colorbrewer_setA_colorB,'LineWidth',1)
+    plot(data.REM.thetaBandPower.meanf,data.REM.thetaBandPower.meanC,'color',colorbrewer_setA_colorC,'LineWidth',2);
+    plot(data.REM.thetaBandPower.meanf,data.REM.thetaBandPower.meanC + data.REM.thetaBandPower.stdC,'color',colorbrewer_setA_colorC,'LineWidth',1)
+    plot(data.REM.thetaBandPower.meanf,data.REM.thetaBandPower.meanC - data.REM.thetaBandPower.stdC,'color',colorbrewer_setA_colorC,'LineWidth',1)
+    plot(data.Unstim.thetaBandPower.meanf,data.Unstim.thetaBandPower.meanC,'color',colorbrewer_setA_colorD,'LineWidth',2);
+    plot(data.Unstim.thetaBandPower.meanf,data.Unstim.thetaBandPower.meanC + data.Unstim.thetaBandPower.stdC,'color',colorbrewer_setA_colorD,'LineWidth',1)
+    plot(data.Unstim.thetaBandPower.meanf,data.Unstim.thetaBandPower.meanC - data.Unstim.thetaBandPower.stdC,'color',colorbrewer_setA_colorD,'LineWidth',1)
+    plot(data.All.thetaBandPower.meanf,data.All.thetaBandPower.meanC,'color',colorbrewer_setA_colorE,'LineWidth',2);
+    plot(data.All.thetaBandPower.meanf,data.All.thetaBandPower.meanC + data.All.thetaBandPower.stdC,'color',colorbrewer_setA_colorE,'LineWidth',1)
+    plot(data.All.thetaBandPower.meanf,data.All.thetaBandPower.meanC - data.All.thetaBandPower.stdC,'color',colorbrewer_setA_colorE,'LineWidth',1)
+    plot(data.Rest.thetaBandPower.(baselineType).meanf,data.Rest.thetaBandPower.(baselineType).maxConfC_Y,'color',colorbrewer_setA_colorA,'LineWidth',1);
+    plot(data.NREM.thetaBandPower.meanf,data.NREM.thetaBandPower.maxConfC_Y,'color',colorbrewer_setA_colorB,'LineWidth',1);
+    plot(data.REM.thetaBandPower.meanf,data.REM.thetaBandPower.maxConfC_Y,'color',colorbrewer_setA_colorC,'LineWidth',1);
+    plot(data.Unstim.thetaBandPower.meanf,data.Unstim.thetaBandPower.maxConfC_Y,'color',colorbrewer_setA_colorD','LineWidth',1);
+    plot(data.All.thetaBandPower.meanf,data.All.thetaBandPower.maxConfC_Y,'color',colorbrewer_setA_colorE','LineWidth',1);
+    title('Theta-band power')
+    ylabel('Coherence')
+    xlabel('Freq (Hz)')
+    axis square
+    ylim([0 1])
+    xlim([0 1])
+    
+    %% Alpha-band power
+    subplot(2,4,5);
+    plot(data.Rest.alphaBandPower.(baselineType).meanf,data.Rest.alphaBandPower.(baselineType).meanC,'color',colorbrewer_setA_colorA,'LineWidth',2);
+    hold on
+    plot(data.Rest.alphaBandPower.(baselineType).meanf,data.Rest.alphaBandPower.(baselineType).meanC + data.Rest.alphaBandPower.(baselineType).stdC,'color',colorbrewer_setA_colorA,'LineWidth',1)
+    plot(data.Rest.alphaBandPower.(baselineType).meanf,data.Rest.alphaBandPower.(baselineType).meanC - data.Rest.alphaBandPower.(baselineType).stdC,'color',colorbrewer_setA_colorA,'LineWidth',1)
+    plot(data.NREM.alphaBandPower.meanf,data.NREM.alphaBandPower.meanC,'color',colorbrewer_setA_colorB,'LineWidth',2);
+    plot(data.NREM.alphaBandPower.meanf,data.NREM.alphaBandPower.meanC + data.NREM.alphaBandPower.stdC,'color',colorbrewer_setA_colorB,'LineWidth',1)
+    plot(data.NREM.alphaBandPower.meanf,data.NREM.alphaBandPower.meanC - data.NREM.alphaBandPower.stdC,'color',colorbrewer_setA_colorB,'LineWidth',1)
+    plot(data.REM.alphaBandPower.meanf,data.REM.alphaBandPower.meanC,'color',colorbrewer_setA_colorC,'LineWidth',2);
+    plot(data.REM.alphaBandPower.meanf,data.REM.alphaBandPower.meanC + data.REM.alphaBandPower.stdC,'color',colorbrewer_setA_colorC,'LineWidth',1)
+    plot(data.REM.alphaBandPower.meanf,data.REM.alphaBandPower.meanC - data.REM.alphaBandPower.stdC,'color',colorbrewer_setA_colorC,'LineWidth',1)
+    plot(data.Unstim.alphaBandPower.meanf,data.Unstim.alphaBandPower.meanC,'color',colorbrewer_setA_colorD,'LineWidth',2);
+    plot(data.Unstim.alphaBandPower.meanf,data.Unstim.alphaBandPower.meanC + data.Unstim.alphaBandPower.stdC,'color',colorbrewer_setA_colorD,'LineWidth',1)
+    plot(data.Unstim.alphaBandPower.meanf,data.Unstim.alphaBandPower.meanC - data.Unstim.alphaBandPower.stdC,'color',colorbrewer_setA_colorD,'LineWidth',1)
+    plot(data.All.alphaBandPower.meanf,data.All.alphaBandPower.meanC,'color',colorbrewer_setA_colorE,'LineWidth',2);
+    plot(data.All.alphaBandPower.meanf,data.All.alphaBandPower.meanC + data.All.alphaBandPower.stdC,'color',colorbrewer_setA_colorE,'LineWidth',1)
+    plot(data.All.alphaBandPower.meanf,data.All.alphaBandPower.meanC - data.All.alphaBandPower.stdC,'color',colorbrewer_setA_colorE,'LineWidth',1)
+    plot(data.Rest.alphaBandPower.(baselineType).meanf,data.Rest.alphaBandPower.(baselineType).maxConfC_Y,'color',colorbrewer_setA_colorA,'LineWidth',1);
+    plot(data.NREM.alphaBandPower.meanf,data.NREM.alphaBandPower.maxConfC_Y,'color',colorbrewer_setA_colorB,'LineWidth',1);
+    plot(data.REM.alphaBandPower.meanf,data.REM.alphaBandPower.maxConfC_Y,'color',colorbrewer_setA_colorC,'LineWidth',1);
+    plot(data.Unstim.alphaBandPower.meanf,data.Unstim.alphaBandPower.maxConfC_Y,'color',colorbrewer_setA_colorD','LineWidth',1);
+    plot(data.All.alphaBandPower.meanf,data.All.alphaBandPower.maxConfC_Y,'color',colorbrewer_setA_colorE','LineWidth',1);
+    title('Alpha-band power')
+    ylabel('Coherence')
+    xlabel('Freq (Hz)')
+    axis square
+    ylim([0 1])
+    xlim([0 1])
+    
+    %% Beta-band power
+    subplot(2,4,6);
+    plot(data.Rest.betaBandPower.(baselineType).meanf,data.Rest.betaBandPower.(baselineType).meanC,'color',colorbrewer_setA_colorA,'LineWidth',2);
+    hold on
+    plot(data.Rest.betaBandPower.(baselineType).meanf,data.Rest.betaBandPower.(baselineType).meanC + data.Rest.betaBandPower.(baselineType).stdC,'color',colorbrewer_setA_colorA,'LineWidth',1)
+    plot(data.Rest.betaBandPower.(baselineType).meanf,data.Rest.betaBandPower.(baselineType).meanC - data.Rest.betaBandPower.(baselineType).stdC,'color',colorbrewer_setA_colorA,'LineWidth',1)
+    plot(data.NREM.betaBandPower.meanf,data.NREM.betaBandPower.meanC,'color',colorbrewer_setA_colorB,'LineWidth',2);
+    plot(data.NREM.betaBandPower.meanf,data.NREM.betaBandPower.meanC + data.NREM.betaBandPower.stdC,'color',colorbrewer_setA_colorB,'LineWidth',1)
+    plot(data.NREM.betaBandPower.meanf,data.NREM.betaBandPower.meanC - data.NREM.betaBandPower.stdC,'color',colorbrewer_setA_colorB,'LineWidth',1)
+    plot(data.REM.betaBandPower.meanf,data.REM.betaBandPower.meanC,'color',colorbrewer_setA_colorC,'LineWidth',2);
+    plot(data.REM.betaBandPower.meanf,data.REM.betaBandPower.meanC + data.REM.betaBandPower.stdC,'color',colorbrewer_setA_colorC,'LineWidth',1)
+    plot(data.REM.betaBandPower.meanf,data.REM.betaBandPower.meanC - data.REM.betaBandPower.stdC,'color',colorbrewer_setA_colorC,'LineWidth',1)
+    plot(data.Unstim.betaBandPower.meanf,data.Unstim.betaBandPower.meanC,'color',colorbrewer_setA_colorD,'LineWidth',2);
+    plot(data.Unstim.betaBandPower.meanf,data.Unstim.betaBandPower.meanC + data.Unstim.betaBandPower.stdC,'color',colorbrewer_setA_colorD,'LineWidth',1)
+    plot(data.Unstim.betaBandPower.meanf,data.Unstim.betaBandPower.meanC - data.Unstim.betaBandPower.stdC,'color',colorbrewer_setA_colorD,'LineWidth',1)
+    plot(data.All.betaBandPower.meanf,data.All.betaBandPower.meanC,'color',colorbrewer_setA_colorE,'LineWidth',2);
+    plot(data.All.betaBandPower.meanf,data.All.betaBandPower.meanC + data.All.betaBandPower.stdC,'color',colorbrewer_setA_colorE,'LineWidth',1)
+    plot(data.All.betaBandPower.meanf,data.All.betaBandPower.meanC - data.All.betaBandPower.stdC,'color',colorbrewer_setA_colorE,'LineWidth',1)
+    plot(data.Rest.betaBandPower.(baselineType).meanf,data.Rest.betaBandPower.(baselineType).maxConfC_Y,'color',colorbrewer_setA_colorA,'LineWidth',1);
+    plot(data.NREM.betaBandPower.meanf,data.NREM.betaBandPower.maxConfC_Y,'color',colorbrewer_setA_colorB,'LineWidth',1);
+    plot(data.REM.betaBandPower.meanf,data.REM.betaBandPower.maxConfC_Y,'color',colorbrewer_setA_colorC,'LineWidth',1);
+    plot(data.Unstim.betaBandPower.meanf,data.Unstim.betaBandPower.maxConfC_Y,'color',colorbrewer_setA_colorD','LineWidth',1);
+    plot(data.All.betaBandPower.meanf,data.All.betaBandPower.maxConfC_Y,'color',colorbrewer_setA_colorE','LineWidth',1);
+    title('Beta-band power')
+    ylabel('Coherence')
+    xlabel('Freq (Hz)')
+    axis square
+    ylim([0 1])
+    xlim([0 1])
+    
+    %% Gamma-band power
+    subplot(2,4,7);
+    plot(data.Rest.gammaBandPower.(baselineType).meanf,data.Rest.gammaBandPower.(baselineType).meanC,'color',colorbrewer_setA_colorA,'LineWidth',2);
+    hold on
+    plot(data.Rest.gammaBandPower.(baselineType).meanf,data.Rest.gammaBandPower.(baselineType).meanC + data.Rest.gammaBandPower.(baselineType).stdC,'color',colorbrewer_setA_colorA,'LineWidth',1)
+    plot(data.Rest.gammaBandPower.(baselineType).meanf,data.Rest.gammaBandPower.(baselineType).meanC - data.Rest.gammaBandPower.(baselineType).stdC,'color',colorbrewer_setA_colorA,'LineWidth',1)
+    plot(data.NREM.gammaBandPower.meanf,data.NREM.gammaBandPower.meanC,'color',colorbrewer_setA_colorB,'LineWidth',2);
+    plot(data.NREM.gammaBandPower.meanf,data.NREM.gammaBandPower.meanC + data.NREM.gammaBandPower.stdC,'color',colorbrewer_setA_colorB,'LineWidth',1)
+    plot(data.NREM.gammaBandPower.meanf,data.NREM.gammaBandPower.meanC - data.NREM.gammaBandPower.stdC,'color',colorbrewer_setA_colorB,'LineWidth',1)
+    plot(data.REM.gammaBandPower.meanf,data.REM.gammaBandPower.meanC,'color',colorbrewer_setA_colorC,'LineWidth',2);
+    plot(data.REM.gammaBandPower.meanf,data.REM.gammaBandPower.meanC + data.REM.gammaBandPower.stdC,'color',colorbrewer_setA_colorC,'LineWidth',1)
+    plot(data.REM.gammaBandPower.meanf,data.REM.gammaBandPower.meanC - data.REM.gammaBandPower.stdC,'color',colorbrewer_setA_colorC,'LineWidth',1)
+    plot(data.Unstim.gammaBandPower.meanf,data.Unstim.gammaBandPower.meanC,'color',colorbrewer_setA_colorD,'LineWidth',2);
+    plot(data.Unstim.gammaBandPower.meanf,data.Unstim.gammaBandPower.meanC + data.Unstim.gammaBandPower.stdC,'color',colorbrewer_setA_colorD,'LineWidth',1)
+    plot(data.Unstim.gammaBandPower.meanf,data.Unstim.gammaBandPower.meanC - data.Unstim.gammaBandPower.stdC,'color',colorbrewer_setA_colorD,'LineWidth',1)
+    plot(data.All.gammaBandPower.meanf,data.All.gammaBandPower.meanC,'color',colorbrewer_setA_colorE,'LineWidth',2);
+    plot(data.All.gammaBandPower.meanf,data.All.gammaBandPower.meanC + data.All.gammaBandPower.stdC,'color',colorbrewer_setA_colorE,'LineWidth',1)
+    plot(data.All.gammaBandPower.meanf,data.All.gammaBandPower.meanC - data.All.gammaBandPower.stdC,'color',colorbrewer_setA_colorE,'LineWidth',1)
+    plot(data.Rest.gammaBandPower.(baselineType).meanf,data.Rest.gammaBandPower.(baselineType).maxConfC_Y,'color',colorbrewer_setA_colorA,'LineWidth',1);
+    plot(data.NREM.gammaBandPower.meanf,data.NREM.gammaBandPower.maxConfC_Y,'color',colorbrewer_setA_colorB,'LineWidth',1);
+    plot(data.REM.gammaBandPower.meanf,data.REM.gammaBandPower.maxConfC_Y,'color',colorbrewer_setA_colorC,'LineWidth',1);
+    plot(data.Unstim.gammaBandPower.meanf,data.Unstim.gammaBandPower.maxConfC_Y,'color',colorbrewer_setA_colorD','LineWidth',1);
+    plot(data.All.gammaBandPower.meanf,data.All.gammaBandPower.maxConfC_Y,'color',colorbrewer_setA_colorE','LineWidth',1);
+    title('Gamma-band power')
+    ylabel('Coherence')
+    xlabel('Freq (Hz)')
+    axis square
+    ylim([0 1])
+    xlim([0 1])
+    
+    %% MUA power
+    subplot(2,4,8);
+    plot(data.Rest.muaPower.(baselineType).meanf,data.Rest.muaPower.(baselineType).meanC,'color',colorbrewer_setA_colorA,'LineWidth',2);
+    hold on
+    plot(data.Rest.muaPower.(baselineType).meanf,data.Rest.muaPower.(baselineType).meanC + data.Rest.muaPower.(baselineType).stdC,'color',colorbrewer_setA_colorA,'LineWidth',1)
+    plot(data.Rest.muaPower.(baselineType).meanf,data.Rest.muaPower.(baselineType).meanC - data.Rest.muaPower.(baselineType).stdC,'color',colorbrewer_setA_colorA,'LineWidth',1)
+    plot(data.NREM.muaPower.meanf,data.NREM.muaPower.meanC,'color',colorbrewer_setA_colorB,'LineWidth',2);
+    plot(data.NREM.muaPower.meanf,data.NREM.muaPower.meanC + data.NREM.muaPower.stdC,'color',colorbrewer_setA_colorB,'LineWidth',1)
+    plot(data.NREM.muaPower.meanf,data.NREM.muaPower.meanC - data.NREM.muaPower.stdC,'color',colorbrewer_setA_colorB,'LineWidth',1)
+    plot(data.REM.muaPower.meanf,data.REM.muaPower.meanC,'color',colorbrewer_setA_colorC,'LineWidth',2);
+    plot(data.REM.muaPower.meanf,data.REM.muaPower.meanC + data.REM.muaPower.stdC,'color',colorbrewer_setA_colorC,'LineWidth',1)
+    plot(data.REM.muaPower.meanf,data.REM.muaPower.meanC - data.REM.muaPower.stdC,'color',colorbrewer_setA_colorC,'LineWidth',1)
+    plot(data.Unstim.muaPower.meanf,data.Unstim.muaPower.meanC,'color',colorbrewer_setA_colorD,'LineWidth',2);
+    plot(data.Unstim.muaPower.meanf,data.Unstim.muaPower.meanC + data.Unstim.muaPower.stdC,'color',colorbrewer_setA_colorD,'LineWidth',1)
+    plot(data.Unstim.muaPower.meanf,data.Unstim.muaPower.meanC - data.Unstim.muaPower.stdC,'color',colorbrewer_setA_colorD,'LineWidth',1)
+    plot(data.All.muaPower.meanf,data.All.muaPower.meanC,'color',colorbrewer_setA_colorE,'LineWidth',2);
+    plot(data.All.muaPower.meanf,data.All.muaPower.meanC + data.All.muaPower.stdC,'color',colorbrewer_setA_colorE,'LineWidth',1)
+    plot(data.All.muaPower.meanf,data.All.muaPower.meanC - data.All.muaPower.stdC,'color',colorbrewer_setA_colorE,'LineWidth',1)
+    plot(data.Rest.muaPower.(baselineType).meanf,data.Rest.muaPower.(baselineType).maxConfC_Y,'color',colorbrewer_setA_colorA,'LineWidth',1);
+    plot(data.NREM.muaPower.meanf,data.NREM.muaPower.maxConfC_Y,'color',colorbrewer_setA_colorB,'LineWidth',1);
+    plot(data.REM.muaPowermeanf,data.REM.muaPower.maxConfC_Y,'color',colorbrewer_setA_colorC,'LineWidth',1);
+    plot(data.Unstim.muaPower.meanf,data.Unstim.muaPower.maxConfC_Y,'color',colorbrewer_setA_colorD','LineWidth',1);
+    plot(data.All.muaPower.meanf,data.All.muaPower.maxConfC_Y,'color',colorbrewer_setA_colorE','LineWidth',1);
+    title('MUA power')
+    ylabel('Coherence')
+    xlabel('Freq (Hz)')
+    axis square
+    ylim([0 1])
+    xlim([0 1])
+    
+    % save figure(s)
     dirpath = 'C:\Users\klt8\Documents\Analysis Average Figures\Coherence\';
     if ~exist(dirpath, 'dir')
         mkdir(dirpath);
-    end 
+    end
     savefig(summaryFigure, [dirpath baselineType '_AverageCoherence']);
- end
+end
