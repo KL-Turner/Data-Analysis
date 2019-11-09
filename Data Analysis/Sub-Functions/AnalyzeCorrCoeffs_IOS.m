@@ -24,6 +24,12 @@ restDataFile = {restDataFileStruct.name}';
 restDataFileID = char(restDataFile);
 load(restDataFileID)
 
+% find and load EventData.mat struct
+eventDataFileStruct = dir('*_EventData.mat');
+eventDataFile = {eventDataFileStruct.name}';
+eventDataFileID = char(eventDataFile);
+load(eventDataFileID)
+
 % find and load RestingBaselines.mat strut
 baselineDataFileStruct = dir('*_RestingBaselines.mat');
 baselineDataFile = {baselineDataFileStruct.name}';
@@ -39,41 +45,49 @@ load(sleepDataFileID)
 % identify animal's ID and pull important infortmat
 fileBreaks = strfind(restDataFileID, '_');
 animalID = restDataFileID(1:fileBreaks(1)-1);
-trialDuration_min = RestData.CBV.LH.trialDuration_sec/60;   % min
+trialDuration_min = RestData.CBV.adjLH.trialDuration_sec/60;   % min
 manualFileIDs = unique(RestingBaselines.manualSelection.baselineFileInfo.fileIDs);
 fileTarget = params.targetMinutes/trialDuration_min;
 filterSets = {'manualSelection','setDuration','entireDuration'};
-samplingRate = RestData.CBV.LH.CBVCamSamplingRate;
+samplingRate = RestData.CBV.adjLH.CBVCamSamplingRate;
+
+WhiskCriteria.Fieldname = {'duration','puffDistance'};
+WhiskCriteria.Comparison = {'gt','gt'};
+WhiskCriteria.Value = {5,5};
 
 RestCriteria.Fieldname = {'durations'};
 RestCriteria.Comparison = {'gt'};
 RestCriteria.Value = {params.minTime.Rest};
 
-PuffCriteria.Fieldname = {'puffDistances'};
-PuffCriteria.Comparison = {'gt'};
-PuffCriteria.Value = {5};
+RestPuffCriteria.Fieldname = {'puffDistances'};
+RestPuffCriteria.Comparison = {'gt'};
+RestPuffCriteria.Value = {5};
+
+WhiskPuffCriteria.Fieldname = {'puffDistance'};
+WhiskPuffCriteria.Comparison = {'gt'};
+WhiskPuffCriteria.Value = {5};
 
 for a = 1:length(dataTypes)
     dataType = dataTypes{1,a};
+    %% Analyze Pearson's correlation coefficient during periods of rest
     for b = 1:length(filterSets)
         filterSet = filterSets{1,b};
-        %% Analyze coherence during periods of rest
         % use the RestCriteria we specified earlier to find unstim resting events that are greater than the criteria
         if strcmp(dataType,'CBV') == true || strcmp(dataType,'CBV_HbT') == true
-            [restLogical] = FilterEvents_IOS(RestData.(dataType).LH,RestCriteria);
-            [puffLogical] = FilterEvents_IOS(RestData.(dataType).LH,PuffCriteria);
+            [restLogical] = FilterEvents_IOS(RestData.(dataType).adjLH,RestCriteria);
+            [puffLogical] = FilterEvents_IOS(RestData.(dataType).adjLH,RestPuffCriteria);
             combRestLogical = logical(restLogical.*puffLogical);
-            unstimRestFiles = RestData.(dataType).LH.fileIDs(combRestLogical,:);
+            unstimRestFiles = RestData.(dataType).adjLH.fileIDs(combRestLogical,:);
             if strcmp(dataType,'CBV') == true
-                LH_unstimRestingData = RestData.(dataType).LH.NormData(combRestLogical,:);
-                RH_unstimRestingData = RestData.(dataType).RH.NormData(combRestLogical,:);
+                LH_unstimRestingData = RestData.(dataType).adjLH.NormData(combRestLogical,:);
+                RH_unstimRestingData = RestData.(dataType).adjRH.NormData(combRestLogical,:);
             else
-                LH_unstimRestingData = RestData.(dataType).LH.data(combRestLogical,:);
-                RH_unstimRestingData = RestData.(dataType).RH.data(combRestLogical,:);
+                LH_unstimRestingData = RestData.(dataType).adjLH.data(combRestLogical,:);
+                RH_unstimRestingData = RestData.(dataType).adjRH.data(combRestLogical,:);
             end
         else
             [restLogical] = FilterEvents_IOS(RestData.cortical_LH.(dataType),RestCriteria);
-            [puffLogical] = FilterEvents_IOS(RestData.cortical_LH.(dataType),PuffCriteria);
+            [puffLogical] = FilterEvents_IOS(RestData.cortical_LH.(dataType),RestPuffCriteria);
             combRestLogical = logical(restLogical.*puffLogical);
             unstimRestFiles = RestData.cortical_LH.(dataType).fileIDs(combRestLogical,:);
             LH_unstimRestingData = RestData.cortical_LH.(dataType).NormData(combRestLogical,:);
@@ -138,7 +152,7 @@ for a = 1:length(dataTypes)
         % only take the first 10 seconds of the epoch. occassionunstimy a sample gets lost from rounding during the
         % original epoch create so we can add a sample of two back to the end for those just under 10 seconds
         % lowpass filter and detrend each segment
-        [B, A] = butter(4,1/(samplingRate/2),'low');
+        [B, A] = butter(3,1/(samplingRate/2),'low');
         clear LH_ProcRestData
         clear RH_ProcRestData
         for g = 1:length(LH_finalRestData)      
@@ -161,7 +175,113 @@ for a = 1:length(dataTypes)
         AnalysisResults.CorrCoeff.Rest.(dataType).(filterSet).stdR = stdRest_R;
     end
     
-    %% Analyze coherence during periods of NREM sleep
+    %% Analyze Pearson's correlation coefficient during periods of extended whisking
+    for b = 1:length(filterSets)
+        filterSet = filterSets{1,b};
+        % use the RestCriteria we specified earlier to find unstim resting events that are greater than the criteria
+        if strcmp(dataType,'CBV') == true || strcmp(dataType,'CBV_HbT') == true
+            [whiskLogical] = FilterEvents_IOS(EventData.(dataType).adjLH.whisk,WhiskCriteria);
+            [puffLogical] = FilterEvents_IOS(EventData.(dataType).adjLH.whisk,WhiskPuffCriteria);
+            combWhiskLogical = logical(whiskLogical.*puffLogical);
+            whiskFiles = EventData.(dataType).adjLH.whisk.fileIDs(combWhiskLogical,:);
+            if strcmp(dataType,'CBV') == true
+                LH_whiskData = EventData.(dataType).adjLH.whisk.NormData(combWhiskLogical,:);
+                RH_whiskData = EventData.(dataType).adjRH.whisk.NormData(combWhiskLogical,:);
+            else
+                LH_whiskData = EventData.(dataType).adjLH.whisk.data(combWhiskLogical,:);
+                RH_whiskData = EventData.(dataType).adjRH.whisk.data(combWhiskLogical,:);
+            end
+        else
+            [whiskLogical] = FilterEvents_IOS(EventData.cortical_LH.(dataType).whisk,WhiskCriteria);
+            [puffLogical] = FilterEvents_IOS(EventData.cortical_LH.(dataType).whisk,WhiskPuffCriteria);
+            combWhiskLogical = logical(whiskLogical.*puffLogical);
+            whiskFiles = EventData.cortical_LH.(dataType).whisk.fileIDs(combWhiskLogical,:);
+            LH_whiskData = EventData.cortical_LH.(dataType).whisk.NormData(combWhiskLogical,:);
+            RH_whiskData = EventData.cortical_RH.(dataType).whisk.NormData(combWhiskLogical,:);
+        end
+        
+        % identify the unique days and the unique number of files from the list of unstim resting events
+        whiskUniqueDays = GetUniqueDays_IOS(whiskFiles);
+        whiskUniqueFiles = unique(whiskFiles);
+        whiskNumberOfFiles = length(unique(whiskFiles));
+        
+        % decimate the file list to only include those files that occur within the desired number of target minutes
+        clear whiskFiltLogical
+        for c = 1:length(whiskUniqueDays)
+            whiskDay = whiskUniqueDays(c);
+            d = 1;
+            for e = 1:whiskNumberOfFiles
+               whiskFile = whiskUniqueFiles(e);
+                whiskFileID = whiskFile{1}(1:6);
+                if strcmp(filterSet,'manualSelection') == true
+                    if strcmp(whiskDay,whiskFileID) && sum(strcmp(whiskFile,manualFileIDs)) == 1
+                        whiskFiltLogical{c,1}(e,1) = 1; %#ok<*AGROW>
+                        d = d + 1;
+                    else
+                        whiskFiltLogical{c,1}(e,1) = 0;
+                    end
+                elseif strcmp(filterSet,'setDuration') == true
+                    if strcmp(whiskDay,whiskFileID) && d <= fileTarget
+                        whiskFiltLogical{c,1}(e,1) = 1;
+                        d = d + 1;
+                    else
+                        whiskFiltLogical{c,1}(e,1) = 0;
+                    end
+                elseif strcmp(filterSet,'entireDuration') == true
+                    if strcmp(whiskDay,whiskFileID)
+                        whiskFiltLogical{c,1}(e,1) = 1;
+                        d = d + 1;
+                    else
+                        whiskFiltLogical{c,1}(e,1) = 0;
+                    end
+                end
+            end
+        end
+        whiskFinalLogical = any(sum(cell2mat(whiskFiltLogical'),2),2);
+        
+        % extract unstim the resting events that correspond to the acceptable file list and the acceptable resting criteria
+        clear whiskFileFilter
+        filtWhiskFiles = whiskUniqueFiles(whiskFinalLogical,:);
+        for f = 1:length(whiskFiles)
+            whiskLogic = strcmp(whiskFiles{f},filtWhiskFiles);
+            whiskLogicSum = sum(whiskLogic);
+            if whiskLogicSum == 1
+                whiskFileFilter(f,1) = 1;
+            else
+                whiskFileFilter(f,1) = 0;
+            end
+        end
+        whiskFinalFileFilter = logical(whiskFileFilter);
+        LH_finalWhiskData = LH_whiskData(whiskFinalFileFilter,:);
+        RH_finalWhiskData = RH_whiskData(whiskFinalFileFilter,:);
+        
+        % only take the first 10 seconds of the epoch. occassionunstimy a sample gets lost from rounding during the
+        % original epoch create so we can add a sample of two back to the end for those just under 10 seconds
+        % lowpass filter and detrend each segment
+        [B, A] = butter(3,1/(samplingRate/2),'low');
+        clear LH_ProcWhiskData
+        clear RH_ProcWhiskData
+        for g = 1:size(LH_finalWhiskData,1)      
+            LH_ProcWhiskData(g,:) = detrend(filtfilt(B,A,LH_finalWhiskData(g,:)),'constant');
+            RH_ProcWhiskData(g,:) = detrend(filtfilt(B,A,RH_finalWhiskData(g,:)),'constant');
+        end
+        
+        % analyze correlation coefficient between resting epochs
+        for n = 1:size(LH_ProcWhiskData,1)
+            whisk_CC = corrcoef(LH_ProcWhiskData(n,samplingRate*2:end),RH_ProcWhiskData(n,samplingRate*2:end));
+            whisk_R(n,1) = whisk_CC(2,1);
+        end
+        meanWhisk_R = mean(whisk_R);
+        stdWhisk_R = std(whisk_R,0,1);
+        
+        disp([dataType ' Whisk (' filterSet ') Corr Coeff: ' num2str(meanWhisk_R) ' +/- ' num2str(stdWhisk_R)]); disp(' ') 
+        % save results
+        AnalysisResults.CorrCoeff.Whisk.(dataType).(filterSet).R = whisk_R;
+        AnalysisResults.CorrCoeff.Whisk.(dataType).(filterSet).meanR = meanWhisk_R;
+        AnalysisResults.CorrCoeff.Whisk.(dataType).(filterSet).stdR = stdWhisk_R;
+    end
+    
+    %% Analyze Pearson's correlation coefficient during periods of NREM sleep
     % pull data from SleepData.mat structure
     if strcmp(dataType,'CBV') == true || strcmp(dataType,'CBV_HbT') == true
         LH_nremData = SleepData.NREM.data.(dataType).LH;
@@ -191,7 +311,7 @@ for a = 1:length(dataTypes)
     AnalysisResults.CorrCoeff.NREM.(dataType).meanR = meanNREM_R;
     AnalysisResults.CorrCoeff.NREM.(dataType).stdR = stdNREM_R;
     
-    %% Analyze coherence during periods of REM sleep
+    %% Analyze Pearson's correlation coefficient during periods of REM sleep
     % pull data from SleepData.mat structure
     if strcmp(dataType,'CBV') == true || strcmp(dataType,'CBV_HbT') == true
         LH_remData = SleepData.REM.data.(dataType).LH;
@@ -221,7 +341,7 @@ for a = 1:length(dataTypes)
     AnalysisResults.CorrCoeff.REM.(dataType).meanR = meanREM_R;
     AnalysisResults.CorrCoeff.REM.(dataType).stdR = stdREM_R;
     
-    %% Analyze coherence during unstim unstimulated data
+    %% Analyze Pearson's correlation coefficient during periods of unstimulated data
     for o = 1:size(procDataFileIDs,1)
         procDataFileID = procDataFileIDs(o,:);
         load(procDataFileID);
@@ -241,11 +361,11 @@ for a = 1:length(dataTypes)
         % pull data from each file
         if strcmp(dataType,'CBV') == true || strcmp(dataType,'CBV_HbT') == true
             if strcmp(dataType,'CBV') == true
-                LH_UnstimData{p,1} = (ProcData.data.(dataType).LH - RestingBaselines.(baselineType).(dataType).LH.(US_strDay))/RestingBaselines.(baselineType).(dataType).LH.(US_strDay);
-                RH_UnstimData{p,1} = (ProcData.data.(dataType).RH - RestingBaselines.(baselineType).(dataType).RH.(US_strDay))/RestingBaselines.(baselineType).(dataType).RH.(US_strDay);
+                LH_UnstimData{p,1} = (ProcData.data.(dataType).adjLH - RestingBaselines.(baselineType).(dataType).adjLH.(US_strDay))/RestingBaselines.(baselineType).(dataType).adjLH.(US_strDay);
+                RH_UnstimData{p,1} = (ProcData.data.(dataType).adjRH - RestingBaselines.(baselineType).(dataType).adjRH.(US_strDay))/RestingBaselines.(baselineType).(dataType).adjRH.(US_strDay);
             else
-                LH_UnstimData{p,1} = ProcData.data.(dataType).LH;
-                RH_UnstimData{p,1} = ProcData.data.(dataType).RH;
+                LH_UnstimData{p,1} = ProcData.data.(dataType).adjLH;
+                RH_UnstimData{p,1} = ProcData.data.(dataType).adjRH;
             end
         else
             LH_UnstimData{p,1} = (ProcData.data.cortical_LH.(dataType) - RestingBaselines.(baselineType).cortical_LH.(dataType).(US_strDay))/RestingBaselines.(baselineType).cortical_LH.(dataType).(US_strDay);
@@ -273,7 +393,7 @@ for a = 1:length(dataTypes)
     AnalysisResults.CorrCoeff.Unstim.(dataType).meanR = meanUnstimData_R;
     AnalysisResults.CorrCoeff.Unstim.(dataType).stdR = stdUnstimData_R;
     
-    %% Analyze coherence during all data
+    %% Analyze Pearson's correlation coefficient during all data together
     for p = 1:size(procDataFileIDs)
         procDataFileID = procDataFileIDs(p,:);
         load(procDataFileID)
@@ -282,11 +402,11 @@ for a = 1:length(dataTypes)
         % pull data from each file
         if strcmp(dataType,'CBV') == true || strcmp(dataType,'CBV_HbT') == true
             if strcmp(dataType,'CBV') == true
-                LH_AllData{p,1} = (ProcData.data.(dataType).LH - RestingBaselines.(baselineType).(dataType).LH.(AD_strDay))/RestingBaselines.(baselineType).(dataType).LH.(AD_strDay);
-                RH_AllData{p,1} = (ProcData.data.(dataType).RH - RestingBaselines.(baselineType).(dataType).RH.(AD_strDay))/RestingBaselines.(baselineType).(dataType).RH.(AD_strDay);
+                LH_AllData{p,1} = (ProcData.data.(dataType).adjLH - RestingBaselines.(baselineType).(dataType).adjLH.(AD_strDay))/RestingBaselines.(baselineType).(dataType).adjLH.(AD_strDay);
+                RH_AllData{p,1} = (ProcData.data.(dataType).adjRH - RestingBaselines.(baselineType).(dataType).adjRH.(AD_strDay))/RestingBaselines.(baselineType).(dataType).adjRH.(AD_strDay);
             else
-                LH_AllData{p,1} = ProcData.data.(dataType).LH;
-                RH_AllData{p,1} = ProcData.data.(dataType).RH;
+                LH_AllData{p,1} = ProcData.data.(dataType).adjLH;
+                RH_AllData{p,1} = ProcData.data.(dataType).adjRH;
             end
         else
             LH_AllData{p,1} = (ProcData.data.cortical_LH.(dataType) - RestingBaselines.(baselineType).cortical_LH.(dataType).(AD_strDay))/RestingBaselines.(baselineType).cortical_LH.(dataType).(AD_strDay);

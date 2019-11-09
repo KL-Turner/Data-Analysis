@@ -184,8 +184,12 @@ for j = 1:size(responseFuncData.procNeuro,1)
     beta = (W.^2)./(T*8.0*log(2.0));
     kernel = real(A*((kernelT/T).^alpha).*exp((kernelT-T)/(-beta)));
     checkNAN = isnan(kernel);
+    checkINF = isinf(kernel);
     kernel(checkNAN) = 0;
+    kernel(checkINF) = 0;
     predictCBV = conv(responseFuncData.procNeuro(j,:),(kernel));
+    checkINF2 = isinf(predictCBV);
+    predictCBV(checkINF2) = 0;
     responseFuncData.CBVprediction(j,:) = predictCBV(1:size(responseFuncData.procNeuro,2));
     % r^2 on on test data
     unexplainedVarianceAll(j) = var(responseFuncData.CBVprediction(j,middle) - responseFuncData.procCBV(j,middle))/var(responseFuncData.procCBV(j,middle));

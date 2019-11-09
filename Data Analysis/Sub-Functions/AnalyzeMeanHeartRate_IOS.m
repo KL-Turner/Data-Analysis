@@ -24,7 +24,7 @@ restDataFile = {restDataFileStruct.name}';
 restDataFileID = char(restDataFile);
 load(restDataFileID)
 
-% find and load RestData.mat struct
+% find and load EventData.mat struct
 eventDataFileStruct = dir('*_EventData.mat');
 eventDataFile = {eventDataFileStruct.name}';
 eventDataFileID = char(eventDataFile);

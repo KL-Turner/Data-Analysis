@@ -49,6 +49,8 @@ TrainModel_SVM(animalIDs,driveLetters,baselineType);
 %% BLOCK PURPOSE [3] Validate SVM Model - cycle through each data set and check model accuracy against second training set
 saveFigs = 'n';
 baselineType = 'manualSelection';
+animalIDs = {'T111'};
+driveLetters = {'D'};
 VerifyModelPredictions_SVM(animalIDs,driveLetters,saveFigs,baselineType)
 
 %% BLOCK PURPOSE [4] Sleep score an animal's data set and create a SleepData.mat structure for SVM classification 

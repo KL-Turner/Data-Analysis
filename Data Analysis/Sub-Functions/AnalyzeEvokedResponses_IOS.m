@@ -9,7 +9,7 @@ function [AnalysisResults] = AnalyzeEvokedResponses_IOS(dataType, params, Analys
 %            both volitional whisking and whisker stimuli
 %________________________________________________________________________________________________________________________
 %
-%   Inputs: dataType (character) of the hemisphere to analyze. Typically this is labeled as LH or RH
+%   Inputs: dataType (character) of the hemisphere to analyze. Typically this is labeled as adjLH or adjRH
 %           params (struct) - how many minutes of each day to use
 %           AnalysisResults (struct) - where to save the data for later between-animal averages and comparisons
 %
@@ -548,8 +548,6 @@ for a = 1:length(filterSets)
     end
 end
 % save results structure
-AnalysisResults.Coherence.Unstim = AnalysisResults.Coherence.NoStimData;
-AnalysisResults.XCorr.Unstim = AnalysisResults.XCorr.NoStimData;
 save([animalID '_AnalysisResults.mat'], 'AnalysisResults');
 
 end

@@ -16,8 +16,8 @@
 clear
 clc
 
-animalIDs = {'T99','T101','T102','T103','T105','T108','T109','T110'};
-driveLetters = {'E','E','E','F','F','F','D','D'};
+animalIDs = {'T99','T101','T102','T103','T105','T108','T109','T110','T111'};
+driveLetters = {'E','E','E','F','F','F','D','D','D'};
 behavFields = {'Rest','NREM','REM','Unstim','All'};
 baselineTypes = {'manualSelection','setDuration','entireDuration'};
 powerSpec_dataTypes = {'CBV','CBV_HbT','deltaBandPower','thetaBandPower','alphaBandPower','betaBandPower','gammaBandPower','muaPower'};
@@ -41,20 +41,20 @@ for a = 1:length(animalIDs)
             if strcmp(behavField,'Rest') == true
                 for d = 1:length(baselineTypes)
                     baselineType = baselineTypes{1,d};
-                    data.(behavField).(powerSpec_dataType).(baselineType).LH.S(:,a) = AnalysisResults.PowerSpectra.(behavField).(powerSpec_dataType).(baselineType).LH.S;
-                    data.(behavField).(powerSpec_dataType).(baselineType).LH.f(:,a) = AnalysisResults.PowerSpectra.(behavField).(powerSpec_dataType).(baselineType).LH.f;
-                    data.(behavField).(powerSpec_dataType).(baselineType).RH.S(:,a) = AnalysisResults.PowerSpectra.(behavField).(powerSpec_dataType).(baselineType).RH.S;
-                    data.(behavField).(powerSpec_dataType).(baselineType).RH.f(:,a) = AnalysisResults.PowerSpectra.(behavField).(powerSpec_dataType).(baselineType).RH.f;
+                    data.(behavField).(powerSpec_dataType).(baselineType).adjLH.S(:,a) = AnalysisResults.PowerSpectra.(behavField).(powerSpec_dataType).(baselineType).adjLH.S;
+                    data.(behavField).(powerSpec_dataType).(baselineType).adjLH.f(:,a) = AnalysisResults.PowerSpectra.(behavField).(powerSpec_dataType).(baselineType).adjLH.f;
+                    data.(behavField).(powerSpec_dataType).(baselineType).adjRH.S(:,a) = AnalysisResults.PowerSpectra.(behavField).(powerSpec_dataType).(baselineType).adjRH.S;
+                    data.(behavField).(powerSpec_dataType).(baselineType).adjRH.f(:,a) = AnalysisResults.PowerSpectra.(behavField).(powerSpec_dataType).(baselineType).adjRH.f;
                     if strcmp(powerSpec_dataType,'CBV') == false && strcmp(powerSpec_dataType,'CBV_HbT') == false
                         data.(behavField).(powerSpec_dataType).(baselineType).Hip.S(:,a) = AnalysisResults.PowerSpectra.(behavField).(powerSpec_dataType).(baselineType).Hip.S;
                         data.(behavField).(powerSpec_dataType).(baselineType).Hip.f(:,a) = AnalysisResults.PowerSpectra.(behavField).(powerSpec_dataType).(baselineType).Hip.f;
                     end
                 end
             else
-                data.(behavField).(powerSpec_dataType).LH.S(:,a) = AnalysisResults.PowerSpectra.(behavField).(powerSpec_dataType).LH.S;
-                data.(behavField).(powerSpec_dataType).LH.f(:,a) = AnalysisResults.PowerSpectra.(behavField).(powerSpec_dataType).LH.f;
-                data.(behavField).(powerSpec_dataType).RH.S(:,a) = AnalysisResults.PowerSpectra.(behavField).(powerSpec_dataType).RH.S;
-                data.(behavField).(powerSpec_dataType).RH.f(:,a) = AnalysisResults.PowerSpectra.(behavField).(powerSpec_dataType).RH.f;
+                data.(behavField).(powerSpec_dataType).adjLH.S(:,a) = AnalysisResults.PowerSpectra.(behavField).(powerSpec_dataType).adjLH.S;
+                data.(behavField).(powerSpec_dataType).adjLH.f(:,a) = AnalysisResults.PowerSpectra.(behavField).(powerSpec_dataType).adjLH.f;
+                data.(behavField).(powerSpec_dataType).adjRH.S(:,a) = AnalysisResults.PowerSpectra.(behavField).(powerSpec_dataType).adjRH.S;
+                data.(behavField).(powerSpec_dataType).adjRH.f(:,a) = AnalysisResults.PowerSpectra.(behavField).(powerSpec_dataType).adjRH.f;
                 if strcmp(powerSpec_dataType,'CBV') == false && strcmp(powerSpec_dataType,'CBV_HbT') == false
                     data.(behavField).(powerSpec_dataType).Hip.S(:,a) = AnalysisResults.PowerSpectra.(behavField).(powerSpec_dataType).Hip.S;
                     data.(behavField).(powerSpec_dataType).Hip.f(:,a) = AnalysisResults.PowerSpectra.(behavField).(powerSpec_dataType).Hip.f;
@@ -72,12 +72,12 @@ for e = 1:length(behavFields)
         if strcmp(behavField,'Rest') == true
             for g = 1:length(baselineTypes)
                 baselineType = baselineTypes{1,g};
-                data.(behavField).(powerSpec_dataType).(baselineType).cat_S = cat(2,data.(behavField).(powerSpec_dataType).(baselineType).LH.S,data.(behavField).(powerSpec_dataType).(baselineType).RH.S);
-                data.(behavField).(powerSpec_dataType).(baselineType).cat_f = cat(2,data.(behavField).(powerSpec_dataType).(baselineType).LH.f,data.(behavField).(powerSpec_dataType).(baselineType).RH.f);
+                data.(behavField).(powerSpec_dataType).(baselineType).cat_S = cat(2,data.(behavField).(powerSpec_dataType).(baselineType).adjLH.S,data.(behavField).(powerSpec_dataType).(baselineType).adjRH.S);
+                data.(behavField).(powerSpec_dataType).(baselineType).cat_f = cat(2,data.(behavField).(powerSpec_dataType).(baselineType).adjLH.f,data.(behavField).(powerSpec_dataType).(baselineType).adjRH.f);
             end
         else
-            data.(behavField).(powerSpec_dataType).cat_S = cat(2,data.(behavField).(powerSpec_dataType).LH.S,data.(behavField).(powerSpec_dataType).RH.S);
-            data.(behavField).(powerSpec_dataType).cat_f = cat(2,data.(behavField).(powerSpec_dataType).LH.f,data.(behavField).(powerSpec_dataType).RH.f);
+            data.(behavField).(powerSpec_dataType).cat_S = cat(2,data.(behavField).(powerSpec_dataType).adjLH.S,data.(behavField).(powerSpec_dataType).adjRH.S);
+            data.(behavField).(powerSpec_dataType).cat_f = cat(2,data.(behavField).(powerSpec_dataType).adjLH.f,data.(behavField).(powerSpec_dataType).adjRH.f);
         end
     end
 end
@@ -121,10 +121,13 @@ for m = 1:length(baselineTypes)
     ax1 = subplot(2,4,1);
     loglog(data.Rest.CBV.(baselineType).meanCortf,data.Rest.CBV.(baselineType).meanCortS,'color',colorbrewer_setA_colorA,'LineWidth',2)
     hold on
+    loglog(data.Rest.CBV.(baselineType).meanCortf,data.Rest.CBV.(baselineType).meanCortS + data.Rest.CBV.(baselineType).stdCortS,'color',colorbrewer_setA_colorA,'LineWidth',1)
+    loglog(data.Rest.CBV.(baselineType).meanCortf,data.Rest.CBV.(baselineType).meanCortS - data.Rest.CBV.(baselineType).stdCortS,'color',colorbrewer_setA_colorA,'LineWidth',1)
+
     loglog(data.NREM.CBV.meanCortf,data.NREM.CBV.meanCortS,'color',colorbrewer_setA_colorB,'LineWidth',2)
     loglog(data.REM.CBV.meanCortf,data.REM.CBV.meanCortS,'color',colorbrewer_setA_colorC,'LineWidth',2)
-    loglog(data.Unstim.CBV.meanCortf,data.AllData.CBV.meanCortS,'color',colorbrewer_setA_colorD,'LineWidth',2)
-    loglog(data.All.CBV.meanCortf,data.AllData.CBV.meanCortS,'color',colorbrewer_setA_colorE,'LineWidth',2)
+    loglog(data.Unstim.CBV.meanCortf,data.All.CBV.meanCortS,'color',colorbrewer_setA_colorD,'LineWidth',2)
+    loglog(data.All.CBV.meanCortf,data.All.CBV.meanCortS,'color',colorbrewer_setA_colorE,'LineWidth',2)
     title('CBV Reflectance')
     ylabel('Power')
     xlabel('Freq (Hz)')
@@ -250,13 +253,15 @@ for n = 1:length(baselineTypes)
     ax1 = subplot(2,4,1);
     loglog(data.Rest.CBV.(baselineType).meanCortf,data.Rest.CBV.(baselineType).meanCortS,'color',colorbrewer_setA_colorA,'LineWidth',2)
     hold on
-    loglog(data.AllData.CBV.meanCortf,data.AllData.CBV.meanCortS,'color',colorbrewer_setA_colorB,'LineWidth',2)
+    loglog(data.All.CBV.meanHipf,data.All.CBV.meanCortS,'color',colorbrewer_setA_colorB,'LineWidth',2)
     loglog(data.NREM.CBV.meanCortf,data.NREM.CBV.meanCortS,'color',colorbrewer_setA_colorC,'LineWidth',2)
     loglog(data.REM.CBV.meanCortf,data.REM.CBV.meanCortS,'color',colorbrewer_setA_colorD,'LineWidth',2)
+    loglog(data.All.CBV.meanCortf,data.All.CBV.meanCortS,'color',colorbrewer_setA_colorE,'LineWidth',2)
+    loglog(data.All.CBV.meanCortf,data.All.CBV.meanCortS,'color',colorbrewer_setA_colorE,'LineWidth',2)
     title('CBV Reflectance')
     ylabel('Power')
     xlabel('Freq (Hz)')
-    legend('Rest','AllData','NREM','REM')
+    legend('Rest','All','NREM','REM')
     axis square
     xlim([0.05 1])
     
@@ -264,9 +269,10 @@ for n = 1:length(baselineTypes)
     ax2 = subplot(2,4,2);
     loglog(data.Rest.CBV_HbT.(baselineType).meanCortf,data.Rest.CBV_HbT.(baselineType).meanCortS,'color',colorbrewer_setA_colorA,'LineWidth',2)
     hold on
-    loglog(data.AllData.CBV_HbT.meanCortf,data.AllData.CBV_HbT.meanCortS,'color',colorbrewer_setA_colorB,'LineWidth',2)
+    loglog(data.All.CBV_HbT.meanCortf,data.All.CBV_HbT.meanCortS,'color',colorbrewer_setA_colorB,'LineWidth',2)
     loglog(data.NREM.CBV_HbT.meanCortf,data.NREM.CBV_HbT.meanCortS,'color',colorbrewer_setA_colorC,'LineWidth',2)
     loglog(data.REM.CBV_HbT.meanCortf,data.REM.CBV_HbT.meanCortS,'color',colorbrewer_setA_colorD,'LineWidth',2)
+    loglog(data.All.CBV.meanCortf,data.All.CBV.meanCortS,'color',colorbrewer_setA_colorE,'LineWidth',2)
     title('CBV HbT')
     ylabel('Power')
     xlabel('Freq (Hz)')
@@ -277,9 +283,10 @@ for n = 1:length(baselineTypes)
     ax3 = subplot(2,4,3);
     loglog(data.Rest.deltaBandPower.(baselineType).meanHipf,data.Rest.deltaBandPower.(baselineType).meanHipS,'color',colorbrewer_setA_colorA,'LineWidth',2)
     hold on
-    loglog(data.AllData.deltaBandPower.meanHipf,data.AllData.deltaBandPower.meanHipS,'color',colorbrewer_setA_colorB,'LineWidth',2)
+    loglog(data.All.deltaBandPower.meanHipf,data.All.deltaBandPower.meanHipS,'color',colorbrewer_setA_colorB,'LineWidth',2)
     loglog(data.NREM.deltaBandPower.meanHipf,data.NREM.deltaBandPower.meanHipS,'color',colorbrewer_setA_colorC,'LineWidth',2)
     loglog(data.REM.deltaBandPower.meanHipf,data.REM.deltaBandPower.meanHipS,'color',colorbrewer_setA_colorD,'LineWidth',2)
+    loglog(data.All.CBV.meanCortf,data.All.CBV.meanCortS,'color',colorbrewer_setA_colorE,'LineWidth',2)
     title('Delta-band power')
     ylabel('Power')
     xlabel('Freq (Hz)')
@@ -290,9 +297,10 @@ for n = 1:length(baselineTypes)
     ax4 = subplot(2,4,4);
     loglog(data.Rest.thetaBandPower.(baselineType).meanHipf,data.Rest.thetaBandPower.(baselineType).meanHipS,'color',colorbrewer_setA_colorA,'LineWidth',2)
     hold on
-    loglog(data.AllData.thetaBandPower.meanHipf,data.AllData.thetaBandPower.meanHipS,'color',colorbrewer_setA_colorB,'LineWidth',2)
+    loglog(data.All.thetaBandPower.meanHipf,data.All.thetaBandPower.meanHipS,'color',colorbrewer_setA_colorB,'LineWidth',2)
     loglog(data.NREM.thetaBandPower.meanHipf,data.NREM.thetaBandPower.meanHipS,'color',colorbrewer_setA_colorC,'LineWidth',2)
     loglog(data.REM.thetaBandPower.meanHipf,data.REM.thetaBandPower.meanHipS,'color',colorbrewer_setA_colorD,'LineWidth',2)
+    loglog(data.All.CBV.meanCortf,data.All.CBV.meanCortS,'color',colorbrewer_setA_colorE,'LineWidth',2)
     title('Theta-band power')
     ylabel('Power')
     xlabel('Freq (Hz)')
@@ -303,9 +311,10 @@ for n = 1:length(baselineTypes)
     ax5 = subplot(2,4,5);
     loglog(data.Rest.alphaBandPower.(baselineType).meanHipf,data.Rest.alphaBandPower.(baselineType).meanHipS,'color',colorbrewer_setA_colorA,'LineWidth',2)
     hold on
-    loglog(data.AllData.alphaBandPower.meanHipf,data.AllData.alphaBandPower.meanHipS,'color',colorbrewer_setA_colorB,'LineWidth',2)
+    loglog(data.All.alphaBandPower.meanHipf,data.All.alphaBandPower.meanHipS,'color',colorbrewer_setA_colorB,'LineWidth',2)
     loglog(data.NREM.alphaBandPower.meanHipf,data.NREM.alphaBandPower.meanHipS,'color',colorbrewer_setA_colorC,'LineWidth',2)
     loglog(data.REM.alphaBandPower.meanHipf,data.REM.alphaBandPower.meanHipS,'color',colorbrewer_setA_colorD,'LineWidth',2)
+    loglog(data.All.CBV.meanCortf,data.All.CBV.meanCortS,'color',colorbrewer_setA_colorE,'LineWidth',2)
     title('Alpha-band power')
     ylabel('Power')
     xlabel('Freq (Hz)')
@@ -316,9 +325,10 @@ for n = 1:length(baselineTypes)
     ax6 = subplot(2,4,6);
     loglog(data.Rest.betaBandPower.(baselineType).meanHipf,data.Rest.betaBandPower.(baselineType).meanHipS,'color',colorbrewer_setA_colorA,'LineWidth',2)
     hold on
-    loglog(data.AllData.betaBandPower.meanHipf,data.AllData.betaBandPower.meanHipS,'color',colorbrewer_setA_colorB,'LineWidth',2)
+    loglog(data.All.betaBandPower.meanHipf,data.All.betaBandPower.meanHipS,'color',colorbrewer_setA_colorB,'LineWidth',2)
     loglog(data.NREM.betaBandPower.meanHipf,data.NREM.betaBandPower.meanHipS,'color',colorbrewer_setA_colorC,'LineWidth',2)
     loglog(data.REM.betaBandPower.meanHipf,data.REM.betaBandPower.meanHipS,'color',colorbrewer_setA_colorD,'LineWidth',2)
+    loglog(data.All.CBV.meanCortf,data.All.CBV.meanCortS,'color',colorbrewer_setA_colorE,'LineWidth',2)
     title('Beta-band power')
     ylabel('Power')
     xlabel('Freq (Hz)')
@@ -329,9 +339,10 @@ for n = 1:length(baselineTypes)
     ax7 = subplot(2,4,7);
     loglog(data.Rest.gammaBandPower.(baselineType).meanHipf,data.Rest.gammaBandPower.(baselineType).meanHipS,'color',colorbrewer_setA_colorA,'LineWidth',2)
     hold on
-    loglog(data.AllData.gammaBandPower.meanHipf,data.AllData.gammaBandPower.meanHipS,'color',colorbrewer_setA_colorB,'LineWidth',2)
+    loglog(data.All.gammaBandPower.meanHipf,data.All.gammaBandPower.meanHipS,'color',colorbrewer_setA_colorB,'LineWidth',2)
     loglog(data.NREM.gammaBandPower.meanHipf,data.NREM.gammaBandPower.meanHipS,'color',colorbrewer_setA_colorC,'LineWidth',2)
     loglog(data.REM.gammaBandPower.meanHipf,data.REM.gammaBandPower.meanHipS,'color',colorbrewer_setA_colorD,'LineWidth',2)
+    loglog(data.All.CBV.meanCortf,data.All.CBV.meanCortS,'color',colorbrewer_setA_colorE,'LineWidth',2)
     title('Gamma-band power')
     ylabel('Power')
     xlabel('Freq (Hz)')
@@ -342,9 +353,10 @@ for n = 1:length(baselineTypes)
     ax8 = subplot(2,4,8);
     loglog(data.Rest.muaPower.(baselineType).meanHipf,data.Rest.muaPower.(baselineType).meanHipS,'color',colorbrewer_setA_colorA,'LineWidth',2)
     hold on
-    loglog(data.AllData.muaPower.meanHipf,data.AllData.muaPower.meanHipS,'color',colorbrewer_setA_colorB,'LineWidth',2)
+    loglog(data.All.muaPower.meanHipf,data.All.muaPower.meanHipS,'color',colorbrewer_setA_colorB,'LineWidth',2)
     loglog(data.NREM.muaPower.meanHipf,data.NREM.muaPower.meanHipS,'color',colorbrewer_setA_colorC,'LineWidth',2)
     loglog(data.REM.muaPower.meanHipf,data.REM.muaPower.meanHipS,'color',colorbrewer_setA_colorD,'LineWidth',2)
+    loglog(data.All.CBV.meanCortf,data.All.CBV.meanCortS,'color',colorbrewer_setA_colorE,'LineWidth',2)
     title('MUA power')
     ylabel('Power')
     xlabel('Freq (Hz)')

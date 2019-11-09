@@ -16,8 +16,8 @@
 clear
 clc
 
-animalIDs = {'T99','T101','T102','T103','T105','T108','T109','T110'};
-driveLetters = {'E','E','E','F','F','F','D','D'};
+animalIDs = {'T99','T101','T102','T103','T105','T108','T109','T110','T111'};
+driveLetters = {'E','E','E','F','F','F','D','D','D'};
 behavFields = {'Rest','NREM','REM','Unstim','All'};
 baselineTypes = {'manualSelection','setDuration','entireDuration'};
 coherr_dataTypes = {'CBV','CBV_HbT','deltaBandPower','thetaBandPower','alphaBandPower','betaBandPower','gammaBandPower','muaPower'};
@@ -166,7 +166,7 @@ end
      
      %% Alpha-band power
      subplot(2,4,5);
-     plot(data.alphaBandPower.CBV.(baselineType).meanf,data.Rest.alphaBandPower.(baselineType).meanC,'color',colorbrewer_setA_colorA,'LineWidth',2)
+     plot(data.Rest.alphaBandPower.(baselineType).meanf,data.Rest.alphaBandPower.(baselineType).meanC,'color',colorbrewer_setA_colorA,'LineWidth',2)
      hold on
      plot(data.NREM.alphaBandPower.meanf,data.NREM.alphaBandPower.meanC,'color',colorbrewer_setA_colorB,'LineWidth',2)
      plot(data.REM.alphaBandPower.meanf,data.REM.alphaBandPower.meanC,'color',colorbrewer_setA_colorC,'LineWidth',2)
