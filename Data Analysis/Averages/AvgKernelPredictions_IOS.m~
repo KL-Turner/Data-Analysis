@@ -84,15 +84,15 @@ for b = 1:length(behavFields)
                         for d = 1:length(baselineTypes)
                             baselineType = baselineTypes{1,d};
                             data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).(baselineType).meanR = mean(AnalysisResults.HRF_Predictions.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).(baselineType).R);
-                            data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).(baselineType).stdR = std(AnalysisResults.HRF_Predictions.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).(baselineType).R,0,2);
+                            data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).(baselineType).stdR = std(AnalysisResults.HRF_Predictions.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).(baselineType).R);
                             data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).(baselineType).meanR2 = mean(AnalysisResults.HRF_Predictions.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).(baselineType).R2);
-                            data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).(baselineType).stdR2 = std(AnalysisResults.HRF_Predictions.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).(baselineType).R2,0,2);
+                            data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).(baselineType).stdR2 = std(AnalysisResults.HRF_Predictions.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).(baselineType).R2);
                         end
                     else
-                        data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).meanR = mean(AnalysisResults.HRF_Predictions.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).R);
-                        data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).stdR = std(AnalysisResults.HRF_Predictions.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).R,0,2);
-                        data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).meanR2 = mean(AnalysisResults.HRF_Predictions.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).R2);
-                        data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).stdR2 = std(AnalysisResults.HRF_Predictions.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).R2,0,2);
+                        data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).R(a,1) = mean(AnalysisResults.HRF_Predictions.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).R);
+                        data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).allR{a,1} = AnalysisResults.HRF_Predictions.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).R;
+                        data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).R2(a,1) = mean(AnalysisResults.HRF_Predictions.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).R2);
+                        data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).allR2{a,1} = AnalysisResults.HRF_Predictions.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).R2;
                     end
                 end
             end
