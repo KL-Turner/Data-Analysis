@@ -16,8 +16,8 @@
 clear
 clc
 
-animalIDs = {'T99','T101','T102','T103','T105','T108','T109','T110'};
-driveLetters = {'E','E','E','F','F','F','D','D'};
+animalIDs = {'T99','T101','T102','T103','T105','T108','T109','T110','T111'};
+driveLetters = {'E','E','E','F','F','F','D','D','D'};
 behavFields = {'Whisk','Rest','NREM','REM','Unstim','All'};
 baselineTypes = {'manualSelection','setDuration','entireDuration'};
 colorbrewer_setA_colorA = [0.520000 0.520000 0.510000];
@@ -25,7 +25,7 @@ colorbrewer_setA_colorB = [(31/256) (120/256) (180/256)];
 colorbrewer_setA_colorC = [(255/256) (0/256) (115/256)];
 colorbrewer_setA_colorD = [(51/256) (160/256) (44/256)];
 colorbrewer_setA_colorE = [(255/256) (140/256) (0/256)];
-colorbrewer_setA_colorF = [(255/256) (140/256) (0/256)];
+colorbrewer_setA_colorF = [0.750000 0.000000 1.000000];
 
 %% cd through each animal's directory and extract the appropriate analysis results
 for a = 1:length(animalIDs)

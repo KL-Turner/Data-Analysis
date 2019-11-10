@@ -325,22 +325,22 @@ for n = 1:length(baselineTypes)
     sgtitle({['CBV and hippocampal power spectra - ' baselineType ' for resting data'],' '})
     %% CBV
     ax1 = subplot(2,4,1);
-    L1 = loglog(data.Rest.CBV.(baselineType).meanHipf,data.Rest.CBV.(baselineType).meanHipS,'color',colorbrewer_setA_colorA,'LineWidth',2);
+    L1 = loglog(data.Rest.CBV.(baselineType).meanCortf,data.Rest.CBV.(baselineType).meanCortS,'color',colorbrewer_setA_colorA,'LineWidth',2);
     hold on
-    loglog(data.Rest.CBV.(baselineType).meanHipf,data.Rest.CBV.(baselineType).meanHipS + data.Rest.CBV.(baselineType).stdHipS,'color',colorbrewer_setA_colorA,'LineWidth',1)
-    loglog(data.Rest.CBV.(baselineType).meanHipf,data.Rest.CBV.(baselineType).meanHipS - data.Rest.CBV.(baselineType).stdHipS,'color',colorbrewer_setA_colorA,'LineWidth',1)
-    L2 = loglog(data.NREM.CBV.meanHipf,data.NREM.CBV.meanHipS,'color',colorbrewer_setA_colorB,'LineWidth',2);
-    loglog(data.NREM.CBV.meanHipf,data.NREM.CBV.meanHipS + data.NREM.CBV.stdHipS,'color',colorbrewer_setA_colorB,'LineWidth',1)
-    loglog(data.NREM.CBV.meanHipf,data.NREM.CBV.meanHipS - data.NREM.CBV.stdHipS ,'color',colorbrewer_setA_colorB,'LineWidth',1)
-    L3 = loglog(data.REM.CBV.meanHipf,data.REM.CBV.meanHipS,'color',colorbrewer_setA_colorC,'LineWidth',2);
-    loglog(data.REM.CBV.meanHipf,data.REM.CBV.meanHipS + data.REM.CBV.stdHipS,'color',colorbrewer_setA_colorC,'LineWidth',1)
-    loglog(data.REM.CBV.meanHipf,data.REM.CBV.meanHipS - data.REM.CBV.stdHipS ,'color',colorbrewer_setA_colorC,'LineWidth',1)
-    L4 = loglog(data.Unstim.CBV.meanHipf,data.Unstim.CBV.meanHipS,'color',colorbrewer_setA_colorD,'LineWidth',2);
-    loglog(data.Unstim.CBV.meanHipf,data.Unstim.CBV.meanHipS + data.Unstim.CBV.stdHipS,'color',colorbrewer_setA_colorD,'LineWidth',1)
-    loglog(data.Unstim.CBV.meanHipf,data.Unstim.CBV.meanHipS - data.Unstim.CBV.stdHipS ,'color',colorbrewer_setA_colorD,'LineWidth',1)
-    L5 = loglog(data.All.CBV.meanHipf,data.All.CBV.meanHipS,'color',colorbrewer_setA_colorE,'LineWidth',2);
-    loglog(data.All.CBV.meanHipf,data.All.CBV.meanHipS + data.All.CBV.stdHipS,'color',colorbrewer_setA_colorE,'LineWidth',1)
-    loglog(data.All.CBV.meanHipf,data.All.CBV.meanHipS - data.All.CBV.stdHipS ,'color',colorbrewer_setA_colorE,'LineWidth',1)
+    loglog(data.Rest.CBV.(baselineType).meanCortf,data.Rest.CBV.(baselineType).meanCortS + data.Rest.CBV.(baselineType).stdCortS,'color',colorbrewer_setA_colorA,'LineWidth',1)
+    loglog(data.Rest.CBV.(baselineType).meanCortf,data.Rest.CBV.(baselineType).meanCortS - data.Rest.CBV.(baselineType).stdCortS,'color',colorbrewer_setA_colorA,'LineWidth',1)
+    L2 = loglog(data.NREM.CBV.meanCortf,data.NREM.CBV.meanCortS,'color',colorbrewer_setA_colorB,'LineWidth',2);
+    loglog(data.NREM.CBV.meanCortf,data.NREM.CBV.meanCortS + data.NREM.CBV.stdCortS,'color',colorbrewer_setA_colorB,'LineWidth',1)
+    loglog(data.NREM.CBV.meanCortf,data.NREM.CBV.meanCortS - data.NREM.CBV.stdCortS ,'color',colorbrewer_setA_colorB,'LineWidth',1)
+    L3 = loglog(data.REM.CBV.meanCortf,data.REM.CBV.meanCortS,'color',colorbrewer_setA_colorC,'LineWidth',2);
+    loglog(data.REM.CBV.meanCortf,data.REM.CBV.meanCortS + data.REM.CBV.stdCortS,'color',colorbrewer_setA_colorC,'LineWidth',1)
+    loglog(data.REM.CBV.meanCortf,data.REM.CBV.meanCortS - data.REM.CBV.stdCortS ,'color',colorbrewer_setA_colorC,'LineWidth',1)
+    L4 = loglog(data.Unstim.CBV.meanCortf,data.Unstim.CBV.meanCortS,'color',colorbrewer_setA_colorD,'LineWidth',2);
+    loglog(data.Unstim.CBV.meanCortf,data.Unstim.CBV.meanCortS + data.Unstim.CBV.stdCortS,'color',colorbrewer_setA_colorD,'LineWidth',1)
+    loglog(data.Unstim.CBV.meanCortf,data.Unstim.CBV.meanCortS - data.Unstim.CBV.stdCortS ,'color',colorbrewer_setA_colorD,'LineWidth',1)
+    L5 = loglog(data.All.CBV.meanCortf,data.All.CBV.meanCortS,'color',colorbrewer_setA_colorE,'LineWidth',2);
+    loglog(data.All.CBV.meanCortf,data.All.CBV.meanCortS + data.All.CBV.stdCortS,'color',colorbrewer_setA_colorE,'LineWidth',1)
+    loglog(data.All.CBV.meanCortf,data.All.CBV.meanCortS - data.All.CBV.stdCortS ,'color',colorbrewer_setA_colorE,'LineWidth',1)
     title('CBV Reflectance')
     ylabel('Power')
     xlabel('Freq (Hz)')
@@ -350,22 +350,22 @@ for n = 1:length(baselineTypes)
     
     %% CBV HbT
     ax2 = subplot(2,4,2);
-    loglog(data.Rest.CBV_HbT.(baselineType).meanHipf,data.Rest.CBV_HbT.(baselineType).meanHipS,'color',colorbrewer_setA_colorA,'LineWidth',2)
+    loglog(data.Rest.CBV_HbT.(baselineType).meanCortf,data.Rest.CBV_HbT.(baselineType).meanCortS,'color',colorbrewer_setA_colorA,'LineWidth',2)
     hold on
-    loglog(data.Rest.CBV_HbT.(baselineType).meanHipf,data.Rest.CBV_HbT.(baselineType).meanHipS + data.Rest.CBV_HbT.(baselineType).stdHipS,'color',colorbrewer_setA_colorA,'LineWidth',1)
-    loglog(data.Rest.CBV_HbT.(baselineType).meanHipf,data.Rest.CBV_HbT.(baselineType).meanHipS - data.Rest.CBV_HbT.(baselineType).stdHipS,'color',colorbrewer_setA_colorA,'LineWidth',1)
-    loglog(data.NREM.CBV_HbT.meanHipf,data.NREM.CBV_HbT.meanHipS,'color',colorbrewer_setA_colorB,'LineWidth',2);
-    loglog(data.NREM.CBV_HbT.meanHipf,data.NREM.CBV_HbT.meanHipS + data.NREM.CBV_HbT.stdHipS,'color',colorbrewer_setA_colorB,'LineWidth',1)
-    loglog(data.NREM.CBV_HbT.meanHipf,data.NREM.CBV_HbT.meanHipS - data.NREM.CBV_HbT.stdHipS ,'color',colorbrewer_setA_colorB,'LineWidth',1)
-    loglog(data.REM.CBV_HbT.meanHipf,data.REM.CBV_HbT.meanHipS,'color',colorbrewer_setA_colorC,'LineWidth',2);
-    loglog(data.REM.CBV_HbT.meanHipf,data.REM.CBV_HbT.meanHipS + data.REM.CBV_HbT.stdHipS,'color',colorbrewer_setA_colorC,'LineWidth',1)
-    loglog(data.REM.CBV_HbT.meanHipf,data.REM.CBV_HbT.meanHipS - data.REM.CBV_HbT.stdHipS,'color',colorbrewer_setA_colorC,'LineWidth',1)
-    loglog(data.Unstim.CBV_HbT.meanHipf,data.Unstim.CBV_HbT.meanHipS,'color',colorbrewer_setA_colorD,'LineWidth',2);
-    loglog(data.Unstim.CBV_HbT.meanHipf,data.Unstim.CBV_HbT.meanHipS + data.Unstim.CBV_HbT.stdHipS,'color',colorbrewer_setA_colorD,'LineWidth',1)
-    loglog(data.Unstim.CBV_HbT.meanHipf,data.Unstim.CBV_HbT.meanHipS - data.Unstim.CBV_HbT.stdHipS ,'color',colorbrewer_setA_colorD,'LineWidth',1)
-    loglog(data.All.CBV_HbT.meanHipf,data.All.CBV_HbT.meanHipS,'color',colorbrewer_setA_colorE,'LineWidth',2);
-    loglog(data.All.CBV_HbT.meanHipf,data.All.CBV_HbT.meanHipS + data.All.CBV_HbT.stdHipS,'color',colorbrewer_setA_colorE,'LineWidth',1)
-    loglog(data.All.CBV_HbT.meanHipf,data.All.CBV_HbT.meanHipS - data.All.CBV_HbT.stdHipS,'color',colorbrewer_setA_colorE,'LineWidth',1)
+    loglog(data.Rest.CBV_HbT.(baselineType).meanCortf,data.Rest.CBV_HbT.(baselineType).meanCortS + data.Rest.CBV_HbT.(baselineType).stdCortS,'color',colorbrewer_setA_colorA,'LineWidth',1)
+    loglog(data.Rest.CBV_HbT.(baselineType).meanCortf,data.Rest.CBV_HbT.(baselineType).meanCortS - data.Rest.CBV_HbT.(baselineType).stdCortS,'color',colorbrewer_setA_colorA,'LineWidth',1)
+    loglog(data.NREM.CBV_HbT.meanCortf,data.NREM.CBV_HbT.meanCortS,'color',colorbrewer_setA_colorB,'LineWidth',2);
+    loglog(data.NREM.CBV_HbT.meanCortf,data.NREM.CBV_HbT.meanCortS + data.NREM.CBV_HbT.stdCortS,'color',colorbrewer_setA_colorB,'LineWidth',1)
+    loglog(data.NREM.CBV_HbT.meanCortf,data.NREM.CBV_HbT.meanCortS - data.NREM.CBV_HbT.stdCortS ,'color',colorbrewer_setA_colorB,'LineWidth',1)
+    loglog(data.REM.CBV_HbT.meanCortf,data.REM.CBV_HbT.meanCortS,'color',colorbrewer_setA_colorC,'LineWidth',2);
+    loglog(data.REM.CBV_HbT.meanCortf,data.REM.CBV_HbT.meanCortS + data.REM.CBV_HbT.stdCortS,'color',colorbrewer_setA_colorC,'LineWidth',1)
+    loglog(data.REM.CBV_HbT.meanCortf,data.REM.CBV_HbT.meanCortS - data.REM.CBV_HbT.stdCortS,'color',colorbrewer_setA_colorC,'LineWidth',1)
+    loglog(data.Unstim.CBV_HbT.meanCortf,data.Unstim.CBV_HbT.meanCortS,'color',colorbrewer_setA_colorD,'LineWidth',2);
+    loglog(data.Unstim.CBV_HbT.meanCortf,data.Unstim.CBV_HbT.meanCortS + data.Unstim.CBV_HbT.stdCortS,'color',colorbrewer_setA_colorD,'LineWidth',1)
+    loglog(data.Unstim.CBV_HbT.meanCortf,data.Unstim.CBV_HbT.meanCortS - data.Unstim.CBV_HbT.stdCortS ,'color',colorbrewer_setA_colorD,'LineWidth',1)
+    loglog(data.All.CBV_HbT.meanCortf,data.All.CBV_HbT.meanCortS,'color',colorbrewer_setA_colorE,'LineWidth',2);
+    loglog(data.All.CBV_HbT.meanCortf,data.All.CBV_HbT.meanCortS + data.All.CBV_HbT.stdCortS,'color',colorbrewer_setA_colorE,'LineWidth',1)
+    loglog(data.All.CBV_HbT.meanCortf,data.All.CBV_HbT.meanCortS - data.All.CBV_HbT.stdCortS,'color',colorbrewer_setA_colorE,'LineWidth',1)
     title('CBV HbT')
     ylabel('Power')
     xlabel('Freq (Hz)')
@@ -482,7 +482,7 @@ for n = 1:length(baselineTypes)
     loglog(data.REM.gammaBandPower.meanHipf,data.REM.gammaBandPower.meanHipS - data.REM.gammaBandPower.stdHipS ,'color',colorbrewer_setA_colorC,'LineWidth',1)
     loglog(data.Unstim.gammaBandPower.meanHipf,data.Unstim.gammaBandPower.meanHipS,'color',colorbrewer_setA_colorD,'LineWidth',2);
     loglog(data.Unstim.gammaBandPower.meanHipf,data.Unstim.gammaBandPower.meanHipS + data.Unstim.gammaBandPower.stdHipS,'color',colorbrewer_setA_colorD,'LineWidth',1)
-    loglog(data.Unstim.gammaBandPower.meanHipf,data.Unstim.gammaBandPower.meanHipS - data.Unstim.gammaBandPower.stdHipS ,'color',colorbrewer_setA_colorD,'LineWidth',1)
+    loglog(data.Unstim.gammaBandPower.meanHipf,data.Unstim.gammaBandPower.meanHipS - data.Unstim.gammaBandPower.stdHipS,'color',colorbrewer_setA_colorD,'LineWidth',1)
     loglog(data.All.gammaBandPower.meanHipf,data.All.gammaBandPower.meanHipS,'color',colorbrewer_setA_colorE,'LineWidth',2);
     loglog(data.All.gammaBandPower.meanHipf,data.All.gammaBandPower.meanHipS + data.All.gammaBandPower.stdHipS,'color',colorbrewer_setA_colorE,'LineWidth',1)
     loglog(data.All.gammaBandPower.meanHipf,data.All.gammaBandPower.meanHipS - data.All.gammaBandPower.stdHipS ,'color',colorbrewer_setA_colorE,'LineWidth',1)

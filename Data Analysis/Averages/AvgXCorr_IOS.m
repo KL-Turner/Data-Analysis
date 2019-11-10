@@ -10,8 +10,8 @@
 clear
 clc
 
-animalIDs = {'T99','T101','T102','T103','T105','T108','T109','T110'};
-driveLetters = {'E','E','E','F','F','F','D','D'};
+animalIDs = {'T99','T101','T102','T103','T105','T108','T109','T110','T111'};
+driveLetters = {'E','E','E','F','F','F','D','D','D'};
 behavFields = {'Rest','NREM','REM','Unstim','All'};
 baselineTypes = {'manualSelection','setDuration','entireDuration'};
 

@@ -314,7 +314,7 @@ for h = 1:length(baselineTypes)
     plot(data.All.muaPower.meanf,data.All.muaPower.meanC - data.All.muaPower.stdC,'color',colorbrewer_setA_colorE,'LineWidth',1)
     plot(data.Rest.muaPower.(baselineType).meanf,data.Rest.muaPower.(baselineType).maxConfC_Y,'color',colorbrewer_setA_colorA,'LineWidth',1);
     plot(data.NREM.muaPower.meanf,data.NREM.muaPower.maxConfC_Y,'color',colorbrewer_setA_colorB,'LineWidth',1);
-    plot(data.REM.muaPowermeanf,data.REM.muaPower.maxConfC_Y,'color',colorbrewer_setA_colorC,'LineWidth',1);
+    plot(data.REM.muaPower.meanf,data.REM.muaPower.maxConfC_Y,'color',colorbrewer_setA_colorC,'LineWidth',1);
     plot(data.Unstim.muaPower.meanf,data.Unstim.muaPower.maxConfC_Y,'color',colorbrewer_setA_colorD','LineWidth',1);
     plot(data.All.muaPower.meanf,data.All.muaPower.maxConfC_Y,'color',colorbrewer_setA_colorE','LineWidth',1);
     title('MUA power')
