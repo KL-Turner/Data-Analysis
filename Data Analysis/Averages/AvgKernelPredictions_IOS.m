@@ -18,7 +18,7 @@ clc
 
 animalIDs = {'T99','T101','T102','T103','T105','T108','T109','T110','T111'};
 driveLetters = {'E','E','E','F','F','F','D','D','D'};
-behavFields = {'Whisk','Rest','NREM','REM','Unstim','All'};
+behavFields = {'Whisk','Rest','NREM','REM','Unstim','AllData'};
 neuralBands = {'deltaBandPower','thetaBandPower','alphaBandPower','betaBandPower','gammaBandPower','muaPower'};
 baselineTypes = {'manualSelection','setDuration','entireDuration'};
 fileSets = {'fileSetA','fileSetB'};
@@ -31,7 +31,6 @@ colorbrewer_setA_colorD = [(51/256) (160/256) (44/256)];
 colorbrewer_setA_colorE = [(255/256) (140/256) (0/256)];
 colorbrewer_setA_colorF = [0.750000 0.000000 1.000000];
 
-AnalysisResults.HRF_Predictions.Rest.fileSetA.CBV.LH.deltaBandPower.setDuration
 %% cd through each animal's directory and extract the appropriate analysis results
 for a = 1:length(animalIDs)
     animalID = animalIDs{1,a};
@@ -58,10 +57,10 @@ for a = 1:length(animalIDs)
                                 data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).(baselineType).allR2{a,1} = AnalysisResults.HRF_Predictions.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).(baselineType).R2;
                             end
                         else
-                            data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).R(a,1) = mean(AnalysisResults.HRF_Predictions.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).R);
-                            data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).allR{a,1} = AnalysisResults.HRF_Predictions.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).R;
-                            data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).R2(a,1) = mean(AnalysisResults.HRF_Predictions.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).R2);
-                            data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).allR2{a,1} = AnalysisResults.HRF_Predictions.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).R2;
+                            data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).R(a,1) = mean(AnalysisResults.HRF_Predictions.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).entireDuration.R);
+                            data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).allR{a,1} = AnalysisResults.HRF_Predictions.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).entireDuration.R;
+                            data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).R2(a,1) = mean(AnalysisResults.HRF_Predictions.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).entireDuration.R2);
+                            data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).allR2{a,1} = AnalysisResults.HRF_Predictions.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).entireDuration.R2;
                         end
                     end
                 end
@@ -83,16 +82,16 @@ for b = 1:length(behavFields)
                     if strcmp(behavField,'Rest') == true || strcmp(behavField,'Whisk') == true
                         for d = 1:length(baselineTypes)
                             baselineType = baselineTypes{1,d};
-                            data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).(baselineType).meanR = mean(AnalysisResults.HRF_Predictions.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).(baselineType).R);
-                            data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).(baselineType).stdR = std(AnalysisResults.HRF_Predictions.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).(baselineType).R,0,2);
-                            data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).(baselineType).meanR2 = mean(AnalysisResults.HRF_Predictions.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).(baselineType).R2);
-                            data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).(baselineType).stdR2 = std(AnalysisResults.HRF_Predictions.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).(baselineType).R2,0,2);
+                            data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).(baselineType).meanR = mean(data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).(baselineType).R);
+                            data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).(baselineType).stdR = std(data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).(baselineType).R,0,2);
+                            data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).(baselineType).meanR2 = mean(data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).(baselineType).R2);
+                            data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).(baselineType).stdR2 = std(data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).(baselineType).R2,0,2);
                         end
                     else
-                        data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).meanR = mean(AnalysisResults.HRF_Predictions.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).R);
-                        data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).stdR = std(AnalysisResults.HRF_Predictions.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).R,0,2);
-                        data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).meanR2 = mean(AnalysisResults.HRF_Predictions.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).R2);
-                        data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).stdR2 = std(AnalysisResults.HRF_Predictions.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).R2,0,2);
+                        data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).meanR = mean(data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).R);
+                        data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).stdR = std(data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).R,0,2);
+                        data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).meanR2 = mean(data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).R2);
+                        data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).stdR2 = std(data.(behavField).(fileSet).(cbv_dataType).(hemDataType).(neuralBand).R2,0,2);
                     end
                 end
             end
@@ -100,162 +99,3 @@ for b = 1:length(behavFields)
     end
 end
 
-% take the mean and standard deviation of each set of signals
-for e = 1:length(behavFields)
-    behavField = behavFields{1,e};
-    for f = 1:length(cbv_dataTypes)
-        cbv_dataType = cbv_dataTypes{1,f};
-        if strcmp(behavField,'Rest') || strcmp(behavField,'Whisk') == true
-            for g = 1:length(baselineTypes)
-                baselineType = baselineTypes{1,g};
-                data.(behavField).(cbv_dataType).(baselineType).Comb = cat(1,data.(behavField).(cbv_dataType).(baselineType).meanLH,data.(behavField).(cbv_dataType).(baselineType).meanRH);
-                data.(behavField).(cbv_dataType).(baselineType).catAllLH = [];
-                data.(behavField).(cbv_dataType).(baselineType).catAllRH = [];
-                for h = 1:length(data.(behavField).(cbv_dataType).(baselineType).allLH)
-                    data.(behavField).(cbv_dataType).(baselineType).catAllLH = cat(1,data.(behavField).(cbv_dataType).(baselineType).catAllLH,data.(behavField).(cbv_dataType).(baselineType).allLH{h,1});
-                    data.(behavField).(cbv_dataType).(baselineType).catAllRH = cat(1,data.(behavField).(cbv_dataType).(baselineType).catAllRH,data.(behavField).(cbv_dataType).(baselineType).allRH{h,1});
-                end
-                data.(behavField).(cbv_dataType).(baselineType).allComb = cat(1,data.(behavField).(cbv_dataType).(baselineType).catAllLH,data.(behavField).(cbv_dataType).(baselineType).catAllRH);
-            end
-        else
-            data.(behavField).(cbv_dataType).Comb = cat(1,data.(behavField).(cbv_dataType).meanLH,data.(behavField).(cbv_dataType).meanRH);
-            data.(behavField).(cbv_dataType).catAllLH = [];
-            data.(behavField).(cbv_dataType).catAllRH = [];
-            for h = 1:length(data.(behavField).(cbv_dataType).allLH)
-                data.(behavField).(cbv_dataType).catAllLH = cat(1,data.(behavField).(cbv_dataType).catAllLH,data.(behavField).(cbv_dataType).allLH{h,1});
-                data.(behavField).(cbv_dataType).catAllRH = cat(1,data.(behavField).(cbv_dataType).catAllRH,data.(behavField).(cbv_dataType).allRH{h,1});
-            end
-            data.(behavField).(cbv_dataType).allComb = cat(1,data.(behavField).(cbv_dataType).catAllLH,data.(behavField).(cbv_dataType).catAllRH);
-        end
-    end
-end
-
-% take the mean and standard deviation of each set of signals
-for e = 1:length(behavFields)
-    behavField = behavFields{1,e};
-    for f = 1:length(cbv_dataTypes)
-        cbv_dataType = cbv_dataTypes{1,f};
-        if strcmp(behavField,'Rest') || strcmp(behavField,'Whisk') == true
-            for g = 1:length(baselineTypes)
-                baselineType = baselineTypes{1,g};
-                data.(behavField).(cbv_dataType).(baselineType).meanCBV = mean(data.(behavField).(cbv_dataType).(baselineType).Comb);
-                data.(behavField).(cbv_dataType).(baselineType).stdCBV = std(data.(behavField).(cbv_dataType).(baselineType).Comb,0,1);
-            end
-        else
-            data.(behavField).(cbv_dataType).meanCBV = mean(data.(behavField).(cbv_dataType).Comb);
-            data.(behavField).(cbv_dataType).stdCBV = std(data.(behavField).(cbv_dataType).Comb,0,1);
-        end
-    end
-end
-
-%% summary figure(s)
-for h = 1:length(baselineTypes)
-    baselineType = baselineTypes{1,h};
-    xInds = ones(1,length(animalIDs)*2);
-    summaryFigure = figure;
-    sgtitle({['Mean hemodynamics - ' baselineType],' '})
-    %% CBV
-    subplot(2,2,1);
-    scatter(xInds*1,data.Whisk.CBV.(baselineType).Comb,'MarkerEdgeColor',colorbrewer_setA_colorF,'jitter','on','jitterAmount',0.25);
-    hold on
-    e1 = errorbar(1,data.Whisk.CBV.(baselineType).meanCBV,data.Whisk.CBV.(baselineType).stdCBV,'o','MarkerEdgeColor','k','MarkerFaceColor',colorbrewer_setA_colorF);
-    e1.Color = 'black';
-    
-    scatter(xInds*2,data.Rest.CBV.(baselineType).Comb,'MarkerEdgeColor',colorbrewer_setA_colorA,'jitter','on','jitterAmount',0.25);
-    e2 = errorbar(2,data.Rest.CBV.(baselineType).meanCBV,data.Rest.CBV.(baselineType).stdCBV,'o','MarkerEdgeColor','k','MarkerFaceColor',colorbrewer_setA_colorA);
-    e2.Color = 'black';
-    
-    scatter(xInds*3,data.NREM.CBV.Comb,'MarkerEdgeColor',colorbrewer_setA_colorB,'jitter','on','jitterAmount',0.25);
-    e3 = errorbar(3,data.NREM.CBV.meanCBV,data.NREM.CBV.stdCBV,'o','MarkerEdgeColor','k','MarkerFaceColor',colorbrewer_setA_colorB);
-    e3.Color = 'black';
-    
-    scatter(xInds*4,data.REM.CBV.Comb,'MarkerEdgeColor',colorbrewer_setA_colorC,'jitter','on','jitterAmount',0.25);
-    e4 = errorbar(4,data.REM.CBV.meanCBV,data.REM.CBV.stdCBV,'o','MarkerEdgeColor','k','MarkerFaceColor',colorbrewer_setA_colorC);
-    e4.Color = 'black';
-    
-    scatter(xInds*5,data.Unstim.CBV.Comb,'MarkerEdgeColor',colorbrewer_setA_colorD,'jitter','on','jitterAmount',0.25);
-    e5 = errorbar(5,data.Unstim.CBV.meanCBV,data.Unstim.CBV.stdCBV,'o','MarkerEdgeColor','k','MarkerFaceColor',colorbrewer_setA_colorD);
-    e5.Color = 'black';
-    
-    scatter(xInds*6,data.All.CBV.Comb,'MarkerEdgeColor',colorbrewer_setA_colorE,'jitter','on','jitterAmount',0.25);
-    e6 = errorbar(6,data.All.CBV.meanCBV,data.All.CBV.stdCBV,'o','MarkerEdgeColor','k','MarkerFaceColor',colorbrewer_setA_colorE);
-    e6.Color = 'black';
-    
-    title('Reflectance')
-    ylabel('\DeltaR/R (%)')
-    set(gca,'xtick',[])
-    set(gca,'xticklabel',[])
-    legend([e1 e2 e3 e4 e5 e6],'Whisk','Rest','NREM','REM','Unstim','All')
-    axis square
-    xlim([0 length(behavFields)+1])
-    
-    %% CBV HbT
-    subplot(2,2,2);
-    scatter(xInds*1,data.Whisk.CBV_HbT.(baselineType).Comb,'MarkerEdgeColor',colorbrewer_setA_colorF,'jitter','on','jitterAmount',0.25);
-    hold on
-    e7 = errorbar(1,data.Whisk.CBV_HbT.(baselineType).meanCBV,data.Whisk.CBV_HbT.(baselineType).stdCBV,'o','MarkerEdgeColor','k','MarkerFaceColor',colorbrewer_setA_colorF);
-    e7.Color = 'black';
-    
-    scatter(xInds*2,data.Rest.CBV_HbT.(baselineType).Comb,'MarkerEdgeColor',colorbrewer_setA_colorA,'jitter','on','jitterAmount',0.25);
-    e8 = errorbar(2,data.Rest.CBV_HbT.(baselineType).meanCBV,data.Rest.CBV_HbT.(baselineType).stdCBV,'o','MarkerEdgeColor','k','MarkerFaceColor',colorbrewer_setA_colorA);
-    e8.Color = 'black';
-    
-    scatter(xInds*3,data.NREM.CBV_HbT.Comb,'MarkerEdgeColor',colorbrewer_setA_colorB,'jitter','on','jitterAmount',0.25);
-    e9 = errorbar(3,data.NREM.CBV_HbT.meanCBV,data.NREM.CBV_HbT.stdCBV,'o','MarkerEdgeColor','k','MarkerFaceColor',colorbrewer_setA_colorB);
-    e9.Color = 'black';
-    
-    scatter(xInds*4,data.REM.CBV_HbT.Comb,'MarkerEdgeColor',colorbrewer_setA_colorC,'jitter','on','jitterAmount',0.25);
-    e10 = errorbar(4,data.REM.CBV_HbT.meanCBV,data.REM.CBV_HbT.stdCBV,'o','MarkerEdgeColor','k','MarkerFaceColor',colorbrewer_setA_colorC);
-    e10.Color = 'black';
-    
-    scatter(xInds*5,data.Unstim.CBV_HbT.Comb,'MarkerEdgeColor',colorbrewer_setA_colorD,'jitter','on','jitterAmount',0.25);
-    e11 = errorbar(5,data.Unstim.CBV_HbT.meanCBV,data.Unstim.CBV_HbT.stdCBV,'o','MarkerEdgeColor','k','MarkerFaceColor',colorbrewer_setA_colorD);
-    e11.Color = 'black';
-    
-    scatter(xInds*6,data.All.CBV_HbT.Comb,'MarkerEdgeColor',colorbrewer_setA_colorE,'jitter','on','jitterAmount',0.25);
-    e12 = errorbar(6,data.All.CBV_HbT.meanCBV,data.All.CBV_HbT.stdCBV,'o','MarkerEdgeColor','k','MarkerFaceColor',colorbrewer_setA_colorE);
-    e12.Color = 'black';
-    
-    title('Total Hemoglobin')
-    ylabel('\DeltaHbT (\muM)')
-    set(gca,'xtick',[])
-    set(gca,'xticklabel',[])
-    axis square
-    xlim([0 length(behavFields)+1])
-    
-    subplot(2,2,3);
-    edges = -20:0.5:7;
-    h1 = histogram(data.Whisk.CBV.(baselineType).allComb,edges,'Normalization','probability');
-    hold on
-    p1 = plot(conv(h1.BinEdges,[0.5 0.5],'valid'),sgolayfilt((h1.BinCounts/sum(h1.BinCounts)),2,5));
-    h2 = histogram(data.Rest.CBV.(baselineType).allComb,edges,'Normalization','probability');
-    p2 = plot(conv(h2.BinEdges,[0.5 0.5],'valid'),sgolayfilt((h2.BinCounts/sum(h2.BinCounts)),2,5));
-    h3 = histogram(data.NREM.CBV.allComb,edges,'Normalization','probability');
-    p3 = plot(conv(h3.BinEdges,[0.5 0.5],'valid'),sgolayfilt((h3.BinCounts/sum(h3.BinCounts)),2,17));
-    h4 = histogram(data.REM.CBV.allComb,edges,'Normalization','probability');
-    p4 = plot(conv(h4.BinEdges,[0.5 0.5],'valid'),sgolayfilt((h4.BinCounts/sum(h4.BinCounts)),2,17));
-    legend([p1,p2,p3,p4],'Whisk','Rest','NREM','REM')
-    axis square
-    ylim([0 0.2])
-    
-    subplot(2,2,4);
-    edges = -20:2.5:125;
-    h5 = histogram(data.Whisk.CBV_HbT.(baselineType).allComb,edges,'Normalization','probability');
-    hold on
-    p5 = plot(conv(h5.BinEdges,[0.5 0.5],'valid'),sgolayfilt((h5.BinCounts/sum(h5.BinCounts)),2,3));
-    h6 = histogram(data.Rest.CBV_HbT.(baselineType).allComb,edges,'Normalization','probability');
-    p6 = plot(conv(h6.BinEdges,[0.5 0.5],'valid'),sgolayfilt((h6.BinCounts/sum(h6.BinCounts)),2,3));
-    h7 = histogram(data.NREM.CBV_HbT.allComb,edges,'Normalization','probability');
-    p7 = plot(conv(h7.BinEdges,[0.5 0.5],'valid'),sgolayfilt((h7.BinCounts/sum(h7.BinCounts)),2,17));
-    h8 = histogram(data.REM.CBV_HbT.allComb,edges,'Normalization','probability');
-    p8 = plot(conv(h8.BinEdges,[0.5 0.5],'valid'),sgolayfilt((h8.BinCounts/sum(h8.BinCounts)),2,17));
-    axis square
-    ylim([0 0.5])
-
-    % save figure(s)
-    dirpath = 'C:\Users\klt8\Documents\Analysis Average Figures\CBV\';
-    if ~exist(dirpath, 'dir')
-        mkdir(dirpath);
-    end
-    savefig(summaryFigure, [dirpath baselineType '_AverageCBV']);
-end

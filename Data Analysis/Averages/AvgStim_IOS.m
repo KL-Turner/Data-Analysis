@@ -20,8 +20,7 @@ animalIDs = {'T99','T101','T102','T103','T105','T108','T109','T110','T111'};
 driveLetters = {'E','E','E','F','F','F','D','D','D'};
 solenoidNames = {'LPadSol','RPadSol','AudSol'};
 compDataTypes = {'Ipsi','Contra','Auditory'};
-baselineTypes = {'manualSelection','setDuration','entireDuration'};
-dataTypes = {'LH','RH'};
+dataTypes = {'adjLH','adjRH'};
 
 %% cd through each animal's directory and extract the appropriate analysis results
 for a = 1:length(animalIDs)
@@ -32,381 +31,261 @@ for a = 1:length(animalIDs)
     load([animalID '_AnalysisResults.mat']);
     for b = 1:length(dataTypes)
         dataType = dataTypes{1,b};
-        for c = 1:length(baselineTypes)
-            baselineType = baselineTypes{1,c};
-            for d = 1:length(solenoidNames)
-                solenoidName = solenoidNames{1,d};
-                data.(dataType).(baselineType).(solenoidName).CBV(:,a) = AnalysisResults.EvokedAvgs.Stim.(dataType).(baselineType).(solenoidName).CBV.Refl;
-                data.(dataType).(baselineType).(solenoidName).HbT(:,a) = AnalysisResults.EvokedAvgs.Stim.(dataType).(baselineType).(solenoidName).CBV.HbT;
-                data.(dataType).(baselineType).(solenoidName).cortMUA(:,a) = AnalysisResults.EvokedAvgs.Stim.(dataType).(baselineType).(solenoidName).MUA.corticalData;
-                data.(dataType).(baselineType).(solenoidName).hipMUA(:,a) = AnalysisResults.EvokedAvgs.Stim.(dataType).(baselineType).(solenoidName).MUA.hippocampalData;
-                data.(dataType).(baselineType).(solenoidName).timeVector(:,a) = AnalysisResults.EvokedAvgs.Stim.(dataType).(baselineType).(solenoidName).timeVector;
-                data.(dataType).(baselineType).(solenoidName).cortS(:,:,a) = AnalysisResults.EvokedAvgs.Stim.(dataType).(baselineType).(solenoidName).LFP.corticalS;
-                data.(dataType).(baselineType).(solenoidName).hipS(:,:,a) = AnalysisResults.EvokedAvgs.Stim.(dataType).(baselineType).(solenoidName).LFP.hippocampalS;
-                data.(dataType).(baselineType).(solenoidName).T(:,a) = AnalysisResults.EvokedAvgs.Stim.(dataType).(baselineType).(solenoidName).LFP.T;
-                data.(dataType).(baselineType).(solenoidName).F(:,a) = AnalysisResults.EvokedAvgs.Stim.(dataType).(baselineType).(solenoidName).LFP.F;
-            end
+        for d = 1:length(solenoidNames)
+            solenoidName = solenoidNames{1,d};
+            data.(dataType).(solenoidName).HbT(:,a) = AnalysisResults.EvokedAvgs.Stim.(dataType).(solenoidName).CBV_HbT.HbT;
+            data.(dataType).(solenoidName).cortMUA(:,a) = AnalysisResults.EvokedAvgs.Stim.(dataType).(solenoidName).MUA.corticalData;
+            data.(dataType).(solenoidName).hipMUA(:,a) = AnalysisResults.EvokedAvgs.Stim.(dataType).(solenoidName).MUA.hippocampalData;
+            data.(dataType).(solenoidName).timeVector(:,a) = AnalysisResults.EvokedAvgs.Stim.(dataType).(solenoidName).timeVector;
+            data.(dataType).(solenoidName).cortS(:,:,a) = AnalysisResults.EvokedAvgs.Stim.(dataType).(solenoidName).LFP.corticalS;
+            data.(dataType).(solenoidName).hipS(:,:,a) = AnalysisResults.EvokedAvgs.Stim.(dataType).(solenoidName).LFP.hippocampalS;
+            data.(dataType).(solenoidName).T(:,a) = AnalysisResults.EvokedAvgs.Stim.(dataType).(solenoidName).LFP.T;
+            data.(dataType).(solenoidName).F(:,a) = AnalysisResults.EvokedAvgs.Stim.(dataType).(solenoidName).LFP.F;
         end
     end
 end
 
 % concatenate the data from the contra and ipsi data
-for e = 1:length(baselineTypes)
-    baselineType = baselineTypes{1,e};
-    data.Contra.(baselineType).CBV = cat(2,data.LH.(baselineType).RPadSol.CBV,data.RH.(baselineType).LPadSol.CBV);
-    data.Contra.(baselineType).HbT = cat(2,data.LH.(baselineType).RPadSol.HbT,data.RH.(baselineType).LPadSol.HbT);
-    data.Contra.(baselineType).cortMUA = cat(2,data.LH.(baselineType).RPadSol.cortMUA,data.RH.(baselineType).LPadSol.cortMUA);
-    data.Contra.(baselineType).hipMUA = data.RH.(baselineType).RPadSol.hipMUA;
-    data.Contra.(baselineType).timeVector = cat(2,data.LH.(baselineType).RPadSol.timeVector,data.RH.(baselineType).LPadSol.timeVector);
-    data.Contra.(baselineType).cortS = cat(3,data.LH.(baselineType).RPadSol.cortS,data.RH.(baselineType).LPadSol.cortS);
-    data.Contra.(baselineType).hipS = data.RH.(baselineType).RPadSol.hipS;
-    data.Contra.(baselineType).T = cat(2,data.LH.(baselineType).RPadSol.T,data.RH.(baselineType).LPadSol.T);
-    data.Contra.(baselineType).F = cat(2,data.LH.(baselineType).RPadSol.F,data.RH.(baselineType).LPadSol.F);
+data.Contra.HbT = cat(2,data.adjLH.RPadSol.HbT,data.adjRH.LPadSol.HbT);
+data.Contra.cortMUA = cat(2,data.adjLH.RPadSol.cortMUA,data.adjRH.LPadSol.cortMUA);
+data.Contra.hipMUA = data.adjRH.RPadSol.hipMUA;
+data.Contra.timeVector = cat(2,data.adjLH.RPadSol.timeVector,data.adjRH.LPadSol.timeVector);
+data.Contra.cortS = cat(3,data.adjLH.RPadSol.cortS,data.adjRH.LPadSol.cortS);
+data.Contra.hipS = data.adjRH.RPadSol.hipS;
+data.Contra.T = cat(2,data.adjLH.RPadSol.T,data.adjRH.LPadSol.T);
+data.Contra.F = cat(2,data.adjLH.RPadSol.F,data.adjRH.LPadSol.F);
 
-    data.Ipsi.(baselineType).CBV = cat(2,data.LH.(baselineType).LPadSol.CBV,data.RH.(baselineType).RPadSol.CBV);
-    data.Ipsi.(baselineType).HbT = cat(2,data.LH.(baselineType).LPadSol.HbT,data.RH.(baselineType).RPadSol.HbT);
-    data.Ipsi.(baselineType).cortMUA = cat(2,data.LH.(baselineType).LPadSol.cortMUA,data.RH.(baselineType).RPadSol.cortMUA);
-    data.Ipsi.(baselineType).hipMUA = data.RH.(baselineType).LPadSol.hipMUA;
-    data.Ipsi.(baselineType).timeVector = cat(2,data.LH.(baselineType).LPadSol.timeVector,data.RH.(baselineType).RPadSol.timeVector);
-    data.Ipsi.(baselineType).cortS = cat(3,data.LH.(baselineType).LPadSol.cortS,data.RH.(baselineType).RPadSol.cortS);
-    data.Ipsi.(baselineType).hipS = data.RH.(baselineType).LPadSol.hipS;
-    data.Ipsi.(baselineType).T = cat(2,data.LH.(baselineType).LPadSol.T,data.RH.(baselineType).RPadSol.T);
-    data.Ipsi.(baselineType).F = cat(2,data.LH.(baselineType).LPadSol.F,data.RH.(baselineType).RPadSol.F);
-    
-    data.Auditory.(baselineType).CBV = cat(2,data.LH.(baselineType).AudSol.CBV,data.RH.(baselineType).AudSol.CBV);
-    data.Auditory.(baselineType).HbT = cat(2,data.LH.(baselineType).AudSol.HbT,data.RH.(baselineType).AudSol.HbT);
-    data.Auditory.(baselineType).cortMUA = cat(2,data.LH.(baselineType).AudSol.cortMUA,data.RH.(baselineType).AudSol.cortMUA);
-    data.Auditory.(baselineType).hipMUA = data.RH.(baselineType).AudSol.hipMUA;
-    data.Auditory.(baselineType).timeVector = cat(2,data.LH.(baselineType).AudSol.timeVector,data.RH.(baselineType).AudSol.timeVector);
-    data.Auditory.(baselineType).cortS = cat(3,data.LH.(baselineType).AudSol.cortS,data.RH.(baselineType).AudSol.cortS);
-    data.Auditory.(baselineType).hipS = data.RH.(baselineType).AudSol.hipS;
-    data.Auditory.(baselineType).T = cat(2,data.LH.(baselineType).AudSol.T,data.RH.(baselineType).AudSol.T);
-    data.Auditory.(baselineType).F = cat(2,data.LH.(baselineType).AudSol.F,data.RH.(baselineType).AudSol.F);
-end
+data.Ipsi.HbT = cat(2,data.adjLH.LPadSol.HbT,data.adjRH.RPadSol.HbT);
+data.Ipsi.cortMUA = cat(2,data.adjLH.LPadSol.cortMUA,data.adjRH.RPadSol.cortMUA);
+data.Ipsi.hipMUA = data.adjRH.LPadSol.hipMUA;
+data.Ipsi.timeVector = cat(2,data.adjLH.LPadSol.timeVector,data.adjRH.RPadSol.timeVector);
+data.Ipsi.cortS = cat(3,data.adjLH.LPadSol.cortS,data.adjRH.RPadSol.cortS);
+data.Ipsi.hipS = data.adjRH.LPadSol.hipS;
+data.Ipsi.T = cat(2,data.adjLH.LPadSol.T,data.adjRH.RPadSol.T);
+data.Ipsi.F = cat(2,data.adjLH.LPadSol.F,data.adjRH.RPadSol.F);
+
+data.Auditory.HbT = cat(2,data.adjLH.AudSol.HbT,data.adjRH.AudSol.HbT);
+data.Auditory.cortMUA = cat(2,data.adjLH.AudSol.cortMUA,data.adjRH.AudSol.cortMUA);
+data.Auditory.hipMUA = data.adjRH.AudSol.hipMUA;
+data.Auditory.timeVector = cat(2,data.adjLH.AudSol.timeVector,data.adjRH.AudSol.timeVector);
+data.Auditory.cortS = cat(3,data.adjLH.AudSol.cortS,data.adjRH.AudSol.cortS);
+data.Auditory.hipS = data.adjRH.AudSol.hipS;
+data.Auditory.T = cat(2,data.adjLH.AudSol.T,data.adjRH.AudSol.T);
+data.Auditory.F = cat(2,data.adjLH.AudSol.F,data.adjRH.AudSol.F);
 
 % take the averages of each field through the proper dimension
 for f = 1:length(compDataTypes)
     compDataType = compDataTypes{1,f};
-    for g = 1:length(baselineTypes)
-        baselineType = baselineTypes{1,g};
-        data.(compDataType).(baselineType).mean_CBV = mean(data.(compDataType).(baselineType).CBV,2);
-        data.(compDataType).(baselineType).std_CBV = std(data.(compDataType).(baselineType).CBV,0,2);
-        data.(compDataType).(baselineType).mean_HbT = mean(data.(compDataType).(baselineType).HbT,2);
-        data.(compDataType).(baselineType).std_HbT = std(data.(compDataType).(baselineType).HbT,0,2);
-        data.(compDataType).(baselineType).mean_CortMUA = mean(data.(compDataType).(baselineType).cortMUA,2);
-        data.(compDataType).(baselineType).std_CortMUA = std(data.(compDataType).(baselineType).cortMUA,0,2);
-        data.(compDataType).(baselineType).mean_HipMUA = mean(data.(compDataType).(baselineType).hipMUA,2);
-        data.(compDataType).(baselineType).std_HipMUA = std(data.(compDataType).(baselineType).hipMUA,0,2);
-        data.(compDataType).(baselineType).mean_timeVector = mean(data.(compDataType).(baselineType).timeVector,2);
-        data.(compDataType).(baselineType).mean_CortS = mean(data.(compDataType).(baselineType).cortS,3);
-        data.(compDataType).(baselineType).mean_HipS = mean(data.(compDataType).(baselineType).hipS,3);
-        data.(compDataType).(baselineType).mean_T = mean(data.(compDataType).(baselineType).T,2);
-        data.(compDataType).(baselineType).mean_F = mean(data.(compDataType).(baselineType).F,2);
-    end
+    data.(compDataType).mean_HbT = mean(data.(compDataType).HbT,2);
+    data.(compDataType).std_HbT = std(data.(compDataType).HbT,0,2);
+    data.(compDataType).mean_CortMUA = mean(data.(compDataType).cortMUA,2);
+    data.(compDataType).std_CortMUA = std(data.(compDataType).cortMUA,0,2);
+    data.(compDataType).mean_HipMUA = mean(data.(compDataType).hipMUA,2);
+    data.(compDataType).std_HipMUA = std(data.(compDataType).hipMUA,0,2);
+    data.(compDataType).mean_timeVector = mean(data.(compDataType).timeVector,2);
+    data.(compDataType).mean_CortS = mean(data.(compDataType).cortS,3).*100;
+    data.(compDataType).mean_HipS = mean(data.(compDataType).hipS,3).*100;
+    data.(compDataType).mean_T = mean(data.(compDataType).T,2);
+    data.(compDataType).mean_F = mean(data.(compDataType).F,2);
 end
 
 %% summary figure(s)
-for h = 1:length(baselineTypes)
-    baselineType = baselineTypes{1,h};
-    summaryFigure = figure;
-    sgtitle({['Cortical stimulus-evoked averages - ' baselineType],' '})
-    
-    %% Cortical MUA Contra Stim
-    ax1 = subplot(4,3,1);
-    plot(data.Contra.(baselineType).mean_timeVector,data.Contra.(baselineType).mean_CortMUA,'k')
-    hold on
-    plot(data.Contra.(baselineType).mean_timeVector,data.Contra.(baselineType).mean_CortMUA + data.Contra.(baselineType).std_CortMUA,'color',colors_IOS('battleship grey'))
-    plot(data.Contra.(baselineType).mean_timeVector,data.Contra.(baselineType).mean_CortMUA - data.Contra.(baselineType).std_CortMUA,'color',colors_IOS('battleship grey'))
-    title('Contralateral stim cortical MUA')
-    ylabel('Fold-change')
-    xlabel('Time (sec)')
-    axis square
-    
-    %% Cortical MUA Ispi Stim
-    ax2 = subplot(4,3,2);
-    plot(data.Ipsi.(baselineType).mean_timeVector,data.Ipsi.(baselineType).mean_CortMUA,'k')
-    hold on
-    plot(data.Ipsi.(baselineType).mean_timeVector,data.Ipsi.(baselineType).mean_CortMUA + data.Ipsi.(baselineType).std_CortMUA,'color',colors_IOS('battleship grey'))
-    plot(data.Ipsi.(baselineType).mean_timeVector,data.Ipsi.(baselineType).mean_CortMUA - data.Ipsi.(baselineType).std_CortMUA,'color',colors_IOS('battleship grey'))
-    title('Ipsilateral stim cortical MUA')
-    ylabel('Fold-change')
-    xlabel('Time (sec)')
-    axis square
-    
-    %% Cortical MUA Auditory Stim
-    ax3 = subplot(4,3,3);
-    plot(data.Auditory.(baselineType).mean_timeVector,data.Auditory.(baselineType).mean_CortMUA,'k')
-    hold on
-    plot(data.Auditory.(baselineType).mean_timeVector,data.Auditory.(baselineType).mean_CortMUA + data.Auditory.(baselineType).std_CortMUA,'color',colors_IOS('battleship grey'))
-    plot(data.Auditory.(baselineType).mean_timeVector,data.Auditory.(baselineType).mean_CortMUA - data.Auditory.(baselineType).std_CortMUA,'color',colors_IOS('battleship grey'))
-    title('Auditory stim cortical MUA')
-    ylabel('Fold-change')
-    xlabel('Time (sec)')
-    axis square
-    
-    %% Cortical LFP Contra Stim
-    ax4 = subplot(4,3,4);
-    imagesc(data.Contra.(baselineType).mean_T,data.Contra.(baselineType).mean_F,data.Contra.(baselineType).mean_CortS)
-    title('Contralateral stim cortical LFP')
-    ylabel('Freq (Hz)')
-    xlabel('Time (sec)')
-    colorbar
-    caxis([-0.5 1])
-    set(gca,'Ticklength',[0 0])
-    axis square
-    axis xy
-    
-    %% Cortical LFP Ispi Stim
-    ax5 = subplot(4,3,5);
-    imagesc(data.Ipsi.(baselineType).mean_T,data.Ipsi.(baselineType).mean_F,data.Ipsi.(baselineType).mean_CortS)
-    title('Ipsilateral stim cortical LFP')
-    ylabel('Freq (Hz)')
-    xlabel('Time (sec)')
-    colorbar
-    caxis([-0.5 1])
-    set(gca,'Ticklength',[0 0])
-    axis square
-    axis xy
-    
-    %% Cortical LFP Auditory Stim
-    ax6 = subplot(4,3,6);
-    imagesc(data.Auditory.(baselineType).mean_T,data.Auditory.(baselineType).mean_F,data.Auditory.(baselineType).mean_CortS)
-    title('Auditory stim cortical LFP')
-    ylabel('Freq (Hz)')
-    xlabel('Time (sec)')
-    colorbar
-    caxis([-0.5 1])
-    set(gca,'Ticklength',[0 0])
-    axis square
-    axis xy
-    
-    %% CBV HbT Contra Stim
-    ax7 = subplot(4,3,7);
-    plot(data.Contra.(baselineType).mean_timeVector,data.Contra.(baselineType).mean_HbT,'k')
-    hold on
-    plot(data.Contra.(baselineType).mean_timeVector,data.Contra.(baselineType).mean_HbT + data.Contra.(baselineType).std_HbT,'color',colors_IOS('battleship grey'))
-    plot(data.Contra.(baselineType).mean_timeVector,data.Contra.(baselineType).mean_HbT - data.Contra.(baselineType).std_HbT,'color',colors_IOS('battleship grey'))
-    title('Contralateral stim HbT')
-    ylabel('\DeltaHbT')
-    xlabel('Time (sec)')
-    axis square
-    
-    %% CBV HbT Ispi Stim
-    ax8 = subplot(4,3,8);
-    plot(data.Ipsi.(baselineType).mean_timeVector,data.Ipsi.(baselineType).mean_HbT,'k')
-    hold on
-    plot(data.Ipsi.(baselineType).mean_timeVector,data.Ipsi.(baselineType).mean_HbT + data.Ipsi.(baselineType).std_HbT,'color',colors_IOS('battleship grey'))
-    plot(data.Ipsi.(baselineType).mean_timeVector,data.Ipsi.(baselineType).mean_HbT - data.Ipsi.(baselineType).std_HbT,'color',colors_IOS('battleship grey'))
-    title('Ipsilateral stim HbT')
-    ylabel('\DeltaHbT')
-    xlabel('Time (sec)')
-    axis square
-    
-    %% CBV HbT Auditory Stim
-    ax9 = subplot(4,3,9);
-    plot(data.Auditory.(baselineType).mean_timeVector,data.Auditory.(baselineType).mean_HbT,'k')
-    hold on
-    plot(data.Auditory.(baselineType).mean_timeVector,data.Auditory.(baselineType).mean_HbT + data.Auditory.(baselineType).std_HbT,'color',colors_IOS('battleship grey'))
-    plot(data.Auditory.(baselineType).mean_timeVector,data.Auditory.(baselineType).mean_HbT - data.Auditory.(baselineType).std_HbT,'color',colors_IOS('battleship grey'))
-    title('Auditory stim HbT')
-    ylabel('\DeltaHbT')
-    xlabel('Time (sec)')
-    axis square
-    
-    %% CBV Refl Contra Stim
-    ax10 = subplot(4,3,10);
-    plot(data.Contra.(baselineType).mean_timeVector,data.Contra.(baselineType).mean_CBV,'k')
-    hold on
-    plot(data.Contra.(baselineType).mean_timeVector,data.Contra.(baselineType).mean_CBV + data.Contra.(baselineType).std_CBV,'color',colors_IOS('battleship grey'))
-    plot(data.Contra.(baselineType).mean_timeVector,data.Contra.(baselineType).mean_CBV - data.Contra.(baselineType).std_CBV,'color',colors_IOS('battleship grey'))
-    title('Contralateral stim reflectance')
-    ylabel('\DeltaR/R (%)')
-    xlabel('Time (sec)')
-    axis square
-    
-    %% CBV Refl Ispi Stim
-    ax11 = subplot(4,3,11);
-    plot(data.Ipsi.(baselineType).mean_timeVector,data.Ipsi.(baselineType).mean_CBV,'k')
-    hold on
-    plot(data.Ipsi.(baselineType).mean_timeVector,data.Ipsi.(baselineType).mean_CBV + data.Ipsi.(baselineType).std_CBV,'color',colors_IOS('battleship grey'))
-    plot(data.Ipsi.(baselineType).mean_timeVector,data.Ipsi.(baselineType).mean_CBV - data.Ipsi.(baselineType).std_CBV,'color',colors_IOS('battleship grey'))
-    title('Ipsilateral stim reflectance')
-    ylabel('\DeltaR/R (%)')
-    xlabel('Time (sec)')
-    axis square
-    
-    %% CBV Refl Auditory Stim
-    ax12 = subplot(4,3,12);
-    plot(data.Auditory.(baselineType).mean_timeVector,data.Auditory.(baselineType).mean_CBV,'k')
-    hold on
-    plot(data.Auditory.(baselineType).mean_timeVector,data.Auditory.(baselineType).mean_CBV + data.Auditory.(baselineType).std_CBV,'color',colors_IOS('battleship grey'))
-    plot(data.Auditory.(baselineType).mean_timeVector,data.Auditory.(baselineType).mean_CBV - data.Auditory.(baselineType).std_CBV,'color',colors_IOS('battleship grey'))
-    title('Auditory stim feflectance')
-    ylabel('\DeltaR/R (%)')
-    xlabel('Time (sec)')
-    axis square
-    
-    linkaxes([ax1 ax2 ax3],'xy')
-    linkaxes([ax7 ax8 ax9],'xy')
-    linkaxes([ax10 ax11 ax12],'xy')
-    
-    % save figure(s)
-    dirpath = 'C:\Users\klt8\Documents\Analysis Average Figures\Stimulus-evoked Responses\';
-    if ~exist(dirpath, 'dir')
-        mkdir(dirpath);
-    end
-    savefig(summaryFigure, [dirpath baselineType '_AverageCorticalStimResponses']);
-end
+summaryFigure = figure;
+sgtitle('Stimulus-evoked averages')
 
-%% summary figure(s)
-for h = 1:length(baselineTypes)
-    baselineType = baselineTypes{1,h};
-    summaryFigure = figure;
-    sgtitle({['Hippocampal stimulus-evoked averages - ' baselineType],' '})
-    
-    %% Hippocampal MUA Contra Stim
-    ax1 = subplot(4,3,1);
-    plot(data.Contra.(baselineType).mean_timeVector,data.Contra.(baselineType).mean_HipMUA,'k')
-    hold on
-    plot(data.Contra.(baselineType).mean_timeVector,data.Contra.(baselineType).mean_HipMUA + data.Contra.(baselineType).std_HipMUA,'color',colors_IOS('battleship grey'))
-    plot(data.Contra.(baselineType).mean_timeVector,data.Contra.(baselineType).mean_HipMUA - data.Contra.(baselineType).std_HipMUA,'color',colors_IOS('battleship grey'))
-    title('Contralateral stim hippocampal MUA')
-    ylabel('Fold-change')
-    xlabel('Time (sec)')
-    axis square
-    
-    %% Hippocampal MUA Ispi Stim
-    ax2 = subplot(4,3,2);
-    plot(data.Ipsi.(baselineType).mean_timeVector,data.Ipsi.(baselineType).mean_HipMUA,'k')
-    hold on
-    plot(data.Ipsi.(baselineType).mean_timeVector,data.Ipsi.(baselineType).mean_HipMUA + data.Ipsi.(baselineType).std_HipMUA,'color',colors_IOS('battleship grey'))
-    plot(data.Ipsi.(baselineType).mean_timeVector,data.Ipsi.(baselineType).mean_HipMUA - data.Ipsi.(baselineType).std_HipMUA,'color',colors_IOS('battleship grey'))
-    title('Ipsilateral stim hippocampal MUA')
-    ylabel('Fold-change')
-    xlabel('Time (sec)')
-    axis square
-    
-    %% Hippocampal MUA Auditory Stim
-    ax3 = subplot(4,3,3);
-    plot(data.Auditory.(baselineType).mean_timeVector,data.Auditory.(baselineType).mean_HipMUA,'k')
-    hold on
-    plot(data.Auditory.(baselineType).mean_timeVector,data.Auditory.(baselineType).mean_HipMUA + data.Auditory.(baselineType).std_HipMUA,'color',colors_IOS('battleship grey'))
-    plot(data.Auditory.(baselineType).mean_timeVector,data.Auditory.(baselineType).mean_HipMUA - data.Auditory.(baselineType).std_HipMUA,'color',colors_IOS('battleship grey'))
-    title('Auditory stim hippocampal MUA')
-    ylabel('Fold-change')
-    xlabel('Time (sec)')
-    axis square
-    
-    %% Hippocampal LFP Contra Stim
-    ax4 = subplot(4,3,4);
-    imagesc(data.Contra.(baselineType).mean_T,data.Contra.(baselineType).mean_F,data.Contra.(baselineType).mean_HipS)
-    title('Contralateral stim hippocampal LFP')
-    ylabel('Freq (Hz)')
-    xlabel('Time (sec)')
-    colorbar
-    caxis([-0.5 1])
-    set(gca,'Ticklength',[0 0])
-    axis square
-    axis xy
-    
-    %% Hippocampal LFP Ispi Stim
-    ax5 = subplot(4,3,5);
-    imagesc(data.Ipsi.(baselineType).mean_T,data.Ipsi.(baselineType).mean_F,data.Ipsi.(baselineType).mean_HipS)
-    title('Ipsilateral stim hippocampal LFP')
-    ylabel('Freq (Hz)')
-    xlabel('Time (sec)')
-    colorbar
-    caxis([-0.5 1])
-    set(gca,'Ticklength',[0 0])
-    axis square
-    axis xy
-    
-    %% Hippocampal LFP Auditory Stim
-    ax6 = subplot(4,3,6);
-    imagesc(data.Auditory.(baselineType).mean_T,data.Auditory.(baselineType).mean_F,data.Auditory.(baselineType).mean_HipS)
-    title('Auditory stim hippocampal LFP')
-    ylabel('Freq (Hz)')
-    xlabel('Time (sec)')
-    colorbar
-    caxis([-0.5 1])
-    set(gca,'Ticklength',[0 0])
-    axis square
-    axis xy
-    
-    %% CBV HbT Contra Stim
-    ax7 = subplot(4,3,7);
-    plot(data.Contra.(baselineType).mean_timeVector,data.Contra.(baselineType).mean_HbT,'k')
-    hold on
-    plot(data.Contra.(baselineType).mean_timeVector,data.Contra.(baselineType).mean_HbT + data.Contra.(baselineType).std_HbT,'color',colors_IOS('battleship grey'))
-    plot(data.Contra.(baselineType).mean_timeVector,data.Contra.(baselineType).mean_HbT - data.Contra.(baselineType).std_HbT,'color',colors_IOS('battleship grey'))
-    title('Contralateral stim HbT')
-    ylabel('\DeltaHbT')
-    xlabel('Time (sec)')
-    axis square
-    
-    %% CBV HbT Ispi Stim
-    ax8 = subplot(4,3,8);
-    plot(data.Ipsi.(baselineType).mean_timeVector,data.Ipsi.(baselineType).mean_HbT,'k')
-    hold on
-    plot(data.Ipsi.(baselineType).mean_timeVector,data.Ipsi.(baselineType).mean_HbT + data.Ipsi.(baselineType).std_HbT,'color',colors_IOS('battleship grey'))
-    plot(data.Ipsi.(baselineType).mean_timeVector,data.Ipsi.(baselineType).mean_HbT - data.Ipsi.(baselineType).std_HbT,'color',colors_IOS('battleship grey'))
-    title('Ipsilateral stim HbT')
-    ylabel('\DeltaHbT')
-    xlabel('Time (sec)')
-    axis square
-    
-    %% CBV HbT Auditory Stim
-    ax9 = subplot(4,3,9);
-    plot(data.Auditory.(baselineType).mean_timeVector,data.Auditory.(baselineType).mean_HbT,'k')
-    hold on
-    plot(data.Auditory.(baselineType).mean_timeVector,data.Auditory.(baselineType).mean_HbT + data.Auditory.(baselineType).std_HbT,'color',colors_IOS('battleship grey'))
-    plot(data.Auditory.(baselineType).mean_timeVector,data.Auditory.(baselineType).mean_HbT - data.Auditory.(baselineType).std_HbT,'color',colors_IOS('battleship grey'))
-    title('Auditory stim HbT')
-    ylabel('\DeltaHbT')
-    xlabel('Time (sec)')
-    axis square
-    
-    %% CBV Refl Contra Stim
-    ax10 = subplot(4,3,10);
-    plot(data.Contra.(baselineType).mean_timeVector,data.Contra.(baselineType).mean_CBV,'k')
-    hold on
-    plot(data.Contra.(baselineType).mean_timeVector,data.Contra.(baselineType).mean_CBV + data.Contra.(baselineType).std_CBV,'color',colors_IOS('battleship grey'))
-    plot(data.Contra.(baselineType).mean_timeVector,data.Contra.(baselineType).mean_CBV - data.Contra.(baselineType).std_CBV,'color',colors_IOS('battleship grey'))
-    title('Contralateral stim reflectance')
-    ylabel('\DeltaR/R (%)')
-    xlabel('Time (sec)')
-    axis square
-    
-    %% CBV Refl Ispi Stim
-    ax11 = subplot(4,3,11);
-    plot(data.Ipsi.(baselineType).mean_timeVector,data.Ipsi.(baselineType).mean_CBV,'k')
-    hold on
-    plot(data.Ipsi.(baselineType).mean_timeVector,data.Ipsi.(baselineType).mean_CBV + data.Ipsi.(baselineType).std_CBV,'color',colors_IOS('battleship grey'))
-    plot(data.Ipsi.(baselineType).mean_timeVector,data.Ipsi.(baselineType).mean_CBV - data.Ipsi.(baselineType).std_CBV,'color',colors_IOS('battleship grey'))
-    title('Ipsilateral stim reflectance')
-    ylabel('\DeltaR/R (%)')
-    xlabel('Time (sec)')
-    axis square
-    
-    %% CBV Refl Auditory Stim
-    ax12 = subplot(4,3,12);
-    plot(data.Auditory.(baselineType).mean_timeVector,data.Auditory.(baselineType).mean_CBV,'k')
-    hold on
-    plot(data.Auditory.(baselineType).mean_timeVector,data.Auditory.(baselineType).mean_CBV + data.Auditory.(baselineType).std_CBV,'color',colors_IOS('battleship grey'))
-    plot(data.Auditory.(baselineType).mean_timeVector,data.Auditory.(baselineType).mean_CBV - data.Auditory.(baselineType).std_CBV,'color',colors_IOS('battleship grey'))
-    title('Auditory stim reflectance')
-    ylabel('\DeltaR/R (%)')
-    xlabel('Time (sec)')
-    axis square
-    
-    linkaxes([ax1 ax2 ax3],'xy')
-    linkaxes([ax7 ax8 ax9],'xy')
-    linkaxes([ax10 ax11 ax12],'xy')
-    
-    % save figure(s)
-    dirpath = 'C:\Users\klt8\Documents\Analysis Average Figures\Stimulus-evoked Responses\';
-    if ~exist(dirpath, 'dir')
-        mkdir(dirpath);
-    end
-    savefig(summaryFigure, [dirpath baselineType '_AverageHippocampalStimResponses']);
+%% Cortical MUA Contra Stim
+ax1 = subplot(5,3,1);
+plot(data.Contra.mean_timeVector,data.Contra.mean_CortMUA,'k')
+hold on
+plot(data.Contra.mean_timeVector,data.Contra.mean_CortMUA + data.Contra.std_CortMUA,'color',colors_IOS('battleship grey'))
+plot(data.Contra.mean_timeVector,data.Contra.mean_CortMUA - data.Contra.std_CortMUA,'color',colors_IOS('battleship grey'))
+title('Contra stim cortical MUA')
+ylabel('\DeltaP/P (%)')
+axis square
+
+%% Cortical MUA Ispi Stim
+ax2 = subplot(5,3,2);
+plot(data.Ipsi.mean_timeVector,data.Ipsi.mean_CortMUA,'k')
+hold on
+plot(data.Ipsi.mean_timeVector,data.Ipsi.mean_CortMUA + data.Ipsi.std_CortMUA,'color',colors_IOS('battleship grey'))
+plot(data.Ipsi.mean_timeVector,data.Ipsi.mean_CortMUA - data.Ipsi.std_CortMUA,'color',colors_IOS('battleship grey'))
+title('Ipsi stim cortical MUA')
+ylabel('\DeltaP/P (%)')
+axis square
+
+%% Cortical MUA Auditory Stim
+ax3 = subplot(5,3,3);
+plot(data.Auditory.mean_timeVector,data.Auditory.mean_CortMUA,'k')
+hold on
+plot(data.Auditory.mean_timeVector,data.Auditory.mean_CortMUA + data.Auditory.std_CortMUA,'color',colors_IOS('battleship grey'))
+plot(data.Auditory.mean_timeVector,data.Auditory.mean_CortMUA - data.Auditory.std_CortMUA,'color',colors_IOS('battleship grey'))
+title('Aud stim cortical MUA')
+ylabel('\DeltaP/P (%)')
+axis square
+
+%% Cortical LFP Contra Stim
+ax4 = subplot(5,3,4);
+imagesc(data.Contra.mean_T,data.Contra.mean_F,data.Contra.mean_CortS)
+title('Contra stim cortical LFP')
+ylabel('Freq (Hz)')
+c4 = colorbar;
+ylabel(c4,'\DeltaP/P (%)')
+caxis([-50 100])
+set(gca,'Ticklength',[0 0])
+axis square
+axis xy
+
+%% Cortical LFP Ispi Stim
+ax5 = subplot(5,3,5);
+imagesc(data.Ipsi.mean_T,data.Ipsi.mean_F,data.Ipsi.mean_CortS)
+title('Ipsi stim cortical LFP')
+ylabel('Freq (Hz)')
+c5 = colorbar;
+ylabel(c5,'\DeltaP/P (%)')
+caxis([-50 100]) 
+set(gca,'Ticklength',[0 0])
+axis square
+axis xy
+
+%% Cortical LFP Auditory Stim
+ax6 = subplot(5,3,6);
+imagesc(data.Auditory.mean_T,data.Auditory.mean_F,data.Auditory.mean_CortS)
+title('Aud stim cortical LFP')
+ylabel('Freq (Hz)')
+c6 = colorbar;
+ylabel(c6,'\DeltaP/P (%)')
+caxis([-50 100]) 
+set(gca,'Ticklength',[0 0])
+axis square
+axis xy
+
+%% Hippocampal MUA Contra Stim
+ax7 = subplot(5,3,7);
+plot(data.Contra.mean_timeVector,data.Contra.mean_HipMUA,'k')
+hold on
+plot(data.Contra.mean_timeVector,data.Contra.mean_HipMUA + data.Contra.std_HipMUA,'color',colors_IOS('battleship grey'))
+plot(data.Contra.mean_timeVector,data.Contra.mean_HipMUA - data.Contra.std_HipMUA,'color',colors_IOS('battleship grey'))
+title('Contra stim hippocampal MUA')
+ylabel('\DeltaP/P (%)')
+axis square
+
+%% Hippocampal MUA Ispi Stim
+ax8 = subplot(5,3,8);
+plot(data.Ipsi.mean_timeVector,data.Ipsi.mean_HipMUA,'k')
+hold on
+plot(data.Ipsi.mean_timeVector,data.Ipsi.mean_HipMUA + data.Ipsi.std_HipMUA,'color',colors_IOS('battleship grey'))
+plot(data.Ipsi.mean_timeVector,data.Ipsi.mean_HipMUA - data.Ipsi.std_HipMUA,'color',colors_IOS('battleship grey'))
+title('Ipsi stim hippocampal MUA')
+ylabel('\DeltaP/P (%)')
+axis square
+
+%% Hippocampal MUA Auditory Stim
+ax9 = subplot(5,3,9);
+plot(data.Auditory.mean_timeVector,data.Auditory.mean_HipMUA,'k')
+hold on
+plot(data.Auditory.mean_timeVector,data.Auditory.mean_HipMUA + data.Auditory.std_HipMUA,'color',colors_IOS('battleship grey'))
+plot(data.Auditory.mean_timeVector,data.Auditory.mean_HipMUA - data.Auditory.std_HipMUA,'color',colors_IOS('battleship grey'))
+title('Aud stim hippocampal MUA')
+ylabel('\DeltaP/P (%)')
+axis square
+
+%% Hippocampal LFP Contra Stim
+ax10 = subplot(5,3,10);
+imagesc(data.Contra.mean_T,data.Contra.mean_F,data.Contra.mean_HipS)
+title('Contra stim hippocampal LFP')
+ylabel('Freq (Hz)')
+c10 = colorbar;
+ylabel(c10,'\DeltaP/P (%)')
+caxis([-50 100]) 
+axis square
+axis xy
+
+%% Hippocampal LFP Ispi Stim
+ax11 = subplot(5,3,11);
+imagesc(data.Ipsi.mean_T,data.Ipsi.mean_F,data.Ipsi.mean_HipS)
+title('Ipsi stim hippocampal LFP')
+ylabel('Freq (Hz)')
+c11 = colorbar;
+ylabel(c11,'\DeltaP/P (%)')
+caxis([-50 100]) 
+set(gca,'Ticklength',[0 0])
+axis square
+axis xy
+
+%% Hippocampal LFP Auditory Stim
+ax12 = subplot(5,3,12);
+imagesc(data.Auditory.mean_T,data.Auditory.mean_F,data.Auditory.mean_HipS)
+title('Aud stim hippocampal LFP')
+ylabel('Freq (Hz)')
+c12 = colorbar;
+ylabel(c12,'\DeltaP/P (%)')
+caxis([-50 100]) 
+set(gca,'Ticklength',[0 0])
+axis square
+axis xy
+
+%% CBV HbT Contra Stim
+ax13 = subplot(5,3,13);
+plot(data.Contra.mean_timeVector,data.Contra.mean_HbT,'k')
+hold on
+plot(data.Contra.mean_timeVector,data.Contra.mean_HbT + data.Contra.std_HbT,'color',colors_IOS('battleship grey'))
+plot(data.Contra.mean_timeVector,data.Contra.mean_HbT - data.Contra.std_HbT,'color',colors_IOS('battleship grey'))
+title('Contra stim HbT')
+ylabel('\DeltaHbT')
+xlabel('Peristimuls time (s)') 
+axis square
+
+%% CBV HbT Ispi Stim
+ax14 = subplot(5,3,14);
+plot(data.Ipsi.mean_timeVector,data.Ipsi.mean_HbT,'k')
+hold on
+plot(data.Ipsi.mean_timeVector,data.Ipsi.mean_HbT + data.Ipsi.std_HbT,'color',colors_IOS('battleship grey'))
+plot(data.Ipsi.mean_timeVector,data.Ipsi.mean_HbT - data.Ipsi.std_HbT,'color',colors_IOS('battleship grey'))
+title('Ipsi stim HbT')
+ylabel('\DeltaHbT')
+xlabel('Peristimuls time (s)') 
+axis square
+
+%% CBV HbT Auditory Stim
+ax15 = subplot(5,3,15);
+plot(data.Auditory.mean_timeVector,data.Auditory.mean_HbT,'k')
+hold on
+plot(data.Auditory.mean_timeVector,data.Auditory.mean_HbT + data.Auditory.std_HbT,'color',colors_IOS('battleship grey'))
+plot(data.Auditory.mean_timeVector,data.Auditory.mean_HbT - data.Auditory.std_HbT,'color',colors_IOS('battleship grey'))
+title('Aud stim HbT')
+ylabel('\DeltaHbT')
+xlabel('Peristimuls time (s)') 
+axis square
+
+linkaxes([ax1 ax2 ax3 ax7 ax8 ax9],'xy')
+linkaxes([ax4 ax5 ax6 ax10 ax11 ax12],'xy')
+linkaxes([ax13 ax14 ax15],'xy')
+
+ax1Pos = get(ax1,'position');
+ax2Pos = get(ax2,'position');
+ax3Pos = get(ax3,'position');
+ax4Pos = get(ax4,'position');
+ax5Pos = get(ax5,'position');
+ax6Pos = get(ax6,'position');
+ax10Pos = get(ax10,'position');
+ax11Pos = get(ax11,'position');
+ax12Pos = get(ax12,'position');
+ax4Pos(3:4) = ax1Pos(3:4);
+ax5Pos(3:4) = ax2Pos(3:4);
+ax6Pos(3:4) = ax3Pos(3:4);
+ax10Pos(3:4) = ax1Pos(3:4);
+ax11Pos(3:4) = ax2Pos(3:4);
+ax12Pos(3:4) = ax3Pos(3:4);
+set(ax4,'position',ax4Pos);
+set(ax5,'position',ax5Pos);
+set(ax6,'position',ax6Pos);
+set(ax10,'position',ax10Pos);
+set(ax11,'position',ax11Pos);
+set(ax12,'position',ax12Pos);
+
+% save figure(s)
+dirpath = 'C:\Users\klt8\Documents\Analysis Average Figures\Stimulus-evoked Responses\';
+if ~exist(dirpath, 'dir')
+    mkdir(dirpath);
 end
+savefig(summaryFigure,[dirpath 'Summary Figure - Average Stim Responses']);
