@@ -101,7 +101,6 @@ for a = 1:length(dataTypes)
     restFinalFileFilter = logical(restFileFilter);
     LH_finalRestData = LH_unstimRestingData(restFinalFileFilter,:);
     RH_finalRestData = RH_unstimRestingData(restFinalFileFilter,:);
-    fileIDs = unstimRestFiles(restFinalFileFilter,:);
     if strcmp(dataType,'CBV_HbT') == false
         Hip_finalRestData = Hip_unstimRestingData(restFinalFileFilter,:);
     end
@@ -109,7 +108,7 @@ for a = 1:length(dataTypes)
     % only take the first 10 seconds of the epoch. occassionunstimy a sample gets lost from rounding during the
     % original epoch create so we can add a sample of two back to the end for those just under 10 seconds
     % lowpass filter and detrend each segment
-    [B, A] = butter(4,1/(samplingRate/2),'low');
+    [B, A] = butter(3,1/(samplingRate/2),'low');
     clear LH_ProcRestData
     clear RH_ProcRestData
     clear Hip_ProcRestData
@@ -159,12 +158,9 @@ for a = 1:length(dataTypes)
     params.err = [2 0.05];
     
     % calculate the power spectra of the desired signals
-    disp(['Analyzing the power spectrum of the adjLH RestData ' dataType ' signal power...']); disp(' ')
     [LH_rest_S,LH_rest_f,LH_rest_sErr] = mtspectrumc_IOS(LH_restData,params);
-    disp(['Analyzing the power spectrum of the adjRH RestData ' dataType ' signal power...']); disp(' ')
     [RH_rest_S,RH_rest_f,RH_rest_sErr] = mtspectrumc_IOS(RH_restData,params);
     if strcmp(dataType,'CBV_HbT') == false
-        disp(['Analyzing the power spectrum of the Hippocampal RestData ' dataType ' signal power...']); disp(' ')
         [Hip_rest_S,Hip_rest_f,Hip_rest_sErr] = mtspectrumc_IOS(Hip_restData,params);
     end
     
@@ -236,10 +232,13 @@ for a = 1:length(dataTypes)
     if ~exist(dirpath, 'dir')
         mkdir(dirpath);
     end
-    savefig(LH_RestPower, [dirpath animalID '_Rest_LH_' dataType '_PowerSpectra']);
-    savefig(RH_RestPower, [dirpath animalID '_Rest_RH_' dataType '_PowerSpectra']);
+    savefig(LH_RestPower,[dirpath animalID '_Rest_LH_' dataType '_PowerSpectra']);
+    close(LH_RestPower)
+    savefig(RH_RestPower,[dirpath animalID '_Rest_RH_' dataType '_PowerSpectra']);
+    close(RH_RestPower)
     if strcmp(dataType,'CBV_HbT') == false
-        savefig(Hip_RestPower, [dirpath animalID '_Rest_Hippocampal_' dataType '_PowerSpectra']);
+        savefig(Hip_RestPower,[dirpath animalID '_Rest_Hippocampal_' dataType '_PowerSpectra']);
+        close(Hip_RestPower)
     end
     
     %% Analyze power spectra during periods of NREM sleep
@@ -286,12 +285,9 @@ for a = 1:length(dataTypes)
     params.err = [2 0.05];
     
     % calculate the power spectra of the desired signals
-    disp(['Analyzing the power spectrum of the adjLH NREM ' dataType ' signal power...']); disp(' ')
     [LH_nrem_S,LH_nrem_f,LH_nrem_sErr] = mtspectrumc_IOS(LH_nrem,params);
-    disp(['Analyzing the power spectrum of the adjRH NREM ' dataType ' signal power...']); disp(' ')
     [RH_nrem_S,RH_nrem_f,RH_nrem_sErr] = mtspectrumc_IOS(RH_nrem,params);
     if strcmp(dataType,'CBV_HbT') == false
-        disp(['Analyzing the power spectrum of the Hippocampal NREM ' dataType ' signal power...']); disp(' ')
         [Hip_nrem_S,Hip_nrem_f,Hip_nrem_sErr] = mtspectrumc_IOS(Hip_nrem,params);
     end
     
@@ -363,10 +359,13 @@ for a = 1:length(dataTypes)
     if ~exist(dirpath, 'dir')
         mkdir(dirpath);
     end
-    savefig(LH_nremPower, [dirpath animalID '_NREM_LH_' dataType '_PowerSpectra']);
-    savefig(RH_nremPower, [dirpath animalID '_NREM_RH_' dataType '_PowerSpectra']);
+    savefig(LH_nremPower,[dirpath animalID '_NREM_LH_' dataType '_PowerSpectra']);
+    close(LH_nremPower)
+    savefig(RH_nremPower,[dirpath animalID '_NREM_RH_' dataType '_PowerSpectra']);
+    close(RH_nremPower)
     if strcmp(dataType,'CBV_HbT') == false
-        savefig(Hip_nremPower, [dirpath animalID '_NREM_Hippocampal_' dataType '_PowerSpectra']);
+        savefig(Hip_nremPower,[dirpath animalID '_NREM_Hippocampal_' dataType '_PowerSpectra']);
+        close(Hip_nremPower)
     end
     
     %% Analyze power spectra during periods of REM sleep
@@ -413,12 +412,9 @@ for a = 1:length(dataTypes)
     params.err = [2 0.05];
     
     % calculate the power spectra of the desired signals
-    disp(['Analyzing the power spectrum of the adjLH REM ' dataType ' signal power...']); disp(' ')
     [LH_rem_S,LH_rem_f,LH_rem_sErr] = mtspectrumc_IOS(LH_rem,params);
-    disp(['Analyzing the power spectrum of the adjRH REM ' dataType ' signal power...']); disp(' ')
     [RH_rem_S,RH_rem_f,RH_rem_sErr] = mtspectrumc_IOS(RH_rem,params);
     if strcmp(dataType,'CBV_HbT') == false
-        disp(['Analyzing the power spectrum of the Hippocampal REM ' dataType ' signal power...']); disp(' ')
         [Hip_rem_S,Hip_rem_f,Hip_rem_sErr] = mtspectrumc_IOS(Hip_rem,params);
     end
     
@@ -487,13 +483,16 @@ for a = 1:length(dataTypes)
     % save figures
     [pathstr, ~, ~] = fileparts(cd);
     dirpath = [pathstr '/Combined Imaging/Figures/Analysis Power Spectra/'];
-    if ~exist(dirpath, 'dir')
+    if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
-    savefig(LH_remPower, [dirpath animalID '_REM_LH_' dataType '_PowerSpectra']);
-    savefig(RH_remPower, [dirpath animalID '_REM_RH_' dataType '_PowerSpectra']);
+    savefig(LH_remPower,[dirpath animalID '_REM_LH_' dataType '_PowerSpectra']);
+    close(LH_remPower)
+    savefig(RH_remPower,[dirpath animalID '_REM_RH_' dataType '_PowerSpectra']);
+    close(RH_remPower)
     if strcmp(dataType,'CBV_HbT') == false
-        savefig(Hip_remPower, [dirpath animalID '_REM_Hippocampal_' dataType '_PowerSpectra']);
+        savefig(Hip_remPower,[dirpath animalID '_REM_Hippocampal_' dataType '_PowerSpectra']);
+        close(Hip_remPower)
     end
 end
 

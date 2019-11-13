@@ -116,7 +116,7 @@ for z = 1:length(dataTypes)
         restMUA = restFinalRestMUAData{e,1};
         
         % low pass filter the epoch below 1 Hz
-        [B, A] = butter(4,1/(samplingRate/2),'low');
+        [B, A] = butter(3,1/(samplingRate/2),'low');
         restFiltHbT = filtfilt(B,A,restHbT);
         restFiltMUA = filtfilt(B,A,restMUA);
         

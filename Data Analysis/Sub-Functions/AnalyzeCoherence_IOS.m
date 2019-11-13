@@ -42,7 +42,7 @@ PuffCriteria.Value = {5};
 for a = 1:length(dataTypes)
     dataType = dataTypes{1,a};
     %% Analyze coherence during periods of rest
-    disp(['AnalyzeCoherence: L/R ' dataType ' during awake rest']); disp(' ')
+    disp(['AnalyzeCoherence: ' dataType ' during awake rest']); disp(' ')
     % use the RestCriteria we specified earlier to find unstim resting events that are greater than the criteria
     if strcmp(dataType,'CBV_HbT') == true
         [restLogical] = FilterEvents_IOS(RestData.(dataType).adjLH,RestCriteria);
@@ -73,27 +73,11 @@ for a = 1:length(dataTypes)
         for e = 1:restNumberOfFiles
             restFile = restUniqueFiles(e);
             restFileID = restFile{1}(1:6);
-            if strcmp(filterSet,'manualSelection') == true
-                if strcmp(restDay,restFileID) && sum(strcmp(restFile,manualFileIDs)) == 1
-                    restFiltLogical{c,1}(e,1) = 1; %#ok<*AGROW>
-                    d = d + 1;
-                else
-                    restFiltLogical{c,1}(e,1) = 0;
-                end
-            elseif strcmp(filterSet,'setDuration') == true
-                if strcmp(restDay,restFileID) && d <= fileTarget
-                    restFiltLogical{c,1}(e,1) = 1;
-                    d = d + 1;
-                else
-                    restFiltLogical{c,1}(e,1) = 0;
-                end
-            elseif strcmp(filterSet,'entireDuration') == true
-                if strcmp(restDay,restFileID)
-                    restFiltLogical{c,1}(e,1) = 1;
-                    d = d + 1;
-                else
-                    restFiltLogical{c,1}(e,1) = 0;
-                end
+            if strcmp(restDay,restFileID) && sum(strcmp(restFile,manualFileIDs)) == 1
+                restFiltLogical{c,1}(e,1) = 1; %#ok<*AGROW>
+                d = d + 1;
+            else
+                restFiltLogical{c,1}(e,1) = 0;
             end
         end
     end
@@ -118,7 +102,7 @@ for a = 1:length(dataTypes)
     % only take the first 10 seconds of the epoch. occassionunstimy a sample gets lost from rounding during the
     % original epoch create so we can add a sample of two back to the end for those just under 10 seconds
     % lowpass filter and detrend each segment
-    [B, A] = butter(4,1/(samplingRate/2),'low');
+    [B, A] = butter(3,1/(samplingRate/2),'low');
     clear LH_ProcRestData
     clear RH_ProcRestData
     for g = 1:length(LH_finalRestData)
@@ -159,13 +143,13 @@ for a = 1:length(dataTypes)
     % rest_CI = bootci(nboot, @coherencyc2, LH_restData', RH_restData', params);
     
     % summary figure
-    RestCoherence = figure;
+    restCoherence = figure;
     plot(f_RestData,C_RestData,'k')
     hold on;
     plot(f_RestData,cErr_RestData,'color',colors_IOS('battleship grey'))
     xlabel('Freq (Hz)');
     ylabel('Coherence');
-    title([animalID  ' L/R ' dataType ' coherence for resting data -' filterSet]);
+    title([animalID  ' ' dataType ' coherence for resting data']);
     set(gca,'Ticklength',[0 0]);
     legend('Coherence','Jackknife Lower','Jackknife Upper','Location','Southeast');
     set(legend,'FontSize',6);
@@ -174,10 +158,10 @@ for a = 1:length(dataTypes)
     axis square
     
     % save results
-    AnalysisResults.Coherence.Rest.(dataType).(filterSet).C = C_RestData;
-    AnalysisResults.Coherence.Rest.(dataType).(filterSet).f = f_RestData;
-    AnalysisResults.Coherence.Rest.(dataType).(filterSet).confC = confC_RestData;
-    AnalysisResults.Coherence.Rest.(dataType).(filterSet).cErr = cErr_RestData;
+    AnalysisResults.Coherence.Rest.(dataType).C = C_RestData;
+    AnalysisResults.Coherence.Rest.(dataType).f = f_RestData;
+    AnalysisResults.Coherence.Rest.(dataType).confC = confC_RestData;
+    AnalysisResults.Coherence.Rest.(dataType).cErr = cErr_RestData;
     
     % save figure
     [pathstr, ~, ~] = fileparts(cd);
@@ -185,7 +169,8 @@ for a = 1:length(dataTypes)
     if ~exist(dirpath, 'dir')
         mkdir(dirpath);
     end
-    savefig(RestCoherence, [dirpath animalID '_Rest_' dataType '_' filterSet '_Coherence']);
+    savefig(restCoherence, [dirpath animalID '_Rest_' dataType '_Coherence']);
+    close(restCoherence)
     
     %% Analyze coherence during periods of NREM sleep
     % pull data from SleepData.mat structure
@@ -221,7 +206,7 @@ for a = 1:length(dataTypes)
     params.err = [2 0.05];
     
     % calculate the coherence between desired signals
-    [C_nrem,~, ~, ~, ~,f_nrem, confC_nrem, ~,cErr_nrem] = coherencyc_IOS(LH_nrem,RH_nrem,params);
+    [C_nrem,~,~,~,~,f_nrem,confC_nrem,~,cErr_nrem] = coherencyc_IOS(LH_nrem,RH_nrem,params);
     
     % nboot = 1000;
     % nrem_CI = bootci(nboot, @coherencyc2, LH_nrem', RH_nrem', params);
@@ -233,7 +218,7 @@ for a = 1:length(dataTypes)
     plot(f_nrem,cErr_nrem,'color',colors_IOS('battleship grey'))
     xlabel('Freq (Hz)');
     ylabel('Coherence');
-    title([animalID  ' L/R ' dataType ' coherence for NREM data']);
+    title([animalID  ' ' dataType ' coherence for NREM data']);
     set(gca,'Ticklength',[0 0]);
     legend('Coherence','Jackknife Lower','Jackknife Upper','Location','Southeast');
     set(legend,'FontSize',6);
@@ -254,6 +239,7 @@ for a = 1:length(dataTypes)
         mkdir(dirpath);
     end
     savefig(nremCoherence, [dirpath animalID '_NREM_' dataType '_Coherence']);
+    close(nremCoherence)
     
     %% Analyze coherence during periods of REM sleep
     % pull data from SleepData.mat structure
@@ -301,7 +287,7 @@ for a = 1:length(dataTypes)
     plot(f_rem,cErr_rem,'color',colors_IOS('battleship grey'))
     xlabel('Freq (Hz)');
     ylabel('Coherence');
-    title([animalID  ' L/R ' dataType ' coherence for REM data']);
+    title([animalID  ' ' dataType ' coherence for REM data']);
     set(gca,'Ticklength',[0 0]);
     legend('Coherence','Jackknife Lower','Jackknife Upper','Location','Southeast');
     set(legend,'FontSize',6);
@@ -322,6 +308,7 @@ for a = 1:length(dataTypes)
         mkdir(dirpath);
     end
     savefig(remCoherence, [dirpath animalID '_REM_' dataType '_Coherence']);
+    close(remCoherence)
 end
 
 %% save results strucure

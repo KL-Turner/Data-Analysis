@@ -62,23 +62,23 @@ end
 %% summary figure(s)
 % lagTime2 = 15;
 summaryFigure = figure;
-sgtitle({[hemoDataType '-neural cross-correlations - ' baselineType ' for resting data'],' '})
+sgtitle('Neural-Hemo Cross-Correlations')
 
 %% Rest MUA
-freq = 5;
+freq = 10;
 restLag = 5;
-sleepLag = 15;
+sleepLag = 5;
 ax1 = subplot(2,3,1);
-plot(data.Rest.(baselineType).meanMUA_lags,data.Rest.(baselineType).meanHbTvMUAxcVals,'k')
+plot(data.Rest.meanMUA_lags,data.Rest.meanHbTvMUAxcVals,'k')
 hold on
-plot(data.Rest.(baselineType).meanMUA_lags,data.Rest.(baselineType).meanHbTvMUAxcVals + data.Rest.(baselineType).stdHbTvMUAxcVals,'color',colors_IOS('battleship grey'))
-plot(data.Rest.(baselineType).meanMUA_lags,data.Rest.(baselineType).meanHbTvMUAxcVals - data.Rest.(baselineType).stdHbTvMUAxcVals,'color',colors_IOS('battleship grey'))
-title('Rest')
+plot(data.Rest.meanMUA_lags,data.Rest.meanHbTvMUAxcVals + data.Rest.stdHbTvMUAxcVals,'color',colors_IOS('battleship grey'))
+plot(data.Rest.meanMUA_lags,data.Rest.meanHbTvMUAxcVals - data.Rest.stdHbTvMUAxcVals,'color',colors_IOS('battleship grey'))
+title('Rest MUA')
 xticks([-restLag*freq -restLag*freq/2 0 restLag*freq/2 restLag*freq])
 xticklabels({'-5','-2.5','0','2.5','5'})
 xlim([-restLag*freq restLag*freq])
 xlabel('Lags (s)')
-ylabel({'Corr. Coefficient','MUA vs. \DeltHbT (\muM)'})
+ylabel({'Corr. Coefficient';'MUA vs. \DeltaHbT (\muM)'})
 axis square
 set(gca,'box','off')
 
@@ -88,12 +88,12 @@ plot(data.NREM.meanMUA_lags,data.NREM.meanHbTvMUAxcVals,'k')
 hold on
 plot(data.NREM.meanMUA_lags,data.NREM.meanHbTvMUAxcVals + data.NREM.stdHbTvMUAxcVals,'color',colors_IOS('battleship grey'))
 plot(data.NREM.meanMUA_lags,data.NREM.meanHbTvMUAxcVals - data.NREM.stdHbTvMUAxcVals,'color',colors_IOS('battleship grey'))
-title('NREM')
+title('NREM MUA')
 xticks([-sleepLag*freq -sleepLag*freq/2 0 sleepLag*freq/2 sleepLag*freq])
-xticklabels({'-15','-7.5','0','7.5','15'})
+xticklabels({'-5','-2.5','0','2.5','5'})
 xlim([-sleepLag*freq sleepLag*freq])
 xlabel('Lags (s)')
-ylabel({'Corr. Coefficient','MUA vs. \DeltHbT (\muM)'})
+ylabel({'Corr. Coefficient';'MUA vs. \DeltaHbT (\muM)'})
 axis square
 set(gca,'box','off')
 
@@ -103,26 +103,27 @@ plot(data.REM.meanMUA_lags,data.REM.meanHbTvMUAxcVals,'k')
 hold on
 plot(data.REM.meanMUA_lags,data.REM.meanHbTvMUAxcVals + data.REM.stdHbTvMUAxcVals,'color',colors_IOS('battleship grey'))
 plot(data.REM.meanMUA_lags,data.REM.meanHbTvMUAxcVals - data.REM.stdHbTvMUAxcVals,'color',colors_IOS('battleship grey'))
-title('REM')
+title('REM MUA')
 xticks([-sleepLag*freq -sleepLag*freq/2 0 sleepLag*freq/2 sleepLag*freq])
 xticklabels({'-5','-2.5','0','2.5','5'})
 xlim([-sleepLag*freq sleepLag*freq])
 xlabel('Lags (s)')
-ylabel({'Corr. Coefficient','MUA vs. \DeltHbT (\muM)'})
+ylabel({'Corr. Coefficient';'MUA vs. \DeltaHbT (\muM)'})
 axis square
 set(gca,'box','off')
 
 %% Rest LFP
 ax4 = subplot(2,3,4);
-imagesc(data.Rest.(baselineType).meanLFP_lags,data.Rest.(baselineType).meanLFP_F,data.Rest.(baselineType).meanHbTvLFPxcVals)
+imagesc(data.Rest.meanLFP_lags,data.Rest.meanLFP_F,data.Rest.meanHbTvLFPxcVals)
+title('Rest LFP')
 xticks([-restLag*freq -restLag*freq/2 0 restLag*freq/2 restLag*freq])
 xticklabels({'-5','-2.5','0','2.5','5'})
 xlim([-restLag*freq restLag*freq])
 xlabel('Lags (s)')
-ylabel('Freq (Hz)')
+ylabel('Frequency (Hz)')
 ylim([1 100])
 c4 = colorbar;
-ylabel(c4,{'Corr. Coefficient','LFP vs. \DeltHbT (\muM)'})
+ylabel(c4,{'Corr. Coefficient';'LFP vs. \DeltaHbT (\muM)'})
 axis xy
 axis square
 set(gca,'box','off')
@@ -130,14 +131,15 @@ set(gca,'box','off')
 %% NREM LFP
 ax5 = subplot(2,3,5);
 imagesc(data.NREM.meanLFP_lags,data.NREM.meanLFP_F,data.NREM.meanHbTvLFPxcVals)
+title('NREM LFP')
 xticks([-sleepLag*freq -sleepLag*freq/2 0 sleepLag*freq/2 sleepLag*freq])
-xticklabels({'-15','-7.5','0','7.5','15'})
+xticklabels({'-5','-2.5','0','2.5','5'})
 xlim([-sleepLag*freq sleepLag*freq])
 xlabel('Lags (s)')
-ylabel('Freq (Hz)')
+ylabel('Frequency (Hz)')
 ylim([1 100])
 c5 = colorbar;
-ylabel(c5,{'Corr. Coefficient','LFP vs. \DeltHbT (\muM)'})
+ylabel(c5,{'Corr. Coefficient';'LFP vs. \DeltaHbT (\muM)'})
 axis xy
 axis square
 set(gca,'box','off')
@@ -145,35 +147,36 @@ set(gca,'box','off')
 %% REM LFP
 ax6 = subplot(2,3,6);
 imagesc(data.REM.meanLFP_lags,data.REM.meanLFP_F,data.REM.meanHbTvLFPxcVals)
+title('REM LFP')
 xticks([-sleepLag*freq -sleepLag*freq/2 0 sleepLag*freq/2 sleepLag*freq])
-xticklabels({'-15','-7.5','0','7.5','15'})
+xticklabels({'-5','-2.5','0','2.5','5'})
 xlim([-sleepLag*freq sleepLag*freq])
 xlabel('Lags (s)')
-ylabel('Freq (Hz)')
+ylabel('Frequency (Hz)')
 ylim([1 100])
 c6 = colorbar;
-ylabel(c6,{'Corr. Coefficient','LFP vs. \DeltHbT (\muM)'})
+ylabel(c6,{'Corr. Coefficient';'LFP vs. \DeltaHbT (\muM)'})
 axis xy
 axis square
 set(gca,'box','off')
 
-linkaxes([ax1 ax2 ax3],'xy')
+linkaxes([ax1 ax2 ax3],'y')
 
 ax1Pos = get(ax1,'position');
 ax2Pos = get(ax2,'position');
 ax3Pos = get(ax3,'position');
 ax4Pos = get(ax4,'position');
 ax5Pos = get(ax5,'position');
-ax6Pos = get(ax4,'position');
+ax6Pos = get(ax6,'position');
 ax4Pos(3:4) = ax1Pos(3:4);
 ax5Pos(3:4) = ax2Pos(3:4);
 ax6Pos(3:4) = ax3Pos(3:4);
 set(ax4,'position',ax4Pos);
 set(ax5,'position',ax5Pos);
-set(ax4,'position',ax6Pos);
+set(ax6,'position',ax6Pos);
 
 % save figure(s)
-dirpath = 'C:\Users\klt8\Documents\Analysis Average Figures\Cross Correlation\';
+dirpath = 'C:\Users\klt8\Documents\Analysis Average Figures\';
 if ~exist(dirpath, 'dir')
     mkdir(dirpath);
 end
