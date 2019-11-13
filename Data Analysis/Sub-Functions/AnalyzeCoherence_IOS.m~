@@ -1,4 +1,4 @@
-function [AnalysisResults] = AnalyzeCoherence_IOS(dataTypes,params,AnalysisResults)
+function [AnalysisResults] = AnalyzeCoherence_IOS(dataTypes,baselineType,params,AnalysisResults)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % Ph.D. Candidate, Department of Bioengineering
@@ -42,7 +42,7 @@ PuffCriteria.Value = {5};
 for a = 1:length(dataTypes)
     dataType = dataTypes{1,a};
     %% Analyze coherence during periods of rest
-    disp(['AnalyzeCoherence: L/R ' dataType ' during awake rest']); disp(' ')
+    disp(['AnalyzeCoherence: ' dataType ' during Rest - ' filterSet]); disp(' ')
     % use the RestCriteria we specified earlier to find unstim resting events that are greater than the criteria
     if strcmp(dataType,'CBV_HbT') == true
         [restLogical] = FilterEvents_IOS(RestData.(dataType).adjLH,RestCriteria);
@@ -153,7 +153,8 @@ for a = 1:length(dataTypes)
     params.err = [2 0.05];
     
     % calculate the coherence between desired signals
-    [C_RestData,~, ~, ~, ~,f_RestData,confC_RestData,~,cErr_RestData] = coherencyc_IOS(LH_restData,RH_restData,params);
+    disp(['AnalyzeCoherence: L/R ' dataType ' signals...']); disp(' ')
+    [C_RestData,~, ~, ~, ~,f_RestData, confC_RestData, ~,cErr_RestData] = coherencyc_IOS(LH_restData,RH_restData,params);
     
     % nboot = 1000;
     % rest_CI = bootci(nboot, @coherencyc2, LH_restData', RH_restData', params);
@@ -181,7 +182,7 @@ for a = 1:length(dataTypes)
     
     % save figure
     [pathstr, ~, ~] = fileparts(cd);
-    dirpath = [pathstr '/Combined Imaging/Figures/Analysis Coherence/'];
+    dirpath = [pathstr '/Figures/Analysis Coherence/'];
     if ~exist(dirpath, 'dir')
         mkdir(dirpath);
     end
@@ -190,7 +191,7 @@ for a = 1:length(dataTypes)
     %% Analyze coherence during periods of NREM sleep
     % pull data from SleepData.mat structure
     disp(['AnalyzeCoherence: ' dataType ' during NREM']); disp(' ')
-    if strcmp(dataType,'CBV_HbT') == true
+    if strcmp(dataType,'CBV') == true || strcmp(dataType,'CBV_HbT') == true
         LH_nremData = SleepData.NREM.data.(dataType).LH;
         RH_nremData = SleepData.NREM.data.(dataType).RH;
     else
@@ -221,6 +222,7 @@ for a = 1:length(dataTypes)
     params.err = [2 0.05];
     
     % calculate the coherence between desired signals
+    disp(['Analyzing the NREM coherence between L/R ' dataType ' signals...']); disp(' ')
     [C_nrem,~, ~, ~, ~,f_nrem, confC_nrem, ~,cErr_nrem] = coherencyc_IOS(LH_nrem,RH_nrem,params);
     
     % nboot = 1000;
@@ -249,7 +251,7 @@ for a = 1:length(dataTypes)
     
     % save figure
     [pathstr, ~, ~] = fileparts(cd);
-    dirpath = [pathstr '/Combined Imaging/Figures/Analysis Coherence/'];
+    dirpath = [pathstr '/Figures/Analysis Coherence/'];
     if ~exist(dirpath, 'dir')
         mkdir(dirpath);
     end
@@ -258,7 +260,7 @@ for a = 1:length(dataTypes)
     %% Analyze coherence during periods of REM sleep
     % pull data from SleepData.mat structure
     disp(['AnalyzeCoherence: ' dataType ' during REM']); disp(' ')
-    if strcmp(dataType,'CBV_HbT') == true
+    if strcmp(dataType,'CBV') == true || strcmp(dataType,'CBV_HbT') == true
         LH_remData = SleepData.REM.data.(dataType).LH;
         RH_remData = SleepData.REM.data.(dataType).RH;
     else
@@ -289,6 +291,7 @@ for a = 1:length(dataTypes)
     params.err = [2 0.05];
     
     % calculate the coherence between desired signals
+    disp(['Analyzing the REM coherence between L/R ' dataType ' signals...']); disp(' ')
     [C_rem,~, ~, ~, ~,f_rem, confC_rem, ~,cErr_rem] = coherencyc_IOS(LH_rem,RH_rem,params);
     
     % nboot = 1000;
@@ -317,7 +320,7 @@ for a = 1:length(dataTypes)
     
     % save figure
     [pathstr, ~, ~] = fileparts(cd);
-    dirpath = [pathstr '/Combined Imaging/Figures/Analysis Coherence/'];
+    dirpath = [pathstr '/Figures/Analysis Coherence/'];
     if ~exist(dirpath, 'dir')
         mkdir(dirpath);
     end

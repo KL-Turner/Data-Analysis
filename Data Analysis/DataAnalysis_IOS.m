@@ -35,21 +35,16 @@ params.minTime.REM = 30;   % seconds
 [AnalysisResults] = AnalyzeXCorr_IOS(xcorr_dataTypes,params,AnalysisResults);
  
 % %% BLOCK PURPOSE: [3] Coherence
-% disp('Analyzing Block [3] Analyzing the coherence between L/R hemodynamic and neural data.'); disp(' ')
-% coherr_dataTypes = {'CBV','CBV_HbT','deltaBandPower','thetaBandPower','alphaBandPower','betaBandPower','gammaBandPower','muaPower'};
-% baselineType = 'manualSelection';
-% params.targetMinutes = 30;   % minutes
-% params.minTime.Rest = 10;   % seconds
-% params.minTime.NREM = 30;   % seconds
-% params.minTime.REM = 30;   % seconds
-% [AnalysisResults] = AnalyzeCoherence_IOS(coherr_dataTypes,baselineType,params, AnalysisResults);
-% close all
-% 
+disp('Analyzing Block [3] Analyzing the coherence between L/R hemodynamic and neural data.'); disp(' ')
+coherr_dataTypes = {'CBV_HbT','deltaBandPower','thetaBandPower','alphaBandPower','betaBandPower','gammaBandPower'};
+params.minTime.Rest = 10;   % seconds
+params.minTime.NREM = 30;   % seconds
+params.minTime.REM = 30;   % seconds
+[AnalysisResults] = AnalyzeCoherence_IOS(coherr_dataTypes,baselineType,params, AnalysisResults);
+
 % %% BLOCK PURPOSE: [4] Power Spectra
 % disp('Analyzing Block [4] Analyzing the power spectra of hemodynamic and neural data.'); disp(' ')
-% powerspec_dataTypes =  {'CBV','CBV_HbT','deltaBandPower','thetaBandPower','alphaBandPower','betaBandPower','gammaBandPower','muaPower'};
-% baselineType = 'manualSelection';
-% params.targetMinutes = 30;   % minutes
+% powerspec_dataTypes =  {'CBV_HbT','deltaBandPower','thetaBandPower','alphaBandPower','betaBandPower','gammaBandPower','muaPower'};
 % params.minTime.Rest = 10;   % seconds
 % params.minTime.NREM = 30;   % seconds
 % params.minTime.REM = 30;   % seconds

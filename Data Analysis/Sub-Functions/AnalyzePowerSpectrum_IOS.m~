@@ -164,7 +164,7 @@ for a = 1:length(dataTypes)
     disp(['Analyzing the power spectrum of the adjRH RestData ' dataType ' signal power...']); disp(' ')
     [RH_rest_S,RH_rest_f,RH_rest_sErr] = mtspectrumc_IOS(RH_restData,params);
     if strcmp(dataType,'CBV_HbT') == false
-        disp(['Analyzing the power spectrum of the Hippocampal RestData ' dataType ' signal power...']); disp(' ')
+        disp(['Analyzing the power spectrum of the Hippocampal RestData (' filterSet ') ' dataType ' signal power...']); disp(' ')
         [Hip_rest_S,Hip_rest_f,Hip_rest_sErr] = mtspectrumc_IOS(Hip_restData,params);
     end
     
@@ -182,7 +182,7 @@ for a = 1:length(dataTypes)
     loglog(LH_rest_f,LH_rest_sErr,'color',colors_IOS('battleship grey'))
     xlabel('Freq (Hz)');
     ylabel('Power');
-    title([animalID  ' adjLH ' dataType ' Power during awake rest']);
+    title([animalID  ' adjLH ' dataType ' Power during awake rest - ' filterSet]);
     set(gca,'Ticklength',[0 0]);
     legend('Coherence','Jackknife Lower','JackknifeUpper','Location','Southeast');
     set(legend,'FontSize',6);
@@ -195,7 +195,7 @@ for a = 1:length(dataTypes)
     loglog(RH_rest_f,RH_rest_sErr,'color',colors_IOS('battleship grey'))
     xlabel('Freq (Hz)');
     ylabel('Power');
-    title([animalID  ' adjRH ' dataType ' Power during awake rest']);
+    title([animalID  ' adjRH ' dataType ' Power during awake rest - ' filterSet]);
     set(gca,'Ticklength',[0 0]);
     legend('Coherence','Jackknife Lower','JackknifeUpper','Location','Southeast');
     set(legend,'FontSize',6);
@@ -209,7 +209,7 @@ for a = 1:length(dataTypes)
         loglog(Hip_rest_f,Hip_rest_sErr,'color',colors_IOS('battleship grey'))
         xlabel('Freq (Hz)');
         ylabel('Power');
-        title([animalID  ' Hippocampal ' dataType ' Power during awake rest']);
+        title([animalID  ' Hippocampal ' dataType ' Power during awake rest - ' filterSet]);
         set(gca,'Ticklength',[0 0]);
         legend('Coherence','Jackknife Lower','JackknifeUpper','Location','Southeast');
         set(legend,'FontSize',6);
@@ -218,16 +218,16 @@ for a = 1:length(dataTypes)
     end
     
     % save results
-    AnalysisResults.PowerSpectra.Rest.(dataType).adjLH.S = LH_rest_S;
-    AnalysisResults.PowerSpectra.Rest.(dataType).adjLH.f = LH_rest_f;
-    AnalysisResults.PowerSpectra.Rest.(dataType).adjLH.sErr = LH_rest_sErr;
-    AnalysisResults.PowerSpectra.Rest.(dataType).adjRH.S = RH_rest_S;
-    AnalysisResults.PowerSpectra.Rest.(dataType).adjRH.f = RH_rest_f;
-    AnalysisResults.PowerSpectra.Rest.(dataType).adjRH.sErr = RH_rest_sErr;
+    AnalysisResults.PowerSpectra.Rest.(dataType).(filterSet).adjLH.S = LH_rest_S;
+    AnalysisResults.PowerSpectra.Rest.(dataType).(filterSet).adjLH.f = LH_rest_f;
+    AnalysisResults.PowerSpectra.Rest.(dataType).(filterSet).adjLH.sErr = LH_rest_sErr;
+    AnalysisResults.PowerSpectra.Rest.(dataType).(filterSet).adjRH.S = RH_rest_S;
+    AnalysisResults.PowerSpectra.Rest.(dataType).(filterSet).adjRH.f = RH_rest_f;
+    AnalysisResults.PowerSpectra.Rest.(dataType).(filterSet).adjRH.sErr = RH_rest_sErr;
     if strcmp(dataType,'CBV_HbT') == false
-        AnalysisResults.PowerSpectra.Rest.(dataType).Hip.S = Hip_rest_S;
-        AnalysisResults.PowerSpectra.Rest.(dataType).Hip.f = Hip_rest_f;
-        AnalysisResults.PowerSpectra.Rest.(dataType).Hip.sErr = Hip_rest_sErr;
+        AnalysisResults.PowerSpectra.Rest.(dataType).(filterSet).Hip.S = Hip_rest_S;
+        AnalysisResults.PowerSpectra.Rest.(dataType).(filterSet).Hip.f = Hip_rest_f;
+        AnalysisResults.PowerSpectra.Rest.(dataType).(filterSet).Hip.sErr = Hip_rest_sErr;
     end
     
     % save figures
