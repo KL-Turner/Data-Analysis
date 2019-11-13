@@ -34,6 +34,7 @@ for a = 1:length(animalIDs)
         for d = 1:length(solenoidNames)
             solenoidName = solenoidNames{1,d};
             data.(dataType).(solenoidName).HbT(:,a) = AnalysisResults.EvokedAvgs.Stim.(dataType).(solenoidName).CBV_HbT.HbT;
+            data.(dataType).(solenoidName).CBV(:,a) = AnalysisResults.EvokedAvgs.Stim.(dataType).(solenoidName).CBV.CBV;
             data.(dataType).(solenoidName).cortMUA(:,a) = AnalysisResults.EvokedAvgs.Stim.(dataType).(solenoidName).MUA.corticalData;
             data.(dataType).(solenoidName).hipMUA(:,a) = AnalysisResults.EvokedAvgs.Stim.(dataType).(solenoidName).MUA.hippocampalData;
             data.(dataType).(solenoidName).timeVector(:,a) = AnalysisResults.EvokedAvgs.Stim.(dataType).(solenoidName).timeVector;
@@ -47,6 +48,7 @@ end
 
 % concatenate the data from the contra and ipsi data
 data.Contra.HbT = cat(2,data.adjLH.RPadSol.HbT,data.adjRH.LPadSol.HbT);
+data.Contra.CBV = cat(2,data.adjLH.RPadSol.CBV,data.adjRH.LPadSol.CBV);
 data.Contra.cortMUA = cat(2,data.adjLH.RPadSol.cortMUA,data.adjRH.LPadSol.cortMUA);
 data.Contra.hipMUA = data.adjRH.RPadSol.hipMUA;
 data.Contra.timeVector = cat(2,data.adjLH.RPadSol.timeVector,data.adjRH.LPadSol.timeVector);
@@ -56,6 +58,7 @@ data.Contra.T = cat(2,data.adjLH.RPadSol.T,data.adjRH.LPadSol.T);
 data.Contra.F = cat(2,data.adjLH.RPadSol.F,data.adjRH.LPadSol.F);
 
 data.Ipsi.HbT = cat(2,data.adjLH.LPadSol.HbT,data.adjRH.RPadSol.HbT);
+data.Ipsi.CBV = cat(2,data.adjLH.LPadSol.CBV,data.adjRH.RPadSol.CBV);
 data.Ipsi.cortMUA = cat(2,data.adjLH.LPadSol.cortMUA,data.adjRH.RPadSol.cortMUA);
 data.Ipsi.hipMUA = data.adjRH.LPadSol.hipMUA;
 data.Ipsi.timeVector = cat(2,data.adjLH.LPadSol.timeVector,data.adjRH.RPadSol.timeVector);
@@ -65,6 +68,7 @@ data.Ipsi.T = cat(2,data.adjLH.LPadSol.T,data.adjRH.RPadSol.T);
 data.Ipsi.F = cat(2,data.adjLH.LPadSol.F,data.adjRH.RPadSol.F);
 
 data.Auditory.HbT = cat(2,data.adjLH.AudSol.HbT,data.adjRH.AudSol.HbT);
+data.Auditory.CBV = cat(2,data.adjLH.AudSol.CBV,data.adjRH.AudSol.CBV);
 data.Auditory.cortMUA = cat(2,data.adjLH.AudSol.cortMUA,data.adjRH.AudSol.cortMUA);
 data.Auditory.hipMUA = data.adjRH.AudSol.hipMUA;
 data.Auditory.timeVector = cat(2,data.adjLH.AudSol.timeVector,data.adjRH.AudSol.timeVector);
@@ -78,6 +82,8 @@ for f = 1:length(compDataTypes)
     compDataType = compDataTypes{1,f};
     data.(compDataType).mean_HbT = mean(data.(compDataType).HbT,2);
     data.(compDataType).std_HbT = std(data.(compDataType).HbT,0,2);
+    data.(compDataType).mean_CBV = mean(data.(compDataType).CBV,2);
+    data.(compDataType).std_CBV = std(data.(compDataType).CBV,0,2);
     data.(compDataType).mean_CortMUA = mean(data.(compDataType).cortMUA,2);
     data.(compDataType).std_CortMUA = std(data.(compDataType).cortMUA,0,2);
     data.(compDataType).mean_HipMUA = mean(data.(compDataType).hipMUA,2);
@@ -225,41 +231,75 @@ axis square
 axis xy
 
 %% CBV HbT Contra Stim
-ax13 = subplot(5,3,13);
+ax13 = subplot(5,6,25);
 plot(data.Contra.mean_timeVector,data.Contra.mean_HbT,'k')
 hold on
 plot(data.Contra.mean_timeVector,data.Contra.mean_HbT + data.Contra.std_HbT,'color',colors_IOS('battleship grey'))
 plot(data.Contra.mean_timeVector,data.Contra.mean_HbT - data.Contra.std_HbT,'color',colors_IOS('battleship grey'))
-title('Contra stim HbT')
+title('Contra stim \DeltaHbT (\muM)')
 ylabel('\DeltaHbT (\muM)')
+xlabel('Peristimuls time (s)') 
+axis square
+
+%% CBV Refl Contra Stim
+ax14 = subplot(5,6,26);
+plot(data.Contra.mean_timeVector,data.Contra.mean_CBV,'k')
+hold on
+plot(data.Contra.mean_timeVector,data.Contra.mean_CBV + data.Contra.std_CBV,'color',colors_IOS('battleship grey'))
+plot(data.Contra.mean_timeVector,data.Contra.mean_CBV - data.Contra.std_CBV,'color',colors_IOS('battleship grey'))
+title('Contra stim reflectance')
+ylabel('\DeltaR/R (%)')
 xlabel('Peristimuls time (s)') 
 axis square
 
 %% CBV HbT Ispi Stim
-ax14 = subplot(5,3,14);
+ax15 = subplot(5,6,27);
 plot(data.Ipsi.mean_timeVector,data.Ipsi.mean_HbT,'k')
 hold on
 plot(data.Ipsi.mean_timeVector,data.Ipsi.mean_HbT + data.Ipsi.std_HbT,'color',colors_IOS('battleship grey'))
 plot(data.Ipsi.mean_timeVector,data.Ipsi.mean_HbT - data.Ipsi.std_HbT,'color',colors_IOS('battleship grey'))
-title('Ipsi stim HbT')
+title('Ipsi stim \DeltaHbT (\muM)')
 ylabel('\DeltaHbT (\muM)')
 xlabel('Peristimuls time (s)') 
 axis square
 
+%% CBV Refl Ispi Stim
+ax16 = subplot(5,6,28);
+plot(data.Ipsi.mean_timeVector,data.Ipsi.mean_CBV,'k')
+hold on
+plot(data.Ipsi.mean_timeVector,data.Ipsi.mean_CBV + data.Ipsi.std_CBV,'color',colors_IOS('battleship grey'))
+plot(data.Ipsi.mean_timeVector,data.Ipsi.mean_CBV - data.Ipsi.std_CBV,'color',colors_IOS('battleship grey'))
+title('Ipsi stim reflectance')
+ylabel('\DeltaR/R (%)')
+xlabel('Peristimuls time (s)') 
+axis square
+
 %% CBV HbT Auditory Stim
-ax15 = subplot(5,3,15);
+ax17 = subplot(5,6,29);
 plot(data.Auditory.mean_timeVector,data.Auditory.mean_HbT,'k')
 hold on
 plot(data.Auditory.mean_timeVector,data.Auditory.mean_HbT + data.Auditory.std_HbT,'color',colors_IOS('battleship grey'))
 plot(data.Auditory.mean_timeVector,data.Auditory.mean_HbT - data.Auditory.std_HbT,'color',colors_IOS('battleship grey'))
-title('Aud stim HbT')
+title('Aud stim \DeltaHbT (\muM)')
 ylabel('\DeltaHbT (\muM)')
+xlabel('Peristimuls time (s)') 
+axis square
+
+%% CBV Refl Auditory Stim
+ax18 = subplot(5,6,30);
+plot(data.Auditory.mean_timeVector,data.Auditory.mean_CBV,'k')
+hold on
+plot(data.Auditory.mean_timeVector,data.Auditory.mean_CBV + data.Auditory.std_CBV,'color',colors_IOS('battleship grey'))
+plot(data.Auditory.mean_timeVector,data.Auditory.mean_CBV - data.Auditory.std_CBV,'color',colors_IOS('battleship grey'))
+title('Aud stim reflectance')
+ylabel('\DeltaR/R (%)')
 xlabel('Peristimuls time (s)') 
 axis square
 
 linkaxes([ax1 ax2 ax3 ax7 ax8 ax9],'xy')
 linkaxes([ax4 ax5 ax6 ax10 ax11 ax12],'xy')
-linkaxes([ax13 ax14 ax15],'xy')
+linkaxes([ax13 ax15 ax17],'xy')
+linkaxes([ax14 ax16 ax18],'xy')
 
 ax1Pos = get(ax1,'position');
 ax2Pos = get(ax2,'position');
@@ -288,4 +328,4 @@ dirpath = 'C:\Users\klt8\Documents\Analysis Average Figures\';
 if ~exist(dirpath, 'dir')
     mkdir(dirpath);
 end
-savefig(summaryFigure,[dirpath 'Summary Figure - Average Stim Responses']);
+savefig(summaryFigure,[dirpath 'Summary Figure - Stim Responses']);

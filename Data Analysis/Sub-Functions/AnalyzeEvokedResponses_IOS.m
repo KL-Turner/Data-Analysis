@@ -70,6 +70,7 @@ for a = 1:length(dataTypes)
         disp(['AnalyzeEvokedResponses: ' whiskCriteriaName ' whisker events']); disp(' ')
         allWhiskFilter = FilterEvents_IOS(EventData.CBV_HbT.(dataType).whisk,whiskCriteria);
         [allWhiskHbTData] = EventData.CBV_HbT.(dataType).whisk.data(allWhiskFilter,:);
+        [allWhiskCBVData] = EventData.CBV.(dataType).whisk.NormData(allWhiskFilter,:);
         [allWhiskCorticalMUAData] = EventData.(neuralDataType).muaPower.whisk.NormData(allWhiskFilter,:);
         [allWhiskHippocampalMUAData] = EventData.hippocampus.muaPower.whisk.NormData(allWhiskFilter,:);
         [allWhiskFileIDs] = EventData.CBV_HbT.(dataType).whisk.fileIDs(allWhiskFilter,:);
@@ -112,26 +113,32 @@ for a = 1:length(dataTypes)
         end
         finalWhiskFileFilter = logical(whiskFileFilter);
         finalWhiskHbTData = allWhiskHbTData(finalWhiskFileFilter,:);
+        finalWhiskCBVData = allWhiskCBVData(finalWhiskFileFilter,:);
         finalWhiskCorticalMUAData = allWhiskCorticalMUAData(finalWhiskFileFilter,:);
         finalWhiskHippocampalMUAData = allWhiskHippocampalMUAData(finalWhiskFileFilter,:);
         finalWhiskFileIDs = allWhiskFileIDs(finalWhiskFileFilter,:);
         finalWhiskFileEventTimes = allWhiskEventTimes(finalWhiskFileFilter,:);
         
         % lowpass filter each whisking event and mean-subtract by the first 2 seconds
-        clear procWhiskHbTData procWhiskCorticalMUAData procWhiskHippocampalMUAData
+        clear procWhiskHbTData procWhiskCBVData procWhiskCorticalMUAData procWhiskHippocampalMUAData
         for f = 1:size(finalWhiskHbTData,1)
             whiskHbTarray = finalWhiskHbTData(f,:);
+            whiskCBVarray = finalWhiskCBVData(f,:);
             whiskCorticalMUAarray = finalWhiskCorticalMUAData(f,:);
             whiskHippocampalMUAarray = finalWhiskHippocampalMUAData(f,:);
             filtWhiskHbTarray = sgolayfilt(whiskHbTarray,3,17);
+            filtWhiskCBVarray = sgolayfilt(whiskCBVarray,3,17);
             filtWhiskCorticalMUAarray = sgolayfilt(whiskCorticalMUAarray,3,17);
             filtWhiskHippocampalMUAarray = sgolayfilt(whiskHippocampalMUAarray,3,17);
             procWhiskHbTData(f,:) = filtWhiskHbTarray - mean(filtWhiskHbTarray(1:(offset*samplingRate)));
+            procWhiskCBVData(f,:) = filtWhiskCBVarray - mean(filtWhiskCBVarray(1:(offset*samplingRate)));
             procWhiskCorticalMUAData(f,:) = filtWhiskCorticalMUAarray - mean(filtWhiskCorticalMUAarray(1:(offset*samplingRate)));
             procWhiskHippocampalMUAData(f,:) = filtWhiskHippocampalMUAarray - mean(filtWhiskHippocampalMUAarray(1:(offset*samplingRate)));
         end
         meanWhiskHbTData = mean(procWhiskHbTData,1);
         stdWhiskHbTData = std(procWhiskHbTData,0,1);
+        meanWhiskCBVData = mean(procWhiskCBVData,1)*100;
+        stdWhiskCBVData = std(procWhiskCBVData,0,1)*100;
         meanWhiskCorticalMUAData = mean(procWhiskCorticalMUAData,1)*100;
         stdWhiskCorticalMUAData = std(procWhiskCorticalMUAData,0,1)*100;
         meanWhiskHippocampalMUAData = mean(procWhiskHippocampalMUAData,1)*100;
@@ -248,6 +255,8 @@ for a = 1:length(dataTypes)
         % save results
         AnalysisResults.EvokedAvgs.Whisk.(dataType).(whiskCriteriaName).CBV_HbT.HbT = meanWhiskHbTData;
         AnalysisResults.EvokedAvgs.Whisk.(dataType).(whiskCriteriaName).CBV_HbT.HbTStD = stdWhiskHbTData;
+        AnalysisResults.EvokedAvgs.Whisk.(dataType).(whiskCriteriaName).CBV.CBV = meanWhiskCBVData;
+        AnalysisResults.EvokedAvgs.Whisk.(dataType).(whiskCriteriaName).CBV.CBVStD = stdWhiskCBVData;
         AnalysisResults.EvokedAvgs.Whisk.(dataType).(whiskCriteriaName).MUA.corticalData = meanWhiskCorticalMUAData;
         AnalysisResults.EvokedAvgs.Whisk.(dataType).(whiskCriteriaName).MUA.corticalStD = stdWhiskCorticalMUAData;
         AnalysisResults.EvokedAvgs.Whisk.(dataType).(whiskCriteriaName).MUA.hippocampalData = meanWhiskHippocampalMUAData;
@@ -300,6 +309,7 @@ for a = 1:length(dataTypes)
         disp(['AnalyzeEvokedResponses: ' solenoid ' stimulus events']); disp(' ')
         allStimFilter = FilterEvents_IOS(EventData.CBV_HbT.(dataType).stim,stimCriteria);
         [allStimHbTData] = EventData.CBV_HbT.(dataType).stim.data(allStimFilter,:);
+        [allStimCBVData] = EventData.CBV.(dataType).stim.NormData(allStimFilter,:);
         [allStimCortMUAData] = EventData.(neuralDataType).muaPower.stim.NormData(allStimFilter,:);
         [allStimHipMUAData] = EventData.hippocampus.muaPower.stim.NormData(allStimFilter,:);
         [allStimFileIDs] = EventData.CBV_HbT.(dataType).stim.fileIDs(allStimFilter,:);
@@ -342,26 +352,32 @@ for a = 1:length(dataTypes)
         end
         finalStimFileFilter = logical(stimFileFilter);
         finalStimHbTData = allStimHbTData(finalStimFileFilter,:);
+        finalStimCBVData = allStimCBVData(finalStimFileFilter,:);
         finalStimCortMUAData = allStimCortMUAData(finalStimFileFilter,:);
         finalStimHipMUAData = allStimHipMUAData(finalStimFileFilter,:);
         finalStimFileIDs = allStimFileIDs(finalStimFileFilter,:);
         finalStimFileEventTimes = allStimEventTimes(finalStimFileFilter,:);
         
         % lowpass filter each whisking event and mean-subtract by the first 2 seconds
-        clear procStimHbTData procStimCortMUAData procStimHipMUAData
+        clear procStimHbTData procStimCBVData procStimCortMUAData procStimHipMUAData
         for p = 1:size(finalStimHbTData,1)
             stimHbTarray = finalStimHbTData(p,:);
+            stimCBVarray = finalStimCBVData(p,:);
             stimCortMUAarray = finalStimCortMUAData(p,:);
             stimHipMUAarray = finalStimHipMUAData(p,:);
             filtStimHbTarray = sgolayfilt(stimHbTarray,3,17);
+            filtStimCBVarray = sgolayfilt(stimCBVarray,3,17)*100;
             filtStimCortMUAarray = sgolayfilt(stimCortMUAarray,3,17);
             filtStimHipMUAarray = sgolayfilt(stimHipMUAarray,3,17);
             procStimHbTData(p,:) = filtStimHbTarray - mean(filtStimHbTarray(1:(offset*samplingRate)));
+            procStimCBVData(p,:) = filtStimCBVarray - mean(filtStimCBVarray(1:(offset*samplingRate)));
             procStimCortMUAData(p,:) = filtStimCortMUAarray - mean(filtStimCortMUAarray(1:(offset*samplingRate)));
             procStimHipMUAData(p,:) = filtStimHipMUAarray - mean(filtStimHipMUAarray(1:(offset*samplingRate)));
         end
         meanStimHbTData = mean(procStimHbTData,1);
         stdStimHbTData = std(procStimHbTData,0,1);
+        meanStimCBVData = mean(procStimCBVData,1)*100;
+        stdStimCBVData = std(procStimCBVData,0,1)*100;
         meanStimCortMUAData = mean(procStimCortMUAData,1)*100;
         stdStimCortMUAData = std(procStimCortMUAData,0,1)*100;
         meanStimHipMUAData = mean(procStimHipMUAData,1)*100;
@@ -475,6 +491,8 @@ for a = 1:length(dataTypes)
         % save results
         AnalysisResults.EvokedAvgs.Stim.(dataType).(solenoid).CBV_HbT.HbT = meanStimHbTData;
         AnalysisResults.EvokedAvgs.Stim.(dataType).(solenoid).CBV_HbT.HbTStD = stdStimHbTData;
+        AnalysisResults.EvokedAvgs.Stim.(dataType).(solenoid).CBV.CBV = meanStimCBVData;
+        AnalysisResults.EvokedAvgs.Stim.(dataType).(solenoid).CBV.CBVStD = stdStimCBVData;
         AnalysisResults.EvokedAvgs.Stim.(dataType).(solenoid).MUA.corticalData = meanStimCortMUAData;
         AnalysisResults.EvokedAvgs.Stim.(dataType).(solenoid).MUA.corticalStD = stdStimCortMUAData;
         AnalysisResults.EvokedAvgs.Stim.(dataType).(solenoid).MUA.hippocampalData = meanStimHipMUAData;

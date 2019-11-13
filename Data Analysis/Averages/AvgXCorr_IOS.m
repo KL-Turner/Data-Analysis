@@ -2,9 +2,9 @@
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
-%   Purpose:
+%   Purpose: Across-animal average of the cross correlation between neural activity and lagged hemodynamics between
+%            different arousal states.
 %________________________________________________________________________________________________________________________
 
 clear
@@ -180,5 +180,5 @@ dirpath = 'C:\Users\klt8\Documents\Analysis Average Figures\';
 if ~exist(dirpath, 'dir')
     mkdir(dirpath);
 end
-savefig(summaryFigure, [dirpath 'Summary Figure - Average XCorr']);
+savefig(summaryFigure, [dirpath 'Summary Figure - Cross Correlation']);
 

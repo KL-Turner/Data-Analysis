@@ -31,12 +31,14 @@ for a = 1:length(animalIDs)
     for c = 1:length(whiskDataTypes)
         whiskDataType = whiskDataTypes{1,c};
         data.(whiskDataType).adjLH.HbT(:,a) = AnalysisResults.EvokedAvgs.Whisk.adjLH.(whiskDataType).CBV_HbT.HbT;
+        data.(whiskDataType).adjLH.CBV(:,a) = AnalysisResults.EvokedAvgs.Whisk.adjLH.(whiskDataType).CBV.CBV;
         data.(whiskDataType).adjLH.cortMUA(:,a) = AnalysisResults.EvokedAvgs.Whisk.adjLH.(whiskDataType).MUA.corticalData;
         data.(whiskDataType).adjLH.cortS(:,:,a) = AnalysisResults.EvokedAvgs.Whisk.adjLH.(whiskDataType).LFP.corticalS;
         data.(whiskDataType).adjLH.cortT(:,a) = AnalysisResults.EvokedAvgs.Whisk.adjLH.(whiskDataType).LFP.T;
         data.(whiskDataType).adjLH.cortF(:,a) = AnalysisResults.EvokedAvgs.Whisk.adjLH.(whiskDataType).LFP.F;
         
         data.(whiskDataType).adjRH.HbT(:,a) = AnalysisResults.EvokedAvgs.Whisk.adjRH.(whiskDataType).CBV_HbT.HbT;
+        data.(whiskDataType).adjRH.CBV(:,a) = AnalysisResults.EvokedAvgs.Whisk.adjRH.(whiskDataType).CBV.CBV;
         data.(whiskDataType).adjRH.cortMUA(:,a) = AnalysisResults.EvokedAvgs.Whisk.adjRH.(whiskDataType).MUA.corticalData;
         data.(whiskDataType).adjRH.cortS(:,:,a) = AnalysisResults.EvokedAvgs.Whisk.adjRH.(whiskDataType).LFP.corticalS;
         data.(whiskDataType).adjRH.cortT(:,a) = AnalysisResults.EvokedAvgs.Whisk.adjRH.(whiskDataType).LFP.T;
@@ -55,6 +57,7 @@ end
 for e = 1:length(whiskDataTypes)
     whiskDataType = whiskDataTypes{1,e};
     data.(whiskDataType).HbT = cat(2,data.(whiskDataType).adjLH.HbT,data.(whiskDataType).adjRH.HbT);
+    data.(whiskDataType).CBV = cat(2,data.(whiskDataType).adjLH.CBV,data.(whiskDataType).adjRH.CBV);
     data.(whiskDataType).cortMUA = cat(2,data.(whiskDataType).adjLH.cortMUA,data.(whiskDataType).adjRH.cortMUA);
     data.(whiskDataType).cortS = cat(3,data.(whiskDataType).adjLH.cortS,data.(whiskDataType).adjRH.cortS);
     data.(whiskDataType).cortT = cat(2,data.(whiskDataType).adjLH.cortT,data.(whiskDataType).adjRH.cortT);
@@ -66,6 +69,8 @@ for e = 1:length(whiskDataTypes)
     whiskDataType = whiskDataTypes{1,e};
     data.(whiskDataType).meanHbT = mean(data.(whiskDataType).HbT,2);
     data.(whiskDataType).stdHbT = std(data.(whiskDataType).HbT,0,2);
+    data.(whiskDataType).meanCBV = mean(data.(whiskDataType).CBV,2);
+    data.(whiskDataType).stdCBV = std(data.(whiskDataType).CBV,0,2);
     data.(whiskDataType).meanCortMUA = mean(data.(whiskDataType).cortMUA,2);
     data.(whiskDataType).stdCortMUA = std(data.(whiskDataType).cortMUA,0,2);
     data.(whiskDataType).meanCortS = mean(data.(whiskDataType).cortS,3).*100;
@@ -228,44 +233,81 @@ axis xy
 set(gca,'box','off')
 
 %% Short whisks HbT
-ax13 = subplot(5,3,13);
+ax13 = subplot(5,6,25);
 plot(data.ShortWhisks.meanTimeVector,data.ShortWhisks.meanHbT,'k');
 hold on
 plot(data.ShortWhisks.meanTimeVector,data.ShortWhisks.meanHbT + data.ShortWhisks.stdHbT,'color',colors_IOS('battleship grey'))
 plot(data.ShortWhisks.meanTimeVector,data.ShortWhisks.meanHbT - data.ShortWhisks.stdHbT,'color',colors_IOS('battleship grey'))
-title('Short whisking HbT')
+title('Short whisking \DeltaHbT (\muM)')
 ylabel('\DeltaHbT (\muM)')
+xlabel('Peristimuls time (s)')
+axis square
+set(gca,'box','off')
+
+%% Short whisks refl
+ax14 = subplot(5,6,26);
+plot(data.ShortWhisks.meanTimeVector,data.ShortWhisks.meanCBV,'k');
+hold on
+plot(data.ShortWhisks.meanTimeVector,data.ShortWhisks.meanCBV + data.ShortWhisks.stdCBV,'color',colors_IOS('battleship grey'))
+plot(data.ShortWhisks.meanTimeVector,data.ShortWhisks.meanCBV - data.ShortWhisks.stdCBV,'color',colors_IOS('battleship grey'))
+title('Short whisking reflectance')
+ylabel('\DeltaR/R (%)')
 xlabel('Peristimuls time (s)')
 axis square
 set(gca,'box','off')
 
 %% Intermediate whisks HbT
-ax14 = subplot(5,3,14);
+ax15 = subplot(5,6,27);
 plot(data.IntermediateWhisks.meanTimeVector,data.IntermediateWhisks.meanHbT,'k');
 hold on
 plot(data.IntermediateWhisks.meanTimeVector,data.IntermediateWhisks.meanHbT + data.IntermediateWhisks.stdHbT,'color',colors_IOS('battleship grey'))
 plot(data.IntermediateWhisks.meanTimeVector,data.IntermediateWhisks.meanHbT - data.IntermediateWhisks.stdHbT,'color',colors_IOS('battleship grey'))
-title('Intermed. whisking HbT')
+title('Intermed. whisking \DeltaHbT (\muM)')
 ylabel('\DeltaHbT (\muM)')
 xlabel('Peristimuls time (s)')
 axis square
 set(gca,'box','off')
 
+%% Intermediate whisks refl
+ax16 = subplot(5,6,28);
+plot(data.IntermediateWhisks.meanTimeVector,data.IntermediateWhisks.meanCBV,'k');
+hold on
+plot(data.IntermediateWhisks.meanTimeVector,data.IntermediateWhisks.meanCBV + data.IntermediateWhisks.stdCBV,'color',colors_IOS('battleship grey'))
+plot(data.IntermediateWhisks.meanTimeVector,data.IntermediateWhisks.meanCBV - data.IntermediateWhisks.stdCBV,'color',colors_IOS('battleship grey'))
+title('Intermed. whisking reflectance')
+ylabel('\DeltaR/R (%)')
+xlabel('Peristimuls time (s)')
+axis square
+set(gca,'box','off')
+
 %% Long whisks HbT
-ax15 = subplot(5,3,15);
+ax17 = subplot(5,6,29);
 plot(data.LongWhisks.meanTimeVector,data.LongWhisks.meanHbT,'k');
 hold on
 plot(data.LongWhisks.meanTimeVector,data.LongWhisks.meanHbT + data.LongWhisks.stdHbT,'color',colors_IOS('battleship grey'))
 plot(data.LongWhisks.meanTimeVector,data.LongWhisks.meanHbT - data.LongWhisks.stdHbT,'color',colors_IOS('battleship grey'))
-title('Long whisking HbT')
+title('Long whisking \DeltaHbT (\muM)')
 ylabel('\DeltaHbT (\muM)')
+xlabel('Peristimuls time (s)')
+axis square
+set(gca,'box','off')
+
+%% Long whisks refl
+ax18 = subplot(5,6,30);
+plot(data.LongWhisks.meanTimeVector,data.LongWhisks.meanCBV,'k');
+hold on
+plot(data.LongWhisks.meanTimeVector,data.LongWhisks.meanCBV + data.LongWhisks.stdCBV,'color',colors_IOS('battleship grey'))
+plot(data.LongWhisks.meanTimeVector,data.LongWhisks.meanCBV - data.LongWhisks.stdCBV,'color',colors_IOS('battleship grey'))
+title('Long whisking reflectance')
+ylabel('\DeltaR/R (%)')
 xlabel('Peristimuls time (s)')
 axis square
 set(gca,'box','off')
 
 linkaxes([ax1 ax2 ax3 ax7 ax8 ax9],'xy')
 linkaxes([ax4 ax5 ax6 ax10 ax11 ax12],'xy')
-linkaxes([ax13 ax14 ax15],'xy')
+linkaxes([ax13 ax15 ax17],'xy')
+linkaxes([ax14 ax16 ax18],'xy')
 
 ax1Pos = get(ax1,'position');
 ax2Pos = get(ax2,'position');
@@ -294,4 +336,4 @@ dirpath = 'C:\Users\klt8\Documents\Analysis Average Figures\';
 if ~exist(dirpath, 'dir')
     mkdir(dirpath);
 end
-savefig(summaryFigure,[dirpath 'Summary Figure - Average Whisk Responses']);
+savefig(summaryFigure,[dirpath 'Summary Figure - Whisk Responses']);

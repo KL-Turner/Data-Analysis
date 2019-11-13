@@ -80,7 +80,7 @@ axis square
 ylim([0 1])
 xlim([0.05 1])
 set(gca,'box','off')
-f
+
 %% Delta-band power
 subplot(2,3,2);
 semilogx(data.Rest.deltaBandPower.meanf,data.Rest.deltaBandPower.meanC,'color',colorbrewer_setA_colorA,'LineWidth',3);
@@ -202,4 +202,4 @@ dirpath = 'C:\Users\klt8\Documents\Analysis Average Figures\';
 if ~exist(dirpath,'dir')
     mkdir(dirpath);
 end
-savefig(summaryFigure,[dirpath 'Summary Figure - Average Coherence']);
+savefig(summaryFigure,[dirpath 'Summary Figure - Coherence']);
