@@ -243,7 +243,7 @@ for z = 1:length(dataTypes)
         mkdir(dirpath);
     end
     savefig(RestingXCorr, [dirpath animalID '_' dataType '_RestingXCorr']);
-%     close(RestingXCorr)
+    close(RestingXCorr)
     
     %% Cross-correlation analysis for NREM sleep data
     disp(['AnalyzeXCorr: ' dataType ' vs ' neuralDataType ' during NREM.']); disp(' ')
@@ -289,8 +289,8 @@ for z = 1:length(dataTypes)
     end
     
     % lowpass filter and detrend reflectance and HbT during corresponding sleep events
-    for s = 1:length(SleepData.NREM.data.CBV_HbT.(dataType))
-        NREM_HbT_Vals = SleepData.NREM.data.CBV_HbT.(dataType){s,1}(1:(NREM_sleepTime*samplingRate));
+    for s = 1:length(SleepData.NREM.data.CBV_HbT.(dataType(4:end)))
+        NREM_HbT_Vals = SleepData.NREM.data.CBV_HbT.(dataType(4:end)){s,1}(1:(NREM_sleepTime*samplingRate));
         NREM_MUA_Vals = SleepData.NREM.data.(neuralDataType).muaPower{s,1}(1:(NREM_sleepTime*samplingRate));
         NREM_dsHbT_Vals = downsample(NREM_HbT_Vals,frequencyDiff);
         NREM_dsMUA_Vals = downsample(NREM_MUA_Vals,frequencyDiff);
@@ -364,7 +364,7 @@ for z = 1:length(dataTypes)
         mkdir(dirpath);
     end
     savefig(NREMXCorr, [dirpath animalID '_' dataType '_NREMXCorr']);
-%     close(NREMXCorr)
+    close(NREMXCorr)
     
     %% Cross-correlation analysis for REM sleep data
     disp(['AnalyzeXCorr: ' dataType ' vs ' neuralDataType ' during REM.']); disp(' ')
@@ -410,8 +410,8 @@ for z = 1:length(dataTypes)
     end
     
     % lowpass filter and detrend reflectance and HbT during corresponding sleep events
-    for bb = 1:length(SleepData.REM.data.CBV_HbT.(dataType))
-        REM_HbT_Vals = SleepData.REM.data.CBV_HbT.(dataType){bb,1}(1:(REM_sleepTime*samplingRate));
+    for bb = 1:length(SleepData.REM.data.CBV_HbT.(dataType(4:end)))
+        REM_HbT_Vals = SleepData.REM.data.CBV_HbT.(dataType(4:end)){bb,1}(1:(REM_sleepTime*samplingRate));
         REM_MUA_Vals = SleepData.REM.data.(neuralDataType).muaPower{bb,1}(1:(REM_sleepTime*samplingRate));
         REM_dsHbT_Vals = downsample(REM_HbT_Vals,frequencyDiff);
         REM_dsMUA_Vals = downsample(REM_MUA_Vals,frequencyDiff);
@@ -443,8 +443,8 @@ for z = 1:length(dataTypes)
     % summary figure
     REMXCorr = figure;
     subplot(2,1,1)
-    title([animalID ' ' titleID ' REM cross-correlation'])
-        plot(REM_MUA_lags,REM_meanHbTvMUAxcVals,'k')
+    sgtitle([animalID ' ' titleID ' REM cross-correlation'])
+    plot(REM_MUA_lags,REM_meanHbTvMUAxcVals,'k')
     hold on
     plot(REM_MUA_lags,REM_meanHbTvMUAxcVals + REM_stdHbTvMUAxcVals,'color',colors_IOS('battleship grey'))
     plot(REM_MUA_lags,REM_meanHbTvMUAxcVals - REM_stdHbTvMUAxcVals,'color',colors_IOS('battleship grey'))
@@ -485,7 +485,7 @@ for z = 1:length(dataTypes)
         mkdir(dirpath);
     end
     savefig(REMXCorr, [dirpath animalID '_' dataType '_REMXCorr']);
-%     close(REMXCorr)
+    close(REMXCorr)
 end
 
 %% save final results structure

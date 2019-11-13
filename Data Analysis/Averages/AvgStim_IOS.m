@@ -231,7 +231,7 @@ hold on
 plot(data.Contra.mean_timeVector,data.Contra.mean_HbT + data.Contra.std_HbT,'color',colors_IOS('battleship grey'))
 plot(data.Contra.mean_timeVector,data.Contra.mean_HbT - data.Contra.std_HbT,'color',colors_IOS('battleship grey'))
 title('Contra stim HbT')
-ylabel('\DeltaHbT')
+ylabel('\DeltaHbT (\muM)')
 xlabel('Peristimuls time (s)') 
 axis square
 
@@ -242,7 +242,7 @@ hold on
 plot(data.Ipsi.mean_timeVector,data.Ipsi.mean_HbT + data.Ipsi.std_HbT,'color',colors_IOS('battleship grey'))
 plot(data.Ipsi.mean_timeVector,data.Ipsi.mean_HbT - data.Ipsi.std_HbT,'color',colors_IOS('battleship grey'))
 title('Ipsi stim HbT')
-ylabel('\DeltaHbT')
+ylabel('\DeltaHbT (\muM)')
 xlabel('Peristimuls time (s)') 
 axis square
 
@@ -253,7 +253,7 @@ hold on
 plot(data.Auditory.mean_timeVector,data.Auditory.mean_HbT + data.Auditory.std_HbT,'color',colors_IOS('battleship grey'))
 plot(data.Auditory.mean_timeVector,data.Auditory.mean_HbT - data.Auditory.std_HbT,'color',colors_IOS('battleship grey'))
 title('Aud stim HbT')
-ylabel('\DeltaHbT')
+ylabel('\DeltaHbT (\muM)')
 xlabel('Peristimuls time (s)') 
 axis square
 

@@ -30,13 +30,13 @@ for a = 1:length(animalIDs)
     load([animalID '_AnalysisResults.mat']);
     for c = 1:length(whiskDataTypes)
         whiskDataType = whiskDataTypes{1,c};
-        data.(whiskDataType).adjLH.HbT(:,a) = AnalysisResults.EvokedAvgs.Whisk.adjLH.(whiskDataType).HbT;
+        data.(whiskDataType).adjLH.HbT(:,a) = AnalysisResults.EvokedAvgs.Whisk.adjLH.(whiskDataType).CBV_HbT.HbT;
         data.(whiskDataType).adjLH.cortMUA(:,a) = AnalysisResults.EvokedAvgs.Whisk.adjLH.(whiskDataType).MUA.corticalData;
         data.(whiskDataType).adjLH.cortS(:,:,a) = AnalysisResults.EvokedAvgs.Whisk.adjLH.(whiskDataType).LFP.corticalS;
         data.(whiskDataType).adjLH.cortT(:,a) = AnalysisResults.EvokedAvgs.Whisk.adjLH.(whiskDataType).LFP.T;
         data.(whiskDataType).adjLH.cortF(:,a) = AnalysisResults.EvokedAvgs.Whisk.adjLH.(whiskDataType).LFP.F;
         
-        data.(whiskDataType).adjRH.HbT(:,a) = AnalysisResults.EvokedAvgs.Whisk.adjRH.(whiskDataType).HbT;
+        data.(whiskDataType).adjRH.HbT(:,a) = AnalysisResults.EvokedAvgs.Whisk.adjRH.(whiskDataType).CBV_HbT.HbT;
         data.(whiskDataType).adjRH.cortMUA(:,a) = AnalysisResults.EvokedAvgs.Whisk.adjRH.(whiskDataType).MUA.corticalData;
         data.(whiskDataType).adjRH.cortS(:,:,a) = AnalysisResults.EvokedAvgs.Whisk.adjRH.(whiskDataType).LFP.corticalS;
         data.(whiskDataType).adjRH.cortT(:,a) = AnalysisResults.EvokedAvgs.Whisk.adjRH.(whiskDataType).LFP.T;
@@ -68,12 +68,12 @@ for e = 1:length(whiskDataTypes)
     data.(whiskDataType).stdHbT = std(data.(whiskDataType).HbT,0,2);
     data.(whiskDataType).meanCortMUA = mean(data.(whiskDataType).cortMUA,2);
     data.(whiskDataType).stdCortMUA = std(data.(whiskDataType).cortMUA,0,2);
-    data.(whiskDataType).meanCortS = mean(data.(whiskDataType).cortS,3);
+    data.(whiskDataType).meanCortS = mean(data.(whiskDataType).cortS,3).*100;
     data.(whiskDataType).meanCortT = mean(data.(whiskDataType).cortT,2);
     data.(whiskDataType).meanCortF = mean(data.(whiskDataType).cortF,2);
     data.(whiskDataType).meanHipMUA = mean(data.(whiskDataType).Hip.hipMUA,2);
     data.(whiskDataType).stdHipMUA = std(data.(whiskDataType).Hip.hipMUA,0,2);
-    data.(whiskDataType).meanHipS = mean(data.(whiskDataType).Hip.hipS,3);
+    data.(whiskDataType).meanHipS = mean(data.(whiskDataType).Hip.hipS,3).*100;
     data.(whiskDataType).meanHipT = mean(data.(whiskDataType).Hip.hipT,2);
     data.(whiskDataType).meanHipF = mean(data.(whiskDataType).Hip.hipF,2);
     data.(whiskDataType).meanTimeVector = mean(data.(whiskDataType).timeVector(:,a),2);
@@ -83,186 +83,211 @@ end
 summaryFigure = figure;
 sgtitle('Whisking-evoked averages')
 
-%% Short whisks cortical MUA
+%% ShortWhisks whisks cortical MUA
 ax1 = subplot(5,3,1);
-plot(data.(baselineType).Short.meanTimeVector,data.(baselineType).Short.meanCortMUA,'k');
+plot(data.ShortWhisks.meanTimeVector,data.ShortWhisks.meanCortMUA,'k');
 hold on
-plot(data.(baselineType).Short.meanTimeVector,data.(baselineType).Short.meanCortMUA + data.(baselineType).Short.stdCortMUA,'color',colors_IOS('battleship grey'))
-plot(data.(baselineType).Short.meanTimeVector,data.(baselineType).Short.meanCortMUA - data.(baselineType).Short.stdCortMUA,'color',colors_IOS('battleship grey'))
+plot(data.ShortWhisks.meanTimeVector,data.ShortWhisks.meanCortMUA + data.ShortWhisks.stdCortMUA,'color',colors_IOS('battleship grey'))
+plot(data.ShortWhisks.meanTimeVector,data.ShortWhisks.meanCortMUA - data.ShortWhisks.stdCortMUA,'color',colors_IOS('battleship grey'))
 title('Short whisking cortical MUA')
 ylabel('\DeltaP/P (%)')
-xlabel('Peristimuls time (s)')
 axis square
+set(gca,'box','off')
 
-%% Intermediate whisks cortical MUA
+%% IntermediateWhisks whisks cortical MUA
 ax2 = subplot(5,3,2);
-plot(data.(baselineType).Intermediate.meanTimeVector,data.(baselineType).Intermediate.meanCortMUA,'k');
+plot(data.IntermediateWhisks.meanTimeVector,data.IntermediateWhisks.meanCortMUA,'k');
 hold on
-plot(data.(baselineType).Intermediate.meanTimeVector,data.(baselineType).Intermediate.meanCortMUA + data.(baselineType).Intermediate.stdCortMUA,'color',colors_IOS('battleship grey'))
-plot(data.(baselineType).Intermediate.meanTimeVector,data.(baselineType).Intermediate.meanCortMUA - data.(baselineType).Intermediate.stdCortMUA,'color',colors_IOS('battleship grey'))
-title('Short whisking cortical MUA')
+plot(data.IntermediateWhisks.meanTimeVector,data.IntermediateWhisks.meanCortMUA + data.IntermediateWhisks.stdCortMUA,'color',colors_IOS('battleship grey'))
+plot(data.IntermediateWhisks.meanTimeVector,data.IntermediateWhisks.meanCortMUA - data.IntermediateWhisks.stdCortMUA,'color',colors_IOS('battleship grey'))
+title('Intermed. whisking cortical MUA')
 ylabel('\DeltaP/P (%)')
-xlabel('Peristimuls time (s)')
 axis square
+set(gca,'box','off')
 
-%% Long whisks cortical MUA
+%% LongWhisks whisks cortical MUA
 ax3 = subplot(5,3,3);
-plot(data.(baselineType).Long.meanTimeVector,data.(baselineType).Long.meanCortMUA,'k');
+plot(data.LongWhisks.meanTimeVector,data.LongWhisks.meanCortMUA,'k');
 hold on
-plot(data.(baselineType).Long.meanTimeVector,data.(baselineType).Long.meanCortMUA + data.(baselineType).Long.stdCortMUA,'color',colors_IOS('battleship grey'))
-plot(data.(baselineType).Long.meanTimeVector,data.(baselineType).Long.meanCortMUA - data.(baselineType).Long.stdCortMUA,'color',colors_IOS('battleship grey'))
-title('Short whisking cortical MUA')
+plot(data.LongWhisks.meanTimeVector,data.LongWhisks.meanCortMUA + data.LongWhisks.stdCortMUA,'color',colors_IOS('battleship grey'))
+plot(data.LongWhisks.meanTimeVector,data.LongWhisks.meanCortMUA - data.LongWhisks.stdCortMUA,'color',colors_IOS('battleship grey'))
+title('Long whisking cortical MUA')
 ylabel('\DeltaP/P (%)')
-xlabel('Peristimuls time (s)')
 axis square
+set(gca,'box','off')
 
-%% Short whisks cortical LFP
+%% ShortWhisks whisks cortical LFP
 ax4 = subplot(5,3,4);
-imagesc(data.(baselineType).Short.meanCortT,data.(baselineType).Short.meanCortF,data.(baselineType).Short.meanCortS)
+imagesc(data.ShortWhisks.meanCortT,data.ShortWhisks.meanCortF,data.ShortWhisks.meanCortS)
 title('Short whisking cortical LFP')
 ylabel('Freq (Hz)')
-xlabel('Peristimuls time (s)')
 c4 = colorbar;
 ylabel(c4,'\DeltaP/P (%)')
-caxis([-0.25 0.5]);
+caxis([-25 25])
 set(gca,'Ticklength',[0 0])
 axis square
 axis xy
+set(gca,'box','off')
 
-%% Intermediate whisks cortical LFP
+%% IntermediateWhisks whisks cortical LFP
 ax5 = subplot(5,3,5);
-imagesc(data.(baselineType).Intermediate.meanCortT,data.(baselineType).Intermediate.meanCortF,data.(baselineType).Intermediate.meanCortS)
-title('Intermediate whisking cortical LFP')
+imagesc(data.IntermediateWhisks.meanCortT,data.IntermediateWhisks.meanCortF,data.IntermediateWhisks.meanCortS)
+title('Intermed. whisking cortical LFP')
 ylabel('Freq (Hz)')
-xlabel('Peristimuls time (s)')
 c5 = colorbar;
 ylabel(c5,'\DeltaP/P (%)')
-caxis([-0.25 0.5])
+caxis([-25 25])
 set(gca,'Ticklength',[0 0])
 axis square
 axis xy
+set(gca,'box','off')
 
-%% Long whisks cortical LFP
+%% LongWhisks whisks cortical LFP
 ax6 = subplot(5,3,6);
-imagesc(data.(baselineType).Long.meanCortT,data.(baselineType).Long.meanCortF,data.(baselineType).Long.meanCortS)
+imagesc(data.LongWhisks.meanCortT,data.LongWhisks.meanCortF,data.LongWhisks.meanCortS)
 title('Long whisking cortical LFP')
 ylabel('Freq (Hz)')
-xlabel('Peristimuls time (s)')
 c6 = colorbar;
 ylabel(c6,'\DeltaP/P (%)')
-caxis([-0.25 0.5])
+caxis([-25 25])
 set(gca,'Ticklength',[0 0])
 axis square
 axis xy
+set(gca,'box','off')
 
-%% Short whisks hippocampal MUA
+%% ShortWhisks whisks hippocampal MUA
 ax7 = subplot(5,3,7);
-plot(data.(baselineType).Short.meanTimeVector,data.(baselineType).Short.meanHipMUA,'k');
+plot(data.ShortWhisks.meanTimeVector,data.ShortWhisks.meanHipMUA,'k');
 hold on
-plot(data.(baselineType).Short.meanTimeVector,data.(baselineType).Short.meanHipMUA + data.(baselineType).Short.stdHipMUA,'color',colors_IOS('battleship grey'))
-plot(data.(baselineType).Short.meanTimeVector,data.(baselineType).Short.meanHipMUA - data.(baselineType).Short.stdHipMUA,'color',colors_IOS('battleship grey'))
+plot(data.ShortWhisks.meanTimeVector,data.ShortWhisks.meanHipMUA + data.ShortWhisks.stdHipMUA,'color',colors_IOS('battleship grey'))
+plot(data.ShortWhisks.meanTimeVector,data.ShortWhisks.meanHipMUA - data.ShortWhisks.stdHipMUA,'color',colors_IOS('battleship grey'))
 title('Short whisking hippocampal MUA')
 ylabel('\DeltaP/P (%)')
-xlabel('Peristimuls time (s)')
 axis square
+set(gca,'box','off')
 
-%% Intermediate whisks hippocampal MUA
+%% IntermediateWhisks whisks hippocampal MUA
 ax8 = subplot(5,3,8);
-plot(data.(baselineType).Intermediate.meanTimeVector,data.(baselineType).Intermediate.meanHipMUA,'k');
+plot(data.IntermediateWhisks.meanTimeVector,data.IntermediateWhisks.meanHipMUA,'k');
 hold on
-plot(data.(baselineType).Intermediate.meanTimeVector,data.(baselineType).Intermediate.meanHipMUA + data.(baselineType).Intermediate.stdHipMUA,'color',colors_IOS('battleship grey'))
-plot(data.(baselineType).Intermediate.meanTimeVector,data.(baselineType).Intermediate.meanHipMUA - data.(baselineType).Intermediate.stdHipMUA,'color',colors_IOS('battleship grey'))
-title('Short whisking hippocampal MUA')
+plot(data.IntermediateWhisks.meanTimeVector,data.IntermediateWhisks.meanHipMUA + data.IntermediateWhisks.stdHipMUA,'color',colors_IOS('battleship grey'))
+plot(data.IntermediateWhisks.meanTimeVector,data.IntermediateWhisks.meanHipMUA - data.IntermediateWhisks.stdHipMUA,'color',colors_IOS('battleship grey'))
+title('Intermed. whisking hippocampal MUA')
 ylabel('\DeltaP/P (%)')
-xlabel('Peristimuls time (s)')
 axis square
+set(gca,'box','off')
 
-%% Long whisks hippocampal MUA
+%% LongWhisks whisks hippocampal MUA
 ax9 = subplot(5,3,9);
-plot(data.(baselineType).Long.meanTimeVector,data.(baselineType).Long.meanHipMUA,'k');
+plot(data.LongWhisks.meanTimeVector,data.LongWhisks.meanHipMUA,'k');
 hold on
-plot(data.(baselineType).Long.meanTimeVector,data.(baselineType).Long.meanHipMUA + data.(baselineType).Long.stdHipMUA,'color',colors_IOS('battleship grey'))
-plot(data.(baselineType).Long.meanTimeVector,data.(baselineType).Long.meanHipMUA - data.(baselineType).Long.stdHipMUA,'color',colors_IOS('battleship grey'))
-title('Short whisking hippocampal MUA')
+plot(data.LongWhisks.meanTimeVector,data.LongWhisks.meanHipMUA + data.LongWhisks.stdHipMUA,'color',colors_IOS('battleship grey'))
+plot(data.LongWhisks.meanTimeVector,data.LongWhisks.meanHipMUA - data.LongWhisks.stdHipMUA,'color',colors_IOS('battleship grey'))
+title('Long whisking hippocampal MUA')
 ylabel('\DeltaP/P (%)')
-xlabel('Peristimuls time (s)')
 axis square
+set(gca,'box','off')
 
-%% Short whisks hippocampal LFP
+%% ShortWhisks whisks hippocampal LFP
 ax10 = subplot(5,3,10);
-imagesc(data.(baselineType).Short.meanHipT,data.(baselineType).Short.meanHipF,data.(baselineType).Short.meanHipS)
+imagesc(data.ShortWhisks.meanHipT,data.ShortWhisks.meanHipF,data.ShortWhisks.meanHipS)
 title('Short whisking hippocampal LFP')
 ylabel('Freq (Hz)')
-xlabel('Peristimuls time (s)')
 c10 = colorbar;
 ylabel(c10,'\DeltaP/P (%)')
-caxis([-0.25 0.5])
+caxis([-25 25])
 set(gca,'Ticklength',[0 0])
 axis square
 axis xy
+set(gca,'box','off')
 
-%% Intermediate whisks hippocampal LFP
+%% IntermediateWhisks whisks hippocampal LFP
 ax11 = subplot(5,3,11);
-imagesc(data.(baselineType).Intermediate.meanHipT,data.(baselineType).Intermediate.meanHipF,data.(baselineType).Intermediate.meanHipS)
-title('Intermediate whisking hippocampal LFP')
+imagesc(data.IntermediateWhisks.meanHipT,data.IntermediateWhisks.meanHipF,data.IntermediateWhisks.meanHipS)
+title('Intermed. whisking hippocampal LFP')
 ylabel('Freq (Hz)')
-xlabel('Peristimuls time (s)')
 c11 = colorbar;
 ylabel(c11,'\DeltaP/P (%)')
-caxis([-0.25 0.5])
+caxis([-25 25])
 set(gca,'Ticklength',[0 0])
 axis square
 axis xy
+set(gca,'box','off')
 
 %% Long whisks hippocampal LFP
 ax12 = subplot(5,3,12);
-imagesc(data.(baselineType).Long.meanHipT,data.(baselineType).Long.meanHipF,data.(baselineType).Long.meanHipS)
+imagesc(data.LongWhisks.meanHipT,data.LongWhisks.meanHipF,data.LongWhisks.meanHipS)
 title('Long whisking hippocampal LFP')
 ylabel('Freq (Hz)')
-xlabel('Peristimuls time (s)')
 c12 = colorbar;
 ylabel(c12,'\DeltaP/P (%)')
-caxis([-0.25 0.5])
+caxis([-25 25])
 set(gca,'Ticklength',[0 0])
 axis square
 axis xy
+set(gca,'box','off')
 
 %% Short whisks HbT
 ax13 = subplot(5,3,13);
-plot(data.(baselineType).Short.meanTimeVector,data.(baselineType).Short.meanHbT,'k');
+plot(data.ShortWhisks.meanTimeVector,data.ShortWhisks.meanHbT,'k');
 hold on
-plot(data.(baselineType).Short.meanTimeVector,data.(baselineType).Short.meanHbT + data.(baselineType).Short.stdHbT,'color',colors_IOS('battleship grey'))
-plot(data.(baselineType).Short.meanTimeVector,data.(baselineType).Short.meanHbT - data.(baselineType).Short.stdHbT,'color',colors_IOS('battleship grey'))
+plot(data.ShortWhisks.meanTimeVector,data.ShortWhisks.meanHbT + data.ShortWhisks.stdHbT,'color',colors_IOS('battleship grey'))
+plot(data.ShortWhisks.meanTimeVector,data.ShortWhisks.meanHbT - data.ShortWhisks.stdHbT,'color',colors_IOS('battleship grey'))
 title('Short whisking HbT')
-ylabel('\DeltaHbT')
+ylabel('\DeltaHbT (\muM)')
 xlabel('Peristimuls time (s)')
 axis square
+set(gca,'box','off')
 
 %% Intermediate whisks HbT
 ax14 = subplot(5,3,14);
-plot(data.(baselineType).Intermediate.meanTimeVector,data.(baselineType).Intermediate.meanHbT,'k');
+plot(data.IntermediateWhisks.meanTimeVector,data.IntermediateWhisks.meanHbT,'k');
 hold on
-plot(data.(baselineType).Intermediate.meanTimeVector,data.(baselineType).Intermediate.meanHbT + data.(baselineType).Intermediate.stdHbT,'color',colors_IOS('battleship grey'))
-plot(data.(baselineType).Intermediate.meanTimeVector,data.(baselineType).Intermediate.meanHbT - data.(baselineType).Intermediate.stdHbT,'color',colors_IOS('battleship grey'))
-title('Intermediate whisking HbT')
-ylabel('\DeltaHbT')
+plot(data.IntermediateWhisks.meanTimeVector,data.IntermediateWhisks.meanHbT + data.IntermediateWhisks.stdHbT,'color',colors_IOS('battleship grey'))
+plot(data.IntermediateWhisks.meanTimeVector,data.IntermediateWhisks.meanHbT - data.IntermediateWhisks.stdHbT,'color',colors_IOS('battleship grey'))
+title('Intermed. whisking HbT')
+ylabel('\DeltaHbT (\muM)')
 xlabel('Peristimuls time (s)')
 axis square
+set(gca,'box','off')
 
 %% Long whisks HbT
 ax15 = subplot(5,3,15);
-plot(data.(baselineType).Long.meanTimeVector,data.(baselineType).Long.meanHbT,'k');
+plot(data.LongWhisks.meanTimeVector,data.LongWhisks.meanHbT,'k');
 hold on
-plot(data.(baselineType).Long.meanTimeVector,data.(baselineType).Long.meanHbT + data.(baselineType).Long.stdHbT,'color',colors_IOS('battleship grey'))
-plot(data.(baselineType).Long.meanTimeVector,data.(baselineType).Long.meanHbT - data.(baselineType).Long.stdHbT,'color',colors_IOS('battleship grey'))
+plot(data.LongWhisks.meanTimeVector,data.LongWhisks.meanHbT + data.LongWhisks.stdHbT,'color',colors_IOS('battleship grey'))
+plot(data.LongWhisks.meanTimeVector,data.LongWhisks.meanHbT - data.LongWhisks.stdHbT,'color',colors_IOS('battleship grey'))
 title('Long whisking HbT')
-ylabel('\DeltaHbT')
+ylabel('\DeltaHbT (\muM)')
 xlabel('Peristimuls time (s)')
 axis square
+set(gca,'box','off')
 
 linkaxes([ax1 ax2 ax3 ax7 ax8 ax9],'xy')
 linkaxes([ax4 ax5 ax6 ax10 ax11 ax12],'xy')
 linkaxes([ax13 ax14 ax15],'xy')
+
+ax1Pos = get(ax1,'position');
+ax2Pos = get(ax2,'position');
+ax3Pos = get(ax3,'position');
+ax4Pos = get(ax4,'position');
+ax5Pos = get(ax5,'position');
+ax6Pos = get(ax6,'position');
+ax10Pos = get(ax10,'position');
+ax11Pos = get(ax11,'position');
+ax12Pos = get(ax12,'position');
+ax4Pos(3:4) = ax1Pos(3:4);
+ax5Pos(3:4) = ax2Pos(3:4);
+ax6Pos(3:4) = ax3Pos(3:4);
+ax10Pos(3:4) = ax1Pos(3:4);
+ax11Pos(3:4) = ax2Pos(3:4);
+ax12Pos(3:4) = ax3Pos(3:4);
+set(ax4,'position',ax4Pos);
+set(ax5,'position',ax5Pos);
+set(ax6,'position',ax6Pos);
+set(ax10,'position',ax10Pos);
+set(ax11,'position',ax11Pos);
+set(ax12,'position',ax12Pos);
 
 % save figure(s)
 dirpath = 'C:\Users\klt8\Documents\Analysis Average Figures\Whisking-evoked Responses\';
