@@ -22,9 +22,9 @@ else
 end
 
 %% BLOCK PURPOSE: [1] Stimulus and whisking evoked averages
-% disp('Analyzing Block [1] Analyzing the whisking-evoked and stimulus-evoked hemodynamic and neural responses.'); disp(' ')
-% evoked_dataTypes = {'adjLH','adjRH'};
-% [AnalysisResults] = AnalyzeEvokedResponses_IOS(evoked_dataTypes,AnalysisResults);
+disp('Analyzing Block [1] Analyzing the whisking-evoked and stimulus-evoked hemodynamic and neural responses.'); disp(' ')
+evoked_dataTypes = {'adjLH','adjRH'};
+[AnalysisResults] = AnalyzeEvokedResponses_IOS(evoked_dataTypes,AnalysisResults);
 
 %% BLOCK PURPOSE: [2] Cross correlation
 disp('Analyzing Block [2] Analzying the cross-correlation between hemodynamics and neural data.'); disp(' ')
