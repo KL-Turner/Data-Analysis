@@ -1,4 +1,4 @@
-function [HRFs] = CalculateHRFDeconvolution_IOS(dataType1,dataType2, Beh)
+function [HRFs] = CalculateHRFDeconvolution_IOS(dataType1,dataType2,Beh)
 %   function [HRFs] = CalculateHRF_Deconvolution(dataType1,dataType2, Beh)
 %
 %   Author: Aaron Winder
@@ -50,9 +50,50 @@ end
 
 %% Get the arrays for the calculation
 [DataStruct1,FiltArray1] = SelectBehavioralEvents2(BehData.(['cortical_' dataType2(4:end)]).(dataType1),Beh,dataType2);
-NormData1 = DataStruct1.NormData(FiltArray1,:);
+
+baselineDataFileStruct = dir('*_RestingBaselines.mat');
+baselineDataFile = {baselineDataFileStruct.name}';
+baselineDataFileID = char(baselineDataFile);
+load(baselineDataFileID)
+manualFileIDs = unique(RestingBaselines.manualSelection.baselineFileInfo.fileIDs);
+fileIDs = DataStruct1.fileIDs;
+restUniqueDays = GetUniqueDays_IOS(fileIDs);
+restUniqueFiles = unique(fileIDs);
+restNumberOfFiles = length(unique(fileIDs));
+clear restFiltLogical
+for c = 1:length(restUniqueDays)
+    restDay = restUniqueDays(c);
+    d = 1;
+    for e = 1:restNumberOfFiles
+        restFile = restUniqueFiles(e);
+        restFileID = restFile{1}(1:6);
+        if strcmp(restDay,restFileID) && sum(strcmp(restFile,manualFileIDs)) == 1
+            restFiltLogical{c,1}(e,1) = 1; %#ok<*AGROW>
+            d = d + 1;
+        else
+            restFiltLogical{c,1}(e,1) = 0;
+        end
+    end
+end
+restFinalLogical = any(sum(cell2mat(restFiltLogical'),2),2);
+
+clear restFileFilter
+filtRestFiles = restUniqueFiles(restFinalLogical,:);
+for f = 1:length(fileIDs)
+    restLogic = strcmp(fileIDs{f},filtRestFiles);
+    restLogicSum = sum(restLogic);
+    if restLogicSum == 1
+        restFileFilter(f,1) = 1;
+    else
+        restFileFilter(f,1) = 0;
+    end
+end
+restFinalFileFilter = logical(restFileFilter);
+filtArrayEdit1 = logical(FiltArray1.*restFinalFileFilter);
+NormData1 = DataStruct1.NormData(filtArrayEdit1,:);
 [DataStruct2,FiltArray2] = SelectBehavioralEvents2(BehData.CBV.(dataType2),Beh,dataType2);
-NormData2 = DataStruct2.NormData(FiltArray2,:);
+filtArrayEdit2 = logical(FiltArray2.*restFinalFileFilter);
+NormData2 = DataStruct2.NormData(filtArrayEdit2,:);
 
 %% Separate events for HRF calculation from events used for later testing.
 % Insert padding of zeros with size equal to the HRF between individual
@@ -147,23 +188,24 @@ HRFs.num_calc_events = num_events;
 HRFs.Event_Inds = Event_Inds;
 HRFs.calc_date = currdate;
 figure;
+sgtitle([Beh ' ' dataType2])
 subplot(1,2,1)
 plot(HRFs.timevec,HRFs.HRF)
 axis square
 
 %% Calculate the gamma HRF
 options = optimset('MaxFunEvals',2e3,'MaxIter',2e3,'TolFun',1e-7,'TolX',1e-7);
-initvals = [-1e-3, 0.75, 1];
+initvals = [-1e-3,0.75,1];
 HRFDur = 5; % seconds
-[gam_params,~,~] = fminsearch(@(x)gammaconvolve(x,Data1,Data2,...
-    DataStruct2.samplingRate,HRFDur),initvals,options);
+[gam_params,~,~] = fminsearch(@(x)gammaconvolve(x,Data1,Data2,DataStruct2.samplingRate,HRFDur),initvals,options);
 t = 0:1/DataStruct2.samplingRate:HRFDur;
 a = ((gam_params(2)/gam_params(3))^2*8*log10(2));
 beta = ((gam_params(3)^2)/gam_params(2)/8/log10(2));
 gamma = gam_params(1)*(t/gam_params(2)).^a.*exp((t-gam_params(2))/(-1*beta));
 HRFs.GammaHRF = gamma;
 HRFs.GammaTime = t;
-subplot(1,2,2)
+% subplot(1,2,2)
+figure;
 plot(HRFs.GammaTime,HRFs.GammaHRF)
 axis square
 

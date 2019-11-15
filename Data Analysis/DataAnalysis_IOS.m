@@ -84,47 +84,51 @@ end
 %% Figure 2d - Gamma-band HRF
 clearvars -except Stats
 clc
-animals = {'T108'};
-CBVType = 'adjLH';
+% animals = {'T108'};
+CBVTypes = {'adjLH','adjRH'};
 Behaviors = {'Contra','VW','Rest'};
+% Behaviors = {'VW'};
 HRFLims = [0 5];
-GamHRF = figure;
-set(gcf,'name','Figure 2d','numbertitle','off')
-ColorOrd = ['b','y','c'];
-display('Generating figure 2d...')
+% GamHRF = figure;
+% set(gcf,'name','Figure 2d','numbertitle','off')
+% ColorOrd = ['b','y','c'];
+% display('Generating figure 2d...')
 display('Calculating HRFs based on Gamma-band power...')
-for B = 1:length(Behaviors)
-    Beh = Behaviors{B};
-    display([num2str(B) ' of ' num2str(length(Behaviors)) ' behaviors...'])
-    for a = 1:length(animals)
-        display(sprintf(['\t' num2str(a) ' of ' num2str(length(animals)) ' animals...']));
-%         prevdir = cd([animals{a} filesep]);
-        [HRFs] = CalculateHRFDeconvolution_IOS('gammaBandPower',CBVType,Beh);
-        TimeLims = HRFs.timevec>=HRFLims(1) & HRFs.timevec<=HRFLims(2);
-        if a==1
-            AllHRFs.Gamma.(Beh).HRFs = NaN*ones(length(animals),sum(TimeLims));
-            AllHRFs.Gamma.(Beh).GammaHRFs = NaN*ones(length(animals),sum(TimeLims));
-        end
-        AllHRFs.Gamma.(Beh).HRFs(a,:) = HRFs.HRF(TimeLims);
-        AllHRFs.Gamma.(Beh).GammaHRFs(a,:) = HRFs.GammaHRF;
-%         cd(prevdir)
+for q = 1:length(CBVTypes)
+    CBVType = CBVTypes{1,q};
+    for B = 1:length(Behaviors)
+        Beh = Behaviors{B};
+        display([num2str(B) ' of ' num2str(length(Behaviors)) ' behaviors...'])
+        %         for a = 1:length(animals)
+        %             display(sprintf(['\t' num2str(a) ' of ' num2str(length(animals)) ' animals...']));
+        %         prevdir = cd([animals{a} filesep]);
+        CalculateHRFDeconvolution_IOS('gammaBandPower',CBVType,Beh);
+        %             TimeLims = HRFs.timevec>=HRFLims(1) & HRFs.timevec<=HRFLims(2);
+        %             if a==1
+        %                 AllHRFs.Gamma.(Beh).HRFs = NaN*ones(length(animals),sum(TimeLims));
+        %                 AllHRFs.Gamma.(Beh).GammaHRFs = NaN*ones(length(animals),sum(TimeLims));
+        %             end
+        %             AllHRFs.Gamma.(Beh).HRFs(a,:) = HRFs.HRF(TimeLims);
+        %             AllHRFs.Gamma.(Beh).GammaHRFs(a,:) = HRFs.GammaHRF;
+        %             %         cd(prevdir)
+        % %         end
+        %         AllHRFs.Gamma.(Beh).Timevec = HRFs.timevec(TimeLims);
+        %         AllHRFs.Gamma.(Beh).samplingRate = HRFs.samplingRate;
+        %     mHRFs = mean(AllHRFs.Gamma.(Beh).HRFs);
+        %         mHRFs = AllHRFs.Gamma.(Beh).HRFs;
+        %     figure(GamHRF);
+        %     plot(HRFs.timevec(TimeLims),mHRFs,ColorOrd(B));
+        %     hold on;
     end
-    AllHRFs.Gamma.(Beh).Timevec = HRFs.timevec(TimeLims);
-    AllHRFs.Gamma.(Beh).samplingRate = HRFs.samplingRate;
-%     mHRFs = mean(AllHRFs.Gamma.(Beh).HRFs);
-    mHRFs = AllHRFs.Gamma.(Beh).HRFs;
-    figure(GamHRF);
-    plot(HRFs.timevec(TimeLims),mHRFs,ColorOrd(B));
-    hold on;
 end
-figure;
-plot(AllHRFs.Gamma.Rest.GammaHRFs)
-ylabel('HRF Amplitude (A.U.)');
-xlabel('HRF Time (s)');
-legend({'Sensory Evoked','Whisking','Rest'},'location','southeast')
-title('Gamma-based HRFs')
-save('HRFs.mat','AllHRFs'); % save the result
-pause(0.001);
+% figure;
+% plot(AllHRFs.Gamma.Rest.GammaHRFs)
+% ylabel('HRF Amplitude (A.U.)');
+% xlabel('HRF Time (s)');
+% legend({'Sensory Evoked','Whisking','Rest'},'location','southeast')
+% title('Gamma-based HRFs')
+% save('HRFs.mat','AllHRFs'); % save the result
+% pause(0.001);
 
 disp('Data Analysis - Complete.'); disp(' ')
 

@@ -41,7 +41,7 @@ switch Behavior
     case 'VW'
         Criteria.Fieldname = {'duration','duration','restTime','PuffDistance'};
         Criteria.Comparison = {'lt','gt','gt','gt'};
-        Criteria.Value = {2,0.2,BehaviorBufferTime,5};
+        Criteria.Value = {2,0.5,BehaviorBufferTime,5};
         DataStruct = DataStruct.whisk;
     case 'Str'
         Criteria.Fieldname = {'duration','restTime','PuffDistance'};
