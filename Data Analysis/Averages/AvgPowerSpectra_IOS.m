@@ -91,7 +91,7 @@ L3 = loglog(data.REM.CBV_HbT.meanCortf,data.REM.CBV_HbT.meanCortS,'color',colorb
 title('\DeltaHbT (\muM)')
 ylabel('Power')
 xlabel('Frequency (Hz)')
-legend([L1,L2,L3],'Rest','NREM','REM','Location','SouthWest')
+legend([L1,L2,L3],'Awake Rest','NREM','REM','Location','SouthWest')
 axis square
 xlim([0.05 1])
 set(gca,'box','off')

@@ -73,7 +73,7 @@ plot(data.Rest.meanMUA_lags,data.Rest.meanHbTvMUAxcVals,'k')
 hold on
 plot(data.Rest.meanMUA_lags,data.Rest.meanHbTvMUAxcVals + data.Rest.stdHbTvMUAxcVals,'color',colors_IOS('battleship grey'))
 plot(data.Rest.meanMUA_lags,data.Rest.meanHbTvMUAxcVals - data.Rest.stdHbTvMUAxcVals,'color',colors_IOS('battleship grey'))
-title('Rest MUA')
+title('Awake Rest MUA')
 xticks([-restLag*freq -restLag*freq/2 0 restLag*freq/2 restLag*freq])
 xticklabels({'-5','-2.5','0','2.5','5'})
 xlim([-restLag*freq restLag*freq])
@@ -115,7 +115,7 @@ set(gca,'box','off')
 %% Rest LFP
 ax4 = subplot(2,3,4);
 imagesc(data.Rest.meanLFP_lags,data.Rest.meanLFP_F,data.Rest.meanHbTvLFPxcVals)
-title('Rest LFP')
+title('Awake Rest LFP')
 xticks([-restLag*freq -restLag*freq/2 0 restLag*freq/2 restLag*freq])
 xticklabels({'-5','-2.5','0','2.5','5'})
 xlim([-restLag*freq restLag*freq])

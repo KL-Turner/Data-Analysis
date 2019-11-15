@@ -77,7 +77,7 @@ e4 = errorbar(4,data.REM.CBV_HbT.meanR,data.REM.CBV_HbT.stdR,'o','MarkerEdgeColo
 e4.Color = 'black';
 title('\DeltaHbT (\muM)')
 ylabel({'Corr. Coefficient';'Left hem vs. Right hem'})
-legend([s1,s2,s3,s4],'Whisk','Rest','NREM','REM','Location','SouthEast')
+legend([s1,s2,s3,s4],'Whisking','Awake Rest','NREM','REM','Location','SouthEast')
 set(gca,'xtick',[])
 set(gca,'xticklabel',[])
 axis square
