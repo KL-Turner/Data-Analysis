@@ -173,16 +173,16 @@ TimeLims = timevec>=HRFLims(1) & timevec<=HRFLims(2);
 timeLimHRF = HRF(TimeLims);
 timeLimVec = timevec(TimeLims);
 
-AnalysisResults.HRFs.(neuralBand).(hemisphere).IR = timeLimHRF;
-AnalysisResults.HRFs.(neuralBand).(hemisphere).IRtimeVec = timeLimVec;
-AnalysisResults.HRFs.(neuralBand).(hemisphere).HRFParams = HRFParams;
-AnalysisResults.HRFs.(neuralBand).(hemisphere).num_calc_events = num_events;
-AnalysisResults.HRFs.(neuralBand).(hemisphere).Event_Inds = Event_Inds;
+AnalysisResults.HRFs.(neuralBand).(hemisphere).(behavior).IR = timeLimHRF;
+AnalysisResults.HRFs.(neuralBand).(hemisphere).(behavior).IRtimeVec = timeLimVec;
+AnalysisResults.HRFs.(neuralBand).(hemisphere).(behavior).HRFParams = HRFParams;
+AnalysisResults.HRFs.(neuralBand).(hemisphere).(behavior).num_calc_events = num_events;
+AnalysisResults.HRFs.(neuralBand).(hemisphere).(behavior).Event_Inds = Event_Inds;
 
 kernelFig = figure;
 sgtitle([animalID ' ' hemisphere ' ' neuralBand ' during ' behavior])
 subplot(1,2,1)
-plot(AnalysisResults.HRFs.(neuralBand).(hemisphere).IRtimeVec,AnalysisResults.HRFs.(neuralBand).(hemisphere).IR,'k')
+plot(AnalysisResults.HRFs.(neuralBand).(hemisphere).(behavior).IRtimeVec,AnalysisResults.HRFs.(neuralBand).(hemisphere).(behavior).IR,'k')
 title('Impulse response function')
 ylabel('A.U')
 xlabel('Time (s)')
@@ -198,10 +198,10 @@ t = 0:1/HemoDataStruct.samplingRate:HRFDur;
 a = ((gam_params(2)/gam_params(3))^2*8*log10(2));
 beta = ((gam_params(3)^2)/gam_params(2)/8/log10(2));
 gamma = gam_params(1)*(t/gam_params(2)).^a.*exp((t-gam_params(2))/(-1*beta));
-AnalysisResults.HRFs.(neuralBand).(hemisphere).gammaFunc = gamma;
-AnalysisResults.HRFs.(neuralBand).(hemisphere).gammaTimeVec = t;
+AnalysisResults.HRFs.(neuralBand).(hemisphere).(behavior).gammaFunc = gamma;
+AnalysisResults.HRFs.(neuralBand).(hemisphere).(behavior).gammaTimeVec = t;
 subplot(1,2,2)
-plot(AnalysisResults.HRFs.(neuralBand).(hemisphere).gammaTimeVec,AnalysisResults.HRFs.(neuralBand).(hemisphere).gammaFunc,'k')
+plot(AnalysisResults.HRFs.(neuralBand).(hemisphere).(behavior).gammaTimeVec,AnalysisResults.HRFs.(neuralBand).(hemisphere).(behavior).gammaFunc,'k')
 title('Gamma function')
 ylabel('A.U')
 xlabel('Time (s)')

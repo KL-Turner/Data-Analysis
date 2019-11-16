@@ -202,7 +202,7 @@ clear REMProcessed2;
 if strcmp(behavior,'Rest')
     AnalysisResults.HRFs.(neuralBand).(hemisphere).(behavior).AveR2 = NaN;
 else
-    [Act,Pred] = ConvolveHRF_IOS(AnalysisResults.HRFs.(neuralBand).(hemisphere).gammaFunc,mean(Data1),mean(Data2),0);
+    [Act,Pred] = ConvolveHRF_IOS(AnalysisResults.HRFs.(neuralBand).(hemisphere).(behavior).gammaFunc,mean(Data1),mean(Data2),0);
     mPred = Pred(strt:stp) - mean(Pred(strt:stp));
     mAct = Act(strt:stp) - mean(Act(strt:stp));
     AnalysisResults.HRFs.(neuralBand).(hemisphere).(behavior).AveR2 = CalculateRsquared_IOS(mPred,mAct);
@@ -216,7 +216,7 @@ if strcmp(behavior,'Rest')
     for tc = 1:length(Data2)
         strt = 2*HemoDataStruct.samplingRate;
         stp = length(Data2{tc});
-        [Act,Pred] = ConvolveHRF_IOS(AnalysisResults.HRFs.(neuralBand).(hemisphere).gammaFunc,detrend(Data1{tc}),detrend(Data2{tc}),0);
+        [Act,Pred] = ConvolveHRF_IOS(AnalysisResults.HRFs.(neuralBand).(hemisphere).(behavior).gammaFunc,detrend(Data1{tc}),detrend(Data2{tc}),0);
         mPred = Pred(strt:stp) - mean(Pred(strt:stp));
         mAct = Act(strt:stp) - mean(Act(strt:stp));
         IndR2(tc) = CalculateRsquared_IOS(mPred,mAct);
@@ -225,7 +225,7 @@ if strcmp(behavior,'Rest')
     AnalysisResults.HRFs.(neuralBand).(hemisphere).(behavior).Med_IndR2 = median(IndR2);
 else
     for tc = 1:size(Data2,1)
-        [Act,Pred] = ConvolveHRF_IOS(AnalysisResults.HRFs.(neuralBand).(hemisphere).gammaFunc,Data1(tc,:),Data2(tc,:),0);
+        [Act,Pred] = ConvolveHRF_IOS(AnalysisResults.HRFs.(neuralBand).(hemisphere).(behavior).gammaFunc,Data1(tc,:),Data2(tc,:),0);
         mPred = Pred(strt:stp) - mean(Pred(strt:stp));
         mAct = Act(strt:stp) - mean(Act(strt:stp));
         IndR2(tc) = CalculateRsquared_IOS(mPred,mAct);
@@ -237,7 +237,7 @@ end
 for tc = 1:length(NREMData2)
     NREMstrt = 2*HemoDataStruct.samplingRate;
     NREMstp = length(NREMData2{tc});
-    [Act,Pred] = ConvolveHRF_IOS(AnalysisResults.HRFs.(neuralBand).(hemisphere).gammaFunc,detrend(NREMData1{tc}),detrend(NREMData2{tc}),0);
+    [Act,Pred] = ConvolveHRF_IOS(AnalysisResults.HRFs.(neuralBand).(hemisphere).(behavior).gammaFunc,detrend(NREMData1{tc}),detrend(NREMData2{tc}),0);
     mPred = Pred(NREMstrt:NREMstp) - mean(Pred(NREMstrt:NREMstp));
     mAct = Act(NREMstrt:NREMstp) - mean(Act(NREMstrt:NREMstp));
     NREMIndR2(tc) = CalculateRsquared_IOS(mPred,mAct);
@@ -248,7 +248,7 @@ AnalysisResults.HRFs.(neuralBand).(hemisphere).NREM.(behavior).Med_IndR2 = media
 for tc = 1:length(REMData2)
     REMstrt = 2*HemoDataStruct.samplingRate;
     REMstp = length(REMData2{tc});
-    [Act,Pred] = ConvolveHRF_IOS(AnalysisResults.HRFs.(neuralBand).(hemisphere).gammaFunc,detrend(REMData1{tc}),detrend(REMData2{tc}),0);
+    [Act,Pred] = ConvolveHRF_IOS(AnalysisResults.HRFs.(neuralBand).(hemisphere).(behavior).gammaFunc,detrend(REMData1{tc}),detrend(REMData2{tc}),0);
     mPred = Pred(REMstrt:REMstp) - mean(Pred(REMstrt:REMstp));
     mAct = Act(REMstrt:REMstp) - mean(Act(REMstrt:REMstp));
     REMIndR2(tc) = CalculateRsquared_IOS(mPred,mAct);
