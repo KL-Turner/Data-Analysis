@@ -36,4 +36,4 @@ AvgStim_IOS
 AvgWhisk_IOS
 AvgCorrCoeff_IOS
 AvgCBVandHeartRate_IOS
-AvgKernelPredictions_IOS
+AvgResponseFunctionPredictions_IOS
