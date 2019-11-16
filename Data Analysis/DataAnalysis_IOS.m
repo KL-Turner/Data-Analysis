@@ -67,68 +67,24 @@ end
 % [AnalysisResults] = AnalyzeMeanHeartRate_IOS(params,AnalysisResults);
 
 %% BLOCK PURPOSE: [8] Hemodynamic response functions
-% disp('Analyzing Block [8] Analyzing the hemodynamic response function and predictability of awake data.'); disp(' ')
-% hemDataTypes = {'adjLH','adjRH'};
-% neuralBands =  {'gammaBandPower','muaPower'};
-% params.minTime.Rest = 10;   % seconds
-% for d = 1:length(hemDataTypes)
-%     hemDataType = hemDataTypes{1,d};
-%     for e = 1:length(neuralBands)
-%         neuralBand = neuralBands{1,e};
-%         [AnalysisResults] = AnalyzeAwakeHRF_IOS(hemDataType,neuralBand,AnalysisResults);
-% %         [AnalysisResults] = PredictHemodynamicChanges_IOS(params,hemDataType,neuralBand,AnalysisResults);
-%     end
-% end
+disp('Analyzing Block [8] Analyzing the hemodynamic response function and predictability of awake data.'); disp(' ')
+HRF_hemDataTypes = {'adjLH','adjRH'};
+HRF_neuralBands = {'gammaBandPower','muaPower'};
+behaviors = {'Contra','Whisk','Rest'};
+for a = 1:length(HRF_hemDataTypes)
+    hemDataType = HRF_hemDataTypes{1,a};
+    for b = 1:length(HRF_neuralBands)
+        neuralBand = HRF_neuralBands{1,b};
+        for c = 1:length(behaviors)
+            behavior = behaviors{1,c};
+            [AnalysisResults] = CalculateHRFDeconvolution_IOS(neuralBand,hemDataType,behavior,AnalysisResults);
+            [AnalysisResults] = EvaluateCBVPredictionAccuracy_IOS(neuralBand,hemDataType,behavior,AnalysisResults);
 
-%%
-%% Figure 2d - Gamma-band HRF
-clearvars -except Stats
-clc
-% animals = {'T108'};
-CBVTypes = {'adjLH','adjRH'};
-Behaviors = {'Contra','VW','Rest'};
-% Behaviors = {'VW'};
-HRFLims = [0 5];
-% GamHRF = figure;
-% set(gcf,'name','Figure 2d','numbertitle','off')
-% ColorOrd = ['b','y','c'];
-% display('Generating figure 2d...')
-display('Calculating HRFs based on Gamma-band power...')
-for q = 1:length(CBVTypes)
-    CBVType = CBVTypes{1,q};
-    for B = 1:length(Behaviors)
-        Beh = Behaviors{B};
-        display([num2str(B) ' of ' num2str(length(Behaviors)) ' behaviors...'])
-        %         for a = 1:length(animals)
-        %             display(sprintf(['\t' num2str(a) ' of ' num2str(length(animals)) ' animals...']));
-        %         prevdir = cd([animals{a} filesep]);
-        CalculateHRFDeconvolution_IOS('gammaBandPower',CBVType,Beh);
-        %             TimeLims = HRFs.timevec>=HRFLims(1) & HRFs.timevec<=HRFLims(2);
-        %             if a==1
-        %                 AllHRFs.Gamma.(Beh).HRFs = NaN*ones(length(animals),sum(TimeLims));
-        %                 AllHRFs.Gamma.(Beh).GammaHRFs = NaN*ones(length(animals),sum(TimeLims));
-        %             end
-        %             AllHRFs.Gamma.(Beh).HRFs(a,:) = HRFs.HRF(TimeLims);
-        %             AllHRFs.Gamma.(Beh).GammaHRFs(a,:) = HRFs.GammaHRF;
-        %             %         cd(prevdir)
-        % %         end
-        %         AllHRFs.Gamma.(Beh).Timevec = HRFs.timevec(TimeLims);
-        %         AllHRFs.Gamma.(Beh).samplingRate = HRFs.samplingRate;
-        %     mHRFs = mean(AllHRFs.Gamma.(Beh).HRFs);
-        %         mHRFs = AllHRFs.Gamma.(Beh).HRFs;
-        %     figure(GamHRF);
-        %     plot(HRFs.timevec(TimeLims),mHRFs,ColorOrd(B));
-        %     hold on;
+        end
     end
 end
-% figure;
-% plot(AllHRFs.Gamma.Rest.GammaHRFs)
-% ylabel('HRF Amplitude (A.U.)');
-% xlabel('HRF Time (s)');
-% legend({'Sensory Evoked','Whisking','Rest'},'location','southeast')
-% title('Gamma-based HRFs')
-% save('HRFs.mat','AllHRFs'); % save the result
-% pause(0.001);
+
+
 
 disp('Data Analysis - Complete.'); disp(' ')
 
