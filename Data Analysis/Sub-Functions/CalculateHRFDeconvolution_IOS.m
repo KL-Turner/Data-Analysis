@@ -73,18 +73,18 @@ filtArrayEdit1 = logical(NeuralFiltArray.*restFinalFileFilter);
 NormData1 = NeuralDataStruct.NormData(filtArrayEdit1,:);
 filtArrayEdit2 = logical(HemoFiltArray.*restFinalFileFilter);
 NormData2 = HemoDataStruct.NormData(filtArrayEdit2,:);
-[B, A] = butter(3,1/(30/2),'low');
-if strcmp(behavior,'Contra') == true || strcmp(behavior,'Whisk') == true
-    for a = 1:size(NormData1,1)
-        NormData1(a,:) = filtfilt(B,A,NormData1(a,:));
-        NormData2(a,:) = filtfilt(B,A,NormData2(a,:));
-    end
-elseif strcmp(behavior,'Rest') == true
-    for a = 1:size(NormData1,1)
-        NormData1{a,:} = filtfilt(B,A,NormData1{a,:});
-        NormData2{a,:} = filtfilt(B,A,NormData2{a,:});
-    end
-end
+% [B, A] = butter(3,1/(30/2),'low');
+% if strcmp(behavior,'Contra') == true || strcmp(behavior,'Whisk') == true
+%     for a = 1:size(NormData1,1)
+%         NormData1(a,:) = filtfilt(B,A,NormData1(a,:));
+%         NormData2(a,:) = filtfilt(B,A,NormData2(a,:));
+%     end
+% elseif strcmp(behavior,'Rest') == true
+%     for a = 1:size(NormData1,1)
+%         NormData1{a,:} = filtfilt(B,A,NormData1{a,:});
+%         NormData2{a,:} = filtfilt(B,A,NormData2{a,:});
+%     end
+% end
 
 %% Separate events for HRF calculation from events used for later testing.
 % Insert padding of zeros with size equal to the HRF between individual
@@ -191,7 +191,7 @@ axis tight
 
 %% Calculate the gamma HRF
 options = optimset('MaxFunEvals',2e3,'MaxIter',2e3,'TolFun',1e-7,'TolX',1e-7);
-initvals = [-1e-3,0.75,1];
+initvals = [1e-1,1,1];
 HRFDur = 5; % seconds
 [gam_params,~,~] = fminsearch(@(x)gammaconvolve_IOS(x,Data1,Data2,HemoDataStruct.samplingRate,HRFDur),initvals,options);
 t = 0:1/HemoDataStruct.samplingRate:HRFDur;
@@ -215,7 +215,7 @@ if ~exist(dirpath, 'dir')
     mkdir(dirpath);
 end
 savefig(kernelFig,[dirpath animalID '_' hemisphere '_' neuralBand '_' behavior '_HRFs']);
-close(kernelFig)
+% close(kernelFig)
 %% save results struct
 save([animalID '_AnalysisResults.mat'],'AnalysisResults');
 

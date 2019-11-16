@@ -36,9 +36,9 @@ for a = 1:length(animalIDs)
     for c = 1:length(neuralBands)
         neuralBand = neuralBands{1,c};
         for b = 1:length(behavFields)
-            behavField = behavFields{1,b};
+            behavior = behavFields{1,b};
             % Gamma function kernels
-            data.(neuralBand).(behavor).adjLH.gammaTimeVec{a,1} = AnalysisResults.HRFs.(neuralBand).adjLH.(behavior).gammaTimeVec;
+            data.(neuralBand).(behavior).adjLH.gammaTimeVec{a,1} = AnalysisResults.HRFs.(neuralBand).adjLH.(behavior).gammaTimeVec;
             data.(neuralBand).(behavior).adjRH.gammaTimeVec{a,1}  = AnalysisResults.HRFs.(neuralBand).adjLH.(behavior).gammaTimeVec;
             data.(neuralBand).(behavior).adjLH.gammaFunc{a,1} = AnalysisResults.HRFs.(neuralBand).adjRH.(behavior).gammaFunc;
             data.(neuralBand).(behavior).adjRH.gammaFunc{a,1} = AnalysisResults.HRFs.(neuralBand).adjRH.(behavior).gammaFunc;
@@ -48,15 +48,15 @@ for a = 1:length(animalIDs)
             data.(neuralBand).(behavior).adjLH.IR{a,1} = AnalysisResults.HRFs.(neuralBand).adjRH.(behavior).IR;
             data.(neuralBand).(behavior).adjRH.IR{a,1} = AnalysisResults.HRFs.(neuralBand).adjRH.(behavior).IR;
             % Behavior-derived R2 predictions
-            data.(neuralBand).(behavField).adjLH.MedR2(a,1) = AnalysisResults.HRFs.(neuralBand).adjLH.(behavField).Med_IndR2;
-            data.(neuralBand).(behavField).adjRH.MedR2(a,1) = AnalysisResults.HRFs.(neuralBand).adjRH.(behavField).Med_IndR2;
-            data.(neuralBand).(behavField).adjLH.AveR2(a,1) = AnalysisResults.HRFs.(neuralBand).adjLH.(behavField).AveR2;
-            data.(neuralBand).(behavField).adjRH.AveR2(a,1) = AnalysisResults.HRFs.(neuralBand).adjRH.(behavField).AveR2;
+            data.(neuralBand).(behavior).adjLH.MedR2(a,1) = AnalysisResults.HRFs.(neuralBand).adjLH.(behavior).Med_IndR2;
+            data.(neuralBand).(behavior).adjRH.MedR2(a,1) = AnalysisResults.HRFs.(neuralBand).adjRH.(behavior).Med_IndR2;
+            data.(neuralBand).(behavior).adjLH.AveR2(a,1) = AnalysisResults.HRFs.(neuralBand).adjLH.(behavior).AveR2;
+            data.(neuralBand).(behavior).adjRH.AveR2(a,1) = AnalysisResults.HRFs.(neuralBand).adjRH.(behavior).AveR2;
             % Sleep R2 predictions for each behavior's kernel
-            data.(neuralBand).NREM.(behavField).adjLH.MedR2(a,1) = AnalysisResults.HRFs.(neuralBand).adjLH.NREM.(behavField).Med_IndR2;
-            data.(neuralBand).NREM.(behavField).adjRH.MedR2(a,1) = AnalysisResults.HRFs.(neuralBand).adjRH.NREM.(behavField).Med_IndR2;
-            data.(neuralBand).REM.(behavField).adjLH.MedR2(a,1) = AnalysisResults.HRFs.(neuralBand).adjLH.REM.(behavField).Med_IndR2;
-            data.(neuralBand).REM.(behavField).adjRH.MedR2(a,1) = AnalysisResults.HRFs.(neuralBand).adjRH.REM.(behavField).Med_IndR2;
+            data.(neuralBand).NREM.(behavior).adjLH.MedR2(a,1) = AnalysisResults.HRFs.(neuralBand).adjLH.NREM.(behavior).Med_IndR2;
+            data.(neuralBand).NREM.(behavior).adjRH.MedR2(a,1) = AnalysisResults.HRFs.(neuralBand).adjRH.NREM.(behavior).Med_IndR2;
+            data.(neuralBand).REM.(behavior).adjLH.MedR2(a,1) = AnalysisResults.HRFs.(neuralBand).adjLH.REM.(behavior).Med_IndR2;
+            data.(neuralBand).REM.(behavior).adjRH.MedR2(a,1) = AnalysisResults.HRFs.(neuralBand).adjRH.REM.(behavior).Med_IndR2;
         end
     end
 end
@@ -65,29 +65,29 @@ end
 for c = 1:length(neuralBands)
     neuralBand = neuralBands{1,c};
     for b = 1:length(behavFields)
-        behavField = behavFields{1,b};
+        behavior = behavFields{1,b};
         % average IR functions
-        data.(neuralBand).(behavior).Comb.IR = cat(1,data.(neuralBand).(behavField).adjLH.IR,data.(neuralBand).(behavField).adjRH.IR);
-        data.(neuralBand).(behavior).Comb.IRtimeVec = cat(1,data.(neuralBand).(behavField).adjLH.IRtimeVec,data.(neuralBand).(behavField).adjRH.IRtimeVec);
-        data.(neuralBand).(behavior).meanIRfunction = mean(cell2mat(data.(neuralBand).(behavior).Comb.IR));
-        data.(neuralBand).(behavior).stdIRfunction = std(cell2mat(data.(neuralBand).(behavior).Comb.IR),0,1);
-        data.(neuralBand).(behavior).meanIRtimeVec = mean(cell2mat(data.(neuralBand).(behavior).Comb.IRtimeVec));
-        data.(neuralBand).(behavior).stdIRtimeVec = std(cell2mat(data.(neuralBand).(behavior).Comb.IRtimeVec),0,1);
+        data.(neuralBand).(behavior).Comb.IR = cat(1,cell2mat(data.(neuralBand).(behavior).adjLH.IR),cell2mat(data.(neuralBand).(behavior).adjRH.IR));
+        data.(neuralBand).(behavior).Comb.IRtimeVec = cat(1,cell2mat(data.(neuralBand).(behavior).adjLH.IRtimeVec),cell2mat(data.(neuralBand).(behavior).adjRH.IRtimeVec));
+        data.(neuralBand).(behavior).meanIR = mean(data.(neuralBand).(behavior).Comb.IR,1);
+        data.(neuralBand).(behavior).stdIR = std(data.(neuralBand).(behavior).Comb.IR,0,1);
+        data.(neuralBand).(behavior).meanIRtimeVec = mean(data.(neuralBand).(behavior).Comb.IRtimeVec);
+        data.(neuralBand).(behavior).stdIRtimeVec = std(data.(neuralBand).(behavior).Comb.IRtimeVec,0,1);
         % Behavior-derived R2 predictions
-        data.(neuralBand).(behavField).Comb.MedR2 = cat(1,data.(neuralBand).(behavField).adjLH.MedR2,data.(neuralBand).(behavField).adjRH.MedR2);
-        data.(neuralBand).(behavField).Comb.AveR2 = cat(1,data.(neuralBand).(behavField).adjLH.AveR2,data.(neuralBand).(behavField).adjRH.AveR2);
-        data.(neuralBand).(behavField).meanMedR2 = mean(data.(neuralBand).(behavField).Comb.MedR2);
-        data.(neuralBand).(behavField).stdMedR2 = std(data.(neuralBand).(behavField).Comb.MedR2,0,1);
-        data.(neuralBand).(behavField).meanAveR2 = mean(data.(neuralBand).(behavField).Comb.AveR2);
-        data.(neuralBand).(behavField).stdAveR2 = std(data.(neuralBand).(behavField).Comb.AveR2,0,1);
+        data.(neuralBand).(behavior).Comb.MedR2 = cat(1,data.(neuralBand).(behavior).adjLH.MedR2,data.(neuralBand).(behavior).adjRH.MedR2);
+        data.(neuralBand).(behavior).Comb.AveR2 = cat(1,data.(neuralBand).(behavior).adjLH.AveR2,data.(neuralBand).(behavior).adjRH.AveR2);
+        data.(neuralBand).(behavior).meanMedR2 = mean(data.(neuralBand).(behavior).Comb.MedR2);
+        data.(neuralBand).(behavior).stdMedR2 = std(data.(neuralBand).(behavior).Comb.MedR2,0,1);
+        data.(neuralBand).(behavior).meanAveR2 = mean(data.(neuralBand).(behavior).Comb.AveR2);
+        data.(neuralBand).(behavior).stdAveR2 = std(data.(neuralBand).(behavior).Comb.AveR2,0,1);
         % NREM
-        data.(neuralBand).NREM.(behavField).Comb.MedR2 = cat(1,data.(neuralBand).NREM.(behavField).adjLH.MedR2,data.(neuralBand).NREM.(behavField).adjRH.MedR2);
-        data.(neuralBand).NREM.(behavField).meanMedR2 = mean(data.(neuralBand).NREM.(behavField).Comb.MedR2);
-        data.(neuralBand).NREM.(behavField).stdMedR2 = std(data.(neuralBand).NREM.(behavField).Comb.MedR2,0,1);
+        data.(neuralBand).NREM.(behavior).Comb.MedR2 = cat(1,data.(neuralBand).NREM.(behavior).adjLH.MedR2,data.(neuralBand).NREM.(behavior).adjRH.MedR2);
+        data.(neuralBand).NREM.(behavior).meanMedR2 = mean(data.(neuralBand).NREM.(behavior).Comb.MedR2);
+        data.(neuralBand).NREM.(behavior).stdMedR2 = std(data.(neuralBand).NREM.(behavior).Comb.MedR2,0,1);
         % REM
-        data.(neuralBand).REM.(behavField).Comb.MedR2 = cat(1,data.(neuralBand).REM.(behavField).adjLH.MedR2,data.(neuralBand).REM.(behavField).adjRH.MedR2);
-        data.(neuralBand).REM.(behavField).meanMedR2 = mean(data.(neuralBand).REM.(behavField).Comb.MedR2);
-        data.(neuralBand).REM.(behavField).stdMedR2 = std(data.(neuralBand).REM.(behavField).Comb.MedR2,0,1);
+        data.(neuralBand).REM.(behavior).Comb.MedR2 = cat(1,data.(neuralBand).REM.(behavior).adjLH.MedR2,data.(neuralBand).REM.(behavior).adjRH.MedR2);
+        data.(neuralBand).REM.(behavior).meanMedR2 = mean(data.(neuralBand).REM.(behavior).Comb.MedR2);
+        data.(neuralBand).REM.(behavior).stdMedR2 = std(data.(neuralBand).REM.(behavior).Comb.MedR2,0,1);
     end
 end
 
@@ -97,10 +97,10 @@ sgtitle('HRF Kernels and Median R^2 Predictions')
 xIndsA = ones(1,length(animalIDs)*2);
 %%
 subplot(1,2,1)
-p1 = plot(data.gammaBandPower.Contra.Comb.IRtimeVec,data.gammaBandPower.Contra.Comb.IR,'color',colorbrewer_setA_colorE,'LineWidth',2);
+p1 = plot(data.gammaBandPower.Contra.meanIRtimeVec,data.gammaBandPower.Contra.meanIR,'color',colorbrewer_setA_colorE,'LineWidth',2);
 hold on
-p2 = plot(data.gammaBandPower.Whisk.Comb.IRtimeVec,data.gammaBandPower.Whisk.Comb.IR,'color',colorbrewer_setA_colorD,'LineWidth',2);
-p3 = plot(data.gammaBandPower.Rest.Comb.IRtimeVec,data.gammaBandPower.Rest.Comb.IR,'color',colorbrewer_setA_colorA,'LineWidth',2);
+p2 = plot(data.gammaBandPower.Whisk.meanIRtimeVec,data.gammaBandPower.Whisk.meanIR,'color',colorbrewer_setA_colorD,'LineWidth',2);
+p3 = plot(data.gammaBandPower.Rest.meanIRtimeVec,data.gammaBandPower.Rest.meanIR,'color',colorbrewer_setA_colorA,'LineWidth',2);
 title('Mean IR Function')
 xlabel('HRF Time (s)')
 ylabel({'Gamma-band [30-100 Hz] derived';'HRF amplitude (A.U.)'})
@@ -109,10 +109,10 @@ axis square
 set(gca,'box','off')
 
 subplot(1,2,2)
-p1 = plot(data.muaPower.Contra.Comb.IRtimeVec,data.muaPower.Contra.Comb.IR,'color',colorbrewer_setA_colorE,'LineWidth',2);
+p1 = plot(data.muaPower.Contra.meanIRtimeVec,data.muaPower.Contra.meanIR,'color',colorbrewer_setA_colorE,'LineWidth',2);
 hold on
-p2 = plot(data.muaPower.Whisk.Comb.IRtimeVec,data.muaPower.Whisk.Comb.IR,'color',colorbrewer_setA_colorD,'LineWidth',2);
-p3 = plot(data.muaPower.Rest.Comb.IRtimeVec,data.muaPower.Rest.Comb.IR,'color',colorbrewer_setA_colorA,'LineWidth',2);
+p2 = plot(data.muaPower.Whisk.meanIRtimeVec,data.muaPower.Whisk.meanIR,'color',colorbrewer_setA_colorD,'LineWidth',2);
+p3 = plot(data.muaPower.Rest.meanIRtimeVec,data.muaPower.Rest.meanIR,'color',colorbrewer_setA_colorA,'LineWidth',2);
 title('Mean IR Function')
 xlabel('HRF Time (s)')
 ylabel({'MUA [0.3-3 KHz] derived';'HRF amplitude (A.U.)'})
