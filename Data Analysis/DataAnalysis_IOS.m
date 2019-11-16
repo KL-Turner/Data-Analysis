@@ -79,12 +79,9 @@ for a = 1:length(HRF_hemDataTypes)
             behavior = behaviors{1,c};
             [AnalysisResults] = CalculateHRFDeconvolution_IOS(neuralBand,hemDataType,behavior,AnalysisResults);
             [AnalysisResults] = EvaluateCBVPredictionAccuracy_IOS(neuralBand,hemDataType,behavior,AnalysisResults);
-
         end
     end
 end
-
-
 
 disp('Data Analysis - Complete.'); disp(' ')
 

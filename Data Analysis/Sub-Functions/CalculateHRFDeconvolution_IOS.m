@@ -8,10 +8,13 @@ Event_Inds.CalcStart = 1;
 Event_Inds.TestStart = 2;
 Event_Inds.Increment = 2;
 
+disp(['CalculateHRFDeconvolution: ' hemisphere ' ' neuralBand ' ' behavior]); disp(' ')
 baselineDataFileStruct = dir('*_RestingBaselines.mat');
 baselineDataFile = {baselineDataFileStruct.name}';
 baselineDataFileID = char(baselineDataFile);
 load(baselineDataFileID)
+fileBreaks = strfind(baselineDataFileID, '_');
+animalID = baselineDataFileID(1:fileBreaks(1)-1);
 manualFileIDs = unique(RestingBaselines.manualSelection.baselineFileInfo.fileIDs);
 
 if strcmp(behavior,'Rest')
@@ -70,6 +73,18 @@ filtArrayEdit1 = logical(NeuralFiltArray.*restFinalFileFilter);
 NormData1 = NeuralDataStruct.NormData(filtArrayEdit1,:);
 filtArrayEdit2 = logical(HemoFiltArray.*restFinalFileFilter);
 NormData2 = HemoDataStruct.NormData(filtArrayEdit2,:);
+[B, A] = butter(3,1/(30/2),'low');
+if strcmp(behavior,'Contra') == true || strcmp(behavior,'Whisk') == true
+    for a = 1:size(NormData1,1)
+        NormData1(a,:) = filtfilt(B,A,NormData1(a,:));
+        NormData2(a,:) = filtfilt(B,A,NormData2(a,:));
+    end
+elseif strcmp(behavior,'Rest') == true
+    for a = 1:size(NormData1,1)
+        NormData1{a,:} = filtfilt(B,A,NormData1{a,:});
+        NormData2{a,:} = filtfilt(B,A,NormData2{a,:});
+    end
+end
 
 %% Separate events for HRF calculation from events used for later testing.
 % Insert padding of zeros with size equal to the HRF between individual
@@ -109,7 +124,7 @@ else
     stp = strt + (Data1_end*NeuralDataStruct.samplingRate);
     template = zeros(size(NormData1(calc_inds,:)));
     offset1 = mean(NormData1(calc_inds,1:strt),2)*ones(1,stp-strt+1);
-    template(:,strt:stp) = NormData1(calc_inds,strt:stp)-offset1;
+    template(:,strt:stp) = NormData1(calc_inds,strt:stp) - offset1;
     Data1Pad = [template ones(length(calc_inds),1)*zpad1];
     Data1 = reshape(Data1Pad',1,numel(Data1Pad));
 end
@@ -149,7 +164,7 @@ end
 
 %% Calculate HRF based on deconvolution
 samplingRate = HemoDataStruct.samplingRate;
-IR_est=IR_analytic(Data1',Data2',HRFParams.offset*samplingRate,HRFParams.dur*samplingRate);
+IR_est=IR_analytic_IOS(Data1',Data2',HRFParams.offset*samplingRate,HRFParams.dur*samplingRate);
 
 HRF = sgolayfilt(IR_est.IR',3,samplingRate+1);
 timevec = (1:length(HRF))/samplingRate-HRFParams.offset;
@@ -164,17 +179,21 @@ AnalysisResults.HRFs.(neuralBand).(hemisphere).HRFParams = HRFParams;
 AnalysisResults.HRFs.(neuralBand).(hemisphere).num_calc_events = num_events;
 AnalysisResults.HRFs.(neuralBand).(hemisphere).Event_Inds = Event_Inds;
 
-figure;
-sgtitle([hemisphere ' ' neuralBand ' during ' behavior])
+kernelFig = figure;
+sgtitle([animalID ' ' hemisphere ' ' neuralBand ' during ' behavior])
 subplot(1,2,1)
-plot(AnalysisResults.HRFs.(neuralBand).(hemisphere).IRtimeVec,AnalysisResults.HRFs.(neuralBand).(hemisphere).IR)
+plot(AnalysisResults.HRFs.(neuralBand).(hemisphere).IRtimeVec,AnalysisResults.HRFs.(neuralBand).(hemisphere).IR,'k')
+title('Impulse response function')
+ylabel('A.U')
+xlabel('Time (s)')
 axis square
+axis tight
 
 %% Calculate the gamma HRF
 options = optimset('MaxFunEvals',2e3,'MaxIter',2e3,'TolFun',1e-7,'TolX',1e-7);
 initvals = [-1e-3,0.75,1];
 HRFDur = 5; % seconds
-[gam_params,~,~] = fminsearch(@(x)gammaconvolve(x,Data1,Data2,HemoDataStruct.samplingRate,HRFDur),initvals,options);
+[gam_params,~,~] = fminsearch(@(x)gammaconvolve_IOS(x,Data1,Data2,HemoDataStruct.samplingRate,HRFDur),initvals,options);
 t = 0:1/HemoDataStruct.samplingRate:HRFDur;
 a = ((gam_params(2)/gam_params(3))^2*8*log10(2));
 beta = ((gam_params(3)^2)/gam_params(2)/8/log10(2));
@@ -182,6 +201,22 @@ gamma = gam_params(1)*(t/gam_params(2)).^a.*exp((t-gam_params(2))/(-1*beta));
 AnalysisResults.HRFs.(neuralBand).(hemisphere).gammaFunc = gamma;
 AnalysisResults.HRFs.(neuralBand).(hemisphere).gammaTimeVec = t;
 subplot(1,2,2)
-plot(AnalysisResults.HRFs.(neuralBand).(hemisphere).gammaTimeVec,AnalysisResults.HRFs.(neuralBand).(hemisphere).gammaFunc)
+plot(AnalysisResults.HRFs.(neuralBand).(hemisphere).gammaTimeVec,AnalysisResults.HRFs.(neuralBand).(hemisphere).gammaFunc,'k')
+title('Gamma function')
+ylabel('A.U')
+xlabel('Time (s)')
 axis square
+axis tight
 
+% save figures
+[pathstr, ~, ~] = fileparts(cd);
+dirpath = [pathstr '/Combined Imaging/Figures/HRF Kernels/'];
+if ~exist(dirpath, 'dir')
+    mkdir(dirpath);
+end
+savefig(kernelFig,[dirpath animalID '_' hemisphere '_' neuralBand '_' behavior '_HRFs']);
+close(kernelFig)
+%% save results struct
+save([animalID '_AnalysisResults.mat'],'AnalysisResults');
+
+end
