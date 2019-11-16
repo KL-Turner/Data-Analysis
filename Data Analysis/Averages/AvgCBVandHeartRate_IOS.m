@@ -84,6 +84,7 @@ set(gca,'xtick',[])
 set(gca,'xticklabel',[])
 axis square
 xlim([0 length(behavFields)+1])
+set(gca,'box','off')
 
 subplot(1,3,2);
 edges = -25:15:130;
@@ -137,6 +138,7 @@ set(gca,'xtick',[])
 set(gca,'xticklabel',[])
 axis square
 xlim([0 length(behavFields) + 1])
+set(gca,'box','off')
 
 % save figure(s)
 dirpath = 'C:\Users\klt8\Documents\Analysis Average Figures\';
