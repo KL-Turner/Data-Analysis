@@ -96,7 +96,7 @@ summaryFigure = figure;
 sgtitle('HRF Kernels and Median R^2 Predictions')
 xIndsA = ones(1,length(animalIDs)*2);
 %%
-subplot(1,2,1)
+subplot(2,2,1)
 p1 = plot(data.gammaBandPower.Contra.meanIRtimeVec,data.gammaBandPower.Contra.meanIR,'color',colorbrewer_setA_colorE,'LineWidth',2);
 hold on
 p2 = plot(data.gammaBandPower.Whisk.meanIRtimeVec,data.gammaBandPower.Whisk.meanIR,'color',colorbrewer_setA_colorD,'LineWidth',2);
@@ -108,7 +108,7 @@ legend([p1,p2,p3],'Sensory-evoked','Volitional whisk','Awake rest','Location','N
 axis square
 set(gca,'box','off')
 
-subplot(1,2,2)
+subplot(2,2,2)
 p1 = plot(data.muaPower.Contra.meanIRtimeVec,data.muaPower.Contra.meanIR,'color',colorbrewer_setA_colorE,'LineWidth',2);
 hold on
 p2 = plot(data.muaPower.Whisk.meanIRtimeVec,data.muaPower.Whisk.meanIR,'color',colorbrewer_setA_colorD,'LineWidth',2);
@@ -119,85 +119,61 @@ ylabel({'MUA [0.3-3 KHz] derived';'HRF amplitude (A.U.)'})
 legend([p1,p2,p3],'Sensory-evoked','Volitional whisk','Awake rest','Location','NorthWest')
 axis square
 set(gca,'box','off')
-% 
-% subplot(1,3,1);
-% s1 = scatter(xIndsA*1,data.Whisk.CBV_HbT.Comb,'MarkerEdgeColor','k','MarkerFaceColor',colorbrewer_setA_colorD,'jitter','on','jitterAmount',0.25);
-% hold on
-% e1 = errorbar(1,data.Whisk.CBV_HbT.meanCBV,data.Whisk.CBV_HbT.stdCBV,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-% e1.Color = 'black';
-% s2 = scatter(xIndsA*2,data.Rest.CBV_HbT.Comb,'MarkerEdgeColor','k','MarkerFaceColor',colorbrewer_setA_colorA,'jitter','on','jitterAmount',0.25);
-% e2 = errorbar(2,data.Rest.CBV_HbT.meanCBV,data.Rest.CBV_HbT.stdCBV,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-% e2.Color = 'black';
-% s3 = scatter(xIndsA*3,data.NREM.CBV_HbT.Comb,'MarkerEdgeColor','k','MarkerFaceColor',colorbrewer_setA_colorB,'jitter','on','jitterAmount',0.25);
-% e3 = errorbar(3,data.NREM.CBV_HbT.meanCBV,data.NREM.CBV_HbT.stdCBV,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-% e3.Color = 'black';
-% s4 = scatter(xIndsA*4,data.REM.CBV_HbT.Comb,'MarkerEdgeColor','k','MarkerFaceColor',colorbrewer_setA_colorC,'jitter','on','jitterAmount',0.25);
-% e4 = errorbar(4,data.REM.CBV_HbT.meanCBV,data.REM.CBV_HbT.stdCBV,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-% e4.Color = 'black';
-% title('Mean \DeltaHbT (\muM)')
-% ylabel('\DeltaHbT (\muM)')
-% legend([s1,s2,s3,s4],'Whisking','Awake Rest','NREM','REM','Location','NorthWest')
-% set(gca,'xtick',[])
-% set(gca,'xticklabel',[])
-% axis square
-% xlim([0 length(behavFields)+1])
-% 
-% subplot(1,3,2);
-% edges = -25:15:130;
-% [curve1] = SmoothHistogramBins_IOS(data.Whisk.CBV_HbT.allComb,edges);
-% [curve2] = SmoothHistogramBins_IOS(data.Rest.CBV_HbT.allComb,edges);
-% [curve3] = SmoothHistogramBins_IOS(data.NREM.CBV_HbT.allComb,edges);
-% [curve4] = SmoothHistogramBins_IOS(data.REM.CBV_HbT.allComb,edges);
-% before = findall(gca);
-% fnplt(curve1);
-% added = setdiff(findall(gca),before);
-% set(added,'Color',colorbrewer_setA_colorD)
-% hold on
-% before = findall(gca);
-% fnplt(curve2);
-% added = setdiff(findall(gca),before);
-% set(added,'Color',colorbrewer_setA_colorA)
-% before = findall(gca);
-% fnplt(curve3);
-% added = setdiff(findall(gca),before);
-% set(added,'Color',colorbrewer_setA_colorB)
-% before = findall(gca);
-% fnplt(curve4);
-% added = setdiff(findall(gca),before);
-% set(added,'Color',colorbrewer_setA_colorC)
-% title('\DeltaHbT (\muM) Distribution')
-% xlabel('\DeltaHbT (\muM)')
-% ylabel('Probability')
-% axis square
-% set(gca,'box','off')
-% axis tight
-% 
-% %% Heart rate
-% subplot(1,3,3)
-% xIndsB = ones(1,length(animalIDs));
-% scatter(xIndsB*1,data.Whisk.HR,'MarkerEdgeColor','k','MarkerFaceColor',colorbrewer_setA_colorD,'jitter','on','jitterAmount',0.25);
-% hold on
-% e5 = errorbar(1,data.Whisk.meanHR,data.Whisk.stdHR,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-% e5.Color = 'black';
-% scatter(xIndsB*2,data.Rest.HR,'MarkerEdgeColor','k','MarkerFaceColor',colorbrewer_setA_colorA,'jitter','on','jitterAmount',0.25);
-% e6 = errorbar(2,data.Rest.meanHR,data.Rest.stdHR,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-% e6.Color = 'black';
-% scatter(xIndsB*3,data.NREM.HR,'MarkerEdgeColor','k','MarkerFaceColor',colorbrewer_setA_colorB,'jitter','on','jitterAmount',0.25);
-% e7 = errorbar(3,data.NREM.meanHR,data.NREM.stdHR,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-% e7.Color = 'black';
-% scatter(xIndsB*4,data.REM.HR,'MarkerEdgeColor','k','MarkerFaceColor',colorbrewer_setA_colorC,'jitter','on','jitterAmount',0.25);
-% e8 = errorbar(4,data.REM.meanHR,data.REM.stdHR,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-% e8.Color = 'black';
-% title('Mean Heart Rate')
-% ylabel('Frequency (Hz)')
-% set(gca,'xtick',[])
-% set(gca,'xticklabel',[])
-% axis square
-% xlim([0 length(behavFields) + 1])
-% 
-% % save figure(s)
-% dirpath = 'C:\Users\klt8\Documents\Analysis Average Figures\';
-% if ~exist(dirpath,'dir')
-%     mkdir(dirpath);
-% end
-% savefig(summaryFigure,[dirpath 'Summary Figure - Hemodynamics and Heart Rate']);
+% gamma derived
+subplot(2,2,3);
+s1 = scatter(xIndsA*1,data.gammaBandPower.Contra.Comb.AveR2,'MarkerEdgeColor','k','MarkerFaceColor',colorbrewer_setA_colorE,'jitter','on','jitterAmount',0.25);
+hold on
+e1 = errorbar(1,data.gammaBandPower.Contra.Comb.meanAveR2,data.gammaBandPower.Contra.Comb.stdAveR2,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e1.Color = 'black';
+s2 = scatter(xIndsA*2,data.gammaBandPower.Contra.Comb.MedR2,'MarkerEdgeColor',colorbrewer_setA_colorE,'MarkerFaceColor',colorbrewer_setA_colorE,'jitter','on','jitterAmount',0.25);
+e2 = errorbar(2,data.gammaBandPower.Contra.Comb.meanMedR2,data.gammaBandPower.Contra.Comb.stdMedR2,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e2.Color = 'black';
+s3 = scatter(xIndsA*3,data.gammaBandPower.Whisk.Comb.AveR2,'MarkerEdgeColor','k','MarkerFaceColor',colorbrewer_setA_colorD,'jitter','on','jitterAmount',0.25);
+e3 = errorbar(3,data.gammaBandPower.Whisk.Comb.meanAveR2,data.gammaBandPower.Whisk.Comb.stdAveR2,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e3.Color = 'black';
+s4 = scatter(xIndsA*4,data.gammaBandPower.Whisk.Comb.MedR2,'MarkerEdgeColor',colorbrewer_setA_colorD,'MarkerFaceColor',colorbrewer_setA_colorD,'jitter','on','jitterAmount',0.25);
+e4 = errorbar(4,data.gammaBandPower.Whisk.Comb.meanMedR2,data.gammaBandPower.Whisk.Comb.stdMedR2,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e4.Color = 'black';
+s5 = scatter(xIndsA*5,data.gammaBandPower.Rest.Comb.MedR2,'MarkerEdgeColor',colorbrewer_setA_colorA,'MarkerFaceColor',colorbrewer_setA_colorA,'jitter','on','jitterAmount',0.25);
+e5 = errorbar(5,data.gammaBandPower.Rest.Comb.meanMedR2,data.gammaBandPower.Rest.Comb.stdMedR2,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e5.Color = 'black';
+title({'Gamma-band [30-100 Hz] derived';'Gamma function kernel R^2 predictions'})
+ylabel('R^2')
+legend([s1,s2,s3,s4,s5],'Stimulus-evoked AvgData','Stimulus-evoked MedData','Volition whisk AvgData','Volitional whisk MedData','Awake Rest MedData','Location','NorthEast')
+set(gca,'xtick',[])
+set(gca,'xticklabel',[])
+axis square
+xlim([0 6])
+set(gca,'box','off')
+% mua derived
+subplot(2,2,4);
+s1 = scatter(xIndsA*1,data.muaPower.Contra.Comb.AveR2,'MarkerEdgeColor','k','MarkerFaceColor',colorbrewer_setA_colorE,'jitter','on','jitterAmount',0.25);
+hold on
+e1 = errorbar(1,data.muaPower.Contra.Comb.meanAveR2,data.muaPower.Contra.Comb.stdAveR2,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e1.Color = 'black';
+s2 = scatter(xIndsA*2,data.muaPower.Contra.Comb.MedR2,'MarkerEdgeColor',colorbrewer_setA_colorE,'MarkerFaceColor',colorbrewer_setA_colorE,'jitter','on','jitterAmount',0.25);
+e2 = errorbar(2,data.muaPower.Contra.Comb.meanMedR2,data.muaPower.Contra.Comb.stdMedR2,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e2.Color = 'black';
+s3 = scatter(xIndsA*3,data.muaPower.Whisk.Comb.AveR2,'MarkerEdgeColor','k','MarkerFaceColor',colorbrewer_setA_colorD,'jitter','on','jitterAmount',0.25);
+e3 = errorbar(3,data.muaPower.Whisk.Comb.meanAveR2,data.muaPower.Whisk.Comb.stdAveR2,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e3.Color = 'black';
+s4 = scatter(xIndsA*4,data.muaPower.Whisk.Comb.MedR2,'MarkerEdgeColor',colorbrewer_setA_colorD,'MarkerFaceColor',colorbrewer_setA_colorD,'jitter','on','jitterAmount',0.25);
+e4 = errorbar(4,data.muaPower.Whisk.Comb.meanMedR2,data.muaPower.Whisk.Comb.stdMedR2,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e4.Color = 'black';
+s5 = scatter(xIndsA*5,data.muaPower.Rest.Comb.MedR2,'MarkerEdgeColor',colorbrewer_setA_colorA,'MarkerFaceColor',colorbrewer_setA_colorA,'jitter','on','jitterAmount',0.25);
+e5 = errorbar(5,data.muaPower.Rest.Comb.meanMedR2,data.muaPower.Rest.Comb.stdMedR2,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e5.Color = 'black';
+title({'MUA [0.3-3 kHz] derived';'Gamma function kernel R^2 predictions'})
+ylabel('R^2')
+set(gca,'xtick',[])
+set(gca,'xticklabel',[])
+axis square
+xlim([0 6])
+set(gca,'box','off')
+
+% save figure(s)
+dirpath = 'C:\Users\klt8\Documents\Analysis Average Figures\';
+if ~exist(dirpath,'dir')
+    mkdir(dirpath);
+end
+savefig(summaryFigure,[dirpath 'Summary Figure - Kernel Predictions']);
