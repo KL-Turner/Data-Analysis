@@ -28,96 +28,74 @@ for a = 1:size(procDataFileIDs, 1)
     % delta
     hippDelta = ProcData.data.hippocampus.deltaBandPower;
     hippBaselineDelta = RestingBaselines.(baselineType).hippocampus.deltaBandPower.(strDay);
-    hippNormDelta = (hippDelta-hippBaselineDelta)/hippBaselineDelta;
+    hippDeltaNeuro = (hippDelta-hippBaselineDelta)/hippBaselineDelta;
     
     LH_Delta = ProcData.data.cortical_LH.deltaBandPower;
     RH_Delta = ProcData.data.cortical_RH.deltaBandPower;
     LH_baselineDelta = RestingBaselines.(baselineType).cortical_LH.deltaBandPower.(strDay);
     RH_baselineDelta = RestingBaselines.(baselineType).cortical_RH.deltaBandPower.(strDay);
-    LH_NormDelta = (LH_Delta-LH_baselineDelta)/LH_baselineDelta;
-    RH_NormDelta = (RH_Delta-RH_baselineDelta)/RH_baselineDelta;
+    LH_DeltaNeuro = (LH_Delta-LH_baselineDelta)/LH_baselineDelta;
+    RH_DeltaNeuro = (RH_Delta-RH_baselineDelta)/RH_baselineDelta;
     
     % theta
     hippTheta = ProcData.data.hippocampus.thetaBandPower;
     hippBaselineTheta = RestingBaselines.(baselineType).hippocampus.thetaBandPower.(strDay);
-    hippNormTheta = (hippTheta-hippBaselineTheta)/hippBaselineTheta;
+    hippThetaNeuro = (hippTheta-hippBaselineTheta)/hippBaselineTheta;
     
     LH_Theta = ProcData.data.cortical_LH.thetaBandPower;
     RH_Theta = ProcData.data.cortical_RH.thetaBandPower;
     LH_baselineTheta = RestingBaselines.(baselineType).cortical_LH.thetaBandPower.(strDay);
     RH_baselineTheta = RestingBaselines.(baselineType).cortical_LH.thetaBandPower.(strDay);
-    LH_NormTheta = (LH_Theta-LH_baselineTheta)/LH_baselineTheta;
-    RH_NormTheta = (RH_Theta-RH_baselineTheta)/RH_baselineTheta;
+    LH_ThetaNeuro = (LH_Theta-LH_baselineTheta)/LH_baselineTheta;
+    RH_ThetaNeuro = (RH_Theta-RH_baselineTheta)/RH_baselineTheta;
     
     % alpha
     hippAlpha = ProcData.data.hippocampus.alphaBandPower;
     hippBaselineAlpha = RestingBaselines.(baselineType).hippocampus.alphaBandPower.(strDay);
-    hippNormAlpha = (hippAlpha-hippBaselineAlpha)/hippBaselineAlpha;
+    hippAlphaNeuro = (hippAlpha-hippBaselineAlpha)/hippBaselineAlpha;
     
     LH_Alpha = ProcData.data.cortical_LH.alphaBandPower;
     RH_Alpha = ProcData.data.cortical_RH.alphaBandPower;
     LH_baselineAlpha = RestingBaselines.(baselineType).cortical_LH.alphaBandPower.(strDay);
     RH_baselineAlpha = RestingBaselines.(baselineType).cortical_LH.alphaBandPower.(strDay);
-    LH_NormAlpha = (LH_Alpha-LH_baselineAlpha)/LH_baselineAlpha;
-    RH_NormAlpha = (RH_Alpha-RH_baselineAlpha)/RH_baselineAlpha;
+    LH_AlphaNeuro = (LH_Alpha-LH_baselineAlpha)/LH_baselineAlpha;
+    RH_AlphaNeuro = (RH_Alpha-RH_baselineAlpha)/RH_baselineAlpha;
     
     % beta
     hippBeta = ProcData.data.hippocampus.betaBandPower;
     hippBaselineBeta = RestingBaselines.(baselineType).hippocampus.betaBandPower.(strDay);
-    hippNormBeta = (hippBeta-hippBaselineBeta)/hippBaselineBeta;
+    hippBetaNeuro = (hippBeta-hippBaselineBeta)/hippBaselineBeta;
     
     LH_Beta = ProcData.data.cortical_LH.betaBandPower;
     RH_Beta = ProcData.data.cortical_RH.betaBandPower;
     LH_baselineBeta = RestingBaselines.(baselineType).cortical_LH.betaBandPower.(strDay);
     RH_baselineBeta = RestingBaselines.(baselineType).cortical_LH.betaBandPower.(strDay);
-    LH_NormBeta = (LH_Beta-LH_baselineBeta)/LH_baselineBeta;
-    RH_NormBeta = (RH_Beta-RH_baselineBeta)/RH_baselineBeta;
+    LH_BetaNeuro = (LH_Beta-LH_baselineBeta)/LH_baselineBeta;
+    RH_BetaNeuro = (RH_Beta-RH_baselineBeta)/RH_baselineBeta;
     
     % gamma
     hippGamma = ProcData.data.hippocampus.gammaBandPower;
     hippBaselineGamma = RestingBaselines.(baselineType).hippocampus.gammaBandPower.(strDay);
-    hippNormGamma = (hippGamma-hippBaselineGamma)/hippBaselineGamma;
+    hippGammaNeuro = (hippGamma-hippBaselineGamma)/hippBaselineGamma;
     
     LH_Gamma = ProcData.data.cortical_LH.gammaBandPower;
     RH_Gamma = ProcData.data.cortical_RH.gammaBandPower;
     LH_baselineGamma = RestingBaselines.(baselineType).cortical_LH.gammaBandPower.(strDay);
     RH_baselineGamma = RestingBaselines.(baselineType).cortical_LH.gammaBandPower.(strDay);
-    LH_NormGamma = (LH_Gamma-LH_baselineGamma)/LH_baselineGamma;
-    RH_NormGamma = (RH_Gamma-RH_baselineGamma)/RH_baselineGamma;
+    LH_GammaNeuro = (LH_Gamma-LH_baselineGamma)/LH_baselineGamma;
+    RH_GammaNeuro = (RH_Gamma-RH_baselineGamma)/RH_baselineGamma;
     
     % MUA
     hippMUA = ProcData.data.hippocampus.muaPower;
     hippBaselineMUA = RestingBaselines.(baselineType).hippocampus.muaPower.(strDay);
-    hippNormMUA = (hippMUA-hippBaselineMUA)/hippBaselineMUA;
+    hippMUANeuro = (hippMUA-hippBaselineMUA)/hippBaselineMUA;
     
     LH_MUA = ProcData.data.cortical_LH.muaPower;
     RH_MUA = ProcData.data.cortical_RH.muaPower;
     LH_baselineMUA = RestingBaselines.(baselineType).cortical_LH.muaPower.(strDay);
     RH_baselineMUA = RestingBaselines.(baselineType).cortical_LH.muaPower.(strDay);
-    LH_NormMUA = (LH_MUA-LH_baselineMUA)/LH_baselineMUA;
-    RH_NormMUA = (RH_MUA-RH_baselineMUA)/RH_baselineMUA;
-    
-    % Smooth the signal with a 1 Hz low pass 4th-order butterworth filter
-    [B, A] = butter(4, 1/(30/2), 'low');
-    hippDeltaNeuro = filtfilt(B, A, hippNormDelta);
-    hippThetaNeuro = filtfilt(B, A, hippNormTheta);
-    hippAlphaNeuro = filtfilt(B, A, hippNormAlpha);
-    hippBetaNeuro = filtfilt(B, A, hippNormBeta);
-    hippGammaNeuro = filtfilt(B, A, hippNormGamma);
-    hippMUANeuro = filtfilt(B, A, hippNormMUA);
-
-    LH_DeltaNeuro = filtfilt(B, A, LH_NormDelta);
-    RH_DeltaNeuro = filtfilt(B, A, RH_NormDelta);
-    LH_ThetaNeuro = filtfilt(B, A, LH_NormTheta);
-    RH_ThetaNeuro = filtfilt(B, A, RH_NormTheta);
-    LH_AlphaNeuro = filtfilt(B, A, LH_NormAlpha);
-    RH_AlphaNeuro = filtfilt(B, A, RH_NormAlpha);
-    LH_BetaNeuro = filtfilt(B, A, LH_NormBeta);
-    RH_BetaNeuro = filtfilt(B, A, RH_NormBeta);
-    LH_GammaNeuro = filtfilt(B, A, LH_NormGamma);
-    RH_GammaNeuro = filtfilt(B, A, RH_NormGamma);
-    LH_MUANeuro = filtfilt(B, A, LH_NormMUA);
-    RH_MUANeuro = filtfilt(B, A, RH_NormMUA);
+    LH_MUANeuro = (LH_MUA-LH_baselineMUA)/LH_baselineMUA;
+    RH_MUANeuro = (RH_MUA-RH_baselineMUA)/RH_baselineMUA;
     
     % Divide the neural signals into five second bins and put them in a cell array
     hipptempDeltaStruct = cell(180,1);
@@ -466,19 +444,13 @@ for a = 1:size(procDataFileIDs, 1)
     ProcData.sleep.parameters.heartRate = tempHRStruct;   % Place the data in the ProcData struct to later be saved
     
     %% BLOCK PURPOSE: Create folder for the left and right CBV data
-    [D, C] = butter(4, 1/(30/2), 'low');
-
     LH_CBV = ProcData.data.CBV.adjLH;
     RH_CBV = ProcData.data.CBV.adjRH;  
     LH_NormCBV = (LH_CBV-RestingBaselines.(baselineType).CBV.adjLH.(strDay))/RestingBaselines.(baselineType).CBV.adjLH.(strDay);
     RH_NormCBV = (RH_CBV-RestingBaselines.(baselineType).CBV.adjRH.(strDay))/RestingBaselines.(baselineType).CBV.adjRH.(strDay);        
-    LH_FiltCBV = filtfilt(D, C, LH_NormCBV);
-    RH_FiltCBV = filtfilt(D, C, RH_NormCBV);
     
     LH_HbT = ProcData.data.CBV_HbT.adjLH;
     RH_HbT = ProcData.data.CBV_HbT.adjRH;  
-    filtHbtLH_CBV = filtfilt(D,C,LH_HbT);
-    filtHbtRH_CBV = filtfilt(D,C,RH_HbT);
     
     LH_tempCBVStruct = cell(180,1);
     RH_tempCBVStruct = cell(180,1);
@@ -488,23 +460,22 @@ for a = 1:size(procDataFileIDs, 1)
     
     for CBVBins = 1:180   % loop through all 9000 samples across 5 minutes in 5 second bins (180 total)
         if CBVBins == 1
-            LH_tempCBVStruct(CBVBins,1) = {LH_FiltCBV(CBVBins:150)};  % Samples 1 to 150
-            RH_tempCBVStruct(CBVBins,1) = {RH_FiltCBV(CBVBins:150)};
+            LH_tempCBVStruct(CBVBins,1) = {LH_NormCBV(CBVBins:150)};  % Samples 1 to 150
+            RH_tempCBVStruct(CBVBins,1) = {RH_NormCBV(CBVBins:150)};
             
-            hbtLH_tempCBVStruct(CBVBins,1) = {filtHbtLH_CBV(CBVBins:150)};  % Samples 1 to 150
-            hbtRH_tempCBVStruct(CBVBins,1) = {filtHbtRH_CBV(CBVBins:150)};
+            hbtLH_tempCBVStruct(CBVBins,1) = {LH_HbT(CBVBins:150)};  % Samples 1 to 150
+            hbtRH_tempCBVStruct(CBVBins,1) = {RH_HbT(CBVBins:150)};
         else
-            LH_tempCBVStruct(CBVBins, 1) = {LH_FiltCBV((((150*(CBVBins-1))+1)):(150*CBVBins))};  % Samples 151 to 300, etc...
-            RH_tempCBVStruct(CBVBins, 1) = {RH_FiltCBV((((150*(CBVBins-1))+1)):(150*CBVBins))};
+            LH_tempCBVStruct(CBVBins, 1) = {LH_NormCBV((((150*(CBVBins-1))+1)):(150*CBVBins))};  % Samples 151 to 300, etc...
+            RH_tempCBVStruct(CBVBins, 1) = {RH_NormCBV((((150*(CBVBins-1))+1)):(150*CBVBins))};
             
-            hbtLH_tempCBVStruct(CBVBins, 1) = {filtHbtLH_CBV((((150*(CBVBins-1))+1)):(150*CBVBins))};  % Samples 151 to 300, etc...
-            hbtRH_tempCBVStruct(CBVBins, 1) = {filtHbtRH_CBV((((150*(CBVBins-1))+1)):(150*CBVBins))};
+            hbtLH_tempCBVStruct(CBVBins, 1) = {LH_HbT((((150*(CBVBins-1))+1)):(150*CBVBins))};  % Samples 151 to 300, etc...
+            hbtRH_tempCBVStruct(CBVBins, 1) = {RH_HbT((((150*(CBVBins-1))+1)):(150*CBVBins))};
         end
     end
     
     ProcData.sleep.parameters.CBV.LH = LH_tempCBVStruct;
     ProcData.sleep.parameters.CBV.RH = RH_tempCBVStruct;
-    
     ProcData.sleep.parameters.CBV.hbtLH = hbtLH_tempCBVStruct;
     ProcData.sleep.parameters.CBV.hbtRH = hbtRH_tempCBVStruct;
     

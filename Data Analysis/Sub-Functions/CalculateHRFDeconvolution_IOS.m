@@ -24,67 +24,77 @@ if strcmp(behavior,'Rest')
     load(restDataFileID)
     BehData = RestData;
     clear RestData;
-else
+elseif strcmp(behavior,'Whisk') || strcmp(behavior,'Contra')
     eventDataFileStruct = dir('*_EventData.mat');
     eventDataFile = {eventDataFileStruct.name}';
     eventDataFileID = char(eventDataFile);
     load(eventDataFileID)
     BehData = EventData;
     clear EventData;
+elseif strcmp(behavior,'NREM') == true || strcmp(behavior,'REM')
+    sleepDataFileStruct = dir('*_SleepData.mat');
+    sleepDataFile = {sleepDataFileStruct.name}';
+    sleepDataFileID = char(sleepDataFile);
+    load(sleepDataFileID)
 end
 
 %% Get the arrays for the calculation
-[NeuralDataStruct,NeuralFiltArray] = SelectConvolutionBehavioralEvents_IOS(BehData.(['cortical_' hemisphere(4:end)]).(neuralBand),behavior,hemisphere);
-[HemoDataStruct,HemoFiltArray] = SelectConvolutionBehavioralEvents_IOS(BehData.CBV.(hemisphere),behavior,hemisphere);
-fileIDs = NeuralDataStruct.fileIDs;
-restUniqueDays = GetUniqueDays_IOS(fileIDs);
-restUniqueFiles = unique(fileIDs);
-restNumberOfFiles = length(unique(fileIDs));
-clear restFiltLogical
-for c = 1:length(restUniqueDays)
-    restDay = restUniqueDays(c);
-    d = 1;
-    for e = 1:restNumberOfFiles
-        restFile = restUniqueFiles(e);
-        restFileID = restFile{1}(1:6);
-        if strcmp(restDay,restFileID) && sum(strcmp(restFile,manualFileIDs)) == 1
-            restFiltLogical{c,1}(e,1) = 1; %#ok<*AGROW>
-            d = d + 1;
-        else
-            restFiltLogical{c,1}(e,1) = 0;
+if strcmp(behavior,'Contra') == true || strcmp(behavior,'Whisk') == true || strcmp(behavior,'Rest') == true
+    [NeuralDataStruct,NeuralFiltArray] = SelectConvolutionBehavioralEvents_IOS(BehData.(['cortical_' hemisphere(4:end)]).(neuralBand),behavior,hemisphere);
+    [HemoDataStruct,HemoFiltArray] = SelectConvolutionBehavioralEvents_IOS(BehData.CBV.(hemisphere),behavior,hemisphere);
+    fileIDs = NeuralDataStruct.fileIDs;
+    restUniqueDays = GetUniqueDays_IOS(fileIDs);
+    restUniqueFiles = unique(fileIDs);
+    restNumberOfFiles = length(unique(fileIDs));
+    clear restFiltLogical
+    for c = 1:length(restUniqueDays)
+        restDay = restUniqueDays(c);
+        d = 1;
+        for e = 1:restNumberOfFiles
+            restFile = restUniqueFiles(e);
+            restFileID = restFile{1}(1:6);
+            if strcmp(restDay,restFileID) && sum(strcmp(restFile,manualFileIDs)) == 1
+                restFiltLogical{c,1}(e,1) = 1; %#ok<*AGROW>
+                d = d + 1;
+            else
+                restFiltLogical{c,1}(e,1) = 0;
+            end
         end
     end
-end
-restFinalLogical = any(sum(cell2mat(restFiltLogical'),2),2);
-
-clear restFileFilter
-filtRestFiles = restUniqueFiles(restFinalLogical,:);
-for f = 1:length(fileIDs)
-    restLogic = strcmp(fileIDs{f},filtRestFiles);
-    restLogicSum = sum(restLogic);
-    if restLogicSum == 1
-        restFileFilter(f,1) = 1;
-    else
-        restFileFilter(f,1) = 0;
+    restFinalLogical = any(sum(cell2mat(restFiltLogical'),2),2);
+    
+    clear restFileFilter
+    filtRestFiles = restUniqueFiles(restFinalLogical,:);
+    for f = 1:length(fileIDs)
+        restLogic = strcmp(fileIDs{f},filtRestFiles);
+        restLogicSum = sum(restLogic);
+        if restLogicSum == 1
+            restFileFilter(f,1) = 1;
+        else
+            restFileFilter(f,1) = 0;
+        end
     end
+    restFinalFileFilter = logical(restFileFilter);
+    filtArrayEdit1 = logical(NeuralFiltArray.*restFinalFileFilter);
+    NormData1 = NeuralDataStruct.NormData(filtArrayEdit1,:);
+    filtArrayEdit2 = logical(HemoFiltArray.*restFinalFileFilter);
+    NormData2 = HemoDataStruct.NormData(filtArrayEdit2,:);
+    % [B, A] = butter(3,1/(30/2),'low');
+    % if strcmp(behavior,'Contra') == true || strcmp(behavior,'Whisk') == true
+    %     for a = 1:size(NormData1,1)
+    %         NormData1(a,:) = filtfilt(B,A,NormData1(a,:));
+    %         NormData2(a,:) = filtfilt(B,A,NormData2(a,:));
+    %     end
+    % elseif strcmp(behavior,'Rest') == true
+    %     for a = 1:size(NormData1,1)
+    %         NormData1{a,:} = filtfilt(B,A,NormData1{a,:});
+    %         NormData2{a,:} = filtfilt(B,A,NormData2{a,:});
+    %     end
+    % end
+elseif strcmp(behavior,'NREM') == true || strcmp(behavior,'REM') == true
+    NormData1 = SleepData.(behavior).data.(['cortical_' hemisphere(4:end)]).(neuralBand);
+    NormData2 = SleepData.(behavior).data.CBV.(hemisphere(4:end));
 end
-restFinalFileFilter = logical(restFileFilter);
-filtArrayEdit1 = logical(NeuralFiltArray.*restFinalFileFilter);
-NormData1 = NeuralDataStruct.NormData(filtArrayEdit1,:);
-filtArrayEdit2 = logical(HemoFiltArray.*restFinalFileFilter);
-NormData2 = HemoDataStruct.NormData(filtArrayEdit2,:);
-% [B, A] = butter(3,1/(30/2),'low');
-% if strcmp(behavior,'Contra') == true || strcmp(behavior,'Whisk') == true
-%     for a = 1:size(NormData1,1)
-%         NormData1(a,:) = filtfilt(B,A,NormData1(a,:));
-%         NormData2(a,:) = filtfilt(B,A,NormData2(a,:));
-%     end
-% elseif strcmp(behavior,'Rest') == true
-%     for a = 1:size(NormData1,1)
-%         NormData1{a,:} = filtfilt(B,A,NormData1{a,:});
-%         NormData2{a,:} = filtfilt(B,A,NormData2{a,:});
-%     end
-% end
 
 %% Separate events for HRF calculation from events used for later testing.
 % Insert padding of zeros with size equal to the HRF between individual
@@ -96,7 +106,7 @@ HemoDataStruct.samplingRate = 30;
 zpad1 = zeros(1,HRFParams.dur*NeuralDataStruct.samplingRate);
 zpad2 = zeros(1,HRFParams.dur*HemoDataStruct.samplingRate);
 
-if strcmp(behavior,'Rest')
+if strcmp(behavior,'Rest') == true || strcmp(behavior,'NREM') == true || strcmp(behavior,'REM') == true 
     NormData1(zpad_inds) = {zpad1};
     % Mean subtract the data
     Processed1 = cell(size(NormData1));
@@ -109,7 +119,7 @@ if strcmp(behavior,'Rest')
     end
     Data1 = [Processed1{:}];
     clear Processed1;
-elseif strcmp(behavior,'VW')
+elseif strcmp(behavior,'Whisk')
     Data1_end = 4;
     strt = round((NeuralDataStruct.epoch.offset-1)*NeuralDataStruct.samplingRate);
     stp = strt + round(Data1_end*NeuralDataStruct.samplingRate);
@@ -118,7 +128,7 @@ elseif strcmp(behavior,'VW')
     template(:,strt:stp) = NormData1(calc_inds,strt:stp)-offset1;
     Data1Pad = [template ones(length(calc_inds),1)*zpad1];
     Data1 = reshape(Data1Pad',1,numel(Data1Pad));
-else
+elseif strcmp(behavior,'Contra')
     Data1_end = 1.5;
     strt = round((NeuralDataStruct.epoch.offset)*NeuralDataStruct.samplingRate);
     stp = strt + (Data1_end*NeuralDataStruct.samplingRate);
@@ -129,7 +139,7 @@ else
     Data1 = reshape(Data1Pad',1,numel(Data1Pad));
 end
 
-if strcmp(behavior,'Rest')
+if strcmp(behavior,'Rest') == true || strcmp(behavior,'NREM') == true || strcmp(behavior,'REM') == true 
     NormData2(zpad_inds) = {zpad2};
     Processed2 = cell(size(NormData2));
     for c = 1:length(NormData2)
@@ -142,7 +152,7 @@ if strcmp(behavior,'Rest')
     end
     Data2 = [Processed2{:}];
     clear Processed2
-elseif strcmp(behavior,'VW')
+elseif strcmp(behavior,'Whisk')
     Data2_end = 6;
     strt = round((HemoDataStruct.epoch.offset-1)*HemoDataStruct.samplingRate);
     stp = strt + round(Data2_end*HemoDataStruct.samplingRate);
@@ -151,7 +161,7 @@ elseif strcmp(behavior,'VW')
     template(:,strt:stp) = NormData2(calc_inds,strt:stp)-offset2;
     Data2Pad = [template ones(length(calc_inds),1)*zpad2];
     Data2 = reshape(Data2Pad',1,numel(Data2Pad));
-else
+elseif strcmp(behavior,'Contra')
     Data2_end = 3;
     strt = round(HemoDataStruct.epoch.offset*HemoDataStruct.samplingRate);
     stp = strt + (Data2_end*HemoDataStruct.samplingRate);
@@ -215,7 +225,7 @@ if ~exist(dirpath, 'dir')
     mkdir(dirpath);
 end
 savefig(kernelFig,[dirpath animalID '_' hemisphere '_' neuralBand '_' behavior '_HRFs']);
-% close(kernelFig)
+close(kernelFig)
 %% save results struct
 save([animalID '_AnalysisResults.mat'],'AnalysisResults');
 

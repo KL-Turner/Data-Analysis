@@ -70,7 +70,8 @@ end
 disp('Analyzing Block [8] Analyzing the hemodynamic response function and predictability of awake data.'); disp(' ')
 HRF_hemDataTypes = {'adjLH','adjRH'};
 HRF_neuralBands = {'gammaBandPower','muaPower'};
-behaviors = {'Contra','Whisk','Rest'};
+% behaviors = {'Contra','Whisk','Rest'};
+behaviors = {'Contra','NREM','REM'};
 for a = 1:length(HRF_hemDataTypes)
     hemDataType = HRF_hemDataTypes{1,a};
     for b = 1:length(HRF_neuralBands)

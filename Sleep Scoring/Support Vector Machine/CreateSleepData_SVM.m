@@ -66,7 +66,7 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
             RH_gammaPower{indexCount, 1} = ProcData.sleep.parameters.cortical_RH.gammaBandPower{fixedSleepIndex(indexCount), 1};
             LH_muaPower{indexCount, 1} = ProcData.sleep.parameters.cortical_LH.muaPower{fixedSleepIndex(indexCount), 1};
             RH_muaPower{indexCount, 1} = ProcData.sleep.parameters.cortical_RH.muaPower{fixedSleepIndex(indexCount), 1};
-            
+
             Hip_deltaPower{indexCount, 1} = ProcData.sleep.parameters.hippocampus.deltaBandPower{fixedSleepIndex(indexCount), 1};
             Hip_thetaPower{indexCount, 1} = ProcData.sleep.parameters.hippocampus.thetaBandPower{fixedSleepIndex(indexCount), 1};
             Hip_alphaPower{indexCount, 1} = ProcData.sleep.parameters.hippocampus.alphaBandPower{fixedSleepIndex(indexCount), 1};

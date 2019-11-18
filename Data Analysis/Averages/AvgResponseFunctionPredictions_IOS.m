@@ -18,13 +18,13 @@ clc
 
 animalIDs = {'T99','T101','T102','T103','T105','T108','T109','T110','T111'};
 driveLetters = {'E','E','E','F','F','F','D','D','D'};
-behavFields = {'Contra','Whisk','Rest'};
+behavFields = {'Contra','Whisk','Rest','NREM','REM'};
 neuralBands = {'gammaBandPower','muaPower'};
-colorbrewer_setA_colorA = [(31/256) (120/256) (180/256)];
-colorbrewer_setA_colorB = [(51/256) (160/256) (44/256)];
-colorbrewer_setA_colorC = [(255/256) (140/256) (0/256)];
-colorbrewer_setA_colorD = [(255/256) (0/256) (115/256)];
-colorbrewer_setA_colorE = [(192/256) (0/256) (256/256)];
+colorbrewer_setA_colorA = [(31/256) (120/256) (180/256)];   % Awake Rest
+colorbrewer_setA_colorB = [(51/256) (160/256) (44/256)];    % NREM
+colorbrewer_setA_colorC = [(255/256) (140/256) (0/256)];    % REM
+colorbrewer_setA_colorD = [(255/256) (0/256) (115/256)];    % Whisking
+colorbrewer_setA_colorE = [(192/256) (0/256) (256/256)];    % Stimulus-evoked
 
 %% cd through each animal's directory and extract the appropriate analysis results
 for a = 1:length(animalIDs)
@@ -52,11 +52,6 @@ for a = 1:length(animalIDs)
             data.(neuralBand).(behavior).adjRH.MedR2(a,1) = AnalysisResults.HRFs.(neuralBand).adjRH.(behavior).Med_IndR2;
             data.(neuralBand).(behavior).adjLH.AveR2(a,1) = AnalysisResults.HRFs.(neuralBand).adjLH.(behavior).AveR2;
             data.(neuralBand).(behavior).adjRH.AveR2(a,1) = AnalysisResults.HRFs.(neuralBand).adjRH.(behavior).AveR2;
-            % Sleep R2 predictions for each behavior's kernel
-            data.(neuralBand).NREM.(behavior).adjLH.MedR2(a,1) = AnalysisResults.HRFs.(neuralBand).adjLH.NREM.(behavior).Med_IndR2;
-            data.(neuralBand).NREM.(behavior).adjRH.MedR2(a,1) = AnalysisResults.HRFs.(neuralBand).adjRH.NREM.(behavior).Med_IndR2;
-            data.(neuralBand).REM.(behavior).adjLH.MedR2(a,1) = AnalysisResults.HRFs.(neuralBand).adjLH.REM.(behavior).Med_IndR2;
-            data.(neuralBand).REM.(behavior).adjRH.MedR2(a,1) = AnalysisResults.HRFs.(neuralBand).adjRH.REM.(behavior).Med_IndR2;
         end
     end
 end
@@ -80,14 +75,6 @@ for c = 1:length(neuralBands)
         data.(neuralBand).(behavior).stdMedR2 = std(data.(neuralBand).(behavior).Comb.MedR2,0,1);
         data.(neuralBand).(behavior).meanAveR2 = mean(data.(neuralBand).(behavior).Comb.AveR2);
         data.(neuralBand).(behavior).stdAveR2 = std(data.(neuralBand).(behavior).Comb.AveR2,0,1);
-        % NREM
-        data.(neuralBand).NREM.(behavior).Comb.MedR2 = cat(1,data.(neuralBand).NREM.(behavior).adjLH.MedR2,data.(neuralBand).NREM.(behavior).adjRH.MedR2);
-        data.(neuralBand).NREM.(behavior).meanMedR2 = mean(data.(neuralBand).NREM.(behavior).Comb.MedR2);
-        data.(neuralBand).NREM.(behavior).stdMedR2 = std(data.(neuralBand).NREM.(behavior).Comb.MedR2,0,1);
-        % REM
-        data.(neuralBand).REM.(behavior).Comb.MedR2 = cat(1,data.(neuralBand).REM.(behavior).adjLH.MedR2,data.(neuralBand).REM.(behavior).adjRH.MedR2);
-        data.(neuralBand).REM.(behavior).meanMedR2 = mean(data.(neuralBand).REM.(behavior).Comb.MedR2);
-        data.(neuralBand).REM.(behavior).stdMedR2 = std(data.(neuralBand).REM.(behavior).Comb.MedR2,0,1);
     end
 end
 
@@ -101,10 +88,12 @@ p1 = plot(data.gammaBandPower.Contra.meanIRtimeVec,data.gammaBandPower.Contra.me
 hold on
 p2 = plot(data.gammaBandPower.Whisk.meanIRtimeVec,data.gammaBandPower.Whisk.meanIR,'color',colorbrewer_setA_colorD,'LineWidth',2);
 p3 = plot(data.gammaBandPower.Rest.meanIRtimeVec,data.gammaBandPower.Rest.meanIR,'color',colorbrewer_setA_colorA,'LineWidth',2);
+p3 = plot(data.gammaBandPower.NREM.meanIRtimeVec,data.gammaBandPower.NREM.meanIR,'color',colorbrewer_setA_colorB,'LineWidth',2);
+p3 = plot(data.gammaBandPower.REM.meanIRtimeVec,data.gammaBandPower.REM.meanIR,'color',colorbrewer_setA_colorC,'LineWidth',2);
 title('Mean IR Function')
 xlabel('HRF Time (s)')
 ylabel({'Gamma-band [30-100 Hz] derived';'HRF amplitude (A.U.)'})
-legend([p1,p2,p3],'Sensory-evoked','Volitional whisk','Awake rest','Location','NorthWest')
+legend([p1,p2,p3],'Sensory-evoked','Volitional whisk','Awake rest','NREM Sleep','REM Sleep','Location','SouthEast')
 axis square
 set(gca,'box','off')
 
@@ -113,33 +102,40 @@ p1 = plot(data.muaPower.Contra.meanIRtimeVec,data.muaPower.Contra.meanIR,'color'
 hold on
 p2 = plot(data.muaPower.Whisk.meanIRtimeVec,data.muaPower.Whisk.meanIR,'color',colorbrewer_setA_colorD,'LineWidth',2);
 p3 = plot(data.muaPower.Rest.meanIRtimeVec,data.muaPower.Rest.meanIR,'color',colorbrewer_setA_colorA,'LineWidth',2);
+p3 = plot(data.muaPower.NREM.meanIRtimeVec,data.muaPower.NREM.meanIR,'color',colorbrewer_setA_colorB,'LineWidth',2);
+p3 = plot(data.muaPower.REM.meanIRtimeVec,data.muaPower.REM.meanIR,'color',colorbrewer_setA_colorC,'LineWidth',2);
 title('Mean IR Function')
 xlabel('HRF Time (s)')
 ylabel({'MUA [0.3-3 KHz] derived';'HRF amplitude (A.U.)'})
-legend([p1,p2,p3],'Sensory-evoked','Volitional whisk','Awake rest','Location','NorthWest')
 axis square
 set(gca,'box','off')
 % gamma derived
 subplot(2,2,3);
 s1 = scatter(xIndsA*1,data.gammaBandPower.Contra.Comb.AveR2,'MarkerEdgeColor','k','MarkerFaceColor',colorbrewer_setA_colorE,'jitter','on','jitterAmount',0.25);
 hold on
-e1 = errorbar(1,data.gammaBandPower.Contra.Comb.meanAveR2,data.gammaBandPower.Contra.Comb.stdAveR2,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e1 = errorbar(1,data.gammaBandPower.Contra.meanAveR2,data.gammaBandPower.Contra.stdAveR2,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e1.Color = 'black';
 s2 = scatter(xIndsA*2,data.gammaBandPower.Contra.Comb.MedR2,'MarkerEdgeColor',colorbrewer_setA_colorE,'MarkerFaceColor',colorbrewer_setA_colorE,'jitter','on','jitterAmount',0.25);
-e2 = errorbar(2,data.gammaBandPower.Contra.Comb.meanMedR2,data.gammaBandPower.Contra.Comb.stdMedR2,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e2 = errorbar(2,data.gammaBandPower.Contra.meanMedR2,data.gammaBandPower.Contra.stdMedR2,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e2.Color = 'black';
 s3 = scatter(xIndsA*3,data.gammaBandPower.Whisk.Comb.AveR2,'MarkerEdgeColor','k','MarkerFaceColor',colorbrewer_setA_colorD,'jitter','on','jitterAmount',0.25);
-e3 = errorbar(3,data.gammaBandPower.Whisk.Comb.meanAveR2,data.gammaBandPower.Whisk.Comb.stdAveR2,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e3 = errorbar(3,data.gammaBandPower.Whisk.meanAveR2,data.gammaBandPower.Whisk.stdAveR2,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e3.Color = 'black';
 s4 = scatter(xIndsA*4,data.gammaBandPower.Whisk.Comb.MedR2,'MarkerEdgeColor',colorbrewer_setA_colorD,'MarkerFaceColor',colorbrewer_setA_colorD,'jitter','on','jitterAmount',0.25);
-e4 = errorbar(4,data.gammaBandPower.Whisk.Comb.meanMedR2,data.gammaBandPower.Whisk.Comb.stdMedR2,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e4 = errorbar(4,data.gammaBandPower.Whisk.meanMedR2,data.gammaBandPower.Whisk.stdMedR2,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e4.Color = 'black';
 s5 = scatter(xIndsA*5,data.gammaBandPower.Rest.Comb.MedR2,'MarkerEdgeColor',colorbrewer_setA_colorA,'MarkerFaceColor',colorbrewer_setA_colorA,'jitter','on','jitterAmount',0.25);
-e5 = errorbar(5,data.gammaBandPower.Rest.Comb.meanMedR2,data.gammaBandPower.Rest.Comb.stdMedR2,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e5 = errorbar(5,data.gammaBandPower.Rest.meanMedR2,data.gammaBandPower.Rest.stdMedR2,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e5.Color = 'black';
+s5 = scatter(xIndsA*6,data.gammaBandPower.NREM.Comb.MedR2,'MarkerEdgeColor',colorbrewer_setA_colorB,'MarkerFaceColor',colorbrewer_setA_colorB,'jitter','on','jitterAmount',0.25);
+e5 = errorbar(6,data.gammaBandPower.NREM.meanMedR2,data.gammaBandPower.NREM.stdMedR2,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e5.Color = 'black';
+s5 = scatter(xIndsA*7,data.gammaBandPower.REM.Comb.MedR2,'MarkerEdgeColor',colorbrewer_setA_colorC,'MarkerFaceColor',colorbrewer_setA_colorC,'jitter','on','jitterAmount',0.25);
+e5 = errorbar(7,data.gammaBandPower.REM.meanMedR2,data.gammaBandPower.REM.stdMedR2,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e5.Color = 'black';
 title({'Gamma-band [30-100 Hz] derived';'Gamma function kernel R^2 predictions'})
 ylabel('R^2')
-legend([s1,s2,s3,s4,s5],'Stimulus-evoked AvgData','Stimulus-evoked MedData','Volition whisk AvgData','Volitional whisk MedData','Awake Rest MedData','Location','NorthEast')
+legend([s1,s2,s3,s4,s5],'Stimulus-evoked AvgData','Stimulus-evoked MedData','Volition whisk AvgData','Volitional whisk MedData','Awake Rest MedData','NREM sleep MedData','REM sleep MedData','Location','NorthEast')
 set(gca,'xtick',[])
 set(gca,'xticklabel',[])
 axis square
@@ -149,19 +145,25 @@ set(gca,'box','off')
 subplot(2,2,4);
 s1 = scatter(xIndsA*1,data.muaPower.Contra.Comb.AveR2,'MarkerEdgeColor','k','MarkerFaceColor',colorbrewer_setA_colorE,'jitter','on','jitterAmount',0.25);
 hold on
-e1 = errorbar(1,data.muaPower.Contra.Comb.meanAveR2,data.muaPower.Contra.Comb.stdAveR2,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e1 = errorbar(1,data.muaPower.Contra.meanAveR2,data.muaPower.Contra.stdAveR2,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e1.Color = 'black';
 s2 = scatter(xIndsA*2,data.muaPower.Contra.Comb.MedR2,'MarkerEdgeColor',colorbrewer_setA_colorE,'MarkerFaceColor',colorbrewer_setA_colorE,'jitter','on','jitterAmount',0.25);
-e2 = errorbar(2,data.muaPower.Contra.Comb.meanMedR2,data.muaPower.Contra.Comb.stdMedR2,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e2 = errorbar(2,data.muaPower.Contra.meanMedR2,data.muaPower.Contra.stdMedR2,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e2.Color = 'black';
 s3 = scatter(xIndsA*3,data.muaPower.Whisk.Comb.AveR2,'MarkerEdgeColor','k','MarkerFaceColor',colorbrewer_setA_colorD,'jitter','on','jitterAmount',0.25);
-e3 = errorbar(3,data.muaPower.Whisk.Comb.meanAveR2,data.muaPower.Whisk.Comb.stdAveR2,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e3 = errorbar(3,data.muaPower.Whisk.meanAveR2,data.muaPower.Whisk.stdAveR2,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e3.Color = 'black';
 s4 = scatter(xIndsA*4,data.muaPower.Whisk.Comb.MedR2,'MarkerEdgeColor',colorbrewer_setA_colorD,'MarkerFaceColor',colorbrewer_setA_colorD,'jitter','on','jitterAmount',0.25);
-e4 = errorbar(4,data.muaPower.Whisk.Comb.meanMedR2,data.muaPower.Whisk.Comb.stdMedR2,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e4 = errorbar(4,data.muaPower.Whisk.meanMedR2,data.muaPower.Whisk.stdMedR2,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e4.Color = 'black';
 s5 = scatter(xIndsA*5,data.muaPower.Rest.Comb.MedR2,'MarkerEdgeColor',colorbrewer_setA_colorA,'MarkerFaceColor',colorbrewer_setA_colorA,'jitter','on','jitterAmount',0.25);
-e5 = errorbar(5,data.muaPower.Rest.Comb.meanMedR2,data.muaPower.Rest.Comb.stdMedR2,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e5 = errorbar(5,data.muaPower.Rest.meanMedR2,data.muaPower.Rest.stdMedR2,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e5.Color = 'black';
+s5 = scatter(xIndsA*6,data.muaPower.NREM.Comb.MedR2,'MarkerEdgeColor',colorbrewer_setA_colorB,'MarkerFaceColor',colorbrewer_setA_colorB,'jitter','on','jitterAmount',0.25);
+e5 = errorbar(6,data.muaPower.NREM.meanMedR2,data.muaPower.NREM.stdMedR2,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e5.Color = 'black';
+s5 = scatter(xIndsA*7,data.muaPower.REM.Comb.MedR2,'MarkerEdgeColor',colorbrewer_setA_colorC,'MarkerFaceColor',colorbrewer_setA_colorC,'jitter','on','jitterAmount',0.25);
+e5 = errorbar(7,data.muaPower.REM.meanMedR2,data.muaPower.REM.stdMedR2,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e5.Color = 'black';
 title({'MUA [0.3-3 kHz] derived';'Gamma function kernel R^2 predictions'})
 ylabel('R^2')
