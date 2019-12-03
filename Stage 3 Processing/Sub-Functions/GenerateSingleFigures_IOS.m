@@ -1,21 +1,14 @@
-function [singleTrialFig] = GenerateSingleFigures_IOS(procDataFileIDs, RestingBaselines, baselineType, saveFigs,imagingType)
+function [singleTrialFig] = GenerateSingleFigures_IOS(procDataFileIDs,RestingBaselines,baselineType,saveFigs,imagingType)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %________________________________________________________________________________________________________________________
 %
-%   Purpose: 
-%________________________________________________________________________________________________________________________
-%
-%   Inputs: 
-%
-%   Outputs:        
-%
-%   Last Revised: June 30th, 2019    
+%   Purpose: Create a summary figure for a single n minute two photon trial
 %________________________________________________________________________________________________________________________
 
-for a = 1:size(procDataFileIDs, 1)
+for a = 1:size(procDataFileIDs,1)
     procDataFile = procDataFileIDs(a,:);
     load(procDataFile)
     disp(['Creating single trial summary figure ' num2str(a) ' of ' num2str(size(procDataFileIDs,1)) '...']); disp(' ')
@@ -24,7 +17,7 @@ for a = 1:size(procDataFileIDs, 1)
     
     %% BLOCK PURPOSE: Behavior
     % Setup butterworth filter coefficients for a 10 Hz lowpass based on the sampling rate (30 Hz).
-    [B, A] = butter(4, 10/(ProcData.notes.dsFs/2), 'low');
+    [B, A] = butter(4,10/(ProcData.notes.dsFs/2),'low');
     
     % Whiskers
     filteredWhiskerAngle = filtfilt(B, A, ProcData.data.whiskerAngle);
@@ -143,7 +136,7 @@ for a = 1:size(procDataFileIDs, 1)
     yyaxis right
     plot((1:length(EMG))/ProcData.notes.dsFs, EMG, 'color', colors_IOS('deep carrot orange'))
     ylabel('EMG (Volts^2)')
-    legend('Force sensor', 'EMG')
+    legend('Force sensor','EMG')
     xlim([0 ProcData.notes.trialDuration_sec])
     set(gca,'TickLength',[0, 0])
     set(gca,'Xticklabel',[])
