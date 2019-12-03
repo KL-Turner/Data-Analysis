@@ -42,14 +42,14 @@ for a = 1:length(fileNames)
     disp(['Analyzing file ' num2str(a) ' of ' num2str(length(fileNames)) '...']); disp(' ')
     % Adapt to list or single file. The purpose of this is control the way uigetfile handles an instance of a
     % single file input (character string) vs. multiple files, which it puts in cells
-    if iscell(fileNames) == 1
+    if iscell(fileNames) == true
         indFile = fileNames{a};
     else
         indFile = fileNames;
     end
     
     % Pull out the file ID for the file - this is the numerical string after the animal name/hemisphere
-    [~, ~, fileID] = GetFileInfo_IOS(indFile);
+    [~,~,fileID] = GetFileInfo_IOS(indFile);
     
     % Determine if a RawData file has already been created for this file. If it has, skip it
     fileExist = ls(['*' fileID '_RawData.mat']);
@@ -92,8 +92,7 @@ for a = 1:length(fileNames)
             trialData2 = ReadInTDMSWhiskerTrials_LD_IOS([fileID '_LD.tdms']);
             % LD backscatter
             dataRow = strcmp(trialData2.data.names,'LD_BackScatter');
-            backScatter = trialData2.data.vals(dataRow,:);
-            
+            backScatter = trialData2.data.vals(dataRow,:);          
             % LD Flow
             dataRow = strcmp(trialData2.data.names,'LD_Flow');
             flow = trialData2.data.vals(dataRow,:);
