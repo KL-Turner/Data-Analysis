@@ -41,6 +41,6 @@ else
     error('Format of the list of dates not recognized...')
 end
 All_days = mat2cell(AllDates,ones(1,size(AllDates,1)));
-[UniqueDays, dayIndex, dayID] = unique(All_days);
+[UniqueDays,dayIndex,dayID] = unique(All_days);
 
 end
