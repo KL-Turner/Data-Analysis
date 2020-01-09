@@ -20,17 +20,18 @@ clc
 % User inputs for file information
 whiskCamFileID = uigetfile('*_WhiskerCam.bin','MultiSelect','off');
 animalID = input('Input the animal ID: ', 's'); disp(' ')
-rawDataFileID = [animalID '_' whiskCamFileID(1:end - 15) '_RawData.mat'];
+% MScanDataFileID = [animalID '_' whiskCamFileID(1:end - 15) '_MScanData.mat'];
+MScanDataFileID = [animalID '_190317_022_MScanData.mat'];
 
-disp(['Loading relevant file information from ' rawDataFileID '...']); disp(' ')
+disp(['Loading relevant file information from ' MScanDataFileID '...']); disp(' ')
 try
-    load(rawDataFileID)
+    load(MScanDataFileID)
 catch
-    disp([rawDataFileID ' does not appear to be in the current file path']); disp(' ')
+    disp([MScanDataFileID ' does not appear to be in the current file path']); disp(' ')
     return
 end
 
-trialDuration = RawData.notes.trialDuration_sec;
+trialDuration = MScanData.notes.numberOfFrames/MScanData.notes.frameRate;
 disp([whiskCamFileID ' is ' num2str(trialDuration) ' seconds long.']); disp(' ')
 startTime = input('Input the desired start time (sec): '); disp(' ')
 endTime = input('Input the desired end time (sec): '); disp(' ')
@@ -43,9 +44,9 @@ elseif endTime > trialDuration || endTime <= startTime || endTime <= 0
     return
 end
 
-imageHeight = RawData.notes.whiskCamPixelHeight;                                                                                                            
-imageWidth = RawData.notes.whiskCamPixelWidth;
-Fs = RawData.notes.whiskCamSamplingRate;
+imageHeight = 350;                                                                                                            
+imageWidth = 30;
+Fs = 150;
 
 frameStart = floor(startTime)*Fs;
 frameEnd = floor(endTime)*Fs;         

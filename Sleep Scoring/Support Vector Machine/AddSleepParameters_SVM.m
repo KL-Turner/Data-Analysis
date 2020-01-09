@@ -426,6 +426,24 @@ for a = 1:size(procDataFileIDs, 1)
     
     ProcData.sleep.parameters.EMG = tempEMGStruct;
     
+    %% Create folder for the doppler flow
+    if isfield(ProcData.data,'flow') == true
+        Flow = ProcData.data.flow.data;
+    else
+        Flow = NaN*ProcData.data.EMG.emg;
+    end
+    normFlow = (Flow - RestingBaselines.(baselineType).flow.data.(strDay))/RestingBaselines.(baselineType).flow.data.(strDay);
+    tempFlowStruct = cell(180, 1);
+    
+    for FlowBins = 1:180
+        if FlowBins == 1
+            tempFlowStruct(FlowBins,1) = {normFlow(FlowBins:150)};
+        else
+            tempFlowStruct(FlowBins,1) = {normFlow((((150*(FlowBins-1))+1)):(150*FlowBins))};
+        end
+    end
+    ProcData.sleep.parameters.flow = tempFlowStruct;
+    
     %% BLOCK PURPOSE: Create folder for the Heart Rate
     % Find the heart rate from the current ProcData file
     HeartRate = ProcData.data.heartRate;
@@ -440,7 +458,6 @@ for a = 1:size(procDataFileIDs, 1)
             tempHRStruct(HRBins, 1) = {HeartRate((((5*(HRBins-1))+1)):(5*HRBins))};  % Samples 6 to 10, etc...
         end
     end
-    
     ProcData.sleep.parameters.heartRate = tempHRStruct;   % Place the data in the ProcData struct to later be saved
     
     %% BLOCK PURPOSE: Create folder for the left and right CBV data

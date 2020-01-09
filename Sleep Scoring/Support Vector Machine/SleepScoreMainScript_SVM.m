@@ -71,14 +71,14 @@ procDataFiles = {procDataFileStruct.name}';
 procDataFileIDs = char(procDataFiles);
 
 baselineType = 'manualSelection';
-AddSleepParameters_SVM(procDataFileIDs, RestingBaselines, baselineType)
+AddSleepParameters_SVM(procDataFileIDs,RestingBaselines,baselineType)
 CreateModelDataSet_SVM(procDataFileIDs)
 
 modelDataFileStruct = dir('*_ModelData.mat');
 modelDataFiles = {modelDataFileStruct.name}';
 modelDataFileIDs = char(modelDataFiles);
 
-[SVMResults] = PredictBehaviorEvents_SVM(modelDataFileIDs, SVMModel);
+[SVMResults] = PredictBehaviorEvents_SVM(modelDataFileIDs,SVMModel);
 ApplySleepLogical_SVM(procDataFileIDs, SVMResults)
 sleepTime = 30;   % seconds
-[SleepData] = CreateSleepData_SVM(procDataFileIDs, sleepTime);
+[SleepData] = CreateSleepData_SVM(procDataFileIDs,sleepTime);
