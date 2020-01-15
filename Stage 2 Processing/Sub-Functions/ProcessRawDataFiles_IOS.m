@@ -1,4 +1,4 @@
-function ProcessRawDataFiles_IOS(rawDataFiles)
+function ProcessRawDataFiles_IOS(rawDataFiles,imagingType)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -37,13 +37,6 @@ for a = 1:size(rawDataFiles,1)
     ProcData.data.solenoids.LPadSol = find(diff(RawData.data.solenoids) == 1)/RawData.notes.analogSamplingRate;
     ProcData.data.solenoids.RPadSol = find(diff(RawData.data.solenoids) == 2)/RawData.notes.analogSamplingRate;
     ProcData.data.solenoids.AudSol = find(diff(RawData.data.solenoids) == 3)/RawData.notes.analogSamplingRate;
-    
-    %% CBV from ROIs.
-    CBVfields = fieldnames(RawData.data.CBV);
-    for b = 1:length(CBVfields)
-        ProcData.data.CBV.(CBVfields{b}(1:end-6)) = RawData.data.CBV.(CBVfields{b})(1:end - 1);
-    end
-    CheckForNaNs_IOS(ProcData);
     
     %% Process neural data into its various forms.
     ProcData.notes.dsFs = 30;   % downsampled Fs
