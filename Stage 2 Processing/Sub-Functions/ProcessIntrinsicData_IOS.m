@@ -20,13 +20,17 @@ disp('Analyzing Block [2] Extracting mean reflectance data from each ROI.'); dis
 ExtractCBVData_IOS(ROIs,ROInames,rawDataFileIDs)
 
 for a = 1:size(procDataFileIDs,1)
+    disp(['Adding IOS CBV data to ProcData file (' num2str(a) '/' num2str(size(procDataFileIDs,1)) ')']); disp(' ')
     procDataFileID = procDataFileIDs(a,:);
     load(procDataFileID)
-    CBVfields = fieldnames(ProcData.data.CBV);
-    for b = 1:length(CBVfields)
-        ProcData.data.CBV.(CBVfields{b}(1:end - 6)) = RawData.data.CBV.(CBVfields{b})(1:end - 1);
+    rawDataFileID = rawDataFileIDs(a,:);
+    load(rawDataFileID)
+    [~,fileDate,~] = GetFileInfo_IOS(rawDataFileID);
+    strDay = ConvertDate_IOS(fileDate);
+    for b = 1:length(ROInames)
+        ProcData.data.CBV.(ROInames{1,b}) = RawData.data.CBV.([ROInames{1,b} '_' strDay]);
     end
-    CheckForNaNs_IOS(ProcData);
+    CheckForNaNs_IOS(ProcData,imagingType);
 end
 
 end

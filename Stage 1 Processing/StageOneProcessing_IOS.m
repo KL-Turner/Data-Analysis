@@ -1,4 +1,4 @@
-function StageOneProcessing_IOS(fileNames, trackWhiskers)
+function StageOneProcessing_IOS(fileNames,trackWhiskers)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -21,25 +21,23 @@ function StageOneProcessing_IOS(fileNames, trackWhiskers)
 clc;
 clear;
 disp('Analyzing Block [0] Preparing the workspace and loading variables.'); disp(' ')
-
 % If there are no inputs to the function, it asks the user to load all files with a '_WhiskerCam.bin' extension
 if nargin == 0
     fileNames = uigetfile('*_WhiskerCam.bin','MultiSelect','on');   % CTL-A to select all files
 end
-
 % Default setting - if you automatically play the function, it will track the whiskers
 % To debug the code without taking the time to track whiskers, set trackWhiskers = 0
 if nargin < 2
     trackWhiskers = 1;
 end
-
+% Prompt user if the laser doppler was aquired for this day of imaging
 ldInput = input('Was laser doppler acquired during this trial? (y/n): ','s'); disp(' ')
 
 %% BLOCK PURPOSE: [1] Preparing to create RawData files.
 disp('Analyzing Block [1] Preparing to create RawData file(s).'); disp(' ')
 % Load in each file one at a time, looping through the list
 for a = 1:length(fileNames)
-    disp(['Analyzing file ' num2str(a) ' of ' num2str(length(fileNames)) '...']); disp(' ')
+    disp(['Analyzing WhiskerCam file (' num2str(a) ' of ' num2str(length(fileNames)) ')']); disp(' ')
     % Adapt to list or single file. The purpose of this is control the way uigetfile handles an instance of a
     % single file input (character string) vs. multiple files, which it puts in cells
     if iscell(fileNames) == true
@@ -47,47 +45,35 @@ for a = 1:length(fileNames)
     else
         indFile = fileNames;
     end
-    
     % Pull out the file ID for the file - this is the numerical string after the animal name/hemisphere
     [~,~,fileID] = GetFileInfo_IOS(indFile);
-    
     % Determine if a RawData file has already been created for this file. If it has, skip it
     fileExist = ls(['*' fileID '_RawData.mat']);
     if isempty(fileExist)
-        
         %% BLOCK PURPOSE: [2] Import .tdms data (All channels).
         disp('Analyzing Block [2] Importing .tdms data from all channels.'); disp(' ')
         trialData = ReadInTDMSWhiskerTrials_IOS([fileID '.tdms']);
-
         % Left, Right, and hippocampal electrodes
         dataRow = strcmp(trialData.data.names,'Cortical_LH');  
         cortical_LH = trialData.data.vals(dataRow,:)/str2double(trialData.amplifierGain);
-        
         dataRow = strcmp(trialData.data.names,'Cortical_RH');
         cortical_RH = trialData.data.vals(dataRow,:)/str2double(trialData.amplifierGain);
-        
         dataRow = strcmp(trialData.data.names,'Hippocampus');
         hippocampus = trialData.data.vals(dataRow,:)/str2double(trialData.amplifierGain);
-        
         % Left, Right, Auditory solenoids. Combine the arrays together.
         dataRow = strcmp(trialData.data.names,'LPadSol'); 
         LPadSol = gt(trialData.data.vals(dataRow,:),0.5)*1;   % ID amplitude is 1 
-        
         dataRow = strcmp(trialData.data.names,'RPadSol'); 
         RPadSol = gt(trialData.data.vals(dataRow,:),0.5)*2;   % ID amplitude is 2
-        
         dataRow = strcmp(trialData.data.names,'AudSol'); 
         AudSol = gt(trialData.data.vals(dataRow,:),0.5)*3;   % ID amplitude is 3
-        
         solenoids = LPadSol + RPadSol + AudSol;
-              
         % Force sensor and EMG
         dataRow = strcmp(trialData.data.names,'Force_Sensor'); 
         forceSensor = trialData.data.vals(dataRow,:);
-        
         dataRow = strcmp(trialData.data.names,'EMG');
         EMG = trialData.data.vals(dataRow,:)/str2double(trialData.amplifierGain);
-        
+        % Laser doppler
         if strcmp(ldInput,'y') == true
             trialData2 = ReadInTDMSWhiskerTrials_LD_IOS([fileID '_LD.tdms']);
             % LD backscatter
@@ -135,7 +121,6 @@ for a = 1:length(fileNames)
         RawData.notes.CBVCamBinning = trialData.CBVCamBinning;
         RawData.notes.droppedPupilCamFrameIndex = trialData.droppedPupilCamFrameIndex;
         RawData.notes.droppedWhiskCamFrameIndex = trialData.droppedWhiskCamFrameIndex;
-        
         % Data
         RawData.data.cortical_LH = cortical_LH;
         RawData.data.cortical_RH = cortical_RH;
@@ -148,14 +133,12 @@ for a = 1:length(fileNames)
             RawData.data.backScatter = backScatter;
             RawData.data.flow = flow;
         end
-     
         disp(['File Created. Saving RawData File ' num2str(a) '...']); disp(' ')
         save([trialData.animalID '_' fileID '_RawData'],'RawData')
     else
         disp('File already exists. Continuing...'); disp(' ')
     end
 end
-
 disp('IOS Stage One Processing - Complete.'); disp(' ')
 
 end

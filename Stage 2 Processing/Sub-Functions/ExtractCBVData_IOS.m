@@ -27,7 +27,7 @@ for a = 1:size(rawDataFileIDs,1)
         if ~isfield(RawData.data,'CBV')
             RawData.data.CBV = [];
         end
-%         if ~isfield(RawData.data.CBV,ROIname)
+        if ~isfield(RawData.data.CBV,ROIname)
             [frames] = ReadDalsaBinary_IOS(animalID,[fileID '_WindowCam.bin']);
             disp(['Extracting ' ROIname ' ROI CBV data from ' rawDataFile '...']); disp(' ')
             if strcmp(ROIshortName,'LH') == true || strcmp(ROIshortName,'RH') == true
@@ -39,9 +39,9 @@ for a = 1:size(rawDataFileIDs,1)
             meanIntensity = BinToIntensity_IOS([fileID '_WindowCam.bin'],mask,frames);
             RawData.data.CBV.(ROIname) = meanIntensity;
             save(rawDataFile,'RawData')
-%         else
-%             disp([ROIname ' ROI CBV data from ' rawDataFile ' already extracted. Continuing...']); disp(' ')
-%         end
+        else
+            disp([ROIname ' ROI CBV data from ' rawDataFile ' already extracted. Continuing...']); disp(' ')
+        end
     end
 end
 

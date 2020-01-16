@@ -1,4 +1,4 @@
-function [animalID, fileDate, fileID] = GetFileInfo_IOS(fileName)
+function [animalID,fileDate,fileID] = GetFileInfo_IOS(fileName)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -10,13 +10,11 @@ function [animalID, fileDate, fileID] = GetFileInfo_IOS(fileName)
 %   Purpose: Identify important aspects of a file name and output each individually.
 %________________________________________________________________________________________________________________________
 
-%% Identify the extension
+% Identify the extension
 extInd = strfind(fileName(1,:),'.');
-extension = fileName(1, extInd + 1:end);
-
+extension = fileName(1,extInd + 1:end);
 % Identify the underscores
 fileBreaks = strfind(fileName(1,:),'_');
-
 switch extension
     case 'bin'
         animalID = [];
