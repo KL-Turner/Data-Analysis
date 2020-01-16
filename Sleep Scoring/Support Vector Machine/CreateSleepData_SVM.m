@@ -27,22 +27,22 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
     load(procDataFileID);                             % Load in procDataFile associated with character string
     [animal, ~, fileID] = GetFileInfo_IOS(procDataFileID);     % Gather file info
     
-    clear LH_deltaPower RH_deltaPower LH_thetaPower RH_thetaPower LH_alphaPower RH_alphaPower LH_betaPower RH_betaPower LH_gammaPower RH_gammaPower LH_muaPower RH_muaPower Hip_deltaPower Hip_thetaPower Hip_alphaPower Hip_betaPower Hip_gammaPower Hip_muaPower
+   clear LH_deltaPower RH_deltaPower LH_thetaPower RH_thetaPower LH_alphaPower RH_alphaPower LH_betaPower RH_betaPower LH_gammaPower RH_gammaPower LH_muaPower RH_muaPower Hip_deltaPower Hip_thetaPower Hip_alphaPower Hip_betaPower Hip_gammaPower Hip_muaPower
     clear LH_specDeltaPower RH_specDeltaPower LH_specThetaPower RH_specThetaPower LH_specAlphaPower RH_specAlphaPower LH_specBetaPower RH_specBetaPower LH_specGammaPower RH_specGammaPower Hip_specDeltaPower Hip_specThetaPower Hip_specAlphaPower Hip_specBetaPower Hip_specGammaPower
-    clear LH_CBV RH_CBV LH_ElectrodeCBV RH_ElectrodeCBV LH_hbtCBV RH_hbtCBV LH_ElectrodehbtCBV RH_ElectrodehbtCBV BinTimes WhiskerAcceleration HeartRate 
+    clear LH_CBV RH_CBV LH_ElectrodeCBV RH_ElectrodeCBV LH_hbtCBV RH_hbtCBV LH_ElectrodehbtCBV RH_ElectrodehbtCBV BinTimes WhiskerAcceleration HeartRate DopplerFlow
     
     clear cellLH_DeltaPower cellRH_DeltaPower cellLH_ThetaPower cellRH_ThetaPower cellLH_AlphaPower cellRH_AlphaPower cellLH_BetaPower cellRH_BetaPower cellLH_GammaPower cellRH_GammaPower cellLH_MUAPower cellRH_MUAPower cellHip_DeltaPower cellHip_ThetaPower cellHip_AlphaPower cellHip_BetaPower cellHip_GammaPower cellHip_MUAPower
     clear cellLH_specDeltaPower cellRH_specDeltaPower cellLH_specThetaPower cellRH_specThetaPower cellLH_specAlphaPower cellRH_specAlphaPower cellLH_specBetaPower cellRH_specBetaPower cellLH_specGammaPower cellRH_specGammaPower cellHip_specDeltaPower cellHip_specThetaPower cellHip_specAlphaPower cellHip_specBetaPower cellHip_specGammaPower
-    clear cellLH_CBV cellRH_CBV cellLH_ElectrodeCBV cellRH_ElectrodeCBV cellLH_hbtCBV cellRH_hbtCBV cellLH_ElectrodehbtCBV cellRH_ElectrodehbtCBV cellBinTimes cellWhiskerAcceleration cellHeartRate 
+    clear cellLH_CBV cellRH_CBV cellLH_ElectrodeCBV cellRH_ElectrodeCBV cellLH_hbtCBV cellRH_hbtCBV cellLH_ElectrodehbtCBV cellRH_ElectrodehbtCBV cellBinTimes cellWhiskerAcceleration cellHeartRate cellDopplerFlow
  
     clear mat2CellLH_DeltaPower mat2CellRH_DeltaPower mat2CellLH_ThetaPower mat2CellRH_ThetaPower mat2CellLH_AlphaPower mat2CellRH_AlphaPower mat2CellLH_BetaPower mat2CellRH_BetaPower mat2CellLH_GammaPower mat2CellRH_GammaPower mat2CellLH_MUAPower mat2CellRH_MUAPower mat2CellHip_DeltaPower mat2CellHip_ThetaPower mat2CellHip_AlphaPower mat2CellHip_BetaPower mat2CellHip_GammaPower mat2CellHip_MUAPower
     clear mat2CellLH_specDeltaPower mat2CellRH_specDeltaPower mat2CellLH_specThetaPower mat2CellRH_specThetaPower mat2CellLH_specAlphaPower mat2CellRH_specAlphaPower mat2CellLH_specBetaPower mat2CellRH_specBetaPower mat2CellLH_specGammaPower mat2CellRH_specGammaPower mat2CellHip_specDeltaPower mat2CellHip_specThetaPower mat2CellHip_specAlphaPower mat2CellHip_specBetaPower mat2CellHip_specGammaPower
-    clear mat2CellLH_CBV mat2CellRH_CBV mat2CellLH_ElectrodeCBV mat2CellRH_ElectrodeCBV mat2CellLH_hbtCBV mat2CellRH_hbtCBV mat2CellLH_ElectrodehbtCBV mat2CellRH_ElectrodehbtCBV mat2CellBinTimes mat2CellWhiskerAcceleration mat2CellHeartRate 
+    clear mat2CellLH_CBV mat2CellRH_CBV mat2CellLH_ElectrodeCBV mat2CellRH_ElectrodeCBV mat2CellLH_hbtCBV mat2CellRH_hbtCBV mat2CellLH_ElectrodehbtCBV mat2CellRH_ElectrodehbtCBV mat2CellBinTimes mat2CellWhiskerAcceleration mat2CellHeartRate mat2CellDopplerFlow
       
     clear matLH_DeltaPower matRH_DeltaPower matLH_ThetaPower matRH_ThetaPower matLH_AlphaPower matRH_AlphaPower matLH_BetaPower matRH_BetaPower matLH_GammaPower matRH_GammaPower matLH_MUAPower matRH_MUAPower matHip_DeltaPower matHip_ThetaPower matHip_AlphaPower matHip_BetaPower matHip_GammaPower matHip_MUAPower
     clear matLH_specDeltaPower matRH_specDeltaPower matLH_specThetaPower matRH_specThetaPower matLH_specAlphaPower matRH_specAlphaPower matLH_specBetaPower matRH_specBetaPower matLH_specGammaPower matRH_specGammaPower matHip_specDeltaPower matHip_specThetaPower matHip_specAlphaPower matHip_specBetaPower matHip_specGammaPower
-    clear matLH_CBV matRH_CBV matLH_ElectrodeCBV matRH_ElectrodeCBV matLH_hbtCBV matRH_hbtCBV matLH_ElectrodehbtCBV matRH_ElectrodehbtCBV matBinTimes matWhiskerAcceleration matHeartRate 
-      
+    clear matLH_CBV matRH_CBV matLH_ElectrodeCBV matRH_ElectrodeCBV matLH_hbtCBV matRH_hbtCBV matLH_ElectrodehbtCBV matRH_ElectrodehbtCBV matBinTimes matWhiskerAcceleration matHeartRate matDopplerFlow
+     
     nremLogical = ProcData.sleep.logicals.nremLogical;    % Logical - ones denote potential sleep epoches (5 second bins)
     targetTime = ones(1, sleepBins);   % Target time 
     sleepIndex = find(conv(nremLogical, targetTime) >= sleepBins) - (sleepBins - 1);   % Find the periods of time where there are at least 11 more
@@ -101,6 +101,7 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
                    
             WhiskerAcceleration{indexCount, 1} = ProcData.sleep.parameters.whiskerAcceleration{fixedSleepIndex(indexCount), 1};
             HeartRate{indexCount, 1} = ProcData.sleep.parameters.heartRate{fixedSleepIndex(indexCount), 1};
+            DopplerFlow{indexCount,1} = ProcData.sleep.parameters.flow{fixedSleepIndex(indexCount),1};
             BinTimes{indexCount, 1} = 5*fixedSleepIndex(indexCount);
         end
         
@@ -290,6 +291,12 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
             arrayRH_hbtCBV = reshape(matRH_hbtCBV', [1, size(matRH_hbtCBV, 2)*size(matRH_hbtCBV, 1)]);
             cellRH_hbtCBV = {arrayRH_hbtCBV};
             
+            % Doppler flow
+            matDopplerFlow = cell2mat(DopplerFlow);
+            arrayDopplerFlow = reshape(matDopplerFlow', [1, size(matDopplerFlow, 2)*size(matDopplerFlow, 1)]);
+            cellDopplerFlow = {arrayDopplerFlow};
+            
+            % bin times
             matBinTimes = cell2mat(BinTimes);
             arrayBinTimes = reshape(matBinTimes', [1, size(matBinTimes, 2)*size(matBinTimes, 1)]);
             cellBinTimes = {arrayBinTimes};
@@ -356,6 +363,7 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
                 
                 mat2CellWhiskerAcceleration{matCounter, 1} = WhiskerAcceleration(convertedMat2Cell{matCounter, 1});
                 mat2CellHeartRate{matCounter, 1} = HeartRate(convertedMat2Cell{matCounter, 1});
+                mat2CellDopplerFlow{matCounter, 1} = DopplerFlow(convertedMat2Cell{matCounter, 1});
                 mat2CellBinTimes{matCounter, 1} = BinTimes(convertedMat2Cell{matCounter, 1});
             end
             
@@ -538,6 +546,10 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
                 arrayHeartRate = reshape(matHeartRate', [1, size(matHeartRate, 2)*size(matHeartRate, 1)]);
                 cellHeartRate{cellCounter, 1} = arrayHeartRate;
                 
+                matDopplerFlow = cell2mat(mat2CellDopplerFlow{cellCounter, 1});
+                arrayDopplerFlow = reshape(matDopplerFlow', [1, size(matDopplerFlow, 2)*size(matDopplerFlow, 1)]);
+                cellDopplerFlow{cellCounter, 1} = arrayDopplerFlow;
+                
                 matBinTimes = cell2mat(mat2CellBinTimes{cellCounter, 1});
                 arrayBinTimes = reshape(matBinTimes', [1, size(matBinTimes, 2)*size(matBinTimes, 1)]);
                 cellBinTimes{cellCounter, 1} = arrayBinTimes;
@@ -592,6 +604,7 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
                 
                 SleepData.NREM.data.WhiskerAcceleration{cellLength, 1} = cellWhiskerAcceleration{1, 1};
                 SleepData.NREM.data.HeartRate{cellLength, 1} = cellHeartRate{1, 1};
+                SleepData.NREM.data.DopplerFlow{cellLength, 1} = cellDopplerFlow{1, 1};
                 SleepData.NREM.FileIDs{cellLength, 1} = fileID;
                 SleepData.NREM.BinTimes{cellLength, 1} = cellBinTimes{1, 1};
             end
@@ -642,6 +655,7 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
                 
                 SleepData.NREM.data.WhiskerAcceleration{size(SleepData.NREM.data.WhiskerAcceleration, 1) + 1, 1} = cellWhiskerAcceleration{cellLength, 1};
                 SleepData.NREM.data.HeartRate{size(SleepData.NREM.data.HeartRate, 1) + 1, 1} = cellHeartRate{cellLength, 1};
+                SleepData.NREM.data.DopplerFlow{size(SleepData.NREM.data.DopplerFlow, 1) + 1, 1} = cellDopplerFlow{cellLength, 1};
                 SleepData.NREM.FileIDs{size(SleepData.NREM.FileIDs, 1) + 1, 1} = fileID;
                 SleepData.NREM.BinTimes{size(SleepData.NREM.BinTimes, 1) + 1, 1} = cellBinTimes{cellLength, 1};
             end
@@ -659,19 +673,19 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
     
     clear LH_deltaPower RH_deltaPower LH_thetaPower RH_thetaPower LH_alphaPower RH_alphaPower LH_betaPower RH_betaPower LH_gammaPower RH_gammaPower LH_muaPower RH_muaPower Hip_deltaPower Hip_thetaPower Hip_alphaPower Hip_betaPower Hip_gammaPower Hip_muaPower
     clear LH_specDeltaPower RH_specDeltaPower LH_specThetaPower RH_specThetaPower LH_specAlphaPower RH_specAlphaPower LH_specBetaPower RH_specBetaPower LH_specGammaPower RH_specGammaPower Hip_specDeltaPower Hip_specThetaPower Hip_specAlphaPower Hip_specBetaPower Hip_specGammaPower
-    clear LH_CBV RH_CBV LH_ElectrodeCBV RH_ElectrodeCBV LH_hbtCBV RH_hbtCBV LH_ElectrodehbtCBV RH_ElectrodehbtCBV BinTimes WhiskerAcceleration HeartRate 
+    clear LH_CBV RH_CBV LH_ElectrodeCBV RH_ElectrodeCBV LH_hbtCBV RH_hbtCBV LH_ElectrodehbtCBV RH_ElectrodehbtCBV BinTimes WhiskerAcceleration HeartRate DopplerFlow
     
     clear cellLH_DeltaPower cellRH_DeltaPower cellLH_ThetaPower cellRH_ThetaPower cellLH_AlphaPower cellRH_AlphaPower cellLH_BetaPower cellRH_BetaPower cellLH_GammaPower cellRH_GammaPower cellLH_MUAPower cellRH_MUAPower cellHip_DeltaPower cellHip_ThetaPower cellHip_AlphaPower cellHip_BetaPower cellHip_GammaPower cellHip_MUAPower
     clear cellLH_specDeltaPower cellRH_specDeltaPower cellLH_specThetaPower cellRH_specThetaPower cellLH_specAlphaPower cellRH_specAlphaPower cellLH_specBetaPower cellRH_specBetaPower cellLH_specGammaPower cellRH_specGammaPower cellHip_specDeltaPower cellHip_specThetaPower cellHip_specAlphaPower cellHip_specBetaPower cellHip_specGammaPower
-    clear cellLH_CBV cellRH_CBV cellLH_ElectrodeCBV cellRH_ElectrodeCBV cellLH_hbtCBV cellRH_hbtCBV cellLH_ElectrodehbtCBV cellRH_ElectrodehbtCBV cellBinTimes cellWhiskerAcceleration cellHeartRate 
+    clear cellLH_CBV cellRH_CBV cellLH_ElectrodeCBV cellRH_ElectrodeCBV cellLH_hbtCBV cellRH_hbtCBV cellLH_ElectrodehbtCBV cellRH_ElectrodehbtCBV cellBinTimes cellWhiskerAcceleration cellHeartRate cellDopplerFlow
  
     clear mat2CellLH_DeltaPower mat2CellRH_DeltaPower mat2CellLH_ThetaPower mat2CellRH_ThetaPower mat2CellLH_AlphaPower mat2CellRH_AlphaPower mat2CellLH_BetaPower mat2CellRH_BetaPower mat2CellLH_GammaPower mat2CellRH_GammaPower mat2CellLH_MUAPower mat2CellRH_MUAPower mat2CellHip_DeltaPower mat2CellHip_ThetaPower mat2CellHip_AlphaPower mat2CellHip_BetaPower mat2CellHip_GammaPower mat2CellHip_MUAPower
     clear mat2CellLH_specDeltaPower mat2CellRH_specDeltaPower mat2CellLH_specThetaPower mat2CellRH_specThetaPower mat2CellLH_specAlphaPower mat2CellRH_specAlphaPower mat2CellLH_specBetaPower mat2CellRH_specBetaPower mat2CellLH_specGammaPower mat2CellRH_specGammaPower mat2CellHip_specDeltaPower mat2CellHip_specThetaPower mat2CellHip_specAlphaPower mat2CellHip_specBetaPower mat2CellHip_specGammaPower
-    clear mat2CellLH_CBV mat2CellRH_CBV mat2CellLH_ElectrodeCBV mat2CellRH_ElectrodeCBV mat2CellLH_hbtCBV mat2CellRH_hbtCBV mat2CellLH_ElectrodehbtCBV mat2CellRH_ElectrodehbtCBV mat2CellBinTimes mat2CellWhiskerAcceleration mat2CellHeartRate 
+    clear mat2CellLH_CBV mat2CellRH_CBV mat2CellLH_ElectrodeCBV mat2CellRH_ElectrodeCBV mat2CellLH_hbtCBV mat2CellRH_hbtCBV mat2CellLH_ElectrodehbtCBV mat2CellRH_ElectrodehbtCBV mat2CellBinTimes mat2CellWhiskerAcceleration mat2CellHeartRate mat2CellDopplerFlow
       
     clear matLH_DeltaPower matRH_DeltaPower matLH_ThetaPower matRH_ThetaPower matLH_AlphaPower matRH_AlphaPower matLH_BetaPower matRH_BetaPower matLH_GammaPower matRH_GammaPower matLH_MUAPower matRH_MUAPower matHip_DeltaPower matHip_ThetaPower matHip_AlphaPower matHip_BetaPower matHip_GammaPower matHip_MUAPower
     clear matLH_specDeltaPower matRH_specDeltaPower matLH_specThetaPower matRH_specThetaPower matLH_specAlphaPower matRH_specAlphaPower matLH_specBetaPower matRH_specBetaPower matLH_specGammaPower matRH_specGammaPower matHip_specDeltaPower matHip_specThetaPower matHip_specAlphaPower matHip_specBetaPower matHip_specGammaPower
-    clear matLH_CBV matRH_CBV matLH_ElectrodeCBV matRH_ElectrodeCBV matLH_hbtCBV matRH_hbtCBV matLH_ElectrodehbtCBV matRH_ElectrodehbtCBV matBinTimes matWhiskerAcceleration matHeartRate 
+    clear matLH_CBV matRH_CBV matLH_ElectrodeCBV matRH_ElectrodeCBV matLH_hbtCBV matRH_hbtCBV matLH_ElectrodehbtCBV matRH_ElectrodehbtCBV matBinTimes matWhiskerAcceleration matHeartRate matDopplerFlow
         
     remLogical = ProcData.sleep.logicals.remLogical;    % Logical - ones denote potential sleep epoches (5 second bins)
     targetTime = ones(1, sleepBins);   % Target time 
@@ -731,6 +745,7 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
                    
             WhiskerAcceleration{indexCount, 1} = ProcData.sleep.parameters.whiskerAcceleration{fixedSleepIndex(indexCount), 1};
             HeartRate{indexCount, 1} = ProcData.sleep.parameters.heartRate{fixedSleepIndex(indexCount), 1};
+            DopplerFlow{indexCount, 1} = ProcData.sleep.parameters.flow{fixedSleepIndex(indexCount), 1};
             BinTimes{indexCount, 1} = 5*fixedSleepIndex(indexCount);
         end
         
@@ -920,6 +935,10 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
             arrayRH_hbtCBV = reshape(matRH_hbtCBV', [1, size(matRH_hbtCBV, 2)*size(matRH_hbtCBV, 1)]);
             cellRH_hbtCBV = {arrayRH_hbtCBV};
             
+            matDopplerFlow = cell2mat(DopplerFlow);
+            arrayDopplerFlow = reshape(matDopplerFlow', [1, size(matDopplerFlow, 2)*size(matDopplerFlow, 1)]);
+            cellDopplerFlow = {arrayDopplerFlow};
+            
             matBinTimes = cell2mat(BinTimes);
             arrayBinTimes = reshape(matBinTimes', [1, size(matBinTimes, 2)*size(matBinTimes, 1)]);
             cellBinTimes = {arrayBinTimes};
@@ -986,6 +1005,7 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
                 
                 mat2CellWhiskerAcceleration{matCounter, 1} = WhiskerAcceleration(convertedMat2Cell{matCounter, 1});
                 mat2CellHeartRate{matCounter, 1} = HeartRate(convertedMat2Cell{matCounter, 1});
+                mat2CellDopplerFlow{matCounter, 1} = DopplerFlow(convertedMat2Cell{matCounter, 1});
                 mat2CellBinTimes{matCounter, 1} = BinTimes(convertedMat2Cell{matCounter, 1});
             end
             
@@ -1168,6 +1188,10 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
                 arrayHeartRate = reshape(matHeartRate', [1, size(matHeartRate, 2)*size(matHeartRate, 1)]);
                 cellHeartRate{cellCounter, 1} = arrayHeartRate;
                 
+                matDopplerFlow = cell2mat(mat2CellDopplerFlow{cellCounter, 1});
+                arrayDopplerFlow = reshape(matDopplerFlow', [1, size(matDopplerFlow, 2)*size(matDopplerFlow, 1)]);
+                cellDopplerFlow{cellCounter, 1} = arrayDopplerFlow;
+                
                 matBinTimes = cell2mat(mat2CellBinTimes{cellCounter, 1});
                 arrayBinTimes = reshape(matBinTimes', [1, size(matBinTimes, 2)*size(matBinTimes, 1)]);
                 cellBinTimes{cellCounter, 1} = arrayBinTimes;
@@ -1222,6 +1246,7 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
                 
                 SleepData.REM.data.WhiskerAcceleration{cellLength, 1} = cellWhiskerAcceleration{1, 1};
                 SleepData.REM.data.HeartRate{cellLength, 1} = cellHeartRate{1, 1};
+                SleepData.REM.data.DopplerFlow{cellLength, 1} = cellDopplerFlow{1, 1};
                 SleepData.REM.FileIDs{cellLength, 1} = fileID;
                 SleepData.REM.BinTimes{cellLength, 1} = cellBinTimes{1, 1};
             end
@@ -1272,6 +1297,7 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
                 
                 SleepData.REM.data.WhiskerAcceleration{size(SleepData.REM.data.WhiskerAcceleration, 1) + 1, 1} = cellWhiskerAcceleration{cellLength, 1};
                 SleepData.REM.data.HeartRate{size(SleepData.REM.data.HeartRate, 1) + 1, 1} = cellHeartRate{cellLength, 1};
+                SleepData.REM.data.DopplerFlow{size(SleepData.REM.data.DopplerFlow, 1) + 1, 1} = cellDopplerFlow{cellLength, 1};
                 SleepData.REM.FileIDs{size(SleepData.REM.FileIDs, 1) + 1, 1} = fileID;
                 SleepData.REM.BinTimes{size(SleepData.REM.BinTimes, 1) + 1, 1} = cellBinTimes{cellLength, 1};
             end

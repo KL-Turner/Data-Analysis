@@ -20,17 +20,26 @@ clc
 % User inputs for file information
 whiskCamFileID = uigetfile('*_WhiskerCam.bin','MultiSelect','off');
 animalID = input('Input the animal ID: ', 's'); disp(' ')
+<<<<<<< HEAD
 rawDataFileID = [animalID '_190317_022_MScanData.mat'];
+=======
+% MScanDataFileID = [animalID '_' whiskCamFileID(1:end - 15) '_MScanData.mat'];
+MScanDataFileID = [animalID '_190317_022_MScanData.mat'];
+>>>>>>> 0038e158f5a0f7468f7e2d68a1578ef98a304c91
 
-disp(['Loading relevant file information from ' rawDataFileID '...']); disp(' ')
+disp(['Loading relevant file information from ' MScanDataFileID '...']); disp(' ')
 try
-    load(rawDataFileID)
+    load(MScanDataFileID)
 catch
-    disp([rawDataFileID ' does not appear to be in the current file path']); disp(' ')
+    disp([MScanDataFileID ' does not appear to be in the current file path']); disp(' ')
     return
 end
 
+<<<<<<< HEAD
 trialDuration = 300;
+=======
+trialDuration = MScanData.notes.numberOfFrames/MScanData.notes.frameRate;
+>>>>>>> 0038e158f5a0f7468f7e2d68a1578ef98a304c91
 disp([whiskCamFileID ' is ' num2str(trialDuration) ' seconds long.']); disp(' ')
 startTime = input('Input the desired start time (sec): '); disp(' ')
 endTime = input('Input the desired end time (sec): '); disp(' ')

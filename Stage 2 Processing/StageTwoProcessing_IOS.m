@@ -24,10 +24,6 @@ rawDataFiles = {rawDataFileStruct.name}';
 rawDataFileIDs = char(rawDataFiles);
 [animalID,~,~] = GetFileInfo_IOS(rawDataFileIDs(1,:));
 
-procDataFileStruct = dir('*_ProcData.mat');
-procDataFiles = {procDataFileStruct.name}';
-procDataFileIDs = char(procDataFiles);
-
 curDir = cd;
 dirBreaks = strfind(curDir,'\');
 curFolder = curDir(dirBreaks(end) + 1:end);
@@ -37,30 +33,15 @@ elseif strcmp(curFolder,'Single Hemisphere') == true
     imagingType = 'single';
 end
 
-%% BLOCK PURPOSE: [1] Create regions of interest for the windows
-disp('Analyzing Block [1] Creating regions of interest for reflectance data.'); disp(' ')
-if strcmp(imagingType,'bilateral') == true
-    ROInames = {'LH','RH','LH_Cement','RH_Cement','Cement'};
-elseif strcmp(imagingType,'single') == true
-    ROInames = {'Barrels','Cement'};
-end
-ROIFileDir = dir('*_ROIs.mat');
-if isempty(ROIFileDir) == true
-    ROIs = [];
-else
-    ROIFileName = {ROIFileDir.name}';
-    ROIFileID = char(ROIFileName);
-    load(ROIFileID);
-end
-[ROIs] = CheckROIDates_IOS(animalID,ROIs,ROInames);
-
-%% BLOCK PURPOSE: [2] Extract CBV data from each ROI for each RawData file in the directory that hasn't been processed yet.
-disp('Analyzing Block [2] Extracting mean reflectance data from each ROI.'); disp(' ')
-ExtractCBVData_IOS(ROIs,ROInames,rawDataFileIDs)
-
 %% BLOCK PURPOSE: [3] Process the RawData structure -> Create Threshold data structure and ProcData structure.
 disp('Analyzing Block [2] Create ProcData files and process analog data.'); disp(' ')
-ProcessRawDataFiles_IOS(rawDataFileIDs)
+ProcessRawDataFiles_IOS(rawDataFileIDs,imagingType)
+
+%% BLOCK PURPOSE: [4]
+procDataFileStruct = dir('*_ProcData.mat');
+procDataFiles = {procDataFileStruct.name}';
+procDataFileIDs = char(procDataFiles);
+ProcessIntrinsicData_IOS(animalID,imagingType,rawDataFileIDs,procDataFileIDs)
 
 %% BLOCK PURPOSE: [4] Add Heart Rate to the ProcData structures.
 disp('Analyzing Block [4] Add heart rate to ProcData files.'); disp(' ')
@@ -72,11 +53,5 @@ if strcmp(imagingType,'bilateral') == true
 elseif strcmp(imagingType,'single') == true
     CorrectPixelDrift_IOS(procDataFileIDs)
 end
-
-%% BLOCK PURPOSE: [6] IOS vessel diameter analysis
-% if strcmp(imagingType,'single') == true
-%     DrawVesselROIs_IOS(procDataFileIDs)
-%     CalcVesselDiameterFWHM_IOS(procDataFileIDs)
-% end
 
 disp('Stage Two Processing - Complete.'); disp(' ')

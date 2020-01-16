@@ -39,8 +39,12 @@ for b = 1:length(firstsFileOfDay)
     for c = 1:length(ROInames)
         ROIname = [ROInames{1,c} '_' strDay];
         if ~isfield(ROIs,(ROIname))
-            [frames] = ReadDalsaBinary_IOS(fileID,256,256);
-            [ROIs] = CreateBilateralROIs_IOS(frames{1},ROIname,animalID,ROIs);
+            if strcmp(ROInames{1,c},'LH') == true || strcmp(ROIname{1,c},'RH') == true
+                [ROIs] = CalculateROICorrelationMatrix_IOS(animalID,strDay,fileID,ROIs);
+            else
+                [frames] = ReadDalsaBinary_IOS(animalID,fileID);
+                [ROIs] = CreateBilateralROIs_IOS(frames{1},ROIname,animalID,ROIs);
+            end
             save([animalID '_ROIs.mat'],'ROIs');
         end
     end
