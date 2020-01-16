@@ -1,20 +1,13 @@
-function [ok] = CheckForThreshold_IOS(sfield, animal)
+function [ok] = CheckForThreshold_IOS(sfield,animal)
 %________________________________________________________________________________________________________________________
-% Written by Kevin L. Turner
+% Edited by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %
 % Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
 %________________________________________________________________________________________________________________________
 %
-%   Purpose:
-%________________________________________________________________________________________________________________________
-%
-%   Inputs:
-%
-%   Outputs: 
-%
-%   Last Revised: February 29th, 2019
+%   Purpose: Check to see if a threshold has already been created for a given field in a given day.
 %________________________________________________________________________________________________________________________
 
 % Navigate to Shared Variables folder

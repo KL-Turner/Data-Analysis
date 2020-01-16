@@ -4,8 +4,11 @@ function [ROIs] = CalculateROICorrelationMatrix_IOS(animalID,strDay,fileID,ROIs)
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %
-%   Purpose: Analyze the cross-correlation between the gamma-band power and each pixel to properly place a circular 1mm ROI
 %________________________________________________________________________________________________________________________
+%
+%   Purpose: Analyze the cross-correlation between gamma-band power and each pixel to properly place a circular 1 mm ROI
+%________________________________________________________________________________________________________________________
+
 % pull file information and camera frames
 fileID2 = strrep(fileID,'_',' ');
 rawDataFileID = [animalID '_' fileID(1:end - 13) 'RawData.mat'];

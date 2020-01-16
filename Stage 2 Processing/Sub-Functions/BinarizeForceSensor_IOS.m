@@ -1,24 +1,17 @@
-function [binPSWF] = BinarizeForceSensor_IOS(PSWF, thresh)
+function [binForceSensor] = BinarizeForceSensor_IOS(forceSensor,thresh)
 %________________________________________________________________________________________________________________________
-% Written by Kevin L. Turner
+% Edited by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %
 % Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
 %________________________________________________________________________________________________________________________
 %
-%   Purpose:
-%________________________________________________________________________________________________________________________
-%
-%   Inputs:
-%
-%   Outputs: 
-%
-%   Last Revised: February 29th, 2019
+%   Purpose: Binarize the Force sensor with a given threshold.
 %________________________________________________________________________________________________________________________
 
-y = hilbert(diff(PSWF));
+y = hilbert(diff(forceSensor));
 env = abs(y);
-binPSWF = gt(env, thresh);
+binForceSensor = gt(env,thresh);
 
 end

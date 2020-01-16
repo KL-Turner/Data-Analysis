@@ -19,7 +19,6 @@ for a = 1:length(uniqueDays)
     dayFilenames = procDataFileIDs(FileInd,:);
     firstsFileOfDay(a) = {dayFilenames(1,:)};
 end
-
 % go through each day and concate the data to observe slow drift
 for b = 1:length(firstsFileOfDay)
     indDayProcDataFileList = {};
@@ -32,11 +31,11 @@ for b = 1:length(firstsFileOfDay)
     for c = 1:size(procDataFileIDs,1)
         procDataFileID = procDataFileIDs(c,:);
         if strfind(procDataFileID, fileDate) >= 1
-            indDayProcDataFileList{p,1} = procDataFileID;
+            indDayProcDataFileList{p,1} = procDataFileID; %#ok<AGROW>
             p = p + 1;
         end
     end
-    %% load the processed CBV/cement data from each file and concat it into one array
+    % load the processed CBV/cement data from each file and concat it into one array
     for d = 1:length(indDayProcDataFileList)
         indDayProcDataFile = indDayProcDataFileList{d,1};
         load(indDayProcDataFile)
@@ -44,10 +43,10 @@ for b = 1:length(firstsFileOfDay)
         trialDuration = ProcData.notes.trialDuration_sec;
         barrelsData = ProcData.data.CBV.Barrels;
         cementData = ProcData.data.CBV.Cement;
-        catBarrelsData = horzcat(catBarrelsData,barrelsData);
-        catCementData = horzcat(catCementData,cementData);
+        catBarrelsData = horzcat(catBarrelsData,barrelsData); %#ok<AGROW>
+        catCementData = horzcat(catCementData,cementData); %#ok<AGROW>
     end
-    %% establish whether a slow exponential trend exists for the data
+    % establish whether a slow exponential trend exists for the data
     [B,A] = butter(3,0.01/(samplingRate/2),'low');
     filtCatCementData = filtfilt(B,A,catCementData);
     x = ((1:length(filtCatCementData))/samplingRate)';
@@ -64,12 +63,10 @@ for b = 1:length(firstsFileOfDay)
     Cement_modelFit_Y = Cement_modelFit(x);
     Cement_modelFit_norm = (Cement_modelFit_Y - min(Cement_modelFit_Y))./min(Cement_modelFit_Y);
     Cement_modelFit_flip = 1 - Cement_modelFit_norm;
-    
     % apply exponential correction to original data
     adjCatBarrelsData = catBarrelsData.*Cement_modelFit_flip';
-    rsAdjCatBarrelsData = reshape(adjCatBarrelsData,[samplingRate*trialDuration, length(indDayProcDataFileList)]);
-    
-    %% comparison showing original LH data and the corrected data
+    rsAdjCatBarrelsData = reshape(adjCatBarrelsData,[samplingRate*trialDuration,length(indDayProcDataFileList)]);
+    % comparison showing original LH data and the corrected data
     fixPixels = figure;
     subplot(2,2,1)
     plot(x,catBarrelsData,'k')
@@ -105,7 +102,7 @@ for b = 1:length(firstsFileOfDay)
     legend('original','corrected')
     axis tight
     
-    %% determine which correction profile to use for LH data
+    % determine which correction profile to use for LH data
     correctionDecision = 'n';
     while strcmp(correctionDecision,'n') == true
         applyCorrection = input(['Apply correction profile to ' strDay ' pixel values? (O/A): '],'s'); disp(' ')
@@ -115,18 +112,16 @@ for b = 1:length(firstsFileOfDay)
             disp('Invalid input. Must be ''O'', ''A'''); disp(' ')
         end
     end
-    sgtitle([animalID ' ' strDay ' pixel correction applied: ' applyCorrection])
-    
-    %% Save the file to directory.
+    sgtitle([animalID ' ' strDay ' pixel correction applied: ' applyCorrection])   
+    % Save the file to directory.
     [pathstr, ~, ~] = fileparts(cd);
     dirpath = [pathstr '/Single Hemisphere/Figures/Pixel Drift Correction/'];
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
-    savefig(fixPixels, [dirpath animalID '_' strDay '_PixelDriftCorrection']);
-    close(fixPixels)
-    
-    %% apply corrected data to each file from reshaped matrix
+    savefig(fixPixels,[dirpath animalID '_' strDay '_PixelDriftCorrection']);
+    close(fixPixels)   
+    % apply corrected data to each file from reshaped matrix
     for d = 1:length(indDayProcDataFileList)
         indDayProcDataFile = indDayProcDataFileList{d,1};
         load(indDayProcDataFile)

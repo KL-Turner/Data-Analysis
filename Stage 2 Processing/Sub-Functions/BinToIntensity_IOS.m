@@ -1,4 +1,4 @@
-function [refl] = BinToIntensity_IOS(fileName, ROImask, frames)
+function [refl] = BinToIntensity_IOS(ROImask,frames)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -7,24 +7,12 @@ function [refl] = BinToIntensity_IOS(fileName, ROImask, frames)
 % Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
 %________________________________________________________________________________________________________________________
 %
-%   Purpose:
+%   Purpose: Apply image mask of an ROI to each frame of the stack and extract the mean of the valid pixels
 %________________________________________________________________________________________________________________________
-%
-%   Inputs:
-%
-%   Outputs: 
-%
-%   Last Revised: February 29th, 2019
-%________________________________________________________________________________________________________________________
-
-% Import camera frames from dalsa file
-if nargin < 3
-    [frames] = ReadDalsaBinary_IOS(fileName, 256, 256);
-end
 
 nFrames = length(frames);
-
-refl = zeros(1, nFrames);
+refl = zeros(1,nFrames);
+% Apply image mask to each frame of the stack
 for n = 1:nFrames
     mask = ROImask.*double(frames{n});
     refl(n) = mean(nonzeros(mask));

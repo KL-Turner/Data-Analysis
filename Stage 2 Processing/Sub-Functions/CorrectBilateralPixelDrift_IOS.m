@@ -19,7 +19,6 @@ for a = 1:length(uniqueDays)
     dayFilenames = procDataFileIDs(FileInd,:);
     firstsFileOfDay(a) = {dayFilenames(1,:)};
 end
-
 % go through each day and concate the data to observe slow drift
 for b = 1:length(firstsFileOfDay)
     indDayProcDataFileList = {};
@@ -35,11 +34,11 @@ for b = 1:length(firstsFileOfDay)
     for c = 1:size(procDataFileIDs,1)
         procDataFileID = procDataFileIDs(c,:);
         if strfind(procDataFileID, fileDate) >= 1
-            indDayProcDataFileList{p,1} = procDataFileID;
+            indDayProcDataFileList{p,1} = procDataFileID; %#ok<AGROW>
             p = p + 1;
         end
     end
-    %% load the processed CBV/cement data from each file and concat it into one array
+    % load the processed CBV/cement data from each file and concat it into one array
     for d = 1:length(indDayProcDataFileList)
         indDayProcDataFile = indDayProcDataFileList{d,1};
         load(indDayProcDataFile)
@@ -55,13 +54,13 @@ for b = 1:length(firstsFileOfDay)
         LH_cementData = ProcData.data.CBV.LH_Cement;
         RH_cementData = ProcData.data.CBV.RH_Cement;
         Cement_cementData = ProcData.data.CBV.Cement;
-        catLH_CBVdata = horzcat(catLH_CBVdata,LH_CBVdata);
-        catRH_CBVdata = horzcat(catRH_CBVdata,RH_CBVdata);
-        catLH_cementData = horzcat(catLH_cementData,LH_cementData);
-        catRH_cementData = horzcat(catRH_cementData,RH_cementData);
-        catCement_cementData = horzcat(catCement_cementData,Cement_cementData);
+        catLH_CBVdata = horzcat(catLH_CBVdata,LH_CBVdata); %#ok<AGROW>
+        catRH_CBVdata = horzcat(catRH_CBVdata,RH_CBVdata); %#ok<AGROW>
+        catLH_cementData = horzcat(catLH_cementData,LH_cementData); %#ok<AGROW>
+        catRH_cementData = horzcat(catRH_cementData,RH_cementData); %#ok<AGROW>
+        catCement_cementData = horzcat(catCement_cementData,Cement_cementData); %#ok<AGROW>
     end
-    %% establish whether a slow exponential trend exists for the data
+    % establish whether a slow exponential trend exists for the data
     [B,A] = butter(3,0.01/(samplingRate/2),'low');
     filtCatLH_cementData = filtfilt(B,A,catLH_cementData);
     filtCatRH_cementData = filtfilt(B,A,catRH_cementData);
@@ -98,38 +97,33 @@ for b = 1:length(firstsFileOfDay)
     LH_modelFit_flip = 1 - LH_modelFit_norm;
     RH_modelFit_flip = 1 - RH_modelFit_norm;
     Cement_modelFit_flip = 1 - Cement_modelFit_norm;
-    
     % apply exponential correction to original data
     LH_adjCatA_CBVdata = catLH_CBVdata.*LH_modelFit_flip';
-    LH_rsAdjCatA_CBVdata = reshape(LH_adjCatA_CBVdata',[samplingRate*trialDuration, length(indDayProcDataFileList)]);
+    LH_rsAdjCatA_CBVdata = reshape(LH_adjCatA_CBVdata',[samplingRate*trialDuration,length(indDayProcDataFileList)]);
     LH_adjCatB_CBVdata = catLH_CBVdata.*RH_modelFit_flip';
-    LH_rsAdjCatB_CBVdata = reshape(LH_adjCatB_CBVdata,[samplingRate*trialDuration, length(indDayProcDataFileList)]);
+    LH_rsAdjCatB_CBVdata = reshape(LH_adjCatB_CBVdata,[samplingRate*trialDuration,length(indDayProcDataFileList)]);
     LH_adjCatC_CBVdata = catLH_CBVdata.*Cement_modelFit_flip';
-    LH_rsAdjCatC_CBVdata = reshape(LH_adjCatC_CBVdata,[samplingRate*trialDuration, length(indDayProcDataFileList)]);
-    
+    LH_rsAdjCatC_CBVdata = reshape(LH_adjCatC_CBVdata,[samplingRate*trialDuration,length(indDayProcDataFileList)]);
     RH_adjCatA_CBVdata = catRH_CBVdata.*LH_modelFit_flip';
-    RH_rsAdjCatA_CBVdata = reshape(RH_adjCatA_CBVdata,[samplingRate*trialDuration, length(indDayProcDataFileList)]);
+    RH_rsAdjCatA_CBVdata = reshape(RH_adjCatA_CBVdata,[samplingRate*trialDuration,length(indDayProcDataFileList)]);
     RH_adjCatB_CBVdata = catRH_CBVdata.*RH_modelFit_flip';
-    RH_rsAdjCatB_CBVdata = reshape(RH_adjCatB_CBVdata,[samplingRate*trialDuration, length(indDayProcDataFileList)]);
+    RH_rsAdjCatB_CBVdata = reshape(RH_adjCatB_CBVdata,[samplingRate*trialDuration,length(indDayProcDataFileList)]);
     RH_adjCatC_CBVdata = catRH_CBVdata.*Cement_modelFit_flip';
-    RH_rsAdjCatC_CBVdata = reshape(RH_adjCatC_CBVdata,[samplingRate*trialDuration, length(indDayProcDataFileList)]);
-    
-    %% evaluate fits
+    RH_rsAdjCatC_CBVdata = reshape(RH_adjCatC_CBVdata,[samplingRate*trialDuration,length(indDayProcDataFileList)]);
+    % evaluate fits
     LH_Atest = corrcoef(catLH_CBVdata,LH_modelFit_Y);
     LH_Atest_R = LH_Atest(1,2);
     LH_Btest = corrcoef(catLH_CBVdata,RH_modelFit_Y);
     LH_Btest_R = LH_Btest(1,2);
     LH_Ctest = corrcoef(catLH_CBVdata,Cement_modelFit_Y);
     LH_Ctest_R = LH_Ctest(1,2);
-    
     RH_Atest = corrcoef(catRH_CBVdata,LH_modelFit_Y);
     RH_Atest_R = RH_Atest(1,2);
     RH_Btest = corrcoef(catRH_CBVdata,RH_modelFit_Y);
     RH_Btest_R = RH_Btest(1,2);
     RH_Ctest = corrcoef(catRH_CBVdata,Cement_modelFit_Y);
     RH_Ctest_R = RH_Ctest(1,2);
-    
-    %% comparison showing original LH data and the corrected data
+    % comparison showing original LH data and the corrected data
     fixPixels = figure;
     subplot(4,3,1)
     plot(x,filtCatLH_cementData,'k')
@@ -240,7 +234,7 @@ for b = 1:length(firstsFileOfDay)
     ylabel('12-bit pixel val')
     axis tight
     
-    %% determine which correction profile to use for RH data
+    % determine which correction profile to use for RH data
     correctionDecision = 'n';
     while strcmp(correctionDecision,'n') == true
         applyCorrection = input(['Apply correction profile to ' strDay ' pixel values? (O/A/B/C): '],'s'); disp(' ')
@@ -251,17 +245,15 @@ for b = 1:length(firstsFileOfDay)
         end
     end
     sgtitle([animalID ' ' strDay ' pixel correction applied: ' applyCorrection])
-    
-    %% Save the file to directory.
-    [pathstr, ~, ~] = fileparts(cd);
+    % Save the file to directory.
+    [pathstr,~,~] = fileparts(cd);
     dirpath = [pathstr '/Combined Imaging/Figures/Pixel Drift Correction/'];
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
     savefig(fixPixels, [dirpath animalID '_' strDay '_PixelDriftCorrection']);
     close(fixPixels)
-    
-    %% apply corrected data to each file from reshaped matrix
+    % apply corrected data to each file from reshaped matrix
     for d = 1:length(indDayProcDataFileList)
         indDayProcDataFile = indDayProcDataFileList{d,1};
         load(indDayProcDataFile)
