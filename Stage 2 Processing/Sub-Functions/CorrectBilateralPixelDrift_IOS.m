@@ -28,7 +28,7 @@ for b = 1:length(firstsFileOfDay)
     catRH_cementData = [];
     catCement_cementData = [];
     fileName = firstsFileOfDay{1,b};
-    [~, fileDate, ~] = GetFileInfo_IOS(fileName);
+    [~,fileDate,~] = GetFileInfo_IOS(fileName);
     strDay = ConvertDate_IOS(fileDate);
     p = 1;
     for c = 1:size(procDataFileIDs,1)
@@ -44,13 +44,8 @@ for b = 1:length(firstsFileOfDay)
         load(indDayProcDataFile)
         samplingRate = ProcData.notes.CBVCamSamplingRate;
         trialDuration = ProcData.notes.trialDuration_sec;
-        try
-            LH_CBVdata = ProcData.data.CBV.originalLH;
-            RH_CBVdata = ProcData.data.CBV.originalRH;
-        catch
-            LH_CBVdata = ProcData.data.CBV.LH;
-            RH_CBVdata = ProcData.data.CBV.RH;
-        end
+        LH_CBVdata = ProcData.data.CBV.LH;
+        RH_CBVdata = ProcData.data.CBV.RH;
         LH_cementData = ProcData.data.CBV.LH_Cement;
         RH_cementData = ProcData.data.CBV.RH_Cement;
         Cement_cementData = ProcData.data.CBV.Cement;

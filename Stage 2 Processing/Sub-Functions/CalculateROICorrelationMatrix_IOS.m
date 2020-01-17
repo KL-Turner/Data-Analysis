@@ -38,7 +38,7 @@ for a = 1:length(hem)
         checkMask = input('Is the ROI okay? (y/n): ','s'); disp(' ')
         if strcmp(checkMask,'y') == true
             isok = true;
-            ROIs.([hem{1,a} '_windowMask']).rect = rect;
+            ROIs.([hem{1,a} '_' strDay]).rect = rect;
         end
         delete(ROIoutline);
     end

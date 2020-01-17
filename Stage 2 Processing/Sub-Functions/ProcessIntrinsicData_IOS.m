@@ -39,9 +39,10 @@ for a = 1:size(procDataFileIDs,1)
     [~,fileDate,~] = GetFileInfo_IOS(rawDataFileID);
     strDay = ConvertDate_IOS(fileDate);
     for b = 1:length(ROInames)
-        ProcData.data.CBV.(ROInames{1,b}) = RawData.data.CBV.([ROInames{1,b} '_' strDay]);
+        ProcData.data.CBV.(ROInames{1,b}) = RawData.data.CBV.([ROInames{1,b} '_' strDay])(1:end - 1);
     end
-    CheckForNaNs_IOS(ProcData,imagingType);
+    CheckForNaNs_IOS(ProcData);
+    save(procDataFileID,'ProcData')
 end
 
 end

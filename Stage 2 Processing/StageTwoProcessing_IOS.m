@@ -54,4 +54,4 @@ elseif strcmp(imagingType,'single') == true
 end
 
 %% fin.
-disp('Stage Two Processing - Complete.'); disp(' ')
+disp('IOS Stage Two Processing - Complete.'); disp(' ')
