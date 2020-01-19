@@ -1,4 +1,4 @@
-function [ROIs] = CalculateROICorrelationMatrix_IOS(animalID,strDay,fileID,ROIs)
+function [ROIs] = CalculateROICorrelationMatrix_IOS(animalID,strDay,fileID,ROIs,imagingType)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -26,8 +26,13 @@ colormap gray
 colorbar
 axis image
 caxis([0 2^RawData.notes.CBVCamBitDepth])
+% determine which ROIs to draw based on imaging type
+if strcmp(imagingType,'bilateral') == true
+    hem = {'LH','RH'};
+elseif strcmp(imagingType,'single') == true
+    hem = {'Barrels'};
+end
 % draw ROI for the mask over the entire windows
-hem = {'LH','RH'};
 for a = 1:length(hem)
     isok = false;
     while isok == false
@@ -69,6 +74,13 @@ for d = 1:length(hem)
         gammaBandArray = LH_gammaBandPower;
     elseif strcmp(hemisphere,'RH') == true
         gammaBandArray = RH_gammaBandPower;
+    elseif strcmp(hemisphere,'Barrels') == true
+        singleHem = ProcDatat.notes.hemisphere;
+        if strcmp(singleHem,'LH') == true
+            gammaBandArray = LH_gammaBandPower;
+        elseif strcmp(singleHem,'RH') == true
+            gammaBandArray = RH_gammaBandPower;
+        end
     end
     % extract pixel values from each numel index in matrix image
     for e = 1:size(imageStack.(hemisphere),1)
@@ -85,8 +97,13 @@ for d = 1:length(hem)
         end
     end
 end
+% determine the proper size of the ROI based on camera/lens magnification
+if strcmp(imagingType,'bilateral') == true
+    circRadius = 15;   % pixels to be 1 mm in diameter
+elseif strcmp(imagingType,'single') == true
+    circRadius = 60;
+end
 % place circle along the most correlation region of each hemisphere
-circRadius = 15;   % pixels to be 1 mm in diameter
 for f = 1:length(hem)
     rectMask = ROIs.([hem{1,f} '_' strDay]).rect;
     rectMask = round(rectMask);
@@ -105,7 +122,7 @@ for f = 1:length(hem)
         colorbar
         axis image
         disp(['Move the ROI over the most correlated region for the ' hem{1,f}]); disp(' ')
-        circ = drawcircle('Center',[0,0],'Radius',circRadius);
+        circ = drawcircle('Center',[0,0],'Radius',circRadius,'Color','r');
         checkCircle = input('Is the ROI okay? (y/n): ','s'); disp(' ')
         circPosition = round(circ.Center);
         if strcmp(checkCircle,'y') == true
@@ -122,8 +139,12 @@ end
 figure
 imagesc(frames{1})
 hold on;
-drawcircle('Center',ROIs.(['LH_' strDay]).circPosition,'Radius',ROIs.(['LH_' strDay]).circRadius);
-drawcircle('Center',ROIs.(['RH_' strDay]).circPosition,'Radius',ROIs.(['RH_' strDay]).circRadius);
+if strcmp(imagingType,'bilateral') == true
+    drawcircle('Center',ROIs.(['LH_' strDay]).circPosition,'Radius',ROIs.(['LH_' strDay]).circRadius,'Color','r');
+    drawcircle('Center',ROIs.(['RH_' strDay]).circPosition,'Radius',ROIs.(['RH_' strDay]).circRadius,'Color','r');
+elseif strcmp(imagingType,'single')
+    drawcircle('Center',ROIs.(['Barrels_' strDay]).circPosition,'Radius',ROIs.(['Barrels_' strDay]).circRadius,'Color','r');
+end
 title([animalID ' final ROI placement'])
 xlabel('Image size (pixels)')
 ylabel('Image size (pixels)')

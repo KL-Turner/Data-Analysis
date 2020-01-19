@@ -26,7 +26,7 @@ else
     load(ROIFileID);
 end
 % check whether or not each ROI already exists
-[ROIs] = CheckROIDates_IOS(animalID,ROIs,ROInames);
+[ROIs] = CheckROIDates_IOS(animalID,ROIs,ROInames,imagingType);
 % Extract CBV data from each ROI for each RawData file in the directory that hasn't been processed yet.
 ExtractCBVData_IOS(ROIs,ROInames,rawDataFileIDs)
 % Go through each ProcData file and add the pixel data to each

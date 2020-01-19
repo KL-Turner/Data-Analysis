@@ -23,11 +23,11 @@ for a = 1:size(rawDataFileIDs,1)
             RawData.data.CBV = [];
         end
         % check if ROI exists
-        if ~isfield(RawData.data.CBV,ROIname)
+%         if ~isfield(RawData.data.CBV,ROIname)
             [frames] = ReadDalsaBinary_IOS(animalID,[fileID '_WindowCam.bin']);
             disp(['Extracting ' ROIname ' ROI CBV data from ' rawDataFile '...']); disp(' ')
             % draw circular ROIs based on XCorr for LH/RH/Barrels, then free-hand for cement ROIs
-            if strcmp(ROIshortName,'LH') == true || strcmp(ROIshortName,'RH') == true
+            if strcmp(ROIshortName,'LH') == true || strcmp(ROIshortName,'RH') == true || strcmp(ROIshortName,'Barrels') == true
                 circROI = drawcircle('Center',ROIs.(ROIname).circPosition,'Radius',ROIs.(ROIname).circRadius);
                 mask = createMask(circROI,frames{1});
             else
@@ -36,9 +36,9 @@ for a = 1:size(rawDataFileIDs,1)
             meanIntensity = BinToIntensity_IOS(mask,frames);
             RawData.data.CBV.(ROIname) = meanIntensity;
             save(rawDataFile,'RawData')
-        else
-            disp([ROIname ' ROI CBV data from ' rawDataFile ' already extracted. Continuing...']); disp(' ')
-        end
+%         else
+%             disp([ROIname ' ROI CBV data from ' rawDataFile ' already extracted. Continuing...']); disp(' ')
+%         end
     end
 end
 
