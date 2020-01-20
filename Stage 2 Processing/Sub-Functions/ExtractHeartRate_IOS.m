@@ -31,5 +31,4 @@ for a = 1:size(procDataFiles,1)
     heartRate = filtfilt(B,A,patchedHR);   % Filtered heart rate signal
     ProcData.data.heartRate = heartRate;
     save(procDataFile,'ProcData');
-    
 end

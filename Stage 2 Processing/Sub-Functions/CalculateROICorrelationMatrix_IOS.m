@@ -75,7 +75,7 @@ for d = 1:length(hem)
     elseif strcmp(hemisphere,'RH') == true
         gammaBandArray = RH_gammaBandPower;
     elseif strcmp(hemisphere,'Barrels') == true
-        singleHem = ProcDatat.notes.hemisphere;
+        singleHem = ProcData.notes.hemisphere;
         if strcmp(singleHem,'LH') == true
             gammaBandArray = LH_gammaBandPower;
         elseif strcmp(singleHem,'RH') == true
@@ -101,7 +101,7 @@ end
 if strcmp(imagingType,'bilateral') == true
     circRadius = 15;   % pixels to be 1 mm in diameter
 elseif strcmp(imagingType,'single') == true
-    circRadius = 60;
+    circRadius = 30;
 end
 % place circle along the most correlation region of each hemisphere
 for f = 1:length(hem)
@@ -136,7 +136,7 @@ for f = 1:length(hem)
     end
 end
 % check final image
-figure
+figure;
 imagesc(frames{1})
 hold on;
 if strcmp(imagingType,'bilateral') == true

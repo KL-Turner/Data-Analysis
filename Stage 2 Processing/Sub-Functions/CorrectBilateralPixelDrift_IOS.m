@@ -242,7 +242,7 @@ for b = 1:length(firstsFileOfDay)
     sgtitle([animalID ' ' strDay ' pixel correction applied: ' applyCorrection])
     % Save the file to directory.
     [pathstr,~,~] = fileparts(cd);
-    dirpath = [pathstr '/Combined Imaging/Figures/Pixel Drift Correction/'];
+    dirpath = [pathstr '/Bilateral Imaging/Pixel Drift Correction/'];
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end

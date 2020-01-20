@@ -24,7 +24,9 @@ rawDataFileIDs = char(rawDataFiles);
 curDir = cd;
 dirBreaks = strfind(curDir,'\');
 curFolder = curDir(dirBreaks(end) + 1:end);
-if strcmp(curFolder,'Combined Imaging') == true
+if strcmp(curFolder,'Bilateral Imaging') == true
+    imagingType = 'bilateral';
+elseif strcmp(curFolder,'Isoflurane Trials') == true
     imagingType = 'bilateral';
 elseif strcmp(curFolder,'Single Hemisphere') == true
     imagingType = 'single';

@@ -132,7 +132,12 @@ for a = 1:size(rawDataFiles,1)
     
     %% Laser Doppler
     if isfield(RawData.data,'flow') == true
-        trimmedBackScatter = RawData.data.backScatte(1:min(analogExpectedLength,length(RawData.data.backScatter)));
+        try
+            % typo in code that has since been fixed - need to catch mistake in old data
+            trimmedBackScatter = RawData.data.backScatter(1:min(analogExpectedLength,length(RawData.data.backScatter)));
+        catch
+            trimmedBackScatter = RawData.data.backScatte(1:min(analogExpectedLength,length(RawData.data.backScatte)));
+        end
         trimmedFlow = RawData.data.flow(1:min(analogExpectedLength,length(RawData.data.flow)));
         ProcData.data.backScatter.data = max(resample(trimmedBackScatter,ProcData.notes.dsFs, ProcData.notes.analogSamplingRate),0);
         ProcData.data.flow.data = max(resample(trimmedFlow,ProcData.notes.dsFs,ProcData.notes.analogSamplingRate),0);

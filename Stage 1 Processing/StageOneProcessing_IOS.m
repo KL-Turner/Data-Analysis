@@ -32,6 +32,7 @@ if nargin < 2
 end
 % Prompt user if the laser doppler was aquired for this day of imaging
 ldInput = input('Was laser doppler acquired during this trial? (y/n): ','s'); disp(' ')
+p2Input = input('Is this IOS imaging for 2P data? (y/n): ','s'); disp(' ')
 
 %% BLOCK PURPOSE: [1] Preparing to create RawData files.
 disp('Analyzing Block [1] Preparing to create RawData file(s).'); disp(' ')
@@ -137,6 +138,22 @@ for a = 1:length(fileNames)
         save([trialData.animalID '_' fileID '_RawData'],'RawData')
     else
         disp('File already exists. Continuing...'); disp(' ')
+    end
+end
+% add ROI pixels to RawData file if desired - for 2P data only
+if strcmp(p2Input,'y') == true
+    for a = 1:length(fileNames)
+        disp(['Analyzing WindowCam file (' num2str(a) ' of ' num2str(length(fileNames)) ')']); disp(' ')
+        % Adapt to list or single file. The purpose of this is control the way uigetfile handles an instance of a
+        % single file input (character string) vs. multiple files, which it puts in cells
+        if iscell(fileNames) == true
+            indFile = fileNames{a};
+        else
+            indFile = fileNames;
+        end
+        % Pull out the file ID for the file - this is the numerical string after the animal name/hemisphere
+        [~,~,fileID] = GetFileInfo_IOS(indFile);
+        ExtractImageMatrixFor2PData_IOS(fileID);
     end
 end
 disp('IOS Stage One Processing - Complete.'); disp(' ')
