@@ -40,7 +40,7 @@ timeOverride = 'y';
 curDir = cd;
 dirBreaks = strfind(curDir,'\');
 curFolder = curDir(dirBreaks(end) + 1:end);
-if strcmp(curFolder,'Combined Imaging') == true
+if strcmp(curFolder,'Bilateral Imaging') == true
     imagingType = 'bilateral';
 elseif strcmp(curFolder,'Single Hemisphere') == true
     imagingType = 'single';
@@ -131,7 +131,7 @@ CreateAllSpecDataStruct_IOS(animalID,neuralDataTypes)
 
 %% BLOCK PURPOSE [12] Generate single trial figures
 disp('Analyzing Block [12] Generating single trial summary figures'); disp(' ')
-saveFigs = 'y';
-GenerateSingleFigures_IOS(procDataFileIDs,RestingBaselines,updatedBaselineType,saveFigs,imagingType)
+% saveFigs = 'y';
+% GenerateSingleFigures_IOS(procDataFileIDs,RestingBaselines,updatedBaselineType,saveFigs,imagingType)
 
 disp('Stage Three Processing - Complete.'); disp(' ')

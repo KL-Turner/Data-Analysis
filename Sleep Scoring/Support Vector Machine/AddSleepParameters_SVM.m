@@ -15,7 +15,7 @@ function [] = AddSleepParameters_SVM(procDataFileIDs, RestingBaselines, baseline
 %   Last Revised: July 26th, 2019
 %________________________________________________________________________________________________________________________
 
-for a = 1:size(procDataFileIDs, 1)
+for a = 1:size(procDataFileIDs,1)
     procDataFileID = procDataFileIDs(a,:);
     disp(['Adding sleep scoring parameters to ' procDataFileID '... (' num2str(a) '/' num2str(size(procDataFileIDs,1)) ')']); disp(' ')
     [~, fileDate, ~] = GetFileInfo_IOS(procDataFileID);

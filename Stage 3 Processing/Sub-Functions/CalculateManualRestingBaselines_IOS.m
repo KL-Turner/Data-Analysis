@@ -35,7 +35,7 @@ manualBaselineFileStruct = dir('*_ManualBaselineFileList.mat');
 manualBaselineFiles = {manualBaselineFileStruct.name}';
 manualBaselineFileID = char(manualBaselineFiles);
 
-if isfield(RestingBaselines, 'manualSelection') == false && exist(manualBaselineFileID) == false
+if isfield(RestingBaselines,'manualSelection') == false && exist(manualBaselineFileID) == false
     validFiles = cell(size(procDataFileIDs,1),1);
     for a = 1:size(procDataFileIDs,1)
         disp(['Loading file ' num2str(a) ' of ' num2str(size(procDataFileIDs,1)) '...']); disp(' ')

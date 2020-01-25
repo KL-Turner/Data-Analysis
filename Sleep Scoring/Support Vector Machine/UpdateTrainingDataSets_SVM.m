@@ -19,12 +19,10 @@ for a = 1:size(procDataFileIDs,1)
     procDataFileID = procDataFileIDs(a,:);
     modelDataSetID = [procDataFileID(1:end-12) 'ModelData.mat'];
     trainingDataSetID = [procDataFileID(1:end-12) 'TrainingData.mat'];
-    if exist(trainingDataSetID) > 1
-        load(modelDataSetID)
-        load(trainingDataSetID)
-%         disp(['Updating training data set for ' trainingDataSetID '...' ]); disp(' ')
-        paramsTable.behavState = trainingTable.behavState;
-        trainingTable = paramsTable;
-        save(trainingDataSetID, 'trainingTable')
-    end
+    load(modelDataSetID)
+    load(trainingDataSetID)
+    disp(['Updating training data set for ' trainingDataSetID '...' ]); disp(' ')
+    paramsTable.behavState = trainingTable.behavState;
+    trainingTable = paramsTable;
+    save(trainingDataSetID,'trainingTable')
 end
