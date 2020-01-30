@@ -1,4 +1,4 @@
-function [fList] = GetFuncDependencies(functionName)
+function [] = GetFuncDependencies(functionName)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -91,25 +91,27 @@ end
 
 % Find the unique functions listed.
 uniqueFuncPaths = unique(fList);
-allDepFuncNames = cell(size(uniqueFuncPaths, 2), 1);
-allDepFuncPaths = cell(size(uniqueFuncPaths, 2), 1);
-for x = 1:size(uniqueFuncPaths, 2)
-    allDepFuncPaths{x, 1} = uniqueFuncPaths{1, x};
-    funcDelimiters = strfind(allDepFuncPaths{x, 1}, delimiter);
-    allDepFuncNames{x, 1} = char(strip(allDepFuncPaths{x, 1}(funcDelimiters(end):end), delimiter));
-end
-
-tableVals = sortrows(horzcat(allDepFuncNames, allDepFuncPaths));
-fileNames = tableVals(:, 1);
-filePaths = tableVals(:, 2);
-T = table(fileNames, filePaths, 'VariableNames', {'File_names', 'Full_file_path'});
-figure('Name', ['Function dependencies for ' functionName], 'NumberTitle', 'off')
-u = uitable('Data',T{:,:},'ColumnName',T.Properties.VariableNames,'RowName',T.Properties.RowNames,'Units', 'Normalized', 'Position',[0, 0, 1, 1]);
-TString = evalc('disp(T)');
-TString = strrep(TString,'<strong>','\bf');
-TString = strrep(TString,'</strong>','\rm');
-TString = strrep(TString,'_','\_');
-FixedWidth = get(0,'FixedWidthFontName');
-set(u,'ColumnWidth',{300})
-
+if isempty(fList) == false
+    allDepFuncNames = cell(size(uniqueFuncPaths, 2), 1);
+    allDepFuncPaths = cell(size(uniqueFuncPaths, 2), 1);
+    for x = 1:size(uniqueFuncPaths, 2)
+        allDepFuncPaths{x, 1} = uniqueFuncPaths{1, x};
+        funcDelimiters = strfind(allDepFuncPaths{x, 1}, delimiter);
+        allDepFuncNames{x, 1} = char(strip(allDepFuncPaths{x, 1}(funcDelimiters(end):end), delimiter));
+    end
+    
+    tableVals = sortrows(horzcat(allDepFuncNames, allDepFuncPaths));
+    fileNames = tableVals(:, 1);
+    filePaths = tableVals(:, 2);
+    T = table(fileNames, filePaths, 'VariableNames', {'File_names', 'Full_file_path'});
+    figure('Name', ['Function dependencies for ' functionName], 'NumberTitle', 'off')
+    u = uitable('Data',T{:,:},'ColumnName',T.Properties.VariableNames,'RowName',T.Properties.RowNames,'Units', 'Normalized', 'Position',[0, 0, 1, 1]);
+    TString = evalc('disp(T)');
+    TString = strrep(TString,'<strong>','\bf');
+    TString = strrep(TString,'</strong>','\rm');
+    TString = strrep(TString,'_','\_');
+    FixedWidth = get(0,'FixedWidthFontName');
+    set(u,'ColumnWidth',{300})
+else
+    disp([functionName ' is a stand-alone function']); disp(' ');
 end
