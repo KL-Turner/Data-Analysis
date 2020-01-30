@@ -17,7 +17,7 @@ clear
 clc
 
 animalIDs = {'T99','T101','T102','T103','T105','T108','T109','T110','T111'};
-driveLetters = {'E','E','E','F','F','F','D','D','D'};
+driveLetters = {'M','M','M','M','M','M','M','M','M'};
 behavFields = {'Whisk','Rest','NREM','REM'};
 colorbrewer_setA_colorA = [(31/256) (120/256) (180/256)];
 colorbrewer_setA_colorB = [(51/256) (160/256) (44/256)];
@@ -28,7 +28,7 @@ colorbrewer_setA_colorD = [(255/256) (0/256) (115/256)];
 for a = 1:length(animalIDs)
     animalID = animalIDs{1,a};
     driveLetter = driveLetters{1,a};
-    dataPath = [driveLetter ':\' animalID '\Combined Imaging\'];
+    dataPath = [driveLetter ':\Turner_Manuscript_Summer2020\' animalID '\Bilateral Imaging\'];
     cd(dataPath)
     load([animalID '_AnalysisResults.mat']);
     for b = 1:length(behavFields)

@@ -11,14 +11,14 @@ clear
 clc
 
 animalIDs = {'T99','T101','T102','T103','T105','T108','T109','T110','T111'};
-driveLetters = {'E','E','E','F','F','F','D','D','D'};
+driveLetters = {'M','M','M','M','M','M','M','M','M'};
 behavFields = {'Rest','NREM','REM'};
 
 %% cd through each animal's directory and extract the appropriate analysis results
 for a = 1:length(animalIDs)
     animalID = animalIDs{1,a};
     driveLetter = driveLetters{1,a};
-    dataPath = [driveLetter ':\' animalID '\Combined Imaging\'];
+    dataPath = [driveLetter ':\Turner_Manuscript_Summer2020\' animalID '\Bilateral Imaging\'];
     cd(dataPath)
     load([animalID '_AnalysisResults.mat']);
     for b = 1:length(behavFields)

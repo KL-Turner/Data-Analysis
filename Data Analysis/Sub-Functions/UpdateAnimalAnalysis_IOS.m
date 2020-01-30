@@ -17,12 +17,12 @@ clear
 clc
 
 animalIDs = {'T99','T101','T102','T103','T105','T108','T109','T110','T111'};
-driveLetters = {'E','E','E','F','F','F','D','D','D'};
+driveLetters = {'M','M','M','M','M','M','M','M','M'};
 
 for a = 1:length(animalIDs)
     animalID = animalIDs{1,a};
     driveLetter = driveLetters{1,a};
-    dataPath = [driveLetter ':\' animalID '\Combined Imaging\'];
+    dataPath = [driveLetter ':\Turner_Manuscript_Summer2020\' animalID '\Bilateral Imaging\'];
     disp(['Re-running data analysis for animal: ' animalID]); disp(' ')
     cd(dataPath)
     DataAnalysis_IOS

@@ -85,8 +85,8 @@ for a = 1:length(HRF_hemDataTypes)
 end
 
 %% BLOCK PURPOSE: [9] Laser doppler analysis
-disp('Analyzing Block [1] Analyzing the whisking-evoked, stimulus-evoked, and behavior-dependent doppler flow'); disp(' ')
-[~] = AnalyzeLaserDoppler_IOS(AnalysisResults);
+% disp('Analyzing Block [1] Analyzing the whisking-evoked, stimulus-evoked, and behavior-dependent doppler flow'); disp(' ')
+% [~] = AnalyzeLaserDoppler_IOS(AnalysisResults);
 
 %% BLOCK PURPOSE: [10] Behavior-transition averages
 

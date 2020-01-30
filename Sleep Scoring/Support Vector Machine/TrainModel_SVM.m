@@ -1,4 +1,4 @@
-function [SVMModel] = TrainModel_SVM(animalIDs,baselineType)
+function [SVMModel] = TrainModel_SVM(animalIDs)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -46,9 +46,8 @@ disp('Cross-validating (10-fold) the support vector machine classifier...'); dis
 CVSVMModel = crossval(SVMModel);
 loss = kfoldLoss(CVSVMModel);
 disp(['k-fold loss classification error: ' num2str(loss*100) '%']); disp(' ')
-saveLoc = 'C:\Users\klt8\Documents\';
-save([saveLoc 'SVM_SleepScoringModel.mat'], 'SVMModel')
-save([saveLoc 'SVM_ModelCrossValidation.mat'], 'CVSVMModel')
+saveLoc = startingDirectory;
+save([saveLoc '\IOS_SVM_SleepScoringModel.mat\'],'SVMModel')
+save([saveLoc '\IOS_SVM_ModelCrossValidation.mat\'],'CVSVMModel')
 
 end
-
