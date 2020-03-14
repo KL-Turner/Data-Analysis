@@ -1,4 +1,4 @@
-function [] = ButtonSelect()
+function [] = ButtonSelect_Manuscript2020()
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering

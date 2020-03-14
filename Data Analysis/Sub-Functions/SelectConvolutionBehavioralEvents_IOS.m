@@ -30,7 +30,7 @@ switch behavior
     case 'Rest'
         Criteria.Fieldname = {'PuffDistance','duration'};
         Criteria.Comparison = {'gt','gt'};
-        Criteria.Value = {5,6+BehaviorBufferTime};
+        Criteria.Value = {5,6 + BehaviorBufferTime};
         Criteria.Min_Duration = 5;
         Criteria.Min_PuffDist = 5;
     case 'EndofWhisk'
@@ -97,11 +97,13 @@ if strcmp(behavior,'Contra')
             end
         end
     end
+    DataStruct.duration = zeros(length(DataStruct.eventTime),1);
 elseif strcmp(behavior,'Whisk')
     DataStruct.PuffDistance = DataStruct.puffDistance;
 elseif strcmp(behavior,'Rest')
     DataStruct.PuffDistance = DataStruct.puffDistances;
     DataStruct.duration = DataStruct.durations;
+    DataStruct.eventTime = DataStruct.eventTimes;
     DataStruct.samplingRate = DataStruct.CBVCamSamplingRate;
 end
 
@@ -151,7 +153,6 @@ for FN = 1:length(FName)
     if or(strcmp(FName{FN},'WhiskScore'),strcmp(FName{FN},'MoveScore'))
         IndFilt = IndFilt(:,1);
     end
-    
     filtArray = and(filtArray,IndFilt);
 end
 
