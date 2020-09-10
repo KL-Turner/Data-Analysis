@@ -12,21 +12,18 @@ ROIFileDir = dir('*_ROIs.mat');
 ROIFileName = {ROIFileDir.name}';
 ROIFileID = char(ROIFileName);
 load(ROIFileID);
-
 for a = 1:size(procDataFileIDs,1)
     procDataFileID = procDataFileIDs(a,:);
-    [~,~,fileID] = GetFileInfo_IOS(procDataFileID);
+    [animalID,~,fileID] = GetFileInfo_IOS(procDataFileID);
     windowCamFileID = [fileID '_WindowCam.bin'];
     load(procDataFileID)
-
+    newFileID = [animalID '_' fileID '_VesselDiam.mat'];
     imageHeight = ProcData.notes.CBVCamPixelHeight;                                                                                                            
     imageWidth = ProcData.notes.CBVCamPixelWidth;
     samplingRate = ProcData.notes.CBVCamSamplingRate;
     trialDuration_sec = ProcData.notes.trialDuration_sec;
-
     frameInds = 1:samplingRate*trialDuration_sec;
     [imageStack] =  GetCBVFrameSubset_IOS(windowCamFileID,imageWidth,imageHeight,frameInds);
-
     for c = 1:length(ROIs.vesselIDs)
         vesselID = ROIs.vesselIDs{c,1};
         for d = 1:size(imageStack,3)
@@ -40,11 +37,11 @@ for a = 1:size(procDataFileIDs,1)
             index1 = find(dataLine <= halfMax,1,'first');
             % Find where the data last rises above half the max.
             index2 = find(dataLine <= halfMax,1,'last');
-            ProcData.data.vesselFWHM.(vesselID)(d,1) = index2 - index1 + 1; % FWHM in indexes.
+            VesselData.(vesselID)(d,1) = index2 - index1 + 1; % FWHM in indexes.
         end
     end
     disp(['Adding vessel FWHM analysis to ProcData file ' num2str(a) ' of ' num2str(size(procDataFileIDs,1))]); disp(' ')
-    save(procDataFileID,'ProcData')
+    save(newFileID,'VesselData')
 end
 
 end

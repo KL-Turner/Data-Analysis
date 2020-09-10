@@ -53,5 +53,6 @@ while strcmp(drawVesselLines,'y') == true
     end
 end
 save(ROIFileID,'ROIs')
+delete(fig)
 
 end
