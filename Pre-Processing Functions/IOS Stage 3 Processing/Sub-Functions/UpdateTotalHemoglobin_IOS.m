@@ -8,11 +8,11 @@ function [] = UpdateTotalHemoglobin_IOS(procDataFileIDs,RestingBaselines,baselin
 %   Purpose: Converts reflectance values to changes in total hemoglobin using absorbance curves of hardware
 %________________________________________________________________________________________________________________________
 
-ledType = 'M530L3';
-bandfilterType = 'FB530-10';
-cutfilterType = 'EO46540';
+ledType = 'M565L3';
+bandfilterType = 'FB570-10';
+cutfilterType = 'EO65160';
 conv2um = 1e6;
-[~,~,weightedcoeffHbT] = getHbcoeffs_IOS(ledType,bandfilterType,cutfilterType);
+[~,~,weightedcoeffHbT] = GetHbcoeffs_IOS(ledType,bandfilterType,cutfilterType);
 for a = 1:size(procDataFileIDs,1)
     procDataFileID = procDataFileIDs(a,:);
     disp(['Adding changes in total hemoglobin to ProcData file (' num2str(a) '/' num2str(size(procDataFileIDs,1)) ')...']); disp(' ')
