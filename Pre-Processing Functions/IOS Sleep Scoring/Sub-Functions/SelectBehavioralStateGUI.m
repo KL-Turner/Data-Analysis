@@ -1,4 +1,4 @@
-function varargout = SelectBehavioralStateGUI_SVM(varargin)
+function varargout = SelectBehavioralStateGUI(varargin)
 % SELECTBEHAVIORALSTATEGUI_IOS MATLAB code for SelectBehavioralStateGUI_IOS.fig
 %      SELECTBEHAVIORALSTATEGUI_IOS, by itself, creates a new SELECTBEHAVIORALSTATEGUI_IOS or raises the existing
 %      singleton*.
@@ -22,7 +22,7 @@ function varargout = SelectBehavioralStateGUI_SVM(varargin)
 
 % Edit the above text to modify the response to help SelectBehavioralStateGUI_IOS
 
-% Last Modified by GUIDE v2.5 07-Aug-2019 11:48:03
+% Last Modified by GUIDE v2.5 28-Feb-2020 21:03:44
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
