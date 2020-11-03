@@ -193,7 +193,7 @@ set(gca,'box','off')
 axis tight
 % Left cortical electrode spectrogram
 ax4 = subplot(6,1,4);
-semilog_imagesc(T,F,cortical_LHnormS,'y')
+Semilog_ImageSC(T,F,cortical_LHnormS,'y')
 axis xy
 c4 = colorbar;
 ylabel(c4,'\DeltaP/P (%)')
@@ -209,7 +209,7 @@ ylabel('Left cortical LFP')
 set(gca,'Yticklabel', [])
 % Right cortical electrode spectrogram
 ax5 = subplot(6,1,5);
-semilog_imagesc(T,F,cortical_RHnormS,'y')
+Semilog_ImageSC(T,F,cortical_RHnormS,'y')
 axis xy
 c5 = colorbar;
 ylabel(c5,'\DeltaP/P (%)')
@@ -225,7 +225,7 @@ ylabel('Right cortical LFP')
 set(gca,'Yticklabel',[])
 % Hippocampal electrode spectrogram
 ax6 = subplot(6,1,6);
-semilog_imagesc(T,F,hippocampusNormS,'y')
+Semilog_ImageSC(T,F,hippocampusNormS,'y')
 c6 = colorbar;
 ylabel(c6,'\DeltaP/P (%)')
 caxis([-100,100])
