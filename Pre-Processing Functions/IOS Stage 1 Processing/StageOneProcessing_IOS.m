@@ -6,7 +6,7 @@ function StageOneProcessing_IOS(fileNames,trackWhiskers)
 %
 % Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
 %________________________________________________________________________________________________________________________
-%
+%   
 %   Purpose: Data acquired during trials must be in a form that Matlab can work with easily. This code converts the
 %            various forms of data listed below into MATLAB structures that can be easily manipulated.
 %

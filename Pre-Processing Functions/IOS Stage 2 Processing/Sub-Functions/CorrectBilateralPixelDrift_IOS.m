@@ -241,12 +241,12 @@ for b = 1:length(firstsFileOfDay)
     end
     sgtitle([animalID ' ' strDay ' pixel correction applied: ' applyCorrection])
     % Save the file to directory.
-    [pathstr,~,~] = fileparts(cd);
-    dirpath = [pathstr '/Bilateral Imaging/Pixel Drift Correction/'];
+    pathstr = cd;
+    dirpath = [pathstr '/Pixel Drift Correction/'];
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
-    savefig(fixPixels, [dirpath animalID '_' strDay '_PixelDriftCorrection']);
+    savefig(fixPixels,[dirpath animalID '_' strDay '_PixelDriftCorrection']);
     close(fixPixels)
     % apply corrected data to each file from reshaped matrix
     for d = 1:length(indDayProcDataFileList)
