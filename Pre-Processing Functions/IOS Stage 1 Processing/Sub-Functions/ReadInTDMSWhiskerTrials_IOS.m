@@ -37,6 +37,14 @@ TDMSFile.CBVCamExposureTime_microsec = tempStruct.Data.Root.CBVCam_Exposure_Time
 TDMSFile.CBVCamBinning = tempStruct.Data.Root.CBVCam_Binning;
 TDMSFile.droppedPupilCamFrameIndex = tempStruct.Data.Root.PupilCam_DroppedFrameIndex;
 TDMSFile.droppedWhiskCamFrameIndex = tempStruct.Data.Root.WhiskCam_DroppedFrameIndex;
+% TDMSFile.Sol_DutyCycle = tempStruct.Data.Root.Sol_DutyCycle;
+% TDMSFile.Sol_Freq = tempStruct.Data.Root.Sol_Freq;
+% TDMSFile.Sol_Duration_sec = tempStruct.Data.Root.Sol_Duration_sec;
+% TDMSFile.LED_DutyCycle = tempStruct.Data.Root.LED_DutyCycle;
+% TDMSFile.LED_Freq = tempStruct.Data.Root.LED_Freq;
+% TDMSFile.LED_Duration_sec = tempStruct.Data.Root.LED_Duration_sec;
+% TDMSFile.Interstim_sec = tempStruct.Data.Root.Interstim_sec;
+% TDMSFile.Stim_Offset_sec = tempStruct.Data.Root.Stim_Offset_sec;
 % Pre-allocate - Data is contained in .vals folder in rows with corresponding labels in .names
 TDMSFile.data.vals = NaN*ones(length(tempStruct.Data.MeasuredData),length(tempStruct.Data.MeasuredData(1).Data));
 TDMSFile.data.names = cell(length(tempStruct.Data.MeasuredData),1);

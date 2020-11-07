@@ -31,8 +31,6 @@ set(groot,'defaultAxesCreateFcn',@(ax,~)set(ax.Toolbar,'Visible','off'))
 % stop and enter debug upon errors
 dbstop if error
 % email settings
-mail = 'KLTurnerPushNotifications@gmail.com';    
-password = 'HondaCBR02!'; 
 server = 'smtp.gmail.com';
 % Apply prefs and props
 setpref('Internet','E_mail',mail);
