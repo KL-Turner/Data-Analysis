@@ -7,10 +7,11 @@ function [] = ProcessRawDataFiles_IOS(rawDataFiles)
 % Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
 %________________________________________________________________________________________________________________________
 %
-%   Purpose: Analyze the force sensor and neural bands. Create a threshold for binarized movement/whisking if 
+%   Purpose: Analyze the force sensor and neural bands. Create a threshold for binarized movement/whisking if
 %            one does not already exist.
 %________________________________________________________________________________________________________________________
 
+dopplerInput = input('What LDF collected for this day?: ','s');
 % Raw data file analysis
 for a = 1:size(rawDataFiles,1)
     rawDataFile = rawDataFiles(a,:);
@@ -19,19 +20,18 @@ for a = 1:size(rawDataFiles,1)
     strDay = ConvertDate_IOS(fileDate);
     procDataFile = ([animalID '_' fileID '_ProcData.mat']);
     disp(['Generating ' procDataFile '...']); disp(' ')
-    load(rawDataFile);  
+    load(rawDataFile);
     % Transfer RawData notes to ProcData structure.
-    ProcData.notes = RawData.notes; 
+    ProcData.notes = RawData.notes;
     % Expected durations
     analogExpectedLength = ProcData.notes.trialDuration_sec*ProcData.notes.analogSamplingRate;
-    
     %% Save solenoid times (in seconds). Identify the solenoids by amplitude.
-    ProcData.data.solenoids.LPadSol = find(diff(RawData.data.solenoids) == 1)/RawData.notes.analogSamplingRate;
-    ProcData.data.solenoids.RPadSol = find(diff(RawData.data.solenoids) == 2)/RawData.notes.analogSamplingRate;
-    ProcData.data.solenoids.AudSol = find(diff(RawData.data.solenoids) == 3)/RawData.notes.analogSamplingRate;  
-    
+    ProcData.data.stimulations.LPadSol = find(diff(RawData.data.stimulations) == 1)/RawData.notes.analogSamplingRate;
+    ProcData.data.stimulations.RPadSol = find(diff(RawData.data.stimulations) == 2)/RawData.notes.analogSamplingRate;
+    ProcData.data.stimulations.AudSol = find(diff(RawData.data.stimulations) == 3)/RawData.notes.analogSamplingRate;
+    ProcData.data.stimulations.OptoLED = find(diff(RawData.data.stimulations) == 4)/RawData.notes.analogSamplingRate;
     %% Process neural data into its various forms.
-    ProcData.notes.dsFs = 30;   % downsampled Fs 
+    ProcData.notes.dsFs = 30;   % downsampled Fs
     neuralDataTypes = {'cortical_LH','cortical_RH','hippocampus'};
     for c = 1:length(neuralDataTypes)
         neuralDataType = neuralDataTypes{1,c};
@@ -40,21 +40,20 @@ for a = 1:size(rawDataFiles,1)
         ProcData.data.(neuralDataType).muaPower = muaPower;
         % Gamma Band [40 - 100]
         [gammaBandPower,~] = ProcessNeuro_IOS(RawData,analogExpectedLength,'Gam',neuralDataType);
-        ProcData.data.(neuralDataType).gammaBandPower = gammaBandPower;     
+        ProcData.data.(neuralDataType).gammaBandPower = gammaBandPower;
         % Beta [13 - 30 Hz]
         [betaBandPower,~] = ProcessNeuro_IOS(RawData,analogExpectedLength,'Beta',neuralDataType);
-        ProcData.data.(neuralDataType).betaBandPower = betaBandPower;      
+        ProcData.data.(neuralDataType).betaBandPower = betaBandPower;
         % Alpha [8 - 12 Hz]
         [alphaBandPower,~] = ProcessNeuro_IOS(RawData,analogExpectedLength,'Alpha',neuralDataType);
-        ProcData.data.(neuralDataType).alphaBandPower = alphaBandPower;      
+        ProcData.data.(neuralDataType).alphaBandPower = alphaBandPower;
         % Theta [4 - 8 Hz]
         [thetaBandPower,~] = ProcessNeuro_IOS(RawData,analogExpectedLength,'Theta',neuralDataType);
-        ProcData.data.(neuralDataType).thetaBandPower = thetaBandPower;       
+        ProcData.data.(neuralDataType).thetaBandPower = thetaBandPower;
         % Delta [1 - 4 Hz]
         [deltaBandPower,~] = ProcessNeuro_IOS(RawData,analogExpectedLength,'Delta',neuralDataType);
         ProcData.data.(neuralDataType).deltaBandPower = deltaBandPower;
     end
-    
     %% Patch and binarize the whisker angle and set the resting angle to zero degrees.
     [patchedWhisk,droppedFrames] = PatchWhiskerAngle_IOS(RawData.data.whiskerAngle,RawData.notes.whiskCamSamplingRate,RawData.notes.trialDuration_sec,RawData.notes.droppedWhiskCamFrameIndex);
     RawData.data.patchedWhiskerAngle = patchedWhisk;
@@ -79,7 +78,7 @@ for a = 1:size(rawDataFiles,1)
         Thresholds.(['binarizedWhiskersLower_' strDay]) = whiskersThresh1;
         Thresholds.(['binarizedWhiskersUpper_' strDay]) = whiskersThresh2;
         save([animalID '_Thresholds.mat'], 'Thresholds');
-    end    
+    end
     load([animalID '_Thresholds.mat']);
     binWhisk = BinarizeWhiskers_IOS(resampledWhisk,ProcData.notes.dsFs,Thresholds.(['binarizedWhiskersLower_' strDay]),Thresholds.(['binarizedWhiskersUpper_' strDay]));
     [linkedBinarizedWhiskers] = LinkBinaryEvents_IOS(gt(binWhisk,0),[round(ProcData.notes.dsFs/3),0]);
@@ -87,7 +86,6 @@ for a = 1:size(rawDataFiles,1)
     restAngle = mean(resampledWhisk(inds));
     ProcData.data.whiskerAngle = resampledWhisk - restAngle;
     ProcData.data.binWhiskerAngle = binWhisk;
-    
     %% Downsample and binarize the force sensor.
     trimmedForce = RawData.data.forceSensor(1:min(analogExpectedLength,length(RawData.data.forceSensor)));
     % Filter then downsample the Force Sensor waveform to desired frequency
@@ -121,28 +119,16 @@ for a = 1:size(rawDataFiles,1)
     EMGPwr = log10(conv(filtEMG.^2,smoothingKernel,'same'));
     resampEMG = resample(EMGPwr,ProcData.notes.dsFs,ProcData.notes.analogSamplingRate);
     ProcData.data.EMG.emg = resampEMG;
-%     % NaN check
-%     if sum(isnan(ProcData.data.EMG.emg)) > 0
-%         keyboard
-%     end
-%     % inf check
-%     if sum(isinf(ProcData.data.EMG.emg)) > 0
-%         keyboard
-%     end
-    
     %% Laser Doppler
-    if isfield(RawData.data,'flow') == true
-        try
-            % typo in code that has since been fixed - need to catch mistake in old data
-            trimmedBackScatter = RawData.data.backScatter(1:min(analogExpectedLength,length(RawData.data.backScatter)));
-        catch
-            trimmedBackScatter = RawData.data.backScatte(1:min(analogExpectedLength,length(RawData.data.backScatte)));
-        end
+    if strcmp(dopplerInput,'y') == true
+        trimmedBackScatter = RawData.data.backScatter(1:min(analogExpectedLength,length(RawData.data.backScatter)));
         trimmedFlow = RawData.data.flow(1:min(analogExpectedLength,length(RawData.data.flow)));
         ProcData.data.backScatter.data = max(resample(trimmedBackScatter,ProcData.notes.dsFs, ProcData.notes.analogSamplingRate),0);
         ProcData.data.flow.data = max(resample(trimmedFlow,ProcData.notes.dsFs,ProcData.notes.analogSamplingRate),0);
+    else
+        ProcData.data.backScatter.data = NaN(1,ProcData.notes.dsFs*ProcData.notes.trialDuration_sec);
+        ProcData.data.flow.data = NaN(1,ProcData.notes.dsFs*ProcData.notes.trialDuration_sec);
     end
-    
     %% Save the processed data
     save(rawDataFile, 'RawData')
     save(procDataFile, 'ProcData')

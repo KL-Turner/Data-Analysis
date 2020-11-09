@@ -24,31 +24,19 @@ rawDataFileIDs = char(rawDataFiles);
 curDir = cd;
 dirBreaks = strfind(curDir,'\');
 curFolder = curDir(dirBreaks(end) + 1:end);
-if strcmp(curFolder,'Bilateral Imaging') == true
-    imagingType = 'bilateral';
-elseif strcmp(curFolder,'Isoflurane Trials') == true
-    imagingType = 'bilateral';
-elseif strcmp(curFolder,'Single Hemisphere') == true
-    imagingType = 'single';
-else
-    imagingType = 'bilateral';
-end
-
+imagingType = 'bilateral';
 %% BLOCK PURPOSE: [1] Process the RawData structure -> Create Threshold data structure and ProcData structure.
 disp('Analyzing Block [2] Creating ProcData files and processing analog data.'); disp(' ')
 ProcessRawDataFiles_IOS(rawDataFileIDs)
-
 %% BLOCK PURPOSE: [2] Process IOS pixel data from each ROI.
 disp('Analyzing Block [2] Proccesing IOS pixel data and ROI analysis.'); disp(' ')
 procDataFileStruct = dir('*_ProcData.mat');
 procDataFiles = {procDataFileStruct.name}';
 procDataFileIDs = char(procDataFiles);
 ProcessIntrinsicData_IOS(animalID,imagingType,rawDataFileIDs,procDataFileIDs)
-
 %% BLOCK PURPOSE: [3] Add Heart Rate to the ProcData structures.
 disp('Analyzing Block [3] Adding heart rate to ProcData files.'); disp(' ')
 ExtractHeartRate_IOS(procDataFileIDs,imagingType)
-
 %% BLOCK PURPOSE: [4] Check/Correct IOS pixel drift.
 disp('Analyzing Block [4] Correcting pixel drift.'); disp(' ')
 if strcmp(imagingType,'bilateral') == true
@@ -56,6 +44,5 @@ if strcmp(imagingType,'bilateral') == true
 elseif strcmp(imagingType,'single') == true
     CorrectPixelDrift_IOS(procDataFileIDs)
 end
-
 %% fin.
 disp('IOS Stage Two Processing - Complete.'); disp(' ')

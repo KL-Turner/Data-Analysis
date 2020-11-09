@@ -52,10 +52,10 @@ save(procDataFileID,'ProcData');
 end
 
 function [puffTimes] = GetPuffTimes_IOS(ProcData)
-solNames = fieldnames(ProcData.data.solenoids);
+solNames = fieldnames(ProcData.data.stimulations);
 puffList = cell(1, length(solNames));
 for sN = 1:length(solNames)
-    puffList{sN} = ProcData.data.solenoids.(solNames{sN});
+    puffList{sN} = ProcData.data.stimulations.(solNames{sN});
 end
 puffTimes = cell2mat(puffList);
 end
@@ -70,7 +70,7 @@ trialDuration = ProcData.notes.trialDuration_sec;
 preTime = 1;
 postTime = 1;
 % Get puffer IDs
-solNames = fieldnames(ProcData.data.solenoids);
+solNames = fieldnames(ProcData.data.stimulations);
 Stim.solenoidName = cell(length(puffTimes),1);
 Stim.eventTime = zeros(length(puffTimes),1);
 Stim.whiskScore_Pre = zeros(length(puffTimes),1);
@@ -79,7 +79,7 @@ Stim.movementScore_Pre = zeros(length(puffTimes),1);
 Stim.movementScore_Post = zeros(length(puffTimes),1);
 j = 1;
 for sN = 1:length(solNames)
-    solPuffTimes = ProcData.data.solenoids.(solNames{sN});
+    solPuffTimes = ProcData.data.stimulations.(solNames{sN});
     for spT = 1:length(solPuffTimes) 
         if trialDuration - solPuffTimes(spT) <= postTime
             disp(['Puff at time: ' solPuffTimes(spT) ' is too close to trial end'])

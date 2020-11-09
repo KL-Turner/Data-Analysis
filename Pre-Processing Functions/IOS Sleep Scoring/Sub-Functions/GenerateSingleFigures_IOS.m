@@ -27,10 +27,10 @@ binForce = ProcData.data.binForceSensor;
 EMG = ProcData.data.EMG.emg;
 % heart rate
 heartRate = ProcData.data.heartRate;
-% solenoids
-LPadSol = ProcData.data.solenoids.LPadSol;
-RPadSol = ProcData.data.solenoids.RPadSol;
-AudSol = ProcData.data.solenoids.AudSol;
+% stimulations
+LPadSol = ProcData.data.stimulations.LPadSol;
+RPadSol = ProcData.data.stimulations.RPadSol;
+AudSol = ProcData.data.stimulations.AudSol;
 % CBV data
 if strcmp(imagingType,'bilateral') == true
     if strcmp(hemoType,'reflectance') == true
