@@ -11,7 +11,7 @@ function [] = ProcessRawDataFiles_IOS(rawDataFiles)
 %            one does not already exist.
 %________________________________________________________________________________________________________________________
 
-dopplerInput = input('What LDF collected for this day?: ','s');
+dopplerInput = input('What LDF collected for this day?: ','s'); disp(' ')
 % Raw data file analysis
 for a = 1:size(rawDataFiles,1)
     rawDataFile = rawDataFiles(a,:);
@@ -55,11 +55,8 @@ for a = 1:size(rawDataFiles,1)
         ProcData.data.(neuralDataType).deltaBandPower = deltaBandPower;
     end
     %% Patch and binarize the whisker angle and set the resting angle to zero degrees.
-    [patchedWhisk,droppedFrames] = PatchWhiskerAngle_IOS(RawData.data.whiskerAngle,RawData.notes.whiskCamSamplingRate,RawData.notes.trialDuration_sec,RawData.notes.droppedWhiskCamFrameIndex);
+    [patchedWhisk] = PatchWhiskerAngle_IOS(RawData.data.whiskerAngle,RawData.notes.whiskCamSamplingRate,RawData.notes.trialDuration_sec,RawData.notes.droppedWhiskCamFrameIndex);
     RawData.data.patchedWhiskerAngle = patchedWhisk;
-    if droppedFrames >= 5000
-        disp(['WARNING - ' num2str(droppedFrames) ' dropped whisker camera frames from file ID ' rawDataFile '.']); disp(' ')
-    end
     % Create filter for whisking/movement
     filtThreshold = 20;
     filtOrder = 2;
