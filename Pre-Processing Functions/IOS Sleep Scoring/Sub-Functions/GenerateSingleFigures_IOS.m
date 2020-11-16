@@ -31,6 +31,7 @@ heartRate = ProcData.data.heartRate;
 LPadSol = ProcData.data.stimulations.LPadSol;
 RPadSol = ProcData.data.stimulations.RPadSol;
 AudSol = ProcData.data.stimulations.AudSol;
+OptoLED = ProcData.data.stimulations.OptoLED;
 % CBV data
 if strcmp(imagingType,'bilateral') == true
     if strcmp(hemoType,'reflectance') == true
@@ -73,12 +74,14 @@ if strcmp(imagingType,'bilateral') == true
             LPad_Yvals = 1.30*max(filtLH_CBV)*ones(size(LPadSol));
             RPad_Yvals = 1.30*max(filtLH_CBV)*ones(size(RPadSol));
             Aud_Yvals = 1.30*max(filtLH_CBV)*ones(size(AudSol));
+            Opto_Yvals = 1.30*max(filtLH_CBV)*ones(size(OptoLED));
         else
             whisking_Yvals = 1.10*max(filtRH_CBV)*ones(size(binWhiskers));
             force_Yvals = 1.20*max(filtRH_CBV)*ones(size(binForce));
             LPad_Yvals = 1.30*max(filtRH_CBV)*ones(size(LPadSol));
             RPad_Yvals = 1.30*max(filtRH_CBV)*ones(size(RPadSol));
             Aud_Yvals = 1.30*max(filtRH_CBV)*ones(size(AudSol));
+            Opto_Yvals = 1.30*max(filtRH_CBV)*ones(size(OptoLED));
         end
     elseif strcmp(hemoType,'HbT') == true
         if max(filtLH_HbT) >= max(filtRH_HbT)
@@ -87,12 +90,14 @@ if strcmp(imagingType,'bilateral') == true
             LPad_Yvals = 1.30*max(filtLH_HbT)*ones(size(LPadSol));
             RPad_Yvals = 1.30*max(filtLH_HbT)*ones(size(RPadSol));
             Aud_Yvals = 1.30*max(filtLH_HbT)*ones(size(AudSol));
+            Opto_Yvals = 1.30*max(filtLH_HbT)*ones(size(OptoLED));
         else
             whisking_Yvals = 1.10*max(filtRH_HbT)*ones(size(binWhiskers));
             force_Yvals = 1.20*max(filtRH_HbT)*ones(size(binForce));
             LPad_Yvals = 1.30*max(filtRH_HbT)*ones(size(LPadSol));
             RPad_Yvals = 1.30*max(filtRH_HbT)*ones(size(RPadSol));
             Aud_Yvals = 1.30*max(filtRH_HbT)*ones(size(AudSol));
+            Opto_Yvals = 1.30*max(filtRH_HbT)*ones(size(OptoLED));
         end
     end
 elseif strcmp(imagingType,'single') == true
@@ -102,17 +107,19 @@ elseif strcmp(imagingType,'single') == true
         LPad_Yvals = 1.30*max(filtBarrels_CBV)*ones(size(LPadSol));
         RPad_Yvals = 1.30*max(filtBarrels_CBV)*ones(size(RPadSol));
         Aud_Yvals = 1.30*max(filtBarrels_CBV)*ones(size(AudSol));
+        Opto_Yvals = 1.30*max(filtBarrels_CBV)*ones(size(OptoLED));
     elseif strcmp(hemoType,'HbT') == true
         whisking_Yvals = 1.10*max(filtBarrels_HbT)*ones(size(binWhiskers));
         force_Yvals = 1.20*max(filtBarrels_HbT)*ones(size(binForce));
         LPad_Yvals = 1.30*max(filtBarrels_HbT)*ones(size(LPadSol));
         RPad_Yvals = 1.30*max(filtBarrels_HbT)*ones(size(RPadSol));
         Aud_Yvals = 1.30*max(filtBarrels_HbT)*ones(size(AudSol));
+        Opto_Yvals = 1.30*max(filtBarrels_HbT)*ones(size(OptoLED));
     end
 end
 whiskInds = binWhiskers.*whisking_Yvals;
 forceInds = binForce.*force_Yvals;
-for x = 1:length(whiskInds)
+for x = 1:length(forceInds)
     % set whisk indeces
     if whiskInds(1,x) == 0
         whiskInds(1,x) = NaN;
@@ -163,27 +170,28 @@ s2 = scatter((1:length(binWhiskers))/ProcData.notes.dsFs,whiskInds,'.','MarkerEd
 s3 = scatter(LPadSol,LPad_Yvals,'v','MarkerEdgeColor','k','MarkerFaceColor','c');
 s4 = scatter(RPadSol,RPad_Yvals,'v','MarkerEdgeColor','k','MarkerFaceColor','m');
 s5 = scatter(AudSol,Aud_Yvals,'v','MarkerEdgeColor','k','MarkerFaceColor','g');
+s6 = scatter(OptoLED,Opto_Yvals,'v','MarkerEdgeColor','k','MarkerFaceColor','b');
 if strcmp(imagingType,'bilateral') == true
     if strcmp(hemoType,'reflectance') == true
         p5 = plot((1:length(filtLH_CBV))/ProcData.notes.CBVCamSamplingRate,filtLH_CBV,'color',colors('dark candy apple red'),'LineWidth',1);
         p6 = plot((1:length(filtRH_CBV))/ProcData.notes.CBVCamSamplingRate,filtRH_CBV,'color',colors('rich black'),'LineWidth',1);
         ylabel('\DeltaR/R (%)')
-        legend([p5,p6,s1,s2,s3,s4,s5],'LH','RH','movement','whisking',',LPad sol','RPad sol','Aud sol')
+        legend([p5,p6,s1,s2,s3,s4,s5,s6],'LH','RH','movement','whisking',',LPad sol','RPad sol','Aud sol','Opto LED')
     elseif strcmp(hemoType,'HbT') == true
         p5 = plot((1:length(filtLH_HbT))/ProcData.notes.CBVCamSamplingRate,filtLH_HbT,'color',colors('dark candy apple red'),'LineWidth',1);
         p6 = plot((1:length(filtRH_HbT))/ProcData.notes.CBVCamSamplingRate,filtRH_HbT,'color',colors('rich black'),'LineWidth',1);
         ylabel('\DeltaHbT')
-        legend([p5,p6,s1,s2,s3,s4,s5],'LH','RH','movement','whisking',',LPad sol','RPad sol','Aud sol')
+        legend([p5,p6,s1,s2,s3,s4,s5,s6],'LH','RH','movement','whisking',',LPad sol','RPad sol','Aud sol','Opto LED')
     end
 elseif strcmp(imagingType,'single') == true
     if strcmp(hemoType,'reflectance') == true
         p5 = plot((1:length(filtBarrels_CBV))/ProcData.notes.CBVCamSamplingRate,filtBarrels_CBV,'color',colors('dark candy apple red'),'LineWidth',1);
         ylabel('\DeltaR/R (%)')
-        legend([p5,s1,s2,s3,s4,s5],'Barrels','movement','whisking',',LPad sol','RPad sol','Aud sol')
+        legend([p5,s1,s2,s3,s4,s5,s6],'Barrels','movement','whisking',',LPad sol','RPad sol','Aud sol','Opto LED')
     elseif strcmp(hemoType,'HbT') == true
         p5 = plot((1:length(filtBarrels_HbT))/ProcData.notes.CBVCamSamplingRate,filtBarrels_HbT,'color',colors('dark candy apple red'),'LineWidth',1);
         ylabel('\DeltaHbT')
-        legend([p5,s1,s2,s3,s4,s5],'Barrels','movement','whisking',',LPad sol','RPad sol','Aud sol')
+        legend([p5,s1,s2,s3,s4,s5,s6],'Barrels','movement','whisking',',LPad sol','RPad sol','Aud sol','Opto LED')
     end
 end
 xlim([0,ProcData.notes.trialDuration_sec])
