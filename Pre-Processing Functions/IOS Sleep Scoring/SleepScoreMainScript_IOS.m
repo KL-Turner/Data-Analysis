@@ -10,7 +10,7 @@
 %% Clear workspace/Load in file names for various analysis
 clear; clc; close all
 disp('Loading necessary file names...'); disp(' ')
-animalIDs = {'T99','T101','T102','T103','T105','T108','T109','T110','T111','T119','T120','T121','T122','T123'};
+animalIDs = {'T135'};
 baselineType = 'manualSelection';
 startingDirectory = cd;
 

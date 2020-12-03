@@ -13,7 +13,7 @@ for aa = 1:size(fileIDs,1)
     procDataFileID = [animalID '_' fileID '_ProcData.mat'];
     load(procDataFileID,'-mat')
     % check that the event/file doesn't have stimulation
-    if isempty(ProcData.data.solenoids.LPadSol) == true
+    if isempty(ProcData.data.stimulations.LPadSol) == true
         decData{bb,1} = data{aa,1}; %#ok<*AGROW>
         decFileIDs{bb,1} = fileIDs{aa,1};
         decBinTimes{bb,1} = binTimes{aa,1};

@@ -364,7 +364,7 @@ for a = 1:size(procDataFileIDs,1)
     whiskerAngle = ProcData.data.whiskerAngle;
     whiskerAcceleration = diff(whiskerAngle,2);
     % Find the number of whiskerBins due to frame drops.
-    whiskerBinNumber = ceil(length(binWhiskerAngle)/150);
+    whiskerBinNumber = 180;
     % Divide the signal into five second bins and put them in a cell array
     tempWhiskerStruct = cell(whiskerBinNumber,1);
     tempWhiskerAccelStruct = cell(whiskerBinNumber,1);

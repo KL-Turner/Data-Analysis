@@ -62,7 +62,7 @@ for a = 1:size(procDataFileIDs,1)
             elseif b >= 121 && b <= 180
                 xlim([600,900])
             end
-            [updatedGUI] = SelectBehavioralStateGUI;
+            [updatedGUI] = SelectBehavioralStateGUI_Manuscript2020;
             while buttonState == 0
                 drawnow()
                 if buttonState == 1
