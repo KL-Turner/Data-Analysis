@@ -27,7 +27,7 @@ while strcmp(isok,'y') == 0
     subplot(3,1,3)
     plot(binForceSensor,'k')
     axis tight
-    isok = input('Is this threshold okay? (y/n) ','s'); disp(' ')
+    isok = input('Is this threshold okay? (y/n): ','s'); disp(' ')
 end
 close(forceThresh);
 

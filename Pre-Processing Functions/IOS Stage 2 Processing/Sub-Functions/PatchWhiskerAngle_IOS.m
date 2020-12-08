@@ -29,6 +29,7 @@ if ~isempty(droppedFrameIndex)
 end
 trailingEdge = expectedFrames - length(whiskerAngle);
 patchedWhiskerAngle = horzcat(whiskerAngle,ones(1,trailingEdge)*mean(whiskerAngle));
+patchedWhiskerAngle = patchedWhiskerAngle(1:expectedFrames);
 % due to rounding up on the number of dropped frames per index, we have a few extra frames. Snip them off.
 
 end

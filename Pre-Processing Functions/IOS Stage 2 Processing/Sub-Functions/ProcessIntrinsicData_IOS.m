@@ -10,12 +10,6 @@ function [] = ProcessIntrinsicData_IOS(animalID,imagingType,rawDataFileIDs,procD
 %   Purpose: Base function to run the functions necessary for IOS data extraction from drawn ROIs over the images
 %________________________________________________________________________________________________________________________
 
-% ROI names based on whether the imaging type is single hem or bilateral hem
-% if strcmp(imagingType,'bilateral') == true
-%     ROInames = {'LH','RH'};
-% elseif strcmp(imagingType,'single') == true
-%     ROInames = {'Barrels'};
-% end
 if strcmp(imagingType,'bilateral') == true
     ROInames = {'LH','RH','LH_Cement','RH_Cement','Cement'};
 elseif strcmp(imagingType,'single') == true

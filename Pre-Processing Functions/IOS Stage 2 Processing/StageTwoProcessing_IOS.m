@@ -39,10 +39,6 @@ disp('Analyzing Block [3] Adding heart rate to ProcData files.'); disp(' ')
 ExtractHeartRate_IOS(procDataFileIDs,imagingType)
 %% BLOCK PURPOSE: [4] Check/Correct IOS pixel drift.
 disp('Analyzing Block [4] Correcting pixel drift.'); disp(' ')
-if strcmp(imagingType,'bilateral') == true
-    CorrectBilateralPixelDrift_IOS(procDataFileIDs)
-elseif strcmp(imagingType,'single') == true
-    CorrectPixelDrift_IOS(procDataFileIDs)
-end
+CorrectBilateralPixelDrift_IOS(procDataFileIDs)
 %% fin.
 disp('IOS Stage Two Processing - Complete.'); disp(' ')
