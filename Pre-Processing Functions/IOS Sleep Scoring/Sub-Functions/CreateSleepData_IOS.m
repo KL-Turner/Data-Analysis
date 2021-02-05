@@ -1,4 +1,4 @@
-function [SleepData] = CreateSleepData_IOS(startingDirectory,trainingDirectory,animalDirectory,NREMsleepTime,REMsleepTime,modelName,SleepData)
+function [SleepData] = CreateSleepData_IOS(startingDirectory,trainingDirectory,baselineDirectory,NREMsleepTime,REMsleepTime,modelName,SleepData)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % Ph.D. Candidate, Department of Bioengineering
@@ -19,12 +19,12 @@ function [SleepData] = CreateSleepData_IOS(startingDirectory,trainingDirectory,a
 %________________________________________________________________________________________________________________________
 
 if strcmp(modelName,'Manual') == false
+    cd(baselineDirectory)
     % character list of all ProcData files
     procDataFileStruct = dir('*_ProcData.mat');
     procDataFiles = {procDataFileStruct.name}';
     procDataFileIDs = char(procDataFiles);
 else
-    cd(startingDirectory)
     cd(trainingDirectory)
     % character list of all ProcData files
     procDataFileStruct = dir('*_ProcData.mat');
@@ -1321,6 +1321,5 @@ for a = 1:size(procDataFileIDs, 1)           % Loop through the list of ProcData
 end
 disp([modelName ' model data added to SleepData structure.']); disp(' ')
 cd(startingDirectory)
-cd(animalDirectory)
 
 end

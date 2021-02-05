@@ -1,4 +1,3 @@
-function StageOneProcessing_IOS(fileNames,trackWhiskers)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -16,20 +15,12 @@ function StageOneProcessing_IOS(fileNames,trackWhiskers)
 %________________________________________________________________________________________________________________________
 
 %% BLOCK PURPOSE: [0] Load the script's necessary variables and data structures.
-% Note: This function can be run independently of a main script
 % Clear the workspace variables and command window
 clc;
 clear;
 disp('Analyzing Block [0] Preparing the workspace and loading variables.'); disp(' ')
-% If there are no inputs to the function, it asks the user to load all files with a '_WhiskerCam.bin' extension
-if nargin == 0
-    fileNames = uigetfile('*_WhiskerCam.bin','MultiSelect','on');   % CTL-A to select all files
-end
-% Default setting - if you automatically play the function, it will track the whiskers
-% To debug the code without taking the time to track whiskers, set trackWhiskers = 0
-if nargin < 2
-    trackWhiskers = 1;
-end
+% Asks the user to load all files with a '_WhiskerCam.bin' extension
+fileNames = uigetfile('*_WhiskerCam.bin','MultiSelect','on');   % CTL-A to select all files
 %% BLOCK PURPOSE: [1] Preparing to create RawData files.
 disp('Analyzing Block [1] Preparing to create RawData file(s).'); disp(' ')
 % Load in each file one at a time, looping through the list
@@ -86,13 +77,9 @@ for a = 1:length(fileNames)
         flow = trialData2.data.vals(dataRow,:);        
         %% BLOCK PURPOSE: [3] Start Whisker tracker.
         disp('Analyzing Block [3] Starting whisker tracking.'); disp(' ')
-        if trackWhiskers == true
-            [whiskerAngle] = WhiskerTrackerParallel_IOS(fileID);
-            inds = isnan(whiskerAngle) == 1;
-            whiskerAngle(inds) = [];
-        else
-            whiskerAngle = [];
-        end     
+        [whiskerAngle] = WhiskerTrackerParallel_IOS(fileID);
+        inds = isnan(whiskerAngle) == 1;
+        whiskerAngle(inds) = [];
         %% BLOCK PURPOSE: [4] Save the notes and data.
         disp('Analyzing Block [4] Evaluating data to save to RawData file.'); disp(' ')
         % notes - all variables are descriptive
@@ -146,5 +133,3 @@ for a = 1:length(fileNames)
     end
 end
 disp('IOS Stage One Processing - Complete.'); disp(' ')
-
-end

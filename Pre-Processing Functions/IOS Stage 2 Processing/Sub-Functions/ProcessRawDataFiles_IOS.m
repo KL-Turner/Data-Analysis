@@ -11,7 +11,7 @@ function [] = ProcessRawDataFiles_IOS(rawDataFiles)
 %            one does not already exist.
 %________________________________________________________________________________________________________________________
 
-dopplerInput = input('What LDF collected for this day?: ','s'); disp(' ')
+dopplerInput = input('What LDF collected for this day? (y/n): ','s'); disp(' ')
 % Raw data file analysis
 for a = 1:size(rawDataFiles,1)
     rawDataFile = rawDataFiles(a,:);
@@ -104,7 +104,6 @@ for a = 1:size(rawDataFiles,1)
         save([animalID '_Thresholds.mat'],'Thresholds');
     end
     ProcData.data.binForceSensor = BinarizeForceSensor_IOS(ProcData.data.forceSensor,Thresholds.(['binarizedForceSensor_' strDay]));
-    
     %% EMG
     fpass = [300,3000];
     trimmedEMG = RawData.data.EMG(1:min(analogExpectedLength,length(RawData.data.EMG)));

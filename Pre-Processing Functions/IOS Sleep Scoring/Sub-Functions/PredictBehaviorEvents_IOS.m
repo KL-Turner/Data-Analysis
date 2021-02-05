@@ -1,4 +1,4 @@
-function [ScoringResults] = PredictBehaviorEvents_IOS(animalID,startingDirectory,animalDirectory,modelDataFileIDs,modelName)
+function [ScoringResults] = PredictBehaviorEvents_IOS(animalID,startingDirectory,baselineDirectory,modelDataFileIDs,modelName)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -10,8 +10,7 @@ function [ScoringResults] = PredictBehaviorEvents_IOS(animalID,startingDirectory
 
 disp(['Predicting behavior events using ' modelName ' model']); disp(' ')
 % load appropriate model
-modelDirectory = [startingDirectory '\' animalID '\Figures\Sleep Models\'];
-cd(startingDirectory)
+modelDirectory = [startingDirectory '\Figures\Sleep Models\'];
 cd(modelDirectory)
 notManual = 'y';
 if strcmp(modelName,'SVM') == true
@@ -33,8 +32,7 @@ elseif strcmp(modelName,'Manual') == true
     notManual = 'n';
     modelType = 'Manual';
 end
-cd(startingDirectory)
-cd(animalDirectory)
+cd(baselineDirectory)
 % go through each manual file and sleep score it using the chosen model
 if strcmp(notManual,'y') == true
     for a = 1:size(modelDataFileIDs,1)
@@ -87,6 +85,7 @@ if strcmp(notManual,'y') == true
 else
     ScoringResults = [];
 end
-save([modelType '_ScoringResults'],'ScoringResults')
+save([animalID '_' modelType '_ScoringResults'],'ScoringResults')
+cd(startingDirectory)
 
 end

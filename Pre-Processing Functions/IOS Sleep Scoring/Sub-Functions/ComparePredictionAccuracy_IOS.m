@@ -1,4 +1,4 @@
-function [] = ComparePredictionAccuracy_IOS_Manuscript2020()
+function [] = ComparePredictionAccuracy_IOS()
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -10,7 +10,7 @@ function [] = ComparePredictionAccuracy_IOS_Manuscript2020()
 
 % load in all the ConfusionData.mat structure
 startingDirectory = cd;
-confusionDataDirectory = [startingDirectory '\Summary Figures and Structures\Confusion Matricies\'];
+confusionDataDirectory = [startingDirectory '\Figures\Confusion Matricies\'];
 cd(confusionDataDirectory)
 load('ConfusionData.mat','-mat')
 % pull out confusion matrix values

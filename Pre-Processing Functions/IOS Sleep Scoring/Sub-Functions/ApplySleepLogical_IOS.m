@@ -1,4 +1,4 @@
-function [] = ApplySleepLogical_IOS(startingDirectory,trainingDirectory,animalDirectory,modelName,ScoringResults)
+function [] = ApplySleepLogical_IOS(startingDirectory,trainingDirectory,baselineDirectory,modelName,ScoringResults)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -8,6 +8,7 @@ function [] = ApplySleepLogical_IOS(startingDirectory,trainingDirectory,animalDi
 %   Purpose:
 %________________________________________________________________________________________________________________________
 
+cd(baselineDirectory)
 if strcmp(modelName,'Manual') == false
     % character list of all ProcData files
     procDataFileStruct = dir('*_ProcData.mat');
@@ -51,8 +52,8 @@ if strcmp(modelName,'Manual') == false
         ProcData.sleep.logicals.(modelName).remLogical = logical(remLogical);
         save(procDataFileID,'ProcData')
     end
-else
     cd(startingDirectory)
+else
     cd(trainingDirectory)
     % character list of all ProcData files
     procDataFileStruct = dir('*_ProcData.mat');
@@ -91,5 +92,4 @@ else
         save(procDataFileID,'ProcData')
     end
     cd(startingDirectory)
-    cd(animalDirectory)
 end

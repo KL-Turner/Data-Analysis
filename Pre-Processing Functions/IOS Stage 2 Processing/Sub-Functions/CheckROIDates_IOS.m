@@ -39,8 +39,6 @@ for b = 1:length(firstsFileOfDay)
         if ~isfield(ROIs,(ROIname))
             if strcmp(ROInames{1,c},'LH') == true || strcmp(ROInames{1,c},'RH') == true
                 [ROIs] = CalculateROICorrelationMatrix_IOS(animalID,strDay,fileID,ROIs,imagingType);
-            elseif strcmp(ROInames{1,c},'Barrels') == true
-                [ROIs] = CalculateROICorrelationMatrix_IOS(animalID,strDay,fileID,ROIs,imagingType);
             else
                 [frames] = ReadDalsaBinary_IOS(animalID,fileID);
                 [ROIs] = CreateBilateralROIs_IOS(frames{1},ROIname,animalID,ROIs);

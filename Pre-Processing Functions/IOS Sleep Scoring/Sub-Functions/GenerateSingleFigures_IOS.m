@@ -1,4 +1,4 @@
-function [figHandle] = GenerateSingleFigures_IOS(procDataFileID,RestingBaselines,baselineType,saveFigs,imagingType,hemoType)
+function [figHandle,ax1,ax2,ax3,ax4,ax5,ax6] = GenerateSingleFigures_IOS(procDataFileID,RestingBaselines,baselineType,saveFigs,imagingType,hemoType)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -117,16 +117,18 @@ elseif strcmp(imagingType,'single') == true
         Opto_Yvals = 1.30*max(filtBarrels_HbT)*ones(size(OptoLED));
     end
 end
-whiskInds = binWhiskers.*whisking_Yvals;
 forceInds = binForce.*force_Yvals;
+whiskInds = binWhiskers.*whisking_Yvals;
+% set force indeces
 for x = 1:length(forceInds)
-    % set whisk indeces
-    if whiskInds(1,x) == 0
-        whiskInds(1,x) = NaN;
-    end
-    % set force indeces
     if forceInds(1,x) == 0
         forceInds(1,x) = NaN;
+    end
+end
+% set whisk indeces
+for x = 1:length(whiskInds)
+    if whiskInds(1,x) == 0
+        whiskInds(1,x) = NaN;
     end
 end
 % Figure

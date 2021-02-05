@@ -227,8 +227,7 @@ for b = 1:length(firstsFileOfDay)
     title({'C corrected data';['CorrCoef: ' num2str(RH_Ctest_R)]})
     xlabel('Time (sec)')
     ylabel('12-bit pixel val')
-    axis tight
-    
+    axis tight   
     % determine which correction profile to use for RH data
     correctionDecision = 'n';
     while strcmp(correctionDecision,'n') == true
