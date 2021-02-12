@@ -25,7 +25,7 @@ end
 % add root folder to Matlab's working directory
 addpath(genpath(rootFolder))
 %% run the data analysis. The progress bars will show the analysis progress
-rerunAnalysis = 'y';
+rerunAnalysis = 'n';
 saveFigs = 'y';
 if exist('AnalysisResults.mat','file') ~= 2 || strcmp(rerunAnalysis,'y') == true
     multiWaitbar('Analyzing sleep probability',0,'Color','B'); pause(0.25);
@@ -77,8 +77,8 @@ end
 % [AnalysisResults] = Fig1_S6(rootFolder,saveFigs,delim,AnalysisResults);
 % [AnalysisResults] = Fig1_S5(rootFolder,saveFigs,delim,AnalysisResults);
 % [AnalysisResults] = Fig1_S4(rootFolder,saveFigs,delim,AnalysisResults);
-% [AnalysisResults] = Fig1_S3(rootFolder,saveFigs,delim,AnalysisResults);
-% [AnalysisResults] = Fig1_S2(rootFolder,saveFigs,delim,AnalysisResults);
+[AnalysisResults] = Fig1_S3_Test(rootFolder,saveFigs,delim,AnalysisResults);
+[AnalysisResults] = Fig1_S2_Test(rootFolder,saveFigs,delim,AnalysisResults);
 % [AnalysisResults] = Fig1_S1(rootFolder,saveFigs,delim,AnalysisResults);
 % %% supplemental tables
 % [AnalysisResults] = TableS12(rootFolder,saveFigs,delim,AnalysisResults);
@@ -95,9 +95,9 @@ end
 % [AnalysisResults] = TableS1(rootFolder,saveFigs,delim,AnalysisResults);
 % %% main figure panels
 % [AnalysisResults] = Fig8(rootFolder,saveFigs,delim,AnalysisResults);
-% [AnalysisResults] = Fig7(rootFolder,saveFigs,delim,AnalysisResults);
-% [AnalysisResults] = Fig6(rootFolder,saveFigs,delim,AnalysisResults);
-% [AnalysisResults] = Fig5(rootFolder,saveFigs,delim,AnalysisResults);
+[AnalysisResults] = Fig7_Test(rootFolder,saveFigs,delim,AnalysisResults);
+[AnalysisResults] = Fig6_Test(rootFolder,saveFigs,delim,AnalysisResults);
+[AnalysisResults] = Fig5_Test(rootFolder,saveFigs,delim,AnalysisResults);
 % [AnalysisResults] = Fig4(rootFolder,saveFigs,delim,AnalysisResults);
 % [AnalysisResults] = Fig3(rootFolder,saveFigs,delim,AnalysisResults);
 % [AnalysisResults] = Fig2(rootFolder,saveFigs,delim,AnalysisResults);
@@ -114,7 +114,7 @@ end
 
 function [AnalysisResults] = AnalyzeData(rootFolder)
 % IOS animal IDs
-IOS_animalIDs = {'T135'};
+IOS_animalIDs = {'T135','T141','T142','T144','T151','T155','T156','T157','T159'};
 % 2PLSM animal IDs
 % TwoP_animalIDs = {'T115','T116','T117','T118','T125','T126'};
 saveFigs = 'y';
@@ -259,14 +259,14 @@ end
 %     end
 %     multiWaitbar('Analyzing vessel evoked responses','Value',qq/length(TwoP_animalIDs));
 % end
-%% Block [18] Analyze the relationship between gamma-band power and hemodynamics [HbT] (IOS)
-runFromStart = 'n';
-for qq = 1:length(IOS_animalIDs)
-    if isfield(AnalysisResults,(IOS_animalIDs{1,qq})) == false || isfield(AnalysisResults.(IOS_animalIDs{1,qq}),'HbTvsGamma') == false || strcmp(runFromStart,'y') == true
-        [AnalysisResults] = AnalyzeCBVGammaRelationship(IOS_animalIDs{1,qq},rootFolder,AnalysisResults);
-    end
-    multiWaitbar('Analyzing CBV-Gamma relationship','Value',qq/length(IOS_animalIDs));
-end
+% %% Block [18] Analyze the relationship between gamma-band power and hemodynamics [HbT] (IOS)
+% runFromStart = 'n';
+% for qq = 1:length(IOS_animalIDs)
+%     if isfield(AnalysisResults,(IOS_animalIDs{1,qq})) == false || isfield(AnalysisResults.(IOS_animalIDs{1,qq}),'HbTvsGamma') == false || strcmp(runFromStart,'y') == true
+%         [AnalysisResults] = AnalyzeCBVGammaRelationship(IOS_animalIDs{1,qq},rootFolder,AnalysisResults);
+%     end
+%     multiWaitbar('Analyzing CBV-Gamma relationship','Value',qq/length(IOS_animalIDs));
+% end
 % %% Block [19] Analyze the probability of arousal-state classification based on hemodynamic [HbT] changes (IOS)
 % runFromStart = 'n';
 % if isfield(AnalysisResults,'HbTSleepProbability') == false || strcmp(runFromStart,'y') == true

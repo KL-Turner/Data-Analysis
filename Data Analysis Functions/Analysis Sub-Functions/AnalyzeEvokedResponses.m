@@ -35,7 +35,7 @@ allSpecStructFile = {allSpecStructFileStruct.name}';
 allSpecStructFileID = char(allSpecStructFile);
 load(allSpecStructFileID)
 % forest ID sctruct
-forestScoringResultsID = 'Forest_ScoringResults.mat';
+forestScoringResultsID = [animalID '_Forest_ScoringResults.mat'];
 load(forestScoringResultsID,'-mat')
 % criteria for whisking
 WhiskCriteriaA.Fieldname = {'duration','duration','puffDistance'};

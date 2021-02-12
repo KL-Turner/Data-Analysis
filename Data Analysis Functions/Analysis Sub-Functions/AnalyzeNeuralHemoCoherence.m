@@ -44,7 +44,7 @@ sleepDataFile = {sleepDataFileStruct.name}';
 sleepDataFileID = char(sleepDataFile);
 load(sleepDataFileID)
 % find and load Forest_ScoringResults.mat struct
-forestScoringResultsFileID = 'Forest_ScoringResults.mat';
+forestScoringResultsFileID = [animalID '_Forest_ScoringResults.mat'];
 load(forestScoringResultsFileID,'-mat')
 % lowpass filter
 samplingRate = RestData.CBV_HbT.adjLH.CBVCamSamplingRate;

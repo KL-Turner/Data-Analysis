@@ -58,6 +58,9 @@ for a = 1:size(procDataFileIDs,1)
                     endTime = input('Input the end time for resting data: '); disp(' ')
                     ManualDecisions.startTimes{a,1} = startTime;
                     ManualDecisions.endTimes{a,1} = endTime;
+                    if isempty(startTime) == true || isempty(endTime) == true
+                        b = false;
+                    end
                 else
                     startTime = 0;
                     endTime = 0;
