@@ -14,7 +14,7 @@ SSP_SAP_IDs = {'T135','T142','T144','T151','T159'};
 Blank_SAP_IDs = {''};
 whiskDataTypes = {'ShortWhisks','IntermediateWhisks','LongWhisks'};
 hemispheres = {'adjLH','adjRH'};
-treatments = {'C57BL6J','Blank_SAP','SSP_SAP'};
+treatments = {'C57BL6J','SSP_SAP'};
 data = [];
 cortVariables = {'HbT','CBV','cortMUA','cortGam','cortS','cortS_Gam','cortT','cortF','timeVector'};
 hipVariables = {'hipMUA','hipGam','hipS','hipS_Gam','hipT','hipF','timeVector'};
@@ -103,21 +103,23 @@ for ii = 1:length(whiskDataTypes)
         %% cortical MUA
         ax1 = subplot(6,3,1);
         % C57BL6J
-        plot(data.C57BL6J.(whiskDataTypes{1,ii}).adjLH.meanTimeVector,data.C57BL6J.(whiskDataTypes{1,ii}).meanCortMUA,'color',colors('sapphire'),'LineWidth',1.5);
+        plot(data.C57BL6J.(whiskDataTypes{1,ii}).adjLH.meanTimeVector,data.C57BL6J.whiskDataTypes{1,ii}.meanCortMUA,'color',colors('sapphire'),'LineWidth',1.5);
         hold on
-        plot(data.C57BL6J.(whiskDataTypes{1,ii}).adjLH.meanTimeVector,data.C57BL6J.(whiskDataTypes{1,ii}).meanCortMUA + data.C57BL6J.(whiskDataTypes{1,ii}).adjLH.stdCortMUA,'color',colors('sapphire'),'LineWidth',0.5)
-        plot(data.C57BL6J.(whiskDataTypes{1,ii}).adjLH.meanTimeVector,data.C57BL6J.(whiskDataTypes{1,ii}).meanCortMUA - data.C57BL6J.(whiskDataTypes{1,ii}).adjLH.stdCortMUA,'color',colors('sapphire'),'LineWidth',0.5)
+        plot(data.C57BL6J.(whiskDataTypes{1,ii}).adjLH.meanTimeVector,data.C57BL6J.whiskDataTypes{1,ii}.meanCortMUA + data.(treatments{1,ii}).ShortWhisks.stdCortMUA,'color',colors('sapphire'),'LineWidth',0.5)
+        plot(data.C57BL6J.(whiskDataTypes{1,ii}).adjLH.meanTimeVector,data.C57BL6J.whiskDataTypes{1,ii}.meanCortMUA - data.(treatments{1,ii}).ShortWhisks.stdCortMUA,'color',colors('sapphire'),'LineWidth',0.5)
         % Blank-SAP
-        plot(data.Blank_SAP.(whiskDataTypes{1,ii}).adjLH.meanTimeVector,data.Blank_SAP.(whiskDataTypes{1,ii}).adjLH.meanCortMUA,'color',colors('north texas green'),'LineWidth',1.5);
-        plot(data.Blank_SAP.(whiskDataTypes{1,ii}).adjLH.meanTimeVector,data.Blank_SAP.(whiskDataTypes{1,ii}).adjLH.meanCortMUA + data.Blank_SAP.(whiskDataTypes{1,ii}).adjLH.stdCortMUA,'color',colors('north texas green'),'LineWidth',0.5)
-        plot(data.Blank_SAP.(whiskDataTypes{1,ii}).adjLH.meanTimeVector,data.Blank_SAP.(whiskDataTypes{1,ii}).adjLH.meanCortMUA - data.Blank_SAP.(whiskDataTypes{1,ii}).adjLH.stdCortMUA,'color',colors('north texas green'),'LineWidth',0.5)
+        plot(data.Blank_SAP.(whiskDataTypes{1,ii}).adjLH.meanTimeVector,data.Blank_SAP.whiskDataTypes{1,ii}.meanCortMUA,'color',colors('north texas green'),'LineWidth',1.5);
+        plot(data.Blank_SAP.(whiskDataTypes{1,ii}).adjLH.meanTimeVector,data.Blank_SAP.whiskDataTypes{1,ii}.meanCortMUA + data.(treatments{1,ii}).ShortWhisks.stdCortMUA,'color',colors('north texas green'),'LineWidth',0.5)
+        plot(data.Blank_SAP.(whiskDataTypes{1,ii}).adjLH.meanTimeVector,data.Blank_SAP.whiskDataTypes{1,ii}.meanCortMUA - data.(treatments{1,ii}).ShortWhisks.stdCortMUA,'color',colors('north texas green'),'LineWidth',0.5)
         % SSP-SAP
-        plot(data.SSP_SAP.(whiskDataTypes{1,ii}).adjLH.meanTimeVector,data.SSP_SAP.(whiskDataTypes{1,ii}).adjLH.meanCortMUA,'color',colors('electric purple'),'LineWidth',1.5);
-        plot(data.SSP_SAP.(whiskDataTypes{1,ii}).adjLH.meanTimeVector,data.SSP_SAP.(whiskDataTypes{1,ii}).adjLH.meanCortMUA + data.SSP_SAP.(whiskDataTypes{1,ii}).adjLH.stdCortMUA,'color',colors('electric purple'),'LineWidth',0.5)
-        plot(data.SSP_SAP.(whiskDataTypes{1,ii}).adjLH.meanTimeVector,data.SSP_SAP.(whiskDataTypes{1,ii}).adjLH.meanCortMUA - data.SSP_SAP.(whiskDataTypes{1,ii}).adjLH.stdCortMUA,'color',colors('electric purple'),'LineWidth',0.5)
-        title('LH cortical MUA')
+        plot(data.SSP_SAP.(whiskDataTypes{1,ii}.meanTimeVector,data.SSP_SAP.(whiskDataTypes{1,ii}).meanCortMUA,'color',colors('electric purple'),'LineWidth',1.5);
+        plot(data.SSP_SAP.(whiskDataTypes{1,ii}.meanTimeVector,data.SSP_SAP.(whiskDataTypes{1,ii}).meanCortMUA + data.SSP_SAP.(treatments{1,ii}).stdCortMUA,'color',colors('electric purple'),'LineWidth',0.5)
+        plot(data.SSP_SAP.(whiskDataTypes{1,ii}.meanTimeVector,data.SSP_SAP.(whiskDataTypes{1,ii}).meanCortMUA - data.SSP_SAP.(treatments{1,ii}).stdCortMUA,'color',colors('electric purple'),'LineWidth',0.5)
+       
+        title('[1-S3a] Brief whisk cortical MUA')
         ylabel('\DeltaP/P (%)')
         xlabel('Peri-whisk time (s)')
+        axis square
         set(gca,'box','off')
         ax1.TickLength = [0.03,0.03];
         

@@ -8,9 +8,18 @@ function [AnalysisResults] = AnalyzeMeanCBV(animalID,rootFolder,AnalysisResults)
 %   Purpose: Analyze the hemodynamic signal [HbT] during different arousal states (IOS)
 %________________________________________________________________________________________________________________________
 
+%% animal grouping
+C57BL6J_IDs = {'T141','T155','T156','T157'};
+SSP_SAP_IDs = {'T135','T142','T144','T151','T159'};
+Blank_SAP_IDs = {''};
+if ismember(animalID,C57BL6J_IDs) == true
+    group = 'C57BL6J';
+elseif ismember(animalID,SSP_SAP_IDs) == true
+    group = 'SSP-SAP';
+elseif ismember(animalID,Blank_SAP_IDs) == true
+    group = 'Blank-SAP';
+end
 %% function parameters
-IOS_animalIDs = {'T99','T101','T102','T103','T105','T108','T109','T110','T111','T119','T120','T121','T122','T123'};
-Iso_animalIDs = {'T108','T109','T110','T111','T119','T120','T121','T122','T123'};
 modelType = 'Forest';
 params.minTime.Rest = 10;
 params.Offset = 2;
@@ -19,7 +28,7 @@ params.minTime.Stim = params.Offset + 2;
 params.minTime.NREM = 30;
 params.minTime.REM = 60;
 %% only run analysis for valid animal IDs
-dataLocation = [rootFolder '\' animalID '\Bilateral Imaging\'];
+dataLocation = [rootFolder '\' group '\' animalID '\Bilateral Imaging\'];
 cd(dataLocation)
 % find and load RestData.mat struct
 restDataFileStruct = dir('*_RestData.mat');
@@ -206,24 +215,22 @@ AnalysisResults.(animalID).MeanCBV.REM.CBV_HbT.IndAdjLH = LH_remData;
 AnalysisResults.(animalID).MeanCBV.REM.CBV_HbT.IndAdjRH = RH_remData;
 AnalysisResults.(animalID).MeanCBV.REM.CBV_HbT.FileIDs = remFileIDs;
 %% analyze [HbT] during periods of isolfurane
-if any(strcmp(Iso_animalIDs,animalID))
-    dataLocation = [rootFolder '\' animalID '\Isoflurane Trials\'];
-    cd(dataLocation)
-    % pull ProcData.mat file associated with isoflurane administration
-    procDataFileStruct = dir('*_ProcData.mat');
-    procDataFile = {procDataFileStruct.name}';
-    procDataFileID = char(procDataFile);
-    load(procDataFileID)
-    % extract left and right [HbT] changes during the last 100 seconds of data
-    isoLH_HbT = ProcData.data.CBV_HbT.adjLH((end - samplingRate*100):end);
-    filtIsoLH_HbT = filtfilt(sos,g,isoLH_HbT);
-    isoRH_HbT = ProcData.data.CBV_HbT.adjRH((end - samplingRate*100):end);
-    filtIsoRH_HbT = filtfilt(sos,g,isoRH_HbT);
-    % save results
-    AnalysisResults.(animalID).MeanCBV.Iso.CBV_HbT.adjLH = mean(filtIsoLH_HbT);
-    AnalysisResults.(animalID).MeanCBV.Iso.CBV_HbT.adjRH = mean(filtIsoRH_HbT);
-    AnalysisResults.(animalID).MeanCBV.Iso.CBV_HbT.FileIDs = procDataFileID;
-end
+dataLocation = [rootFolder '\' group '\' animalID '\Isoflurane Trials\'];
+cd(dataLocation)
+% pull ProcData.mat file associated with isoflurane administration
+procDataFileStruct = dir('*_ProcData.mat');
+procDataFile = {procDataFileStruct.name}';
+procDataFileID = char(procDataFile);
+load(procDataFileID)
+% extract left and right [HbT] changes during the last 100 seconds of data
+isoLH_HbT = ProcData.data.CBV_HbT.adjLH((end - samplingRate*100):end);
+filtIsoLH_HbT = filtfilt(sos,g,isoLH_HbT);
+isoRH_HbT = ProcData.data.CBV_HbT.adjRH((end - samplingRate*100):end);
+filtIsoRH_HbT = filtfilt(sos,g,isoRH_HbT);
+% save results
+AnalysisResults.(animalID).MeanCBV.Iso.CBV_HbT.adjLH = mean(filtIsoLH_HbT);
+AnalysisResults.(animalID).MeanCBV.Iso.CBV_HbT.adjRH = mean(filtIsoRH_HbT);
+AnalysisResults.(animalID).MeanCBV.Iso.CBV_HbT.FileIDs = procDataFileID;
 % save data
 cd(rootFolder)
 save('AnalysisResults.mat','AnalysisResults')

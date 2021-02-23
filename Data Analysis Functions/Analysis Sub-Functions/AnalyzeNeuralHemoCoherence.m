@@ -8,8 +8,18 @@ function [AnalysisResults] = AnalyzeNeuralHemoCoherence(animalID,saveFigs,rootFo
 %   Purpose: Analyze the spectral coherence between neural-hemodynamic [HbT] signals (IOS)
 %________________________________________________________________________________________________________________________
 
+%% animal grouping
+C57BL6J_IDs = {'T141','T155','T156','T157'};
+SSP_SAP_IDs = {'T135','T142','T144','T151','T159'};
+Blank_SAP_IDs = {''};
+if ismember(animalID,C57BL6J_IDs) == true
+    group = 'C57BL6J';
+elseif ismember(animalID,SSP_SAP_IDs) == true
+    group = 'SSP-SAP';
+elseif ismember(animalID,Blank_SAP_IDs) == true
+    group = 'Blank-SAP';
+end
 %% function parameters
-animalIDs = {'T99','T101','T102','T103','T105','T108','T109','T110','T111','T119','T120','T121','T122','T123'};
 dataTypes = {'deltaBandPower','thetaBandPower','alphaBandPower','betaBandPower','gammaBandPower'};
 hemDataTypes = {'adjLH','adjRH'};
 modelType = 'Forest';
@@ -17,7 +27,7 @@ params.minTime.Rest = 10;
 params.minTime.NREM = 30;
 params.minTime.REM = 60;
 %% only run analysis for valid animal IDs
-dataLocation = [rootFolder '/' animalID '/Bilateral Imaging/'];
+dataLocation = [rootFolder '\' group '\' animalID '\Bilateral Imaging\'];
 cd(dataLocation)
 % character list of all ProcData file IDs
 procDataFileStruct = dir('*_ProcData.mat');
