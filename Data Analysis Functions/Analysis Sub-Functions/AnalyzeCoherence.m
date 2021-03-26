@@ -1,4 +1,4 @@
-function [AnalysisResults] = AnalyzeCoherence(animalID,saveFigs,rootFolder,AnalysisResults)
+function [AnalysisResults] = AnalyzeCoherence(animalID,group,saveFigs,rootFolder,AnalysisResults)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -8,17 +8,6 @@ function [AnalysisResults] = AnalyzeCoherence(animalID,saveFigs,rootFolder,Analy
 %   Purpose: Analyze the spectral coherence between bilateral hemodynamic [HbT] and neural signals (IOS)
 %________________________________________________________________________________________________________________________
 
-%% animal grouping
-C57BL6J_IDs = {'T141','T155','T156','T157'};
-SSP_SAP_IDs = {'T135','T142','T144','T151','T159'};
-Blank_SAP_IDs = {''};
-if ismember(animalID,C57BL6J_IDs) == true
-    group = 'C57BL6J';
-elseif ismember(animalID,SSP_SAP_IDs) == true
-    group = 'SSP-SAP';
-elseif ismember(animalID,Blank_SAP_IDs) == true
-    group = 'Blank-SAP';
-end
 %% function parameters
 dataTypes = {'CBV_HbT','deltaBandPower','thetaBandPower','alphaBandPower','betaBandPower','gammaBandPower'};
 modelType = 'Forest';
@@ -36,22 +25,22 @@ procDataFileIDs = char(procDataFiles);
 restDataFileStruct = dir('*_RestData.mat');
 restDataFile = {restDataFileStruct.name}';
 restDataFileID = char(restDataFile);
-load(restDataFileID)
+load(restDataFileID,'-mat')
 % find and load manual baseline event information
 manualBaselineFileStruct = dir('*_ManualBaselineFileList.mat');
 manualBaselineFile = {manualBaselineFileStruct.name}';
 manualBaselineFileID = char(manualBaselineFile);
-load(manualBaselineFileID)
+load(manualBaselineFileID,'-mat')
 % find and load RestingBaselines.mat struct
 baselineDataFileStruct = dir('*_RestingBaselines.mat');
 baselineDataFile = {baselineDataFileStruct.name}';
 baselineDataFileID = char(baselineDataFile);
-load(baselineDataFileID)
+load(baselineDataFileID,'-mat')
 % find and load SleepData.mat struct
 sleepDataFileStruct = dir('*_SleepData.mat');
 sleepDataFile = {sleepDataFileStruct.name}';
 sleepDataFileID = char(sleepDataFile);
-load(sleepDataFileID)
+load(sleepDataFileID,'-mat')
 % find and load Forest_ScoringResults.mat struct
 forestScoringResultsFileID = [animalID '_Forest_ScoringResults.mat'];
 load(forestScoringResultsFileID,'-mat')
@@ -170,7 +159,7 @@ for aa = 1:length(dataTypes)
         end
         % check labels to match arousal state
         if sum(strcmp(scoringLabels,'Not Sleep')) > 144   % 36 bins (180 total) or 3 minutes of sleep
-            load(procDataFileID)
+            load(procDataFileID,'-mat')
             puffs = ProcData.data.stimulations.LPadSol;
             % don't include trials with stimulation
             if isempty(puffs) == true
@@ -259,7 +248,7 @@ for aa = 1:length(dataTypes)
         end
         % check labels to match arousal state
         if sum(strcmp(scoringLabels,'Not Sleep')) < 36   % 36 bins (180 total) or 3 minutes of awake
-            load(procDataFileID)
+            load(procDataFileID,'-mat')
             puffs = ProcData.data.stimulations.LPadSol;
             % don't include trials with stimulation
             if isempty(puffs) == true
@@ -340,7 +329,7 @@ for aa = 1:length(dataTypes)
         procDataFileID = procDataFileIDs(bb,:);
         [~,allUnstimDataFileDate,~] = GetFileInfo_IOS(procDataFileID);
         strDay = ConvertDate_IOS(allUnstimDataFileDate);
-        load(procDataFileID)
+        load(procDataFileID,'-mat')
         puffs = ProcData.data.stimulations.LPadSol;
         % don't include trials with stimulation
         if isempty(puffs) == true

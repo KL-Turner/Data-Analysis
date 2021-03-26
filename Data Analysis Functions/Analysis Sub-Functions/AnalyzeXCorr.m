@@ -1,4 +1,4 @@
-function [AnalysisResults] = AnalyzeXCorr(animalID,saveFigs,rootFolder,AnalysisResults)
+function [AnalysisResults] = AnalyzeXCorr(animalID,group,saveFigs,rootFolder,AnalysisResults)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -8,17 +8,6 @@ function [AnalysisResults] = AnalyzeXCorr(animalID,saveFigs,rootFolder,AnalysisR
 %   Purpose: Analyze the cross-correlation between neural activity and hemodynamics [HbT] (IOS)
 %________________________________________________________________________________________________________________________
 
-%% animal grouping
-C57BL6J_IDs = {'T141','T155','T156','T157'};
-SSP_SAP_IDs = {'T135','T142','T144','T151','T159'};
-Blank_SAP_IDs = {''};
-if ismember(animalID,C57BL6J_IDs) == true
-    group = 'C57BL6J';
-elseif ismember(animalID,SSP_SAP_IDs) == true
-    group = 'SSP-SAP';
-elseif ismember(animalID,Blank_SAP_IDs) == true
-    group = 'Blank-SAP';
-end
 %% function parameters
 dataTypes = {'adjLH','adjRH'};
 modelType = 'Forest';
@@ -32,27 +21,27 @@ cd(dataLocation)
 restDataFileStruct = dir('*_RestData.mat');
 restDataFile = {restDataFileStruct.name}';
 restDataFileID = char(restDataFile);
-load(restDataFileID)
+load(restDataFileID,'-mat')
 % find and load manual baseline event information
 manualBaselineFileStruct = dir('*_ManualBaselineFileList.mat');
 manualBaselineFile = {manualBaselineFileStruct.name}';
 manualBaselineFileID = char(manualBaselineFile);
-load(manualBaselineFileID)
+load(manualBaselineFileID,'-mat')
 % find and load RestingBaselines.mat strut
 baselineDataFileStruct = dir('*_RestingBaselines.mat');
 baselineDataFile = {baselineDataFileStruct.name}';
 baselineDataFileID = char(baselineDataFile);
-load(baselineDataFileID)
+load(baselineDataFileID,'-mat')
 % find and load SleepData.mat strut
 sleepDataFileStruct = dir('*_SleepData.mat');
 sleepDataFile = {sleepDataFileStruct.name}';
 sleepDataFileID = char(sleepDataFile);
-load(sleepDataFileID)
+load(sleepDataFileID,'-mat')
 % find and load AllSpecStruct.mat struct
 allSpecStructFileStruct = dir('*_AllSpecStructC.mat');
 allSpecStructFile = {allSpecStructFileStruct.name}';
 allSpecStructFileID = char(allSpecStructFile);
-load(allSpecStructFileID)
+load(allSpecStructFileID,'-mat')
 % lowpass filter
 samplingRate = RestData.CBV_HbT.LH.CBVCamSamplingRate;
 [z,p,k] = butter(4,1/(samplingRate/2),'low');
@@ -227,7 +216,7 @@ for aa = 1:length(dataTypes)
         end
         % pull out the Spectrogram data that matches the unique NREM sleep file
         NREM_specDataFileID = [animalID '_' NREM_uniqueSleepFileID '_SpecDataC.mat'];
-        load(NREM_specDataFileID)
+        load(NREM_specDataFileID,'-mat')
         NREM_S_Data = SpecData.(neuralDataType).normS;
         for ii = 1:length(NREM_binTimes)
             NREM_Bins = NREM_binTimes{ii,1};
@@ -385,7 +374,7 @@ for aa = 1:length(dataTypes)
         end
         % pull out the Spectrogram data that matches the unique REM sleep file
         REM_specDataFileID = [animalID '_' REM_uniqueSleepFileID '_SpecDataC.mat'];
-        load(REM_specDataFileID)
+        load(REM_specDataFileID,'-mat')
         REM_S_Data = SpecData.(neuralDataType).normS;
         for tt = 1:length(REM_binTimes)
             REM_Bins = REM_binTimes{tt,1};

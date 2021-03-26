@@ -12,7 +12,7 @@ ledType = 'M565L3';
 bandfilterType = 'FB570-10';
 cutfilterType = 'EO65160';
 conv2um = 1e6;
-[~,~,weightedcoeffHbT] = GetHbcoeffs_IOS(ledType,bandfilterType,cutfilterType);
+[~,~,weightedcoeffHbT] = getHbcoeffs_IOS(ledType,bandfilterType,cutfilterType);
 for a = 1:size(procDataFileIDs,1)
     procDataFileID = procDataFileIDs(a,:);
     disp(['Adding changes in total hemoglobin to ProcData file (' num2str(a) '/' num2str(size(procDataFileIDs,1)) ')...']); disp(' ')

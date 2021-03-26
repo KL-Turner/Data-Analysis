@@ -8,318 +8,269 @@ function [AnalysisResults] = StimEvoked_Saporin(rootFolder,saveFigs,delim,Analys
 %________________________________________________________________________________________________________________________
 
 %% set-up and process data
-animalIDs = {'T135','T141','T142','T144','T151','T155','T156','T157','T159'};
+%% set-up
+animalIDs = {'T141','T155','T156','T157','T142','T144','T159','T172','T150','T165','T166'};
+C57BL6J_IDs = {'T141','T155','T156','T157'};
+SSP_SAP_IDs = {'T142','T144','T159','T172'};
+Blank_SAP_IDs = {'T150','T165','T166'};
 solenoidNames = {'LPadSol','RPadSol','AudSol'};
-% compDataTypes = {'Ipsi','Contra','Auditory'};
-compDataTypes = {'Contra'};
-dataTypes = {'adjLH','adjRH'};
-treatments = {'C57BL6J','SSP_SAP'};
+compDataTypes = {'Ipsi','Contra','Auditory'};
+hemispheres = {'adjLH','adjRH'};
+treatments = {'C57BL6J','Blank_SAP','SSP_SAP'};
+data = [];
+cortVariables = {'HbT','CBV','cortMUA','cortGam','cortS','cortS_Gam','cortT','cortF','timeVector','count'};
+hipVariables = {'hipMUA','hipGam','hipS','hipS_Gam','hipT','hipF','timeVector'};
 %% cd through each animal's directory and extract the appropriate analysis results
-xx = 1;
-zz = 1;
 for aa = 1:length(animalIDs)
-    animalID = animalIDs{1,aa};
-    if strcmp(animalID,'T141') == true || strcmp(animalID,'T155') == true || strcmp(animalID,'T156') == true || strcmp(animalID,'T157') == true
-        for bb = 1:length(dataTypes)
-            dataType = dataTypes{1,bb};
-            for dd = 1:length(solenoidNames)
-                solenoidName = solenoidNames{1,dd};
-                data.C57BL6J.(dataType).(solenoidName).count(:,xx) = AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoidName).count;
-                data.C57BL6J.(dataType).(solenoidName).HbT(:,xx) = AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoidName).CBV_HbT.HbT;
-                data.C57BL6J.(dataType).(solenoidName).CBV(:,xx) = AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoidName).CBV.CBV;
-                data.C57BL6J.(dataType).(solenoidName).cortMUA(:,xx) = AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoidName).MUA.corticalData;
-                data.C57BL6J.(dataType).(solenoidName).hipMUA(:,xx) = AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoidName).MUA.hippocampalData;
-                data.C57BL6J.(dataType).(solenoidName).cortGam(:,xx) = AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoidName).Gam.corticalData;
-                data.C57BL6J.(dataType).(solenoidName).hipGam(:,xx) = AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoidName).Gam.hippocampalData;
-                data.C57BL6J.(dataType).(solenoidName).timeVector(:,xx) = AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoidName).timeVector;
-                data.C57BL6J.(dataType).(solenoidName).cortS(:,:,xx) = AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoidName).LFP.corticalS;
-                data.C57BL6J.(dataType).(solenoidName).cortS_Gam(:,:,xx) = AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoidName).LFP.corticalS(49:end,20:23);
-                data.C57BL6J.(dataType).(solenoidName).hipS(:,:,xx) = AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoidName).LFP.hippocampalS;
-                data.C57BL6J.(dataType).(solenoidName).hipS_Gam(:,:,xx) = AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoidName).LFP.hippocampalS(49:end,20:23);
-                data.C57BL6J.(dataType).(solenoidName).T(:,xx) = AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoidName).LFP.T;
-                data.C57BL6J.(dataType).(solenoidName).F(:,xx) = AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoidName).LFP.F;
+    % recognize treatment based on animal group
+    if ismember(animalIDs{1,aa},C57BL6J_IDs) == true
+        treatment = 'C57BL6J';
+    elseif ismember(animalIDs{1,aa},SSP_SAP_IDs) == true
+        treatment = 'SSP_SAP';
+    elseif ismember(animalIDs{1,aa},Blank_SAP_IDs) == true
+        treatment = 'Blank_SAP';
+    end
+    for bb = 1:length(solenoidNames)
+        % left, right hemishpere hemo & neural data
+        for cc = 1:length(hemispheres)
+            % pre-allocate necessary variable fields
+            data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).dummCheck = 1;
+            for dd = 1:length(cortVariables)
+                if isfield(data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}),cortVariables{1,dd}) == false
+                    data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).(cortVariables{1,dd}) = [];
+                end
             end
-        end
-        xx = xx + 1;
-    elseif strcmp(animalID,'T135') == true || strcmp(animalID,'T142') == true || strcmp(animalID,'T144') == true || strcmp(animalID,'T151') == true || strcmp(animalID,'T159') == true
-        for bb = 1:length(dataTypes)
-            dataType = dataTypes{1,bb};
-            for dd = 1:length(solenoidNames)
-                solenoidName = solenoidNames{1,dd};
-                data.SSP_SAP.(dataType).(solenoidName).count(:,zz) = AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoidName).count;
-                data.SSP_SAP.(dataType).(solenoidName).HbT(:,zz) = AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoidName).CBV_HbT.HbT;
-                data.SSP_SAP.(dataType).(solenoidName).CBV(:,zz) = AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoidName).CBV.CBV;
-                data.SSP_SAP.(dataType).(solenoidName).cortMUA(:,zz) = AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoidName).MUA.corticalData;
-                data.SSP_SAP.(dataType).(solenoidName).hipMUA(:,zz) = AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoidName).MUA.hippocampalData;
-                data.SSP_SAP.(dataType).(solenoidName).cortGam(:,zz) = AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoidName).Gam.corticalData;
-                data.SSP_SAP.(dataType).(solenoidName).hipGam(:,zz) = AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoidName).Gam.hippocampalData;
-                data.SSP_SAP.(dataType).(solenoidName).timeVector(:,zz) = AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoidName).timeVector;
-                data.SSP_SAP.(dataType).(solenoidName).cortS(:,:,zz) = AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoidName).LFP.corticalS;
-                data.SSP_SAP.(dataType).(solenoidName).cortS_Gam(:,:,zz) = AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoidName).LFP.corticalS(49:end,20:23);
-                data.SSP_SAP.(dataType).(solenoidName).hipS(:,:,zz) = AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoidName).LFP.hippocampalS;
-                data.SSP_SAP.(dataType).(solenoidName).hipS_Gam(:,:,zz) = AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoidName).LFP.hippocampalS(49:end,20:23);
-                data.SSP_SAP.(dataType).(solenoidName).T(:,zz) = AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoidName).LFP.T;
-                data.SSP_SAP.(dataType).(solenoidName).F(:,zz) = AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoidName).LFP.F;
+            data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).HbT = cat(1,data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).HbT,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Stim.(hemispheres{1,cc}).(solenoidNames{1,bb}).CBV_HbT.HbT);
+            data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).CBV = cat(1,data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).CBV,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Stim.(hemispheres{1,cc}).(solenoidNames{1,bb}).CBV.CBV);
+            data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).cortMUA = cat(1,data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).cortMUA,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Stim.(hemispheres{1,cc}).(solenoidNames{1,bb}).MUA.corticalData);
+            data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).cortGam = cat(1,data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).cortGam,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Stim.(hemispheres{1,cc}).(solenoidNames{1,bb}).Gam.corticalData);
+            data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).cortS = cat(3,data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).cortS,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Stim.(hemispheres{1,cc}).(solenoidNames{1,bb}).LFP.corticalS);
+            data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).cortS_Gam = cat(3,data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).cortS_Gam,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Stim.(hemispheres{1,cc}).(solenoidNames{1,bb}).LFP.corticalS(49:end,20:23));
+            data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).cortT = cat(1,data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).cortT,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Stim.(hemispheres{1,cc}).(solenoidNames{1,bb}).LFP.T);
+            data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).cortF = cat(1,data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).cortF,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Stim.(hemispheres{1,cc}).(solenoidNames{1,bb}).LFP.F);
+            data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).timeVector = cat(1,data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).timeVector,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Stim.(hemispheres{1,cc}).(solenoidNames{1,bb}).timeVector);
+            data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).count = cat(1,data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).count,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Stim.(hemispheres{1,cc}).(solenoidNames{1,bb}).count);
+            % hippocampal neural data - preallocate necessary variable fields
+            data.(treatment).(solenoidNames{1,bb}).Hip.dummyCheck = 1;
+            for ee = 1:length(hipVariables)
+                if isfield(data.(treatment).(solenoidNames{1,bb}).Hip,hipVariables{1,ee}) == false
+                    data.(treatment).(solenoidNames{1,bb}).Hip.(hipVariables{1,ee}) = [];
+                end
             end
+            data.(treatment).(solenoidNames{1,bb}).Hip.hipMUA = cat(1,data.(treatment).(solenoidNames{1,bb}).Hip.hipMUA,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Stim.adjLH.(solenoidNames{1,bb}).MUA.hippocampalData);
+            data.(treatment).(solenoidNames{1,bb}).Hip.hipGam = cat(1,data.(treatment).(solenoidNames{1,bb}).Hip.hipGam,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Stim.adjLH.(solenoidNames{1,bb}).Gam.hippocampalData);
+            data.(treatment).(solenoidNames{1,bb}).Hip.hipS = cat(3,data.(treatment).(solenoidNames{1,bb}).Hip.hipS,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Stim.adjLH.(solenoidNames{1,bb}).LFP.hippocampalS);
+            data.(treatment).(solenoidNames{1,bb}).Hip.hipS_Gam = cat(3,data.(treatment).(solenoidNames{1,bb}).Hip.hipS_Gam,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Stim.adjLH.(solenoidNames{1,bb}).LFP.hippocampalS(49:end,20:23));
+            data.(treatment).(solenoidNames{1,bb}).Hip.hipT = cat(1,data.(treatment).(solenoidNames{1,bb}).Hip.hipT,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Stim.adjLH.(solenoidNames{1,bb}).LFP.T);
+            data.(treatment).(solenoidNames{1,bb}).Hip.hipF = cat(1,data.(treatment).(solenoidNames{1,bb}).Hip.hipF,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Stim.adjLH.(solenoidNames{1,bb}).LFP.F);
+            data.(treatment).(solenoidNames{1,bb}).Hip.timeVector = cat(1,data.(treatment).(solenoidNames{1,bb}).Hip.timeVector,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Stim.adjLH.(solenoidNames{1,bb}).timeVector);
         end
-        zz = zz + 1;
     end
 end
 %% concatenate the data from the contra and ipsi data
-data.C57BL6J.adjLH.Contra.count = data.C57BL6J.adjLH.RPadSol.count;
-data.C57BL6J.adjRH.Contra.count = data.C57BL6J.adjRH.LPadSol.count;
-
-data.C57BL6J.adjLH.Contra.HbT = data.C57BL6J.adjLH.RPadSol.HbT;
-data.C57BL6J.adjRH.Contra.HbT = data.C57BL6J.adjRH.LPadSol.HbT;
-
-data.C57BL6J.adjLH.Contra.CBV = data.C57BL6J.adjLH.RPadSol.CBV;
-data.C57BL6J.adjRH.Contra.CBV = data.C57BL6J.adjRH.LPadSol.CBV;
-
-data.C57BL6J.adjLH.Contra.cortMUA = data.C57BL6J.adjLH.RPadSol.cortMUA;
-data.C57BL6J.adjRH.Contra.cortMUA = data.C57BL6J.adjRH.LPadSol.cortMUA;
-
-data.C57BL6J.adjLH.Contra.hipMUA = data.C57BL6J.adjLH.RPadSol.hipMUA;
-data.C57BL6J.adjRH.Contra.hipMUA = data.C57BL6J.adjRH.LPadSol.hipMUA;
-
-data.C57BL6J.adjLH.Contra.cortGam = data.C57BL6J.adjLH.RPadSol.cortGam;
-data.C57BL6J.adjRH.Contra.cortGam = data.C57BL6J.adjRH.LPadSol.cortGam;
-
-data.C57BL6J.adjLH.Contra.hipGam = data.C57BL6J.adjLH.RPadSol.hipGam;
-data.C57BL6J.adjRH.Contra.hipGam = data.C57BL6J.adjRH.LPadSol.hipGam;
-
-data.C57BL6J.adjLH.Contra.timeVector = data.C57BL6J.adjLH.RPadSol.timeVector;
-data.C57BL6J.adjRH.Contra.timeVector = data.C57BL6J.adjRH.LPadSol.timeVector;
-
-data.C57BL6J.adjLH.Contra.cortS = data.C57BL6J.adjLH.RPadSol.cortS;
-data.C57BL6J.adjRH.Contra.cortS = data.C57BL6J.adjRH.LPadSol.cortS;
-
-data.C57BL6J.adjLH.Contra.cortS_Gam = data.C57BL6J.adjLH.RPadSol.cortS_Gam;
-data.C57BL6J.adjRH.Contra.cortS_Gam = data.C57BL6J.adjRH.LPadSol.cortS_Gam;
-
-data.C57BL6J.adjLH.Contra.hipS = data.C57BL6J.adjLH.RPadSol.hipS;
-data.C57BL6J.adjRH.Contra.hipS = data.C57BL6J.adjRH.LPadSol.hipS;
-
-data.C57BL6J.adjLH.Contra.hipS_Gam = data.C57BL6J.adjLH.RPadSol.hipS_Gam;
-data.C57BL6J.adjRH.Contra.hipS_Gam = data.C57BL6J.adjRH.LPadSol.hipS_Gam;
-
-data.C57BL6J.adjLH.Contra.T = data.C57BL6J.adjLH.RPadSol.T;
-data.C57BL6J.adjRH.Contra.T = data.C57BL6J.adjRH.LPadSol.T;
-
-data.C57BL6J.adjLH.Contra.F = data.C57BL6J.adjLH.RPadSol.F;
-data.C57BL6J.adjRH.Contra.F = data.C57BL6J.adjRH.LPadSol.F;
-
-data.SSP_SAP.adjLH.Contra.count = data.SSP_SAP.adjLH.RPadSol.count;
-data.SSP_SAP.adjRH.Contra.count = data.SSP_SAP.adjRH.LPadSol.count;
-
-data.SSP_SAP.adjLH.Contra.HbT = data.SSP_SAP.adjLH.RPadSol.HbT;
-data.SSP_SAP.adjRH.Contra.HbT = data.SSP_SAP.adjRH.LPadSol.HbT;
-
-data.SSP_SAP.adjLH.Contra.CBV = data.SSP_SAP.adjLH.RPadSol.CBV;
-data.SSP_SAP.adjRH.Contra.CBV = data.SSP_SAP.adjRH.LPadSol.CBV;
-
-data.SSP_SAP.adjLH.Contra.cortMUA = data.SSP_SAP.adjLH.RPadSol.cortMUA;
-data.SSP_SAP.adjRH.Contra.cortMUA = data.SSP_SAP.adjRH.LPadSol.cortMUA;
-
-data.SSP_SAP.adjLH.Contra.hipMUA = data.SSP_SAP.adjLH.RPadSol.hipMUA;
-data.SSP_SAP.adjRH.Contra.hipMUA = data.SSP_SAP.adjRH.LPadSol.hipMUA;
-
-data.SSP_SAP.adjLH.Contra.cortGam = data.SSP_SAP.adjLH.RPadSol.cortGam;
-data.SSP_SAP.adjRH.Contra.cortGam = data.SSP_SAP.adjRH.LPadSol.cortGam;
-
-data.SSP_SAP.adjLH.Contra.hipGam = data.SSP_SAP.adjLH.RPadSol.hipGam;
-data.SSP_SAP.adjRH.Contra.hipGam = data.SSP_SAP.adjRH.LPadSol.hipGam;
-
-data.SSP_SAP.adjLH.Contra.timeVector = data.SSP_SAP.adjLH.RPadSol.timeVector;
-data.SSP_SAP.adjRH.Contra.timeVector = data.SSP_SAP.adjRH.LPadSol.timeVector;
-
-data.SSP_SAP.adjLH.Contra.cortS = data.SSP_SAP.adjLH.RPadSol.cortS;
-data.SSP_SAP.adjRH.Contra.cortS = data.SSP_SAP.adjRH.LPadSol.cortS;
-
-data.SSP_SAP.adjLH.Contra.cortS_Gam = data.SSP_SAP.adjLH.RPadSol.cortS_Gam;
-data.SSP_SAP.adjRH.Contra.cortS_Gam = data.SSP_SAP.adjRH.LPadSol.cortS_Gam;
-
-data.SSP_SAP.adjLH.Contra.hipS = data.SSP_SAP.adjLH.RPadSol.hipS;
-data.SSP_SAP.adjRH.Contra.hipS = data.SSP_SAP.adjRH.LPadSol.hipS;
-
-data.SSP_SAP.adjLH.Contra.hipS_Gam = data.SSP_SAP.adjLH.RPadSol.hipS_Gam;
-data.SSP_SAP.adjRH.Contra.hipS_Gam = data.SSP_SAP.adjRH.LPadSol.hipS_Gam;
-
-data.SSP_SAP.adjLH.Contra.T = data.SSP_SAP.adjLH.RPadSol.T;
-data.SSP_SAP.adjRH.Contra.T = data.SSP_SAP.adjRH.LPadSol.T;
-
-data.SSP_SAP.adjLH.Contra.F = data.SSP_SAP.adjLH.RPadSol.F;
-data.SSP_SAP.adjRH.Contra.F = data.SSP_SAP.adjRH.LPadSol.F;
-
-% data.Contra.HbT = cat(2,data.adjLH.RPadSol.HbT,data.adjRH.LPadSol.HbT);
-% data.Contra.CBV = cat(2,data.adjLH.RPadSol.CBV,data.adjRH.LPadSol.CBV);
-% data.Contra.cortMUA = cat(2,data.adjLH.RPadSol.cortMUA,data.adjRH.LPadSol.cortMUA);
-% data.Contra.hipMUA = data.adjRH.RPadSol.hipMUA;
-% data.Contra.cortGam = cat(2,data.adjLH.RPadSol.cortGam,data.adjRH.LPadSol.cortGam);
-% data.Contra.hipGam = data.adjRH.RPadSol.hipGam;
-% data.Contra.timeVector = cat(2,data.adjLH.RPadSol.timeVector,data.adjRH.LPadSol.timeVector);
-% data.Contra.cortS = cat(3,data.adjLH.RPadSol.cortS,data.adjRH.LPadSol.cortS);
-% data.Contra.cortS_Gam = cat(3,data.adjLH.RPadSol.cortS_Gam,data.adjRH.LPadSol.cortS_Gam);
-% data.Contra.hipS = data.adjRH.RPadSol.hipS;
-% data.Contra.hipS_Gam = data.adjRH.RPadSol.hipS_Gam;
-% data.Contra.T = cat(2,data.adjLH.RPadSol.T,data.adjRH.LPadSol.T);
-% data.Contra.F = cat(2,data.adjLH.RPadSol.F,data.adjRH.LPadSol.F);
-% data.Ipsi.count = cat(2,data.adjLH.LPadSol.count,data.adjRH.RPadSol.count);
-% data.Ipsi.HbT = cat(2,data.adjLH.LPadSol.HbT,data.adjRH.RPadSol.HbT);
-% data.Ipsi.CBV = cat(2,data.adjLH.LPadSol.CBV,data.adjRH.RPadSol.CBV);
-% data.Ipsi.cortMUA = cat(2,data.adjLH.LPadSol.cortMUA,data.adjRH.RPadSol.cortMUA);
-% data.Ipsi.hipMUA = data.adjRH.LPadSol.hipMUA;
-% data.Ipsi.cortGam = cat(2,data.adjLH.LPadSol.cortGam,data.adjRH.RPadSol.cortGam);
-% data.Ipsi.hipGam = data.adjRH.LPadSol.hipGam;
-% data.Ipsi.timeVector = cat(2,data.adjLH.LPadSol.timeVector,data.adjRH.RPadSol.timeVector);
-% data.Ipsi.cortS = cat(3,data.adjLH.LPadSol.cortS,data.adjRH.RPadSol.cortS);
-% data.Ipsi.cortS_Gam = cat(3,data.adjLH.LPadSol.cortS_Gam,data.adjRH.RPadSol.cortS_Gam);
-% data.Ipsi.hipS = data.adjRH.LPadSol.hipS;
-% data.Ipsi.hipS_Gam = data.adjRH.LPadSol.hipS_Gam;
-% data.Ipsi.T = cat(2,data.adjLH.LPadSol.T,data.adjRH.RPadSol.T);
-% data.Ipsi.F = cat(2,data.adjLH.LPadSol.F,data.adjRH.RPadSol.F);
-% data.Auditory.count = cat(2,data.adjLH.AudSol.count,data.adjRH.AudSol.count);
-% data.Auditory.HbT = cat(2,data.adjLH.AudSol.HbT,data.adjRH.AudSol.HbT);
-% data.Auditory.CBV = cat(2,data.adjLH.AudSol.CBV,data.adjRH.AudSol.CBV);
-% data.Auditory.cortMUA = cat(2,data.adjLH.AudSol.cortMUA,data.adjRH.AudSol.cortMUA);
-% data.Auditory.hipMUA = data.adjRH.AudSol.hipMUA;
-% data.Auditory.cortGam = cat(2,data.adjLH.AudSol.cortGam,data.adjRH.AudSol.cortGam);
-% data.Auditory.hipGam = data.adjRH.AudSol.hipGam;
-% data.Auditory.timeVector = cat(2,data.adjLH.AudSol.timeVector,data.adjRH.AudSol.timeVector);
-% data.Auditory.cortS = cat(3,data.adjLH.AudSol.cortS,data.adjRH.AudSol.cortS);
-% data.Auditory.cortS_Gam = cat(3,data.adjLH.AudSol.cortS_Gam,data.adjRH.AudSol.cortS_Gam);
-% data.Auditory.hipS = data.adjRH.AudSol.hipS;
-% data.Auditory.hipS_Gam = data.adjRH.AudSol.hipS_Gam;
-% data.Auditory.T = cat(2,data.adjLH.AudSol.T,data.adjRH.AudSol.T);
-% data.Auditory.F = cat(2,data.adjLH.AudSol.F,data.adjRH.AudSol.F);
+% contra
+for ff = 1:length(treatments)
+    for gg = 1:length(cortVariables)
+        data.(treatments{1,ff}).Contra.adjLH.(cortVariables{1,gg}) = data.(treatments{1,ff}).RPadSol.adjLH.(cortVariables{1,gg});
+        data.(treatments{1,ff}).Contra.adjRH.(cortVariables{1,gg}) = data.(treatments{1,ff}).LPadSol.adjRH.(cortVariables{1,gg});
+    end
+    % hip
+    for hh = 1:length(hipVariables)
+        data.(treatments{1,ff}).Contra.Hip.(hipVariables{1,hh}) = data.(treatments{1,ff}).RPadSol.Hip.(hipVariables{1,hh});
+    end
+end
+% Ipsi
+for ff = 1:length(treatments)
+    for gg = 1:length(cortVariables)
+        data.(treatments{1,ff}).Ipsi.adjLH.(cortVariables{1,gg}) = data.(treatments{1,ff}).RPadSol.adjRH.(cortVariables{1,gg});
+        data.(treatments{1,ff}).Ipsi.adjRH.(cortVariables{1,gg}) = data.(treatments{1,ff}).LPadSol.adjLH.(cortVariables{1,gg});
+    end
+    % hip
+    for hh = 1:length(hipVariables)
+        data.(treatments{1,ff}).Ipsi.Hip.(hipVariables{1,hh}) = data.(treatments{1,ff}).LPadSol.Hip.(hipVariables{1,hh});
+    end
+end
+% auditory
+for ff = 1:length(treatments)
+    for gg = 1:length(cortVariables)
+        data.(treatments{1,ff}).Auditory.adjLH.(cortVariables{1,gg}) = data.(treatments{1,ff}).AudSol.adjLH.(cortVariables{1,gg});
+        data.(treatments{1,ff}).Auditory.adjRH.(cortVariables{1,gg}) = data.(treatments{1,ff}).AudSol.adjRH.(cortVariables{1,gg});
+    end
+    % hip
+    for hh = 1:length(hipVariables)
+        data.(treatments{1,ff}).Auditory.Hip.(hipVariables{1,hh}) = data.(treatments{1,ff}).AudSol.Hip.(hipVariables{1,hh});
+    end
+end
 %% take the averages of each field through the proper dimension
 for ee = 1:length(treatments)
     treatment = treatments{1,ee};
-    for gg = 1:length(dataTypes)
-        dataType = dataTypes{1,gg};
+    for gg = 1:length(hemispheres)
+        hemisphere = hemispheres{1,gg};
         for ff = 1:length(compDataTypes)
             compDataType = compDataTypes{1,ff};
-            data.(treatment).(dataType).(compDataType).mean_Count = mean(data.(treatment).(dataType).(compDataType).count,2);
-            data.(treatment).(dataType).(compDataType).std_Count = std(data.(treatment).(dataType).(compDataType).count,0,2);
-            data.(treatment).(dataType).(compDataType).mean_HbT = mean(data.(treatment).(dataType).(compDataType).HbT,2);
-            data.(treatment).(dataType).(compDataType).std_HbT = std(data.(treatment).(dataType).(compDataType).HbT,0,2);
-            data.(treatment).(dataType).(compDataType).mean_CBV = mean(data.(treatment).(dataType).(compDataType).CBV,2);
-            data.(treatment).(dataType).(compDataType).std_CBV = std(data.(treatment).(dataType).(compDataType).CBV,0,2);
-            data.(treatment).(dataType).(compDataType).mean_CortMUA = mean(data.(treatment).(dataType).(compDataType).cortMUA,2);
-            data.(treatment).(dataType).(compDataType).std_CortMUA = std(data.(treatment).(dataType).(compDataType).cortMUA,0,2);
-            data.(treatment).(dataType).(compDataType).mean_HipMUA = mean(data.(treatment).(dataType).(compDataType).hipMUA,2);
-            data.(treatment).(dataType).(compDataType).std_HipMUA = std(data.(treatment).(dataType).(compDataType).hipMUA,0,2);
-            data.(treatment).(dataType).(compDataType).mean_CortGam = mean(data.(treatment).(dataType).(compDataType).cortGam,2);
-            data.(treatment).(dataType).(compDataType).std_CortGam = std(data.(treatment).(dataType).(compDataType).cortGam,0,2);
-            data.(treatment).(dataType).(compDataType).mean_HipGam = mean(data.(treatment).(dataType).(compDataType).hipGam,2);
-            data.(treatment).(dataType).(compDataType).std_HipGam = std(data.(treatment).(dataType).(compDataType).hipGam,0,2);
-            data.(treatment).(dataType).(compDataType).mean_timeVector = mean(data.(treatment).(dataType).(compDataType).timeVector,2);
-            data.(treatment).(dataType).(compDataType).mean_CortS = mean(data.(treatment).(dataType).(compDataType).cortS,3).*100;
-            data.(treatment).(dataType).(compDataType).mean_CortS_Gam = mean(mean(mean(data.(treatment).(dataType).(compDataType).cortS_Gam.*100,2),1),3);
-            data.(treatment).(dataType).(compDataType).std_CortS_Gam = std(mean(mean(data.(treatment).(dataType).(compDataType).cortS_Gam.*100,2),1),0,3);
-            data.(treatment).(dataType).(compDataType).mean_HipS = mean(data.(treatment).(dataType).(compDataType).hipS,3).*100;
-            data.(treatment).(dataType).(compDataType).mean_HipS_Gam = mean(mean(mean(data.(treatment).(dataType).(compDataType).hipS_Gam.*100,2),1),3);
-            data.(treatment).(dataType).(compDataType).std_HipS_Gam = std(mean(mean(data.(treatment).(dataType).(compDataType).hipS_Gam.*100,2),1),0,3);
-            data.(treatment).(dataType).(compDataType).mean_T = mean(data.(treatment).(dataType).(compDataType).T,2);
-            data.(treatment).(dataType).(compDataType).mean_F = mean(data.(treatment).(dataType).(compDataType).F,2);
+            data.(treatment).(compDataType).(hemisphere).meanHbT = mean(data.(treatment).(compDataType).(hemisphere).HbT,1);
+            data.(treatment).(compDataType).(hemisphere).stdHbT = std(data.(treatment).(compDataType).(hemisphere).HbT,0,1);
+            data.(treatment).(compDataType).(hemisphere).meanCBV = mean(data.(treatment).(compDataType).(hemisphere).CBV,1);
+            data.(treatment).(compDataType).(hemisphere).stdCBV = std(data.(treatment).(compDataType).(hemisphere).CBV,0,1);
+            data.(treatment).(compDataType).(hemisphere).meanCortMUA = mean(data.(treatment).(compDataType).(hemisphere).cortMUA,1);
+            data.(treatment).(compDataType).(hemisphere).stdCortMUA = std(data.(treatment).(compDataType).(hemisphere).cortMUA,0,1);
+            data.(treatment).(compDataType).(hemisphere).meanCortGam = mean(data.(treatment).(compDataType).(hemisphere).cortGam,1);
+            data.(treatment).(compDataType).(hemisphere).stdCortGam = std(data.(treatment).(compDataType).(hemisphere).cortGam,0,1);
+            data.(treatment).(compDataType).(hemisphere).meanCortS = mean(data.(treatment).(compDataType).(hemisphere).cortS,3).*100;
+            data.(treatment).(compDataType).(hemisphere).meanCortS_Gam = mean(mean(mean(data.(treatment).(compDataType).(hemisphere).cortS_Gam.*100,1),2),3);
+            data.(treatment).(compDataType).(hemisphere).stdCortS_Gam = std(mean(mean(data.(treatment).(compDataType).(hemisphere).cortS_Gam.*100,1),2),0,3);
+            data.(treatment).(compDataType).(hemisphere).meanT = mean(data.(treatment).(compDataType).(hemisphere).cortT,1);
+            data.(treatment).(compDataType).(hemisphere).meanF = mean(data.(treatment).(compDataType).(hemisphere).cortF,1);
+            data.(treatment).(compDataType).(hemisphere).meanTimeVector = mean(data.(treatment).(compDataType).(hemisphere).timeVector,1);
+            data.(treatment).(compDataType).(hemisphere).meanCount = mean(data.(treatment).(compDataType).(hemisphere).count,1);
+            data.(treatment).(compDataType).(hemisphere).stdCount = std(data.(treatment).(compDataType).(hemisphere).count,0,1);
+            % hip
+            data.(treatment).(compDataType).Hip.meanHipMUA = mean(data.(treatment).(compDataType).Hip.hipMUA,1);
+            data.(treatment).(compDataType).Hip.stdHipMUA = std(data.(treatment).(compDataType).Hip.hipMUA,0,1);
+            data.(treatment).(compDataType).Hip.meanHipGam = mean(data.(treatment).(compDataType).Hip.hipGam,1);
+            data.(treatment).(compDataType).Hip.stdHipGam = std(data.(treatment).(compDataType).Hip.hipGam,0,1);
+            data.(treatment).(compDataType).Hip.meanHipS = mean(data.(treatment).(compDataType).Hip.hipS,3).*100;
+            data.(treatment).(compDataType).Hip.meanHipS_Gam = mean(mean(mean(data.(treatment).(compDataType).Hip.hipS_Gam.*100,1),2),3);
+            data.(treatment).(compDataType).Hip.stdHipS_Gam = std(mean(mean(data.(treatment).(compDataType).Hip.hipS_Gam.*100,1),2),0,3);
+            data.(treatment).(compDataType).Hip.meanT = mean(data.(treatment).(compDataType).Hip.hipT,1);
+            data.(treatment).(compDataType).Hip.meanF = mean(data.(treatment).(compDataType).Hip.hipF,1);
+            data.(treatment).(compDataType).Hip.meanTimeVector = mean(data.(treatment).(compDataType).Hip.timeVector,1); 
         end
     end
 end
-%% Fig. 1-S2
-summaryFigure = figure('Name','Fig1-S2 (a-r)');
-sgtitle('Figure 1-S2 (& 1d) - Turner et al. 2020')
-
-
-ax1 = subplot(2,4,1);
-imagesc(data.C57BL6J.adjLH.Contra.mean_T,data.C57BL6J.adjLH.Contra.mean_F,data.C57BL6J.adjLH.Contra.mean_CortS)
-title('Control LH Contra stim cortical LFP')
-ylabel('Freq (Hz)')
-xlabel('Peri-stimulus time (s)')
-c4 = colorbar;
-ylabel(c4,'\DeltaP/P (%)','rotation',-90,'VerticalAlignment','bottom')
-caxis([-50,75])
-axis square
-axis xy
-set(gca,'box','off')
-%% [1-S2m] HbT contra stim
-ax5 = subplot(2,4,5);
-plot(data.C57BL6J.adjLH.Contra.mean_timeVector,data.C57BL6J.adjLH.Contra.mean_HbT,'color',colors('rich black'),'LineWidth',1)
+%% Figures
+summaryFigure = figure;
+ax1 = subplot(3,2,1);
+% C57BL6Js
+p1 = plot(data.C57BL6J.Contra.adjLH.meanTimeVector,data.C57BL6J.Contra.adjLH.meanHbT,'color',colors('sapphire'),'LineWidth',2);
 hold on
-plot(data.C57BL6J.adjLH.Contra.mean_timeVector,data.C57BL6J.adjLH.Contra.mean_HbT + data.C57BL6J.adjLH.Contra.std_HbT,'color',colors('battleship grey'),'LineWidth',0.5)
-plot(data.C57BL6J.adjLH.Contra.mean_timeVector,data.C57BL6J.adjLH.Contra.mean_HbT - data.C57BL6J.adjLH.Contra.std_HbT,'color',colors('battleship grey'),'LineWidth',0.5)
-title('Control LH Contra stim \Delta[HbT] (\muM)')
-ylabel('\Delta[HbT] (\muM)')
+plot(data.C57BL6J.Contra.adjLH.meanTimeVector,data.C57BL6J.Contra.adjLH.meanHbT + data.C57BL6J.Contra.adjLH.stdHbT,'color',colors('sapphire'),'LineWidth',0.5)
+plot(data.C57BL6J.Contra.adjLH.meanTimeVector,data.C57BL6J.Contra.adjLH.meanHbT - data.C57BL6J.Contra.adjLH.stdHbT,'color',colors('sapphire'),'LineWidth',0.5)
+% Blank-SAP
+p2 = plot(data.Blank_SAP.Contra.adjLH.meanTimeVector,data.Blank_SAP.Contra.adjLH.meanHbT,'color',colors('north texas green'),'LineWidth',2);
+plot(data.Blank_SAP.Contra.adjLH.meanTimeVector,data.Blank_SAP.Contra.adjLH.meanHbT + data.Blank_SAP.Contra.adjLH.stdHbT,'color',colors('north texas green'),'LineWidth',0.5)
+plot(data.Blank_SAP.Contra.adjLH.meanTimeVector,data.Blank_SAP.Contra.adjLH.meanHbT - data.Blank_SAP.Contra.adjLH.stdHbT,'color',colors('north texas green'),'LineWidth',0.5)
+% SSP-SAP
+p3 = plot(data.SSP_SAP.Contra.adjLH.meanTimeVector,data.SSP_SAP.Contra.adjLH.meanHbT,'color',colors('electric purple'),'LineWidth',2);
+plot(data.SSP_SAP.Contra.adjLH.meanTimeVector,data.SSP_SAP.Contra.adjLH.meanHbT + data.SSP_SAP.Contra.adjLH.stdHbT,'color',colors('electric purple'),'LineWidth',0.5)
+plot(data.SSP_SAP.Contra.adjLH.meanTimeVector,data.SSP_SAP.Contra.adjLH.meanHbT - data.SSP_SAP.Contra.adjLH.stdHbT,'color',colors('electric purple'),'LineWidth',0.5)
+title('LH (UnRx) \DeltaHbT - Contra Stim')
+ylabel('\DeltaHbT (\muM)')
 xlabel('Peri-stimulus time (s)')
-axis square
+legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
 set(gca,'box','off')
+xlim([-2,10])
 
-ax2 = subplot(2,4,2);
-imagesc(data.C57BL6J.adjRH.Contra.mean_T,data.C57BL6J.adjRH.Contra.mean_F,data.C57BL6J.adjRH.Contra.mean_CortS)
-title('Control RH Contra stim cortical LFP')
-ylabel('Freq (Hz)')
-xlabel('Peri-stimulus time (s)')
-c4 = colorbar;
-ylabel(c4,'\DeltaP/P (%)','rotation',-90,'VerticalAlignment','bottom')
-caxis([-50,75])
-axis square
-axis xy
-set(gca,'box','off')
-%% [1-S2m] HbT contra stim
-ax6 = subplot(2,4,6);
-plot(data.C57BL6J.adjRH.Contra.mean_timeVector,data.C57BL6J.adjRH.Contra.mean_HbT,'color',colors('rich black'),'LineWidth',1)
+ax2 = subplot(3,2,2);
+% C57BL6Js
+plot(data.C57BL6J.Contra.adjRH.meanTimeVector,data.C57BL6J.Contra.adjRH.meanHbT,'color',colors('sapphire'),'LineWidth',2);
 hold on
-plot(data.C57BL6J.adjRH.Contra.mean_timeVector,data.C57BL6J.adjRH.Contra.mean_HbT + data.C57BL6J.adjRH.Contra.std_HbT,'color',colors('battleship grey'),'LineWidth',0.5)
-plot(data.C57BL6J.adjRH.Contra.mean_timeVector,data.C57BL6J.adjRH.Contra.mean_HbT - data.C57BL6J.adjRH.Contra.std_HbT,'color',colors('battleship grey'),'LineWidth',0.5)
-title('Control RH Contra stim \Delta[HbT] (\muM)')
-ylabel('\Delta[HbT] (\muM)')
+plot(data.C57BL6J.Contra.adjRH.meanTimeVector,data.C57BL6J.Contra.adjRH.meanHbT + data.C57BL6J.Contra.adjRH.stdHbT,'color',colors('sapphire'),'LineWidth',0.5)
+plot(data.C57BL6J.Contra.adjRH.meanTimeVector,data.C57BL6J.Contra.adjRH.meanHbT - data.C57BL6J.Contra.adjRH.stdHbT,'color',colors('sapphire'),'LineWidth',0.5)
+% Blank-SAP
+plot(data.Blank_SAP.Contra.adjRH.meanTimeVector,data.Blank_SAP.Contra.adjRH.meanHbT,'color',colors('north texas green'),'LineWidth',2);
+plot(data.Blank_SAP.Contra.adjRH.meanTimeVector,data.Blank_SAP.Contra.adjRH.meanHbT + data.Blank_SAP.Contra.adjRH.stdHbT,'color',colors('north texas green'),'LineWidth',0.5)
+plot(data.Blank_SAP.Contra.adjRH.meanTimeVector,data.Blank_SAP.Contra.adjRH.meanHbT - data.Blank_SAP.Contra.adjRH.stdHbT,'color',colors('north texas green'),'LineWidth',0.5)
+% SSP-SAP
+plot(data.SSP_SAP.Contra.adjRH.meanTimeVector,data.SSP_SAP.Contra.adjRH.meanHbT,'color',colors('electric purple'),'LineWidth',2);
+plot(data.SSP_SAP.Contra.adjRH.meanTimeVector,data.SSP_SAP.Contra.adjRH.meanHbT + data.SSP_SAP.Contra.adjRH.stdHbT,'color',colors('electric purple'),'LineWidth',0.5)
+plot(data.SSP_SAP.Contra.adjRH.meanTimeVector,data.SSP_SAP.Contra.adjRH.meanHbT - data.SSP_SAP.Contra.adjRH.stdHbT,'color',colors('electric purple'),'LineWidth',0.5)
+title('RH (Rx) \DeltaHbT - Contra Stim')
+ylabel('\DeltaHbT (\muM)')
 xlabel('Peri-stimulus time (s)')
-axis square
+legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
 set(gca,'box','off')
+xlim([-2,10])
 
-ax3 = subplot(2,4,3);
-imagesc(data.SSP_SAP.adjLH.Contra.mean_T,data.SSP_SAP.adjLH.Contra.mean_F,data.SSP_SAP.adjLH.Contra.mean_CortS)
-title('SSP-SAP UnRx LH Contra stim cortical LFP')
-ylabel('Freq (Hz)')
-xlabel('Peri-stimulus time (s)')
-c4 = colorbar;
-ylabel(c4,'\DeltaP/P (%)','rotation',-90,'VerticalAlignment','bottom')
-caxis([-50,75])
-axis square
-axis xy
-set(gca,'box','off')
-%% [1-S2m] HbT contra stim
-ax7 = subplot(2,4,7);
-plot(data.SSP_SAP.adjLH.Contra.mean_timeVector,data.SSP_SAP.adjLH.Contra.mean_HbT,'color',colors('rich black'),'LineWidth',1)
+ax3 = subplot(3,2,3);
+% C57BL6Js
+plot(data.C57BL6J.Ipsi.adjLH.meanTimeVector,data.C57BL6J.Ipsi.adjLH.meanHbT,'color',colors('sapphire'),'LineWidth',2);
 hold on
-plot(data.SSP_SAP.adjLH.Contra.mean_timeVector,data.SSP_SAP.adjLH.Contra.mean_HbT + data.SSP_SAP.adjLH.Contra.std_HbT,'color',colors('battleship grey'),'LineWidth',0.5)
-plot(data.SSP_SAP.adjLH.Contra.mean_timeVector,data.SSP_SAP.adjLH.Contra.mean_HbT - data.SSP_SAP.adjLH.Contra.std_HbT,'color',colors('battleship grey'),'LineWidth',0.5)
-title('SSP-SAP UnRx LH Contra stim \Delta[HbT] (\muM)')
-ylabel('\Delta[HbT] (\muM)')
+plot(data.C57BL6J.Ipsi.adjLH.meanTimeVector,data.C57BL6J.Ipsi.adjLH.meanHbT + data.C57BL6J.Ipsi.adjLH.stdHbT,'color',colors('sapphire'),'LineWidth',0.5)
+plot(data.C57BL6J.Ipsi.adjLH.meanTimeVector,data.C57BL6J.Ipsi.adjLH.meanHbT - data.C57BL6J.Ipsi.adjLH.stdHbT,'color',colors('sapphire'),'LineWidth',0.5)
+% Blank-SAP
+plot(data.Blank_SAP.Ipsi.adjLH.meanTimeVector,data.Blank_SAP.Ipsi.adjLH.meanHbT,'color',colors('north texas green'),'LineWidth',2);
+plot(data.Blank_SAP.Ipsi.adjLH.meanTimeVector,data.Blank_SAP.Ipsi.adjLH.meanHbT + data.Blank_SAP.Ipsi.adjLH.stdHbT,'color',colors('north texas green'),'LineWidth',0.5)
+plot(data.Blank_SAP.Ipsi.adjLH.meanTimeVector,data.Blank_SAP.Ipsi.adjLH.meanHbT - data.Blank_SAP.Ipsi.adjLH.stdHbT,'color',colors('north texas green'),'LineWidth',0.5)
+% SSP-SAP
+plot(data.SSP_SAP.Ipsi.adjLH.meanTimeVector,data.SSP_SAP.Ipsi.adjLH.meanHbT,'color',colors('electric purple'),'LineWidth',2);
+plot(data.SSP_SAP.Ipsi.adjLH.meanTimeVector,data.SSP_SAP.Ipsi.adjLH.meanHbT + data.SSP_SAP.Ipsi.adjLH.stdHbT,'color',colors('electric purple'),'LineWidth',0.5)
+plot(data.SSP_SAP.Ipsi.adjLH.meanTimeVector,data.SSP_SAP.Ipsi.adjLH.meanHbT - data.SSP_SAP.Ipsi.adjLH.stdHbT,'color',colors('electric purple'),'LineWidth',0.5)
+title('LH (UnRx) \DeltaHbT - Ipsi Stim')
+ylabel('\DeltaHbT (\muM)')
 xlabel('Peri-stimulus time (s)')
-axis square
+legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
 set(gca,'box','off')
+xlim([-2,10])
 
-ax4 = subplot(2,4,4);
-imagesc(data.SSP_SAP.adjRH.Contra.mean_T,data.SSP_SAP.adjRH.Contra.mean_F,data.SSP_SAP.adjRH.Contra.mean_CortS)
-title('SSP-SAP treated RH Contra stim cortical LFP')
-ylabel('Freq (Hz)')
-xlabel('Peri-stimulus time (s)')
-c4 = colorbar;
-ylabel(c4,'\DeltaP/P (%)','rotation',-90,'VerticalAlignment','bottom')
-caxis([-50,75])
-axis square
-axis xy
-set(gca,'box','off')
-%% [1-S2m] HbT contra stim
-ax8 = subplot(2,4,8);
-plot(data.SSP_SAP.adjRH.Contra.mean_timeVector,data.SSP_SAP.adjRH.Contra.mean_HbT,'color',colors('rich black'),'LineWidth',1)
+ax4 = subplot(3,2,4);
+% C57BL6Js
+plot(data.C57BL6J.Ipsi.adjRH.meanTimeVector,data.C57BL6J.Ipsi.adjRH.meanHbT,'color',colors('sapphire'),'LineWidth',2);
 hold on
-plot(data.SSP_SAP.adjRH.Contra.mean_timeVector,data.SSP_SAP.adjRH.Contra.mean_HbT + data.SSP_SAP.adjRH.Contra.std_HbT,'color',colors('battleship grey'),'LineWidth',0.5)
-plot(data.SSP_SAP.adjRH.Contra.mean_timeVector,data.SSP_SAP.adjRH.Contra.mean_HbT - data.SSP_SAP.adjRH.Contra.std_HbT,'color',colors('battleship grey'),'LineWidth',0.5)
-title('SSP-SAP treated RH Contra stim \Delta[HbT] (\muM)')
-ylabel('\Delta[HbT] (\muM)')
+plot(data.C57BL6J.Ipsi.adjRH.meanTimeVector,data.C57BL6J.Ipsi.adjRH.meanHbT + data.C57BL6J.Ipsi.adjRH.stdHbT,'color',colors('sapphire'),'LineWidth',0.5)
+plot(data.C57BL6J.Ipsi.adjRH.meanTimeVector,data.C57BL6J.Ipsi.adjRH.meanHbT - data.C57BL6J.Ipsi.adjRH.stdHbT,'color',colors('sapphire'),'LineWidth',0.5)
+% Blank-SAP
+plot(data.Blank_SAP.Ipsi.adjRH.meanTimeVector,data.Blank_SAP.Ipsi.adjRH.meanHbT,'color',colors('north texas green'),'LineWidth',2);
+plot(data.Blank_SAP.Ipsi.adjRH.meanTimeVector,data.Blank_SAP.Ipsi.adjRH.meanHbT + data.Blank_SAP.Ipsi.adjRH.stdHbT,'color',colors('north texas green'),'LineWidth',0.5)
+plot(data.Blank_SAP.Ipsi.adjRH.meanTimeVector,data.Blank_SAP.Ipsi.adjRH.meanHbT - data.Blank_SAP.Ipsi.adjRH.stdHbT,'color',colors('north texas green'),'LineWidth',0.5)
+% SSP-SAP
+plot(data.SSP_SAP.Ipsi.adjRH.meanTimeVector,data.SSP_SAP.Ipsi.adjRH.meanHbT,'color',colors('electric purple'),'LineWidth',2);
+plot(data.SSP_SAP.Ipsi.adjRH.meanTimeVector,data.SSP_SAP.Ipsi.adjRH.meanHbT + data.SSP_SAP.Ipsi.adjRH.stdHbT,'color',colors('electric purple'),'LineWidth',0.5)
+plot(data.SSP_SAP.Ipsi.adjRH.meanTimeVector,data.SSP_SAP.Ipsi.adjRH.meanHbT - data.SSP_SAP.Ipsi.adjRH.stdHbT,'color',colors('electric purple'),'LineWidth',0.5)
+title('RH (Rx) \DeltaHbT - Ipsi Stim')
+ylabel('\DeltaHbT (\muM)')
 xlabel('Peri-stimulus time (s)')
-axis square
+legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
 set(gca,'box','off')
+xlim([-2,10])
+
+ax5 = subplot(3,2,5);
+% C57BL6Js
+plot(data.C57BL6J.Auditory.adjLH.meanTimeVector,data.C57BL6J.Auditory.adjLH.meanHbT,'color',colors('sapphire'),'LineWidth',2);
+hold on
+plot(data.C57BL6J.Auditory.adjLH.meanTimeVector,data.C57BL6J.Auditory.adjLH.meanHbT + data.C57BL6J.Auditory.adjLH.stdHbT,'color',colors('sapphire'),'LineWidth',0.5)
+plot(data.C57BL6J.Auditory.adjLH.meanTimeVector,data.C57BL6J.Auditory.adjLH.meanHbT - data.C57BL6J.Auditory.adjLH.stdHbT,'color',colors('sapphire'),'LineWidth',0.5)
+% Blank-SAP
+plot(data.Blank_SAP.Auditory.adjLH.meanTimeVector,data.Blank_SAP.Auditory.adjLH.meanHbT,'color',colors('north texas green'),'LineWidth',2);
+plot(data.Blank_SAP.Auditory.adjLH.meanTimeVector,data.Blank_SAP.Auditory.adjLH.meanHbT + data.Blank_SAP.Auditory.adjLH.stdHbT,'color',colors('north texas green'),'LineWidth',0.5)
+plot(data.Blank_SAP.Auditory.adjLH.meanTimeVector,data.Blank_SAP.Auditory.adjLH.meanHbT - data.Blank_SAP.Auditory.adjLH.stdHbT,'color',colors('north texas green'),'LineWidth',0.5)
+% SSP-SAP
+plot(data.SSP_SAP.Auditory.adjLH.meanTimeVector,data.SSP_SAP.Auditory.adjLH.meanHbT,'color',colors('electric purple'),'LineWidth',2);
+plot(data.SSP_SAP.Auditory.adjLH.meanTimeVector,data.SSP_SAP.Auditory.adjLH.meanHbT + data.SSP_SAP.Auditory.adjLH.stdHbT,'color',colors('electric purple'),'LineWidth',0.5)
+plot(data.SSP_SAP.Auditory.adjLH.meanTimeVector,data.SSP_SAP.Auditory.adjLH.meanHbT - data.SSP_SAP.Auditory.adjLH.stdHbT,'color',colors('electric purple'),'LineWidth',0.5)
+title('LH (UnRx) \DeltaHbT - Auditory Stim')
+ylabel('\DeltaHbT (\muM)')
+xlabel('Peri-stimulus time (s)')
+legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
+set(gca,'box','off')
+xlim([-2,10])
+
+ax6 = subplot(3,2,6);
+% C57BL6Js
+plot(data.C57BL6J.Auditory.adjRH.meanTimeVector,data.C57BL6J.Auditory.adjRH.meanHbT,'color',colors('sapphire'),'LineWidth',2);
+hold on
+plot(data.C57BL6J.Auditory.adjRH.meanTimeVector,data.C57BL6J.Auditory.adjRH.meanHbT + data.C57BL6J.Auditory.adjRH.stdHbT,'color',colors('sapphire'),'LineWidth',0.5)
+plot(data.C57BL6J.Auditory.adjRH.meanTimeVector,data.C57BL6J.Auditory.adjRH.meanHbT - data.C57BL6J.Auditory.adjRH.stdHbT,'color',colors('sapphire'),'LineWidth',0.5)
+% Blank-SAP
+plot(data.Blank_SAP.Auditory.adjRH.meanTimeVector,data.Blank_SAP.Auditory.adjRH.meanHbT,'color',colors('north texas green'),'LineWidth',2);
+plot(data.Blank_SAP.Auditory.adjRH.meanTimeVector,data.Blank_SAP.Auditory.adjRH.meanHbT + data.Blank_SAP.Auditory.adjRH.stdHbT,'color',colors('north texas green'),'LineWidth',0.5)
+plot(data.Blank_SAP.Auditory.adjRH.meanTimeVector,data.Blank_SAP.Auditory.adjRH.meanHbT - data.Blank_SAP.Auditory.adjRH.stdHbT,'color',colors('north texas green'),'LineWidth',0.5)
+% SSP-SAP
+plot(data.SSP_SAP.Auditory.adjRH.meanTimeVector,data.SSP_SAP.Auditory.adjRH.meanHbT,'color',colors('electric purple'),'LineWidth',2);
+plot(data.SSP_SAP.Auditory.adjRH.meanTimeVector,data.SSP_SAP.Auditory.adjRH.meanHbT + data.SSP_SAP.Auditory.adjRH.stdHbT,'color',colors('electric purple'),'LineWidth',0.5)
+plot(data.SSP_SAP.Auditory.adjRH.meanTimeVector,data.SSP_SAP.Auditory.adjRH.meanHbT - data.SSP_SAP.Auditory.adjRH.stdHbT,'color',colors('electric purple'),'LineWidth',0.5)
+title('RH (Rx) \DeltaHbT - Auditory Stim')
+ylabel('\DeltaHbT (\muM)')
+xlabel('Peri-stimulus time (s)')
+legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
+set(gca,'box','off')
+xlim([-2,10])
+
+linkaxes([ax1,ax2],'xy')
+linkaxes([ax3,ax4],'xy')
+linkaxes([ax5,ax6],'xy')
+
+end
 
 % %% [1-S2a] cortical MUA contra stim
 % ax1 = subplot(6,3,1);
@@ -544,7 +495,7 @@ set(gca,'box','off')
 % set(gca,'box','off')
 % ax18.TickLength = [0.03,0.03];
 % %% adjust and link axes
-linkaxes([ax5,ax6,ax7,ax8],'xy')
+% linkaxes([ax5,ax6,ax7,ax8],'xy')
 % linkaxes([ax4,ax5,ax6,ax10,ax11,ax12],'xy')
 % linkaxes([ax13,ax14,ax15],'xy')
 % linkaxes([ax16,ax17,ax18],'xy')
@@ -629,5 +580,3 @@ linkaxes([ax5,ax6,ax7,ax8],'xy')
 %     disp('----------------------------------------------------------------------------------------------------------------------')
 %     diary off
 % end
-
-end

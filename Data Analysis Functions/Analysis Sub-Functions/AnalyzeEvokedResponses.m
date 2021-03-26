@@ -1,4 +1,4 @@
-function [AnalysisResults] = AnalyzeEvokedResponses(animalID,saveFigs,rootFolder,AnalysisResults)
+function [AnalysisResults] = AnalyzeEvokedResponses(animalID,group,saveFigs,rootFolder,AnalysisResults)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -8,17 +8,6 @@ function [AnalysisResults] = AnalyzeEvokedResponses(animalID,saveFigs,rootFolder
 %   Purpose: Analyze the stimulus-evoked and whisking-evoked neural/hemodynamic responses (IOS)
 %________________________________________________________________________________________________________________________
 
-%% animal grouping
-C57BL6J_IDs = {'T141','T155','T156','T157'};
-SSP_SAP_IDs = {'T135','T142','T144','T151','T159'};
-Blank_SAP_IDs = {''};
-if ismember(animalID,C57BL6J_IDs) == true
-    group = 'C57BL6J';
-elseif ismember(animalID,SSP_SAP_IDs) == true
-    group = 'SSP-SAP';
-elseif ismember(animalID,Blank_SAP_IDs) == true
-    group = 'Blank-SAP';
-end
 %% function parameters
 dataTypes = {'adjLH','adjRH'};
 %% only run analysis for valid animal IDs
@@ -28,22 +17,22 @@ cd(dataLocation)
 eventDataFileStruct = dir('*_EventData.mat');
 eventDataFile = {eventDataFileStruct.name}';
 eventDataFileID = char(eventDataFile);
-load(eventDataFileID)
+load(eventDataFileID,'-mat')
 % find and load manual baseline event information
 manualBaselineFileStruct = dir('*_ManualBaselineFileList.mat');
 manualBaselineFile = {manualBaselineFileStruct.name}';
 manualBaselineFileID = char(manualBaselineFile);
-load(manualBaselineFileID)
+load(manualBaselineFileID,'-mat')
 % find and load RestingBaselines.mat struct
 baselineDataFileStruct = dir('*_RestingBaselines.mat');
 baselineDataFile = {baselineDataFileStruct.name}';
 baselineDataFileID = char(baselineDataFile);
-load(baselineDataFileID)
+load(baselineDataFileID,'-mat')
 % find and load AllSpecStruct.mat struct
 allSpecStructFileStruct = dir('*_AllSpecStructB.mat');
 allSpecStructFile = {allSpecStructFileStruct.name}';
 allSpecStructFileID = char(allSpecStructFile);
-load(allSpecStructFileID)
+load(allSpecStructFileID,'-mat')
 % forest ID sctruct
 forestScoringResultsID = [animalID '_Forest_ScoringResults.mat'];
 load(forestScoringResultsID,'-mat')

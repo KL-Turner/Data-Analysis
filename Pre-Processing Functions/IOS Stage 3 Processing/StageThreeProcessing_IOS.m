@@ -25,7 +25,7 @@ disp('Analyzing Block [0] Preparing the workspace and loading variables.'); disp
 % Character list of all RawData files
 rawDataFileStruct = dir('*_RawData.mat');
 rawDataFiles = {rawDataFileStruct.name}';
-rawDataFileIDs = char(rawDataFiles);n
+rawDataFileIDs = char(rawDataFiles);
 % Character list of all ProcData files
 procDataFileStruct = dir('*_ProcData.mat'); 
 procDataFiles = {procDataFileStruct.name}';

@@ -25,7 +25,7 @@ end
 % add root folder to Matlab's working directory
 addpath(genpath(rootFolder))
 %% run the data analysis. The progress bars will show the analysis progress
-rerunAnalysis = 'y';
+rerunAnalysis = 'n';
 saveFigs = 'y';
 if exist('AnalysisResults.mat','file') ~= 2 || strcmp(rerunAnalysis,'y') == true
     multiWaitbar('Analyzing behavioral hemodynamics',0,'Color','R'); pause(0.25);
@@ -40,84 +40,141 @@ if exist('AnalysisResults.mat','file') ~= 2 || strcmp(rerunAnalysis,'y') == true
     multiWaitbar('CloseAll');
 else
     disp('Loading analysis results and generating figures...'); disp(' ')
-    load('AnalysisResults.mat')
+    load('AnalysisResults.mat','-mat')
 end
-%% generate figures 
+%% generate figures
 [AnalysisResults] = WhiskEvoked_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
 [AnalysisResults] = StimEvoked_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
-[AnalysisResults] = Coherence_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
-[AnalysisResults] = PowerSpec_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
-[AnalysisResults] = PearsonsCorr_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
-[AnalysisResults] = XCorr_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
-[AnalysisResults] = MeanHbT_Saporin(rootFolder,saveFigs,delim,AnalysisResults); %#ok<*NASGU> 
+% [AnalysisResults] = Coherence_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
+% [AnalysisResults] = PowerSpec_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
+% [AnalysisResults] = PearsonsCorr_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
+% [AnalysisResults] = XCorr_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
+% [AnalysisResults] = MeanHbT_Saporin(rootFolder,saveFigs,delim,AnalysisResults); %#ok<*NASGU>
 %% fin.
 disp('MainScript Analysis - Complete'); disp(' ')
 end
 
 function [AnalysisResults] = AnalyzeData(rootFolder)
 % IOS animal IDs
-animalIDs = {'T135','T141','T142','T144','T151','T155','T156','T157','T159'};
+expGroups = {'C57BL6J','SSP-SAP','Blank-SAP'};
 saveFigs = 'y';
 if exist('AnalysisResults.mat','file') == 2
-    load('AnalysisResults.mat')
+    load('AnalysisResults.mat','-mat')
 else
     AnalysisResults = [];
 end
+% determine waitbar length
+waitBarLength = 0;
+for aa = 1:length(expGroups)
+    folderList = dir(expGroups{1,aa});
+    folderList = folderList(~startsWith({folderList.name}, '.'));
+    animalIDs = {folderList.name};
+    waitBarLength = waitBarLength + length(animalIDs);
+end
 %% Analyze the hemodynamic signal [HbT] during different arousal states (IOS)
 runFromStart = 'n';
-for aa = 1:length(animalIDs)
-    if isfield(AnalysisResults,(animalIDs{1,aa})) == false || isfield(AnalysisResults.(animalIDs{1,aa}),'MeanCBV') == false || strcmp(runFromStart,'y') == true
-        [AnalysisResults] = AnalyzeMeanCBV(animalIDs{1,aa},rootFolder,AnalysisResults);
+cc = 1;
+for aa = 1:length(expGroups)
+    folderList = dir(expGroups{1,aa});
+    folderList = folderList(~startsWith({folderList.name}, '.'));
+    animalIDs = {folderList.name};
+    for bb = 1:length(animalIDs)
+        if isfield(AnalysisResults,(animalIDs{1,bb})) == false || isfield(AnalysisResults.(animalIDs{1,bb}),'MeanCBV') == false || strcmp(runFromStart,'y') == true
+            [AnalysisResults] = AnalyzeMeanCBV(animalIDs{1,bb},expGroups{1,aa},rootFolder,AnalysisResults);
+        end
+        multiWaitbar('Analyzing behavioral hemodynamics','Value',cc/waitBarLength);
+        cc = cc + 1;
     end
-    multiWaitbar('Analyzing behavioral hemodynamics','Value',aa/length(animalIDs));
 end
 %% Analyze the spectral coherence between bilateral hemodynamic [HbT] and neural signals (IOS)
 runFromStart = 'n';
-for bb = 1:length(animalIDs)
-    if isfield(AnalysisResults,(animalIDs{1,bb})) == false || isfield(AnalysisResults.(animalIDs{1,bb}),'Coherence') == false || strcmp(runFromStart,'y') == true
-        [AnalysisResults] = AnalyzeCoherence(animalIDs{1,bb},saveFigs,rootFolder,AnalysisResults);
+cc = 1;
+for aa = 1:length(expGroups)
+    folderList = dir(expGroups{1,aa});
+    folderList = folderList(~startsWith({folderList.name}, '.'));
+    animalIDs = {folderList.name};
+    for bb = 1:length(animalIDs)
+        if isfield(AnalysisResults,(animalIDs{1,bb})) == false || isfield(AnalysisResults.(animalIDs{1,bb}),'Coherence') == false || strcmp(runFromStart,'y') == true
+            [AnalysisResults] = AnalyzeCoherence(animalIDs{1,bb},expGroups{1,aa},saveFigs,rootFolder,AnalysisResults);
+        end
+        multiWaitbar('Analyzing coherence','Value',cc/waitBarLength);
+        cc = cc + 1;
     end
-    multiWaitbar('Analyzing coherence','Value',bb/length(animalIDs));
 end
 %% Analyze the spectral coherence between neural-hemodynamic [HbT] signals (IOS)
 runFromStart = 'n';
-for cc = 1:length(animalIDs)
-    if isfield(AnalysisResults,(animalIDs{1,cc})) == false || isfield(AnalysisResults.(animalIDs{1,cc}),'NeuralHemoCoherence') == false || strcmp(runFromStart,'y') == true
-        [AnalysisResults] = AnalyzeNeuralHemoCoherence(animalIDs{1,cc},saveFigs,rootFolder,AnalysisResults);
+cc = 1;
+for aa = 1:length(expGroups)
+    folderList = dir(expGroups{1,aa});
+    folderList = folderList(~startsWith({folderList.name}, '.'));
+    animalIDs = {folderList.name};
+    for bb = 1:length(animalIDs)
+        if isfield(AnalysisResults,(animalIDs{1,bb})) == false || isfield(AnalysisResults.(animalIDs{1,bb}),'NeuralHemoCoherence') == false || strcmp(runFromStart,'y') == true
+            [AnalysisResults] = AnalyzeNeuralHemoCoherence(animalIDs{1,bb},expGroups{1,aa},saveFigs,rootFolder,AnalysisResults);
+        end
+        multiWaitbar('Analyzing neural-hemo coherence','Value',cc/waitBarLength);
+        cc = cc + 1;
     end
-    multiWaitbar('Analyzing neural-hemo coherence','Value',cc/length(animalIDs));
 end
 %% Analyze the spectral power of hemodynamic [HbT] and neural signals (IOS)
 runFromStart = 'n';
-for dd = 1:length(animalIDs)
-    if isfield(AnalysisResults,(animalIDs{1,dd})) == false || isfield(AnalysisResults.(animalIDs{1,dd}),'PowerSpectra') == false || strcmp(runFromStart,'y') == true
-        [AnalysisResults] = AnalyzePowerSpectrum(animalIDs{1,dd},saveFigs,rootFolder,AnalysisResults);
+cc = 1;
+for aa = 1:length(expGroups)
+    folderList = dir(expGroups{1,aa});
+    folderList = folderList(~startsWith({folderList.name}, '.'));
+    animalIDs = {folderList.name};
+    for bb = 1:length(animalIDs)
+        if isfield(AnalysisResults,(animalIDs{1,bb})) == false || isfield(AnalysisResults.(animalIDs{1,bb}),'PowerSpectra') == false || strcmp(runFromStart,'y') == true
+            [AnalysisResults] = AnalyzePowerSpectrum(animalIDs{1,bb},expGroups{1,aa},saveFigs,rootFolder,AnalysisResults);
+        end
+        multiWaitbar('Analyzing power spectra','Value',cc/waitBarLength);
+        cc = cc + 1;
     end
-    multiWaitbar('Analyzing power spectra','Value',dd/length(animalIDs));
 end
 %% Analyze Pearson's correlation coefficient between bilateral hemodynamic [HbT] and neural signals (IOS)
 runFromStart = 'n';
-for ee = 1:length(animalIDs)
-    if isfield(AnalysisResults,(animalIDs{1,ee})) == false || isfield(AnalysisResults.(animalIDs{1,ee}),'CorrCoeff') == false || strcmp(runFromStart,'y') == true
-        [AnalysisResults] = AnalyzeCorrCoeffs(animalIDs{1,ee},rootFolder,AnalysisResults);
+cc = 1;
+for aa = 1:length(expGroups)
+    folderList = dir(expGroups{1,aa});
+    folderList = folderList(~startsWith({folderList.name}, '.'));
+    animalIDs = {folderList.name};
+    for bb = 1:length(animalIDs)
+        if isfield(AnalysisResults,(animalIDs{1,bb})) == false || isfield(AnalysisResults.(animalIDs{1,bb}),'CorrCoeff') == false || strcmp(runFromStart,'y') == true
+            [AnalysisResults] = AnalyzeCorrCoeffs(animalIDs{1,bb},expGroups{1,aa},rootFolder,AnalysisResults);
+        end
+        multiWaitbar('Analyzing Pearson''s correlation coefficients','Value',cc/waitBarLength);
+        cc = cc + 1;
     end
-    multiWaitbar('Analyzing Pearson''s correlation coefficients','Value',ee/length(animalIDs));
 end
 %% Analyze the cross-correlation between neural activity and hemodynamics [HbT] (IOS)
 runFromStart = 'n';
-for ff = 1:length(animalIDs)
-    if isfield(AnalysisResults,(animalIDs{1,ff})) == false || isfield(AnalysisResults.(animalIDs{1,ff}),'XCorr') == false || strcmp(runFromStart,'y') == true
-        [AnalysisResults] = AnalyzeXCorr(animalIDs{1,ff},saveFigs,rootFolder,AnalysisResults);
+cc = 1;
+for aa = 1:length(expGroups)
+    folderList = dir(expGroups{1,aa});
+    folderList = folderList(~startsWith({folderList.name}, '.'));
+    animalIDs = {folderList.name};
+    for bb = 1:length(animalIDs)
+        if isfield(AnalysisResults,(animalIDs{1,bb})) == false || isfield(AnalysisResults.(animalIDs{1,bb}),'XCorr') == false || strcmp(runFromStart,'y') == true
+            [AnalysisResults] = AnalyzeXCorr(animalIDs{1,bb},expGroups{1,aa},saveFigs,rootFolder,AnalysisResults);
+        end
+        multiWaitbar('Analyzing cross correlation','Value',cc/waitBarLength);
+        cc = cc + 1;
     end
-    multiWaitbar('Analyzing cross correlation','Value',ff/length(animalIDs));
 end
 %% Analyze the stimulus-evoked and whisking-evoked neural/hemodynamic responses (IOS)
 runFromStart = 'n';
-for gg = 1:length(animalIDs)
-    if isfield(AnalysisResults,(animalIDs{1,gg})) == false || isfield(AnalysisResults.(animalIDs{1,gg}),'EvokedAvgs') == false || strcmp(runFromStart,'y') == true
-        [AnalysisResults] = AnalyzeEvokedResponses(animalIDs{1,gg},saveFigs,rootFolder,AnalysisResults);
+cc = 1;
+for aa = 1:length(expGroups)
+    folderList = dir(expGroups{1,aa});
+    folderList = folderList(~startsWith({folderList.name}, '.'));
+    animalIDs = {folderList.name};
+    for bb = 1:length(animalIDs)
+        if isfield(AnalysisResults,(animalIDs{1,bb})) == false || isfield(AnalysisResults.(animalIDs{1,bb}),'EvokedAvgs') == false || strcmp(runFromStart,'y') == true
+            [AnalysisResults] = AnalyzeEvokedResponses(animalIDs{1,bb},expGroups{1,aa},saveFigs,rootFolder,AnalysisResults);
+        end
+        multiWaitbar('Analyzing evoked responses','Value',cc/waitBarLength);
+        cc = cc + 1;
     end
-    multiWaitbar('Analyzing evoked responses','Value',gg/length(animalIDs));
 end
 %% fin.
 disp('Loading analysis results and generating figures...'); disp(' ')

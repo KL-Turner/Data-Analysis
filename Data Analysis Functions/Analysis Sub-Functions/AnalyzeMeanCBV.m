@@ -1,4 +1,4 @@
-function [AnalysisResults] = AnalyzeMeanCBV(animalID,rootFolder,AnalysisResults)
+function [AnalysisResults] = AnalyzeMeanCBV(animalID,group,rootFolder,AnalysisResults)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -8,17 +8,6 @@ function [AnalysisResults] = AnalyzeMeanCBV(animalID,rootFolder,AnalysisResults)
 %   Purpose: Analyze the hemodynamic signal [HbT] during different arousal states (IOS)
 %________________________________________________________________________________________________________________________
 
-%% animal grouping
-C57BL6J_IDs = {'T141','T155','T156','T157'};
-SSP_SAP_IDs = {'T135','T142','T144','T151','T159'};
-Blank_SAP_IDs = {''};
-if ismember(animalID,C57BL6J_IDs) == true
-    group = 'C57BL6J';
-elseif ismember(animalID,SSP_SAP_IDs) == true
-    group = 'SSP-SAP';
-elseif ismember(animalID,Blank_SAP_IDs) == true
-    group = 'Blank-SAP';
-end
 %% function parameters
 modelType = 'Forest';
 params.minTime.Rest = 10;
@@ -34,27 +23,27 @@ cd(dataLocation)
 restDataFileStruct = dir('*_RestData.mat');
 restDataFile = {restDataFileStruct.name}';
 restDataFileID = char(restDataFile);
-load(restDataFileID)
+load(restDataFileID,'-mat')
 % find and load manual baseline event information
 manualBaselineFileStruct = dir('*_ManualBaselineFileList.mat');
 manualBaselineFile = {manualBaselineFileStruct.name}';
 manualBaselineFileID = char(manualBaselineFile);
-load(manualBaselineFileID)
+load(manualBaselineFileID,'-mat')
 % find and load EventData.mat struct
 eventDataFileStruct = dir('*_EventData.mat');
 eventDataFile = {eventDataFileStruct.name}';
 eventDataFileID = char(eventDataFile);
-load(eventDataFileID)
+load(eventDataFileID,'-mat')
 % find and load RestingBaselines.mat strut
 baselineDataFileStruct = dir('*_RestingBaselines.mat');
 baselineDataFile = {baselineDataFileStruct.name}';
 baselineDataFileID = char(baselineDataFile);
-load(baselineDataFileID)
+load(baselineDataFileID,'-mat')
 % find and load SleepData.mat strut
 sleepDataFileStruct = dir('*_SleepData.mat');
 sleepDataFile = {sleepDataFileStruct.name}';
 sleepDataFileID = char(sleepDataFile);
-load(sleepDataFileID)
+load(sleepDataFileID,'-mat')
 % lowpass filter
 samplingRate = RestData.CBV.adjLH.CBVCamSamplingRate;
 [z,p,k] = butter(4,1/(samplingRate/2),'low');
@@ -221,7 +210,7 @@ cd(dataLocation)
 procDataFileStruct = dir('*_ProcData.mat');
 procDataFile = {procDataFileStruct.name}';
 procDataFileID = char(procDataFile);
-load(procDataFileID)
+load(procDataFileID,'-mat')
 % extract left and right [HbT] changes during the last 100 seconds of data
 isoLH_HbT = ProcData.data.CBV_HbT.adjLH((end - samplingRate*100):end);
 filtIsoLH_HbT = filtfilt(sos,g,isoLH_HbT);

@@ -52,51 +52,79 @@ for a = 1:length(hem)
 end
 close(windowFig)
 % extract the pixel values from the window ROIs
-for b = 1:length(hem)
-    imageMask = nan(size(frames{1}));
-    rectMask = ROIs.([hem{1,b} '_' strDay]).rect;
-    rectMask = round(rectMask);
-    imageMask(rectMask(2):(rectMask(2) + rectMask(4)),rectMask(1):(rectMask(1) + rectMask(3))) = 1;
-    for c = 1:length(frames) - 1
-        frame = frames{1,c};
-        frameHold = double(frame).*imageMask;
-        imageStack.(hem{1,b})(:,c) = frameHold(~isnan(frameHold));
+% Character list of all ProcData files
+procDataFileStruct = dir('*_ProcData.mat');
+procDataFiles = {procDataFileStruct.name}';
+procDataFileIDs = char(procDataFiles);
+windowDataFileStruct = dir('*_WindowCam.bin');
+windowDataFiles = {windowDataFileStruct.name}';
+windowDataFileIDs = char(windowDataFiles);
+for qq = 1:size(procDataFileIDs,1)
+    disp(['Analyzing cross correlation matrix (' num2str(qq) '/' num2str(size(procDataFileIDs,1)) ')']); disp(' ')
+    load(procDataFileIDs(qq,:));
+    imageHeight = ProcData.notes.CBVCamPixelHeight;
+    imageWidth = ProcData.notes.CBVCamPixelWidth;
+    pixelsPerFrame = imageWidth*imageHeight;
+    % open the file, get file size, back to the begining
+    fid = fopen(windowDataFileIDs(qq,:));
+    fseek(fid,0,'eof');
+    fileSize = ftell(fid);
+    fseek(fid,0,'bof');
+    % identify the number of frames to read. Each frame has a previously defined width and height (as inputs), along with a grayscale "depth" of 2"
+    nFramesToRead = floor(fileSize/(2*pixelsPerFrame));
+    % preallocate memory
+    frames = cell(1,nFramesToRead);
+    for n = 1:nFramesToRead
+        z = fread(fid,pixelsPerFrame,'*int16','b');
+        img = reshape(z(1:pixelsPerFrame),imageWidth,imageHeight);
+        frames{n} = rot90(img',2);
     end
-end
-% extract and process gamma band power
-[B,A] = butter(3,2/(ProcData.notes.dsFs/2),'low');
-LH_gammaBandPower = detrend(filtfilt(B,A,ProcData.data.cortical_LH.gammaBandPower - ProcData.data.cortical_LH.gammaBandPower(1)) + ProcData.data.cortical_LH.gammaBandPower(1),'constant');
-RH_gammaBandPower = detrend(filtfilt(B,A,ProcData.data.cortical_RH.gammaBandPower - ProcData.data.cortical_RH.gammaBandPower(1)) + ProcData.data.cortical_RH.gammaBandPower(1),'constant');
-% cross correlation
-lagTime = 5;   % seconds
-maxLag = lagTime*RawData.notes.CBVCamSamplingRate;
-for d = 1:length(hem)
-    hemisphere = hem{1,d};
-    if strcmp(hemisphere,'LH') == true
-        gammaBandArray = LH_gammaBandPower;
-    elseif strcmp(hemisphere,'RH') == true
-        gammaBandArray = RH_gammaBandPower;
-    elseif strcmp(hemisphere,'Barrels') == true
-        singleHem = ProcData.notes.hemisphere;
-        if strcmp(singleHem,'LH') == true
-            gammaBandArray = LH_gammaBandPower;
-        elseif strcmp(singleHem,'RH') == true
-            gammaBandArray = RH_gammaBandPower;
+    fclose('all');
+    for b = 1:length(hem)
+        imageMask = nan(size(frames{1}));
+        rectMask = ROIs.([hem{1,b} '_' strDay]).rect;
+        rectMask = round(rectMask);
+        imageMask(rectMask(2):(rectMask(2) + rectMask(4)),rectMask(1):(rectMask(1) + rectMask(3))) = 1;
+        for c = 1:length(frames) - 1
+            frame = frames{1,c};
+            frameHold = double(frame).*imageMask;
+            imageStack.(hem{1,b})(:,c) = frameHold(~isnan(frameHold));
         end
     end
-    % extract pixel values from each numel index in matrix image
-    for e = 1:size(imageStack.(hemisphere),1)
-        disp(['Analyzing matrix numel ' num2str(e) ' of ' num2str(size(imageStack.(hemisphere),1))]); disp(' ')
-        pixelArray = imageStack.(hemisphere)(e,:);
-        pixelArray = detrend(filtfilt(B,A,pixelArray - pixelArray(1)) + pixelArray(1),'constant');
-        [xcorrVals,lags] = xcorr(pixelArray,gammaBandArray,maxLag,'coeff');
-        zeroPoint = find(lags == 0);
-        validVals = xcorrVals(zeroPoint:zeroPoint + 45);
-        maxCorr = min(validVals);
-        if isnan(maxCorr) == true
-            corrMatrix.(hemisphere)(1,e) = 0;
-        else
-            corrMatrix.(hemisphere)(1,e) = maxCorr;
+    % extract and process gamma band power
+    [B,A] = butter(3,2/(ProcData.notes.dsFs/2),'low');
+    LH_gammaBandPower = detrend(filtfilt(B,A,ProcData.data.cortical_LH.gammaBandPower - ProcData.data.cortical_LH.gammaBandPower(1)) + ProcData.data.cortical_LH.gammaBandPower(1),'constant');
+    RH_gammaBandPower = detrend(filtfilt(B,A,ProcData.data.cortical_RH.gammaBandPower - ProcData.data.cortical_RH.gammaBandPower(1)) + ProcData.data.cortical_RH.gammaBandPower(1),'constant');
+    % cross correlation
+    lagTime = 5;   % seconds
+    maxLag = lagTime*RawData.notes.CBVCamSamplingRate;
+    for d = 1:length(hem)
+        hemisphere = hem{1,d};
+        if strcmp(hemisphere,'LH') == true
+            gammaBandArray = LH_gammaBandPower;
+        elseif strcmp(hemisphere,'RH') == true
+            gammaBandArray = RH_gammaBandPower;
+        elseif strcmp(hemisphere,'Barrels') == true
+            singleHem = ProcData.notes.hemisphere;
+            if strcmp(singleHem,'LH') == true
+                gammaBandArray = LH_gammaBandPower;
+            elseif strcmp(singleHem,'RH') == true
+                gammaBandArray = RH_gammaBandPower;
+            end
+        end
+        % extract pixel values from each numel index in matrix image
+        for e = 1:size(imageStack.(hemisphere),1)
+            pixelArray = imageStack.(hemisphere)(e,:);
+            pixelArray = detrend(filtfilt(B,A,pixelArray - pixelArray(1)) + pixelArray(1),'constant');
+            [xcorrVals,lags] = xcorr(pixelArray,gammaBandArray,maxLag,'coeff');
+            zeroPoint = find(lags == 0);
+            validVals = xcorrVals(zeroPoint:zeroPoint + 45);
+            maxCorr = min(validVals);
+            if isnan(maxCorr) == true
+                corrMatrix.(hemisphere)(1,e,qq) = 0;
+            else
+                corrMatrix.(hemisphere)(1,e,qq) = maxCorr;
+            end
         end
     end
 end
@@ -112,7 +140,7 @@ for f = 1:length(hem)
     rectMask = round(rectMask);
     imgWidth = rectMask(3) + 1;
     imgHeight = rectMask(4) + 1;
-    corrImg = reshape(corrMatrix.(hem{1,f}),imgHeight,imgWidth);
+    corrImg = reshape(mean(corrMatrix.(hem{1,f}),3),imgHeight,imgWidth);
     % generate image
     isok = false;
     while isok == false
