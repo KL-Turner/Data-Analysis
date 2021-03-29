@@ -43,10 +43,10 @@ else
     load('AnalysisResults.mat','-mat')
 end
 %% generate figures
-[AnalysisResults] = WhiskEvoked_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
-[AnalysisResults] = StimEvoked_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
+% [AnalysisResults] = WhiskEvoked_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
+% [AnalysisResults] = StimEvoked_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
 % [AnalysisResults] = Coherence_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
-% [AnalysisResults] = PowerSpec_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
+[AnalysisResults] = PowerSpec_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
 % [AnalysisResults] = PearsonsCorr_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
 % [AnalysisResults] = XCorr_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
 % [AnalysisResults] = MeanHbT_Saporin(rootFolder,saveFigs,delim,AnalysisResults); %#ok<*NASGU>
