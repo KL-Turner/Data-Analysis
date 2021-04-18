@@ -106,7 +106,7 @@ set(gca,'box','off')
 axis tight
 % cortical LFP
 ax5 = subplot(6,1,5);
-semilog_imagesc(T,F,cortNormS,'y')
+Semilog_ImageSC(T,F,cortNormS,'y')
 axis xy
 c5 = colorbar;
 ylabel(c5,'\DeltaP/P (%)')
@@ -118,7 +118,7 @@ set(gca,'box','off')
 axis tight
 % hippocampal LFP
 ax6 = subplot(6,1,6);
-semilog_imagesc(T,F,hipNormS,'y')
+Semilog_ImageSC(T,F,hipNormS,'y')
 axis xy
 c6 = colorbar;
 ylabel(c6,'\DeltaP/P (%)')

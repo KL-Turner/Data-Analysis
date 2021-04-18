@@ -25,16 +25,16 @@ end
 % add root folder to Matlab's working directory
 addpath(genpath(rootFolder))
 %% run the data analysis. The progress bars will show the analysis progress
-rerunAnalysis = 'n';
+rerunAnalysis = 'y';
 saveFigs = 'y';
 if exist('AnalysisResults.mat','file') ~= 2 || strcmp(rerunAnalysis,'y') == true
-    multiWaitbar('Analyzing behavioral hemodynamics',0,'Color','R'); pause(0.25);
-    multiWaitbar('Analyzing coherence',0,'Color','Y'); pause(0.25);
-    multiWaitbar('Analyzing neural-hemo coherence',0,'Color','R'); pause(0.25);
-    multiWaitbar('Analyzing power spectra',0,'Color','R'); pause(0.25);
-    multiWaitbar('Analyzing Pearson''s correlation coefficients',0,'Color','Y'); pause(0.25);
-    multiWaitbar('Analyzing cross correlation',0,'Color','R'); pause(0.25);
-    multiWaitbar('Analyzing evoked responses',0,'Color','Y'); pause(0.25);
+    multiWaitbar('Analyzing behavioral hemodynamics',0,'Color','P'); pause(0.25);
+    multiWaitbar('Analyzing coherence',0,'Color','B'); pause(0.25);
+    multiWaitbar('Analyzing neural-hemo coherence',0,'Color','G'); pause(0.25);
+    multiWaitbar('Analyzing power spectra',0,'Color','P'); pause(0.25);
+    multiWaitbar('Analyzing Pearson''s correlation coefficients',0,'Color','B'); pause(0.25);
+    multiWaitbar('Analyzing cross correlation',0,'Color','G'); pause(0.25);
+    multiWaitbar('Analyzing evoked responses',0,'Color','P'); pause(0.25);
     % run analysis and output a structure containing all the analyzed data
     [AnalysisResults] = AnalyzeData(rootFolder);
     multiWaitbar('CloseAll');
@@ -43,13 +43,14 @@ else
     load('AnalysisResults.mat','-mat')
 end
 %% generate figures
-% [AnalysisResults] = WhiskEvoked_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
-% [AnalysisResults] = StimEvoked_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
-% [AnalysisResults] = Coherence_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
+[AnalysisResults] = DiaphoraseCellCounts_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
+[AnalysisResults] = WhiskEvoked_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
+[AnalysisResults] = StimEvoked_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
+[AnalysisResults] = Coherence_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
 [AnalysisResults] = PowerSpec_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
-% [AnalysisResults] = PearsonsCorr_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
-% [AnalysisResults] = XCorr_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
-% [AnalysisResults] = MeanHbT_Saporin(rootFolder,saveFigs,delim,AnalysisResults); %#ok<*NASGU>
+[AnalysisResults] = PearsonsCorr_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
+[AnalysisResults] = XCorr_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
+[AnalysisResults] = MeanHbT_Saporin(rootFolder,saveFigs,delim,AnalysisResults); %#ok<*NASGU>
 %% fin.
 disp('MainScript Analysis - Complete'); disp(' ')
 end

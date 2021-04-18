@@ -7,7 +7,7 @@
 %            2) Create a temporary RestData structure that contains periods of rest - use this for initial figures
 %            3) Analyze neural data and create different spectrograms for each file's electrodes
 %            4) Uses periods when animal is not being stimulated or moving to establish an initial baseline
-%          zap  5) Manually select awake files for a slightly different baseline not based on hard time vals
+%            5) Manually select awake files for a slightly different baseline not based on hard time vals
 %            6) Use the best baseline to convert reflectance changes to total hemoglobin
 %            7) Re-create the RestData structure now that we can deltaHbT
 %            8) Create an EventData structure looking at the different data types after whisking or stimulation
@@ -23,6 +23,7 @@ clc;
 clear;
 disp('Analyzing Block [0] Preparing the workspace and loading variables.'); disp(' ')
 % Character list of all RawData files
+
 rawDataFileStruct = dir('*_RawData.mat');
 rawDataFiles = {rawDataFileStruct.name}';
 rawDataFileIDs = char(rawDataFiles);

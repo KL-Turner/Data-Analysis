@@ -204,22 +204,22 @@ AnalysisResults.(animalID).MeanCBV.REM.CBV_HbT.IndAdjLH = LH_remData;
 AnalysisResults.(animalID).MeanCBV.REM.CBV_HbT.IndAdjRH = RH_remData;
 AnalysisResults.(animalID).MeanCBV.REM.CBV_HbT.FileIDs = remFileIDs;
 %% analyze [HbT] during periods of isolfurane
-dataLocation = [rootFolder '\' group '\' animalID '\Isoflurane Trials\'];
-cd(dataLocation)
-% pull ProcData.mat file associated with isoflurane administration
-procDataFileStruct = dir('*_ProcData.mat');
-procDataFile = {procDataFileStruct.name}';
-procDataFileID = char(procDataFile);
-load(procDataFileID,'-mat')
-% extract left and right [HbT] changes during the last 100 seconds of data
-isoLH_HbT = ProcData.data.CBV_HbT.adjLH((end - samplingRate*100):end);
-filtIsoLH_HbT = filtfilt(sos,g,isoLH_HbT);
-isoRH_HbT = ProcData.data.CBV_HbT.adjRH((end - samplingRate*100):end);
-filtIsoRH_HbT = filtfilt(sos,g,isoRH_HbT);
-% save results
-AnalysisResults.(animalID).MeanCBV.Iso.CBV_HbT.adjLH = mean(filtIsoLH_HbT);
-AnalysisResults.(animalID).MeanCBV.Iso.CBV_HbT.adjRH = mean(filtIsoRH_HbT);
-AnalysisResults.(animalID).MeanCBV.Iso.CBV_HbT.FileIDs = procDataFileID;
+% dataLocation = [rootFolder '\' group '\' animalID '\Isoflurane Trials\'];
+% cd(dataLocation)
+% % pull ProcData.mat file associated with isoflurane administration
+% procDataFileStruct = dir('*_ProcData.mat');
+% procDataFile = {procDataFileStruct.name}';
+% procDataFileID = char(procDataFile);
+% load(procDataFileID,'-mat')
+% % extract left and right [HbT] changes during the last 100 seconds of data
+% isoLH_HbT = ProcData.data.CBV_HbT.adjLH((end - samplingRate*100):end);
+% filtIsoLH_HbT = filtfilt(sos,g,isoLH_HbT);
+% isoRH_HbT = ProcData.data.CBV_HbT.adjRH((end - samplingRate*100):end);
+% filtIsoRH_HbT = filtfilt(sos,g,isoRH_HbT);
+% % save results
+% AnalysisResults.(animalID).MeanCBV.Iso.CBV_HbT.adjLH = mean(filtIsoLH_HbT);
+% AnalysisResults.(animalID).MeanCBV.Iso.CBV_HbT.adjRH = mean(filtIsoRH_HbT);
+% AnalysisResults.(animalID).MeanCBV.Iso.CBV_HbT.FileIDs = procDataFileID;
 % save data
 cd(rootFolder)
 save('AnalysisResults.mat','AnalysisResults')

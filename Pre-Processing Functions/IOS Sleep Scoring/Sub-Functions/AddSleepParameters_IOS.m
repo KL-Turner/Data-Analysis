@@ -420,7 +420,11 @@ for a = 1:size(procDataFileIDs,1)
         if FlowBins == 1
             tempFlowStruct(FlowBins,1) = {normFlow(FlowBins:150)};
         else
-            tempFlowStruct(FlowBins,1) = {normFlow((((150*(FlowBins-1)) + 1)):(150*FlowBins))};
+            try
+                tempFlowStruct(FlowBins,1) = {normFlow((((150*(FlowBins-1)) + 1)):(150*FlowBins))};
+            catch
+                tempFlowStruct(FlowBins,1) = {normFlow((((150*(FlowBins-1)) + 1)):end)};
+            end
         end
     end
     % save doppler flow data under ProcData file
