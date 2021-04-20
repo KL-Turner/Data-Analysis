@@ -4,32 +4,16 @@ function [AnalysisResults] = PowerSpec_Saporin(rootFolder,saveFigs,delim,Analysi
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %
-% Purpose: Generate figure panel 7 for Turner_Gheres_Proctor_Drew
+% Purpose: 
 %________________________________________________________________________________________________________________________
 
-% colorBlack = [(0/256),(0/256),(0/256)];
-% colorGrey = [(209/256),(211/256),(212/256)];
-% colorRfcAwake = [(0/256),(64/256),(64/256)];
-% colorRfcNREM = [(0/256),(174/256),(239/256)];
-% colorRfcREM = [(190/256),(30/256),(45/256)];
-colorRest = [(0/256),(166/256),(81/256)];
-colorWhisk = [(31/256),(120/256),(179/256)];
-% colorStim = [(255/256),(28/256),(206/256)];
-colorNREM = [(191/256),(0/256),(255/256)];
-colorREM = [(254/256),(139/256),(0/256)];
-colorAlert = [(255/256),(191/256),(0/256)];
-colorAsleep = [(0/256),(128/256),(255/256)];
-colorAll = [(183/256),(115/256),(51/256)];
-% colorIso = [(0/256),(256/256),(256/256)];
 %% set-up and process data
-animalIDs = {'T141','T155','T156','T157','T142','T144','T159','T172','T150','T165','T166'};
-C57BL6J_IDs = {'T141','T155','T156','T157'};
+animalIDs = {'T141','T155','T156','T157','T142','T144','T159','T172','T150','T165','T166','T177','T179','T186','T187','T188','T189'};
+C57BL6J_IDs = {'T141','T155','T156','T157','T186','T187','T188','T189'};
 SSP_SAP_IDs = {'T142','T144','T159','T172'};
-Blank_SAP_IDs = {'T150','T165','T166'};
+Blank_SAP_IDs = {'T150','T165','T166','T177','T179'};
 treatments = {'C57BL6J','SSP_SAP','Blank_SAP'};
 behavFields = {'Rest','NREM','REM','Awake','Sleep','All'};
-behavFields2 = {'Rest','NREM','REM','Awake','All'};
-behavFields3 = {'Rest','Whisk','NREM','REM','Awake','Sleep','All'};
 dataTypes = {'CBV_HbT','gammaBandPower'};
 %% power spectra during different behaviors
 % cd through each animal's directory and extract the appropriate analysis results
@@ -62,7 +46,7 @@ for aa = 1:length(animalIDs)
         end
     end
 end
-% find the peak of the resting PSD for each animal/hemisphere
+%% find the peak of the resting PSD for each animal/hemisphere
 for aa = 1:length(treatments)
     treatment = treatments{1,aa};
     for cc = 1:length(dataTypes)
@@ -73,7 +57,7 @@ for aa = 1:length(treatments)
         end
     end
 end
-% DC-shift each animal/hemisphere/behavior PSD with respect to the resting peak
+%% DC-shift each animal/hemisphere/behavior PSD with respect to the resting peak
 for aa = 1:length(treatments)
     treatment = treatments{1,aa};
     for dd = 1:length(behavFields)
@@ -87,7 +71,7 @@ for aa = 1:length(treatments)
         end
     end
 end
-% take mean/StD of S/f
+%% take mean/StD of S/f
 for aa = 1:length(treatments)
     treatment = treatments{1,aa};
     for h = 1:length(behavFields)
@@ -103,10 +87,9 @@ for aa = 1:length(treatments)
         end
     end
 end
-
-
-figure;
-%% [7a] power spectra of gamma-band power during different arousal-states
+%% average HbT power
+summaryFigure1 = figure;
+%% LH power spectra of HbT power during Rest
 sgtitle('\DeltaHbT (\muM) cortical power spectra')
 ax1 = subplot(3,4,1);
 p1 = loglog(data.C57BL6J.Rest.CBV_HbT.adjLH.meanCortf,data.C57BL6J.Rest.CBV_HbT.adjLH.meanCortS,'color',colors('sapphire'),'LineWidth',2);
@@ -119,7 +102,7 @@ xlabel('Freq (Hz)')
 legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
 xlim([1/10,0.5])
 set(gca,'box','off')
-
+%% RH power spectra of HbT power during Rest
 ax2 = subplot(3,4,2);
 loglog(data.C57BL6J.Rest.CBV_HbT.adjRH.meanCortf,data.C57BL6J.Rest.CBV_HbT.adjRH.meanCortS,'color',colors('sapphire'),'LineWidth',2);
 hold on
@@ -130,7 +113,7 @@ ylabel('Power (a.u.)')
 xlabel('Freq (Hz)')
 xlim([1/10,0.5])
 set(gca,'box','off')
-
+%% LH power spectra of HbT power during NREM
 ax3 = subplot(3,4,3);
 loglog(data.C57BL6J.NREM.CBV_HbT.adjLH.meanCortf,data.C57BL6J.NREM.CBV_HbT.adjLH.meanCortS,'color',colors('sapphire'),'LineWidth',2);
 hold on
@@ -142,7 +125,7 @@ xlabel('Freq (Hz)')
 legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
 xlim([1/30,0.5])
 set(gca,'box','off')
-
+%% RH power spectra of HbT power during NREM
 ax4 = subplot(3,4,4);
 loglog(data.C57BL6J.NREM.CBV_HbT.adjRH.meanCortf,data.C57BL6J.NREM.CBV_HbT.adjRH.meanCortS,'color',colors('sapphire'),'LineWidth',2);
 hold on
@@ -153,8 +136,7 @@ ylabel('Power (a.u.)')
 xlabel('Freq (Hz)')
 xlim([1/30,0.5])
 set(gca,'box','off')
-
-
+%% LH power spectra of HbT power during REM
 ax5 = subplot(3,4,5);
 loglog(data.C57BL6J.REM.CBV_HbT.adjLH.meanCortf,data.C57BL6J.REM.CBV_HbT.adjLH.meanCortS,'color',colors('sapphire'),'LineWidth',2);
 hold on
@@ -166,7 +148,7 @@ xlabel('Freq (Hz)')
 legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
 xlim([1/60,0.5])
 set(gca,'box','off')
-
+%% RH power spectra of HbT power during REM
 ax6 = subplot(3,4,6);
 loglog(data.C57BL6J.REM.CBV_HbT.adjRH.meanCortf,data.C57BL6J.REM.CBV_HbT.adjRH.meanCortS,'color',colors('sapphire'),'LineWidth',2);
 hold on
@@ -177,8 +159,7 @@ ylabel('Power (a.u.)')
 xlabel('Freq (Hz)')
 xlim([1/60,0.5])
 set(gca,'box','off')
-
-
+%% LH power spectra of HbT power during Awake
 ax7 = subplot(3,4,7);
 loglog(data.C57BL6J.Awake.CBV_HbT.adjLH.meanCortf,data.C57BL6J.Awake.CBV_HbT.adjLH.meanCortS,'color',colors('sapphire'),'LineWidth',2);
 hold on
@@ -190,7 +171,7 @@ xlabel('Freq (Hz)')
 legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
 xlim([0.003,0.5])
 set(gca,'box','off')
-
+%% RH power spectra of HbT power during Awake
 ax8 = subplot(3,4,8);
 loglog(data.C57BL6J.Awake.CBV_HbT.adjRH.meanCortf,data.C57BL6J.Awake.CBV_HbT.adjRH.meanCortS,'color',colors('sapphire'),'LineWidth',2);
 hold on
@@ -201,7 +182,7 @@ ylabel('Power (a.u.)')
 xlabel('Freq (Hz)')
 xlim([0.003,0.5])
 set(gca,'box','off')
-
+%% LH power spectra of HbT power during Sleep
 ax9 = subplot(3,4,9);
 loglog(data.C57BL6J.Sleep.CBV_HbT.adjLH.meanCortf,data.C57BL6J.Sleep.CBV_HbT.adjLH.meanCortS,'color',colors('sapphire'),'LineWidth',2);
 hold on
@@ -213,7 +194,7 @@ xlabel('Freq (Hz)')
 legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
 xlim([0.003,0.5])
 set(gca,'box','off')
-
+%% RH power spectra of HbT power during Sleep
 ax10 = subplot(3,4,10);
 loglog(data.C57BL6J.Sleep.CBV_HbT.adjRH.meanCortf,data.C57BL6J.Sleep.CBV_HbT.adjRH.meanCortS,'color',colors('sapphire'),'LineWidth',2);
 hold on
@@ -224,7 +205,7 @@ ylabel('Power (a.u.)')
 xlabel('Freq (Hz)')
 xlim([0.003,0.5])
 set(gca,'box','off')
-
+%% LH power spectra of HbT power during All data
 ax11 = subplot(3,4,11);
 loglog(data.C57BL6J.All.CBV_HbT.adjLH.meanCortf,data.C57BL6J.All.CBV_HbT.adjLH.meanCortS,'color',colors('sapphire'),'LineWidth',2);
 hold on
@@ -236,7 +217,7 @@ xlabel('Freq (Hz)')
 legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
 xlim([0.003,0.5])
 set(gca,'box','off')
-
+%% RH power spectra of HbT power during All data
 ax12 = subplot(3,4,12);
 loglog(data.C57BL6J.All.CBV_HbT.adjRH.meanCortf,data.C57BL6J.All.CBV_HbT.adjRH.meanCortS,'color',colors('sapphire'),'LineWidth',2);
 hold on
@@ -247,13 +228,311 @@ ylabel('Power (a.u.)')
 xlabel('Freq (Hz)')
 xlim([0.003,0.5])
 set(gca,'box','off')
-
-linkaxes([ax1,ax2,ax3,ax4,ax5,ax6,ax7,ax8,ax9,ax10,ax11,ax12],'y')
-
-
-figure;
-%% [7a] power spectra of gamma-band power during different arousal-states
-sgtitle('Gamma-band [30-100 Hz] cortical power spectra')
+%% figure characteristics
+linkaxes([ax1,ax2],'y')
+linkaxes([ax3,ax4],'y')
+linkaxes([ax5,ax6],'y')
+linkaxes([ax7,ax8],'y')
+linkaxes([ax9,ax10],'y')
+linkaxes([ax11,ax12],'y')
+%% save figure(s)
+if strcmp(saveFigs,'y') == true
+    dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'MATLAB Analysis Figures' delim];
+    if ~exist(dirpath,'dir')
+        mkdir(dirpath);
+    end
+    savefig(summaryFigure1,[dirpath 'PowerSpec_HbT']);
+    set(summaryFigure1,'PaperPositionMode','auto');
+    print('-painters','-dpdf','-fillpage',[dirpath 'PowerSpec_HbT'])
+end
+%% individual HbT power
+summaryFigure2 = figure;
+%% LH power spectra of HbT power during Rest
+sgtitle('\DeltaHbT (\muM) cortical power spectra')
+ax1 = subplot(3,4,1);
+% C57BL6J
+for aa = 1:size(data.C57BL6J.Rest.CBV_HbT.adjLH.normS,2)
+    loglog(data.C57BL6J.Rest.CBV_HbT.adjLH.meanCortf,data.C57BL6J.Rest.CBV_HbT.adjLH.normS(:,aa),'color',colors('sapphire'),'LineWidth',0.5);
+    hold on
+end
+% Blank-SAP
+for aa = 1:size(data.Blank_SAP.Rest.CBV_HbT.adjLH.normS,2)
+    loglog(data.Blank_SAP.Rest.CBV_HbT.adjLH.meanCortf,data.Blank_SAP.Rest.CBV_HbT.adjLH.normS(:,aa),'color',colors('north texas green'),'LineWidth',0.5);
+    hold on
+end
+% SSP-SAP
+for aa = 1:size(data.SSP_SAP.Rest.CBV_HbT.adjLH.normS,2)
+    loglog(data.SSP_SAP.Rest.CBV_HbT.adjLH.meanCortf,data.SSP_SAP.Rest.CBV_HbT.adjLH.normS(:,aa),'color',colors('electric purple'),'LineWidth',0.5);
+    hold on
+end
+title('[Rest] LH (UnRx)')
+ylabel('Power (a.u.)')
+xlabel('Freq (Hz)')
+xlim([1/10,0.5])
+set(gca,'box','off')
+%% RH power spectra of HbT power during Rest
+ax2 = subplot(3,4,2);
+% C57BL6J
+for aa = 1:size(data.C57BL6J.Rest.CBV_HbT.adjRH.normS,2)
+    loglog(data.C57BL6J.Rest.CBV_HbT.adjRH.meanCortf,data.C57BL6J.Rest.CBV_HbT.adjRH.normS(:,aa),'color',colors('sapphire'),'LineWidth',0.5);
+    hold on
+end
+% Blank-SAP
+for aa = 1:size(data.Blank_SAP.Rest.CBV_HbT.adjRH.normS,2)
+    loglog(data.Blank_SAP.Rest.CBV_HbT.adjRH.meanCortf,data.Blank_SAP.Rest.CBV_HbT.adjRH.normS(:,aa),'color',colors('north texas green'),'LineWidth',0.5);
+    hold on
+end
+% SSP-SAP
+for aa = 1:size(data.SSP_SAP.Rest.CBV_HbT.adjRH.normS,2)
+    loglog(data.SSP_SAP.Rest.CBV_HbT.adjRH.meanCortf,data.SSP_SAP.Rest.CBV_HbT.adjRH.normS(:,aa),'color',colors('electric purple'),'LineWidth',0.5);
+    hold on
+end
+title('[Rest] RH (Rx)')
+ylabel('Power (a.u.)')
+xlabel('Freq (Hz)')
+xlim([1/10,0.5])
+set(gca,'box','off')
+%% LH power spectra of HbT power during NREM
+ax3 = subplot(3,4,3);
+% C57BL6J
+for aa = 1:size(data.C57BL6J.NREM.CBV_HbT.adjLH.normS,2)
+    loglog(data.C57BL6J.NREM.CBV_HbT.adjLH.meanCortf,data.C57BL6J.NREM.CBV_HbT.adjLH.normS(:,aa),'color',colors('sapphire'),'LineWidth',0.5);
+    hold on
+end
+% Blank-SAP
+for aa = 1:size(data.Blank_SAP.NREM.CBV_HbT.adjLH.normS,2)
+    loglog(data.Blank_SAP.NREM.CBV_HbT.adjLH.meanCortf,data.Blank_SAP.NREM.CBV_HbT.adjLH.normS(:,aa),'color',colors('north texas green'),'LineWidth',0.5);
+    hold on
+end
+% SSP-SAP
+for aa = 1:size(data.SSP_SAP.NREM.CBV_HbT.adjLH.normS,2)
+    loglog(data.SSP_SAP.NREM.CBV_HbT.adjLH.meanCortf,data.SSP_SAP.NREM.CBV_HbT.adjLH.normS(:,aa),'color',colors('electric purple'),'LineWidth',0.5);
+    hold on
+end
+title('[NREM] LH (UnRx)')
+ylabel('Power (a.u.)')
+xlabel('Freq (Hz)')
+xlim([1/30,0.5])
+set(gca,'box','off')
+%% RH power spectra of HbT power during NREM
+ax4 = subplot(3,4,4);
+% C57BL6J
+for aa = 1:size(data.C57BL6J.NREM.CBV_HbT.adjRH.normS,2)
+    loglog(data.C57BL6J.NREM.CBV_HbT.adjRH.meanCortf,data.C57BL6J.NREM.CBV_HbT.adjRH.normS(:,aa),'color',colors('sapphire'),'LineWidth',0.5);
+    hold on
+end
+% Blank-SAP
+for aa = 1:size(data.Blank_SAP.NREM.CBV_HbT.adjRH.normS,2)
+    loglog(data.Blank_SAP.NREM.CBV_HbT.adjRH.meanCortf,data.Blank_SAP.NREM.CBV_HbT.adjRH.normS(:,aa),'color',colors('north texas green'),'LineWidth',0.5);
+    hold on
+end
+% SSP-SAP
+for aa = 1:size(data.SSP_SAP.NREM.CBV_HbT.adjRH.normS,2)
+    loglog(data.SSP_SAP.NREM.CBV_HbT.adjRH.meanCortf,data.SSP_SAP.NREM.CBV_HbT.adjRH.normS(:,aa),'color',colors('electric purple'),'LineWidth',0.5);
+    hold on
+end
+title('[NREM] RH (Rx)')
+ylabel('Power (a.u.)')
+xlabel('Freq (Hz)')
+xlim([1/30,0.5])
+set(gca,'box','off')
+%% LH power spectra of HbT power during REM
+ax5 = subplot(3,4,5);
+% C57BL6J
+for aa = 1:size(data.C57BL6J.REM.CBV_HbT.adjLH.normS,2)
+    loglog(data.C57BL6J.REM.CBV_HbT.adjLH.meanCortf,data.C57BL6J.REM.CBV_HbT.adjLH.normS(:,aa),'color',colors('sapphire'),'LineWidth',0.5);
+    hold on
+end
+% Blank-SAP
+for aa = 1:size(data.Blank_SAP.REM.CBV_HbT.adjLH.normS,2)
+    loglog(data.Blank_SAP.REM.CBV_HbT.adjLH.meanCortf,data.Blank_SAP.REM.CBV_HbT.adjLH.normS(:,aa),'color',colors('north texas green'),'LineWidth',0.5);
+    hold on
+end
+% SSP-SAP
+for aa = 1:size(data.SSP_SAP.REM.CBV_HbT.adjLH.normS,2)
+    loglog(data.SSP_SAP.REM.CBV_HbT.adjLH.meanCortf,data.SSP_SAP.REM.CBV_HbT.adjLH.normS(:,aa),'color',colors('electric purple'),'LineWidth',0.5);
+    hold on
+end
+title('[REM] LH (UnRx)')
+ylabel('Power (a.u.)')
+xlabel('Freq (Hz)')
+xlim([1/60,0.5])
+set(gca,'box','off')
+%% RH power spectra of HbT power during REM
+ax6 = subplot(3,4,6);
+% C57BL6J
+for aa = 1:size(data.C57BL6J.REM.CBV_HbT.adjRH.normS,2)
+    loglog(data.C57BL6J.REM.CBV_HbT.adjRH.meanCortf,data.C57BL6J.REM.CBV_HbT.adjRH.normS(:,aa),'color',colors('sapphire'),'LineWidth',0.5);
+    hold on
+end
+% Blank-SAP
+for aa = 1:size(data.Blank_SAP.REM.CBV_HbT.adjRH.normS,2)
+    loglog(data.Blank_SAP.REM.CBV_HbT.adjRH.meanCortf,data.Blank_SAP.REM.CBV_HbT.adjRH.normS(:,aa),'color',colors('north texas green'),'LineWidth',0.5);
+    hold on
+end
+% SSP-SAP
+for aa = 1:size(data.SSP_SAP.REM.CBV_HbT.adjRH.normS,2)
+    loglog(data.SSP_SAP.REM.CBV_HbT.adjRH.meanCortf,data.SSP_SAP.REM.CBV_HbT.adjRH.normS(:,aa),'color',colors('electric purple'),'LineWidth',0.5);
+    hold on
+end
+title('[REM] RH (Rx)')
+ylabel('Power (a.u.)')
+xlabel('Freq (Hz)')
+xlim([1/60,0.5])
+set(gca,'box','off')
+%% LH power spectra of HbT power during Awake
+ax7 = subplot(3,4,7);
+% C57BL6J
+for aa = 1:size(data.C57BL6J.Awake.CBV_HbT.adjLH.normS,2)
+    loglog(data.C57BL6J.Awake.CBV_HbT.adjLH.meanCortf,data.C57BL6J.Awake.CBV_HbT.adjLH.normS(:,aa),'color',colors('sapphire'),'LineWidth',0.5);
+    hold on
+end
+% Blank-SAP
+for aa = 1:size(data.Blank_SAP.Awake.CBV_HbT.adjLH.normS,2)
+    loglog(data.Blank_SAP.Awake.CBV_HbT.adjLH.meanCortf,data.Blank_SAP.Awake.CBV_HbT.adjLH.normS(:,aa),'color',colors('north texas green'),'LineWidth',0.5);
+    hold on
+end
+% SSP-SAP
+for aa = 1:size(data.SSP_SAP.Awake.CBV_HbT.adjLH.normS,2)
+    loglog(data.SSP_SAP.Awake.CBV_HbT.adjLH.meanCortf,data.SSP_SAP.Awake.CBV_HbT.adjLH.normS(:,aa),'color',colors('electric purple'),'LineWidth',0.5);
+    hold on
+end
+title('[Alert] LH (UnRx)')
+ylabel('Power (a.u.)')
+xlabel('Freq (Hz)')
+xlim([0.003,0.5])
+set(gca,'box','off')
+%% RH power spectra of HbT power during Awake
+ax8 = subplot(3,4,8);
+% C57BL6J
+for aa = 1:size(data.C57BL6J.Awake.CBV_HbT.adjRH.normS,2)
+    loglog(data.C57BL6J.Awake.CBV_HbT.adjRH.meanCortf,data.C57BL6J.Awake.CBV_HbT.adjRH.normS(:,aa),'color',colors('sapphire'),'LineWidth',0.5);
+    hold on
+end
+% Blank-SAP
+for aa = 1:size(data.Blank_SAP.Awake.CBV_HbT.adjRH.normS,2)
+    loglog(data.Blank_SAP.Awake.CBV_HbT.adjRH.meanCortf,data.Blank_SAP.Awake.CBV_HbT.adjRH.normS(:,aa),'color',colors('north texas green'),'LineWidth',0.5);
+    hold on
+end
+% SSP-SAP
+for aa = 1:size(data.SSP_SAP.Awake.CBV_HbT.adjRH.normS,2)
+    loglog(data.SSP_SAP.Awake.CBV_HbT.adjRH.meanCortf,data.SSP_SAP.Awake.CBV_HbT.adjRH.normS(:,aa),'color',colors('electric purple'),'LineWidth',0.5);
+    hold on
+end
+title('[Alert] RH (Rx)')
+ylabel('Power (a.u.)')
+xlabel('Freq (Hz)')
+xlim([0.003,0.5])
+set(gca,'box','off')
+%% LH power spectra of HbT power during Sleep
+ax9 = subplot(3,4,9);
+% C57BL6J
+for aa = 1:size(data.C57BL6J.Sleep.CBV_HbT.adjLH.normS,2)
+    loglog(data.C57BL6J.Sleep.CBV_HbT.adjLH.meanCortf,data.C57BL6J.Sleep.CBV_HbT.adjLH.normS(:,aa),'color',colors('sapphire'),'LineWidth',0.5);
+    hold on
+end
+% Blank-SAP
+for aa = 1:size(data.Blank_SAP.Sleep.CBV_HbT.adjLH.normS,2)
+    loglog(data.Blank_SAP.Sleep.CBV_HbT.adjLH.meanCortf,data.Blank_SAP.Sleep.CBV_HbT.adjLH.normS(:,aa),'color',colors('north texas green'),'LineWidth',0.5);
+    hold on
+end
+% SSP-SAP
+for aa = 1:size(data.SSP_SAP.Sleep.CBV_HbT.adjLH.normS,2)
+    loglog(data.SSP_SAP.Sleep.CBV_HbT.adjLH.meanCortf,data.SSP_SAP.Sleep.CBV_HbT.adjLH.normS(:,aa),'color',colors('electric purple'),'LineWidth',0.5);
+    hold on
+end
+title('[Asleep] LH (UnRx)')
+ylabel('Power (a.u.)')
+xlabel('Freq (Hz)')
+xlim([0.003,0.5])
+set(gca,'box','off')
+%% RH power spectra of HbT power during Sleep
+ax10 = subplot(3,4,10);
+% C57BL6J
+for aa = 1:size(data.C57BL6J.Sleep.CBV_HbT.adjRH.normS,2)
+    loglog(data.C57BL6J.Sleep.CBV_HbT.adjRH.meanCortf,data.C57BL6J.Sleep.CBV_HbT.adjRH.normS(:,aa),'color',colors('sapphire'),'LineWidth',0.5);
+    hold on
+end
+% Blank-SAP
+for aa = 1:size(data.Blank_SAP.Sleep.CBV_HbT.adjRH.normS,2)
+    loglog(data.Blank_SAP.Sleep.CBV_HbT.adjRH.meanCortf,data.Blank_SAP.Sleep.CBV_HbT.adjRH.normS(:,aa),'color',colors('north texas green'),'LineWidth',0.5);
+    hold on
+end
+% SSP-SAP
+for aa = 1:size(data.SSP_SAP.Sleep.CBV_HbT.adjRH.normS,2)
+    loglog(data.SSP_SAP.Sleep.CBV_HbT.adjRH.meanCortf,data.SSP_SAP.Sleep.CBV_HbT.adjRH.normS(:,aa),'color',colors('electric purple'),'LineWidth',0.5);
+    hold on
+end
+title('[Asleep] RH (Rx)')
+ylabel('Power (a.u.)')
+xlabel('Freq (Hz)')
+xlim([0.003,0.5])
+set(gca,'box','off')
+%% LH power spectra of HbT power during All data
+ax11 = subplot(3,4,11);
+% C57BL6J
+for aa = 1:size(data.C57BL6J.All.CBV_HbT.adjLH.normS,2)
+    loglog(data.C57BL6J.All.CBV_HbT.adjLH.meanCortf,data.C57BL6J.All.CBV_HbT.adjLH.normS(:,aa),'color',colors('sapphire'),'LineWidth',0.5);
+    hold on
+end
+% Blank-SAP
+for aa = 1:size(data.Blank_SAP.All.CBV_HbT.adjLH.normS,2)
+    loglog(data.Blank_SAP.All.CBV_HbT.adjLH.meanCortf,data.Blank_SAP.All.CBV_HbT.adjLH.normS(:,aa),'color',colors('north texas green'),'LineWidth',0.5);
+    hold on
+end
+% SSP-SAP
+for aa = 1:size(data.SSP_SAP.All.CBV_HbT.adjLH.normS,2)
+    loglog(data.SSP_SAP.All.CBV_HbT.adjLH.meanCortf,data.SSP_SAP.All.CBV_HbT.adjLH.normS(:,aa),'color',colors('electric purple'),'LineWidth',0.5);
+    hold on
+end
+title('[All] LH (UnRx)')
+ylabel('Power (a.u.)')
+xlabel('Freq (Hz)')
+xlim([0.003,0.5])
+set(gca,'box','off')
+%% RH power spectra of HbT power during All data
+ax12 = subplot(3,4,12);
+% C57BL6J
+for aa = 1:size(data.C57BL6J.All.CBV_HbT.adjRH.normS,2)
+    loglog(data.C57BL6J.All.CBV_HbT.adjRH.meanCortf,data.C57BL6J.All.CBV_HbT.adjRH.normS(:,aa),'color',colors('sapphire'),'LineWidth',0.5);
+    hold on
+end
+% Blank-SAP
+for aa = 1:size(data.Blank_SAP.All.CBV_HbT.adjRH.normS,2)
+    loglog(data.Blank_SAP.All.CBV_HbT.adjRH.meanCortf,data.Blank_SAP.All.CBV_HbT.adjRH.normS(:,aa),'color',colors('north texas green'),'LineWidth',0.5);
+    hold on
+end
+% SSP-SAP
+for aa = 1:size(data.SSP_SAP.All.CBV_HbT.adjRH.normS,2)
+    loglog(data.SSP_SAP.All.CBV_HbT.adjRH.meanCortf,data.SSP_SAP.All.CBV_HbT.adjRH.normS(:,aa),'color',colors('electric purple'),'LineWidth',0.5);
+    hold on
+end
+title('[All] RH (Rx)')
+ylabel('Power (a.u.)')
+xlabel('Freq (Hz)')
+xlim([0.003,0.5])
+set(gca,'box','off')
+%% figure characteristics
+linkaxes([ax1,ax2],'y')
+linkaxes([ax3,ax4],'y')
+linkaxes([ax5,ax6],'y')
+linkaxes([ax7,ax8],'y')
+linkaxes([ax9,ax10],'y')
+linkaxes([ax11,ax12],'y')
+%% save figure(s)
+if strcmp(saveFigs,'y') == true
+    dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'MATLAB Analysis Figures' delim];
+    if ~exist(dirpath,'dir')
+        mkdir(dirpath);
+    end
+    savefig(summaryFigure2,[dirpath 'PowerSpec_HbT']);
+    set(summaryFigure2,'PaperPositionMode','auto');
+    print('-painters','-dpdf','-fillpage',[dirpath 'PowerSpec_HbT'])
+end
+%% average gamma-band power
+summaryFigure3 = figure;
+%% LH power spectra of gamma-band power during Rest
+sgtitle('Gamma-band [30-100] Hz cortical power spectra')
 ax1 = subplot(3,4,1);
 p1 = loglog(data.C57BL6J.Rest.gammaBandPower.adjLH.meanCortf,data.C57BL6J.Rest.gammaBandPower.adjLH.meanCortS,'color',colors('sapphire'),'LineWidth',2);
 hold on
@@ -265,7 +544,7 @@ xlabel('Freq (Hz)')
 legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
 xlim([1/10,0.5])
 set(gca,'box','off')
-
+%% RH power spectra of gamma-band power during Rest
 ax2 = subplot(3,4,2);
 loglog(data.C57BL6J.Rest.gammaBandPower.adjRH.meanCortf,data.C57BL6J.Rest.gammaBandPower.adjRH.meanCortS,'color',colors('sapphire'),'LineWidth',2);
 hold on
@@ -276,7 +555,7 @@ ylabel('Power (a.u.)')
 xlabel('Freq (Hz)')
 xlim([1/10,0.5])
 set(gca,'box','off')
-
+%% LH power spectra of gamma-band power during NREM
 ax3 = subplot(3,4,3);
 loglog(data.C57BL6J.NREM.gammaBandPower.adjLH.meanCortf,data.C57BL6J.NREM.gammaBandPower.adjLH.meanCortS,'color',colors('sapphire'),'LineWidth',2);
 hold on
@@ -288,7 +567,7 @@ xlabel('Freq (Hz)')
 legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
 xlim([1/30,0.5])
 set(gca,'box','off')
-
+%% RH power spectra of gamma-band power during NREM
 ax4 = subplot(3,4,4);
 loglog(data.C57BL6J.NREM.gammaBandPower.adjRH.meanCortf,data.C57BL6J.NREM.gammaBandPower.adjRH.meanCortS,'color',colors('sapphire'),'LineWidth',2);
 hold on
@@ -299,8 +578,7 @@ ylabel('Power (a.u.)')
 xlabel('Freq (Hz)')
 xlim([1/30,0.5])
 set(gca,'box','off')
-
-
+%% LH power spectra of gamma-band power during REM
 ax5 = subplot(3,4,5);
 loglog(data.C57BL6J.REM.gammaBandPower.adjLH.meanCortf,data.C57BL6J.REM.gammaBandPower.adjLH.meanCortS,'color',colors('sapphire'),'LineWidth',2);
 hold on
@@ -312,7 +590,7 @@ xlabel('Freq (Hz)')
 legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
 xlim([1/60,0.5])
 set(gca,'box','off')
-
+%% RH power spectra of gamma-band power during REM
 ax6 = subplot(3,4,6);
 loglog(data.C57BL6J.REM.gammaBandPower.adjRH.meanCortf,data.C57BL6J.REM.gammaBandPower.adjRH.meanCortS,'color',colors('sapphire'),'LineWidth',2);
 hold on
@@ -323,8 +601,7 @@ ylabel('Power (a.u.)')
 xlabel('Freq (Hz)')
 xlim([1/60,0.5])
 set(gca,'box','off')
-
-
+%% LH power spectra of gamma-band power during Awake
 ax7 = subplot(3,4,7);
 loglog(data.C57BL6J.Awake.gammaBandPower.adjLH.meanCortf,data.C57BL6J.Awake.gammaBandPower.adjLH.meanCortS,'color',colors('sapphire'),'LineWidth',2);
 hold on
@@ -336,7 +613,7 @@ xlabel('Freq (Hz)')
 legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
 xlim([0.003,0.5])
 set(gca,'box','off')
-
+%% RH power spectra of gamma-band power during Awake
 ax8 = subplot(3,4,8);
 loglog(data.C57BL6J.Awake.gammaBandPower.adjRH.meanCortf,data.C57BL6J.Awake.gammaBandPower.adjRH.meanCortS,'color',colors('sapphire'),'LineWidth',2);
 hold on
@@ -347,7 +624,7 @@ ylabel('Power (a.u.)')
 xlabel('Freq (Hz)')
 xlim([0.003,0.5])
 set(gca,'box','off')
-
+%% LH power spectra of gamma-band power during Sleep
 ax9 = subplot(3,4,9);
 loglog(data.C57BL6J.Sleep.gammaBandPower.adjLH.meanCortf,data.C57BL6J.Sleep.gammaBandPower.adjLH.meanCortS,'color',colors('sapphire'),'LineWidth',2);
 hold on
@@ -359,7 +636,7 @@ xlabel('Freq (Hz)')
 legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
 xlim([0.003,0.5])
 set(gca,'box','off')
-
+%% RH power spectra of gamma-band power during Sleep
 ax10 = subplot(3,4,10);
 loglog(data.C57BL6J.Sleep.gammaBandPower.adjRH.meanCortf,data.C57BL6J.Sleep.gammaBandPower.adjRH.meanCortS,'color',colors('sapphire'),'LineWidth',2);
 hold on
@@ -370,7 +647,7 @@ ylabel('Power (a.u.)')
 xlabel('Freq (Hz)')
 xlim([0.003,0.5])
 set(gca,'box','off')
-
+%% LH power spectra of gamma-band power during All data
 ax11 = subplot(3,4,11);
 loglog(data.C57BL6J.All.gammaBandPower.adjLH.meanCortf,data.C57BL6J.All.gammaBandPower.adjLH.meanCortS,'color',colors('sapphire'),'LineWidth',2);
 hold on
@@ -382,7 +659,7 @@ xlabel('Freq (Hz)')
 legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
 xlim([0.003,0.5])
 set(gca,'box','off')
-
+%% RH power spectra of gamma-band power during All data
 ax12 = subplot(3,4,12);
 loglog(data.C57BL6J.All.gammaBandPower.adjRH.meanCortf,data.C57BL6J.All.gammaBandPower.adjRH.meanCortS,'color',colors('sapphire'),'LineWidth',2);
 hold on
@@ -393,7 +670,306 @@ ylabel('Power (a.u.)')
 xlabel('Freq (Hz)')
 xlim([0.003,0.5])
 set(gca,'box','off')
-
-linkaxes([ax1,ax2,ax3,ax4,ax5,ax6,ax7,ax8,ax9,ax10,ax11,ax12],'y')
+%% figure characteristics
+linkaxes([ax1,ax2],'y')
+linkaxes([ax3,ax4],'y')
+linkaxes([ax5,ax6],'y')
+linkaxes([ax7,ax8],'y')
+linkaxes([ax9,ax10],'y')
+linkaxes([ax11,ax12],'y')
+%% save figure(s)
+if strcmp(saveFigs,'y') == true
+    dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'MATLAB Analysis Figures' delim];
+    if ~exist(dirpath,'dir')
+        mkdir(dirpath);
+    end
+    savefig(summaryFigure3,[dirpath 'PowerSpec_gamma']);
+    set(summaryFigure3,'PaperPositionMode','auto');
+    print('-painters','-dpdf','-fillpage',[dirpath 'PowerSpec_gamma'])
+end
+%% individual gamma-band power
+summaryFigure4 = figure;
+%% LH power spectra of gamma-band power during Rest
+sgtitle('Gamma-band [30-100] Hz cortical power spectra')
+ax1 = subplot(3,4,1);
+% C57BL6J
+for aa = 1:size(data.C57BL6J.Rest.gammaBandPower.adjLH.normS,2)
+    loglog(data.C57BL6J.Rest.gammaBandPower.adjLH.meanCortf,data.C57BL6J.Rest.gammaBandPower.adjLH.normS(:,aa),'color',colors('sapphire'),'LineWidth',0.5);
+    hold on
+end
+% Blank-SAP
+for aa = 1:size(data.Blank_SAP.Rest.gammaBandPower.adjLH.normS,2)
+    loglog(data.Blank_SAP.Rest.gammaBandPower.adjLH.meanCortf,data.Blank_SAP.Rest.gammaBandPower.adjLH.normS(:,aa),'color',colors('north texas green'),'LineWidth',0.5);
+    hold on
+end
+% SSP-SAP
+for aa = 1:size(data.SSP_SAP.Rest.gammaBandPower.adjLH.normS,2)
+    loglog(data.SSP_SAP.Rest.gammaBandPower.adjLH.meanCortf,data.SSP_SAP.Rest.gammaBandPower.adjLH.normS(:,aa),'color',colors('electric purple'),'LineWidth',0.5);
+    hold on
+end
+title('[Rest] LH (UnRx)')
+ylabel('Power (a.u.)')
+xlabel('Freq (Hz)')
+xlim([1/10,0.5])
+set(gca,'box','off')
+%% RH power spectra of gamma-band power during Rest
+ax2 = subplot(3,4,2);
+% C57BL6J
+for aa = 1:size(data.C57BL6J.Rest.gammaBandPower.adjRH.normS,2)
+    loglog(data.C57BL6J.Rest.gammaBandPower.adjRH.meanCortf,data.C57BL6J.Rest.gammaBandPower.adjRH.normS(:,aa),'color',colors('sapphire'),'LineWidth',0.5);
+    hold on
+end
+% Blank-SAP
+for aa = 1:size(data.Blank_SAP.Rest.gammaBandPower.adjRH.normS,2)
+    loglog(data.Blank_SAP.Rest.gammaBandPower.adjRH.meanCortf,data.Blank_SAP.Rest.gammaBandPower.adjRH.normS(:,aa),'color',colors('north texas green'),'LineWidth',0.5);
+    hold on
+end
+% SSP-SAP
+for aa = 1:size(data.SSP_SAP.Rest.gammaBandPower.adjRH.normS,2)
+    loglog(data.SSP_SAP.Rest.gammaBandPower.adjRH.meanCortf,data.SSP_SAP.Rest.gammaBandPower.adjRH.normS(:,aa),'color',colors('electric purple'),'LineWidth',0.5);
+    hold on
+end
+title('[Rest] RH (Rx)')
+ylabel('Power (a.u.)')
+xlabel('Freq (Hz)')
+xlim([1/10,0.5])
+set(gca,'box','off')
+%% LH power spectra of gamma-band power during NREM
+ax3 = subplot(3,4,3);
+% C57BL6J
+for aa = 1:size(data.C57BL6J.NREM.gammaBandPower.adjLH.normS,2)
+    loglog(data.C57BL6J.NREM.gammaBandPower.adjLH.meanCortf,data.C57BL6J.NREM.gammaBandPower.adjLH.normS(:,aa),'color',colors('sapphire'),'LineWidth',0.5);
+    hold on
+end
+% Blank-SAP
+for aa = 1:size(data.Blank_SAP.NREM.gammaBandPower.adjLH.normS,2)
+    loglog(data.Blank_SAP.NREM.gammaBandPower.adjLH.meanCortf,data.Blank_SAP.NREM.gammaBandPower.adjLH.normS(:,aa),'color',colors('north texas green'),'LineWidth',0.5);
+    hold on
+end
+% SSP-SAP
+for aa = 1:size(data.SSP_SAP.NREM.gammaBandPower.adjLH.normS,2)
+    loglog(data.SSP_SAP.NREM.gammaBandPower.adjLH.meanCortf,data.SSP_SAP.NREM.gammaBandPower.adjLH.normS(:,aa),'color',colors('electric purple'),'LineWidth',0.5);
+    hold on
+end
+title('[NREM] LH (UnRx)')
+ylabel('Power (a.u.)')
+xlabel('Freq (Hz)')
+xlim([1/30,0.5])
+set(gca,'box','off')
+%% RH power spectra of gamma-band power during NREM
+ax4 = subplot(3,4,4);
+% C57BL6J
+for aa = 1:size(data.C57BL6J.NREM.gammaBandPower.adjRH.normS,2)
+    loglog(data.C57BL6J.NREM.gammaBandPower.adjRH.meanCortf,data.C57BL6J.NREM.gammaBandPower.adjRH.normS(:,aa),'color',colors('sapphire'),'LineWidth',0.5);
+    hold on
+end
+% Blank-SAP
+for aa = 1:size(data.Blank_SAP.NREM.gammaBandPower.adjRH.normS,2)
+    loglog(data.Blank_SAP.NREM.gammaBandPower.adjRH.meanCortf,data.Blank_SAP.NREM.gammaBandPower.adjRH.normS(:,aa),'color',colors('north texas green'),'LineWidth',0.5);
+    hold on
+end
+% SSP-SAP
+for aa = 1:size(data.SSP_SAP.NREM.gammaBandPower.adjRH.normS,2)
+    loglog(data.SSP_SAP.NREM.gammaBandPower.adjRH.meanCortf,data.SSP_SAP.NREM.gammaBandPower.adjRH.normS(:,aa),'color',colors('electric purple'),'LineWidth',0.5);
+    hold on
+end
+title('[NREM] RH (Rx)')
+ylabel('Power (a.u.)')
+xlabel('Freq (Hz)')
+xlim([1/30,0.5])
+set(gca,'box','off')
+%% LH power spectra of gamma-band power during REM
+ax5 = subplot(3,4,5);
+% C57BL6J
+for aa = 1:size(data.C57BL6J.REM.gammaBandPower.adjLH.normS,2)
+    loglog(data.C57BL6J.REM.gammaBandPower.adjLH.meanCortf,data.C57BL6J.REM.gammaBandPower.adjLH.normS(:,aa),'color',colors('sapphire'),'LineWidth',0.5);
+    hold on
+end
+% Blank-SAP
+for aa = 1:size(data.Blank_SAP.REM.gammaBandPower.adjLH.normS,2)
+    loglog(data.Blank_SAP.REM.gammaBandPower.adjLH.meanCortf,data.Blank_SAP.REM.gammaBandPower.adjLH.normS(:,aa),'color',colors('north texas green'),'LineWidth',0.5);
+    hold on
+end
+% SSP-SAP
+for aa = 1:size(data.SSP_SAP.REM.gammaBandPower.adjLH.normS,2)
+    loglog(data.SSP_SAP.REM.gammaBandPower.adjLH.meanCortf,data.SSP_SAP.REM.gammaBandPower.adjLH.normS(:,aa),'color',colors('electric purple'),'LineWidth',0.5);
+    hold on
+end
+title('[REM] LH (UnRx)')
+ylabel('Power (a.u.)')
+xlabel('Freq (Hz)')
+xlim([1/60,0.5])
+set(gca,'box','off')
+%% RH power spectra of gamma-band power during REM
+ax6 = subplot(3,4,6);
+% C57BL6J
+for aa = 1:size(data.C57BL6J.REM.gammaBandPower.adjRH.normS,2)
+    loglog(data.C57BL6J.REM.gammaBandPower.adjRH.meanCortf,data.C57BL6J.REM.gammaBandPower.adjRH.normS(:,aa),'color',colors('sapphire'),'LineWidth',0.5);
+    hold on
+end
+% Blank-SAP
+for aa = 1:size(data.Blank_SAP.REM.gammaBandPower.adjRH.normS,2)
+    loglog(data.Blank_SAP.REM.gammaBandPower.adjRH.meanCortf,data.Blank_SAP.REM.gammaBandPower.adjRH.normS(:,aa),'color',colors('north texas green'),'LineWidth',0.5);
+    hold on
+end
+% SSP-SAP
+for aa = 1:size(data.SSP_SAP.REM.gammaBandPower.adjRH.normS,2)
+    loglog(data.SSP_SAP.REM.gammaBandPower.adjRH.meanCortf,data.SSP_SAP.REM.gammaBandPower.adjRH.normS(:,aa),'color',colors('electric purple'),'LineWidth',0.5);
+    hold on
+end
+title('[REM] RH (Rx)')
+ylabel('Power (a.u.)')
+xlabel('Freq (Hz)')
+xlim([1/60,0.5])
+set(gca,'box','off')
+%% LH power spectra of gamma-band power during Awake
+ax7 = subplot(3,4,7);
+% C57BL6J
+for aa = 1:size(data.C57BL6J.Awake.gammaBandPower.adjLH.normS,2)
+    loglog(data.C57BL6J.Awake.gammaBandPower.adjLH.meanCortf,data.C57BL6J.Awake.gammaBandPower.adjLH.normS(:,aa),'color',colors('sapphire'),'LineWidth',0.5);
+    hold on
+end
+% Blank-SAP
+for aa = 1:size(data.Blank_SAP.Awake.gammaBandPower.adjLH.normS,2)
+    loglog(data.Blank_SAP.Awake.gammaBandPower.adjLH.meanCortf,data.Blank_SAP.Awake.gammaBandPower.adjLH.normS(:,aa),'color',colors('north texas green'),'LineWidth',0.5);
+    hold on
+end
+% SSP-SAP
+for aa = 1:size(data.SSP_SAP.Awake.gammaBandPower.adjLH.normS,2)
+    loglog(data.SSP_SAP.Awake.gammaBandPower.adjLH.meanCortf,data.SSP_SAP.Awake.gammaBandPower.adjLH.normS(:,aa),'color',colors('electric purple'),'LineWidth',0.5);
+    hold on
+end
+title('[Alert] LH (UnRx)')
+ylabel('Power (a.u.)')
+xlabel('Freq (Hz)')
+xlim([0.003,0.5])
+set(gca,'box','off')
+%% RH power spectra of gamma-band power during Awake
+ax8 = subplot(3,4,8);
+% C57BL6J
+for aa = 1:size(data.C57BL6J.Awake.gammaBandPower.adjRH.normS,2)
+    loglog(data.C57BL6J.Awake.gammaBandPower.adjRH.meanCortf,data.C57BL6J.Awake.gammaBandPower.adjRH.normS(:,aa),'color',colors('sapphire'),'LineWidth',0.5);
+    hold on
+end
+% Blank-SAP
+for aa = 1:size(data.Blank_SAP.Awake.gammaBandPower.adjRH.normS,2)
+    loglog(data.Blank_SAP.Awake.gammaBandPower.adjRH.meanCortf,data.Blank_SAP.Awake.gammaBandPower.adjRH.normS(:,aa),'color',colors('north texas green'),'LineWidth',0.5);
+    hold on
+end
+% SSP-SAP
+for aa = 1:size(data.SSP_SAP.Awake.gammaBandPower.adjRH.normS,2)
+    loglog(data.SSP_SAP.Awake.gammaBandPower.adjRH.meanCortf,data.SSP_SAP.Awake.gammaBandPower.adjRH.normS(:,aa),'color',colors('electric purple'),'LineWidth',0.5);
+    hold on
+end
+title('[Alert] RH (Rx)')
+ylabel('Power (a.u.)')
+xlabel('Freq (Hz)')
+xlim([0.003,0.5])
+set(gca,'box','off')
+%% LH power spectra of gamma-band power during Sleep
+ax9 = subplot(3,4,9);
+% C57BL6J
+for aa = 1:size(data.C57BL6J.Sleep.gammaBandPower.adjLH.normS,2)
+    loglog(data.C57BL6J.Sleep.gammaBandPower.adjLH.meanCortf,data.C57BL6J.Sleep.gammaBandPower.adjLH.normS(:,aa),'color',colors('sapphire'),'LineWidth',0.5);
+    hold on
+end
+% Blank-SAP
+for aa = 1:size(data.Blank_SAP.Sleep.gammaBandPower.adjLH.normS,2)
+    loglog(data.Blank_SAP.Sleep.gammaBandPower.adjLH.meanCortf,data.Blank_SAP.Sleep.gammaBandPower.adjLH.normS(:,aa),'color',colors('north texas green'),'LineWidth',0.5);
+    hold on
+end
+% SSP-SAP
+for aa = 1:size(data.SSP_SAP.Sleep.gammaBandPower.adjLH.normS,2)
+    loglog(data.SSP_SAP.Sleep.gammaBandPower.adjLH.meanCortf,data.SSP_SAP.Sleep.gammaBandPower.adjLH.normS(:,aa),'color',colors('electric purple'),'LineWidth',0.5);
+    hold on
+end
+title('[Asleep] LH (UnRx)')
+ylabel('Power (a.u.)')
+xlabel('Freq (Hz)')
+xlim([0.003,0.5])
+set(gca,'box','off')
+%% RH power spectra of gamma-band power during Sleep
+ax10 = subplot(3,4,10);
+% C57BL6J
+for aa = 1:size(data.C57BL6J.Sleep.gammaBandPower.adjRH.normS,2)
+    loglog(data.C57BL6J.Sleep.gammaBandPower.adjRH.meanCortf,data.C57BL6J.Sleep.gammaBandPower.adjRH.normS(:,aa),'color',colors('sapphire'),'LineWidth',0.5);
+    hold on
+end
+% Blank-SAP
+for aa = 1:size(data.Blank_SAP.Sleep.gammaBandPower.adjRH.normS,2)
+    loglog(data.Blank_SAP.Sleep.gammaBandPower.adjRH.meanCortf,data.Blank_SAP.Sleep.gammaBandPower.adjRH.normS(:,aa),'color',colors('north texas green'),'LineWidth',0.5);
+    hold on
+end
+% SSP-SAP
+for aa = 1:size(data.SSP_SAP.Sleep.gammaBandPower.adjRH.normS,2)
+    loglog(data.SSP_SAP.Sleep.gammaBandPower.adjRH.meanCortf,data.SSP_SAP.Sleep.gammaBandPower.adjRH.normS(:,aa),'color',colors('electric purple'),'LineWidth',0.5);
+    hold on
+end
+title('[Asleep] RH (Rx)')
+ylabel('Power (a.u.)')
+xlabel('Freq (Hz)')
+xlim([0.003,0.5])
+set(gca,'box','off')
+%% LH power spectra of gamma-band power during All data
+ax11 = subplot(3,4,11);
+% C57BL6J
+for aa = 1:size(data.C57BL6J.All.gammaBandPower.adjLH.normS,2)
+    loglog(data.C57BL6J.All.gammaBandPower.adjLH.meanCortf,data.C57BL6J.All.gammaBandPower.adjLH.normS(:,aa),'color',colors('sapphire'),'LineWidth',0.5);
+    hold on
+end
+% Blank-SAP
+for aa = 1:size(data.Blank_SAP.All.gammaBandPower.adjLH.normS,2)
+    loglog(data.Blank_SAP.All.gammaBandPower.adjLH.meanCortf,data.Blank_SAP.All.gammaBandPower.adjLH.normS(:,aa),'color',colors('north texas green'),'LineWidth',0.5);
+    hold on
+end
+% SSP-SAP
+for aa = 1:size(data.SSP_SAP.All.gammaBandPower.adjLH.normS,2)
+    loglog(data.SSP_SAP.All.gammaBandPower.adjLH.meanCortf,data.SSP_SAP.All.gammaBandPower.adjLH.normS(:,aa),'color',colors('electric purple'),'LineWidth',0.5);
+    hold on
+end
+title('[All] LH (UnRx)')
+ylabel('Power (a.u.)')
+xlabel('Freq (Hz)')
+xlim([0.003,0.5])
+set(gca,'box','off')
+%% RH power spectra of gamma-band power during All data
+ax12 = subplot(3,4,12);
+% C57BL6J
+for aa = 1:size(data.C57BL6J.All.gammaBandPower.adjRH.normS,2)
+    loglog(data.C57BL6J.All.gammaBandPower.adjRH.meanCortf,data.C57BL6J.All.gammaBandPower.adjRH.normS(:,aa),'color',colors('sapphire'),'LineWidth',0.5);
+    hold on
+end
+% Blank-SAP
+for aa = 1:size(data.Blank_SAP.All.gammaBandPower.adjRH.normS,2)
+    loglog(data.Blank_SAP.All.gammaBandPower.adjRH.meanCortf,data.Blank_SAP.All.gammaBandPower.adjRH.normS(:,aa),'color',colors('north texas green'),'LineWidth',0.5);
+    hold on
+end
+% SSP-SAP
+for aa = 1:size(data.SSP_SAP.All.gammaBandPower.adjRH.normS,2)
+    loglog(data.SSP_SAP.All.gammaBandPower.adjRH.meanCortf,data.SSP_SAP.All.gammaBandPower.adjRH.normS(:,aa),'color',colors('electric purple'),'LineWidth',0.5);
+    hold on
+end
+title('[All] RH (Rx)')
+ylabel('Power (a.u.)')
+xlabel('Freq (Hz)')
+xlim([0.003,0.5])
+set(gca,'box','off')
+%% figure characteristics
+linkaxes([ax1,ax2],'y')
+linkaxes([ax3,ax4],'y')
+linkaxes([ax5,ax6],'y')
+linkaxes([ax7,ax8],'y')
+linkaxes([ax9,ax10],'y')
+linkaxes([ax11,ax12],'y')
+%% save figure(s)
+if strcmp(saveFigs,'y') == true
+    dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'MATLAB Analysis Figures' delim];
+    if ~exist(dirpath,'dir')
+        mkdir(dirpath);
+    end
+    savefig(summaryFigure4,[dirpath 'indPowerSpec_gamma']);
+    set(summaryFigure4,'PaperPositionMode','auto');
+    print('-painters','-dpdf','-fillpage',[dirpath 'indPowerSpec_gamma'])
+end
 
 end

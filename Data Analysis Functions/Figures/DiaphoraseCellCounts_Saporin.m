@@ -7,6 +7,7 @@ function [AnalysisResults] = DiaphoraseCellCounts_Saporin(rootFolder,saveFigs,de
 % Purpose:
 %________________________________________________________________________________________________________________________
 
+%% setup and pull data from excel sheet
 msExcelFile = 'Diaphorase_Cell_Counts.xlsx';
 [~,~,alldata] = xlsread(msExcelFile);
 treatments = {'C57BL6J','SSP_SAP','Blank_SAP'};
@@ -37,6 +38,7 @@ SSP_LH_inds = ones(1,length(data.SSP_SAP.LH))*3;
 SSP_RH_inds = ones(1,length(data.SSP_SAP.RH))*4;
 Blank_LH_inds = ones(1,length(data.Blank_SAP.LH))*5;
 Blank_RH_inds = ones(1,length(data.Blank_SAP.RH))*6;
+%% cell counting figure
 summaryFigure = figure;
 % C57BL6J - plot each data point, connect L/R hemispheres
 b1 = bar(1,data.C57BL6J.LH_Mean,'FaceColor',colors('sapphire'));
@@ -69,7 +71,7 @@ for aa = 1:length(data.Blank_SAP.LH)
     scatter(x(1),y(1),150,'MarkerEdgeColor','k','MarkerFaceColor',colors('north texas green'),'jitter','off', 'jitterAmount',0.25)
     scatter(x(2),y(2),150,'MarkerEdgeColor','k','MarkerFaceColor',colors('north texas green'),'jitter','off', 'jitterAmount',0.25)
 end
-% figure characteristics
+%% figure characteristics
 title({'Mean NADPH diaphorase-stained cells per 70 \muM section'})
 ylabel('Cell Density (0.78 mm^2 of cortical tissue)')
 legend([b1,b2,b3],'C57BL/6J','SSP-SAP','Blank-SAP')
@@ -79,7 +81,7 @@ xtickangle(45)
 axis square
 xlim([0,7])
 set(gca,'box','off')
-% save figure(s)
+%% save figure(s)
 if strcmp(saveFigs,'y') == true
     dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'MATLAB Analysis Figures' delim];
     if ~exist(dirpath,'dir')

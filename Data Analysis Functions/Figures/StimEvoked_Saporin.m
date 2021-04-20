@@ -4,15 +4,14 @@ function [AnalysisResults] = StimEvoked_Saporin(rootFolder,saveFigs,delim,Analys
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %
-% Purpose: Generate figure panel 1-S2 for Turner_Gheres_Proctor_Drew
+% Purpose: 
 %________________________________________________________________________________________________________________________
 
-%% set-up and process data
 %% set-up
-animalIDs = {'T141','T155','T156','T157','T142','T144','T159','T172','T150','T165','T166'};
-C57BL6J_IDs = {'T141','T155','T156','T157'};
+animalIDs = {'T141','T155','T156','T157','T142','T144','T159','T172','T150','T165','T166','T177','T179','T186','T187','T188','T189'};
+C57BL6J_IDs = {'T141','T155','T156','T157','T186','T187','T188','T189'};
 SSP_SAP_IDs = {'T142','T144','T159','T172'};
-Blank_SAP_IDs = {'T150','T165','T166'};
+Blank_SAP_IDs = {'T150','T165','T166','T177','T179'};
 solenoidNames = {'LPadSol','RPadSol','AudSol'};
 compDataTypes = {'Ipsi','Contra','Auditory'};
 hemispheres = {'adjLH','adjRH'};
@@ -138,8 +137,9 @@ for ee = 1:length(treatments)
         end
     end
 end
-%% Figures
-summaryFigure = figure;
+%% average stim-evoked figures
+summaryFigure1 = figure;
+%% LH contra stim
 ax1 = subplot(3,2,1);
 % C57BL6Js
 p1 = plot(data.C57BL6J.Contra.adjLH.meanTimeVector,data.C57BL6J.Contra.adjLH.meanHbT,'color',colors('sapphire'),'LineWidth',2);
@@ -160,7 +160,7 @@ xlabel('Peri-stimulus time (s)')
 legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
 set(gca,'box','off')
 xlim([-2,10])
-
+%% RH contra stim
 ax2 = subplot(3,2,2);
 % C57BL6Js
 plot(data.C57BL6J.Contra.adjRH.meanTimeVector,data.C57BL6J.Contra.adjRH.meanHbT,'color',colors('sapphire'),'LineWidth',2);
@@ -181,7 +181,7 @@ xlabel('Peri-stimulus time (s)')
 legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
 set(gca,'box','off')
 xlim([-2,10])
-
+%% LH ipsi stim
 ax3 = subplot(3,2,3);
 % C57BL6Js
 plot(data.C57BL6J.Ipsi.adjLH.meanTimeVector,data.C57BL6J.Ipsi.adjLH.meanHbT,'color',colors('sapphire'),'LineWidth',2);
@@ -202,7 +202,7 @@ xlabel('Peri-stimulus time (s)')
 legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
 set(gca,'box','off')
 xlim([-2,10])
-
+%% RH ipsi stim
 ax4 = subplot(3,2,4);
 % C57BL6Js
 plot(data.C57BL6J.Ipsi.adjRH.meanTimeVector,data.C57BL6J.Ipsi.adjRH.meanHbT,'color',colors('sapphire'),'LineWidth',2);
@@ -223,7 +223,7 @@ xlabel('Peri-stimulus time (s)')
 legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
 set(gca,'box','off')
 xlim([-2,10])
-
+%% LH auditory stim
 ax5 = subplot(3,2,5);
 % C57BL6Js
 plot(data.C57BL6J.Auditory.adjLH.meanTimeVector,data.C57BL6J.Auditory.adjLH.meanHbT,'color',colors('sapphire'),'LineWidth',2);
@@ -244,7 +244,7 @@ xlabel('Peri-stimulus time (s)')
 legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
 set(gca,'box','off')
 xlim([-2,10])
-
+%% RH auditory stim
 ax6 = subplot(3,2,6);
 % C57BL6Js
 plot(data.C57BL6J.Auditory.adjRH.meanTimeVector,data.C57BL6J.Auditory.adjRH.meanHbT,'color',colors('sapphire'),'LineWidth',2);
@@ -265,318 +265,174 @@ xlabel('Peri-stimulus time (s)')
 legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
 set(gca,'box','off')
 xlim([-2,10])
-
+%% figure characteristics
 linkaxes([ax1,ax2],'xy')
 linkaxes([ax3,ax4],'xy')
 linkaxes([ax5,ax6],'xy')
+%% save figure(s)
+if strcmp(saveFigs,'y') == true
+    dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'MATLAB Analysis Figures' delim];
+    if ~exist(dirpath,'dir')
+        mkdir(dirpath);
+    end
+    savefig(summaryFigure1,[dirpath 'Stim_Evoked_HbT']);
+    set(summaryFigure1,'PaperPositionMode','auto');
+    print('-painters','-dpdf','-fillpage',[dirpath 'Stim_Evoked_HbT'])
+end
+%% individual stim-evoked figures
+summaryFigure2 = figure;
+%% LH contra stim
+ax1 = subplot(3,2,1);
+% C57BL6Js
+for aa = 1:size(data.C57BL6J.Contra.adjLH.HbT,1)
+    plot(data.C57BL6J.Contra.adjLH.meanTimeVector,data.C57BL6J.Contra.adjLH.HbT(aa,:),'color',colors('sapphire'),'LineWidth',0.5);
+    hold on
+end
+% Blank-SAP
+for aa = 1:size(data.Blank_SAP.Contra.adjLH.HbT,1)
+    plot(data.Blank_SAP.Contra.adjLH.meanTimeVector,data.Blank_SAP.Contra.adjLH.HbT(aa,:),'color',colors('north texas green'),'LineWidth',0.5);
+    hold on
+end
+% SSP-SAP
+for aa = 1:size(data.SSP_SAP.Contra.adjLH.HbT,1)
+    plot(data.SSP_SAP.Contra.adjLH.meanTimeVector,data.SSP_SAP.Contra.adjLH.HbT(aa,:),'color',colors('electric purple'),'LineWidth',0.5);
+    hold on
+end
+title('LH (UnRx) \DeltaHbT - Contra Stim')
+ylabel('\DeltaHbT (\muM)')
+xlabel('Peri-stimulus time (s)')
+legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
+set(gca,'box','off')
+xlim([-2,10])
+%% RH contra stim
+ax2 = subplot(3,2,2);
+% C57BL6Js
+for aa = 1:size(data.C57BL6J.Contra.adjRH.HbT,1)
+    plot(data.C57BL6J.Contra.adjRH.meanTimeVector,data.C57BL6J.Contra.adjRH.HbT(aa,:),'color',colors('sapphire'),'LineWidth',0.5);
+    hold on
+end
+% Blank-SAP
+for aa = 1:size(data.Blank_SAP.Contra.adjRH.HbT,1)
+    plot(data.Blank_SAP.Contra.adjRH.meanTimeVector,data.Blank_SAP.Contra.adjRH.HbT(aa,:),'color',colors('north texas green'),'LineWidth',0.5);
+    hold on
+end
+% SSP-SAP
+for aa = 1:size(data.SSP_SAP.Contra.adjRH.HbT,1)
+    plot(data.SSP_SAP.Contra.adjRH.meanTimeVector,data.SSP_SAP.Contra.adjRH.HbT(aa,:),'color',colors('electric purple'),'LineWidth',0.5);
+    hold on
+end
+title('RH (Rx) \DeltaHbT - Contra Stim')
+ylabel('\DeltaHbT (\muM)')
+xlabel('Peri-stimulus time (s)')
+legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
+set(gca,'box','off')
+xlim([-2,10])
+%% LH ipsi stim
+ax3 = subplot(3,2,3);
+% C57BL6Js
+for aa = 1:size(data.C57BL6J.Ipsi.adjLH.HbT,1)
+    plot(data.C57BL6J.Ipsi.adjLH.meanTimeVector,data.C57BL6J.Ipsi.adjLH.HbT(aa,:),'color',colors('sapphire'),'LineWidth',0.5);
+    hold on
+end
+% Blank-SAP
+for aa = 1:size(data.Blank_SAP.Ipsi.adjLH.HbT,1)
+    plot(data.Blank_SAP.Ipsi.adjLH.meanTimeVector,data.Blank_SAP.Ipsi.adjLH.HbT(aa,:),'color',colors('north texas green'),'LineWidth',0.5);
+    hold on
+end
+% SSP-SAP
+for aa = 1:size(data.SSP_SAP.Ipsi.adjLH.HbT,1)
+    plot(data.SSP_SAP.Ipsi.adjLH.meanTimeVector,data.SSP_SAP.Ipsi.adjLH.HbT(aa,:),'color',colors('electric purple'),'LineWidth',0.5);
+    hold on
+end
+title('LH (UnRx) \DeltaHbT - Ipsi Stim')
+ylabel('\DeltaHbT (\muM)')
+xlabel('Peri-stimulus time (s)')
+legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
+set(gca,'box','off')
+xlim([-2,10])
+%% RH ipsi stim
+ax4 = subplot(3,2,4);
+% C57BL6Js
+for aa = 1:size(data.C57BL6J.Ipsi.adjRH.HbT,1)
+    plot(data.C57BL6J.Ipsi.adjRH.meanTimeVector,data.C57BL6J.Ipsi.adjRH.HbT(aa,:),'color',colors('sapphire'),'LineWidth',0.5);
+    hold on
+end
+% Blank-SAP
+for aa = 1:size(data.Blank_SAP.Ipsi.adjRH.HbT,1)
+    plot(data.Blank_SAP.Ipsi.adjRH.meanTimeVector,data.Blank_SAP.Ipsi.adjRH.HbT(aa,:),'color',colors('north texas green'),'LineWidth',0.5);
+    hold on
+end
+% SSP-SAP
+for aa = 1:size(data.SSP_SAP.Ipsi.adjRH.HbT,1)
+    plot(data.SSP_SAP.Ipsi.adjRH.meanTimeVector,data.SSP_SAP.Ipsi.adjRH.HbT(aa,:),'color',colors('electric purple'),'LineWidth',0.5);
+    hold on
+end
+title('RH (Rx) \DeltaHbT - Ipsi Stim')
+ylabel('\DeltaHbT (\muM)')
+xlabel('Peri-stimulus time (s)')
+legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
+set(gca,'box','off')
+xlim([-2,10])
+%% LH auditory stim
+ax5 = subplot(3,2,5);
+% C57BL6Js
+for aa = 1:size(data.C57BL6J.Auditory.adjLH.HbT,1)
+    plot(data.C57BL6J.Auditory.adjLH.meanTimeVector,data.C57BL6J.Auditory.adjLH.HbT(aa,:),'color',colors('sapphire'),'LineWidth',0.5);
+    hold on
+end
+% Blank-SAP
+for aa = 1:size(data.Blank_SAP.Auditory.adjLH.HbT,1)
+    plot(data.Blank_SAP.Auditory.adjLH.meanTimeVector,data.Blank_SAP.Auditory.adjLH.HbT(aa,:),'color',colors('north texas green'),'LineWidth',0.5);
+    hold on
+end
+% SSP-SAP
+for aa = 1:size(data.SSP_SAP.Auditory.adjLH.HbT,1)
+    plot(data.SSP_SAP.Auditory.adjLH.meanTimeVector,data.SSP_SAP.Auditory.adjLH.HbT(aa,:),'color',colors('electric purple'),'LineWidth',0.5);
+    hold on
+end
+title('LH (UnRx) \DeltaHbT - Auditory Stim')
+ylabel('\DeltaHbT (\muM)')
+xlabel('Peri-stimulus time (s)')
+legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
+set(gca,'box','off')
+xlim([-2,10])
+%% RH auditory stim
+ax6 = subplot(3,2,6);
+% C57BL6Js
+for aa = 1:size(data.C57BL6J.Auditory.adjRH.HbT,1)
+    plot(data.C57BL6J.Auditory.adjRH.meanTimeVector,data.C57BL6J.Auditory.adjRH.HbT(aa,:),'color',colors('sapphire'),'LineWidth',0.5);
+    hold on
+end
+% Blank-SAP
+for aa = 1:size(data.Blank_SAP.Auditory.adjRH.HbT,1)
+    plot(data.Blank_SAP.Auditory.adjRH.meanTimeVector,data.Blank_SAP.Auditory.adjRH.HbT(aa,:),'color',colors('north texas green'),'LineWidth',0.5);
+    hold on
+end
+% SSP-SAP
+for aa = 1:size(data.SSP_SAP.Auditory.adjRH.HbT,1)
+    plot(data.SSP_SAP.Auditory.adjRH.meanTimeVector,data.SSP_SAP.Auditory.adjRH.HbT(aa,:),'color',colors('electric purple'),'LineWidth',0.5);
+    hold on
+end
+title('RH (Rx) \DeltaHbT - Auditory Stim')
+ylabel('\DeltaHbT (\muM)')
+xlabel('Peri-stimulus time (s)')
+legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
+set(gca,'box','off')
+xlim([-2,10])
+%% figure characteristics
+linkaxes([ax1,ax2],'xy')
+linkaxes([ax3,ax4],'xy')
+linkaxes([ax5,ax6],'xy')
+%% save figure(s)
+if strcmp(saveFigs,'y') == true
+    dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'MATLAB Analysis Figures' delim];
+    if ~exist(dirpath,'dir')
+        mkdir(dirpath);
+    end
+    savefig(summaryFigure2,[dirpath 'indStim_Evoked_HbT']);
+    set(summaryFigure2,'PaperPositionMode','auto');
+    print('-painters','-dpdf','-fillpage',[dirpath 'indStim_Evoked_HbT'])
+end
 
 end
 
-% %% [1-S2a] cortical MUA contra stim
-% ax1 = subplot(6,3,1);
-% plot(data.Contra.mean_timeVector,data.Contra.mean_CortMUA,'color',colors('rich black'),'LineWidth',1);
-% hold on
-% plot(data.Contra.mean_timeVector,data.Contra.mean_CortMUA + data.Contra.std_CortMUA,'color',colors('battleship grey'),'LineWidth',0.5)
-% plot(data.Contra.mean_timeVector,data.Contra.mean_CortMUA - data.Contra.std_CortMUA,'color',colors('battleship grey'),'LineWidth',0.5)
-% title('[1d,1-S2a] Contra stim cortical MUA')
-% ylabel('\DeltaP/P (%)')
-% xlabel('Peri-stimulus time (s)')
-% axis square
-% set(gca,'box','off')
-% ax1.TickLength = [0.03,0.03];
-% %% [1-S2b] cortical MUA ispi stim
-% ax2 = subplot(6,3,2);
-% plot(data.Ipsi.mean_timeVector,data.Ipsi.mean_CortMUA,'color',colors('rich black'),'LineWidth',1)
-% hold on
-% plot(data.Ipsi.mean_timeVector,data.Ipsi.mean_CortMUA + data.Ipsi.std_CortMUA,'color',colors('battleship grey'),'LineWidth',0.5)
-% plot(data.Ipsi.mean_timeVector,data.Ipsi.mean_CortMUA - data.Ipsi.std_CortMUA,'color',colors('battleship grey'),'LineWidth',0.5)
-% title('[1-S2b] Ipsi stim cortical MUA')
-% ylabel('\DeltaP/P (%)')
-% xlabel('Peri-stimulus time (s)')
-% axis square
-% set(gca,'box','off')
-% ax2.TickLength = [0.03,0.03];
-% %% [1-S2c] cortical MUA auditory stim
-% ax3 = subplot(6,3,3);
-% plot(data.Auditory.mean_timeVector,data.Auditory.mean_CortMUA,'color',colors('rich black'),'LineWidth',1)
-% hold on
-% plot(data.Auditory.mean_timeVector,data.Auditory.mean_CortMUA + data.Auditory.std_CortMUA,'color',colors('battleship grey'),'LineWidth',0.5)
-% plot(data.Auditory.mean_timeVector,data.Auditory.mean_CortMUA - data.Auditory.std_CortMUA,'color',colors('battleship grey'),'LineWidth',0.5)
-% title('[1-S2c] Aud stim cortical MUA')
-% ylabel('\DeltaP/P (%)')
-% xlabel('Peri-stimulus time (s)')
-% axis square
-% set(gca,'box','off')
-% ax3.TickLength = [0.03,0.03];
-% %% [1-S2d] cortical LFP contra stim
-% ax4 = subplot(6,3,4);
-% imagesc(data.Contra.mean_T,data.Contra.mean_F,data.Contra.mean_CortS)
-% title('[1d,1-S2d] Contra stim cortical LFP')
-% ylabel('Freq (Hz)')
-% xlabel('Peri-stimulus time (s)')
-% c4 = colorbar;
-% ylabel(c4,'\DeltaP/P (%)','rotation',-90,'VerticalAlignment','bottom')
-% caxis([-50,75])
-% axis square
-% axis xy
-% set(gca,'box','off')
-% ax4.TickLength = [0.03,0.03];
-% %% [1-S2e] cortical LFP ispi stim
-% ax5 = subplot(6,3,5);
-% imagesc(data.Ipsi.mean_T,data.Ipsi.mean_F,data.Ipsi.mean_CortS)
-% title('[1-S2e] Ipsi stim cortical LFP')
-% ylabel('Freq (Hz)')
-% xlabel('Peri-stimulus time (s)')
-% c5 = colorbar;
-% ylabel(c5,'\DeltaP/P (%)','rotation',-90,'VerticalAlignment','bottom')
-% caxis([-50,75])
-% axis square
-% axis xy
-% set(gca,'box','off')
-% ax5.TickLength = [0.03,0.03];
-% %% [1-S2f] cortical LFP auditory stim
-% ax6 = subplot(6,3,6);
-% imagesc(data.Auditory.mean_T,data.Auditory.mean_F,data.Auditory.mean_CortS)
-% title('[1-S2f] Aud stim cortical LFP')
-% ylabel('Freq (Hz)')
-% xlabel('Peri-stimulus time (s)')
-% c6 = colorbar;
-% ylabel(c6,'\DeltaP/P (%)','rotation',-90,'VerticalAlignment','bottom')
-% caxis([-50,75])
-% axis square
-% axis xy
-% set(gca,'box','off')
-% ax6.TickLength = [0.03,0.03];
-% %% [1-S2g] hippocampal MUA contra stim
-% ax7 = subplot(6,3,7);
-% plot(data.Contra.mean_timeVector,data.Contra.mean_HipMUA,'color',colors('rich black'),'LineWidth',1)
-% hold on
-% plot(data.Contra.mean_timeVector,data.Contra.mean_HipMUA + data.Contra.std_HipMUA,'color',colors('battleship grey'),'LineWidth',0.5)
-% plot(data.Contra.mean_timeVector,data.Contra.mean_HipMUA - data.Contra.std_HipMUA,'color',colors('battleship grey'),'LineWidth',0.5)
-% title('[1-S2g] Contra stim hippocampal MUA')
-% ylabel('\DeltaP/P (%)')
-% xlabel('Peri-stimulus time (s)')
-% axis square
-% set(gca,'box','off')
-% ax7.TickLength = [0.03,0.03];
-% %% [1-S2h] hippocampal MUA ispi stim
-% ax8 = subplot(6,3,8);
-% plot(data.Ipsi.mean_timeVector,data.Ipsi.mean_HipMUA,'color',colors('rich black'),'LineWidth',1)
-% hold on
-% plot(data.Ipsi.mean_timeVector,data.Ipsi.mean_HipMUA + data.Ipsi.std_HipMUA,'color',colors('battleship grey'),'LineWidth',0.5)
-% plot(data.Ipsi.mean_timeVector,data.Ipsi.mean_HipMUA - data.Ipsi.std_HipMUA,'color',colors('battleship grey'),'LineWidth',0.5)
-% title('[1-S2h] Ipsi stim hippocampal MUA')
-% ylabel('\DeltaP/P (%)')
-% xlabel('Peri-stimulus time (s)')
-% axis square
-% set(gca,'box','off')
-% ax8.TickLength = [0.03,0.03];
-% %% [1-S2i] hippocampal MUA auditory stim
-% ax9 = subplot(6,3,9);
-% plot(data.Auditory.mean_timeVector,data.Auditory.mean_HipMUA,'color',colors('rich black'),'LineWidth',1)
-% hold on
-% plot(data.Auditory.mean_timeVector,data.Auditory.mean_HipMUA + data.Auditory.std_HipMUA,'color',colors('battleship grey'),'LineWidth',0.5)
-% plot(data.Auditory.mean_timeVector,data.Auditory.mean_HipMUA - data.Auditory.std_HipMUA,'color',colors('battleship grey'),'LineWidth',0.5)
-% title('[1-S2i] Aud stim hippocampal MUA')
-% ylabel('\DeltaP/P (%)')
-% xlabel('Peri-stimulus time (s)')
-% axis square
-% set(gca,'box','off')
-% ax9.TickLength = [0.03,0.03];
-% %% [1-S2j] hippocampal LFP contra stim
-% ax10 = subplot(6,3,10);
-% imagesc(data.Contra.mean_T,data.Contra.mean_F,data.Contra.mean_HipS)
-% title('[1-S2j] Contra stim hippocampal LFP')
-% ylabel('Freq (Hz)')
-% xlabel('Peri-stimulus time (s)')
-% c10 = colorbar;
-% ylabel(c10,'\DeltaP/P (%)','rotation',-90,'VerticalAlignment','bottom')
-% caxis([-50,75])
-% axis square
-% axis xy
-% set(gca,'box','off')
-% ax10.TickLength = [0.03,0.03];
-% %% [1-S2j] hippocampal LFP ispi stim
-% ax11 = subplot(6,3,11);
-% imagesc(data.Ipsi.mean_T,data.Ipsi.mean_F,data.Ipsi.mean_HipS)
-% title('[1-S2j] Ipsi stim hippocampal LFP')
-% ylabel('Freq (Hz)')
-% xlabel('Peri-stimulus time (s)')
-% c11 = colorbar;
-% ylabel(c11,'\DeltaP/P (%)','rotation',-90,'VerticalAlignment','bottom')
-% caxis([-50,75])
-% axis square
-% axis xy
-% set(gca,'box','off')
-% ax11.TickLength = [0.03,0.03];
-% %% [1-S2l] hippocampal LFP auditory stim
-% ax12 = subplot(6,3,12);
-% imagesc(data.Auditory.mean_T,data.Auditory.mean_F,data.Auditory.mean_HipS)
-% title('[1-S2l] Aud stim hippocampal LFP')
-% ylabel('Freq (Hz)')
-% xlabel('Peri-stimulus time (s)')
-% c12 = colorbar;
-% ylabel(c12,'\DeltaP/P (%)','rotation',-90,'VerticalAlignment','bottom')
-% caxis([-50,75])
-% axis square
-% axis xy
-% set(gca,'box','off')
-% ax12.TickLength = [0.03,0.03];
-% %% [1-S2m] HbT contra stim
-% ax13 = subplot(6,3,13);
-% plot(data.Contra.mean_timeVector,data.Contra.mean_HbT,'color',colors('rich black'),'LineWidth',1)
-% hold on
-% plot(data.Contra.mean_timeVector,data.Contra.mean_HbT + data.Contra.std_HbT,'color',colors('battleship grey'),'LineWidth',0.5)
-% plot(data.Contra.mean_timeVector,data.Contra.mean_HbT - data.Contra.std_HbT,'color',colors('battleship grey'),'LineWidth',0.5)
-% title('[1d,1-S2m] Contra stim \Delta[HbT] (\muM)')
-% ylabel('\Delta[HbT] (\muM)')
-% xlabel('Peri-stimulus time (s)')
-% axis square
-% set(gca,'box','off')
-% ax13.TickLength = [0.03,0.03];
-% %% [1-S2n] HbT ispi stim
-% ax14 = subplot(6,3,14);
-% plot(data.Ipsi.mean_timeVector,data.Ipsi.mean_HbT,'color',colors('rich black'),'LineWidth',1)
-% hold on
-% plot(data.Ipsi.mean_timeVector,data.Ipsi.mean_HbT + data.Ipsi.std_HbT,'color',colors('battleship grey'),'LineWidth',0.5)
-% plot(data.Ipsi.mean_timeVector,data.Ipsi.mean_HbT - data.Ipsi.std_HbT,'color',colors('battleship grey'),'LineWidth',0.5)
-% title('[1-S2n] Ipsi stim \Delta[HbT] (\muM)')
-% ylabel('\Delta[HbT] (\muM)')
-% xlabel('Peri-stimulus time (s)')
-% axis square
-% set(gca,'box','off')
-% ax14.TickLength = [0.03,0.03];
-% %% [1-S2o] HbT auditory stim
-% ax15 = subplot(6,3,15);
-% plot(data.Auditory.mean_timeVector,data.Auditory.mean_HbT,'color',colors('rich black'),'LineWidth',1)
-% hold on
-% plot(data.Auditory.mean_timeVector,data.Auditory.mean_HbT + data.Auditory.std_HbT,'color',colors('battleship grey'),'LineWidth',0.5)
-% plot(data.Auditory.mean_timeVector,data.Auditory.mean_HbT - data.Auditory.std_HbT,'color',colors('battleship grey'),'LineWidth',0.5)
-% title('[1-S2o] Aud stim \Delta[HbT] (\muM)')
-% ylabel('\Delta[HbT] (\muM)')
-% xlabel('Peri-stimulus time (s)')
-% axis square
-% set(gca,'box','off')
-% ax15.TickLength = [0.03,0.03];
-% %% [1-S2p] refl contra stim
-% ax16 = subplot(6,3,16);
-% plot(data.Contra.mean_timeVector,data.Contra.mean_CBV,'color',colors('rich black'),'LineWidth',1)
-% hold on
-% plot(data.Contra.mean_timeVector,data.Contra.mean_CBV + data.Contra.std_CBV,'color',colors('battleship grey'),'LineWidth',0.5)
-% plot(data.Contra.mean_timeVector,data.Contra.mean_CBV - data.Contra.std_CBV,'color',colors('battleship grey'),'LineWidth',0.5)
-% title('[1-S2p] Contra stim reflectance')
-% ylabel('\DeltaR/R (%)')
-% xlabel('Peri-stimulus time (s)')
-% axis square
-% set(gca,'box','off')
-% ax16.TickLength = [0.03,0.03];
-% %% [1-S2q] refl ispi stim
-% ax17 = subplot(6,3,17);
-% plot(data.Ipsi.mean_timeVector,data.Ipsi.mean_CBV,'color',colors('rich black'),'LineWidth',1)
-% hold on
-% plot(data.Ipsi.mean_timeVector,data.Ipsi.mean_CBV + data.Ipsi.std_CBV,'color',colors('battleship grey'),'LineWidth',0.5)
-% plot(data.Ipsi.mean_timeVector,data.Ipsi.mean_CBV - data.Ipsi.std_CBV,'color',colors('battleship grey'),'LineWidth',0.5)
-% title('[1-S2q] Ipsi stim reflectance')
-% ylabel('\DeltaR/R (%)')
-% xlabel('Peri-stimulus time (s)')
-% axis square
-% set(gca,'box','off')
-% ax17.TickLength = [0.03,0.03];
-% %% [1-S2r] refl auditory stim
-% ax18 = subplot(6,3,18);
-% plot(data.Auditory.mean_timeVector,data.Auditory.mean_CBV,'color',colors('rich black'),'LineWidth',1)
-% hold on
-% plot(data.Auditory.mean_timeVector,data.Auditory.mean_CBV + data.Auditory.std_CBV,'color',colors('battleship grey'),'LineWidth',0.5)
-% plot(data.Auditory.mean_timeVector,data.Auditory.mean_CBV - data.Auditory.std_CBV,'color',colors('battleship grey'),'LineWidth',0.5)
-% title('[1-S2r] Aud stim reflectance')
-% ylabel('\DeltaR/R (%)')
-% xlabel('Peri-stimulus time (s)')
-% axis square
-% set(gca,'box','off')
-% ax18.TickLength = [0.03,0.03];
-% %% adjust and link axes
-% linkaxes([ax5,ax6,ax7,ax8],'xy')
-% linkaxes([ax4,ax5,ax6,ax10,ax11,ax12],'xy')
-% linkaxes([ax13,ax14,ax15],'xy')
-% linkaxes([ax16,ax17,ax18],'xy')
-% ax1Pos = get(ax1,'position');
-% ax2Pos = get(ax2,'position');
-% ax3Pos = get(ax3,'position');
-% ax4Pos = get(ax4,'position');
-% ax5Pos = get(ax5,'position');
-% ax6Pos = get(ax6,'position');
-% ax10Pos = get(ax10,'position');
-% ax11Pos = get(ax11,'position');
-% ax12Pos = get(ax12,'position');
-% ax4Pos(3:4) = ax1Pos(3:4);
-% ax5Pos(3:4) = ax2Pos(3:4);
-% ax6Pos(3:4) = ax3Pos(3:4);
-% ax10Pos(3:4) = ax1Pos(3:4);
-% ax11Pos(3:4) = ax2Pos(3:4);
-% ax12Pos(3:4) = ax3Pos(3:4);
-% set(ax4,'position',ax4Pos);
-% set(ax5,'position',ax5Pos);
-% set(ax6,'position',ax6Pos);
-% set(ax10,'position',ax10Pos);
-% set(ax11,'position',ax11Pos);
-% set(ax12,'position',ax12Pos);
-% %% save figure(s)
-% if strcmp(saveFigs,'y') == true
-%     dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'MATLAB Analysis Figures' delim];
-%     if ~exist(dirpath,'dir')
-%         mkdir(dirpath);
-%     end
-%     savefig(summaryFigure,[dirpath 'Fig1-S2']);
-%     set(summaryFigure,'PaperPositionMode','auto');
-%     print('-painters','-dpdf','-fillpage',[dirpath 'Fig1-S2'])
-%     %% text diary
-%     diaryFile = [dirpath 'Fig1-S2_Statistics.txt'];
-%     if exist(diaryFile,'file') == 2
-%         delete(diaryFile)
-%     end
-%     diary(diaryFile)
-%     diary on
-%     % text values
-%     disp('======================================================================================================================')
-%     disp('[1-S2] Text values for gamma/HbT/reflectance changes')
-%     disp('======================================================================================================================')
-%     disp('----------------------------------------------------------------------------------------------------------------------')
-%     % cortical MUA/LFP
-%     [~,index] = max(data.Contra.mean_CortMUA);
-%     disp(['Contra stim Cort gamma MUA P/P (%): ' num2str(round(data.Contra.mean_CortMUA(index),1)) ' +/- ' num2str(round(data.Contra.std_CortMUA(index),1))]); disp(' ')
-%     [~,index] = max(data.Ipsi.mean_CortMUA);
-%     disp(['Ipsil stim Cort gamma MUA P/P (%): ' num2str(round(data.Ipsi.mean_CortMUA(index),1)) ' +/- ' num2str(round(data.Ipsi.std_CortMUA(index),1))]); disp(' ')
-%     [~,index] = max(data.Auditory.mean_CortMUA);
-%     disp(['Audit stim Cort gamma MUA P/P (%): ' num2str(round(data.Auditory.mean_CortMUA(index),1)) ' +/- ' num2str(round(data.Auditory.std_CortMUA(index),1))]); disp(' ')
-%     % cortical LFP
-%     disp(['Contra stim Cort gamma LFP P/P (%): ' num2str(round(data.Contra.mean_CortS_Gam,1)) ' +/- ' num2str(round(data.Contra.std_CortS_Gam,1))]); disp(' ')
-%     disp(['Ipsil stim Cort gamma LFP P/P (%): ' num2str(round(data.Ipsi.mean_CortS_Gam,1)) ' +/- ' num2str(round(data.Ipsi.std_CortS_Gam,1))]); disp(' ')
-%     disp(['Audit stim Cort gamma LFP P/P (%): ' num2str(round(data.Auditory.mean_CortS_Gam,1)) ' +/- ' num2str(round(data.Auditory.std_CortS_Gam,1))]); disp(' ')
-%     % hippocampal MUA
-%     [~,index] = max(data.Contra.mean_HipMUA);
-%     disp(['Contra stim Hip gamma MUA P/P (%): ' num2str(round(data.Contra.mean_HipMUA(index),1)) ' +/- ' num2str(round(data.Contra.std_HipMUA(index),1))]); disp(' ')
-%     [~,index] = max(data.Ipsi.mean_HipMUA);
-%     disp(['Ipsil stim Hip gamma MUA P/P (%): ' num2str(round(data.Ipsi.mean_HipMUA(index),1)) ' +/- ' num2str(round(data.Ipsi.std_HipMUA(index),1))]); disp(' ')
-%     [~,index] = max(data.Auditory.mean_HipMUA);
-%     disp(['Audit stim Hip gamma MUA P/P (%): ' num2str(round(data.Auditory.mean_HipMUA(index),1)) ' +/- ' num2str(round(data.Auditory.std_HipMUA(index),1))]); disp(' ')
-%     % hippocampal LFP
-%     disp(['Contra stim Hip gamma LFP P/P (%): ' num2str(round(data.Contra.mean_HipS_Gam,1)) ' +/- ' num2str(round(data.Contra.std_HipS_Gam,1))]); disp(' ')
-%     disp(['Ipsil stim Hip gamma LFP P/P (%): ' num2str(round(data.Ipsi.mean_HipS_Gam,1)) ' +/- ' num2str(round(data.Ipsi.std_HipS_Gam,1))]); disp(' ')
-%     disp(['Auditory stim Hip gamma LFP P/P (%): ' num2str(round(data.Auditory.mean_HipS_Gam,1)) ' +/- ' num2str(round(data.Auditory.std_HipS_Gam,1))]); disp(' ')
-%     % HbT
-%     [~,index] = max(data.Contra.mean_HbT);
-%     disp(['Contra stim [HbT] (uM): ' num2str(round(data.Contra.mean_HbT(index),1)) ' +/- ' num2str(round(data.Contra.std_HbT(index),1))]); disp(' ')
-%     [~,index] = max(data.Ipsi.mean_HbT);
-%     disp(['Ipsil stim [HbT] (uM): ' num2str(round(data.Ipsi.mean_HbT(index),1)) ' +/- ' num2str(round(data.Ipsi.std_HbT(index),1))]); disp(' ')
-%     [~,index] = max(data.Auditory.mean_HbT);
-%     disp(['Audit stim [HbT] (uM): ' num2str(round(data.Auditory.mean_HbT(index),1)) ' +/- ' num2str(round(data.Auditory.std_HbT(index),1))]); disp(' ')
-%     % R/R
-%     [~,index] = min(data.Contra.mean_CBV);
-%     disp(['Contra stim refl R/R (%): ' num2str(round(data.Contra.mean_CBV(index),1)) ' +/- ' num2str(round(data.Contra.std_CBV(index),1))]); disp(' ')
-%     [~,index] = min(data.Ipsi.mean_CBV);
-%     disp(['Ipsil stim refl R/R (%): ' num2str(round(data.Ipsi.mean_CBV(index),1)) ' +/- ' num2str(round(data.Ipsi.std_CBV(index),1))]); disp(' ')
-%     [~,index] = min(data.Auditory.mean_CBV);
-%     disp(['Audit stim refl R/R (%): ' num2str(round(data.Auditory.mean_CBV(index),1)) ' +/- ' num2str(round(data.Auditory.std_CBV(index),1))]); disp(' ')
-%     disp('----------------------------------------------------------------------------------------------------------------------')
-%     diary off
-% end

@@ -9,9 +9,9 @@ function [] = SetIsofluraneHbT_IOS()
 %________________________________________________________________________________________________________________________
 
 close all
-ledType = 'M530L3';
-bandfilterType = 'FB530-10';
-cutfilterType = 'EO46540';
+ledType = 'M565L3';
+bandfilterType = 'FB570-10';
+cutfilterType = 'EO65160';
 conv2um = 1e6;
 [~,~,weightedcoeffHbT] = getHbcoeffs_IOS(ledType,bandfilterType,cutfilterType);
 procDataFileStruct = dir('*_ProcData.mat');
@@ -34,10 +34,10 @@ binForce = ProcData.data.binForceSensor;
 EMG = ProcData.data.EMG.emg;
 % heart rate
 heartRate = ProcData.data.heartRate;
-% solenoids
-LPadSol = ProcData.data.solenoids.LPadSol;
-RPadSol = ProcData.data.solenoids.RPadSol;
-AudSol = ProcData.data.solenoids.AudSol;
+% stimulations
+LPadSol = ProcData.data.stimulations.LPadSol;
+RPadSol = ProcData.data.stimulations.RPadSol;
+AudSol = ProcData.data.stimulations.AudSol;
 % CBV data
 LH_CBV = ProcData.data.CBV.adjLH;
 normLH_CBV = (LH_CBV - mean(LH_CBV))./mean(LH_CBV);
@@ -129,7 +129,7 @@ set(gca,'box','off')
 axis tight
 % Left cortical electrode spectrogram
 ax4 = subplot(6,1,4);
-semilog_imagesc(T,F,cortical_LHnormS,'y')
+Semilog_ImageSC(T,F,cortical_LHnormS,'y')
 axis xy
 c4 = colorbar;
 ylabel(c4,'\DeltaP/P (%)')
@@ -145,7 +145,7 @@ ylabel('Left cortical LFP')
 set(gca,'Yticklabel', [])
 % Right cortical electrode spectrogram
 ax5 = subplot(6,1,5);
-semilog_imagesc(T,F,cortical_RHnormS,'y')
+Semilog_ImageSC(T,F,cortical_RHnormS,'y')
 axis xy
 c5 = colorbar;
 ylabel(c5,'\DeltaP/P (%)')
@@ -161,7 +161,7 @@ ylabel('Right cortical LFP')
 set(gca,'Yticklabel',[])
 % Hippocampal electrode spectrogram
 ax6 = subplot(6,1,6);
-semilog_imagesc(T,F,hippocampusNormS,'y')
+Semilog_ImageSC(T,F,hippocampusNormS,'y')
 c6 = colorbar;
 ylabel(c6,'\DeltaP/P (%)')
 caxis([-100,100])
@@ -190,6 +190,9 @@ set(ax6,'position',ax6Pos);
 startTime = input('Enter awake start time (s): '); disp(' ')
 endTime = input('Enter awake end time (s): '); disp(' ')
 close(figHandle)
+if startTime == 0
+    startTime = 1;
+end
 LH_baseline = mean(LH_CBV(startTime*ProcData.notes.dsFs:endTime*ProcData.notes.dsFs));
 RH_baseline = mean(RH_CBV(startTime*ProcData.notes.dsFs:endTime*ProcData.notes.dsFs));
 % reflectance
@@ -279,7 +282,7 @@ set(gca,'box','off')
 axis tight
 % Left cortical electrode spectrogram
 ax4 = subplot(6,1,4);
-semilog_imagesc(T,F,cortical_LHnormS,'y')
+Semilog_ImageSC(T,F,cortical_LHnormS,'y')
 axis xy
 c4 = colorbar;
 ylabel(c4,'\DeltaP/P (%)')
@@ -295,7 +298,7 @@ ylabel('Left cortical LFP')
 set(gca,'Yticklabel', [])
 % Right cortical electrode spectrogram
 ax5 = subplot(6,1,5);
-semilog_imagesc(T,F,cortical_RHnormS,'y')
+Semilog_ImageSC(T,F,cortical_RHnormS,'y')
 axis xy
 c5 = colorbar;
 ylabel(c5,'\DeltaP/P (%)')
@@ -311,7 +314,7 @@ ylabel('Right cortical LFP')
 set(gca,'Yticklabel',[])
 % Hippocampal electrode spectrogram
 ax6 = subplot(6,1,6);
-semilog_imagesc(T,F,hippocampusNormS,'y')
+Semilog_ImageSC(T,F,hippocampusNormS,'y')
 c6 = colorbar;
 ylabel(c6,'\DeltaP/P (%)')
 caxis([-100,100])
@@ -414,7 +417,7 @@ set(gca,'box','off')
 axis tight
 % Left cortical electrode spectrogram
 ax4 = subplot(6,1,4);
-semilog_imagesc(T,F,cortical_LHnormS,'y')
+Semilog_ImageSC(T,F,cortical_LHnormS,'y')
 axis xy
 c4 = colorbar;
 ylabel(c4,'\DeltaP/P (%)')
@@ -430,7 +433,7 @@ ylabel('Left cortical LFP')
 set(gca,'Yticklabel', [])
 % Right cortical electrode spectrogram
 ax5 = subplot(6,1,5);
-semilog_imagesc(T,F,cortical_RHnormS,'y')
+Semilog_ImageSC(T,F,cortical_RHnormS,'y')
 axis xy
 c5 = colorbar;
 ylabel(c5,'\DeltaP/P (%)')
@@ -446,7 +449,7 @@ ylabel('Right cortical LFP')
 set(gca,'Yticklabel',[])
 % Hippocampal electrode spectrogram
 ax6 = subplot(6,1,6);
-semilog_imagesc(T,F,hippocampusNormS,'y')
+Semilog_ImageSC(T,F,hippocampusNormS,'y')
 c6 = colorbar;
 ylabel(c6,'\DeltaP/P (%)')
 caxis([-100,100])
