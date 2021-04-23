@@ -8,8 +8,8 @@ function [AnalysisResults] = WhiskEvoked_Saporin(rootFolder,saveFigs,delim,Analy
 %________________________________________________________________________________________________________________________
 
 %% set-up
-animalIDs = {'T141','T155','T156','T157','T142','T144','T159','T172','T150','T165','T166','T177','T179','T186','T187','T188','T189'};
-C57BL6J_IDs = {'T141','T155','T156','T157','T186','T187','T188','T189'};
+animalIDs = {'T141','T155','T156','T157','T142','T144','T159','T172','T150','T165','T166','T177','T179','T187','T188','T186'};
+C57BL6J_IDs = {'T141','T155','T156','T157','T187','T188','T186'};
 SSP_SAP_IDs = {'T142','T144','T159','T172'};
 Blank_SAP_IDs = {'T150','T165','T166','T177','T179'};
 whiskDataTypes = {'ShortWhisks','IntermediateWhisks','LongWhisks'};
@@ -98,6 +98,7 @@ for ff = 1:length(treatments)
 end
 %% average whisk-evoked figures
 summaryFigure1 = figure;
+sgtitle('Whisking-evoked \DeltaHbT repsonses')
 %% LH short whisks
 ax1 = subplot(3,2,1);
 % C57BL6Js
@@ -240,6 +241,7 @@ if strcmp(saveFigs,'y') == true
 end
 %% individual whisk-evoked figures
 summaryFigure2 = figure;
+sgtitle('Whisking-evoked \DeltaHbT repsonses - individual animals')
 %% LH short whisks
 ax1 = subplot(3,2,1);
 % C57BL6Js
@@ -390,6 +392,496 @@ if strcmp(saveFigs,'y') == true
     savefig(summaryFigure2,[dirpath 'indWhisk_Evoked_HbT']);
     set(summaryFigure2,'PaperPositionMode','auto');
     print('-painters','-dpdf','-fillpage',[dirpath 'indWhisk_Evoked_HbT'])
+end
+%% average whisk-evoked figures
+summaryFigure3 = figure;
+sgtitle('Whisking-evoked cortical MUA [300-3000 Hz]  repsonses')
+%% LH short whisks
+ax1 = subplot(3,2,1);
+% C57BL6Js
+p1 = plot(data.C57BL6J.ShortWhisks.adjLH.meanTimeVector,data.C57BL6J.ShortWhisks.adjLH.meanCortMUA,'color',colors('sapphire'),'LineWidth',2);
+hold on
+plot(data.C57BL6J.ShortWhisks.adjLH.meanTimeVector,data.C57BL6J.ShortWhisks.adjLH.meanCortMUA + data.C57BL6J.ShortWhisks.adjLH.stdCortMUA,'color',colors('sapphire'),'LineWidth',0.5)
+plot(data.C57BL6J.ShortWhisks.adjLH.meanTimeVector,data.C57BL6J.ShortWhisks.adjLH.meanCortMUA - data.C57BL6J.ShortWhisks.adjLH.stdCortMUA,'color',colors('sapphire'),'LineWidth',0.5)
+% Blank-SAP
+p2 = plot(data.Blank_SAP.ShortWhisks.adjLH.meanTimeVector,data.Blank_SAP.ShortWhisks.adjLH.meanCortMUA,'color',colors('north texas green'),'LineWidth',2);
+plot(data.Blank_SAP.ShortWhisks.adjLH.meanTimeVector,data.Blank_SAP.ShortWhisks.adjLH.meanCortMUA + data.Blank_SAP.ShortWhisks.adjLH.stdCortMUA,'color',colors('north texas green'),'LineWidth',0.5)
+plot(data.Blank_SAP.ShortWhisks.adjLH.meanTimeVector,data.Blank_SAP.ShortWhisks.adjLH.meanCortMUA - data.Blank_SAP.ShortWhisks.adjLH.stdCortMUA,'color',colors('north texas green'),'LineWidth',0.5)
+% SSP-SAP
+p3 = plot(data.SSP_SAP.ShortWhisks.adjLH.meanTimeVector,data.SSP_SAP.ShortWhisks.adjLH.meanCortMUA,'color',colors('electric purple'),'LineWidth',2);
+plot(data.SSP_SAP.ShortWhisks.adjLH.meanTimeVector,data.SSP_SAP.ShortWhisks.adjLH.meanCortMUA + data.SSP_SAP.ShortWhisks.adjLH.stdCortMUA,'color',colors('electric purple'),'LineWidth',0.5)
+plot(data.SSP_SAP.ShortWhisks.adjLH.meanTimeVector,data.SSP_SAP.ShortWhisks.adjLH.meanCortMUA - data.SSP_SAP.ShortWhisks.adjLH.stdCortMUA,'color',colors('electric purple'),'LineWidth',0.5)
+title('LH (UnRx) MUA [300-3000 Hz] - Short Whisks')
+ylabel('\DeltaP/P (%)')
+xlabel('Peri-whisk time (s)')
+legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
+set(gca,'box','off')
+xlim([-2,10])
+%% RH short whisks
+ax2 = subplot(3,2,2);
+% C57BL6Js
+plot(data.C57BL6J.ShortWhisks.adjRH.meanTimeVector,data.C57BL6J.ShortWhisks.adjRH.meanCortMUA,'color',colors('sapphire'),'LineWidth',2);
+hold on
+plot(data.C57BL6J.ShortWhisks.adjRH.meanTimeVector,data.C57BL6J.ShortWhisks.adjRH.meanCortMUA + data.C57BL6J.ShortWhisks.adjRH.stdCortMUA,'color',colors('sapphire'),'LineWidth',0.5)
+plot(data.C57BL6J.ShortWhisks.adjRH.meanTimeVector,data.C57BL6J.ShortWhisks.adjRH.meanCortMUA - data.C57BL6J.ShortWhisks.adjRH.stdCortMUA,'color',colors('sapphire'),'LineWidth',0.5)
+% Blank-SAP
+plot(data.Blank_SAP.ShortWhisks.adjRH.meanTimeVector,data.Blank_SAP.ShortWhisks.adjRH.meanCortMUA,'color',colors('north texas green'),'LineWidth',2);
+plot(data.Blank_SAP.ShortWhisks.adjRH.meanTimeVector,data.Blank_SAP.ShortWhisks.adjRH.meanCortMUA + data.Blank_SAP.ShortWhisks.adjRH.stdCortMUA,'color',colors('north texas green'),'LineWidth',0.5)
+plot(data.Blank_SAP.ShortWhisks.adjRH.meanTimeVector,data.Blank_SAP.ShortWhisks.adjRH.meanCortMUA - data.Blank_SAP.ShortWhisks.adjRH.stdCortMUA,'color',colors('north texas green'),'LineWidth',0.5)
+% SSP-SAP
+plot(data.SSP_SAP.ShortWhisks.adjRH.meanTimeVector,data.SSP_SAP.ShortWhisks.adjRH.meanCortMUA,'color',colors('electric purple'),'LineWidth',2);
+plot(data.SSP_SAP.ShortWhisks.adjRH.meanTimeVector,data.SSP_SAP.ShortWhisks.adjRH.meanCortMUA + data.SSP_SAP.ShortWhisks.adjRH.stdCortMUA,'color',colors('electric purple'),'LineWidth',0.5)
+plot(data.SSP_SAP.ShortWhisks.adjRH.meanTimeVector,data.SSP_SAP.ShortWhisks.adjRH.meanCortMUA - data.SSP_SAP.ShortWhisks.adjRH.stdCortMUA,'color',colors('electric purple'),'LineWidth',0.5)
+title('RH (Rx) MUA [300-3000 Hz] - Short Whisks')
+ylabel('\DeltaP/P (%)')
+xlabel('Peri-whisk time (s)')
+legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
+set(gca,'box','off')
+xlim([-2,10])
+%% LH intermediate whisks
+ax3 = subplot(3,2,3);
+% C57BL6Js
+plot(data.C57BL6J.IntermediateWhisks.adjLH.meanTimeVector,data.C57BL6J.IntermediateWhisks.adjLH.meanCortMUA,'color',colors('sapphire'),'LineWidth',2);
+hold on
+plot(data.C57BL6J.IntermediateWhisks.adjLH.meanTimeVector,data.C57BL6J.IntermediateWhisks.adjLH.meanCortMUA + data.C57BL6J.IntermediateWhisks.adjLH.stdCortMUA,'color',colors('sapphire'),'LineWidth',0.5)
+plot(data.C57BL6J.IntermediateWhisks.adjLH.meanTimeVector,data.C57BL6J.IntermediateWhisks.adjLH.meanCortMUA - data.C57BL6J.IntermediateWhisks.adjLH.stdCortMUA,'color',colors('sapphire'),'LineWidth',0.5)
+% Blank-SAP
+plot(data.Blank_SAP.IntermediateWhisks.adjLH.meanTimeVector,data.Blank_SAP.IntermediateWhisks.adjLH.meanCortMUA,'color',colors('north texas green'),'LineWidth',2);
+plot(data.Blank_SAP.IntermediateWhisks.adjLH.meanTimeVector,data.Blank_SAP.IntermediateWhisks.adjLH.meanCortMUA + data.Blank_SAP.IntermediateWhisks.adjLH.stdCortMUA,'color',colors('north texas green'),'LineWidth',0.5)
+plot(data.Blank_SAP.IntermediateWhisks.adjLH.meanTimeVector,data.Blank_SAP.IntermediateWhisks.adjLH.meanCortMUA - data.Blank_SAP.IntermediateWhisks.adjLH.stdCortMUA,'color',colors('north texas green'),'LineWidth',0.5)
+% SSP-SAP
+plot(data.SSP_SAP.IntermediateWhisks.adjLH.meanTimeVector,data.SSP_SAP.IntermediateWhisks.adjLH.meanCortMUA,'color',colors('electric purple'),'LineWidth',2);
+plot(data.SSP_SAP.IntermediateWhisks.adjLH.meanTimeVector,data.SSP_SAP.IntermediateWhisks.adjLH.meanCortMUA + data.SSP_SAP.IntermediateWhisks.adjLH.stdCortMUA,'color',colors('electric purple'),'LineWidth',0.5)
+plot(data.SSP_SAP.IntermediateWhisks.adjLH.meanTimeVector,data.SSP_SAP.IntermediateWhisks.adjLH.meanCortMUA - data.SSP_SAP.IntermediateWhisks.adjLH.stdCortMUA,'color',colors('electric purple'),'LineWidth',0.5)
+title('LH (UnRx) MUA [300-3000 Hz] - Intermediate Whisks')
+ylabel('\DeltaP/P (%)')
+xlabel('Peri-whisk time (s)')
+legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
+set(gca,'box','off')
+xlim([-2,10])
+%% RH intermediate whisks
+ax4 = subplot(3,2,4);
+% C57BL6Js
+plot(data.C57BL6J.IntermediateWhisks.adjRH.meanTimeVector,data.C57BL6J.IntermediateWhisks.adjRH.meanCortMUA,'color',colors('sapphire'),'LineWidth',2);
+hold on
+plot(data.C57BL6J.IntermediateWhisks.adjRH.meanTimeVector,data.C57BL6J.IntermediateWhisks.adjRH.meanCortMUA + data.C57BL6J.IntermediateWhisks.adjRH.stdCortMUA,'color',colors('sapphire'),'LineWidth',0.5)
+plot(data.C57BL6J.IntermediateWhisks.adjRH.meanTimeVector,data.C57BL6J.IntermediateWhisks.adjRH.meanCortMUA - data.C57BL6J.IntermediateWhisks.adjRH.stdCortMUA,'color',colors('sapphire'),'LineWidth',0.5)
+% Blank-SAP
+plot(data.Blank_SAP.IntermediateWhisks.adjRH.meanTimeVector,data.Blank_SAP.IntermediateWhisks.adjRH.meanCortMUA,'color',colors('north texas green'),'LineWidth',2);
+plot(data.Blank_SAP.IntermediateWhisks.adjRH.meanTimeVector,data.Blank_SAP.IntermediateWhisks.adjRH.meanCortMUA + data.Blank_SAP.IntermediateWhisks.adjRH.stdCortMUA,'color',colors('north texas green'),'LineWidth',0.5)
+plot(data.Blank_SAP.IntermediateWhisks.adjRH.meanTimeVector,data.Blank_SAP.IntermediateWhisks.adjRH.meanCortMUA - data.Blank_SAP.IntermediateWhisks.adjRH.stdCortMUA,'color',colors('north texas green'),'LineWidth',0.5)
+% SSP-SAP
+plot(data.SSP_SAP.IntermediateWhisks.adjRH.meanTimeVector,data.SSP_SAP.IntermediateWhisks.adjRH.meanCortMUA,'color',colors('electric purple'),'LineWidth',2);
+plot(data.SSP_SAP.IntermediateWhisks.adjRH.meanTimeVector,data.SSP_SAP.IntermediateWhisks.adjRH.meanCortMUA + data.SSP_SAP.IntermediateWhisks.adjRH.stdCortMUA,'color',colors('electric purple'),'LineWidth',0.5)
+plot(data.SSP_SAP.IntermediateWhisks.adjRH.meanTimeVector,data.SSP_SAP.IntermediateWhisks.adjRH.meanCortMUA - data.SSP_SAP.IntermediateWhisks.adjRH.stdCortMUA,'color',colors('electric purple'),'LineWidth',0.5)
+title('RH (Rx) MUA [300-3000 Hz] - Intermediate Whisks')
+ylabel('\DeltaP/P (%)')
+xlabel('Peri-whisk time (s)')
+legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
+set(gca,'box','off')
+xlim([-2,10])
+%% LH long whisks
+ax5 = subplot(3,2,5);
+% C57BL6Js
+plot(data.C57BL6J.LongWhisks.adjLH.meanTimeVector,data.C57BL6J.LongWhisks.adjLH.meanCortMUA,'color',colors('sapphire'),'LineWidth',2);
+hold on
+plot(data.C57BL6J.LongWhisks.adjLH.meanTimeVector,data.C57BL6J.LongWhisks.adjLH.meanCortMUA + data.C57BL6J.LongWhisks.adjLH.stdCortMUA,'color',colors('sapphire'),'LineWidth',0.5)
+plot(data.C57BL6J.LongWhisks.adjLH.meanTimeVector,data.C57BL6J.LongWhisks.adjLH.meanCortMUA - data.C57BL6J.LongWhisks.adjLH.stdCortMUA,'color',colors('sapphire'),'LineWidth',0.5)
+% Blank-SAP
+plot(data.Blank_SAP.LongWhisks.adjLH.meanTimeVector,data.Blank_SAP.LongWhisks.adjLH.meanCortMUA,'color',colors('north texas green'),'LineWidth',2);
+plot(data.Blank_SAP.LongWhisks.adjLH.meanTimeVector,data.Blank_SAP.LongWhisks.adjLH.meanCortMUA + data.Blank_SAP.LongWhisks.adjLH.stdCortMUA,'color',colors('north texas green'),'LineWidth',0.5)
+plot(data.Blank_SAP.LongWhisks.adjLH.meanTimeVector,data.Blank_SAP.LongWhisks.adjLH.meanCortMUA - data.Blank_SAP.LongWhisks.adjLH.stdCortMUA,'color',colors('north texas green'),'LineWidth',0.5)
+% SSP-SAP
+plot(data.SSP_SAP.LongWhisks.adjLH.meanTimeVector,data.SSP_SAP.LongWhisks.adjLH.meanCortMUA,'color',colors('electric purple'),'LineWidth',2);
+plot(data.SSP_SAP.LongWhisks.adjLH.meanTimeVector,data.SSP_SAP.LongWhisks.adjLH.meanCortMUA + data.SSP_SAP.LongWhisks.adjLH.stdCortMUA,'color',colors('electric purple'),'LineWidth',0.5)
+plot(data.SSP_SAP.LongWhisks.adjLH.meanTimeVector,data.SSP_SAP.LongWhisks.adjLH.meanCortMUA - data.SSP_SAP.LongWhisks.adjLH.stdCortMUA,'color',colors('electric purple'),'LineWidth',0.5)
+title('LH (UnRx) MUA [300-3000 Hz] - Long Whisks')
+ylabel('\DeltaP/P (%)')
+xlabel('Peri-whisk time (s)')
+legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
+set(gca,'box','off')
+xlim([-2,10])
+%% RH long whisks
+ax6 = subplot(3,2,6);
+% C57BL6Js
+plot(data.C57BL6J.LongWhisks.adjRH.meanTimeVector,data.C57BL6J.LongWhisks.adjRH.meanCortMUA,'color',colors('sapphire'),'LineWidth',2);
+hold on
+plot(data.C57BL6J.LongWhisks.adjRH.meanTimeVector,data.C57BL6J.LongWhisks.adjRH.meanCortMUA + data.C57BL6J.LongWhisks.adjRH.stdCortMUA,'color',colors('sapphire'),'LineWidth',0.5)
+plot(data.C57BL6J.LongWhisks.adjRH.meanTimeVector,data.C57BL6J.LongWhisks.adjRH.meanCortMUA - data.C57BL6J.LongWhisks.adjRH.stdCortMUA,'color',colors('sapphire'),'LineWidth',0.5)
+% Blank-SAP
+plot(data.Blank_SAP.LongWhisks.adjRH.meanTimeVector,data.Blank_SAP.LongWhisks.adjRH.meanCortMUA,'color',colors('north texas green'),'LineWidth',2);
+plot(data.Blank_SAP.LongWhisks.adjRH.meanTimeVector,data.Blank_SAP.LongWhisks.adjRH.meanCortMUA + data.Blank_SAP.LongWhisks.adjRH.stdCortMUA,'color',colors('north texas green'),'LineWidth',0.5)
+plot(data.Blank_SAP.LongWhisks.adjRH.meanTimeVector,data.Blank_SAP.LongWhisks.adjRH.meanCortMUA - data.Blank_SAP.LongWhisks.adjRH.stdCortMUA,'color',colors('north texas green'),'LineWidth',0.5)
+% SSP-SAP
+plot(data.SSP_SAP.LongWhisks.adjRH.meanTimeVector,data.SSP_SAP.LongWhisks.adjRH.meanCortMUA,'color',colors('electric purple'),'LineWidth',2);
+plot(data.SSP_SAP.LongWhisks.adjRH.meanTimeVector,data.SSP_SAP.LongWhisks.adjRH.meanCortMUA + data.SSP_SAP.LongWhisks.adjRH.stdCortMUA,'color',colors('electric purple'),'LineWidth',0.5)
+plot(data.SSP_SAP.LongWhisks.adjRH.meanTimeVector,data.SSP_SAP.LongWhisks.adjRH.meanCortMUA - data.SSP_SAP.LongWhisks.adjRH.stdCortMUA,'color',colors('electric purple'),'LineWidth',0.5)
+title('RH (Rx) MUA [300-3000 Hz] - Long Whisks')
+ylabel('\DeltaP/P (%)')
+xlabel('Peri-whisk time (s)')
+legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
+set(gca,'box','off')
+xlim([-2,10])
+%% figure characteristics
+linkaxes([ax1,ax2],'xy')
+linkaxes([ax3,ax4],'xy')
+linkaxes([ax5,ax6],'xy')
+%% save figure(s)
+if strcmp(saveFigs,'y') == true
+    dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'MATLAB Analysis Figures' delim];
+    if ~exist(dirpath,'dir')
+        mkdir(dirpath);
+    end
+    savefig(summaryFigure3,[dirpath 'Whisk_Evoked_MUA']);
+    set(summaryFigure3,'PaperPositionMode','auto');
+    print('-painters','-dpdf','-fillpage',[dirpath 'Whisk_Evoked_MUA'])
+end
+%% individual whisk-evoked figures
+summaryFigure4 = figure;
+sgtitle('Whisking-evoked cortical MUA [300-3000 Hz] repsonses - individual animals')
+%% LH short whisks
+ax1 = subplot(3,2,1);
+% C57BL6Js
+for aa = 1:size(data.C57BL6J.ShortWhisks.adjLH.cortMUA,1)
+    plot(data.C57BL6J.ShortWhisks.adjLH.meanTimeVector,data.C57BL6J.ShortWhisks.adjLH.cortMUA(aa,:),'color',colors('sapphire'),'LineWidth',0.5);
+    hold on
+end
+% Blank-SAP
+for aa = 1:size(data.Blank_SAP.ShortWhisks.adjLH.cortMUA,1)
+    plot(data.Blank_SAP.ShortWhisks.adjLH.meanTimeVector,data.Blank_SAP.ShortWhisks.adjLH.cortMUA(aa,:),'color',colors('north texas green'),'LineWidth',0.5);
+    hold on
+end
+% SSP-SAP
+for aa = 1:size(data.SSP_SAP.ShortWhisks.adjLH.cortMUA,1)
+    plot(data.SSP_SAP.ShortWhisks.adjLH.meanTimeVector,data.SSP_SAP.ShortWhisks.adjLH.cortMUA(aa,:),'color',colors('electric purple'),'LineWidth',0.5);
+    hold on
+end
+title('LH (UnRx) MUA [300-3000 Hz] - Short Whisks')
+ylabel('\DeltaP/P (%)')
+xlabel('Peri-whisk time (s)')
+set(gca,'box','off')
+xlim([-2,10])
+%% RH short whisks
+ax2 = subplot(3,2,2);
+% C57BL6Js
+for aa = 1:size(data.C57BL6J.ShortWhisks.adjRH.cortMUA,1)
+    plot(data.C57BL6J.ShortWhisks.adjRH.meanTimeVector,data.C57BL6J.ShortWhisks.adjRH.cortMUA(aa,:),'color',colors('sapphire'),'LineWidth',0.5);
+    hold on
+end
+% Blank-SAP
+for aa = 1:size(data.Blank_SAP.ShortWhisks.adjRH.cortMUA,1)
+    plot(data.Blank_SAP.ShortWhisks.adjRH.meanTimeVector,data.Blank_SAP.ShortWhisks.adjRH.cortMUA(aa,:),'color',colors('north texas green'),'LineWidth',0.5);
+    hold on
+end
+% SSP-SAP
+for aa = 1:size(data.SSP_SAP.ShortWhisks.adjRH.cortMUA,1)
+    plot(data.SSP_SAP.ShortWhisks.adjRH.meanTimeVector,data.SSP_SAP.ShortWhisks.adjRH.cortMUA(aa,:),'color',colors('electric purple'),'LineWidth',0.5);
+    hold on
+end
+title('RH (Rx) MUA [300-3000 Hz] - Short Whisks')
+ylabel('\DeltaP/P (%)')
+xlabel('Peri-whisk time (s)')
+legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
+set(gca,'box','off')
+xlim([-2,10])
+%% LH intermediate whisks
+ax3 = subplot(3,2,3);
+% C57BL6Js
+for aa = 1:size(data.C57BL6J.IntermediateWhisks.adjLH.cortMUA,1)
+    plot(data.C57BL6J.IntermediateWhisks.adjLH.meanTimeVector,data.C57BL6J.IntermediateWhisks.adjLH.cortMUA(aa,:),'color',colors('sapphire'),'LineWidth',0.5);
+    hold on
+end
+% Blank-SAP
+for aa = 1:size(data.Blank_SAP.IntermediateWhisks.adjLH.cortMUA,1)
+    plot(data.Blank_SAP.IntermediateWhisks.adjLH.meanTimeVector,data.Blank_SAP.IntermediateWhisks.adjLH.cortMUA(aa,:),'color',colors('north texas green'),'LineWidth',0.5);
+    hold on
+end
+% SSP-SAP
+for aa = 1:size(data.SSP_SAP.IntermediateWhisks.adjLH.cortMUA,1)
+    plot(data.SSP_SAP.IntermediateWhisks.adjLH.meanTimeVector,data.SSP_SAP.IntermediateWhisks.adjLH.cortMUA(aa,:),'color',colors('electric purple'),'LineWidth',0.5);
+    hold on
+end
+title('LH (UnRx) MUA [300-3000 Hz] - Intermediate Whisks')
+ylabel('\DeltaP/P (%)')
+xlabel('Peri-whisk time (s)')
+legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
+set(gca,'box','off')
+xlim([-2,10])
+%% RH intermediate whisks
+ax4 = subplot(3,2,4);
+% C57BL6Js
+for aa = 1:size(data.C57BL6J.IntermediateWhisks.adjRH.cortMUA,1)
+    plot(data.C57BL6J.IntermediateWhisks.adjRH.meanTimeVector,data.C57BL6J.IntermediateWhisks.adjRH.cortMUA(aa,:),'color',colors('sapphire'),'LineWidth',0.5);
+    hold on
+end
+% Blank-SAP
+for aa = 1:size(data.Blank_SAP.IntermediateWhisks.adjRH.cortMUA,1)
+    plot(data.Blank_SAP.IntermediateWhisks.adjRH.meanTimeVector,data.Blank_SAP.IntermediateWhisks.adjRH.cortMUA(aa,:),'color',colors('north texas green'),'LineWidth',0.5);
+    hold on
+end
+% SSP-SAP
+for aa = 1:size(data.SSP_SAP.IntermediateWhisks.adjRH.cortMUA,1)
+    plot(data.SSP_SAP.IntermediateWhisks.adjRH.meanTimeVector,data.SSP_SAP.IntermediateWhisks.adjRH.cortMUA(aa,:),'color',colors('electric purple'),'LineWidth',0.5);
+    hold on
+end
+title('RH (Rx) MUA [300-3000 Hz] - Intermediate Whisks')
+ylabel('\DeltaP/P (%)')
+xlabel('Peri-whisk time (s)')
+legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
+set(gca,'box','off')
+xlim([-2,10])
+%% LH long whisks
+ax5 = subplot(3,2,5);
+% C57BL6Js
+for aa = 1:size(data.C57BL6J.LongWhisks.adjLH.cortMUA,1)
+    plot(data.C57BL6J.LongWhisks.adjLH.meanTimeVector,data.C57BL6J.LongWhisks.adjLH.cortMUA(aa,:),'color',colors('sapphire'),'LineWidth',0.5);
+    hold on
+end
+% Blank-SAP
+for aa = 1:size(data.Blank_SAP.LongWhisks.adjLH.cortMUA,1)
+    plot(data.Blank_SAP.LongWhisks.adjLH.meanTimeVector,data.Blank_SAP.LongWhisks.adjLH.cortMUA(aa,:),'color',colors('north texas green'),'LineWidth',0.5);
+    hold on
+end
+% SSP-SAP
+for aa = 1:size(data.SSP_SAP.LongWhisks.adjLH.cortMUA,1)
+    plot(data.SSP_SAP.LongWhisks.adjLH.meanTimeVector,data.SSP_SAP.LongWhisks.adjLH.cortMUA(aa,:),'color',colors('electric purple'),'LineWidth',0.5);
+    hold on
+end
+title('LH (UnRx) MUA [300-3000 Hz] - Long Whisks')
+ylabel('\DeltaP/P (%)')
+xlabel('Peri-whisk time (s)')
+legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
+set(gca,'box','off')
+xlim([-2,10])
+%% RH long whisks
+ax6 = subplot(3,2,6);
+% C57BL6Js
+for aa = 1:size(data.C57BL6J.LongWhisks.adjRH.cortMUA,1)
+    plot(data.C57BL6J.LongWhisks.adjRH.meanTimeVector,data.C57BL6J.LongWhisks.adjRH.cortMUA(aa,:),'color',colors('sapphire'),'LineWidth',0.5);
+    hold on
+end
+% Blank-SAP
+for aa = 1:size(data.Blank_SAP.LongWhisks.adjRH.cortMUA,1)
+    plot(data.Blank_SAP.LongWhisks.adjRH.meanTimeVector,data.Blank_SAP.LongWhisks.adjRH.cortMUA(aa,:),'color',colors('north texas green'),'LineWidth',0.5);
+    hold on
+end
+% SSP-SAP
+for aa = 1:size(data.SSP_SAP.LongWhisks.adjRH.cortMUA,1)
+    plot(data.SSP_SAP.LongWhisks.adjRH.meanTimeVector,data.SSP_SAP.LongWhisks.adjRH.cortMUA(aa,:),'color',colors('electric purple'),'LineWidth',0.5);
+    hold on
+end
+title('RH (Rx) MUA [300-3000 Hz] - Long Whisks')
+ylabel('\DeltaP/P (%)')
+xlabel('Peri-whisk time (s)')
+legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
+set(gca,'box','off')
+xlim([-2,10])
+%% figure characteristics
+linkaxes([ax1,ax2],'xy')
+linkaxes([ax3,ax4],'xy')
+linkaxes([ax5,ax6],'xy')
+%% save figure(s)
+if strcmp(saveFigs,'y') == true
+    dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'MATLAB Analysis Figures' delim];
+    if ~exist(dirpath,'dir')
+        mkdir(dirpath);
+    end
+    savefig(summaryFigure4,[dirpath 'indWhisk_Evoked_MUA']);
+    set(summaryFigure4,'PaperPositionMode','auto');
+    print('-painters','-dpdf','-fillpage',[dirpath 'indWhisk_Evoked_MUA'])
+end
+%% average neural responses
+summaryFigure5 = figure;
+sgtitle('Whisking-evoked cortical neural (LFP) repsonses')
+%% brief whisks cortical LFP
+subplot(3,6,1);
+imagesc(data.C57BL6J.ShortWhisks.adjLH.meanCortT,data.C57BL6J.ShortWhisks.adjLH.meanCortF,data.C57BL6J.ShortWhisks.adjLH.meanCortS)
+title('C57BL6J short whisk LH')
+ylabel('Freq (Hz)')
+xlabel('Peri-whisk time (s)')
+caxis([-25,25])
+set(gca,'Ticklength',[0,0])
+axis xy
+set(gca,'box','off')
+%% brief whisks cortical LFP
+subplot(3,6,2);
+imagesc(data.C57BL6J.ShortWhisks.adjRH.meanCortT,data.C57BL6J.ShortWhisks.adjRH.meanCortF,data.C57BL6J.ShortWhisks.adjRH.meanCortS)
+title('C57BL6J short whisk RH')
+ylabel('Freq (Hz)')
+xlabel('Peri-whisk time (s)')
+caxis([-25,25])
+set(gca,'Ticklength',[0,0])
+axis xy
+set(gca,'box','off')
+%% brief whisks cortical LFP
+subplot(3,6,3);
+imagesc(data.SSP_SAP.ShortWhisks.adjLH.meanCortT,data.SSP_SAP.ShortWhisks.adjLH.meanCortF,data.SSP_SAP.ShortWhisks.adjLH.meanCortS)
+title('SSP-SAP short whisk LH')
+ylabel('Freq (Hz)')
+xlabel('Peri-whisk time (s)')
+caxis([-25,25])
+set(gca,'Ticklength',[0,0])
+axis xy
+set(gca,'box','off')
+%% brief whisks cortical LFP
+subplot(3,6,4);
+imagesc(data.SSP_SAP.ShortWhisks.adjRH.meanCortT,data.SSP_SAP.ShortWhisks.adjRH.meanCortF,data.SSP_SAP.ShortWhisks.adjRH.meanCortS)
+title('SSP-SAP short whisk RH')
+ylabel('Freq (Hz)')
+xlabel('Peri-whisk time (s)')
+caxis([-25,25])
+set(gca,'Ticklength',[0,0])
+axis xy
+set(gca,'box','off')
+%% brief whisks cortical LFP
+subplot(3,6,5);
+imagesc(data.Blank_SAP.ShortWhisks.adjLH.meanCortT,data.Blank_SAP.ShortWhisks.adjLH.meanCortF,data.Blank_SAP.ShortWhisks.adjLH.meanCortS)
+title('Blank-SAP short whisk LH')
+ylabel('Freq (Hz)')
+xlabel('Peri-whisk time (s)')
+caxis([-25,25])
+set(gca,'Ticklength',[0,0])
+axis xy
+set(gca,'box','off')
+%% brief whisks cortical LFP
+subplot(3,6,6);
+imagesc(data.Blank_SAP.ShortWhisks.adjRH.meanCortT,data.Blank_SAP.ShortWhisks.adjRH.meanCortF,data.Blank_SAP.ShortWhisks.adjRH.meanCortS)
+title('Blank-SAP short whisk RH')
+ylabel('Freq (Hz)')
+xlabel('Peri-whisk time (s)')
+caxis([-25,25])
+set(gca,'Ticklength',[0,0])
+axis xy
+set(gca,'box','off')
+%% IntermediateWhisks whisks cortical LFP
+subplot(3,6,7);
+imagesc(data.C57BL6J.IntermediateWhisks.adjLH.meanCortT,data.C57BL6J.IntermediateWhisks.adjLH.meanCortF,data.C57BL6J.IntermediateWhisks.adjLH.meanCortS)
+title('C57BL6J intermediate whisk LH')
+ylabel('Freq (Hz)')
+xlabel('Peri-whisk time (s)')
+caxis([-25,25])
+set(gca,'Ticklength',[0,0])
+axis xy
+set(gca,'box','off')
+%% IntermediateWhisks whisks cortical LFP
+subplot(3,6,8);
+imagesc(data.C57BL6J.IntermediateWhisks.adjRH.meanCortT,data.C57BL6J.IntermediateWhisks.adjRH.meanCortF,data.C57BL6J.IntermediateWhisks.adjRH.meanCortS)
+title('C57BL6J intermediate whisk RH')
+ylabel('Freq (Hz)')
+xlabel('Peri-whisk time (s)')
+caxis([-25,25])
+set(gca,'Ticklength',[0,0])
+axis xy
+set(gca,'box','off')
+%% IntermediateWhisks whisks cortical LFP
+subplot(3,6,9);
+imagesc(data.SSP_SAP.IntermediateWhisks.adjLH.meanCortT,data.SSP_SAP.IntermediateWhisks.adjLH.meanCortF,data.SSP_SAP.IntermediateWhisks.adjLH.meanCortS)
+title('SSP-SAP intermediate whisk LH')
+ylabel('Freq (Hz)')
+xlabel('Peri-whisk time (s)')
+caxis([-25,25])
+set(gca,'Ticklength',[0,0])
+axis xy
+set(gca,'box','off')
+%% IntermediateWhisks whisks cortical LFP
+subplot(3,6,10);
+imagesc(data.SSP_SAP.IntermediateWhisks.adjRH.meanCortT,data.SSP_SAP.IntermediateWhisks.adjRH.meanCortF,data.SSP_SAP.IntermediateWhisks.adjRH.meanCortS)
+title('SSP-SAP intermediate whisk RH')
+ylabel('Freq (Hz)')
+xlabel('Peri-whisk time (s)')
+caxis([-25,25])
+set(gca,'Ticklength',[0,0])
+axis xy
+set(gca,'box','off')
+%% IntermediateWhisks whisks cortical LFP
+subplot(3,6,11);
+imagesc(data.Blank_SAP.IntermediateWhisks.adjLH.meanCortT,data.Blank_SAP.IntermediateWhisks.adjLH.meanCortF,data.Blank_SAP.IntermediateWhisks.adjLH.meanCortS)
+title('Blank-SAP intermediate whisk LH')
+ylabel('Freq (Hz)')
+xlabel('Peri-whisk time (s)')
+caxis([-25,25])
+set(gca,'Ticklength',[0,0])
+axis xy
+set(gca,'box','off')
+%% IntermediateWhisks whisks cortical LFP
+subplot(3,6,12);
+imagesc(data.Blank_SAP.IntermediateWhisks.adjRH.meanCortT,data.Blank_SAP.IntermediateWhisks.adjRH.meanCortF,data.Blank_SAP.IntermediateWhisks.adjRH.meanCortS)
+title('Blank-SAP intermediate whisk RH')
+ylabel('Freq (Hz)')
+xlabel('Peri-whisk time (s)')
+caxis([-25,25])
+set(gca,'Ticklength',[0,0])
+axis xy
+set(gca,'box','off')
+%% LongWhisks whisks cortical LFP
+subplot(3,6,13);
+imagesc(data.C57BL6J.LongWhisks.adjLH.meanCortT,data.C57BL6J.LongWhisks.adjLH.meanCortF,data.C57BL6J.LongWhisks.adjLH.meanCortS)
+title('C57BL6J long whisk LH')
+ylabel('Freq (Hz)')
+xlabel('Peri-whisk time (s)')
+caxis([-25,25])
+set(gca,'Ticklength',[0,0])
+axis xy
+set(gca,'box','off')
+%% brief whisks cortical LFP
+subplot(3,6,14);
+imagesc(data.C57BL6J.LongWhisks.adjRH.meanCortT,data.C57BL6J.LongWhisks.adjRH.meanCortF,data.C57BL6J.LongWhisks.adjRH.meanCortS)
+title('C57BL6J long whisk RH')
+ylabel('Freq (Hz)')
+xlabel('Peri-whisk time (s)')
+caxis([-25,25])
+set(gca,'Ticklength',[0,0])
+axis xy
+set(gca,'box','off')
+%% brief whisks cortical LFP
+subplot(3,6,15);
+imagesc(data.SSP_SAP.LongWhisks.adjLH.meanCortT,data.SSP_SAP.LongWhisks.adjLH.meanCortF,data.SSP_SAP.LongWhisks.adjLH.meanCortS)
+title('SSP-SAP long whisk LH')
+ylabel('Freq (Hz)')
+xlabel('Peri-whisk time (s)')
+caxis([-25,25])
+set(gca,'Ticklength',[0,0])
+axis xy
+set(gca,'box','off')
+%% brief whisks cortical LFP
+subplot(3,6,16);
+imagesc(data.SSP_SAP.LongWhisks.adjRH.meanCortT,data.SSP_SAP.LongWhisks.adjRH.meanCortF,data.SSP_SAP.LongWhisks.adjRH.meanCortS)
+title('SSP-SAP long whisk RH')
+ylabel('Freq (Hz)')
+xlabel('Peri-whisk time (s)')
+caxis([-25,25])
+set(gca,'Ticklength',[0,0])
+axis xy
+set(gca,'box','off')
+%% brief whisks cortical LFP
+subplot(3,6,17);
+imagesc(data.Blank_SAP.LongWhisks.adjLH.meanCortT,data.Blank_SAP.LongWhisks.adjLH.meanCortF,data.Blank_SAP.LongWhisks.adjLH.meanCortS)
+title('Blank-SAP long whisk LH')
+ylabel('Freq (Hz)')
+xlabel('Peri-whisk time (s)')
+caxis([-25,25])
+set(gca,'Ticklength',[0,0])
+axis xy
+set(gca,'box','off')
+%% brief whisks cortical LFP
+subplot(3,6,18);
+imagesc(data.Blank_SAP.LongWhisks.adjRH.meanCortT,data.Blank_SAP.LongWhisks.adjRH.meanCortF,data.Blank_SAP.LongWhisks.adjRH.meanCortS)
+title('Blank-SAP long whisk RH')
+ylabel('Freq (Hz)')
+xlabel('Peri-whisk time (s)')
+caxis([-25,25])
+set(gca,'Ticklength',[0,0])
+axis xy
+set(gca,'box','off')
+%% save figure(s)
+if strcmp(saveFigs,'y') == true
+    dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'MATLAB Analysis Figures' delim];
+    if ~exist(dirpath,'dir')
+        mkdir(dirpath);
+    end
+    savefig(summaryFigure5,[dirpath 'Whisk_Evoked_LFP']);
+    set(summaryFigure5,'PaperPositionMode','auto');
+    print('-painters','-dpdf','-fillpage',[dirpath 'Whisk_Evoked_LFP'])
 end
 
 end

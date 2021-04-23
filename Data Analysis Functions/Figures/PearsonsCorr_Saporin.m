@@ -231,9 +231,9 @@ if strcmp(saveFigs,'y') == true
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
-    savefig(summaryFigure2,[dirpath 'Pearsons_Correlation_gamma']);
+    savefig(summaryFigure2,[dirpath 'Pearsons_Correlation_Gamma']);
     set(summaryFigure2,'PaperPositionMode','auto');
-    print('-painters','-dpdf','-fillpage',[dirpath 'Pearsons_Correlation_gamma'])
+    print('-painters','-dpdf','-fillpage',[dirpath 'Pearsons_Correlation_Gamma'])
 end
 
 end

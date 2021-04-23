@@ -72,7 +72,7 @@ for aa = 1:length(data.Blank_SAP.LH)
     scatter(x(2),y(2),150,'MarkerEdgeColor','k','MarkerFaceColor',colors('north texas green'),'jitter','off', 'jitterAmount',0.25)
 end
 %% figure characteristics
-title({'Mean NADPH diaphorase-stained cells per 70 \muM section'})
+title({'Mean NADPH diaphorase-stained cells per 70 \muM section within 1 mm diameter cortical ROI'})
 ylabel('Cell Density (0.78 mm^2 of cortical tissue)')
 legend([b1,b2,b3],'C57BL/6J','SSP-SAP','Blank-SAP')
 set(gca,'xtick',[1,2,3,4,5,6])
@@ -87,9 +87,9 @@ if strcmp(saveFigs,'y') == true
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
-    savefig(summaryFigure,[dirpath 'Diaphorase_Cell_Counts']);
+    savefig(summaryFigure,[dirpath 'NADPH_Diaphorase_Cell_Counts']);
     set(summaryFigure,'PaperPositionMode','auto');
-    print('-painters','-dpdf','-fillpage',[dirpath 'Diaphorase_Cell_Counts'])
+    print('-painters','-dpdf','-fillpage',[dirpath 'NADPH_Diaphorase_Cell_Counts'])
 end
 
 end

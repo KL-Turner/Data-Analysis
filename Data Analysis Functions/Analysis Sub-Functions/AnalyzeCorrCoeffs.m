@@ -55,9 +55,9 @@ samplingRate = RestData.CBV_HbT.adjLH.CBVCamSamplingRate;
 [z,p,k] = butter(4,1/(samplingRate/2),'low');
 [sos,g] = zp2sos(z,p,k);
 % criteria for whisking
-WhiskCriteria.Fieldname = {'duration','duration','puffDistance'};
-WhiskCriteria.Comparison = {'gt','lt','gt'};
-WhiskCriteria.Value = {2,5,5};
+WhiskCriteria.Fieldname = {'duration','puffDistance'};
+WhiskCriteria.Comparison = {'gt','gt'};
+WhiskCriteria.Value = {5,5};
 WhiskPuffCriteria.Fieldname = {'puffDistance'};
 WhiskPuffCriteria.Comparison = {'gt'};
 WhiskPuffCriteria.Value = {5};

@@ -65,6 +65,7 @@ for qq = 1:length(treatments)
 end
 %% average HbT coherence
 summaryFigure1 = figure;
+sgtitle('Bilateral Coherence \DeltaHbT')
 %% coherence^2 between bilateral HbT during rest
 subplot(2,3,1);
 p1 = semilogx(data.C57BL6J.Rest.CBV_HbT.meanf,data.C57BL6J.Rest.CBV_HbT.meanC.^2,'color',colors('sapphire'),'LineWidth',2);
@@ -150,6 +151,7 @@ if strcmp(saveFigs,'y') == true
 end
 %% individual HbT coherence
 summaryFigure2 = figure;
+sgtitle('Bilateral Coherence \DeltaHbT - individual animals')
 %% coherence^2 between bilateral HbT during rest
 subplot(2,3,1);
 % C57BL6J
@@ -300,6 +302,7 @@ if strcmp(saveFigs,'y') == true
 end
 %% average gamma-band coherence
 summaryFigure3 = figure;
+sgtitle('Bilateral Coherence Gamma-band [30-100 Hz] (envelope)')
 %% coherence^2 between bilateral gamma-band during Rest
 subplot(2,3,1);
 p1 = semilogx(data.C57BL6J.Rest.gammaBandPower.meanf,data.C57BL6J.Rest.gammaBandPower.meanC.^2,'color',colors('sapphire'),'LineWidth',2);
@@ -379,12 +382,13 @@ if strcmp(saveFigs,'y') == true
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
-    savefig(summaryFigure3,[dirpath 'Coherence_gamma']);
+    savefig(summaryFigure3,[dirpath 'Coherence_Gamma']);
     set(summaryFigure3,'PaperPositionMode','auto');
-    print('-painters','-dpdf','-fillpage',[dirpath 'Coherence_gamma'])
+    print('-painters','-dpdf','-fillpage',[dirpath 'Coherence_Gamma'])
 end
 %% individual gamma-band coherence
 summaryFigure4 = figure;
+sgtitle('Bilateral Coherence Gamma-band [30-100 Hz] - individual animals')
 %% coherence^2 between bilateral gamma-band during rest
 subplot(2,3,1);
 % C57BL6J
@@ -529,9 +533,9 @@ if strcmp(saveFigs,'y') == true
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
-    savefig(summaryFigure4,[dirpath 'indCoherence_gamma']);
+    savefig(summaryFigure4,[dirpath 'indCoherence_Gamma']);
     set(summaryFigure4,'PaperPositionMode','auto');
-    print('-painters','-dpdf','-fillpage',[dirpath 'indCoherence_gamma'])
+    print('-painters','-dpdf','-fillpage',[dirpath 'indCoherence_Gamma'])
 end
 
 end

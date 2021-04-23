@@ -74,10 +74,11 @@ freq = 30;
 restLag = 5;
 sleepLag = 5;
 summaryFigure1 = figure;
+sgtitle('Awake Rest LFP-HbT Cross-correlation')
 %% LH LFP-HbT XCorr [C57BL6J] rest
 subplot(3,2,1);
 imagesc(data.C57BL6J.Rest.adjLH.meanLFP_lags,data.C57BL6J.Rest.adjLH.meanLFP_F,data.C57BL6J.Rest.adjLH.meanHbTvLFPxcVals)
-title({'Control LH Awake Rest','LFP-[HbT] XCorr'})
+title({'C57BL6J LH Awake Rest','LFP-[HbT] XCorr'})
 xticks([-restLag*freq,-restLag*freq/2,0,restLag*freq/2,restLag*freq])
 xticklabels({'-5','-2.5','0','2.5','5'})
 xlim([-restLag*freq,restLag*freq])
@@ -93,7 +94,7 @@ set(gca,'box','off')
 %% RH LFP-HbT XCorr [C57BL6J] rest
 subplot(3,2,2);
 imagesc(data.C57BL6J.Rest.adjRH.meanLFP_lags,data.C57BL6J.Rest.adjRH.meanLFP_F,data.C57BL6J.Rest.adjRH.meanHbTvLFPxcVals)
-title({'Control RH Awake Rest','LFP-[HbT] XCorr'})
+title({'C57BL6J RH Awake Rest','LFP-[HbT] XCorr'})
 xticks([-restLag*freq,-restLag*freq/2,0,restLag*freq/2,restLag*freq])
 xticklabels({'-5','-2.5','0','2.5','5'})
 xlim([-restLag*freq,restLag*freq])
@@ -182,10 +183,11 @@ if strcmp(saveFigs,'y') == true
 end
 %% NREM XCorr
 summaryFigure2 = figure;
+sgtitle('NREM LFP-HbT Cross-correlation')
 %% LH LFP-HbT XCorr [C57BL6J] NREM
 subplot(3,2,1);
 imagesc(data.C57BL6J.NREM.adjLH.meanLFP_lags,data.C57BL6J.NREM.adjLH.meanLFP_F,data.C57BL6J.NREM.adjLH.meanHbTvLFPxcVals)
-title({'Control LH NREM','LFP-[HbT] XCorr'})
+title({'C57BL6J LH NREM','LFP-[HbT] XCorr'})
 xticks([-sleepLag*freq,-sleepLag*freq/2,0,sleepLag*freq/2,sleepLag*freq])
 xticklabels({'-5','-2.5','0','2.5','5'})
 xlim([-sleepLag*freq,sleepLag*freq])
@@ -201,7 +203,7 @@ set(gca,'box','off')
 %% RH LFP-HbT XCorr [C57BL6J] NREM
 subplot(3,2,2);
 imagesc(data.C57BL6J.NREM.adjRH.meanLFP_lags,data.C57BL6J.NREM.adjRH.meanLFP_F,data.C57BL6J.NREM.adjRH.meanHbTvLFPxcVals)
-title({'Control RH NREM','LFP-[HbT] XCorr'})
+title({'C57BL6J RH NREM','LFP-[HbT] XCorr'})
 xticks([-sleepLag*freq,-sleepLag*freq/2,0,sleepLag*freq/2,sleepLag*freq])
 xticklabels({'-5','-2.5','0','2.5','5'})
 xlim([-sleepLag*freq,sleepLag*freq])
@@ -290,10 +292,11 @@ if strcmp(saveFigs,'y') == true
 end
 %% REM XCorr
 summaryFigure3 = figure;
+sgtitle('REM LFP-HbT Cross-correlation')
 %% LH LFP-HbT XCorr [C57BL6J] rest
 subplot(3,2,1);
 imagesc(data.C57BL6J.REM.adjLH.meanLFP_lags,data.C57BL6J.REM.adjLH.meanLFP_F,data.C57BL6J.REM.adjLH.meanHbTvLFPxcVals)
-title({'Control LH REM','LFP-[HbT] XCorr'})
+title({'C57BL6J LH REM','LFP-[HbT] XCorr'})
 xticks([-restLag*freq,-restLag*freq/2,0,restLag*freq/2,restLag*freq])
 xticklabels({'-5','-2.5','0','2.5','5'})
 xlim([-restLag*freq,restLag*freq])
@@ -309,7 +312,7 @@ set(gca,'box','off')
 %% RH LFP-HbT XCorr [C57BL6J] REM
 subplot(3,2,2);
 imagesc(data.C57BL6J.REM.adjRH.meanLFP_lags,data.C57BL6J.REM.adjRH.meanLFP_F,data.C57BL6J.REM.adjRH.meanHbTvLFPxcVals)
-title({'Control RH REM','LFP-[HbT] XCorr'})
+title({'C57BL6J RH REM','LFP-[HbT] XCorr'})
 xticks([-restLag*freq,-restLag*freq/2,0,restLag*freq/2,restLag*freq])
 xticklabels({'-5','-2.5','0','2.5','5'})
 xlim([-restLag*freq,restLag*freq])

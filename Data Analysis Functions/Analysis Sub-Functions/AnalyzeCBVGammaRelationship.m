@@ -1,4 +1,4 @@
-function [AnalysisResults] = AnalyzeCBVGammaRelationship(animalID,rootFolder,AnalysisResults)
+function [AnalysisResults] = AnalyzeCBVGammaRelationship(animalID,group,rootFolder,AnalysisResults)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -9,12 +9,10 @@ function [AnalysisResults] = AnalyzeCBVGammaRelationship(animalID,rootFolder,Ana
 %________________________________________________________________________________________________________________________
 
 %% function parameters
-IOS_animalIDs = {'T99','T101','T102','T103','T105','T108','T109','T110','T111','T119','T120','T121','T122','T123'};
-%% only run analysis for valid animal IDs
-dataLocation = [rootFolder '\' animalID '\Bilateral Imaging\'];
+dataLocation = [rootFolder '\' group '\' animalID '\Bilateral Imaging\'];
 cd(dataLocation)
 % find and load manual baseline event information
-load('Forest_ScoringResults.mat')
+load([ animalID '_Forest_ScoringResults.mat'])
 % find and load EventData.mat struct
 procDataFileStruct = dir('*_ProcData.mat');
 procDataFile = {procDataFileStruct.name}';

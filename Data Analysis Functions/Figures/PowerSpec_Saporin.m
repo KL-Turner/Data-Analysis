@@ -89,8 +89,8 @@ for aa = 1:length(treatments)
 end
 %% average HbT power
 summaryFigure1 = figure;
-%% LH power spectra of HbT power during Rest
 sgtitle('\DeltaHbT (\muM) cortical power spectra')
+%% LH power spectra of HbT power during Rest
 ax1 = subplot(3,4,1);
 p1 = loglog(data.C57BL6J.Rest.CBV_HbT.adjLH.meanCortf,data.C57BL6J.Rest.CBV_HbT.adjLH.meanCortS,'color',colors('sapphire'),'LineWidth',2);
 hold on
@@ -247,8 +247,8 @@ if strcmp(saveFigs,'y') == true
 end
 %% individual HbT power
 summaryFigure2 = figure;
+sgtitle('\DeltaHbT (\muM) cortical power spectra - individual animals')
 %% LH power spectra of HbT power during Rest
-sgtitle('\DeltaHbT (\muM) cortical power spectra')
 ax1 = subplot(3,4,1);
 % C57BL6J
 for aa = 1:size(data.C57BL6J.Rest.CBV_HbT.adjLH.normS,2)
@@ -525,14 +525,14 @@ if strcmp(saveFigs,'y') == true
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
-    savefig(summaryFigure2,[dirpath 'PowerSpec_HbT']);
+    savefig(summaryFigure2,[dirpath 'indPowerSpec_HbT']);
     set(summaryFigure2,'PaperPositionMode','auto');
-    print('-painters','-dpdf','-fillpage',[dirpath 'PowerSpec_HbT'])
+    print('-painters','-dpdf','-fillpage',[dirpath 'indPowerSpec_HbT'])
 end
 %% average gamma-band power
 summaryFigure3 = figure;
+sgtitle('Gamma-band [30-100] Hz (envelope) cortical power spectra')
 %% LH power spectra of gamma-band power during Rest
-sgtitle('Gamma-band [30-100] Hz cortical power spectra')
 ax1 = subplot(3,4,1);
 p1 = loglog(data.C57BL6J.Rest.gammaBandPower.adjLH.meanCortf,data.C57BL6J.Rest.gammaBandPower.adjLH.meanCortS,'color',colors('sapphire'),'LineWidth',2);
 hold on
@@ -683,14 +683,14 @@ if strcmp(saveFigs,'y') == true
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
-    savefig(summaryFigure3,[dirpath 'PowerSpec_gamma']);
+    savefig(summaryFigure3,[dirpath 'PowerSpec_Gamma']);
     set(summaryFigure3,'PaperPositionMode','auto');
-    print('-painters','-dpdf','-fillpage',[dirpath 'PowerSpec_gamma'])
+    print('-painters','-dpdf','-fillpage',[dirpath 'PowerSpec_Gamma'])
 end
 %% individual gamma-band power
 summaryFigure4 = figure;
+sgtitle('Gamma-band [30-100] Hz (envelope) cortical power spectra')
 %% LH power spectra of gamma-band power during Rest
-sgtitle('Gamma-band [30-100] Hz cortical power spectra')
 ax1 = subplot(3,4,1);
 % C57BL6J
 for aa = 1:size(data.C57BL6J.Rest.gammaBandPower.adjLH.normS,2)
@@ -967,9 +967,9 @@ if strcmp(saveFigs,'y') == true
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
-    savefig(summaryFigure4,[dirpath 'indPowerSpec_gamma']);
+    savefig(summaryFigure4,[dirpath 'indPowerSpec_Gamma']);
     set(summaryFigure4,'PaperPositionMode','auto');
-    print('-painters','-dpdf','-fillpage',[dirpath 'indPowerSpec_gamma'])
+    print('-painters','-dpdf','-fillpage',[dirpath 'indPowerSpec_Gamma'])
 end
 
 end

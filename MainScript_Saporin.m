@@ -35,7 +35,8 @@ if exist('AnalysisResults.mat','file') ~= 2 || strcmp(rerunAnalysis,'y') == true
     multiWaitbar('Analyzing Pearson''s correlation coefficients',0,'Color','B'); pause(0.25);
     multiWaitbar('Analyzing cross correlation',0,'Color','G'); pause(0.25);
     multiWaitbar('Analyzing evoked responses',0,'Color','P'); pause(0.25);
-    % run analysis and output a structure containing all the analyzed data
+    multiWaitbar('Analyzing gamma-HbT relationship',0,'Color','B'); pause(0.25);
+    multiWaitbar('Analyzing power spectra2',0,'Color','B'); pause(0.25);
     [AnalysisResults] = AnalyzeData(rootFolder);
     multiWaitbar('CloseAll');
 else
@@ -43,14 +44,15 @@ else
     load('AnalysisResults.mat','-mat')
 end
 %% generate figures
-% [AnalysisResults] = DiaphoraseCellCounts_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
-% [AnalysisResults] = WhiskEvoked_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
-% [AnalysisResults] = StimEvoked_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
-% [AnalysisResults] = Coherence_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
-% [AnalysisResults] = PowerSpec_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
-% [AnalysisResults] = PearsonsCorr_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
+[AnalysisResults] = DiaphoraseCellCounts_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
+[AnalysisResults] = WhiskEvoked_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
+[AnalysisResults] = StimEvoked_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
+[AnalysisResults] = Coherence_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
+[AnalysisResults] = PowerSpec_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
+[AnalysisResults] = PowerSpec2_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
+[AnalysisResults] = PearsonsCorr_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
 [AnalysisResults] = XCorr_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
-% [AnalysisResults] = MeanHbT_Saporin(rootFolder,saveFigs,delim,AnalysisResults); %#ok<*NASGU>
+[AnalysisResults] = MeanHbT_Saporin(rootFolder,saveFigs,delim,AnalysisResults); %#ok<*NASGU>
 %% fin.
 disp('MainScript Analysis - Complete'); disp(' ')
 end
@@ -174,6 +176,36 @@ for aa = 1:length(expGroups)
             [AnalysisResults] = AnalyzeEvokedResponses(animalIDs{1,bb},expGroups{1,aa},saveFigs,rootFolder,AnalysisResults);
         end
         multiWaitbar('Analyzing evoked responses','Value',cc/waitBarLength);
+        cc = cc + 1;
+    end
+end
+%% Analyze the relationship between gamma-band power and hemodynamics [HbT] (IOS)
+runFromStart = 'n';
+cc = 1;
+for aa = 1:length(expGroups)
+    folderList = dir(expGroups{1,aa});
+    folderList = folderList(~startsWith({folderList.name}, '.'));
+    animalIDs = {folderList.name};
+    for bb = 1:length(animalIDs)
+        if isfield(AnalysisResults,(animalIDs{1,bb})) == false || isfield(AnalysisResults.(animalIDs{1,bb}),'HbTvsGamma') == false || strcmp(runFromStart,'y') == true
+            [AnalysisResults] = AnalyzeCBVGammaRelationship(animalIDs{1,bb},expGroups{1,aa},rootFolder,AnalysisResults);
+        end
+        multiWaitbar('Analyzing gamma-HbT relationship','Value',cc/waitBarLength);
+        cc = cc + 1;
+    end
+end
+%% Analyze the spectral power of hemodynamic [HbT] and neural signals (IOS)
+runFromStart = 'n';
+cc = 1;
+for aa = 1:length(expGroups)
+    folderList = dir(expGroups{1,aa});
+    folderList = folderList(~startsWith({folderList.name}, '.'));
+    animalIDs = {folderList.name};
+    for bb = 1:length(animalIDs)
+        if isfield(AnalysisResults,(animalIDs{1,bb})) == false || isfield(AnalysisResults.(animalIDs{1,bb}),'PowerSpectra2') == false || strcmp(runFromStart,'y') == true
+            [AnalysisResults] = AnalyzePowerSpectrum2(animalIDs{1,bb},expGroups{1,aa},rootFolder,AnalysisResults);
+        end
+        multiWaitbar('Analyzing power spectra2','Value',cc/waitBarLength);
         cc = cc + 1;
     end
 end
