@@ -741,7 +741,7 @@ imagesc(data.C57BL6J.Contra.adjLH.meanCortT,data.C57BL6J.Contra.adjLH.meanCortF,
 title('C57BL6J Contra Stim LH')
 ylabel('Freq (Hz)')
 xlabel('Peri-stimulus time (s)')
-caxis([-50,100])
+% caxis([-50,100])
 set(gca,'Ticklength',[0,0])
 axis xy
 set(gca,'box','off')
@@ -751,7 +751,7 @@ imagesc(data.C57BL6J.Contra.adjRH.meanCortT,data.C57BL6J.Contra.adjRH.meanCortF,
 title('C57BL6J Contra Stim RH')
 ylabel('Freq (Hz)')
 xlabel('Peri-stimulus time (s)')
-caxis([-50,100])
+% caxis([-50,100])
 set(gca,'Ticklength',[0,0])
 axis xy
 set(gca,'box','off')
@@ -761,7 +761,7 @@ imagesc(data.SSP_SAP.Contra.adjLH.meanCortT,data.SSP_SAP.Contra.adjLH.meanCortF,
 title('SSP-SAP Contra Stim LH')
 ylabel('Freq (Hz)')
 xlabel('Peri-stimulus time (s)')
-caxis([-50,100])
+% caxis([-50,100])
 set(gca,'Ticklength',[0,0])
 axis xy
 set(gca,'box','off')
@@ -771,7 +771,7 @@ imagesc(data.SSP_SAP.Contra.adjRH.meanCortT,data.SSP_SAP.Contra.adjRH.meanCortF,
 title('SSP-SAP Contra Stim RH')
 ylabel('Freq (Hz)')
 xlabel('Peri-stimulus time (s)')
-caxis([-50,100])
+% caxis([-50,100])
 set(gca,'Ticklength',[0,0])
 axis xy
 set(gca,'box','off')
@@ -781,7 +781,7 @@ imagesc(data.Blank_SAP.Contra.adjLH.meanCortT,data.Blank_SAP.Contra.adjLH.meanCo
 title('Blank-SAP Contra Stim LH')
 ylabel('Freq (Hz)')
 xlabel('Peri-stimulus time (s)')
-caxis([-50,100])
+% caxis([-50,100])
 set(gca,'Ticklength',[0,0])
 axis xy
 set(gca,'box','off')
@@ -791,7 +791,7 @@ imagesc(data.Blank_SAP.Contra.adjRH.meanCortT,data.Blank_SAP.Contra.adjRH.meanCo
 title('Blank-SAP Contra Stim RH')
 ylabel('Freq (Hz)')
 xlabel('Peri-stimulus time (s)')
-caxis([-50,100])
+% caxis([-50,100])
 set(gca,'Ticklength',[0,0])
 axis xy
 set(gca,'box','off')
@@ -801,7 +801,7 @@ imagesc(data.C57BL6J.Ipsi.adjLH.meanCortT,data.C57BL6J.Ipsi.adjLH.meanCortF,data
 title('C57BL6J Ipsi Stim LH')
 ylabel('Freq (Hz)')
 xlabel('Peri-stimulus time (s)')
-caxis([-50,100])
+% caxis([-50,100])
 set(gca,'Ticklength',[0,0])
 axis xy
 set(gca,'box','off')
@@ -811,7 +811,7 @@ imagesc(data.C57BL6J.Ipsi.adjRH.meanCortT,data.C57BL6J.Ipsi.adjRH.meanCortF,data
 title('C57BL6J Ipsi Stim RH')
 ylabel('Freq (Hz)')
 xlabel('Peri-stimulus time (s)')
-caxis([-50,100])
+% caxis([-50,100])
 set(gca,'Ticklength',[0,0])
 axis xy
 set(gca,'box','off')
@@ -821,7 +821,7 @@ imagesc(data.SSP_SAP.Ipsi.adjLH.meanCortT,data.SSP_SAP.Ipsi.adjLH.meanCortF,data
 title('SSP-SAP Ipsi Stim LH')
 ylabel('Freq (Hz)')
 xlabel('Peri-stimulus time (s)')
-caxis([-50,100])
+% caxis([-50,100])
 set(gca,'Ticklength',[0,0])
 axis xy
 set(gca,'box','off')
@@ -831,7 +831,7 @@ imagesc(data.SSP_SAP.Ipsi.adjRH.meanCortT,data.SSP_SAP.Ipsi.adjRH.meanCortF,data
 title('SSP-SAP Ipsi Stim RH')
 ylabel('Freq (Hz)')
 xlabel('Peri-stimulus time (s)')
-caxis([-50,100])
+% caxis([-50,100])
 set(gca,'Ticklength',[0,0])
 axis xy
 set(gca,'box','off')
@@ -841,7 +841,7 @@ imagesc(data.Blank_SAP.Ipsi.adjLH.meanCortT,data.Blank_SAP.Ipsi.adjLH.meanCortF,
 title('Blank-SAP Ipsi Stim LH')
 ylabel('Freq (Hz)')
 xlabel('Peri-stimulus time (s)')
-caxis([-50,100])
+% caxis([-50,100])
 set(gca,'Ticklength',[0,0])
 axis xy
 set(gca,'box','off')
@@ -851,7 +851,7 @@ imagesc(data.Blank_SAP.Ipsi.adjRH.meanCortT,data.Blank_SAP.Ipsi.adjRH.meanCortF,
 title('Blank-SAP Ipsi Stim RH')
 ylabel('Freq (Hz)')
 xlabel('Peri-stimulus time (s)')
-caxis([-50,100])
+% caxis([-50,100])
 set(gca,'Ticklength',[0,0])
 axis xy
 set(gca,'box','off')
@@ -861,7 +861,7 @@ imagesc(data.C57BL6J.Auditory.adjLH.meanCortT,data.C57BL6J.Auditory.adjLH.meanCo
 title('C57BL6J Auditory Stim LH')
 ylabel('Freq (Hz)')
 xlabel('Peri-stimulus time (s)')
-caxis([-50,100])
+% caxis([-50,100])
 set(gca,'Ticklength',[0,0])
 axis xy
 set(gca,'box','off')
@@ -871,7 +871,7 @@ imagesc(data.C57BL6J.Auditory.adjRH.meanCortT,data.C57BL6J.Auditory.adjRH.meanCo
 title('C57BL6J Auditory Stim RH')
 ylabel('Freq (Hz)')
 xlabel('Peri-stimulus time (s)')
-caxis([-50,100])
+% caxis([-50,100])
 set(gca,'Ticklength',[0,0])
 axis xy
 set(gca,'box','off')
@@ -881,7 +881,7 @@ imagesc(data.SSP_SAP.Auditory.adjLH.meanCortT,data.SSP_SAP.Auditory.adjLH.meanCo
 title('SSP-SAP Auditory Stim LH')
 ylabel('Freq (Hz)')
 xlabel('Peri-stimulus time (s)')
-caxis([-50,100])
+% caxis([-50,100])
 set(gca,'Ticklength',[0,0])
 axis xy
 set(gca,'box','off')
@@ -891,7 +891,7 @@ imagesc(data.SSP_SAP.Auditory.adjRH.meanCortT,data.SSP_SAP.Auditory.adjRH.meanCo
 title('SSP-SAP Auditory Stim RH')
 ylabel('Freq (Hz)')
 xlabel('Peri-stimulus time (s)')
-caxis([-50,100])
+% caxis([-50,100])
 set(gca,'Ticklength',[0,0])
 axis xy
 set(gca,'box','off')
@@ -901,7 +901,7 @@ imagesc(data.Blank_SAP.Auditory.adjLH.meanCortT,data.Blank_SAP.Auditory.adjLH.me
 title('Blank-SAP Auditory Stim LH')
 ylabel('Freq (Hz)')
 xlabel('Peri-stimulus time (s)')
-caxis([-50,100])
+% caxis([-50,100])
 set(gca,'Ticklength',[0,0])
 axis xy
 set(gca,'box','off')
@@ -911,7 +911,7 @@ imagesc(data.Blank_SAP.Auditory.adjRH.meanCortT,data.Blank_SAP.Auditory.adjRH.me
 title('Blank-SAP Auditory Stim RH')
 ylabel('Freq (Hz)')
 xlabel('Peri-stimulus time (s)')
-caxis([-50,100])
+% caxis([-50,100])
 set(gca,'Ticklength',[0,0])
 axis xy
 set(gca,'box','off')
