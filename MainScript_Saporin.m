@@ -36,7 +36,8 @@ if exist('AnalysisResults.mat','file') ~= 2 || strcmp(rerunAnalysis,'y') == true
     multiWaitbar('Analyzing cross correlation',0,'Color','G'); pause(0.25);
     multiWaitbar('Analyzing evoked responses',0,'Color','P'); pause(0.25);
     multiWaitbar('Analyzing gamma-HbT relationship',0,'Color','B'); pause(0.25);
-    multiWaitbar('Analyzing power spectra2',0,'Color','B'); pause(0.25);
+    multiWaitbar('Analyzing power spectra2',0,'Color','G'); pause(0.25);
+    multiWaitbar('Analyzing whisk-hemo coherence',0,'Color','P'); pause(0.25);
     [AnalysisResults] = AnalyzeData(rootFolder);
     multiWaitbar('CloseAll');
 else
@@ -48,11 +49,13 @@ end
 % [AnalysisResults] = WhiskEvoked_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
 % [AnalysisResults] = StimEvoked_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
 % [AnalysisResults] = Coherence_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
-[AnalysisResults] = NeuralHemoCoherence_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
+% [AnalysisResults] = NeuralHemoCoherence_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
+[AnalysisResults] = WhiskHemoCoherence_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
 % [AnalysisResults] = PowerSpec_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
 % [AnalysisResults] = PowerSpec2_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
 % [AnalysisResults] = PearsonsCorr_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
 % [AnalysisResults] = XCorr_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
+% [AnalysisResults] = NeuralHemoLinearity_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
 % [AnalysisResults] = MeanHbT_Saporin(rootFolder,saveFigs,delim,AnalysisResults); %#ok<*NASGU>
 %% fin.
 disp('MainScript Analysis - Complete'); disp(' ')
@@ -207,6 +210,21 @@ for aa = 1:length(expGroups)
             [AnalysisResults] = AnalyzePowerSpectrum2(animalIDs{1,bb},expGroups{1,aa},rootFolder,AnalysisResults);
         end
         multiWaitbar('Analyzing power spectra2','Value',cc/waitBarLength);
+        cc = cc + 1;
+    end
+end
+%% Analyze the spectral coherence between whisk-hemodynamic [HbT] signals (IOS)
+runFromStart = 'y';
+cc = 1;
+for aa = 1:length(expGroups)
+    folderList = dir(expGroups{1,aa});
+    folderList = folderList(~startsWith({folderList.name}, '.'));
+    animalIDs = {folderList.name};
+    for bb = 1:length(animalIDs)
+        if isfield(AnalysisResults,(animalIDs{1,bb})) == false || isfield(AnalysisResults.(animalIDs{1,bb}),'WhiskHemoCoherence') == false || strcmp(runFromStart,'y') == true
+            [AnalysisResults] = AnalyzeWhiskHemoCoherence(animalIDs{1,bb},expGroups{1,aa},rootFolder,AnalysisResults);
+        end
+        multiWaitbar('Analyzing whisk-hemo coherence','Value',cc/waitBarLength);
         cc = cc + 1;
     end
 end

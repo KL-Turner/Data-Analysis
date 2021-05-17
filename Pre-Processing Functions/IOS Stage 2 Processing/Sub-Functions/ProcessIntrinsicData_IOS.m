@@ -11,7 +11,7 @@ function [] = ProcessIntrinsicData_IOS(animalID,imagingType,rawDataFileIDs,procD
 %________________________________________________________________________________________________________________________
 
 if strcmp(imagingType,'bilateral') == true
-    ROInames = {'LH','RH','LH_Cement','RH_Cement','Cement'};
+    ROInames = {'LH','RH','Cement'};
 elseif strcmp(imagingType,'single') == true
     ROInames = {'Barrels','Cement'};
 end

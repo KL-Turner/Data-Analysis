@@ -11,7 +11,6 @@ function [] = ProcessRawDataFiles_IOS(rawDataFiles)
 %            one does not already exist.
 %________________________________________________________________________________________________________________________
 
-dopplerInput = input('What LDF collected for this day? (y/n): ','s'); disp(' ')
 % Raw data file analysis
 for a = 1:size(rawDataFiles,1)
     rawDataFile = rawDataFiles(a,:);
@@ -115,16 +114,6 @@ for a = 1:size(rawDataFiles,1)
     EMGPwr = log10(conv(filtEMG.^2,smoothingKernel,'same'));
     resampEMG = resample(EMGPwr,ProcData.notes.dsFs,ProcData.notes.analogSamplingRate);
     ProcData.data.EMG.emg = resampEMG;
-    %% Laser Doppler
-    if strcmp(dopplerInput,'y') == true
-        trimmedBackScatter = RawData.data.backScatter(1:min(analogExpectedLength,length(RawData.data.backScatter)));
-        trimmedFlow = RawData.data.flow(1:min(analogExpectedLength,length(RawData.data.flow)));
-        ProcData.data.backScatter.data = max(resample(trimmedBackScatter,ProcData.notes.dsFs, ProcData.notes.analogSamplingRate),0);
-        ProcData.data.flow.data = max(resample(trimmedFlow,ProcData.notes.dsFs,ProcData.notes.analogSamplingRate),0);
-    else
-        ProcData.data.backScatter.data = NaN(1,ProcData.notes.dsFs*ProcData.notes.trialDuration_sec);
-        ProcData.data.flow.data = NaN(1,ProcData.notes.dsFs*ProcData.notes.trialDuration_sec);
-    end
     %% Save the processed data
     save(rawDataFile, 'RawData')
     save(procDataFile, 'ProcData')

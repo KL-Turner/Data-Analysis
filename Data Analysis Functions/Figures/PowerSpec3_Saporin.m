@@ -4,7 +4,7 @@ function [AnalysisResults] = PowerSpec2_Saporin(rootFolder,saveFigs,delim,Analys
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %
-% Purpose:
+% Purpose: 
 %________________________________________________________________________________________________________________________
 
 %% set-up and process data
@@ -14,7 +14,7 @@ SSP_SAP_IDs = {'T142','T144','T159','T172'};
 Blank_SAP_IDs = {'T150','T165','T166','T177','T179'};
 treatments = {'C57BL6J','SSP_SAP','Blank_SAP'};
 behavFields = {'Alert','Asleep','All'};
-dataTypes = {'gammaBandPower','whisking'};
+dataTypes = {'gammaBandPower'};
 %% power spectra during different behaviors
 % cd through each animal's directory and extract the appropriate analysis results
 for aa = 1:length(animalIDs)
@@ -38,18 +38,11 @@ for aa = 1:length(animalIDs)
                 data.(treatment).(behavField).(dataType).LH.f = [];
                 data.(treatment).(behavField).(dataType).RH.S = [];
                 data.(treatment).(behavField).(dataType).RH.f = [];
-                data.(treatment).(behavField).(dataType).S = [];
-                data.(treatment).(behavField).(dataType).f = [];
             end
-            if strcmp(dataType,'gammaBandPower') == true
-                data.(treatment).(behavField).(dataType).LH.S = cat(2,data.(treatment).(behavField).(dataType).LH.S,AnalysisResults.(animalID).PowerSpectra2.(behavField).(dataType).LH.S);
-                data.(treatment).(behavField).(dataType).LH.f = cat(1,data.(treatment).(behavField).(dataType).LH.f,AnalysisResults.(animalID).PowerSpectra2.(behavField).(dataType).LH.f);
-                data.(treatment).(behavField).(dataType).RH.S = cat(2,data.(treatment).(behavField).(dataType).RH.S,AnalysisResults.(animalID).PowerSpectra2.(behavField).(dataType).RH.S);
-                data.(treatment).(behavField).(dataType).RH.f = cat(1,data.(treatment).(behavField).(dataType).RH.f,AnalysisResults.(animalID).PowerSpectra2.(behavField).(dataType).RH.f);
-            else
-                data.(treatment).(behavField).(dataType).S = cat(2,data.(treatment).(behavField).(dataType).S,AnalysisResults.(animalID).PowerSpectra2.(behavField).(dataType).S);
-                data.(treatment).(behavField).(dataType).f = cat(1,data.(treatment).(behavField).(dataType).f,AnalysisResults.(animalID).PowerSpectra2.(behavField).(dataType).f);
-            end
+            data.(treatment).(behavField).(dataType).LH.S = cat(2,data.(treatment).(behavField).(dataType).LH.S,AnalysisResults.(animalID).PowerSpectra2.(behavField).(dataType).LH.S);
+            data.(treatment).(behavField).(dataType).LH.f = cat(1,data.(treatment).(behavField).(dataType).LH.f,AnalysisResults.(animalID).PowerSpectra2.(behavField).(dataType).LH.f);
+            data.(treatment).(behavField).(dataType).RH.S = cat(2,data.(treatment).(behavField).(dataType).RH.S,AnalysisResults.(animalID).PowerSpectra2.(behavField).(dataType).RH.S);
+            data.(treatment).(behavField).(dataType).RH.f = cat(1,data.(treatment).(behavField).(dataType).RH.f,AnalysisResults.(animalID).PowerSpectra2.(behavField).(dataType).RH.f);
         end
     end
 end
@@ -85,18 +78,12 @@ for aa = 1:length(treatments)
         behavField = behavFields{1,h};
         for jj = 1:length(dataTypes)
             dataType = dataTypes{1,jj};
-            if strcmp(dataType,'gammaBandPower') == true
-                data.(treatment).(behavField).(dataType).LH.meanCortS = mean(data.(treatment).(behavField).(dataType).LH.normS,2);
-                data.(treatment).(behavField).(dataType).LH.stdCortS = std(data.(treatment).(behavField).(dataType).LH.normS,0,2);
-                data.(treatment).(behavField).(dataType).LH.meanCortf = mean(data.(treatment).(behavField).(dataType).LH.f,1);
-                data.(treatment).(behavField).(dataType).RH.meanCortS = mean(data.(treatment).(behavField).(dataType).RH.normS,2);
-                data.(treatment).(behavField).(dataType).RH.stdCortS = std(data.(treatment).(behavField).(dataType).RH.normS,0,2);
-                data.(treatment).(behavField).(dataType).RH.meanCortf = mean(data.(treatment).(behavField).(dataType).RH.f,1);
-            else
-                data.(treatment).(behavField).(dataType).meanS = mean(data.(treatment).(behavField).(dataType).S,2);
-                data.(treatment).(behavField).(dataType).stdS = std(data.(treatment).(behavField).(dataType).S,0,2);
-                data.(treatment).(behavField).(dataType).meanf = mean(data.(treatment).(behavField).(dataType).f,1);
-            end
+            data.(treatment).(behavField).(dataType).LH.meanCortS = mean(data.(treatment).(behavField).(dataType).LH.normS,2);
+            data.(treatment).(behavField).(dataType).LH.stdCortS = std(data.(treatment).(behavField).(dataType).LH.normS,0,2);
+            data.(treatment).(behavField).(dataType).LH.meanCortf = mean(data.(treatment).(behavField).(dataType).LH.f,1);
+            data.(treatment).(behavField).(dataType).RH.meanCortS = mean(data.(treatment).(behavField).(dataType).RH.normS,2);
+            data.(treatment).(behavField).(dataType).RH.stdCortS = std(data.(treatment).(behavField).(dataType).RH.normS,0,2);
+            data.(treatment).(behavField).(dataType).RH.meanCortf = mean(data.(treatment).(behavField).(dataType).RH.f,1);
         end
     end
 end
@@ -183,57 +170,6 @@ if strcmp(saveFigs,'y') == true
     savefig(summaryFigure1,[dirpath 'PowerSpec_LFP']);
     set(summaryFigure1,'PaperPositionMode','auto');
     print('-painters','-dpdf','-fillpage',[dirpath 'PowerSpec_LFP'])
-end
-%% average gamma-band power
-summaryFigure2 = figure;
-sgtitle('Binarized whisking Power Spectra [0-15 Hz]')
-%% LH power spectra of gamma-band power during Alert
-ax1 = subplot(1,3,1);
-L1 = loglog(data.C57BL6J.Alert.whisking.meanf,data.C57BL6J.Alert.whisking.meanS,'color',colors('sapphire'),'LineWidth',2);
-hold on
-L2 = loglog(data.Blank_SAP.Alert.whisking.meanf,data.Blank_SAP.Alert.whisking.meanS,'color',colors('north texas green'),'LineWidth',2);
-L3 = loglog(data.SSP_SAP.Alert.whisking.meanf,data.SSP_SAP.Alert.whisking.meanS,'color',colors('electric purple'),'LineWidth',2);
-title('Alert')
-ylabel('Power (a.u.)')
-xlabel('Freq (Hz)')
-xlim([0,15])
-legend([L1,L2,L3],'C57BL6J','SSP-SAP','Blank-SAP')
-set(gca,'box','off')
-axis square
-%% LH power spectra of gamma-band power during Alert
-ax2 = subplot(1,3,2);
-loglog(data.C57BL6J.Asleep.whisking.meanf,data.C57BL6J.Asleep.whisking.meanS,'color',colors('sapphire'),'LineWidth',2);
-hold on
-loglog(data.Blank_SAP.Asleep.whisking.meanf,data.Blank_SAP.Asleep.whisking.meanS,'color',colors('north texas green'),'LineWidth',2);
-loglog(data.SSP_SAP.Asleep.whisking.meanf,data.SSP_SAP.Asleep.whisking.meanS,'color',colors('electric purple'),'LineWidth',2);
-title('Asleep')
-ylabel('Power (a.u.)')
-xlabel('Freq (Hz)')
-xlim([0,15])
-set(gca,'box','off')
-axis square
-%% LH power spectra of gamma-band power during Alert
-ax3 = subplot(1,3,3);
-loglog(data.C57BL6J.All.whisking.meanf,data.C57BL6J.All.whisking.meanS,'color',colors('sapphire'),'LineWidth',2);
-hold on
-loglog(data.Blank_SAP.All.whisking.meanf,data.Blank_SAP.All.whisking.meanS,'color',colors('north texas green'),'LineWidth',2);
-loglog(data.SSP_SAP.All.whisking.meanf,data.SSP_SAP.All.whisking.meanS,'color',colors('electric purple'),'LineWidth',2);
-title('All')
-ylabel('Power (a.u.)')
-xlabel('Freq (Hz)')
-xlim([0,15])
-set(gca,'box','off')
-axis square
-linkaxes([ax1,ax2,ax3],'xy')
-%% save figure(s)
-if strcmp(saveFigs,'y') == true
-    dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'MATLAB Analysis Figures' delim];
-    if ~exist(dirpath,'dir')
-        mkdir(dirpath);
-    end
-    savefig(summaryFigure2,[dirpath 'PowerSpec_BinWhisking']);
-    set(summaryFigure2,'PaperPositionMode','auto');
-    print('-painters','-dpdf','-fillpage',[dirpath 'PowerSpec_BinWhisking'])
 end
 
 end

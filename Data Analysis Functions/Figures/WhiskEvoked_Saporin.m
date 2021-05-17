@@ -8,8 +8,8 @@ function [AnalysisResults] = WhiskEvoked_Saporin(rootFolder,saveFigs,delim,Analy
 %________________________________________________________________________________________________________________________
 
 %% set-up
-animalIDs = {'T141','T155','T156','T157','T142','T144','T159','T172','T150','T165','T166','T177','T179','T187','T188','T186'};
-C57BL6J_IDs = {'T141','T155','T156','T157','T187','T188','T186'};
+animalIDs = {'T141','T155','T156','T157','T142','T144','T159','T172','T150','T165','T166','T177','T179','T186','T187','T188','T189'};
+C57BL6J_IDs = {'T141','T155','T156','T157','T186','T187','T188','T189'};
 SSP_SAP_IDs = {'T142','T144','T159','T172'};
 Blank_SAP_IDs = {'T150','T165','T166','T177','T179'};
 whiskDataTypes = {'ShortWhisks','IntermediateWhisks','LongWhisks'};

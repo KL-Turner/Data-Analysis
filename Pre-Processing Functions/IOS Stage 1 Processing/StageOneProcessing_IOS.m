@@ -5,7 +5,7 @@
 %
 % Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
 %________________________________________________________________________________________________________________________
-%   
+%
 %   Purpose: Data acquired during trials must be in a form that Matlab can work with easily. This code converts the
 %            various forms of data listed below into MATLAB structures that can be easily manipulated.
 %
@@ -41,44 +41,32 @@ for a = 1:length(fileNames)
         %% BLOCK PURPOSE: [2] Import .tdms data (All channels).
         disp('Analyzing Block [2] Importing .tdms data from all channels.'); disp(' ')
         trialData = ReadInTDMSWhiskerTrials_IOS([fileID '.tdms']);
-        trialData2 = ReadInTDMSWhiskerTrials_LD_IOS([fileID '_LD.tdms']);
         % Left, Right, and hippocampal electrodes
-        dataRow = strcmp(trialData.data.names,'Cortical_LH');  
+        dataRow = strcmp(trialData.data.names,'Cortical_LH');
         cortical_LH = trialData.data.vals(dataRow,:)/str2double(trialData.amplifierGain);
         dataRow = strcmp(trialData.data.names,'Cortical_RH');
         cortical_RH = trialData.data.vals(dataRow,:)/str2double(trialData.amplifierGain);
         dataRow = strcmp(trialData.data.names,'Hippocampus');
         hippocampus = trialData.data.vals(dataRow,:)/str2double(trialData.amplifierGain);
         % Left, Right, Auditory solenoids. Combine the arrays together.
-        dataRow = strcmp(trialData.data.names,'LPadSol'); 
-        LPadSol = gt(trialData.data.vals(dataRow,:),0.5)*1;    % ID amplitude is 1 
-        dataRow = strcmp(trialData.data.names,'RPadSol'); 
+        dataRow = strcmp(trialData.data.names,'LPadSol');
+        LPadSol = gt(trialData.data.vals(dataRow,:),0.5)*1;    % ID amplitude is 1
+        dataRow = strcmp(trialData.data.names,'RPadSol');
         RPadSol = gt(trialData.data.vals(dataRow,:),0.5)*2;    % ID amplitude is 2
-        dataRow = strcmp(trialData.data.names,'AudSol'); 
+        dataRow = strcmp(trialData.data.names,'AudSol');
         AudSol = gt(trialData.data.vals(dataRow,:),0.5)*3;     % ID amplitude is 3
-        dataRow = strcmp(trialData2.data.names,'Opto_LED');
-        OptoLED = gt(trialData2.data.vals(dataRow,:),0.5)*4;   % ID amplitude is 4
-        analogLengthA = length(LPadSol);
-        analogLengthB = length(OptoLED);
-        if analogLengthA > analogLengthB
-            stimulations = LPadSol(1:analogLengthB) + RPadSol(1:analogLengthB) + AudSol(1:analogLengthB) + OptoLED;
-        else
-            stimulations = LPadSol + RPadSol + AudSol + OptoLED(1:analogLengthA);
-        end
+        dataRow = strcmp(trialData.data.names,'OptoLED');
+        OptoLED = gt(trialData.data.vals(dataRow,:),0.5)*4;    % ID amplitude is 4
+        stimulations = LPadSol + RPadSol + AudSol + OptoLED;
         % Force sensor and EMG
-        dataRow = strcmp(trialData.data.names,'Force_Sensor'); 
+        dataRow = strcmp(trialData.data.names,'Force_Sensor');
         forceSensor = trialData.data.vals(dataRow,:);
         dataRow = strcmp(trialData.data.names,'EMG');
         EMG = trialData.data.vals(dataRow,:)/str2double(trialData.amplifierGain);
-        % Laser doppler
-        dataRow = strcmp(trialData2.data.names,'LD_BackScatter');
-        backScatter = trialData2.data.vals(dataRow,:);
-        dataRow = strcmp(trialData2.data.names,'LD_Flow');
-        flow = trialData2.data.vals(dataRow,:);        
         %% BLOCK PURPOSE: [3] Start Whisker tracker.
         disp('Analyzing Block [3] Starting whisker tracking.'); disp(' ')
         [whiskerAngle] = WhiskerTrackerParallel_IOS(fileID);
-        inds = isnan(whiskerAngle) == 1;
+        inds = isnan(whiskerAngle) == 1; %#ok<COMPNOP>
         whiskerAngle(inds) = [];
         %% BLOCK PURPOSE: [4] Save the notes and data.
         disp('Analyzing Block [4] Evaluating data to save to RawData file.'); disp(' ')
@@ -124,8 +112,6 @@ for a = 1:length(fileNames)
         RawData.data.EMG = EMG;
         RawData.data.whiskerAngle = whiskerAngle;
         RawData.data.stimulations = stimulations;
-        RawData.data.backScatter = backScatter;
-        RawData.data.flow = flow;
         disp(['File Created. Saving RawData File ' num2str(a) '...']); disp(' ')
         save([trialData.animalID '_' fileID '_RawData'],'RawData')
     else

@@ -150,8 +150,8 @@ for aa = 1:length(dataTypes)
             whiskSpecField = neuralDataType;
             for ff = 1:length(AllSpecData.(whiskSpecField).fileIDs)
                 if strcmp(AllSpecData.(whiskSpecField).fileIDs{ff,1},whiskSpecDataFileID) == true
-                    whiskCorticalS_Data = AllSpecData.(whiskSpecField).S{ff,1};
-                    whiskHippocampalS_Data = AllSpecData.hippocampus.S{ff,1};
+                    whiskCorticalS_Data = AllSpecData.(whiskSpecField).normS{ff,1};
+                    whiskHippocampalS_Data = AllSpecData.hippocampus.normS{ff,1};
                     F = AllSpecData.(whiskSpecField).F{ff,1};
                     T = round(AllSpecData.(whiskSpecField).T{ff,1},1);
                 end
@@ -163,18 +163,12 @@ for aa = 1:length(dataTypes)
             whiskCorticalS_Vals = whiskCorticalS_Data(:,whiskStartTimeIndex:whiskDurationIndex);
             whiskHippocampalS_Vals = whiskHippocampalS_Data(:,whiskStartTimeIndex:whiskDurationIndex);
             % mean subtract each row with detrend - transpose since detrend goes down columns
-%             transpWhiskCorticalS_Vals = whiskCorticalS_Vals';
-%             transpWhiskHippocampalS_Vals = whiskHippocampalS_Vals';
-%             dTWhiskCorticalS_Vals = transpWhiskCorticalS_Vals;
-%             dTWhiskCorticalS_Vals = dTWhiskCorticalS_Vals(1:12*specSamplingRate + 1,:);
-%             dTWhiskHippocampalS_Vals = transpWhiskHippocampalS_Vals;
-%             dTWhiskHippocampalS_Vals = dTWhiskHippocampalS_Vals(1:12*specSamplingRate + 1,:);
             transpWhiskCorticalS_Vals = whiskCorticalS_Vals';
             transpWhiskHippocampalS_Vals = whiskHippocampalS_Vals';
             dTWhiskCorticalS_Vals = transpWhiskCorticalS_Vals;
-            dTWhiskCorticalS_Vals = dTWhiskCorticalS_Vals;%(1:12*specSamplingRate + 1,:);
+            dTWhiskCorticalS_Vals = dTWhiskCorticalS_Vals(1:12*specSamplingRate + 1,:);
             dTWhiskHippocampalS_Vals = transpWhiskHippocampalS_Vals;
-            dTWhiskHippocampalS_Vals = dTWhiskHippocampalS_Vals;%(1:12*specSamplingRate + 1,:);
+            dTWhiskHippocampalS_Vals = dTWhiskHippocampalS_Vals(1:12*specSamplingRate + 1,:);
             % transpose back to original orientation
             whiskCorticalZhold = cat(3,whiskCorticalZhold,dTWhiskCorticalS_Vals');
             whiskHippocampalZhold = cat(3,whiskHippocampalZhold,dTWhiskHippocampalS_Vals');
@@ -364,8 +358,8 @@ for aa = 1:length(dataTypes)
             stimSpecField = neuralDataType;
             for kk = 1:length(AllSpecData.(stimSpecField).fileIDs)
                 if strcmp(AllSpecData.(stimSpecField).fileIDs{kk,1},stimSpecDataFileID) == true
-                    stimCorticalS_Data = AllSpecData.(stimSpecField).S{kk,1};
-                    stimHippocampalS_Data = AllSpecData.hippocampus.S{kk,1};
+                    stimCorticalS_Data = AllSpecData.(stimSpecField).normS{kk,1};
+                    stimHippocampalS_Data = AllSpecData.hippocampus.normS{kk,1};
                 end
             end
             stimStartTimeIndex = find(T == round(finalStimStartTimes(jj,1),1));
@@ -375,18 +369,13 @@ for aa = 1:length(dataTypes)
             stimCorticalS_Vals = stimCorticalS_Data(:,stimStartTimeIndex:stimDurationIndex);
             stimHippocampalS_Vals = stimHippocampalS_Data(:,stimStartTimeIndex:stimDurationIndex);
             % mean subtract each row with detrend
-            %             transpStimCorticalS_Vals = stimCorticalS_Vals';
-            %             transpStimHippocampalS_Vals = stimHippocampalS_Vals';
-            %             dTStimCortS_Vals = transpStimCorticalS_Vals;
-            %             dTStimCortS_Vals = dTStimCortS_Vals(1:12*specSamplingRate + 1,:);
-            %             dTStimHipS_Vals = transpStimHippocampalS_Vals;
-            %             dTStimHipS_Vals = dTStimHipS_Vals(1:12*specSamplingRate + 1,:);
             transpStimCorticalS_Vals = stimCorticalS_Vals';
             transpStimHippocampalS_Vals = stimHippocampalS_Vals';
             dTStimCortS_Vals = transpStimCorticalS_Vals;
-            dTStimCortS_Vals = dTStimCortS_Vals;%(1:12*specSamplingRate + 1,:);
+            dTStimCortS_Vals = dTStimCortS_Vals(1:12*specSamplingRate + 1,:);
             dTStimHipS_Vals = transpStimHippocampalS_Vals;
-            dTStimHipS_Vals = dTStimHipS_Vals;%(1:12*specSamplingRate + 1,:);
+            dTStimHipS_Vals = dTStimHipS_Vals(1:12*specSamplingRate + 1,:);
+            % transpose back to original orientation
             stimCortZhold = cat(3,stimCortZhold,dTStimCortS_Vals');
             stimHipZhold = cat(3,stimHipZhold,dTStimHipS_Vals');
         end

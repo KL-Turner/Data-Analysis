@@ -31,7 +31,6 @@ genSampleFigs = 'y';
 dataTypes = {'vesselDiameter','corticalNeural','hippocampalNeural','EMG'};
 neuralDataTypes = {'corticalNeural','hippocampalNeural'};
 specNeuralDataTypes = {'rawCorticalNeural','rawHippocampalNeural'};
-
 %% BLOCK PURPOSE: [1] Categorize data 
 disp('Analyzing Block [1] Categorizing data.'); disp(' ')
 for aa = 1:size(mergedDataFileIDs,1)
@@ -39,24 +38,20 @@ for aa = 1:size(mergedDataFileIDs,1)
     disp(['Analyzing file ' num2str(aa) ' of ' num2str(size(mergedDataFileIDs,1)) '...']); disp(' ')
     CategorizeData_2P(mergedDataFileID)
 end
-
 %% BLOCK PURPOSE: [2] Create RestData data structure.
 disp('Analyzing Block [2] Creating RestData struct for vessels and neural data.'); disp(' ')
 [RestData] = ExtractRestingData_2P(mergedDataFileIDs,dataTypes);
-    
 %% BLOCK PURPOSE: [3] Create EventData data structure.
 disp('Analyzing Block [3] Creating EventData struct for vessels and neural data.'); disp(' ')
 [EventData] = ExtractEventTriggeredData_2P(mergedDataFileIDs,dataTypes);
-
 %% BLOCK PURPOSE: [4] Analyze the spectrogram for each session.
 disp('Analyzing Block [4] Analyzing the spectrogram for each file and normalizing by the resting baseline.'); disp(' ')
 CreateTrialSpectrograms_2P(mergedDataFileIDs,specNeuralDataTypes);
-
 %% BLOCK PURPOSE: [5] Create Baselines data structure
 disp('Analyzing Block [5] Create Baselines struct for CBV and neural data.'); disp(' ')
 baselineType = 'setDuration';
 trialDuration_sec = 900;
-targetMinutes = 30;
+targetMinutes = 1000;
 [RestingBaselines] = CalculateRestingBaselines_2P(animalID,targetMinutes,trialDuration_sec,RestData);
 % Find spectrogram baselines for each day
 specDirectory = dir('*_SpecData.mat');
@@ -65,7 +60,6 @@ specDataFileIDs = char(specDataFiles);
 [RestingBaselines] = CalculateSpectrogramBaselines_2P(animalID,neuralDataTypes,trialDuration_sec,specDataFileIDs,RestingBaselines,baselineType);
 % Normalize spectrogram by baseline
 NormalizeSpectrograms_2P(specDataFileIDs,neuralDataTypes,RestingBaselines);
-
 %% BLOCK PURPOSE: [6] Generate first set of figures to remove unwanted data
 disp('Analyzing Block [6] Generating sample figures for inspection.'); disp(' ')
 if strcmp(genSampleFigs,'y') == true
@@ -77,11 +71,9 @@ if strcmp(genSampleFigs,'y') == true
         close(figHandle)
     end
 end
-
 %% BLOCK PURPOSE: [7] Manually select files for custom baseline calculation
 disp('Analyzing Block [7] Manually select files for custom baseline calculation.'); disp(' ')
 [RestingBaselines] = CalculateManualRestingBaselinesTimeIndeces_2P;
-
 %% BLOCK PURPOSE: [8] Analyze the spectrogram baseline for each session.
 disp('Analyzing Block [8] Analyzing the spectrogram for each file and normalizing by the resting baseline.'); disp(' ')
 updatedBaselineType = 'manualSelection';
@@ -94,7 +86,6 @@ specDataFileIDs = char(specDataFiles);
 NormalizeSpectrograms_2P(specDataFileIDs,neuralDataTypes,RestingBaselines);
 % Create a structure with all spectrograms for convenient analysis further downstream
 CreateAllSpecDataStruct_2P(animalID,neuralDataTypes)
-
 %% BLOCK PURPOSE [9] Generate single trial figures
 disp('Analyzing Block [9] Generating single trial summary figures'); disp(' ')
 updatedBaselineType = 'manualSelection';

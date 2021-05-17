@@ -70,14 +70,20 @@ for aa = 1:size(procDataFileIDs,1)
 end
 % save results
 AnalysisResults.(animalID).HbTvsGamma = [];
-AnalysisResults.(animalID).HbTvsGamma.Awake.Gamma = cat(1,catLH_Gamma.Awake,catRH_Gamma.Awake);
-AnalysisResults.(animalID).HbTvsGamma.NREM.Gamma = cat(1,catLH_Gamma.NREM,catRH_Gamma.NREM);
-AnalysisResults.(animalID).HbTvsGamma.REM.Gamma = cat(1,catLH_Gamma.REM,catRH_Gamma.REM);
-AnalysisResults.(animalID).HbTvsGamma.Awake.HbT = cat(1,catLH_HbT.Awake,catRH_HbT.Awake);
-AnalysisResults.(animalID).HbTvsGamma.NREM.HbT = cat(1,catLH_HbT.NREM,catRH_HbT.NREM);
-AnalysisResults.(animalID).HbTvsGamma.REM.HbT = cat(1,catLH_HbT.REM,catRH_HbT.REM);
+AnalysisResults.(animalID).HbTvsGamma.Awake.LH.Gamma = catLH_Gamma.Awake;
+AnalysisResults.(animalID).HbTvsGamma.NREM.LH.Gamma = catLH_Gamma.NREM;
+AnalysisResults.(animalID).HbTvsGamma.REM.LH.Gamma = catLH_Gamma.REM;
+AnalysisResults.(animalID).HbTvsGamma.Awake.RH.Gamma = catRH_Gamma.Awake;
+AnalysisResults.(animalID).HbTvsGamma.NREM.RH.Gamma = catRH_Gamma.NREM;
+AnalysisResults.(animalID).HbTvsGamma.REM.RH.Gamma = catRH_Gamma.REM;
+AnalysisResults.(animalID).HbTvsGamma.Awake.LH.HbT = catLH_HbT.Awake;
+AnalysisResults.(animalID).HbTvsGamma.NREM.LH.HbT = catLH_HbT.NREM;
+AnalysisResults.(animalID).HbTvsGamma.REM.LH.HbT = catLH_HbT.REM;
+AnalysisResults.(animalID).HbTvsGamma.Awake.RH.HbT = catRH_HbT.Awake;
+AnalysisResults.(animalID).HbTvsGamma.NREM.RH.HbT = catRH_HbT.NREM;
+AnalysisResults.(animalID).HbTvsGamma.REM.RH.HbT = catRH_HbT.REM;
 % save data
 cd(rootFolder)
-save('AnalysisResults.mat','AnalysisResults')
+save('AnalysisResults.mat','AnalysisResults','-v7.3')
 
 end

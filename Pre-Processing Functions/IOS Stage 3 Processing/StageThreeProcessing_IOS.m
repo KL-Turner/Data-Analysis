@@ -23,7 +23,6 @@ clc;
 clear;
 disp('Analyzing Block [0] Preparing the workspace and loading variables.'); disp(' ')
 % Character list of all RawData files
-
 rawDataFileStruct = dir('*_RawData.mat');
 rawDataFiles = {rawDataFileStruct.name}';
 rawDataFileIDs = char(rawDataFiles);
@@ -37,8 +36,8 @@ curDir = cd;
 dirBreaks = strfind(curDir,'\');
 curFolder = curDir(dirBreaks(end) + 1:end);
 imagingType = 'bilateral';
-dataTypes = {'CBV','cortical_LH','cortical_RH','hippocampus','EMG','flow'};
-updatedDataTypes = {'CBV','CBV_HbT','cortical_LH','cortical_RH','hippocampus','EMG','flow'};
+dataTypes = {'CBV','cortical_LH','cortical_RH','hippocampus','EMG'};
+updatedDataTypes = {'CBV','CBV_HbT','cortical_LH','cortical_RH','hippocampus','EMG'};
 neuralDataTypes = {'cortical_LH','cortical_RH','hippocampus'};
 basefile = ([animalID '_RestingBaselines.mat']);
 %% BLOCK PURPOSE: [1] Categorize data 
@@ -58,7 +57,7 @@ CreateTrialSpectrograms_IOS(rawDataFileIDs,neuralDataTypes);
 disp('Analyzing Block [4] Create baselines structure for CBV and neural data.'); disp(' ')
 baselineType = 'setDuration';
 trialDuration_sec = 900;
-targetMinutes = 30;
+targetMinutes = 60;
 [RestingBaselines] = CalculateRestingBaselines_IOS(animalID,targetMinutes,trialDuration_sec,RestData);
 % Find spectrogram baselines for each day
 [RestingBaselines] = CalculateSpectrogramBaselines_IOS(animalID,neuralDataTypes,trialDuration_sec,RestingBaselines,baselineType);
