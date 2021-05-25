@@ -51,7 +51,7 @@ CreateTrialSpectrograms_2P(mergedDataFileIDs,specNeuralDataTypes);
 disp('Analyzing Block [5] Create Baselines struct for CBV and neural data.'); disp(' ')
 baselineType = 'setDuration';
 trialDuration_sec = 900;
-targetMinutes = 1000;
+targetMinutes = 30;
 [RestingBaselines] = CalculateRestingBaselines_2P(animalID,targetMinutes,trialDuration_sec,RestData);
 % Find spectrogram baselines for each day
 specDirectory = dir('*_SpecData.mat');

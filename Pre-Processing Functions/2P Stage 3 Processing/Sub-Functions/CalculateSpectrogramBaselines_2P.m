@@ -43,6 +43,12 @@ for a = 1:length(neuralDataTypes)
         S5_trialRest = [];
         for e = 1:length(RestingBaselines.(baselineType).baselineFileInfo.fileIDs)
             restFileID = RestingBaselines.(baselineType).baselineFileInfo.fileIDs{e,1};
+%             test = size(S1_data,2)/30;
+%             if test > 500
+%                 trialDuration_sec = 900;
+%             else
+%                 trialDuration_sec = 270;
+%             end
             if strcmp(fileID,restFileID)
                 restDuration1 = round(RestingBaselines.(baselineType).baselineFileInfo.durations(e,1),1);
                 restDuration5 = round(RestingBaselines.(baselineType).baselineFileInfo.durations(e,1),1);

@@ -99,7 +99,7 @@ s3 = scatter(LPadSol,LPad_Yvals,'v','MarkerEdgeColor','k','MarkerFaceColor','c')
 s4 = scatter(RPadSol,RPad_Yvals,'v','MarkerEdgeColor','k','MarkerFaceColor','m');
 s5 = scatter(AudSol,Aud_Yvals,'v','MarkerEdgeColor','k','MarkerFaceColor','g');
 ylabel('\DeltaD/D (%)')
-% legend([s1,s2,s3,s4,s5],'Movement','Whisking','LPadSol','RPadSol','AudSol')
+legend([s1,s2,s3,s4,s5],'Movement','Whisking','LPadSol','RPadSol','AudSol')
 xlim([0,MergedData.notes.trialDuration_Sec])
 set(gca,'Xticklabel',[])
 set(gca,'box','off')
