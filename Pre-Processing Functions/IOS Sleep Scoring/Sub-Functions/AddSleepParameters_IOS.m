@@ -414,7 +414,11 @@ for a = 1:size(procDataFileIDs,1)
     else
         Flow = NaN*ProcData.data.EMG.emg;
     end
-    normFlow = (Flow - RestingBaselines.(baselineType).flow.data.(strDay))/RestingBaselines.(baselineType).flow.data.(strDay);
+    try
+        normFlow = (Flow - RestingBaselines.(baselineType).flow.data.(strDay))/RestingBaselines.(baselineType).flow.data.(strDay);
+    catch
+        normFlow = Flow;
+    end
     tempFlowStruct = cell(180,1);
     for FlowBins = 1:180
         if FlowBins == 1

@@ -20,7 +20,7 @@ for a = 1:size(mscanDataFiles,1)
             [MScanData] = CalcPenVesselArea_2P(MScanData,[MScanData.notes.date '_' MScanData.notes.imageID]);
             MScanData.notes.checklist.analyzeDiam = true;         
             save([MScanData.notes.animalID '_' MScanData.notes.date '_' MScanData.notes.imageID '_' MScanData.notes.vesselID '_MScanData'],'MScanData')        
-        elseif strcmp(MScanData.notes.movieType,'C') == true
+        elseif strcmp(MScanData.notes.movieType,'MC') == true
             [MScanData] = GetVelocityLineScan_2P(MScanData,[MScanData.notes.date '_' MScanData.notes.imageID]);
             MScanData.notes.checklist.analyzeDiam = true;        
             save([MScanData.notes.animalID '_' MScanData.notes.date '_' MScanData.notes.imageID '_' MScanData.notes.vesselID '_MScanData'],'MScanData')        

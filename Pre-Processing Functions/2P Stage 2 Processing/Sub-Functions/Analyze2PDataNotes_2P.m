@@ -37,7 +37,7 @@ for a = 2:size(alldata,1)   % Loop through all rows of the excel sheet except th
         elseif strcmp(tempData.notes.movieType,'MP') == true
             [MScanData] = AreaCalcPenVessel_2P(tempData,[tempData.notes.date '_' tempData.notes.imageID]);
         % Line scan calculation for capillaries
-        elseif strcmp(tempData.notes.movieType,'C') == true
+        elseif strcmp(tempData.notes.movieType,'MC') == true
             [MScanData] = CapLinesScan_2P(tempData,[tempData.notes.date '_' tempData.notes.imageID]);
         end     
         % Checklist for analysis steps - debugging purposes
