@@ -25,7 +25,11 @@ for a = 1:size(mscanDataFiles,1)
         strDay = ConvertDate_2P(date);
         downSampledFs = 30;
         MScanData.notes.dsFs = downSampledFs;
-        expectedLength = (MScanData.notes.numberOfFrames/MScanData.notes.frameRate)*MScanData.notes.analogSamplingRate;
+        try
+            expectedLength = (MScanData.notes.numberOfFrames/MScanData.notes.frameRate)*MScanData.notes.analogSamplingRate;
+        catch
+            expectedLength = (MScanData.notes.numberOfFrames/MScanData.notes.frame_rate)*MScanData.notes.analogSamplingRate;
+        end
         %% Process neural data into its various forms.
         % MUA Band [300 - 3000]
         neuralTypes = {'corticalNeural','hippocampalNeural'};

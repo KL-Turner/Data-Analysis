@@ -19,31 +19,40 @@ for a = 1:size(mscanDataFiles,1)
     load(labviewDataFile)
     if MScanData.notes.checklist.offsetCorrect == false
         disp(['Correcting offset in file number ' num2str(a) ' of ' num2str(size(mscanDataFiles, 1)) '...']); disp(' ');
-        [animalID, hem, fileDate, fileID] = GetFileInfo_2P(labviewDataFile);
+        [animalID,hem,fileDate,fileID] = GetFileInfo_2P(labviewDataFile);
         imageID = MScanData.notes.imageID;
         vesselID = MScanData.notes.vesselID;
-
         analogSamplingRate = LabVIEWData.notes.analogSamplingRate_Hz;
         whiskerCamSamplingRate = LabVIEWData.notes.whiskerCamSamplingRate_Hz;
         dsFs = MScanData.notes.dsFs;
-        vesselSamplingRate = floor(MScanData.notes.frameRate);
-        trialDuration = LabVIEWData.notes.trialDuration_Seconds;
-        
+        if strcmp(MScanData.notes.movieType,'MC') == true
+            vesselSamplingRate = MScanData.Blood_flow.the_Fs;
+        else
+            vesselSamplingRate = floor(MScanData.notes.frameRate);
+        end
+        trialDuration_MScan = MScanData.notes.numberOfFrames/MScanData.notes.frame_rate;
+        trialDuration_LabVIEW = LabVIEWData.notes.trialDuration_Seconds;
         labviewForce = detrend(LabVIEWData.data.dsForceSensorL,'constant');
         mscanForce = detrend(MScanData.data.dsForceSensorM,'constant');
+        sampleDiff = length(labviewForce) - length(mscanForce);
+        mscanForce = vertcat(mscanForce,zeros(sampleDiff,1));
         analog_labviewForce = detrend(LabVIEWData.data.forceSensor,'constant');
         analog_mscanForce = detrend(MScanData.data.forceSensor,'constant');
+        sampleDiff = length(analog_labviewForce) - length(analog_mscanForce);
+        analog_mscanForce = vertcat(analog_mscanForce,zeros(sampleDiff,1));
         analog_labviewSolenoids = LabVIEWData.data.solenoids;
-        
-        maxLag = 30*dsFs;
+        % analog xcorr
         analog_MaxLag = 30*analogSamplingRate;
         [analog_r,analog_lags] = xcorr(analog_labviewForce,analog_mscanForce,analog_MaxLag);
-        [r,lags] = xcorr(labviewForce,mscanForce, maxLag);
         [~,analog_index] = max(analog_r);
+        analog_offset = analog_lags(analog_index);
+        % dsFs xcorr
+        maxLag = 30*dsFs;
+        [r,lags] = xcorr(labviewForce,mscanForce,maxLag);
         [~,index] = max(r);
         offset = lags(index);
-        analog_offset = analog_lags(analog_index);
-        analog_forceOffset = round(abs(analog_offset)/analogSamplingRate);
+        % offsets
+        analog_forceOffset = abs(analog_offset);
         analog_SolenoidOffset = round(abs(analog_offset)/analogSamplingRate);
         analog_whiskerOffset = round(abs(analog_offset)/whiskerCamSamplingRate);
         dsOffset = round(dsFs*(abs(offset)/dsFs));
@@ -51,7 +60,7 @@ for a = 1:size(mscanDataFiles,1)
         
         if offset > 0
             analog_forceShift = analog_labviewForce(analog_forceOffset:end);
-            analog_solenoidShift = analog_labviewForce(analog_SolenoidOffset:end);
+            analog_solenoidShift = analog_labviewSolenoids(analog_SolenoidOffset:end);
             analog_whiskerShift = LabVIEWData.data.whiskerAngle(analog_whiskerOffset:end);
             dsForceShift = labviewForce(offset:end);
             dsWhiskShift = LabVIEWData.data.dsWhiskerAngle(offset:end);
@@ -60,14 +69,14 @@ for a = 1:size(mscanDataFiles,1)
         elseif offset <= 0
             analog_fpad = zeros(1,abs(analog_forceOffset));
             analog_wpad = zeros(1,abs(analog_whiskerOffset));
-            pad = zeros(1,abs(dsOffset));
+            dsFs_pad = zeros(1,abs(dsOffset));
             analog_forceShift = horzcat(analog_fpad,analog_labviewForce);
             analog_solenoidShift = horzcat(analog_fpad,analog_labviewSolenoids);
             analog_whiskerShift = horzcat(analog_wpad,LabVIEWData.data.whiskerAngle);
-            dsForceShift = horzcat(pad,labviewForce);
-            dsWhiskShift = horzcat(pad,LabVIEWData.data.dsWhiskerAngle);
-            binForceShift = horzcat(pad,LabVIEWData.data.binForceSensorL);
-            binWhiskShift = horzcat(pad,LabVIEWData.data.binWhiskerAngle);
+            dsForceShift = horzcat(dsFs_pad,labviewForce);
+            dsWhiskShift = horzcat(dsFs_pad,LabVIEWData.data.dsWhiskerAngle);
+            binForceShift = horzcat(dsFs_pad,LabVIEWData.data.binForceSensorL);
+            binWhiskShift = horzcat(dsFs_pad,LabVIEWData.data.binWhiskerAngle);
         end
         
         corrOffset = figure;
@@ -80,8 +89,7 @@ for a = 1:size(mscanDataFiles,1)
         ylabel('A.U.')
         xlabel('Time (sec)')
         set(gca,'Ticklength',[0,0])
-        axis tight
-        
+        axis tight     
         ax2 = subplot(3,1,2); %#ok<NASGU>
         plot(analog_lags/dsFs,analog_r,'k')
         title('Cross Correlation between the two signals')
@@ -89,7 +97,6 @@ for a = 1:size(mscanDataFiles,1)
         xlabel('Lag (sec)')
         set(gca,'Ticklength',[0,0])
         axis tight
-        
         ax3 = subplot(3,1,3);
         plot((1:length(mscanForce))/dsFs,mscanForce,'k')
         hold on;
@@ -103,75 +110,103 @@ for a = 1:size(mscanDataFiles,1)
         linkaxes([ax1,ax3],'x')
         
         %% Apply correction to the data, and trim excess time
-        frontCut = trimTime;
-        endCut = trimTime;
+        MScan_frontCut = trimTime;
+        MScan_endCut = trimTime - (trialDuration_LabVIEW - trialDuration_MScan);
+        LabVIEW_frontCut = trimTime;
+        LabVIEW_endCut = trimTime;
         
-        mscanAnalogSampleDiff = analogSamplingRate*trialDuration - length(MScanData.data.forceSensor);
-        mscanAnalogCut = endCut*analogSamplingRate - mscanAnalogSampleDiff;
+        mscanAnalogSampleDiff = analogSamplingRate*trialDuration_MScan - length(MScanData.data.forceSensor);
+        mscanAnalogCut = floor(MScan_endCut*analogSamplingRate - mscanAnalogSampleDiff);
         
-        mscan_dsAnalogSampleDiff = dsFs*trialDuration - length(MScanData.data.dsForceSensorM);
-        mscan_dsAnalogCut = endCut*dsFs - mscan_dsAnalogSampleDiff;
+        mscan_dsAnalogSampleDiff = dsFs*trialDuration_MScan - length(MScanData.data.dsForceSensorM);
+        mscan_dsAnalogCut = floor(MScan_endCut*dsFs - mscan_dsAnalogSampleDiff);
         
-        mscan_binForceSampleDiff = dsFs*trialDuration - length(MScanData.data.binForceSensorM);
-        mscan_binForceCut = endCut*dsFs - mscan_binForceSampleDiff;
+        mscan_binForceSampleDiff = dsFs*trialDuration_MScan - length(MScanData.data.binForceSensorM);
+        mscan_binForceCut = floor(MScan_endCut*dsFs - mscan_binForceSampleDiff);
         
-        labview_AnalogSampleDiff = analogSamplingRate*trialDuration - length(analog_forceShift);
-        labview_AnalogCut = endCut*analogSamplingRate - labview_AnalogSampleDiff;
+        labview_AnalogSampleDiff = analogSamplingRate*trialDuration_LabVIEW - length(analog_forceShift);
+        labview_AnalogCut = floor(LabVIEW_endCut*analogSamplingRate - labview_AnalogSampleDiff);
         
-        labview_WhiskerSampleDiff = whiskerCamSamplingRate*trialDuration - length(analog_whiskerShift);
-        labview_WhiskerCut = endCut*whiskerCamSamplingRate - labview_WhiskerSampleDiff;
+        labview_WhiskerSampleDiff = whiskerCamSamplingRate*trialDuration_LabVIEW - length(analog_whiskerShift);
+        labview_WhiskerCut = floor(LabVIEW_endCut*whiskerCamSamplingRate - labview_WhiskerSampleDiff);
         
-        labview_dsWhiskSamplingDiff = dsFs*trialDuration - length(dsWhiskShift);
-        labview_dsWhiskCut = endCut*dsFs - labview_dsWhiskSamplingDiff;
+        labview_dsWhiskSamplingDiff = dsFs*trialDuration_LabVIEW - length(dsWhiskShift);
+        labview_dsWhiskCut = floor(LabVIEW_endCut*dsFs - labview_dsWhiskSamplingDiff);
         
-        labview_dsForceSamplingDiff = dsFs*trialDuration - length(dsForceShift);
-        labview_dsForceCut = endCut*dsFs - labview_dsForceSamplingDiff;
+        labview_dsForceSamplingDiff = dsFs*trialDuration_LabVIEW - length(dsForceShift);
+        labview_dsForceCut = floor(LabVIEW_endCut*dsFs - labview_dsForceSamplingDiff);
         
-        labview_binForceSampleDiff = dsFs*trialDuration - length(binForceShift);
-        labview_binForceCut = endCut*dsFs - labview_binForceSampleDiff;
+        labview_binForceSampleDiff = dsFs*trialDuration_LabVIEW - length(binForceShift);
+        labview_binForceCut = floor(LabVIEW_endCut*dsFs - labview_binForceSampleDiff);
         
-        labview_binWhiskSamplingDiff = dsFs*trialDuration - length(binWhiskShift);
-        labview_binWhiskCut = endCut*dsFs - labview_binWhiskSamplingDiff;
+        labview_binWhiskSamplingDiff = dsFs*trialDuration_LabVIEW - length(binWhiskShift);
+        labview_binWhiskCut = floor(LabVIEW_endCut*dsFs - labview_binWhiskSamplingDiff);
         
-        MScanData.data.forceSensor_trim = MScanData.data.forceSensor(frontCut*analogSamplingRate:end - (mscanAnalogCut + 1))';
-        MScanData.data.corticalNeural_trim = MScanData.data.corticalNeural(frontCut*analogSamplingRate:end - (mscanAnalogCut + 1))';
-        MScanData.data.hippocampalNeural_trim = MScanData.data.hippocampalNeural(frontCut*analogSamplingRate:end - (mscanAnalogCut + 1))';
-        MScanData.data.EMG_trim = MScanData.data.EMG(frontCut*analogSamplingRate:end - (mscanAnalogCut + 1))';
-        MScanData.data.vesselDiameter_trim = MScanData.data.vesselDiameter(frontCut*vesselSamplingRate:end - (endCut*vesselSamplingRate + 1));
-        MScanData.data.cortical.muaPower_trim = MScanData.data.cortical.muaPower(frontCut*dsFs:end - (mscan_dsAnalogCut + 1))';
-        MScanData.data.cortical.gammaBandPower_trim = MScanData.data.cortical.gammaBandPower(frontCut*dsFs:end - (mscan_dsAnalogCut + 1))';
-        MScanData.data.cortical.betaBandPower_trim = MScanData.data.cortical.betaBandPower(frontCut*dsFs:end - (mscan_dsAnalogCut + 1))';
-        MScanData.data.cortical.alphaBandPower_trim = MScanData.data.cortical.alphaBandPower(frontCut*dsFs:end - (mscan_dsAnalogCut + 1))';
-        MScanData.data.cortical.thetaBandPower_trim = MScanData.data.cortical.thetaBandPower(frontCut*dsFs:end - (mscan_dsAnalogCut + 1))';
-        MScanData.data.cortical.deltaBandPower_trim = MScanData.data.cortical.deltaBandPower(frontCut*dsFs:end - (mscan_dsAnalogCut + 1))';
-        MScanData.data.hippocampal.muaPower_trim = MScanData.data.hippocampal.muaPower(frontCut*dsFs:end - (mscan_dsAnalogCut + 1))';
-        MScanData.data.hippocampal.gammaBandPower_trim = MScanData.data.hippocampal.gammaBandPower(frontCut*dsFs:end - (mscan_dsAnalogCut + 1))';
-        MScanData.data.hippocampal.betaBandPower_trim = MScanData.data.hippocampal.betaBandPower(frontCut*dsFs:end - (mscan_dsAnalogCut + 1))';
-        MScanData.data.hippocampal.alphaBandPower_trim = MScanData.data.hippocampal.alphaBandPower(frontCut*dsFs:end - (mscan_dsAnalogCut + 1))';
-        MScanData.data.hippocampal.thetaBandPower_trim = MScanData.data.hippocampal.thetaBandPower(frontCut*dsFs:end - (mscan_dsAnalogCut + 1))';
-        MScanData.data.hippocampal.deltaBandPower_trim = MScanData.data.hippocampal.deltaBandPower(frontCut*dsFs:end - (mscan_dsAnalogCut + 1))';
-        MScanData.data.dsForceSensorM_trim = MScanData.data.dsForceSensorM(frontCut*dsFs:end - (mscan_dsAnalogCut + 1))';
-        MScanData.data.binForceSensorM_trim = MScanData.data.binForceSensorM(frontCut*dsFs:end - (mscan_binForceCut + 1))';
-        MScanData.data.filtEMG_trim = MScanData.data.filtEMG(frontCut*dsFs:end - (mscan_dsAnalogCut + 1))';
+        MScanData.data.forceSensor_trim = MScanData.data.forceSensor(floor(MScan_frontCut*analogSamplingRate):end - (mscanAnalogCut + 1))';
+        MScanData.data.corticalNeural_trim = MScanData.data.corticalNeural(floor(MScan_frontCut*analogSamplingRate):end - (mscanAnalogCut + 1))';
+        MScanData.data.hippocampalNeural_trim = MScanData.data.hippocampalNeural(floor(MScan_frontCut*analogSamplingRate):end - (mscanAnalogCut + 1))';
+        MScanData.data.EMG_trim = MScanData.data.EMG(floor(MScan_frontCut*analogSamplingRate):end - (mscanAnalogCut + 1))';
+        if strcmp(MScanData.notes.movieType,'MC') == true
+            MScanData.data.vesselDiameter_trim = MScanData.Blood_flow.fixed_v(floor(MScan_frontCut*vesselSamplingRate):end - (floor(MScan_endCut*vesselSamplingRate) + 1));
+        else
+            MScanData.data.vesselDiameter_trim = MScanData.data.vesselDiameter(floor(MScan_frontCut*vesselSamplingRate):end - (MScan_endCut*vesselSamplingRate + 1));
+        end
+        MScanData.data.cortical.muaPower_trim = MScanData.data.cortical.muaPower(floor(MScan_frontCut*dsFs):end - (mscan_dsAnalogCut + 1))';
+        MScanData.data.cortical.gammaBandPower_trim = MScanData.data.cortical.gammaBandPower(floor(MScan_frontCut*dsFs):end - (mscan_dsAnalogCut + 1))';
+        MScanData.data.cortical.betaBandPower_trim = MScanData.data.cortical.betaBandPower(floor(MScan_frontCut*dsFs):end - (mscan_dsAnalogCut + 1))';
+        MScanData.data.cortical.alphaBandPower_trim = MScanData.data.cortical.alphaBandPower(floor(MScan_frontCut*dsFs):end - (mscan_dsAnalogCut + 1))';
+        MScanData.data.cortical.thetaBandPower_trim = MScanData.data.cortical.thetaBandPower(floor(MScan_frontCut*dsFs):end - (mscan_dsAnalogCut + 1))';
+        MScanData.data.cortical.deltaBandPower_trim = MScanData.data.cortical.deltaBandPower(floor(MScan_frontCut*dsFs):end - (mscan_dsAnalogCut + 1))';
+        MScanData.data.hippocampal.muaPower_trim = MScanData.data.hippocampal.muaPower(floor(MScan_frontCut*dsFs):end - (mscan_dsAnalogCut + 1))';
+        MScanData.data.hippocampal.gammaBandPower_trim = MScanData.data.hippocampal.gammaBandPower(floor(MScan_frontCut*dsFs):end - (mscan_dsAnalogCut + 1))';
+        MScanData.data.hippocampal.betaBandPower_trim = MScanData.data.hippocampal.betaBandPower(floor(MScan_frontCut*dsFs):end - (mscan_dsAnalogCut + 1))';
+        MScanData.data.hippocampal.alphaBandPower_trim = MScanData.data.hippocampal.alphaBandPower(floor(MScan_frontCut*dsFs):end - (mscan_dsAnalogCut + 1))';
+        MScanData.data.hippocampal.thetaBandPower_trim = MScanData.data.hippocampal.thetaBandPower(floor(MScan_frontCut*dsFs):end - (mscan_dsAnalogCut + 1))';
+        MScanData.data.hippocampal.deltaBandPower_trim = MScanData.data.hippocampal.deltaBandPower(floor(MScan_frontCut*dsFs):end - (mscan_dsAnalogCut + 1))';
+        MScanData.data.dsForceSensorM_trim = MScanData.data.dsForceSensorM(floor(MScan_frontCut*dsFs):end - (mscan_dsAnalogCut + 1))';
+        MScanData.data.binForceSensorM_trim = MScanData.data.binForceSensorM(floor(MScan_frontCut*dsFs):end - (mscan_binForceCut + 1))';
+        MScanData.data.filtEMG_trim = MScanData.data.filtEMG(floor(MScan_frontCut*dsFs):end - (mscan_dsAnalogCut + 1))';
         MScanData.notes.shiftLags = analog_lags;
         MScanData.notes.shiftXCorr = analog_r;
-        MScanData.notes.checklist.offsetCorrect = true;
-        
-        LabVIEWData.data.solenoids_trim = analog_solenoidShift(frontCut*analogSamplingRate:end - (labview_AnalogCut + 1));
-        LabVIEWData.data.forceSensor_trim = analog_forceShift(frontCut*analogSamplingRate:end - (labview_AnalogCut + 1));
-        LabVIEWData.data.whiskerAngle_trim = analog_whiskerShift(frontCut*whiskerCamSamplingRate:end - (labview_WhiskerCut + 1));
-        LabVIEWData.data.dsWhiskerAngle_trim = dsWhiskShift(frontCut*dsFs:end - (labview_dsWhiskCut + 1));
-        LabVIEWData.data.binWhiskerAngle_trim = binWhiskShift(frontCut*dsFs:end - (labview_binWhiskCut + 1));
-        LabVIEWData.data.dsForceSensorL_trim = dsForceShift(frontCut*dsFs:end - (labview_dsForceCut + 1));
-        LabVIEWData.data.binForceSensorL_trim = binForceShift(frontCut*dsFs:end - (labview_binForceCut + 1));
+        MScanData.notes.checklist.offsetCorrect = true;       
+        LabVIEWData.data.solenoids_trim = analog_solenoidShift(floor(LabVIEW_frontCut*analogSamplingRate):end - (labview_AnalogCut + 1));
+        LabVIEWData.data.forceSensor_trim = analog_forceShift(floor(LabVIEW_frontCut*analogSamplingRate):end - (labview_AnalogCut + 1));
+        LabVIEWData.data.whiskerAngle_trim = analog_whiskerShift(floor(LabVIEW_frontCut*whiskerCamSamplingRate):end - (labview_WhiskerCut + 1));
+        LabVIEWData.data.dsWhiskerAngle_trim = dsWhiskShift(floor(LabVIEW_frontCut*dsFs):end - (labview_dsWhiskCut + 1));
+        LabVIEWData.data.binWhiskerAngle_trim = binWhiskShift(floor(LabVIEW_frontCut*dsFs):end - (labview_binWhiskCut + 1));
+        LabVIEWData.data.dsForceSensorL_trim = dsForceShift(floor(LabVIEW_frontCut*dsFs):end - (labview_dsForceCut + 1));
+        LabVIEWData.data.binForceSensorL_trim = binForceShift(floor(LabVIEW_frontCut*dsFs):end - (labview_binForceCut + 1));
         LabVIEWData.notes.checklist.offsetCorrect = true;
         LabVIEWData.notes.trimTime = trimTime;
-        LabVIEWData.notes.trialDuration_Seconds_trim = LabVIEWData.notes.trialDuration_Seconds - 2*trimTime;
-        
+        LabVIEWData.notes.trialDuration_Seconds_trim = LabVIEWData.notes.trialDuration_Seconds - 2*trimTime;      
+        figure; 
+        subplot(3,1,1)
+        p1 = plot((1:length(MScanData.data.forceSensor))/20000,MScanData.data.forceSensor);
+        hold on; 
+        p2 = plot((1:length(LabVIEWData.data.forceSensor))/20000,LabVIEWData.data.forceSensor);
+        legend([p1,p2],'MScan','LabVIEW')
+        axis tight
+        subplot(3,1,2)
+        p1 = plot((1:length(MScanData.data.forceSensor_trim))/20000,MScanData.data.forceSensor_trim);
+        hold on; 
+        p2 = plot((1:length(LabVIEWData.data.forceSensor_trim))/20000,LabVIEWData.data.forceSensor_trim);
+        legend([p1,p2],'MScan','LabVIEW')
+        axis tight
+        subplot(3,1,3)
+        p1 = plot((1:length(MScanData.data.dsForceSensorM_trim))/20000,MScanData.data.dsForceSensorM_trim);
+        hold on; 
+        p2 = plot((1:length(LabVIEWData.data.dsForceSensorL_trim))/20000,LabVIEWData.data.dsForceSensorL_trim);
+        legend([p1,p2],'MScan','LabVIEW')
+        axis tight
+        figure;
+        yyaxis left
+        p1 = plot((1:length(MScanData.data.vesselDiameter_trim))/MScanData.Blood_flow.the_Fs,MScanData.data.vesselDiameter_trim);
+        yyaxis right
+        p2 = plot((1:length(LabVIEWData.data.dsWhiskerAngle_trim))/30,LabVIEWData.data.dsWhiskerAngle_trim);
+        legend([p1,p2],'Velocity','Whisking')
         disp('Updating MScanData and LabVIEW Files...'); disp(' ')
         save([animalID '_' fileDate '_' imageID '_' vesselID '_MScanData'], 'MScanData')
         save([animalID '_' hem '_' fileID '_LabVIEWData'], 'LabVIEWData')
-        
         %% Save the file to directory.
         [pathstr,~,~] = fileparts(cd);
         dirpath = [pathstr '/Figures/XCorr Shift/'];

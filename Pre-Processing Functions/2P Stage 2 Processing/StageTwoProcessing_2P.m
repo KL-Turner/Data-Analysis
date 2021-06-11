@@ -14,8 +14,7 @@
 
 %% BLOCK PURPOSE: [0] Load the script's necessary variables and data structures.
 % Clear the workspace variables and command window.
-clc;
-clear;
+zap;
 disp('Analyzing Block [0] Preparing the workspace and loading variables.'); disp(' ')
 msExcelFile = uigetfile('*.xlsx');
 %% BLOCK PURPOSE: [1] Use ms Excel sheet to create MScanData.mat files with vessel information.
@@ -38,7 +37,7 @@ disp('Analyzing Block [4] Analyzing neural bands, force sensors, and whiskers.')
 Process2PDataFiles_2P(labviewDataFiles,mscanDataFiles)
 %% BLOCK PURPOSE: [5] Correct the offset between the MScan and LabVIEW acquisiton.
 disp('Analyzing Block [5] Correcting LabVIEW time offset.'); disp(' ')
-trimTime = 30;   % sec
+trimTime = 15;   % secklt8
 CorrectLabVIEWOffset_2P(mscanDataFiles,trimTime)
 %% BLOCK PURPOSE: [6] Combine the MScan and LabVIEW structures into one.
 disp('Analyzing Block [6] Combing LabVIEWData and MScan Data files to create MergedData.'); disp(' ')

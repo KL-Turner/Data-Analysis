@@ -1,11 +1,11 @@
-function [maxspot,xc_image,xshift]=linescan_xcov_2P(mv_mpP)
+function [maxspot,xc_image,xshift]=linescan_xcov_2P(MScanData)
 %maxspot-amplitude of the cross correlation peak.
 %xcorr_image- power-spectra normalized cross correlation image
 %xshift- shift of the peak away from the center, in pixels
-x_spread=round(max(1,.5/mv_mpP.Xfactor));%spatial gaussian with 0.5um std
-t_spread=round(mv_mpP.Tfactor/10);%temporal gaussian with 10ms std
+x_spread=round(max(1,.5/MScanData.notes.Xfactor));%spatial gaussian with 0.5um std
+t_spread=round(MScanData.notes.Tfactor/10);%temporal gaussian with 10ms std
 the_kernel=gaussian2d_2P(x_spread,t_spread,3*x_spread,3*t_spread);
-theimage=double(mv_mpP.Blood_flow.Image');%   DOUBLE CHECK IS THIS REALLY THE RIGHT IMAGE????
+theimage=double(MScanData.Blood_flow.Image');%   DOUBLE CHECK IS THIS REALLY THE RIGHT IMAGE????
 
 
 nlines=size(theimage,2);

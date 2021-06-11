@@ -20,6 +20,8 @@ tempData.notes.ysize = str2double(tempData.notes.Frame_Height);
 tempData.notes.Frame_Count = tempData.notes.num_frames;
 %Read header and take further action based on header information
 text_hold = strread(Info(1).ImageDescription,'%s','delimiter','\n');
+the_strings = textscan(Info(1).ImageDescription,'%s','Delimiter', ':');
+tempData.notes.Scan_Mode = the_strings{1}{17};%
 mag_start = strfind(text_hold{20},': ');
 Magnification = text_hold{20}(mag_start + 2:end - 1);
 tempData.notes.Magnification = str2num(Magnification);
@@ -46,6 +48,7 @@ end
 tempData.notes.microns_per_pixel = microns_per_pixel;
 Pixel_clock = 1/((5/4)*tempData.notes.frame_rate*tempData.notes.xsize*tempData.notes.ysize*.05e-6);
 time_per_line = str2num(tempData.notes.Frame_Width)*(5/4)*Pixel_clock*(.05*1e-6);
+tempData.notes.pixelClock = Pixel_clock;
 tempData.notes.time_per_line=1/(tempData.notes.frame_rate*str2num(tempData.notes.Frame_Height));
 tempData.notes.LineRate = 1/time_per_line;
 tempData.notes.Tfactor = tempData.notes.LineRate;

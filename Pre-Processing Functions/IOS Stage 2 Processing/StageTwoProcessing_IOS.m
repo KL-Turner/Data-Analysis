@@ -1,7 +1,7 @@
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
-% https://github.com/KL-Turnery
+% https://github.com/KL-Turner
 %________________________________________________________________________________________________________________________
 %
 %   Purpose: 1) Create ProcData structure using threshholds for the observed data
