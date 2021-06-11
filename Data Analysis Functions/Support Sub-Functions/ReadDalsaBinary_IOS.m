@@ -25,7 +25,7 @@ nFramesToRead = floor(fileSize/(2*pixelsPerFrame));
 % preallocate memory
 frames = cell(1,nFramesToRead);
 for n = 1:nFramesToRead
-    z = fread(fid,pixelsPerFrame,'*int16','b');
+    z = fread(fid,pixelsPerFrame,'int16','b');
     img = reshape(z(1:pixelsPerFrame),imageWidth,imageHeight);
     frames{n} = rot90(img',2);
 end

@@ -14,11 +14,15 @@ for a = 1:size(procDataFiles,1)
     procDataFile = procDataFiles(a,:);
     disp(['Extracting heart rate from ProcData file ' num2str(a) ' of ' num2str(size(procDataFiles, 1)) '...']); disp(' ')
     load(procDataFile)
+    if strcmp(imagingType,'bilateral') == true
     % Pull out the left and right window heart rate. They should be essentiall6 identical
     [~,~,~,LH_HR] = FindHeartRate_IOS(ProcData.data.CBV.LH,ProcData.notes.CBVCamSamplingRate);
     [~,~,~,RH_HR] = FindHeartRate_IOS(ProcData.data.CBV.RH,ProcData.notes.CBVCamSamplingRate);
     % Average the two signals from the left and right windows
     HR = (LH_HR + RH_HR)/2;
+    elseif strcmp(imagingType,'single') == true
+            [~,~,~,HR] = FindHeartRate_IOS(ProcData.data.CBV.Barrels,ProcData.notes.CBVCamSamplingRate);
+    end
     % patch the missing data at the beginning and end of the signal
     patchedHR = horzcat(HR(1),HR,HR(end),HR(end));
     % Smooth the signal with a 2 Hz low pass third-order butterworth filter

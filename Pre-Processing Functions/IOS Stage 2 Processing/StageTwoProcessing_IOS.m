@@ -24,7 +24,7 @@ rawDataFileIDs = char(rawDataFiles);
 curDir = cd;
 dirBreaks = strfind(curDir,'\');
 curFolder = curDir(dirBreaks(end) + 1:end);
-imagingType = 'bilateral';
+imagingType = input('Input imaging type (bilateral or single): ','s'); disp(' ')
 %% BLOCK PURPOSE: [1] Process the RawData structure -> Create Threshold data structure and ProcData structure.
 disp('Analyzing Block [2] Creating ProcData files and processing analog data.'); disp(' ')
 ProcessRawDataFiles_IOS(rawDataFileIDs)
@@ -39,6 +39,10 @@ disp('Analyzing Block [3] Adding heart rate to ProcData files.'); disp(' ')
 ExtractHeartRate_IOS(procDataFileIDs,imagingType)
 %% BLOCK PURPOSE: [4] Check/Correct IOS pixel drift.
 disp('Analyzing Block [4] Correcting pixel drift.'); disp(' ')
-CorrectBilateralPixelDrift_IOS(procDataFileIDs)
+if strcmp(imagingType,'bilateral') == true
+    CorrectBilateralPixelDrift_IOS(procDataFileIDs)
+elseif strcmp(imagingType,'single') == true
+    CorrectPixelDrift_IOS(procDataFileIDs)
+end
 %% fin.
 disp('IOS Stage Two Processing - Complete.'); disp(' ')
