@@ -46,14 +46,8 @@ user_microns_per_pixel = Header.notes.microns_per_pixel;
 %Open stream
 function_ID = mfilename('fullpath');
 rawinfo=imfinfo([fname '.tif']);%get the image info
-fileID=[Header.notes.animalID '_' Header.notes.vesselID];
-Header.oldNotes=Header.notes;
 [Header.notes]=ReadMCSTiffInfo_2P([fname '.tif']);
 mpP.Header.notes=Header.notes;
-mpP.Header.notes.animalID = Header.oldNotes.animalID;
-mpP.Header.notes.vesselID = Header.oldNotes.vesselID;
-mpP.Header.notes.imageID = Header.oldNotes.imageID;
-mpP.Header.notes.date = Header.oldNotes.date;
 %Read header and take further action based on header information
 mpP.Header.notes.num_frames = theframes(end)-theframes(1);%str2double(mpContent.Header.notes.Frame_Count);
 mpP.Header.notes.xsize = mpP.Header.notes.Frame_Width;
@@ -286,10 +280,10 @@ sep_threshold=3;
 low_sep=find(separability<sep_threshold);
 
 
-%mkdir(fileID);
-%cd(fileID)
+%mkdir(fileID{1});
+%cd(fileID{1})
 
-save([fileID '_Radon_mv_mpP_' fname(1:end-4) '_' the_date],'mpP')
+save([fileID{1} '_Radon_mv_mpP_' fname(1:end-4) '_' the_date],'mpP')
 
 params_ps.Fs=mpP.Blood_flow.the_Fs;
 params_ps.tapers=[3 5];
@@ -299,21 +293,21 @@ plot(mpP.Blood_flow.powerSpec_f,mpP.Blood_flow.powerSpec_s)
 title(strcat(fileID,' Power Spectrum'));
 xlabel('Frequency (Hz)');
 ylabel('Power');
-saveas(ps_plot,strcat(fileID,'_PowerSpectrum_',date));
+saveas(ps_plot,strcat(fileID{1},'_PowerSpectrum_',date));
 
 psl_plot = figure;
 semilogy(mpP.Blood_flow.powerSpec_f,mpP.Blood_flow.powerSpec_s);
 title(strcat(fileID,' Power Spectrum (semilog)'));
 xlabel('Frequency (Hz)');
 ylabel('Power');
-saveas(psl_plot,strcat(fileID,'_PowerSpectrumSemilog_',date));
+saveas(psl_plot,strcat(fileID{1},'_PowerSpectrumSemilog_',date));
 
 v_plot = figure;
 plot(mpP.Blood_flow.the_t,mpP.Blood_flow.fixed_v);
 title(strcat(fileID,' Fixed Velocity'));
 xlabel('Time (s)');
 ylabel('Velocity (um/s)');
-saveas(v_plot,strcat(fileID,'_FixedVelocity_',date));
+saveas(v_plot,strcat(fileID{1},'_FixedVelocity_',date));
 
 theta_plot = figure; hold on
 plot(mpP.Blood_flow.the_t, mpP.Blood_flow.thetas(1,:));
@@ -322,7 +316,7 @@ legend('Theta1','Theta2');
 title(strcat(fileID,' Thetas'));
 xlabel('Time (s)');
 ylabel('Theta (degrees)');
-saveas(theta_plot,strcat(fileID,'_Thetas_',date));
+saveas(theta_plot,strcat(fileID{1},'_Thetas_',date));
 
 v2_plot = figure; hold on
 plot(mpP.Blood_flow.the_t, mpP.Blood_flow.velocity2(1,:));
@@ -331,13 +325,13 @@ legend('Forward','Backward');
 title(strcat(fileID,' Velocities'));
 xlabel('Time (s)');
 ylabel('Velocity (um/s)');
-saveas(v2_plot,strcat(fileID,'_Velocities_',date));
+saveas(v2_plot,strcat(fileID{1},'_Velocities_',date));
 
 sep_plot =figure;
 plot(mpP.Blood_flow.the_t, mpP.Blood_flow.separability);
 title(strcat(fileID, ' Separability'));
 xlabel('Time (s)');
 ylabel('Separability');
-saveas(sep_plot,strcat(fileID,'_Separability_',date));
+saveas(sep_plot,strcat(fileID{1},'_Separability_',date));
     
 end

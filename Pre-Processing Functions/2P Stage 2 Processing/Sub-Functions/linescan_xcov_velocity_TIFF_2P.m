@@ -23,18 +23,19 @@ hold on
 plot((1:length(mv_mpP.Blood_flow.xc_velocity))/mv_mpP.Tfactor,mv_mpP.Blood_flow.xc_velocity/1000,'w')
 xlabel('time, seconds')
 ylabel('velocity, mm/sec')
-title([mv_mpP.Header.ImageID ' ' mv_mpP.Header.animal ' ' mv_mpP.Header.VesselNO]);
+title([mv_mpP.Header.notes.imageID ' ' mv_mpP.Header.notes.animalID ' ' mv_mpP.Header.notes.vesselID]);
 axis xy
 subplot(1,4,4)
 loglog(f_xc,S_xc)
-saveas(gcf,fullfile(['Velocity_C_' mv_mpP.Header.ImageID]),'fig');
-
+saveas(gcf,fullfile(['Velocity_C_' mv_mpP.Header.notes.animalID mv_mpP.Header.notes.vesselID]),'fig');
+%{
 figure
 time=(1:length(mv_mpP.Blood_flow.velocity2(1,:)));
-time=time*str2num(mv_mpP.Header.Header.Frame_Rate);
+time=time*str2num(mv_mpP.Header.notes.Frame_Rate);
 plot(time,mv_mpP.Blood_flow.velocity2(1,:))
 xlabel('time, seconds')
 ylabel('velocity, mm/sec')
-title([mv_mpP.Header.ImageID ' ' mv_mpP.Header.animal ' ' mv_mpP.Header.VesselNO]);
-saveas(gcf,fullfile(['Velocity1_C_' mv_mpP.Header.ImageID]),'fig');
+title([mv_mpP.Header.notes.animalID ' ' mv_mpP.Header.notes.vesselID ' XC-velocity']);
+saveas(gcf,fullfile(['Velocity1_C_' mv_mpP.Header.notes.imageID]),'fig');
+%}
 end

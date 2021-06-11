@@ -44,14 +44,15 @@ elseif (tempData.notes.objectiveID == 5) %16x
     microns_per_pixel=0.825;
 end
 tempData.notes.microns_per_pixel = microns_per_pixel;
-Pixel_clock = 1/((5/4)*tempData.notes.frame_rate*tempData.notes.xsize*tempData.notes.ysize);
+Pixel_clock = 1/((5/4)*tempData.notes.frame_rate*tempData.notes.xsize*tempData.notes.ysize*.05e-6);
 time_per_line = str2num(tempData.notes.Frame_Width)*(5/4)*Pixel_clock*(.05*1e-6);
 tempData.notes.time_per_line=1/(tempData.notes.frame_rate*str2num(tempData.notes.Frame_Height));
 tempData.notes.LineRate = 1/time_per_line;
+tempData.notes.Tfactor = tempData.notes.LineRate;
 Xfactor = microns_per_pixel/tempData.notes.Magnification;
 tempData.notes.Xfactor = Xfactor;
 matfilename = '';
-[~,start,stop,hold1,frames,~] = Display_Frames_MultiVessel_TIFF_2P(ImageID,matfilename,tempData);
+[~,start,stop,hold1,frames,~] = Display_Frames_MultiVessel_TIFF_2P([ImageID '.tif'],matfilename,tempData);
 tempData.notes.xstart = start;
 tempData.notes.xstop = stop;
 tempData.notes.frames_hold = hold1;

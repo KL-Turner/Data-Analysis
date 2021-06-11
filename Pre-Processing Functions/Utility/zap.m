@@ -15,7 +15,7 @@ function [clearvars] = zap()
 %   Last Revised: March 9th, 2019
 %________________________________________________________________________________________________________________________
 
-evalin( 'base', 'clear' )
+evalin('base','clear')
 clc
 close all
 

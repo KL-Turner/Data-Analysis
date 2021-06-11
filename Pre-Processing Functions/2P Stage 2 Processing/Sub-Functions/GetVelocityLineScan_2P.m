@@ -15,7 +15,7 @@ angle_resolution=.1;%how accurate to determine the angle
 the_scanmirrors=2;%we only use 6215 input('which mirrors? 1)6210(fast) 2)6215(slow)');
 channel=1;
 clear mpP mv_mpP thefigures save_filename analog_data
-disp(['Processing File ' num2str(1)])
+disp(['Processing File ' MScanData.notes.imageID])
 thisfile=mfilename('fullpath');
 mpP.code=GetFunctionCode_2P(thisfile);
 filename =[MScanData.notes.date '_' ([MScanData.notes.imageID])];
