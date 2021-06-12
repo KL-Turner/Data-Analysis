@@ -1,68 +1,80 @@
-function [MScanData] = CapLinesScan_2P(tempData,ImageID)
+function [MScanData] = CapLinesScan_2P(MScanData,imageID)
 %________________________________________________________________________________________________________________________
 % Edited by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
+%
+% Adapted from code written by Dr. Patrick J. Drew: https://github.com/DrewLab
 %________________________________________________________________________________________________________________________
 %
-%   Purpose:
+%   Purpose: Draw edge points for linescan velocity calculation
 %________________________________________________________________________________________________________________________
 
-%get file info
-Info = imfinfo([ImageID '.TIF']);
-%take file info and extrac magnification and frame rate
-tempData.notes.Filename = Info(1).Filename;
-tempData.notes.Frame_Width = num2str(Info(1).Width);
-tempData.notes.Frame_Height = num2str(Info(1).Height);
-tempData.notes.num_frames = length(Info(1));
-tempData.notes.xsize = str2double(tempData.notes.Frame_Width);
-tempData.notes.ysize = str2double(tempData.notes.Frame_Height);
-tempData.notes.Frame_Count = tempData.notes.num_frames;
-%Read header and take further action based on header information
-text_hold = strread(Info(1).ImageDescription,'%s','delimiter','\n');
-the_strings = textscan(Info(1).ImageDescription,'%s','Delimiter', ':');
-tempData.notes.Scan_Mode = the_strings{1}{17};%
-mag_start = strfind(text_hold{20},': ');
-Magnification = text_hold{20}(mag_start + 2:end - 1);
-tempData.notes.Magnification = str2num(Magnification);
-rotation_start = strfind(text_hold{19},': ');
-tempData.notes.Rotation = text_hold{19}(rotation_start+2:end);
-framerate_start = strfind(text_hold{24},': ');
-tempData.notes.Frame_Rate = (text_hold{24}(framerate_start + 2:end - 3));
-tempData.notes.frame_rate = 1/str2num(tempData.notes.Frame_Rate);
-tempData.notes.startframe = 1;
-tempData.notes.endframe = tempData.notes.num_frames;
-tempData.notes.nframes_trial = NaN;
+% take file info and extract magnification and frame rate
+movieInfo = imfinfo([imageID '.TIF']);
+MScanData.notes.filename = movieInfo(1).Filename;
+MScanData.notes.frameWidth = num2str(movieInfo(1).Width);
+MScanData.notes.frameHeight = num2str(movieInfo(1).Height);
+MScanData.notes.numberOfFrames = length(movieInfo);
+MScanData.notes.xSize = str2double(MScanData.notes.frameWidth);
+MScanData.notes.ySize = str2double(MScanData.notes.frameHeight);
+% read header and take further action based on header information
+textHold = strread(movieInfo(1).ImageDescription,'%s','delimiter','\n'); %#ok<DSTRRD>
+mscanStrings = textscan(movieInfo(1).ImageDescription,'%s','Delimiter', ':');
+MScanData.notes.scanMode = mscanStrings{1}{17};%
+MScanData.notes.magnification = str2double(textHold{20}(strfind(textHold{20},': ') + 2:end - 1));
+MScanData.notes.rotation = textHold{19}(strfind(textHold{19},': ')+2:end);
+MScanData.notes.frameTime = str2double((textHold{24}(strfind(textHold{24},': ') + 2:end - 3)));
+MScanData.notes.frameRate = 1/MScanData.notes.frameTime;
+MScanData.notes.startFrame = 1;
+MScanData.notes.endFrame = MScanData.notes.numberOfFrames;
 % magnification uM per pixel
-if (tempData.notes.objectiveID == 1) %10X
-    microns_per_pixel=1.2953;
-elseif (tempData.notes.objectiveID == 2) %small 20X
-    microns_per_pixel=0.5595;
-elseif (tempData.notes.objectiveID == 3) %big 20X
-    microns_per_pixel=0.64;
-elseif (tempData.notes.objectiveID == 4) %40X
-    microns_per_pixel=0.3619;
-elseif (tempData.notes.objectiveID == 5) %16x
-    microns_per_pixel=0.825;
+if MScanData.notes.objectiveID == 1       %10X
+    MScanData.notes.micronsPerPixel = 1.2953;
+elseif MScanData.notes.objectiveID == 2   % Small 20X
+    MScanData.notes.micronsPerPixel = 0.5595;
+elseif MScanData.notes.objectiveID == 3   % Big 20X
+    MScanData.notes.micronsPerPixel = 0.64;
+elseif MScanData.notes.objectiveID == 4   % 40X
+    MScanData.notes.micronsPerPixel = 0.3619;
+elseif MScanData.notes.objectiveID == 5   % 16X
+    MScanData.notes.micronsPerPixel = 0.825;
 end
-tempData.notes.microns_per_pixel = microns_per_pixel;
-Pixel_clock = 1/((5/4)*tempData.notes.frame_rate*tempData.notes.xsize*tempData.notes.ysize*.05e-6);
-time_per_line = str2num(tempData.notes.Frame_Width)*(5/4)*Pixel_clock*(.05*1e-6);
-tempData.notes.pixelClock = Pixel_clock;
-tempData.notes.time_per_line=1/(tempData.notes.frame_rate*str2num(tempData.notes.Frame_Height));
-tempData.notes.LineRate = 1/time_per_line;
-tempData.notes.Tfactor = tempData.notes.LineRate;
-Xfactor = microns_per_pixel/tempData.notes.Magnification;
-tempData.notes.Xfactor = Xfactor;
-matfilename = '';
-[~,start,stop,hold1,frames,~] = Display_Frames_MultiVessel_TIFF_2P([ImageID '.tif'],matfilename,tempData);
-tempData.notes.xstart = start;
-tempData.notes.xstop = stop;
-tempData.notes.frames_hold = hold1;
-tempData.notes.nframes = frames;
-tempData.notes.startframe = 1;%start at the beginning  %input('start frame: ');
-tempData.notes.endframe = length(imfinfo([ImageID '.tif']));%start at the end input('end frame: ');
-tempData.notes.the_decimate = 1;%input('decimation factor: '); only for oversampled data
-MScanData = tempData;
+MScanData.notes.pixelClock = 1/((5/4)*MScanData.notes.frameRate*MScanData.notes.xSize*MScanData.notes.ySize*.05e-6);
+MScanData.notes.timePerLine = 1/(MScanData.notes.frameRate*str2double(MScanData.notes.frameHeight));
+MScanData.notes.lineRate = 1/MScanData.notes.timePerLine;
+MScanData.notes.tFactor = MScanData.notes.lineRate;
+MScanData.notes.xFactor = MScanData.notes.micronsPerPixel/MScanData.notes.magnification;
+MScanData.notes.decimate = 1;
+% generate figure for drawing ROIs
+framesHold = LoadTiffConcatenate_2P([imageID '.TIF'],[1,5]);
+yString = 'y';
+theInput = 'n';
+while strcmp(yString,theInput) == false
+    lineScanBoundaries = figure;
+    imagesc(double(framesHold))
+    title([MScanData.notes.animalID ' ' MScanData.notes.date ' ' MScanData.notes.imageID])
+    colormap('gray');
+    axis image
+    axis off
+    % draw boundary lines for linescan velocity calculation
+    disp('Select left and right boundary for velocity calculation range'); disp(' ')
+    [x,~] = ginput(2);
+    MScanData.notes.xStart = round(min(x));
+    MScanData.notes.xStop = round(max(x));
+    hold on;
+    xline(MScanData.notes.xStart,'r')
+    xline(MScanData.notes.xStop,'r')
+    theInput = input('Are the boundaries okay? (y/n): ','s'); disp(' ')
+    if strcmp(yString,theInput) == true
+        [pathstr,~,~] = fileparts(cd);
+        dirpath = [pathstr '/Figures/Vessel ROIs/'];
+        if ~exist(dirpath,'dir')
+            mkdir(dirpath);
+        end
+        savefig(lineScanBoundaries,[dirpath MScanData.notes.animalID '_' MScanData.notes.date '_' MScanData.notes.imageID '_ROIs']);
+    end
+    close(lineScanBoundaries);
+end
 
 end

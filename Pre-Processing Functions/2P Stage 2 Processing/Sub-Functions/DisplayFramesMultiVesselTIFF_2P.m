@@ -1,19 +1,9 @@
-function [imagefig,xstart,xstop,frames_hold,nframes,scan_type] = Display_Frames_MultiVessel_TIFF_2P(fname,mfname,tempData)
-%________________________________________________________________________________________________________________________
-% Edited by Kevin L. Turner
-% The Pennsylvania State University, Dept. of Biomedical Engineering
-% https://github.com/KL-Turner
-%
-% Adapted from code written by Dr. Patrick J. Drew: https://github.com/DrewLab
-%________________________________________________________________________________________________________________________
-%
-%   Purpose: Displays the first frames of the TIFF linescan file and gets the user input to determine the x range to use for the radon transform
-%________________________________________________________________________________________________________________________
+function [imagefig,xstart,xstop,frames_hold,nframes,scan_type] = DisplayFramesMultiVesselTIFF_2P(fname,MScanData)
 
-    nframes = tempData.notes.Frame_Count;
-    tempData.xsize = str2double(tempData.notes.Frame_Width);
-    tempData.ysize = str2double(tempData.notes.Frame_Height);
-    frame_height = tempData.ysize;
+    nframes = MScanData.notes.frameCount;
+    MScanData.xsize = str2double(MScanData.notes.frameWidth);
+    MScanData.ysize = str2double(MScanData.notes.frameHeight);
+    frame_height = MScanData.ysize;
  
     frames_hold = LoadTiffConcatenate_2P(fname,[1,5]);%
     imagefig = figure(2);
@@ -46,18 +36,11 @@ function [imagefig,xstart,xstop,frames_hold,nframes,scan_type] = Display_Frames_
 
         end
     end
-    nvessels = 1; %input('How many vessels?');
-    scan_type = -ones(nvessels,1);
-    vessel_ID = cell(nvessels,1);
-    depths = -ones(nvessels,1);
-
     for vessel=1:nvessels
         disp('Select velocity calculation range.')
         [x,y]=ginput(2);
         xstart(vessel)=round(min(x));
         xstop(vessel)=round(max(x));
-    %     depths(vessel)=input('depth?')
-    %     vessel_ID{vessel}=input('Vessel ID: ','s')
-        scan_type(vessel)=1; %input('Scan type? 0=diameter 1=velocity')
+        scan_type(vessel)=1;
     end
 end

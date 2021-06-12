@@ -10,7 +10,7 @@ function [MScanData] = CalcPenVesselArea_2P(MScanData,fileID)
 %   Purpose: Extract cross-sectional area from a penetrating vessel TIFF stack
 %________________________________________________________________________________________________________________________
 
-%% Takes a tiff file (movie) and an analog ascii file, and extracts the diameters
+% takes a tiff file (movie) and an analog ascii file, and extracts the diameters
 MScan_analogData = [fileID '.TXT'];
 disp(['Loading MScan file: ' MScan_analogData '...']); disp(' ');
 analogData = load(MScan_analogData, '-ascii');
@@ -24,23 +24,16 @@ for n = 2:5
     MScanData.notes.firstFrame = MScanData.notes.firstFrame+double(imread(fileID,'tif','Index',n));
 end
 MScanData.notes.firstFrame = MScanData.notes.firstFrame/5;
-
-MScanData = PenetratingvesselROIAreaTiff_2P(fileID,MScanData,20,MScanData.notes.header.numberOfFrames);
-
-end
-
-%% 2. radon transform to measure penetrating vessel raw area (Patrick Drew 2014.2.6)
-function [MScanData] = PenetratingvesselROIAreaTiff_2P(thefile,MScanData,~,maxframe)
-fileInfo = imfinfo([thefile '.TIF']);
+fileInfo = imfinfo([fileID '.TIF']);
 nframes = length(fileInfo);
 angles = 1:1:180;
 rtdThrehold = .5;   %0.5 'half max'
 irtdThrehold = .2;   %0.2 gets rid of the noise from the inverse radon
-area = -ones(min(nframes,maxframe),1);
-radoncontours = cell(min(nframes,maxframe),1);
+area = -ones(min(nframes,MScanData.notes.header.numberOfFrames),1);
+radoncontours = cell(min(nframes,MScanData.notes.header.numberOfFrames),1);
 fftFirstFrame = fft2(MScanData.notes.firstFrame); % *
-for f = 1:min(nframes,maxframe)
-    rawHoldImage = double(sum(imread(thefile,'tif','Index',f),3));
+for f = 1:min(nframes,MScanData.notes.header.numberOfFrames)
+    rawHoldImage = double(sum(imread(fileID,'tif','Index',f),3));
     fftRawHoldFrame = fft2(rawHoldImage); % *
     [MScanData.notes.pixelShift(:,f),~] = DftRegistration_2P(fftFirstFrame,fftRawHoldFrame,1);
     holdImage = rawHoldImage(round(MScanData.notes.vesselROI.boxPosition.xy(2):MScanData.notes.vesselROI.boxPosition.xy(2) + MScanData.notes.vesselROI.boxPosition.xy(4)),...

@@ -1,6 +1,8 @@
-function [MScanData,function_ID]=GetVelocityRadon_MPScan_L4_cc_TIFF_2P(fname,matfilename,window_time_size,angle_span, angle_resolution, max_v, channel,isinterleaved,MScanData);
+function [MScanData]=GetVelocityRadon_MPScan_L4_cc_TIFF_2P(fname,matfilename,window_time_size,angle_span, angle_resolution, max_v, channel,isinterleaved,MScanData);
 
-function_ID = mfilename('fullpath');
+
+
+
 theframes = [MScanData.notes.startframe,MScanData.notes.endframe];
 the_x = [MScanData.notes.xstart,MScanData.notes.xstop];
 the_decimate = MScanData.notes.the_decimate;

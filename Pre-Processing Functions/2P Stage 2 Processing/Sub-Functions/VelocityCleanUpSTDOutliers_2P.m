@@ -1,39 +1,46 @@
+function [fixedVelocity] = VelocityCleanUpSTDOutliers_2P(velocity,threshold)
+%________________________________________________________________________________________________________________________
+% Edited by Kevin L. Turner
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
+%
+% Adapted from code written by Dr. Patrick J. Drew: https://github.com/DrewLab
+%________________________________________________________________________________________________________________________
+%
+%   Purpose: finds points outside a threshold velocity and interpolated between last
+%            and next good points, unless at the begining or end, then puts in mean velocities
+%________________________________________________________________________________________________________________________
 
-function [fixed_v]=VelocityCleanUpSTDOutliers_2P(v, thresh)
-%finds points outside a threshold velocity and interpolated between last
-% and next good points, unless at the begining or end, then puts in mean
-% velocities
-%pd 2-21-08
-upper_bound=thresh*std(v)+mean(v);
-lower_bound=-thresh*std(v)+mean(v);
-badpoints=union(find(v>upper_bound),find(v<lower_bound));
-noutliers=length(badpoints);
-fixed_v=v;
-while noutliers>0
-    %badpoints=find(abs(v)>thresh);
-    goodpoints=union(setdiff(badpoints+1,badpoints),setdiff(badpoints-1,badpoints));
-    for p=1:length(badpoints)
-        lastgood=max(find(goodpoints<badpoints(p)));
-        nextgood=min(find(goodpoints>badpoints(p)));
-        if ((goodpoints(1)>0)&&(goodpoints(end)<=length(fixed_v)))
-            if((numel(lastgood)>0)&&(isempty(nextgood)==0))
-                fixed_v(badpoints(p))=.5*fixed_v(goodpoints(lastgood))+.5*fixed_v(goodpoints(nextgood));
-            elseif((numel(lastgood)>0))
-                fixed_v(badpoints(p))=fixed_v(goodpoints(nextgood));
+upperBound = threshold*std(velocity) + mean(velocity);
+lowerBound = -threshold*std(velocity) + mean(velocity);
+badPoints = union(find(velocity > upperBound),find(velocity < lowerBound));
+nOutliers = length(badPoints);
+fixedVelocity = velocity;
+while nOutliers > 0
+    goodPoints = union(setdiff(badPoints + 1,badPoints),setdiff(badPoints - 1,badPoints));
+    for pp = 1:length(badPoints)
+        lastGood = find(goodPoints < badPoints(pp),1,'last');
+        nextGood = find(goodPoints > badPoints(pp),1);
+        if ((goodPoints(1) > 0) && (goodPoints(end) <= length(fixedVelocity)))
+            if ((numel(lastGood) > 0) && (isempty(nextGood) == 0))
+                fixedVelocity(badPoints(pp)) = .5*fixedVelocity(goodPoints(lastGood)) + .5*fixedVelocity(goodPoints(nextGood));
+            elseif ((numel(lastGood) > 0))
+                fixedVelocity(badPoints(pp)) = fixedVelocity(goodPoints(nextGood));
             else
-                fixed_v(badpoints(p))=fixed_v(goodpoints(lastgood));
+                fixedVelocity(badPoints(pp))=fixedVelocity(goodPoints(lastGood));
             end
-        elseif (goodpoints(1)==0)
-            fixed_v(badpoints(p))=mean(fixed_v);%(goodpoints(nextgood));
-        elseif (goodpoints(end)==length(fixed_v)+1)
-            fixed_v(badpoints(p))=mean(fixed_v);%fixed_v(goodpoints(lastgood));
-        elseif numel(goodpoints)==0
-            fixed_v(badpoints(p))=-fixed_v;
+        elseif (goodPoints(1) == 0)
+            fixedVelocity(badPoints(pp)) = mean(fixedVelocity);
+        elseif (goodPoints(end) == length(fixedVelocity) + 1)
+            fixedVelocity(badPoints(pp)) = mean(fixedVelocity);
+        elseif numel(goodPoints) == 0
+            fixedVelocity(badPoints(pp)) = -fixedVelocity;
         end      
     end
-    upper_bound=thresh*std(fixed_v)+mean(fixed_v);
-    lower_bound=-thresh*std(fixed_v)+mean(fixed_v);
-    badpoints=union(find(fixed_v>upper_bound),find(fixed_v<lower_bound));
-    noutliers=length(badpoints);   
+    upperBound = threshold*std(fixedVelocity) + mean(fixedVelocity);
+    lowerBound = -threshold*std(fixedVelocity) + mean(fixedVelocity);
+    badPoints = union(find(fixedVelocity > upperBound),find(fixedVelocity < lowerBound));
+    nOutliers = length(badPoints);   
 end
+
 end

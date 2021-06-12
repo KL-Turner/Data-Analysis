@@ -9,7 +9,7 @@
 %            3) Add the LabVIEW filename to each MScan file.
 %            4) Analyze neural bands, force sensors, and whisker motion.
 %            5) Correct LabVIEW time offset.
-%            6) Combine LabVIEWData and MScan Data files to ceate MergedData. 
+%            6) Combine LabVIEWData and MScan Data files to ceate MergedData.
 %________________________________________________________________________________________________________________________
 
 %% BLOCK PURPOSE: [0] Load the script's necessary variables and data structures.

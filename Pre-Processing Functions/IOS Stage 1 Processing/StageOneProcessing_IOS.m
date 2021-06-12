@@ -16,8 +16,7 @@
 
 %% BLOCK PURPOSE: [0] Load the script's necessary variables and data structures.
 % Clear the workspace variables and command window
-clc;
-clear;
+zap;
 disp('Analyzing Block [0] Preparing the workspace and loading variables.'); disp(' ')
 % Asks the user to load all files with a '_WhiskerCam.bin' extension
 fileNames = uigetfile('*_WhiskerCam.bin','MultiSelect','on');   % CTL-A to select all files
