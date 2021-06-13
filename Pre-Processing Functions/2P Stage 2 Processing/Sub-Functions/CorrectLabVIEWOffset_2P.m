@@ -26,11 +26,11 @@ for a = 1:size(mscanDataFiles,1)
         whiskerCamSamplingRate = LabVIEWData.notes.whiskerCamSamplingRate_Hz;
         dsFs = MScanData.notes.dsFs;
         if strcmp(MScanData.notes.movieType,'MC') == true
-            vesselSamplingRate = MScanData.Blood_flow.the_Fs;
+            vesselSamplingRate = MScanData.data.bloodFlow.Fs;
         else
             vesselSamplingRate = floor(MScanData.notes.frameRate);
         end
-        trialDuration_MScan = MScanData.notes.numberOfFrames/MScanData.notes.frame_rate;
+        trialDuration_MScan = MScanData.notes.numberOfFrames/MScanData.notes.frameRate;
         trialDuration_LabVIEW = LabVIEWData.notes.trialDuration_Seconds;
         labviewForce = detrend(LabVIEWData.data.dsForceSensorL,'constant');
         mscanForce = detrend(MScanData.data.dsForceSensorM,'constant');
@@ -147,7 +147,7 @@ for a = 1:size(mscanDataFiles,1)
         MScanData.data.hippocampalNeural_trim = MScanData.data.hippocampalNeural(floor(MScan_frontCut*analogSamplingRate):end - (mscanAnalogCut + 1))';
         MScanData.data.EMG_trim = MScanData.data.EMG(floor(MScan_frontCut*analogSamplingRate):end - (mscanAnalogCut + 1))';
         if strcmp(MScanData.notes.movieType,'MC') == true
-            MScanData.data.vesselDiameter_trim = MScanData.Blood_flow.fixed_v(floor(MScan_frontCut*vesselSamplingRate):end - (floor(MScan_endCut*vesselSamplingRate) + 1));
+            MScanData.data.vesselDiameter_trim = MScanData.data.bloodFlow.fixedVelocity(floor(MScan_frontCut*vesselSamplingRate):end - (floor(MScan_endCut*vesselSamplingRate) + 1));
         else
             MScanData.data.vesselDiameter_trim = MScanData.data.vesselDiameter(floor(MScan_frontCut*vesselSamplingRate):end - (MScan_endCut*vesselSamplingRate + 1));
         end
@@ -200,7 +200,7 @@ for a = 1:size(mscanDataFiles,1)
         axis tight
         figure;
         yyaxis left
-        p1 = plot((1:length(MScanData.data.vesselDiameter_trim))/MScanData.Blood_flow.the_Fs,MScanData.data.vesselDiameter_trim);
+        p1 = plot((1:length(MScanData.data.vesselDiameter_trim))/MScanData.data.bloodFlow.Fs,MScanData.data.vesselDiameter_trim);
         yyaxis right
         p2 = plot((1:length(LabVIEWData.data.dsWhiskerAngle_trim))/30,LabVIEWData.data.dsWhiskerAngle_trim);
         legend([p1,p2],'Velocity','Whisking')

@@ -202,6 +202,7 @@ if interleaved == 1
         mkdir(dirpath);
     end
     savefig(lineScanVel,[dirpath MScanData.notes.animalID '_' MScanData.notes.date '_' MScanData.notes.imageID '_VelocityThetaSeparability']);
+    close(lineScanVel)
 end
 
 end

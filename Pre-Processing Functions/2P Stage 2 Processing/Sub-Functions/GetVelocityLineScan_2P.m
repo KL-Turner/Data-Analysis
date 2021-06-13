@@ -22,22 +22,12 @@ MScanData.notes.analogSamplingRate = 20000;
 maxVelocity = 10000; % maximum physiological velocity in micrometers/sec
 angleSpan = 15; % number of degrees (+/-) around previous angle to look
 angleResolution = .1; % how accurate to determine the angle
-scanMirrors = 1; % we only use 6215 - but 1) 6210(fast) or 2)6215(slow)
-if scanMirrors == 1
-    MScanData.notes.scanMirrors = 6210;
-elseif scanMirrors==2
-    MScanData.notes.scanMirrors = 6215;
-end
+interleaved = 1;
 disp(['Processing ' MScanData.notes.date '_' MScanData.notes.imageID '...']); disp(' ')
 currentFilePath = mfilename('fullpath');
 MScanData.notes.code = GetFunctionCode_2P(currentFilePath);
-[MScanData] = GetVelocityRadon_2P(fileID,angleSpan,angleResolution,maxVelocity,scanMirrors,MScanData);
-try
-    MScanData.notes.radon_code = GetFunctionCode_2P(currentFilePath);
-catch
-    disp('code read fail!')
-    keyboard
-end
-[MScanData,xcfig]=linescan_xcov_velocity_TIFF_2P(MScanData);%calculate the velocity using the cross correlation method of Kim et al, 2012
+[MScanData] = GetVelocityRadon_2P(fileID,angleSpan,angleResolution,maxVelocity,interleaved,MScanData);
+% calculate the velocity using the cross correlation method of Kim et al, 2012
+[MScanData] = LineScanXCVelocity_2P(MScanData);
 
 end
