@@ -179,34 +179,8 @@ for a = 1:size(mscanDataFiles,1)
         LabVIEWData.notes.checklist.offsetCorrect = true;
         LabVIEWData.notes.trimTime = trimTime;
         LabVIEWData.notes.trialDuration_Seconds_trim = LabVIEWData.notes.trialDuration_Seconds - 2*trimTime;      
-        figure; 
-        subplot(3,1,1)
-        p1 = plot((1:length(MScanData.data.forceSensor))/20000,MScanData.data.forceSensor);
-        hold on; 
-        p2 = plot((1:length(LabVIEWData.data.forceSensor))/20000,LabVIEWData.data.forceSensor);
-        legend([p1,p2],'MScan','LabVIEW')
-        axis tight
-        subplot(3,1,2)
-        p1 = plot((1:length(MScanData.data.forceSensor_trim))/20000,MScanData.data.forceSensor_trim);
-        hold on; 
-        p2 = plot((1:length(LabVIEWData.data.forceSensor_trim))/20000,LabVIEWData.data.forceSensor_trim);
-        legend([p1,p2],'MScan','LabVIEW')
-        axis tight
-        subplot(3,1,3)
-        p1 = plot((1:length(MScanData.data.dsForceSensorM_trim))/20000,MScanData.data.dsForceSensorM_trim);
-        hold on; 
-        p2 = plot((1:length(LabVIEWData.data.dsForceSensorL_trim))/20000,LabVIEWData.data.dsForceSensorL_trim);
-        legend([p1,p2],'MScan','LabVIEW')
-        axis tight
-        figure;
-        yyaxis left
-        p1 = plot((1:length(MScanData.data.vesselDiameter_trim))/MScanData.data.bloodFlow.Fs,MScanData.data.vesselDiameter_trim);
-        yyaxis right
-        p2 = plot((1:length(LabVIEWData.data.dsWhiskerAngle_trim))/30,LabVIEWData.data.dsWhiskerAngle_trim);
-        legend([p1,p2],'Velocity','Whisking')
-        disp('Updating MScanData and LabVIEW Files...'); disp(' ')
-        save([animalID '_' fileDate '_' imageID '_' vesselID '_MScanData'], 'MScanData')
-        save([animalID '_' hem '_' fileID '_LabVIEWData'], 'LabVIEWData')
+        save([animalID '_' fileDate '_' imageID '_' vesselID '_MScanData'],'MScanData')
+        save([animalID '_' hem '_' fileID '_LabVIEWData'],'LabVIEWData')
         %% Save the file to directory.
         [pathstr,~,~] = fileparts(cd);
         dirpath = [pathstr '/Figures/XCorr Shift/'];
