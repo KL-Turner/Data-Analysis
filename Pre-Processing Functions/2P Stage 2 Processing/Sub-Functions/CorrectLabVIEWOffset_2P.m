@@ -89,7 +89,7 @@ for a = 1:size(mscanDataFiles,1)
         ylabel('A.U.')
         xlabel('Time (sec)')
         set(gca,'Ticklength',[0,0])
-        axis tight     
+        axis tight
         ax2 = subplot(3,1,2); %#ok<NASGU>
         plot(analog_lags/dsFs,analog_r,'k')
         title('Cross Correlation between the two signals')
@@ -168,7 +168,7 @@ for a = 1:size(mscanDataFiles,1)
         MScanData.data.filtEMG_trim = MScanData.data.filtEMG(floor(MScan_frontCut*dsFs):end - (mscan_dsAnalogCut + 1))';
         MScanData.notes.shiftLags = analog_lags;
         MScanData.notes.shiftXCorr = analog_r;
-        MScanData.notes.checklist.offsetCorrect = true;       
+        MScanData.notes.checklist.offsetCorrect = true;
         LabVIEWData.data.solenoids_trim = analog_solenoidShift(floor(LabVIEW_frontCut*analogSamplingRate):end - (labview_AnalogCut + 1));
         LabVIEWData.data.forceSensor_trim = analog_forceShift(floor(LabVIEW_frontCut*analogSamplingRate):end - (labview_AnalogCut + 1));
         LabVIEWData.data.whiskerAngle_trim = analog_whiskerShift(floor(LabVIEW_frontCut*whiskerCamSamplingRate):end - (labview_WhiskerCut + 1));
@@ -178,7 +178,7 @@ for a = 1:size(mscanDataFiles,1)
         LabVIEWData.data.binForceSensorL_trim = binForceShift(floor(LabVIEW_frontCut*dsFs):end - (labview_binForceCut + 1));
         LabVIEWData.notes.checklist.offsetCorrect = true;
         LabVIEWData.notes.trimTime = trimTime;
-        LabVIEWData.notes.trialDuration_Seconds_trim = LabVIEWData.notes.trialDuration_Seconds - 2*trimTime;      
+        LabVIEWData.notes.trialDuration_Seconds_trim = LabVIEWData.notes.trialDuration_Seconds - 2*trimTime;
         save([animalID '_' fileDate '_' imageID '_' vesselID '_MScanData'],'MScanData')
         save([animalID '_' hem '_' fileID '_LabVIEWData'],'LabVIEWData')
         %% Save the file to directory.
@@ -188,7 +188,7 @@ for a = 1:size(mscanDataFiles,1)
             mkdir(dirpath);
         end
         savefig(corrOffset,[dirpath animalID '_' fileID '_' imageID '_' vesselID '_XCorrShift']);
-        close(corrOffset)  
+        close(corrOffset)
     else
         disp(['Offset in ' mscanDataFile ' and ' labviewDataFile ' has already been corrected. Continuing...']); disp(' ');
     end

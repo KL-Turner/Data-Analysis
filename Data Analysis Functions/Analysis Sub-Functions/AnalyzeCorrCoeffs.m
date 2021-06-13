@@ -352,6 +352,6 @@ for a = 1:length(dataTypes)
 end
 % save data
 cd(rootFolder)
-save('AnalysisResults.mat','AnalysisResults')
+save('AnalysisResults.mat','AnalysisResults','-v7.3')
 
 end

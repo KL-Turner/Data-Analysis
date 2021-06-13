@@ -222,6 +222,6 @@ AnalysisResults.(animalID).MeanCBV.Iso.CBV_HbT.adjRH = mean(filtIsoRH_HbT);
 AnalysisResults.(animalID).MeanCBV.Iso.CBV_HbT.FileIDs = procDataFileID;
 % save data
 cd(rootFolder)
-save('AnalysisResults.mat','AnalysisResults')
+save('AnalysisResults.mat','AnalysisResults','-v7.3')
 
 end

@@ -46,17 +46,17 @@ else
 end
 %% generate figures
 % [AnalysisResults] = DiaphoraseCellCounts_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
-% [AnalysisResults] = WhiskEvoked_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
-% [AnalysisResults] = StimEvoked_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
-% [AnalysisResults] = Coherence_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
-% [AnalysisResults] = NeuralHemoCoherence_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
+[AnalysisResults] = WhiskEvoked_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
+[AnalysisResults] = StimEvoked_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
+[AnalysisResults] = Coherence_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
+[AnalysisResults] = NeuralHemoCoherence_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
 [AnalysisResults] = WhiskHemoCoherence_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
-% [AnalysisResults] = PowerSpec_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
-% [AnalysisResults] = PowerSpec2_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
-% [AnalysisResults] = PearsonsCorr_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
-% [AnalysisResults] = XCorr_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
-% [AnalysisResults] = NeuralHemoLinearity_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
-% [AnalysisResults] = MeanHbT_Saporin(rootFolder,saveFigs,delim,AnalysisResults); %#ok<*NASGU>
+[AnalysisResults] = PowerSpec_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
+[AnalysisResults] = PowerSpec2_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
+[AnalysisResults] = PearsonsCorr_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
+[AnalysisResults] = XCorr_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
+[AnalysisResults] = NeuralHemoLinearity_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
+[AnalysisResults] = MeanHbT_Saporin(rootFolder,saveFigs,delim,AnalysisResults); %#ok<*NASGU>
 %% fin.
 disp('MainScript Analysis - Complete'); disp(' ')
 end
@@ -214,7 +214,7 @@ for aa = 1:length(expGroups)
     end
 end
 %% Analyze the spectral coherence between whisk-hemodynamic [HbT] signals (IOS)
-runFromStart = 'y';
+runFromStart = 'n';
 cc = 1;
 for aa = 1:length(expGroups)
     folderList = dir(expGroups{1,aa});

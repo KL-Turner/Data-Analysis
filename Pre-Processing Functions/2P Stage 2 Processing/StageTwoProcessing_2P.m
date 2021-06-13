@@ -37,7 +37,7 @@ disp('Analyzing Block [4] Analyzing neural bands, force sensors, and whiskers.')
 Process2PDataFiles_2P(labviewDataFiles,mscanDataFiles)
 %% BLOCK PURPOSE: [5] Correct the offset between the MScan and LabVIEW acquisiton.
 disp('Analyzing Block [5] Correcting LabVIEW time offset.'); disp(' ')
-trimTime = 15;   % secklt8
+trimTime = 15;   % sec
 CorrectLabVIEWOffset_2P(mscanDataFiles,trimTime)
 %% BLOCK PURPOSE: [6] Combine the MScan and LabVIEW structures into one.
 disp('Analyzing Block [6] Combing LabVIEWData and MScan Data files to create MergedData.'); disp(' ')
