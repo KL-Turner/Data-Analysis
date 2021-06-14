@@ -62,7 +62,6 @@ for a = 1:length(fileNames)
         dataRow = strcmp(trialData.data.names,'AudSol'); 
         AudSol = gt(trialData.data.vals(dataRow,:),0.5)*3;   % ID amplitude is 3   
         solenoids = LPadSol + RPadSol + AudSol;
-        
         %% BLOCK PURPOSE: [3] Start Whisker tracker.
         disp('Analyzing Block [3] Starting whisker tracking.'); disp(' ')
         if trackWhiskers
@@ -71,8 +70,7 @@ for a = 1:length(fileNames)
             whiskerAngle(inds) = [];
         else
             whiskerAngle = [];
-        end
-        
+        end      
         %% BLOCK PURPOSE: [4] Save the notes and data.
         disp('Analyzing Block [4] Evaluating data to save to LabVIEWData file.'); disp(' ')
         % notes - all variables are descriptive
