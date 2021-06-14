@@ -17,7 +17,7 @@ for a = 1:size(mscanDataFiles,1)
     load(mscanDataFile);
     labviewDataFile = MScanData.notes.labviewFileID;
     load(labviewDataFile)
-    if MScanData.notes.checklist.offsetCorrect == false
+    if MScanData.notes.checklist.offsetCorrect == true
         disp(['Correcting offset in file number ' num2str(a) ' of ' num2str(size(mscanDataFiles, 1)) '...']); disp(' ');
         [animalID,hem,fileDate,fileID] = GetFileInfo_2P(labviewDataFile);
         imageID = MScanData.notes.imageID;
@@ -26,7 +26,31 @@ for a = 1:size(mscanDataFiles,1)
         whiskerCamSamplingRate = LabVIEWData.notes.whiskerCamSamplingRate_Hz;
         dsFs = MScanData.notes.dsFs;
         if strcmp(MScanData.notes.movieType,'MC') == true
-            vesselSamplingRate = MScanData.data.bloodFlow.Fs;
+            lineScanFs = MScanData.data.bloodFlow.Fs;
+            desiredFs = 5;
+            originalVelocity = abs(MScanData.data.bloodFlow.fixedVelocity);
+            % lowpass filter signal below Nyquist frequency of downsample rate;
+            [z,p,k] = butter(3,(0.5*floor(desiredFs))/(0.5*lineScanFs),'low');
+            [sos,g] = zp2sos(z,p,k);
+            filtOriginalVelocity = filtfilt(sos,g,originalVelocity);
+            % generate sine wave for resampling
+            nonIntegerSineWave = dsp.SineWave(1,desiredFs,1,'SampleRate',lineScanFs,'SamplesPerFrame',length(originalVelocity));
+            triggerWave = nonIntegerSineWave();
+            waveDiff = diff(triggerWave);
+            downSlope = waveDiff < 0;
+            edgeFind = diff(downSlope);
+            downsampleInds = edgeFind == 1;
+            MScanData.data.bloodFlow.dsVelocity = filtOriginalVelocity(:,downsampleInds);
+            MScanData.notes.p2Fs = desiredFs;
+            vesselSamplingRate = floor(MScanData.notes.p2Fs);
+            % check figure
+            dsVelocity = figure;
+            p1 = plot((1:length(originalVelocity))/lineScanFs,originalVelocity,'r');
+            hold on;
+            p2 = plot((1:length(MScanData.data.bloodFlow.dsVelocity))/desiredFs,MScanData.data.bloodFlow.dsVelocity,'b');
+            xlabel('Time (s)')
+            ylabel('Velocity (\muM/sec)')
+            legend([p1,p2],'Original signal','Downsampled signal')
         else
             vesselSamplingRate = floor(MScanData.notes.frameRate);
         end
@@ -56,8 +80,7 @@ for a = 1:size(mscanDataFiles,1)
         analog_SolenoidOffset = round(abs(analog_offset)/analogSamplingRate);
         analog_whiskerOffset = round(abs(analog_offset)/whiskerCamSamplingRate);
         dsOffset = round(dsFs*(abs(offset)/dsFs));
-        disp(['LabVIEW trailed MScan by ' num2str(-offset/dsFs) ' seconds.']); disp(' ')
-        
+        disp(['LabVIEW trailed MScan by ' num2str(-offset/dsFs) ' seconds.']); disp(' ') 
         if offset > 0
             analog_forceShift = analog_labviewForce(analog_forceOffset:end);
             analog_solenoidShift = analog_labviewSolenoids(analog_SolenoidOffset:end);
@@ -77,8 +100,7 @@ for a = 1:size(mscanDataFiles,1)
             dsWhiskShift = horzcat(dsFs_pad,LabVIEWData.data.dsWhiskerAngle);
             binForceShift = horzcat(dsFs_pad,LabVIEWData.data.binForceSensorL);
             binWhiskShift = horzcat(dsFs_pad,LabVIEWData.data.binWhiskerAngle);
-        end
-        
+        end    
         corrOffset = figure;
         ax1 = subplot(3,1,1);
         plot((1:length(mscanForce))/dsFs,mscanForce,'k')
@@ -107,47 +129,36 @@ for a = 1:size(mscanDataFiles,1)
         xlabel('Time (sec)')
         set(gca,'Ticklength',[0,0])
         axis tight
-        linkaxes([ax1,ax3],'x')
-        
+        linkaxes([ax1,ax3],'x')       
         %% Apply correction to the data, and trim excess time
         MScan_frontCut = trimTime;
         MScan_endCut = trimTime - (trialDuration_LabVIEW - trialDuration_MScan);
         LabVIEW_frontCut = trimTime;
-        LabVIEW_endCut = trimTime;
-        
+        LabVIEW_endCut = trimTime;       
         mscanAnalogSampleDiff = analogSamplingRate*trialDuration_MScan - length(MScanData.data.forceSensor);
-        mscanAnalogCut = floor(MScan_endCut*analogSamplingRate - mscanAnalogSampleDiff);
-        
+        mscanAnalogCut = floor(MScan_endCut*analogSamplingRate - mscanAnalogSampleDiff);      
         mscan_dsAnalogSampleDiff = dsFs*trialDuration_MScan - length(MScanData.data.dsForceSensorM);
-        mscan_dsAnalogCut = floor(MScan_endCut*dsFs - mscan_dsAnalogSampleDiff);
-        
+        mscan_dsAnalogCut = floor(MScan_endCut*dsFs - mscan_dsAnalogSampleDiff);    
         mscan_binForceSampleDiff = dsFs*trialDuration_MScan - length(MScanData.data.binForceSensorM);
-        mscan_binForceCut = floor(MScan_endCut*dsFs - mscan_binForceSampleDiff);
-        
+        mscan_binForceCut = floor(MScan_endCut*dsFs - mscan_binForceSampleDiff);      
         labview_AnalogSampleDiff = analogSamplingRate*trialDuration_LabVIEW - length(analog_forceShift);
-        labview_AnalogCut = floor(LabVIEW_endCut*analogSamplingRate - labview_AnalogSampleDiff);
-        
+        labview_AnalogCut = floor(LabVIEW_endCut*analogSamplingRate - labview_AnalogSampleDiff);     
         labview_WhiskerSampleDiff = whiskerCamSamplingRate*trialDuration_LabVIEW - length(analog_whiskerShift);
-        labview_WhiskerCut = floor(LabVIEW_endCut*whiskerCamSamplingRate - labview_WhiskerSampleDiff);
-        
+        labview_WhiskerCut = floor(LabVIEW_endCut*whiskerCamSamplingRate - labview_WhiskerSampleDiff);    
         labview_dsWhiskSamplingDiff = dsFs*trialDuration_LabVIEW - length(dsWhiskShift);
         labview_dsWhiskCut = floor(LabVIEW_endCut*dsFs - labview_dsWhiskSamplingDiff);
-        
         labview_dsForceSamplingDiff = dsFs*trialDuration_LabVIEW - length(dsForceShift);
-        labview_dsForceCut = floor(LabVIEW_endCut*dsFs - labview_dsForceSamplingDiff);
-        
+        labview_dsForceCut = floor(LabVIEW_endCut*dsFs - labview_dsForceSamplingDiff); 
         labview_binForceSampleDiff = dsFs*trialDuration_LabVIEW - length(binForceShift);
-        labview_binForceCut = floor(LabVIEW_endCut*dsFs - labview_binForceSampleDiff);
-        
+        labview_binForceCut = floor(LabVIEW_endCut*dsFs - labview_binForceSampleDiff);  
         labview_binWhiskSamplingDiff = dsFs*trialDuration_LabVIEW - length(binWhiskShift);
         labview_binWhiskCut = floor(LabVIEW_endCut*dsFs - labview_binWhiskSamplingDiff);
-        
         MScanData.data.forceSensor_trim = MScanData.data.forceSensor(floor(MScan_frontCut*analogSamplingRate):end - (mscanAnalogCut + 1))';
         MScanData.data.corticalNeural_trim = MScanData.data.corticalNeural(floor(MScan_frontCut*analogSamplingRate):end - (mscanAnalogCut + 1))';
         MScanData.data.hippocampalNeural_trim = MScanData.data.hippocampalNeural(floor(MScan_frontCut*analogSamplingRate):end - (mscanAnalogCut + 1))';
         MScanData.data.EMG_trim = MScanData.data.EMG(floor(MScan_frontCut*analogSamplingRate):end - (mscanAnalogCut + 1))';
         if strcmp(MScanData.notes.movieType,'MC') == true
-            MScanData.data.vesselDiameter_trim = MScanData.data.bloodFlow.fixedVelocity(floor(MScan_frontCut*vesselSamplingRate):end - (floor(MScan_endCut*vesselSamplingRate) + 1));
+            MScanData.data.vesselDiameter_trim = MScanData.data.bloodFlow.dsVelocity(floor(MScan_frontCut*vesselSamplingRate) - 1:end - (floor(MScan_endCut*vesselSamplingRate)));
         else
             MScanData.data.vesselDiameter_trim = MScanData.data.vesselDiameter(floor(MScan_frontCut*vesselSamplingRate):end - (MScan_endCut*vesselSamplingRate + 1));
         end
@@ -189,6 +200,12 @@ for a = 1:size(mscanDataFiles,1)
         end
         savefig(corrOffset,[dirpath animalID '_' fileID '_' imageID '_' vesselID '_XCorrShift']);
         close(corrOffset)
+        dirpath = [pathstr '/Figures/Velocity Downsample/'];
+        if ~exist(dirpath,'dir')
+            mkdir(dirpath);
+        end
+        savefig(dsVelocity,[dirpath animalID '_' fileID '_' imageID '_' vesselID '_dsVelocityShift']);
+        close(dsVelocity)
     else
         disp(['Offset in ' mscanDataFile ' and ' labviewDataFile ' has already been corrected. Continuing...']); disp(' ');
     end

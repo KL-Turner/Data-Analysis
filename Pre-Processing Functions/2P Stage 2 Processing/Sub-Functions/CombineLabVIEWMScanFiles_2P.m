@@ -14,12 +14,10 @@ for a = 1:size(mscanDataFiles,1)
     mscanDataFile = mscanDataFiles(a,:);
     load(mscanDataFile);
     labviewDataFile = MScanData.notes.labviewFileID;
-    load(labviewDataFile);
-
+    load(labviewDataFile);  
     [animalID,hem,~,fileID] = GetFileInfo_2P(labviewDataFile);
     vesselID = MScanData.notes.vesselID;
-    imageID = MScanData.notes.imageID;
-    
+    imageID = MScanData.notes.imageID;   
     % Pull the notes and data from LabVIEW
     MergedData.notes.LabVIEW = LabVIEWData.notes;
     MergedData.data.whiskerAngle = LabVIEWData.data.dsWhiskerAngle_trim;
@@ -27,12 +25,10 @@ for a = 1:size(mscanDataFiles,1)
     MergedData.data.binWhiskerAngle = LabVIEWData.data.binWhiskerAngle_trim;
     MergedData.data.forceSensorL = LabVIEWData.data.dsForceSensorL_trim;
     MergedData.data.binForceSensorL = LabVIEWData.data.binForceSensorL_trim;
-    
     % Save solenoid times (in seconds). Identify the solenoids by amplitude.
     MergedData.data.solenoids.LPadSol = find(diff(LabVIEWData.data.solenoids_trim) == 1)/LabVIEWData.notes.analogSamplingRate_Hz;
     MergedData.data.solenoids.RPadSol = find(diff(LabVIEWData.data.solenoids_trim) == 2)/LabVIEWData.notes.analogSamplingRate_Hz;
-    MergedData.data.solenoids.AudSol = find(diff(LabVIEWData.data.solenoids_trim) == 3)/LabVIEWData.notes.analogSamplingRate_Hz;
-    
+    MergedData.data.solenoids.AudSol = find(diff(LabVIEWData.data.solenoids_trim) == 3)/LabVIEWData.notes.analogSamplingRate_Hz;  
     % Pull the notes and data from MScan
     MergedData.notes.MScan = MScanData.notes;
     MergedData.data.rawCorticalNeural = MScanData.data.corticalNeural_trim;
@@ -52,14 +48,16 @@ for a = 1:size(mscanDataFiles,1)
     MergedData.data.forceSensorM = MScanData.data.dsForceSensorM_trim;
     MergedData.data.EMG.data = MScanData.data.filtEMG_trim;
     MergedData.data.binForceSensorM = MScanData.data.binForceSensorM_trim;
-    MergedData.data.vesselDiameter.data = MScanData.data.vesselDiameter_trim;
-    
+    MergedData.data.vesselDiameter.data = MScanData.data.vesselDiameter_trim; 
     % Most useful notes to be referenced in future analysis
     MergedData.notes.trialDuration_Sec = LabVIEWData.notes.trialDuration_Seconds_trim;
-    MergedData.notes.p2Fs = MScanData.notes.frameRate;
+    if strcmp(MScanData.notes.movieType,'MC') == true
+        MergedData.notes.p2Fs = MScanData.notes.p2Fs;
+    else
+        MergedData.notes.p2Fs = MScanData.notes.frameRate;
+    end
     MergedData.notes.dsFs = MScanData.notes.dsFs;
-    MergedData.notes.anFs = LabVIEWData.notes.analogSamplingRate_Hz;
-    
+    MergedData.notes.anFs = LabVIEWData.notes.analogSamplingRate_Hz;   
     save([animalID '_' hem '_' fileID '_' imageID '_' vesselID '_MergedData'],'MergedData')
 end
 
