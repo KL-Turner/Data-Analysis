@@ -25,7 +25,7 @@ end
 % add root folder to Matlab's working directory
 addpath(genpath(rootFolder))
 %% run the data analysis. The progress bars will show the analysis progress
-rerunAnalysis = 'y';
+rerunAnalysis = 'n';
 saveFigs = 'y';
 if exist('AnalysisResults.mat','file') ~= 2 || strcmp(rerunAnalysis,'y') == true
     multiWaitbar('Analyzing behavioral hemodynamics',0,'Color','P'); pause(0.25);
@@ -55,7 +55,7 @@ end
 [AnalysisResults] = PowerSpec2_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
 [AnalysisResults] = PearsonsCorr_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
 [AnalysisResults] = XCorr_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
-[AnalysisResults] = NeuralHemoLinearity_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
+% [AnalysisResults] = NeuralHemoLinearity_Saporin(rootFolder,saveFigs,delim,AnalysisResults);
 [AnalysisResults] = MeanHbT_Saporin(rootFolder,saveFigs,delim,AnalysisResults); %#ok<*NASGU>
 %% fin.
 disp('MainScript Analysis - Complete'); disp(' ')
@@ -98,7 +98,7 @@ runFromStart = 'n';
 cc = 1;
 for aa = 1:length(expGroups)
     folderList = dir(expGroups{1,aa});
-    folderList = folderList(~startsWith({folderList.name}, '.'));
+    folderList = folderList(~startsWith({folderList.name},'.'));
     animalIDs = {folderList.name};
     for bb = 1:length(animalIDs)
         if isfield(AnalysisResults,(animalIDs{1,bb})) == false || isfield(AnalysisResults.(animalIDs{1,bb}),'Coherence') == false || strcmp(runFromStart,'y') == true

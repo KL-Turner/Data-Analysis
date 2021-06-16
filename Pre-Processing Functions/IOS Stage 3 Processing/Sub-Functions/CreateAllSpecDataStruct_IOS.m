@@ -12,7 +12,7 @@ AllSpecStructFileIDA = [animalID '_AllSpecStructA.mat'];
 AllSpecStructFileIDB = [animalID '_AllSpecStructB.mat'];
 AllSpecStructFileIDC = [animalID '_AllSpecStructC.mat'];
 % file list A
-if ~exist(AllSpecStructFileIDA) == true
+% if ~exist(AllSpecStructFileIDA) == true
     AllSpecData = [];
     % Character list of all SpecData files
     specDataFileStruct = dir('*_SpecDataA.mat');
@@ -35,9 +35,9 @@ if ~exist(AllSpecStructFileIDA) == true
     end
     disp('Saving structure...'); disp(' ')
     save(AllSpecStructFileIDA,'AllSpecData','-v7.3')
-end
+% end
 % file list B
-if ~exist(AllSpecStructFileIDB) == true
+% if ~exist(AllSpecStructFileIDB) == true
     AllSpecData = [];
     % Character list of all SpecData files
     specDataFileStruct = dir('*_SpecDataB.mat');
@@ -60,9 +60,9 @@ if ~exist(AllSpecStructFileIDB) == true
     end
     disp('Saving structure...'); disp(' ')
     save(AllSpecStructFileIDB,'AllSpecData','-v7.3')
-end
+% end
 % file list C
-if ~exist(AllSpecStructFileIDC) == true
+% if ~exist(AllSpecStructFileIDC) == true
     AllSpecData = [];
     % Character list of all SpecData files
     specDataFileStruct = dir('*_SpecDataC.mat');
@@ -85,6 +85,6 @@ if ~exist(AllSpecStructFileIDC) == true
     end
     disp('Saving structure...'); disp(' ')
     save(AllSpecStructFileIDC,'AllSpecData','-v7.3')
-end
+% end
 
 end

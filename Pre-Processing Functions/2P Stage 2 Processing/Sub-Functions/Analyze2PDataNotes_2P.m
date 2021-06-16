@@ -28,7 +28,6 @@ for a = 2:size(alldata,1)   % Loop through all rows of the excel sheet except th
     MScanData.notes.comments = alldata{a,11};
     MScanData.notes.vesselID = alldata{a,12};
     MScanData.notes.drug = alldata{a,13};
-    MScanData.notes.trimTime = alldata{a,14};
     currentFileID = ([MScanData.notes.animalID '_' MScanData.notes.date '_' MScanData.notes.imageID '_' MScanData.notes.vesselID '_MScanData.mat']);
     if ~exist(currentFileID,'file')   % Only run analysis if the current file doesn't exist yet
         % Vessel diameter calculation for surface vessels
