@@ -43,10 +43,10 @@ end
 
 function [AnalysisResults_APOE] = AnalyzeData(rootFolder)
 % IOS animal IDs
-expGroups = {'C57BL6J'};
+expGroups = {'Dural','Capillary'};
 % saveFigs = 'y';
-if exist('AnalysisResults_APOE.mat','file') == 2
-    load('AnalysisResults_APOE.mat','-mat')
+if exist('AnalysisResults_Wenke.mat','file') == 2
+    load('AnalysisResults_Wenke.mat','-mat')
 else
     AnalysisResults_APOE = [];
 end

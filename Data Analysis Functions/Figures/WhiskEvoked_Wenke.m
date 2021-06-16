@@ -1,4 +1,4 @@
-function [AnalysisResults] = WhiskEvoked_APOE4(rootFolder,saveFigs,delim,AnalysisResults)
+function [AnalysisResults] = WhiskEvoked_Wenke(rootFolder,saveFigs,delim,AnalysisResults)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -8,9 +8,9 @@ function [AnalysisResults] = WhiskEvoked_APOE4(rootFolder,saveFigs,delim,Analysi
 %________________________________________________________________________________________________________________________
 
 %% set-up and process data
-animalIDs = {'MK01','MK02'};
-Dural_IDs = {'MK01','MK02'};
-Capillary_IDs = {'MK01','MK02'};
+animalIDs = {'MK01_D','MK02_D','MK01_C','MK02_C'};
+Dural_IDs = {'MK01_D','MK02_D'};
+Capillary_IDs = {'MK01_C','MK02_C'};
 whiskDataTypes = {'ShortWhisks','IntermediateWhisks','LongWhisks'};
 treatments = {'Dural','Capillary'};
 % cd through each animal's directory and extract the appropriate analysis results
@@ -27,12 +27,12 @@ for aa = 1:length(animalIDs)
     end
     for bb = 1:length(whiskDataTypes)
         whiskDataType = whiskDataTypes{1,bb};
-        vesselIDs = fieldnames(AnalysisResults.(animalID).EvokedAvgs.(whiskDataType));
+        vesselIDs = fieldnames(AnalysisResults.(treatment).(animalID).EvokedAvgs.(whiskDataType));
         for cc = 1:length(vesselIDs)
             vesselID = vesselIDs{cc,1};
             if strcmp(vesselID(1),'V') == false
-                data.(treatment).EvokedAvgs.(whiskDataType).means = vertcat(data.(treatment).EvokedAvgs.(whiskDataType).means,AnalysisResults.(animalID).EvokedAvgs.(whiskDataType).(vesselID).mean);
-                data.(treatment).EvokedAvgs.(whiskDataType).timeVector = AnalysisResults.(animalID).EvokedAvgs.(whiskDataType).(vesselID).timeVector;
+                data.(treatment).EvokedAvgs.(whiskDataType).means = vertcat(data.(treatment).EvokedAvgs.(whiskDataType).means,AnalysisResults.(treatment).(animalID).EvokedAvgs.(whiskDataType).(vesselID).mean);
+                data.(treatment).EvokedAvgs.(whiskDataType).timeVector = AnalysisResults.(treatment).(animalID).EvokedAvgs.(whiskDataType).(vesselID).timeVector;
             end
         end
     end
@@ -42,8 +42,8 @@ for dd = 1:length(treatments)
     treatment = treatments{1,dd};
     for ee = 1:length(whiskDataTypes)
         whiskDataType = whiskDataTypes{1,ee};
-        data.(treatment).EvokedAvgs.(whiskDataType).mean = mean(data.(treatment).EvokedAvgs.(whiskDataType).means,1);
-        data.(treatment).EvokedAvgs.(whiskDataType).StD = std(data.(treatment).EvokedAvgs.(whiskDataType).means,0,1);
+        data.(treatment).EvokedAvgs.(whiskDataType).mean = mean(data.(treatment).EvokedAvgs.(whiskDataType).means,1)/1000;
+        data.(treatment).EvokedAvgs.(whiskDataType).StD = std(data.(treatment).EvokedAvgs.(whiskDataType).means,0,1)/1000;
     end
 end
 %% Fig. 3-S1
@@ -51,15 +51,15 @@ summaryFigure = figure;
 sgtitle('Arteriole diameter whisking-evoked responses')
 %% [3-S1a] brief whisks
 ax1 = subplot(1,3,1);
-p1 = plot(data.Dural.EvokedAvgs.ShortWhisks.timeVector,data.Dural.EvokedAvgs.ShortWhisks.mean,'color',colors_eLife2020('rich black'),'LineWidth',1);
+p1 = plot(data.Dural.EvokedAvgs.ShortWhisks.timeVector,data.Dural.EvokedAvgs.ShortWhisks.mean,'color',colors_eLife2020('rich black'),'LineWidth',3);
 hold on
 plot(data.Dural.EvokedAvgs.ShortWhisks.timeVector,data.Dural.EvokedAvgs.ShortWhisks.mean + data.Dural.EvokedAvgs.ShortWhisks.StD,'color',colors_eLife2020('battleship grey'),'LineWidth',0.5)
 plot(data.Dural.EvokedAvgs.ShortWhisks.timeVector,data.Dural.EvokedAvgs.ShortWhisks.mean - data.Dural.EvokedAvgs.ShortWhisks.StD,'color',colors_eLife2020('battleship grey'),'LineWidth',0.5)
-p2 = plot(data.Capillary.EvokedAvgs.ShortWhisks.timeVector,data.Capillary.EvokedAvgs.ShortWhisks.mean,'color',colors_eLife2020('dark candy apple red'),'LineWidth',1);
+p2 = plot(data.Capillary.EvokedAvgs.ShortWhisks.timeVector,data.Capillary.EvokedAvgs.ShortWhisks.mean,'color',colors_eLife2020('dark candy apple red'),'LineWidth',3);
 plot(data.Capillary.EvokedAvgs.ShortWhisks.timeVector,data.Capillary.EvokedAvgs.ShortWhisks.mean + data.Capillary.EvokedAvgs.ShortWhisks.StD,'color',colors_eLife2020('candy apple red'),'LineWidth',0.5)
 plot(data.Capillary.EvokedAvgs.ShortWhisks.timeVector,data.Capillary.EvokedAvgs.ShortWhisks.mean - data.Capillary.EvokedAvgs.ShortWhisks.StD,'color',colors_eLife2020('candy apple red'),'LineWidth',0.5)
 title('Brief whisk response')
-ylabel('\DeltaD/D (%)')
+ylabel('\DeltaV (mm/sec)')
 xlabel('Peri-whisk time (s)')
 legend([p1,p2],'Dural','Capillary')
 axis square
@@ -68,15 +68,15 @@ set(gca,'box','off')
 ax1.TickLength = [0.03,0.03];
 %% [3-S1b] moderate whisks
 ax2 = subplot(1,3,2);
-plot(data.Dural.EvokedAvgs.IntermediateWhisks.timeVector,data.Dural.EvokedAvgs.IntermediateWhisks.mean,'color',colors_eLife2020('rich black'),'LineWidth',1);
+plot(data.Dural.EvokedAvgs.IntermediateWhisks.timeVector,data.Dural.EvokedAvgs.IntermediateWhisks.mean,'color',colors_eLife2020('rich black'),'LineWidth',3);
 hold on
 plot(data.Dural.EvokedAvgs.IntermediateWhisks.timeVector,data.Dural.EvokedAvgs.IntermediateWhisks.mean + data.Dural.EvokedAvgs.IntermediateWhisks.StD,'color',colors_eLife2020('battleship grey'),'LineWidth',0.5)
 plot(data.Dural.EvokedAvgs.IntermediateWhisks.timeVector,data.Dural.EvokedAvgs.IntermediateWhisks.mean - data.Dural.EvokedAvgs.IntermediateWhisks.StD,'color',colors_eLife2020('battleship grey'),'LineWidth',0.5)
-plot(data.Capillary.EvokedAvgs.IntermediateWhisks.timeVector,data.Capillary.EvokedAvgs.IntermediateWhisks.mean,'color',colors_eLife2020('dark candy apple red'),'LineWidth',1);
+plot(data.Capillary.EvokedAvgs.IntermediateWhisks.timeVector,data.Capillary.EvokedAvgs.IntermediateWhisks.mean,'color',colors_eLife2020('dark candy apple red'),'LineWidth',3);
 plot(data.Capillary.EvokedAvgs.IntermediateWhisks.timeVector,data.Capillary.EvokedAvgs.IntermediateWhisks.mean + data.Capillary.EvokedAvgs.IntermediateWhisks.StD,'color',colors_eLife2020('candy apple red'),'LineWidth',0.5)
 plot(data.Capillary.EvokedAvgs.IntermediateWhisks.timeVector,data.Capillary.EvokedAvgs.IntermediateWhisks.mean - data.Capillary.EvokedAvgs.IntermediateWhisks.StD,'color',colors_eLife2020('candy apple red'),'LineWidth',0.5)
 title('Moderate whisk response')
-ylabel('\DeltaD/D (%)')
+ylabel('\DeltaV (mm/sec)')
 xlabel('Peri-whisk time (s)')
 axis square
 xlim([-2,10])
@@ -84,15 +84,15 @@ set(gca,'box','off')
 ax2.TickLength = [0.03,0.03];
 %% [3-S1c] extended whisks
 ax3 = subplot(1,3,3);
-plot(data.Dural.EvokedAvgs.LongWhisks.timeVector,data.Dural.EvokedAvgs.LongWhisks.mean,'color',colors_eLife2020('rich black'),'LineWidth',1);
+plot(data.Dural.EvokedAvgs.LongWhisks.timeVector,data.Dural.EvokedAvgs.LongWhisks.mean,'color',colors_eLife2020('rich black'),'LineWidth',3);
 hold on
 plot(data.Dural.EvokedAvgs.LongWhisks.timeVector,data.Dural.EvokedAvgs.LongWhisks.mean + data.Dural.EvokedAvgs.LongWhisks.StD,'color',colors_eLife2020('battleship grey'),'LineWidth',0.5)
 plot(data.Dural.EvokedAvgs.LongWhisks.timeVector,data.Dural.EvokedAvgs.LongWhisks.mean - data.Dural.EvokedAvgs.LongWhisks.StD,'color',colors_eLife2020('battleship grey'),'LineWidth',0.5)
-plot(data.Capillary.EvokedAvgs.LongWhisks.timeVector,data.Capillary.EvokedAvgs.LongWhisks.mean,'color',colors_eLife2020('dark candy apple red'),'LineWidth',1);
+plot(data.Capillary.EvokedAvgs.LongWhisks.timeVector,data.Capillary.EvokedAvgs.LongWhisks.mean,'color',colors_eLife2020('dark candy apple red'),'LineWidth',3);
 plot(data.Capillary.EvokedAvgs.LongWhisks.timeVector,data.Capillary.EvokedAvgs.LongWhisks.mean + data.Capillary.EvokedAvgs.LongWhisks.StD,'color',colors_eLife2020('candy apple red'),'LineWidth',0.5)
 plot(data.Capillary.EvokedAvgs.LongWhisks.timeVector,data.Capillary.EvokedAvgs.LongWhisks.mean - data.Capillary.EvokedAvgs.LongWhisks.StD,'color',colors_eLife2020('candy apple red'),'LineWidth',0.5)
 title('Extended whisk response')
-ylabel('\DeltaD/D (%)')
+ylabel('\DeltaV (mm/sec)')
 xlabel('Peri-whisk time (s)')
 axis square
 xlim([-2,10])
@@ -110,7 +110,7 @@ linkaxes([ax1,ax2,ax3],'xy')
 %     hold on
 % end
 % title('Brief whisk response')
-% ylabel('\DeltaD/D (%)')
+% ylabel('\DeltaV (mm/sec)')
 % xlabel('Peri-whisk time (s)')
 % legend([p1,p2],'Dural','Capillary')
 % axis square
@@ -128,7 +128,7 @@ linkaxes([ax1,ax2,ax3],'xy')
 %     hold on
 % end
 % title('Moderate whisk response')
-% ylabel('\DeltaD/D (%)')
+% ylabel('\DeltaV (mm/sec)')
 % xlabel('Peri-whisk time (s)')
 % axis square
 % xlim([-2,10])
@@ -145,7 +145,7 @@ linkaxes([ax1,ax2,ax3],'xy')
 %     hold on
 % end
 % title('Extended whisk response')
-% ylabel('\DeltaD/D (%)')
+% ylabel('\DeltaV (mm/sec)')
 % xlabel('Peri-whisk time (s)')
 % axis square
 % xlim([-2,10])
