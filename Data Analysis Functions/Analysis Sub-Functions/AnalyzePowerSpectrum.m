@@ -1,4 +1,4 @@
-function [AnalysisResults] = AnalyzePowerSpectrum(animalID,group,saveFigs,rootFolder,AnalysisResults)
+function [AnalysisResults] = AnalyzePowerSpectrum(animalID,group,rootFolder,AnalysisResults)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -46,8 +46,8 @@ forestScoringResultsFileID = [animalID '_Forest_ScoringResults.mat'];
 load(forestScoringResultsFileID,'-mat')
 % lowpass filter
 samplingRate = RestData.CBV_HbT.adjLH.CBVCamSamplingRate;
-[z,p,k] = butter(4,1/(samplingRate/2),'low');
-[sos,g] = zp2sos(z,p,k);
+% [z,p,k] = butter(4,1/(samplingRate/2),'low');
+% [sos,g] = zp2sos(z,p,k);
 % criteria for resting
 RestCriteria.Fieldname = {'durations'};
 RestCriteria.Comparison = {'gt'};
@@ -95,18 +95,24 @@ for aa = 1:length(dataTypes)
             RH_restPad = (ones(1,restChunkSampleDiff))*RH_finalRestData{bb,1}(end);
             LH_ProcRestData{bb,1} = horzcat(LH_finalRestData{bb,1},LH_restPad); %#ok<*AGROW>
             RH_ProcRestData{bb,1} = horzcat(RH_finalRestData{bb,1},RH_restPad);
-            LH_ProcRestData{bb,1} = filtfilt(sos,g,detrend(LH_ProcRestData{bb,1},'constant'));
-            RH_ProcRestData{bb,1} = filtfilt(sos,g,detrend(RH_ProcRestData{bb,1},'constant'));
+            % LH_ProcRestData{bb,1} = filtfilt(sos,g,detrend(LH_ProcRestData{bb,1},'constant'));
+            % RH_ProcRestData{bb,1} = filtfilt(sos,g,detrend(RH_ProcRestData{bb,1},'constant'));
+            LH_ProcRestData{bb,1} = detrend(LH_ProcRestData{bb,1},'constant');
+            RH_ProcRestData{bb,1} = detrend(RH_ProcRestData{bb,1},'constant');
             if strcmp(dataType,'CBV_HbT') == false
                 Hip_restPad = (ones(1,restChunkSampleDiff))*Hip_finalRestData{bb,1}(end);
                 Hip_ProcRestData{bb,1} = horzcat(Hip_finalRestData{bb,1},Hip_restPad);
-                Hip_ProcRestData{bb,1} = filtfilt(sos,g,detrend(Hip_ProcRestData{bb,1},'constant'));
+                % Hip_ProcRestData{bb,1} = filtfilt(sos,g,detrend(Hip_ProcRestData{bb,1},'constant'));
+                Hip_ProcRestData{bb,1} = detrend(Hip_ProcRestData{bb,1},'constant');
             end
         else
-            LH_ProcRestData{bb,1} = filtfilt(sos,g,detrend(LH_finalRestData{bb,1}(1:(params.minTime.Rest*samplingRate)),'constant'));
-            RH_ProcRestData{bb,1} = filtfilt(sos,g,detrend(RH_finalRestData{bb,1}(1:(params.minTime.Rest*samplingRate)),'constant'));
+            % LH_ProcRestData{bb,1} = filtfilt(sos,g,detrend(LH_finalRestData{bb,1}(1:(params.minTime.Rest*samplingRate)),'constant'));
+            % RH_ProcRestData{bb,1} = filtfilt(sos,g,detrend(RH_finalRestData{bb,1}(1:(params.minTime.Rest*samplingRate)),'constant'));
+            LH_ProcRestData{bb,1} = detrend(LH_finalRestData{bb,1}(1:(params.minTime.Rest*samplingRate)),'constant');
+            RH_ProcRestData{bb,1} = detrend(RH_finalRestData{bb,1}(1:(params.minTime.Rest*samplingRate)),'constant');
             if strcmp(dataType,'CBV_HbT') == false
-                Hip_ProcRestData{bb,1} = filtfilt(sos,g,detrend(Hip_finalRestData{bb,1}(1:(params.minTime.Rest*samplingRate)),'constant'));
+                % Hip_ProcRestData{bb,1} = filtfilt(sos,g,detrend(Hip_finalRestData{bb,1}(1:(params.minTime.Rest*samplingRate)),'constant'));
+                Hip_ProcRestData{bb,1} = detrend(Hip_finalRestData{bb,1}(1:(params.minTime.Rest*samplingRate)),'constant');
             end
         end
     end
@@ -124,10 +130,10 @@ for aa = 1:length(dataTypes)
         end
     end
     % parameters for mtspectrumc - information available in function
-    params.tapers = [1,1];   % Tapers [n, 2n - 1]
+    params.tapers = [3,5];   % Tapers [n, 2n - 1]
     params.pad = 1;
     params.Fs = samplingRate;
-    params.fpass = [0,0.5];   % Pass band [0, nyquist]
+    params.fpass = [0,1];   % Pass band [0, nyquist]
     params.trialave = 1;
     params.err = [2,0.05];
     % calculate the power spectra of the desired signals
@@ -147,63 +153,6 @@ for aa = 1:length(dataTypes)
         AnalysisResults.(animalID).PowerSpectra.Rest.(dataType).Hip.S = Hip_rest_S;
         AnalysisResults.(animalID).PowerSpectra.Rest.(dataType).Hip.f = Hip_rest_f;
         AnalysisResults.(animalID).PowerSpectra.Rest.(dataType).Hip.sErr = Hip_rest_sErr;
-    end
-    % save figures if desired
-    if strcmp(saveFigs,'y') == true
-        LH_RestPower = figure;
-        loglog(LH_rest_f,LH_rest_S,'k')
-        hold on;
-        loglog(LH_rest_f,LH_rest_sErr,'color',colors('battleship grey'))
-        xlabel('Freq (Hz)');
-        ylabel('Power');
-        title([animalID  ' adjLH ' dataType ' Power during awake rest']);
-        set(gca,'Ticklength',[0,0]);
-        legend('Coherence','Jackknife Lower','JackknifeUpper','Location','Southeast');
-        set(legend,'FontSize',6);
-        xlim([0,0.5])
-        axis square
-        set(gca,'box','off')
-        RH_RestPower = figure;
-        loglog(RH_rest_f,RH_rest_S,'k')
-        hold on;
-        loglog(RH_rest_f,RH_rest_sErr,'color',colors('battleship grey'))
-        xlabel('Freq (Hz)');
-        ylabel('Power');
-        title([animalID  ' adjRH ' dataType ' Power during awake rest']);
-        set(gca,'Ticklength',[0,0]);
-        legend('Coherence','Jackknife Lower','JackknifeUpper','Location','Southeast');
-        set(legend,'FontSize',6);
-        xlim([0,0.5])
-        axis square
-        set(gca,'box','off')
-        if strcmp(dataType,'CBV_HbT') == false
-            Hip_RestPower = figure;
-            loglog(Hip_rest_f,Hip_rest_S,'k')
-            hold on;
-            loglog(Hip_rest_f,Hip_rest_sErr,'color',colors('battleship grey'))
-            xlabel('Freq (Hz)');
-            ylabel('Power');
-            title([animalID  ' Hippocampal ' dataType ' Power during awake rest']);
-            set(gca,'Ticklength',[0,0]);
-            legend('Coherence','Jackknife Lower','JackknifeUpper','Location','Southeast');
-            set(legend,'FontSize',6);
-            xlim([0,0.5])
-            axis square
-            set(gca,'box','off')
-        end
-        [pathstr, ~, ~] = fileparts(cd);
-        dirpath = [pathstr '/Figures/Power Spectrum/'];
-        if ~exist(dirpath,'dir')
-            mkdir(dirpath);
-        end
-        savefig(LH_RestPower,[dirpath animalID '_Rest_LH_' dataType '_PowerSpectra']);
-        close(LH_RestPower)
-        savefig(RH_RestPower,[dirpath animalID '_Rest_RH_' dataType '_PowerSpectra']);
-        close(RH_RestPower)
-        if strcmp(dataType,'CBV_HbT') == false
-            savefig(Hip_RestPower,[dirpath animalID '_Rest_Hippocampal_' dataType '_PowerSpectra']);
-            close(Hip_RestPower)
-        end
     end
     %% analyze power spectra during periods of alert
     zz = 1;
@@ -240,10 +189,13 @@ for aa = 1:length(dataTypes)
     if isempty(LH_AwakeData) == false
         % filter and detrend data
         for bb = 1:length(LH_AwakeData)
-            LH_ProcAwakeData{bb,1} = filtfilt(sos,g,detrend(LH_AwakeData{bb,1},'constant'));
-            RH_ProcAwakeData{bb,1} = filtfilt(sos,g,detrend(RH_AwakeData{bb,1},'constant'));
+            % LH_ProcAwakeData{bb,1} = filtfilt(sos,g,detrend(LH_AwakeData{bb,1},'constant'));
+            % RH_ProcAwakeData{bb,1} = filtfilt(sos,g,detrend(RH_AwakeData{bb,1},'constant'));
+            LH_ProcAwakeData{bb,1} = detrend(LH_AwakeData{bb,1},'constant');
+            RH_ProcAwakeData{bb,1} = detrend(RH_AwakeData{bb,1},'constant');
             if strcmp(dataType,'CBV_HbT') == false
-                Hip_ProcAwakeData{bb,1} = filtfilt(sos,g,detrend(Hip_AwakeData{bb,1},'constant'));
+                % Hip_ProcAwakeData{bb,1} = filtfilt(sos,g,detrend(Hip_AwakeData{bb,1},'constant'));
+                Hip_ProcAwakeData{bb,1} = detrend(Hip_AwakeData{bb,1},'constant');
             end
         end
         % input data as time (1st dimension, vertical) by trials (2nd dimension, horizontunstimy)
@@ -259,13 +211,6 @@ for aa = 1:length(dataTypes)
                 Hip_awakeData(:,cc) = Hip_ProcAwakeData{cc,1};
             end
         end
-        % parameters for mtspectrumc - information available in function
-        params.tapers = [10,19];   % Tapers [n, 2n - 1]
-        params.pad = 1;
-        params.Fs = samplingRate;
-        params.fpass = [0,0.5];   % Pass band [0, nyquist]
-        params.trialave = 1;
-        params.err = [2,0.05];
         % calculate the power spectra of the desired signals
         [LH_awake_S,LH_awake_f,LH_awake_sErr] = mtspectrumc(LH_awakeData,params);
         [RH_awake_S,RH_awake_f,RH_awake_sErr] = mtspectrumc(RH_awakeData,params);
@@ -283,63 +228,6 @@ for aa = 1:length(dataTypes)
             AnalysisResults.(animalID).PowerSpectra.Awake.(dataType).Hip.S = Hip_awake_S;
             AnalysisResults.(animalID).PowerSpectra.Awake.(dataType).Hip.f = Hip_awake_f;
             AnalysisResults.(animalID).PowerSpectra.Awake.(dataType).Hip.sErr = Hip_awake_sErr;
-        end
-        % save figures if desired
-        if strcmp(saveFigs,'y') == true
-            LH_AwakePower = figure;
-            loglog(LH_awake_f,LH_awake_S,'k')
-            hold on;
-            loglog(LH_awake_f,LH_awake_sErr,'color',colors('battleship grey'))
-            xlabel('Freq (Hz)');
-            ylabel('Power');
-            title([animalID  ' adjLH ' dataType ' Power during awake awake']);
-            set(gca,'Ticklength',[0,0]);
-            legend('Coherence','Jackknife Lower','JackknifeUpper','Location','Southeast');
-            set(legend,'FontSize',6);
-            xlim([0,0.5])
-            axis square
-            set(gca,'box','off')
-            RH_AwakePower = figure;
-            loglog(RH_awake_f,RH_awake_S,'k')
-            hold on;
-            loglog(RH_awake_f,RH_awake_sErr,'color',colors('battleship grey'))
-            xlabel('Freq (Hz)');
-            ylabel('Power');
-            title([animalID  ' adjRH ' dataType ' Power during awake awake']);
-            set(gca,'Ticklength',[0,0]);
-            legend('Coherence','Jackknife Lower','JackknifeUpper','Location','Southeast');
-            set(legend,'FontSize',6);
-            xlim([0,0.5])
-            axis square
-            set(gca,'box','off')
-            if strcmp(dataType,'CBV_HbT') == false
-                Hip_AwakePower = figure;
-                loglog(Hip_awake_f,Hip_awake_S,'k')
-                hold on;
-                loglog(Hip_awake_f,Hip_awake_sErr,'color',colors('battleship grey'))
-                xlabel('Freq (Hz)');
-                ylabel('Power');
-                title([animalID  ' Hippocampal ' dataType ' Power during awake awake']);
-                set(gca,'Ticklength',[0,0]);
-                legend('Coherence','Jackknife Lower','JackknifeUpper','Location','Southeast');
-                set(legend,'FontSize',6);
-                xlim([0,0.5])
-                axis square
-                set(gca,'box','off')
-            end
-            [pathstr, ~, ~] = fileparts(cd);
-            dirpath = [pathstr '/Figures/Power Spectrum/'];
-            if ~exist(dirpath,'dir')
-                mkdir(dirpath);
-            end
-            savefig(LH_AwakePower,[dirpath animalID '_Awake_LH_' dataType '_PowerSpectra']);
-            close(LH_AwakePower)
-            savefig(RH_AwakePower,[dirpath animalID '_Awake_RH_' dataType '_PowerSpectra']);
-            close(RH_AwakePower)
-            if strcmp(dataType,'CBV_HbT') == false
-                savefig(Hip_AwakePower,[dirpath animalID '_Awake_Hippocampal_' dataType '_PowerSpectra']);
-                close(Hip_AwakePower)
-            end
         end
     else
         % save results
@@ -390,10 +278,13 @@ for aa = 1:length(dataTypes)
     if isempty(LH_SleepData) == false
         % filter and detrend data
         for bb = 1:length(LH_SleepData)
-            LH_ProcSleepData{bb,1} = filtfilt(sos,g,detrend(LH_SleepData{bb,1},'constant'));
-            RH_ProcSleepData{bb,1} = filtfilt(sos,g,detrend(RH_SleepData{bb,1},'constant'));
+            % LH_ProcSleepData{bb,1} = filtfilt(sos,g,detrend(LH_SleepData{bb,1},'constant'));
+            % RH_ProcSleepData{bb,1} = filtfilt(sos,g,detrend(RH_SleepData{bb,1},'constant'));
+            LH_ProcSleepData{bb,1} = detrend(LH_SleepData{bb,1},'constant');
+            RH_ProcSleepData{bb,1} = detrend(RH_SleepData{bb,1},'constant');
             if strcmp(dataType,'CBV_HbT') == false
-                Hip_ProcSleepData{bb,1} = filtfilt(sos,g,detrend(Hip_SleepData{bb,1},'constant'));
+                % Hip_ProcSleepData{bb,1} = filtfilt(sos,g,detrend(Hip_SleepData{bb,1},'constant'));
+                Hip_ProcSleepData{bb,1} = detrend(Hip_SleepData{bb,1},'constant');
             end
         end
         % input data as time (1st dimension, vertical) by trials (2nd dimension, horizontunstimy)
@@ -409,13 +300,6 @@ for aa = 1:length(dataTypes)
                 Hip_sleepData(:,cc) = Hip_ProcSleepData{cc,1};
             end
         end
-        % parameters for mtspectrumc - information available in function
-        params.tapers = [10,19];   % Tapers [n, 2n - 1]
-        params.pad = 1;
-        params.Fs = samplingRate;
-        params.fpass = [0,0.5];   % Pass band [0, nyquist]
-        params.trialave = 1;
-        params.err = [2,0.05];
         % calculate the power spectra of the desired signals
         [LH_sleep_S,LH_sleep_f,LH_sleep_sErr] = mtspectrumc(LH_sleepData,params);
         [RH_sleep_S,RH_sleep_f,RH_sleep_sErr] = mtspectrumc(RH_sleepData,params);
@@ -433,63 +317,6 @@ for aa = 1:length(dataTypes)
             AnalysisResults.(animalID).PowerSpectra.Sleep.(dataType).Hip.S = Hip_sleep_S;
             AnalysisResults.(animalID).PowerSpectra.Sleep.(dataType).Hip.f = Hip_sleep_f;
             AnalysisResults.(animalID).PowerSpectra.Sleep.(dataType).Hip.sErr = Hip_sleep_sErr;
-        end
-        % save figures if desired
-        if strcmp(saveFigs,'y') == true
-            LH_SleepPower = figure;
-            loglog(LH_sleep_f,LH_sleep_S,'k')
-            hold on;
-            loglog(LH_sleep_f,LH_sleep_sErr,'color',colors('battleship grey'))
-            xlabel('Freq (Hz)');
-            ylabel('Power');
-            title([animalID  ' adjLH ' dataType ' Power during sleep sleep']);
-            set(gca,'Ticklength',[0,0]);
-            legend('Coherence','Jackknife Lower','JackknifeUpper','Location','Southeast');
-            set(legend,'FontSize',6);
-            xlim([0,0.5])
-            axis square
-            set(gca,'box','off')
-            RH_SleepPower = figure;
-            loglog(RH_sleep_f,RH_sleep_S,'k')
-            hold on;
-            loglog(RH_sleep_f,RH_sleep_sErr,'color',colors('battleship grey'))
-            xlabel('Freq (Hz)');
-            ylabel('Power');
-            title([animalID  ' adjRH ' dataType ' Power during sleep sleep']);
-            set(gca,'Ticklength',[0,0]);
-            legend('Coherence','Jackknife Lower','JackknifeUpper','Location','Southeast');
-            set(legend,'FontSize',6);
-            xlim([0,0.5])
-            axis square
-            set(gca,'box','off')
-            if strcmp(dataType,'CBV_HbT') == false
-                Hip_SleepPower = figure;
-                loglog(Hip_sleep_f,Hip_sleep_S,'k')
-                hold on;
-                loglog(Hip_sleep_f,Hip_sleep_sErr,'color',colors('battleship grey'))
-                xlabel('Freq (Hz)');
-                ylabel('Power');
-                title([animalID  ' Hippocampal ' dataType ' Power during sleep sleep']);
-                set(gca,'Ticklength',[0,0]);
-                legend('Coherence','Jackknife Lower','JackknifeUpper','Location','Southeast');
-                set(legend,'FontSize',6);
-                xlim([0,0.5])
-                axis square
-                set(gca,'box','off')
-            end
-            [pathstr, ~, ~] = fileparts(cd);
-            dirpath = [pathstr '/Figures/Power Spectrum/'];
-            if ~exist(dirpath,'dir')
-                mkdir(dirpath);
-            end
-            savefig(LH_SleepPower,[dirpath animalID '_Sleep_LH_' dataType '_PowerSpectra']);
-            close(LH_SleepPower)
-            savefig(RH_SleepPower,[dirpath animalID '_Sleep_RH_' dataType '_PowerSpectra']);
-            close(RH_SleepPower)
-            if strcmp(dataType,'CBV_HbT') == false
-                savefig(Hip_SleepPower,[dirpath animalID '_Sleep_Hippocampal_' dataType '_PowerSpectra']);
-                close(Hip_SleepPower)
-            end
         end
     else
         % save results
@@ -531,10 +358,13 @@ for aa = 1:length(dataTypes)
     if isempty(LH_AllUnstimData) == false
         % filter and detrend data
         for bb = 1:length(LH_AllUnstimData)
-            LH_ProcAllUnstimData{bb,1} = filtfilt(sos,g,detrend(LH_AllUnstimData{bb,1},'constant'));
-            RH_ProcAllUnstimData{bb,1} = filtfilt(sos,g,detrend(RH_AllUnstimData{bb,1},'constant'));
+            % LH_ProcAllUnstimData{bb,1} = filtfilt(sos,g,detrend(LH_AllUnstimData{bb,1},'constant'));
+            % RH_ProcAllUnstimData{bb,1} = filtfilt(sos,g,detrend(RH_AllUnstimData{bb,1},'constant'));
+            LH_ProcAllUnstimData{bb,1} = detrend(LH_AllUnstimData{bb,1},'constant');
+            RH_ProcAllUnstimData{bb,1} = detrend(RH_AllUnstimData{bb,1},'constant');
             if strcmp(dataType,'CBV_HbT') == false
-                Hip_ProcAllUnstimData{bb,1} = filtfilt(sos,g,detrend(Hip_AllUnstimData{bb,1},'constant'));
+                % Hip_ProcAllUnstimData{bb,1} = filtfilt(sos,g,detrend(Hip_AllUnstimData{bb,1},'constant'));
+                Hip_ProcAllUnstimData{bb,1} = detrend(Hip_AllUnstimData{bb,1},'constant');
             end
         end
         % input data as time (1st dimension, vertical) by trials (2nd dimension, horizontunstimy)
@@ -550,13 +380,6 @@ for aa = 1:length(dataTypes)
                 Hip_allUnstimData(:,cc) = Hip_ProcAllUnstimData{cc,1};
             end
         end
-        % parameters for mtspectrumc - information available in function
-        params.tapers = [10,19];   % Tapers [n, 2n - 1]
-        params.pad = 1;
-        params.Fs = samplingRate;
-        params.fpass = [0,0.5];   % Pass band [0, nyquist]
-        params.trialave = 1;
-        params.err = [2,0.05];
         % calculate the power spectra of the desired signals
         [LH_allUnstim_S,LH_allUnstim_f,LH_allUnstim_sErr] = mtspectrumc(LH_allUnstimData,params);
         [RH_allUnstim_S,RH_allUnstim_f,RH_allUnstim_sErr] = mtspectrumc(RH_allUnstimData,params);
@@ -575,63 +398,6 @@ for aa = 1:length(dataTypes)
             AnalysisResults.(animalID).PowerSpectra.All.(dataType).Hip.f = Hip_allUnstim_f;
             AnalysisResults.(animalID).PowerSpectra.All.(dataType).Hip.sErr = Hip_allUnstim_sErr;
         end
-        % save figures if desired
-        if strcmp(saveFigs,'y') == true
-            LH_AllUnstimPower = figure;
-            loglog(LH_allUnstim_f,LH_allUnstim_S,'k')
-            hold on;
-            loglog(LH_allUnstim_f,LH_allUnstim_sErr,'color',colors('battleship grey'))
-            xlabel('Freq (Hz)');
-            ylabel('Power');
-            title([animalID  ' adjLH ' dataType ' Power during allUnstim allUnstim']);
-            set(gca,'Ticklength',[0,0]);
-            legend('Coherence','Jackknife Lower','JackknifeUpper','Location','Southeast');
-            set(legend,'FontSize',6);
-            xlim([0,0.5])
-            axis square
-            set(gca,'box','off')
-            RH_AllUnstimPower = figure;
-            loglog(RH_allUnstim_f,RH_allUnstim_S,'k')
-            hold on;
-            loglog(RH_allUnstim_f,RH_allUnstim_sErr,'color',colors('battleship grey'))
-            xlabel('Freq (Hz)');
-            ylabel('Power');
-            title([animalID  ' adjRH ' dataType ' Power during allUnstim allUnstim']);
-            set(gca,'Ticklength',[0,0]);
-            legend('Coherence','Jackknife Lower','JackknifeUpper','Location','Southeast');
-            set(legend,'FontSize',6);
-            xlim([0,0.5])
-            axis square
-            set(gca,'box','off')
-            if strcmp(dataType,'CBV_HbT') == false
-                Hip_AllUnstimPower = figure;
-                loglog(Hip_allUnstim_f,Hip_allUnstim_S,'k')
-                hold on;
-                loglog(Hip_allUnstim_f,Hip_allUnstim_sErr,'color',colors('battleship grey'))
-                xlabel('Freq (Hz)');
-                ylabel('Power');
-                title([animalID  ' Hippocampal ' dataType ' Power during all unstim data']);
-                set(gca,'Ticklength',[0,0]);
-                legend('Coherence','Jackknife Lower','JackknifeUpper','Location','Southeast');
-                set(legend,'FontSize',6);
-                xlim([0,0.5])
-                axis square
-                set(gca,'box','off')
-            end
-            [pathstr, ~, ~] = fileparts(cd);
-            dirpath = [pathstr '/Figures/Power Spectrum/'];
-            if ~exist(dirpath,'dir')
-                mkdir(dirpath);
-            end
-            savefig(LH_AllUnstimPower,[dirpath animalID '_AllUnstim_LH_' dataType '_PowerSpectra']);
-            close(LH_AllUnstimPower)
-            savefig(RH_AllUnstimPower,[dirpath animalID '_AllUnstim_RH_' dataType '_PowerSpectra']);
-            close(RH_AllUnstimPower)
-            if strcmp(dataType,'CBV_HbT') == false
-                savefig(Hip_AllUnstimPower,[dirpath animalID '_AllUnstim_Hippocampal_' dataType '_PowerSpectra']);
-                close(Hip_AllUnstimPower)
-            end
-        end
     end
     %% analyze power spectra during periods of NREM
     % pull data from SleepData.mat structure
@@ -645,10 +411,13 @@ for aa = 1:length(dataTypes)
     end
     % filter, detrend, and truncate data to minimum length to match events
     for dd = 1:length(LH_nremData)
-        LH_nremData{dd,1} = filtfilt(sos,g,detrend(LH_nremData{dd,1}(1:(params.minTime.NREM*samplingRate)),'constant'));
-        RH_nremData{dd,1} = filtfilt(sos,g,detrend(RH_nremData{dd,1}(1:(params.minTime.NREM*samplingRate)),'constant'));
+        % LH_nremData{dd,1} = filtfilt(sos,g,detrend(LH_nremData{dd,1}(1:(params.minTime.NREM*samplingRate)),'constant'));
+        % RH_nremData{dd,1} = filtfilt(sos,g,detrend(RH_nremData{dd,1}(1:(params.minTime.NREM*samplingRate)),'constant'));
+        LH_nremData{dd,1} = detrend(LH_nremData{dd,1}(1:(params.minTime.NREM*samplingRate)),'constant');
+        RH_nremData{dd,1} = detrend(RH_nremData{dd,1}(1:(params.minTime.NREM*samplingRate)),'constant');
         if strcmp(dataType,'CBV_HbT') == false
-            Hip_nremData{dd,1} = filtfilt(sos,g,detrend(Hip_nremData{dd,1}(1:(params.minTime.NREM*samplingRate)),'constant'));
+            % Hip_nremData{dd,1} = filtfilt(sos,g,detrend(Hip_nremData{dd,1}(1:(params.minTime.NREM*samplingRate)),'constant'));
+            Hip_nremData{dd,1} = detrend(Hip_nremData{dd,1}(1:(params.minTime.NREM*samplingRate)),'constant');
         end
     end
     % input data as time (1st dimension, vertical) by trials (2nd dimension, horizontunstimy)
@@ -664,13 +433,6 @@ for aa = 1:length(dataTypes)
             Hip_nrem(:,ee) = Hip_nremData{ee,1};
         end
     end
-    % parameters for mtspectrumc - information available in function
-    params.tapers = [3,5];   % Tapers [n, 2n - 1]
-    params.pad = 1;
-    params.Fs = samplingRate;
-    params.fpass = [0,0.5];   % Pass band [0, nyquist]
-    params.trialave = 1;
-    params.err = [2,0.05];
     % calculate the power spectra of the desired signals
     [LH_nrem_S,LH_nrem_f,LH_nrem_sErr] = mtspectrumc(LH_nrem,params);
     [RH_nrem_S,RH_nrem_f,RH_nrem_sErr] = mtspectrumc(RH_nrem,params);
@@ -689,58 +451,6 @@ for aa = 1:length(dataTypes)
         AnalysisResults.(animalID).PowerSpectra.NREM.(dataType).Hip.f = Hip_nrem_f;
         AnalysisResults.(animalID).PowerSpectra.NREM.(dataType).Hip.sErr = Hip_nrem_sErr;
     end
-    % save figures if desired
-    if strcmp(saveFigs,'y') == true
-        LH_nremPower = figure;
-        loglog(LH_nrem_f,LH_nrem_S,'k')
-        hold on;
-        loglog(LH_nrem_f,LH_nrem_sErr,'color',colors('battleship grey'))
-        xlabel('Freq (Hz)');
-        ylabel('Power');
-        title([animalID  ' adjLH ' dataType ' Power during NREM']);
-        set(gca,'Ticklength',[0,0]);
-        legend('Coherence','Jackknife Lower','JackknifeUpper','Location','Southeast');
-        set(legend,'FontSize',6);
-        xlim([0,0.5])
-        axis square
-        set(gca,'box','off')
-        RH_nremPower = figure;
-        loglog(RH_nrem_f,RH_nrem_S,'k')
-        hold on;
-        loglog(RH_nrem_f,RH_nrem_sErr,'color',colors('battleship grey'))
-        xlabel('Freq (Hz)');
-        ylabel('Power');
-        title([animalID  ' adjRH ' dataType ' Power during NREM']);
-        set(gca,'Ticklength',[0,0]);
-        legend('Coherence','Jackknife Lower','JackknifeUpper','Location','Southeast');
-        set(legend,'FontSize',6);
-        xlim([0,0.5])
-        axis square
-        set(gca,'box','off')
-        if strcmp(dataType,'CBV_HbT') == false
-            Hip_nremPower = figure;
-            loglog(Hip_nrem_f,Hip_nrem_S,'k')
-            hold on;
-            loglog(Hip_nrem_f,Hip_nrem_sErr,'color',colors('battleship grey'))
-            xlabel('Freq (Hz)');
-            ylabel('Power');
-            title([animalID  ' Hippocampal ' dataType ' Power during NREM']);
-            set(gca,'Ticklength',[0,0]);
-            legend('Coherence','Jackknife Lower','JackknifeUpper','Location','Southeast');
-            set(legend,'FontSize',6);
-            xlim([0,0.5])
-            axis square
-            set(gca,'box','off')
-        end
-        savefig(LH_nremPower,[dirpath animalID '_NREM_LH_' dataType '_PowerSpectra']);
-        close(LH_nremPower)
-        savefig(RH_nremPower,[dirpath animalID '_NREM_RH_' dataType '_PowerSpectra']);
-        close(RH_nremPower)
-        if strcmp(dataType,'CBV_HbT') == false
-            savefig(Hip_nremPower,[dirpath animalID '_NREM_Hippocampal_' dataType '_PowerSpectra']);
-            close(Hip_nremPower)
-        end
-    end
     %% analyze power spectra during periods of REM
     % pull data from SleepData.mat structure
     if strcmp(dataType,'CBV_HbT') == true
@@ -753,10 +463,13 @@ for aa = 1:length(dataTypes)
     end
     % filter, detrend, and truncate data to minimum length to match events
     for ff = 1:length(LH_remData)
-        LH_remData{ff,1} = filtfilt(sos,g,detrend(LH_remData{ff,1}(1:(params.minTime.REM*samplingRate)),'constant'));
-        RH_remData{ff,1} = filtfilt(sos,g,detrend(RH_remData{ff,1}(1:(params.minTime.REM*samplingRate)),'constant'));
+        % LH_remData{ff,1} = filtfilt(sos,g,detrend(LH_remData{ff,1}(1:(params.minTime.REM*samplingRate)),'constant'));
+        % RH_remData{ff,1} = filtfilt(sos,g,detrend(RH_remData{ff,1}(1:(params.minTime.REM*samplingRate)),'constant'));
+        LH_remData{ff,1} = detrend(LH_remData{ff,1}(1:(params.minTime.REM*samplingRate)),'constant');
+        RH_remData{ff,1} = detrend(RH_remData{ff,1}(1:(params.minTime.REM*samplingRate)),'constant');
         if strcmp(dataType,'CBV_HbT') == false
-            Hip_remData{ff,1} = filtfilt(sos,g,detrend(Hip_remData{ff,1}(1:(params.minTime.REM*samplingRate)),'constant'));
+            % Hip_remData{ff,1} = filtfilt(sos,g,detrend(Hip_remData{ff,1}(1:(params.minTime.REM*samplingRate)),'constant'));
+            Hip_remData{ff,1} = detrend(Hip_remData{ff,1}(1:(params.minTime.REM*samplingRate)),'constant');
         end
     end
     % input data as time (1st dimension, vertical) by trials (2nd dimension, horizontunstimy)
@@ -772,13 +485,6 @@ for aa = 1:length(dataTypes)
             Hip_rem(:,gg) = Hip_remData{gg,1};
         end
     end
-    % parameters for mtspectrumc - information available in function
-    params.tapers = [5,9];   % Tapers [n, 2n - 1]
-    params.pad = 1;
-    params.Fs = samplingRate;
-    params.fpass = [0,0.5];   % Pass band [0, nyquist]
-    params.trialave = 1;
-    params.err = [2,0.05];
     % calculate the power spectra of the desired signals
     [LH_rem_S,LH_rem_f,LH_rem_sErr] = mtspectrumc(LH_rem,params);
     [RH_rem_S,RH_rem_f,RH_rem_sErr] = mtspectrumc(RH_rem,params);
@@ -796,58 +502,6 @@ for aa = 1:length(dataTypes)
         AnalysisResults.(animalID).PowerSpectra.REM.(dataType).Hip.S = Hip_rem_S;
         AnalysisResults.(animalID).PowerSpectra.REM.(dataType).Hip.f = Hip_rem_f;
         AnalysisResults.(animalID).PowerSpectra.REM.(dataType).Hip.sErr = Hip_rem_sErr;
-    end
-    % save figures if desired
-    if strcmp(saveFigs,'y') == true
-        LH_remPower = figure;
-        loglog(LH_rem_f,LH_rem_S,'k')
-        hold on;
-        loglog(LH_rem_f,LH_rem_sErr,'color',colors('battleship grey'))
-        xlabel('Freq (Hz)');
-        ylabel('Power');
-        title([animalID  ' adjLH ' dataType ' Power during REM']);
-        set(gca,'Ticklength',[0,0]);
-        legend('Coherence','Jackknife Lower','JackknifeUpper','Location','Southeast');
-        set(legend,'FontSize',6);
-        xlim([0,0.5])
-        axis square
-        set(gca,'box','off')
-        RH_remPower = figure;
-        loglog(RH_rem_f,RH_rem_S,'k')
-        hold on;
-        loglog(RH_rem_f,RH_rem_sErr,'color',colors('battleship grey'))
-        xlabel('Freq (Hz)');
-        ylabel('Power');
-        title([animalID  ' adjRH ' dataType ' Power during REM']);
-        set(gca,'Ticklength',[0,0]);
-        legend('Coherence','Jackknife Lower','JackknifeUpper','Location','Southeast');
-        set(legend,'FontSize',6);
-        xlim([0,0.5])
-        axis square
-        set(gca,'box','off')
-        if strcmp(dataType,'CBV_HbT') == false
-            Hip_remPower = figure;
-            loglog(Hip_rem_f,Hip_rem_S,'k')
-            hold on;
-            loglog(Hip_rem_f,Hip_rem_sErr,'color',colors('battleship grey'))
-            xlabel('Freq (Hz)');
-            ylabel('Power');
-            title([animalID  ' Hippocampal ' dataType ' Power during REM']);
-            set(gca,'Ticklength',[0,0]);
-            legend('Coherence','Jackknife Lower','JackknifeUpper','Location','Southeast');
-            set(legend,'FontSize',6);
-            xlim([0,0.5])
-            axis square
-            set(gca,'box','off')
-        end
-        savefig(LH_remPower,[dirpath animalID '_REM_LH_' dataType '_PowerSpectra']);
-        close(LH_remPower)
-        savefig(RH_remPower,[dirpath animalID '_REM_RH_' dataType '_PowerSpectra']);
-        close(RH_remPower)
-        if strcmp(dataType,'CBV_HbT') == false
-            savefig(Hip_remPower,[dirpath animalID '_REM_Hippocampal_' dataType '_PowerSpectra']);
-            close(Hip_remPower)
-        end
     end
 end
 % save data

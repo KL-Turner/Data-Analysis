@@ -24,6 +24,7 @@ curDir = cd;
 dirBreaks = strfind(curDir,'\');
 curFolder = curDir(dirBreaks(end) + 1:end);
 imagingType = input('Input imaging type (bilateral or single): ','s'); disp(' ')
+lensMag = 2; % 1.5, 3
 %% BLOCK PURPOSE: [1] Process the RawData structure -> Create Threshold data structure and ProcData structure.
 disp('Analyzing Block [2] Creating ProcData files and processing analog data.'); disp(' ')
 ProcessRawDataFiles_IOS(rawDataFileIDs)

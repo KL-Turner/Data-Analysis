@@ -12,7 +12,7 @@ function [] = CategorizeData_IOS(procDataFileID)
 
 % Load and Setup
 disp(['Categorizing data for: ' procDataFileID]); disp(' ')
-load(procDataFileID)
+zapload(procDataFileID)
 whiskerSamplingRate = ProcData.notes.dsFs;
 % Process binary whisking waveform to detect whisking events
 % Setup parameters for link_binary_events

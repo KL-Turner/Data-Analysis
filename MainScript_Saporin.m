@@ -25,7 +25,7 @@ end
 % add root folder to Matlab's working directory
 addpath(genpath(rootFolder))
 %% run the data analysis. The progress bars will show the analysis progress
-rerunAnalysis = 'n';
+rerunAnalysis = 'y';
 saveFigs = 'y';
 if exist('AnalysisResults.mat','file') ~= 2 || strcmp(rerunAnalysis,'y') == true
     multiWaitbar('Analyzing behavioral hemodynamics',0,'Color','P'); pause(0.25);
@@ -102,7 +102,7 @@ for aa = 1:length(expGroups)
     animalIDs = {folderList.name};
     for bb = 1:length(animalIDs)
         if isfield(AnalysisResults,(animalIDs{1,bb})) == false || isfield(AnalysisResults.(animalIDs{1,bb}),'Coherence') == false || strcmp(runFromStart,'y') == true
-            [AnalysisResults] = AnalyzeCoherence(animalIDs{1,bb},expGroups{1,aa},saveFigs,rootFolder,AnalysisResults);
+            [AnalysisResults] = AnalyzeCoherence(animalIDs{1,bb},expGroups{1,aa},rootFolder,AnalysisResults);
         end
         multiWaitbar('Analyzing coherence','Value',cc/waitBarLength);
         cc = cc + 1;
@@ -117,7 +117,7 @@ for aa = 1:length(expGroups)
     animalIDs = {folderList.name};
     for bb = 1:length(animalIDs)
         if isfield(AnalysisResults,(animalIDs{1,bb})) == false || isfield(AnalysisResults.(animalIDs{1,bb}),'NeuralHemoCoherence') == false || strcmp(runFromStart,'y') == true
-            [AnalysisResults] = AnalyzeNeuralHemoCoherence(animalIDs{1,bb},expGroups{1,aa},saveFigs,rootFolder,AnalysisResults);
+            [AnalysisResults] = AnalyzeNeuralHemoCoherence(animalIDs{1,bb},expGroups{1,aa},rootFolder,AnalysisResults);
         end
         multiWaitbar('Analyzing neural-hemo coherence','Value',cc/waitBarLength);
         cc = cc + 1;
@@ -132,7 +132,7 @@ for aa = 1:length(expGroups)
     animalIDs = {folderList.name};
     for bb = 1:length(animalIDs)
         if isfield(AnalysisResults,(animalIDs{1,bb})) == false || isfield(AnalysisResults.(animalIDs{1,bb}),'PowerSpectra') == false || strcmp(runFromStart,'y') == true
-            [AnalysisResults] = AnalyzePowerSpectrum(animalIDs{1,bb},expGroups{1,aa},saveFigs,rootFolder,AnalysisResults);
+            [AnalysisResults] = AnalyzePowerSpectrum(animalIDs{1,bb},expGroups{1,aa},rootFolder,AnalysisResults);
         end
         multiWaitbar('Analyzing power spectra','Value',cc/waitBarLength);
         cc = cc + 1;

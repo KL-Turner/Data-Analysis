@@ -8,10 +8,14 @@ function [AnalysisResults] = StimEvoked_Saporin(rootFolder,saveFigs,delim,Analys
 %________________________________________________________________________________________________________________________
 
 %% set-up
-animalIDs = {'T141','T155','T156','T157','T142','T144','T159','T172','T150','T165','T166','T177','T179','T186','T187','T188','T189'};
-C57BL6J_IDs = {'T141','T155','T156','T157','T186','T187','T188','T189'};
-SSP_SAP_IDs = {'T142','T144','T159','T172'};
-Blank_SAP_IDs = {'T150','T165','T166','T177','T179'};
+expGroups = {'C57BL6J','SSP-SAP','Blank-SAP'};
+animalIDs.all = {};
+for aa = 1:length(expGroups)
+    folderList = dir(expGroups{1,aa});
+    folderList = folderList(~startsWith({folderList.name},'.'));
+    animalIDs.all = horzcat(animalIDs.all,{folderList.name});
+    animalIDs.(strrep(expGroups{1,aa},'-','_')) = {folderList.name};
+end
 solenoidNames = {'LPadSol','RPadSol','AudSol'};
 compDataTypes = {'Ipsi','Contra','Auditory'};
 hemispheres = {'adjLH','adjRH'};
@@ -20,13 +24,13 @@ data = [];
 cortVariables = {'HbT','CBV','cortMUA','cortGam','cortS','cortS_Gam','cortT','cortF','timeVector','count'};
 hipVariables = {'hipMUA','hipGam','hipS','hipS_Gam','hipT','hipF','timeVector'};
 %% cd through each animal's directory and extract the appropriate analysis results
-for aa = 1:length(animalIDs)
+for aa = 1:length(animalIDs.all)
     % recognize treatment based on animal group
-    if ismember(animalIDs{1,aa},C57BL6J_IDs) == true
+    if ismember(animalIDs.all{1,aa},animalIDs.C57BL6J) == true
         treatment = 'C57BL6J';
-    elseif ismember(animalIDs{1,aa},SSP_SAP_IDs) == true
+    elseif ismember(animalIDs.all{1,aa},animalIDs.SSP_SAP) == true
         treatment = 'SSP_SAP';
-    elseif ismember(animalIDs{1,aa},Blank_SAP_IDs) == true
+    elseif ismember(animalIDs.all{1,aa},animalIDs.Blank_SAP) == true
         treatment = 'Blank_SAP';
     end
     for bb = 1:length(solenoidNames)
@@ -39,16 +43,16 @@ for aa = 1:length(animalIDs)
                     data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).(cortVariables{1,dd}) = [];
                 end
             end
-            data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).HbT = cat(1,data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).HbT,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Stim.(hemispheres{1,cc}).(solenoidNames{1,bb}).CBV_HbT.HbT);
-            data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).CBV = cat(1,data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).CBV,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Stim.(hemispheres{1,cc}).(solenoidNames{1,bb}).CBV.CBV);
-            data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).cortMUA = cat(1,data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).cortMUA,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Stim.(hemispheres{1,cc}).(solenoidNames{1,bb}).MUA.corticalData);
-            data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).cortGam = cat(1,data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).cortGam,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Stim.(hemispheres{1,cc}).(solenoidNames{1,bb}).Gam.corticalData);
-            data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).cortS = cat(3,data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).cortS,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Stim.(hemispheres{1,cc}).(solenoidNames{1,bb}).LFP.corticalS);
-            data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).cortS_Gam = cat(3,data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).cortS_Gam,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Stim.(hemispheres{1,cc}).(solenoidNames{1,bb}).LFP.corticalS(49:end,20:23));
-            data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).cortT = cat(1,data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).cortT,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Stim.(hemispheres{1,cc}).(solenoidNames{1,bb}).LFP.T);
-            data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).cortF = cat(1,data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).cortF,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Stim.(hemispheres{1,cc}).(solenoidNames{1,bb}).LFP.F);
-            data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).timeVector = cat(1,data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).timeVector,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Stim.(hemispheres{1,cc}).(solenoidNames{1,bb}).timeVector);
-            data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).count = cat(1,data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).count,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Stim.(hemispheres{1,cc}).(solenoidNames{1,bb}).count);
+            data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).HbT = cat(1,data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).HbT,AnalysisResults.(animalIDs.all{1,aa}).EvokedAvgs.Stim.(hemispheres{1,cc}).(solenoidNames{1,bb}).CBV_HbT.HbT);
+            data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).CBV = cat(1,data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).CBV,AnalysisResults.(animalIDs.all{1,aa}).EvokedAvgs.Stim.(hemispheres{1,cc}).(solenoidNames{1,bb}).CBV.CBV);
+            data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).cortMUA = cat(1,data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).cortMUA,AnalysisResults.(animalIDs.all{1,aa}).EvokedAvgs.Stim.(hemispheres{1,cc}).(solenoidNames{1,bb}).MUA.corticalData);
+            data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).cortGam = cat(1,data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).cortGam,AnalysisResults.(animalIDs.all{1,aa}).EvokedAvgs.Stim.(hemispheres{1,cc}).(solenoidNames{1,bb}).Gam.corticalData);
+            data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).cortS = cat(3,data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).cortS,AnalysisResults.(animalIDs.all{1,aa}).EvokedAvgs.Stim.(hemispheres{1,cc}).(solenoidNames{1,bb}).LFP.corticalS);
+            data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).cortS_Gam = cat(3,data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).cortS_Gam,AnalysisResults.(animalIDs.all{1,aa}).EvokedAvgs.Stim.(hemispheres{1,cc}).(solenoidNames{1,bb}).LFP.corticalS(49:end,20:23));
+            data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).cortT = cat(1,data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).cortT,AnalysisResults.(animalIDs.all{1,aa}).EvokedAvgs.Stim.(hemispheres{1,cc}).(solenoidNames{1,bb}).LFP.T);
+            data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).cortF = cat(1,data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).cortF,AnalysisResults.(animalIDs.all{1,aa}).EvokedAvgs.Stim.(hemispheres{1,cc}).(solenoidNames{1,bb}).LFP.F);
+            data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).timeVector = cat(1,data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).timeVector,AnalysisResults.(animalIDs.all{1,aa}).EvokedAvgs.Stim.(hemispheres{1,cc}).(solenoidNames{1,bb}).timeVector);
+            data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).count = cat(1,data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).count,AnalysisResults.(animalIDs.all{1,aa}).EvokedAvgs.Stim.(hemispheres{1,cc}).(solenoidNames{1,bb}).count);
             % hippocampal neural data - preallocate necessary variable fields
             data.(treatment).(solenoidNames{1,bb}).Hip.dummyCheck = 1;
             for ee = 1:length(hipVariables)
@@ -56,13 +60,13 @@ for aa = 1:length(animalIDs)
                     data.(treatment).(solenoidNames{1,bb}).Hip.(hipVariables{1,ee}) = [];
                 end
             end
-            data.(treatment).(solenoidNames{1,bb}).Hip.hipMUA = cat(1,data.(treatment).(solenoidNames{1,bb}).Hip.hipMUA,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Stim.adjLH.(solenoidNames{1,bb}).MUA.hippocampalData);
-            data.(treatment).(solenoidNames{1,bb}).Hip.hipGam = cat(1,data.(treatment).(solenoidNames{1,bb}).Hip.hipGam,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Stim.adjLH.(solenoidNames{1,bb}).Gam.hippocampalData);
-            data.(treatment).(solenoidNames{1,bb}).Hip.hipS = cat(3,data.(treatment).(solenoidNames{1,bb}).Hip.hipS,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Stim.adjLH.(solenoidNames{1,bb}).LFP.hippocampalS);
-            data.(treatment).(solenoidNames{1,bb}).Hip.hipS_Gam = cat(3,data.(treatment).(solenoidNames{1,bb}).Hip.hipS_Gam,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Stim.adjLH.(solenoidNames{1,bb}).LFP.hippocampalS(49:end,20:23));
-            data.(treatment).(solenoidNames{1,bb}).Hip.hipT = cat(1,data.(treatment).(solenoidNames{1,bb}).Hip.hipT,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Stim.adjLH.(solenoidNames{1,bb}).LFP.T);
-            data.(treatment).(solenoidNames{1,bb}).Hip.hipF = cat(1,data.(treatment).(solenoidNames{1,bb}).Hip.hipF,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Stim.adjLH.(solenoidNames{1,bb}).LFP.F);
-            data.(treatment).(solenoidNames{1,bb}).Hip.timeVector = cat(1,data.(treatment).(solenoidNames{1,bb}).Hip.timeVector,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Stim.adjLH.(solenoidNames{1,bb}).timeVector);
+            data.(treatment).(solenoidNames{1,bb}).Hip.hipMUA = cat(1,data.(treatment).(solenoidNames{1,bb}).Hip.hipMUA,AnalysisResults.(animalIDs.all{1,aa}).EvokedAvgs.Stim.adjLH.(solenoidNames{1,bb}).MUA.hippocampalData);
+            data.(treatment).(solenoidNames{1,bb}).Hip.hipGam = cat(1,data.(treatment).(solenoidNames{1,bb}).Hip.hipGam,AnalysisResults.(animalIDs.all{1,aa}).EvokedAvgs.Stim.adjLH.(solenoidNames{1,bb}).Gam.hippocampalData);
+            data.(treatment).(solenoidNames{1,bb}).Hip.hipS = cat(3,data.(treatment).(solenoidNames{1,bb}).Hip.hipS,AnalysisResults.(animalIDs.all{1,aa}).EvokedAvgs.Stim.adjLH.(solenoidNames{1,bb}).LFP.hippocampalS);
+            data.(treatment).(solenoidNames{1,bb}).Hip.hipS_Gam = cat(3,data.(treatment).(solenoidNames{1,bb}).Hip.hipS_Gam,AnalysisResults.(animalIDs.all{1,aa}).EvokedAvgs.Stim.adjLH.(solenoidNames{1,bb}).LFP.hippocampalS(49:end,20:23));
+            data.(treatment).(solenoidNames{1,bb}).Hip.hipT = cat(1,data.(treatment).(solenoidNames{1,bb}).Hip.hipT,AnalysisResults.(animalIDs.all{1,aa}).EvokedAvgs.Stim.adjLH.(solenoidNames{1,bb}).LFP.T);
+            data.(treatment).(solenoidNames{1,bb}).Hip.hipF = cat(1,data.(treatment).(solenoidNames{1,bb}).Hip.hipF,AnalysisResults.(animalIDs.all{1,aa}).EvokedAvgs.Stim.adjLH.(solenoidNames{1,bb}).LFP.F);
+            data.(treatment).(solenoidNames{1,bb}).Hip.timeVector = cat(1,data.(treatment).(solenoidNames{1,bb}).Hip.timeVector,AnalysisResults.(animalIDs.all{1,aa}).EvokedAvgs.Stim.adjLH.(solenoidNames{1,bb}).timeVector);
         end
     end
 end

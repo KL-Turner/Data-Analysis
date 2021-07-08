@@ -22,24 +22,28 @@ colorAsleep = [(0/256),(128/256),(255/256)];
 colorAll = [(183/256),(115/256),(51/256)];
 % colorIso = [(0/256),(256/256),(256/256)];
 %% set-up and process data
-animalIDs = {'T141','T155','T156','T157','T142','T144','T159','T172','T150','T165','T166','T177','T179','T186','T187','T188','T189'};
-C57BL6J_IDs = {'T141','T155','T156','T157','T186','T187','T188','T189'};
-SSP_SAP_IDs = {'T142','T144','T159','T172'};
-Blank_SAP_IDs = {'T150','T165','T166','T177','T179'};
+expGroups = {'C57BL6J','SSP-SAP','Blank-SAP'};
+animalIDs.all = {};
+for aa = 1:length(expGroups)
+    folderList = dir(expGroups{1,aa});
+    folderList = folderList(~startsWith({folderList.name},'.'));
+    animalIDs.all = horzcat(animalIDs.all,{folderList.name});
+    animalIDs.(strrep(expGroups{1,aa},'-','_')) = {folderList.name};
+end
 treatments = {'C57BL6J','SSP_SAP','Blank_SAP'};
 behavFields = {'Rest','Whisk','NREM','REM','Awake','Sleep','All'};
 dataTypes = {'CBV_HbT','gammaBandPower'};
 %% Pearson's correlations during different behaviors
 % cd through each animal's directory and extract the appropriate analysis results
 data.C57BL6J.CorrCoef = []; data.SSP_SAP.CorrCoef = []; data.Blank_SAP.CorrCoef = [];
-for aa = 1:length(animalIDs)
-    animalID = animalIDs{1,aa};
+for aa = 1:length(animalIDs.all)
+    animalID = animalIDs.all{1,aa};
     % recognize treatment based on animal group
-    if ismember(animalID,C57BL6J_IDs) == true
+    if ismember(animalID,animalIDs.C57BL6J) == true
         treatment = 'C57BL6J';
-    elseif ismember(animalIDs{1,aa},SSP_SAP_IDs) == true
+    elseif ismember(animalID,animalIDs.SSP_SAP) == true
         treatment = 'SSP_SAP';
-    elseif ismember(animalIDs{1,aa},Blank_SAP_IDs) == true
+    elseif ismember(animalID,animalIDs.Blank_SAP) == true
         treatment = 'Blank_SAP';
     end
     for bb = 1:length(behavFields)

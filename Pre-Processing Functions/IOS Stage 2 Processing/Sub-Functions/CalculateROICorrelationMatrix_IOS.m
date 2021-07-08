@@ -1,4 +1,4 @@
-function [ROIs] = CalculateROICorrelationMatrix_IOS(animalID,strDay,fileID,ROIs,imagingType)
+function [ROIs] = CalculateROICorrelationMatrix_IOS(animalID,strDay,fileID,ROIs,imagingType,lensMag)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -129,7 +129,7 @@ for qq = 1:size(procDataFileIDs,1)
     end
 end
 % determine the proper size of the ROI based on camera/lens magnification
-if strcmp(imagingType,'bilateral') == true
+if strcmp(lensMag,'1X') == true
     circRadius = 15;   % pixels to be 1 mm in diameter
 elseif strcmp(imagingType,'single') == true
     circRadius = 30;

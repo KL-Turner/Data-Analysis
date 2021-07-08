@@ -26,7 +26,7 @@ MScanData.notes.scanMode = mscanStrings{1}{17};%
 MScanData.notes.magnification = textHold{20}(strfind(textHold{20},': ') + 2:end);
 MScanData.notes.rotation = textHold{19}(strfind(textHold{19},': ') + 2:end);
 MScanData.notes.frameTime = (textHold{24}(strfind(textHold{24},': ') + 2:end - 3));
-MScanData.notes.frameRate = 1/str2double(MScanData.notes.header.frameRate);
+MScanData.notes.frameRate = 1/str2double(MScanData.notes.frameTime);
 MScanData.notes.startframe = 1;
 MScanData.notes.endframe = MScanData.notes.numberOfFrames;
 % magnification uM per pixel

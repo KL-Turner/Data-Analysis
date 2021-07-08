@@ -8,24 +8,29 @@ function [AnalysisResults] = WhiskEvoked_Saporin(rootFolder,saveFigs,delim,Analy
 %________________________________________________________________________________________________________________________
 
 %% set-up
-animalIDs = {'T141','T155','T156','T157','T142','T144','T159','T172','T150','T165','T166','T177','T179','T186','T187','T188','T189'};
-C57BL6J_IDs = {'T141','T155','T156','T157','T186','T187','T188','T189'};
-SSP_SAP_IDs = {'T142','T144','T159','T172','T182','T183','T184','T185'};
-Blank_SAP_IDs = {'T150','T151','T165','T166','T177','T179','T180'};
+expGroups = {'C57BL6J','SSP-SAP','Blank-SAP'};
+animalIDs.all = {};
+for aa = 1:length(expGroups)
+    folderList = dir(expGroups{1,aa});
+    folderList = folderList(~startsWith({folderList.name},'.'));
+    animalIDs.all = horzcat(animalIDs.all,{folderList.name});
+    animalIDs.(strrep(expGroups{1,aa},'-','_')) = {folderList.name};
+end
+treatments = {'C57BL6J','SSP_SAP','Blank_SAP'};
 whiskDataTypes = {'ShortWhisks','IntermediateWhisks','LongWhisks'};
 hemispheres = {'adjLH','adjRH'};
-treatments = {'C57BL6J','SSP_SAP','Blank_SAP'};
 data = [];
 cortVariables = {'HbT','CBV','cortMUA','cortGam','cortS','cortS_Gam','cortT','cortF','timeVector'};
 hipVariables = {'hipMUA','hipGam','hipS','hipS_Gam','hipT','hipF','timeVector'};
 %% cd through each animal's directory and extract the appropriate analysis results
-for aa = 1:length(animalIDs)
+for aa = 1:length(animalIDs.all)
+    animalID = animalIDs.all{1,aa};
     % recognize treatment based on animal group
-    if ismember(animalIDs{1,aa},C57BL6J_IDs) == true
+    if ismember(animalID,animalIDs.C57BL6J) == true
         treatment = 'C57BL6J';
-    elseif ismember(animalIDs{1,aa},SSP_SAP_IDs) == true
+    elseif ismember(animalID,animalIDs.SSP_SAP) == true
         treatment = 'SSP_SAP';
-    elseif ismember(animalIDs{1,aa},Blank_SAP_IDs) == true
+    elseif ismember(animalID,animalIDs.Blank_SAP) == true
         treatment = 'Blank_SAP';
     end
     % short - intermediate - long whisks
@@ -39,15 +44,15 @@ for aa = 1:length(animalIDs)
                     data.(treatment).(whiskDataTypes{1,bb}).(hemispheres{1,cc}).(cortVariables{1,dd}) = [];
                 end
             end
-            data.(treatment).(whiskDataTypes{1,bb}).(hemispheres{1,cc}).HbT = cat(1,data.(treatment).(whiskDataTypes{1,bb}).(hemispheres{1,cc}).HbT,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Whisk.(hemispheres{1,cc}).(whiskDataTypes{1,bb}).CBV_HbT.HbT);
-            data.(treatment).(whiskDataTypes{1,bb}).(hemispheres{1,cc}).CBV = cat(1,data.(treatment).(whiskDataTypes{1,bb}).(hemispheres{1,cc}).CBV,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Whisk.(hemispheres{1,cc}).(whiskDataTypes{1,bb}).CBV.CBV);
-            data.(treatment).(whiskDataTypes{1,bb}).(hemispheres{1,cc}).cortMUA = cat(1,data.(treatment).(whiskDataTypes{1,bb}).(hemispheres{1,cc}).cortMUA,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Whisk.(hemispheres{1,cc}).(whiskDataTypes{1,bb}).MUA.corticalData);
-            data.(treatment).(whiskDataTypes{1,bb}).(hemispheres{1,cc}).cortGam = cat(1,data.(treatment).(whiskDataTypes{1,bb}).(hemispheres{1,cc}).cortGam,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Whisk.(hemispheres{1,cc}).(whiskDataTypes{1,bb}).Gam.corticalData);
-            data.(treatment).(whiskDataTypes{1,bb}).(hemispheres{1,cc}).cortS = cat(3,data.(treatment).(whiskDataTypes{1,bb}).(hemispheres{1,cc}).cortS,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Whisk.(hemispheres{1,cc}).(whiskDataTypes{1,bb}).LFP.corticalS);
-            data.(treatment).(whiskDataTypes{1,bb}).(hemispheres{1,cc}).cortS_Gam = cat(3,data.(treatment).(whiskDataTypes{1,bb}).(hemispheres{1,cc}).cortS_Gam,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Whisk.(hemispheres{1,cc}).(whiskDataTypes{1,bb}).LFP.corticalS(49:end,20:23));
-            data.(treatment).(whiskDataTypes{1,bb}).(hemispheres{1,cc}).cortT = cat(1,data.(treatment).(whiskDataTypes{1,bb}).(hemispheres{1,cc}).cortT,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Whisk.(hemispheres{1,cc}).(whiskDataTypes{1,bb}).LFP.T);
-            data.(treatment).(whiskDataTypes{1,bb}).(hemispheres{1,cc}).cortF = cat(1,data.(treatment).(whiskDataTypes{1,bb}).(hemispheres{1,cc}).cortF,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Whisk.(hemispheres{1,cc}).(whiskDataTypes{1,bb}).LFP.F);
-            data.(treatment).(whiskDataTypes{1,bb}).(hemispheres{1,cc}).timeVector = cat(1,data.(treatment).(whiskDataTypes{1,bb}).(hemispheres{1,cc}).timeVector,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Whisk.(hemispheres{1,cc}).(whiskDataTypes{1,bb}).timeVector);
+            data.(treatment).(whiskDataTypes{1,bb}).(hemispheres{1,cc}).HbT = cat(1,data.(treatment).(whiskDataTypes{1,bb}).(hemispheres{1,cc}).HbT,AnalysisResults.(animalIDs.all{1,aa}).EvokedAvgs.Whisk.(hemispheres{1,cc}).(whiskDataTypes{1,bb}).CBV_HbT.HbT);
+            data.(treatment).(whiskDataTypes{1,bb}).(hemispheres{1,cc}).CBV = cat(1,data.(treatment).(whiskDataTypes{1,bb}).(hemispheres{1,cc}).CBV,AnalysisResults.(animalIDs.all{1,aa}).EvokedAvgs.Whisk.(hemispheres{1,cc}).(whiskDataTypes{1,bb}).CBV.CBV);
+            data.(treatment).(whiskDataTypes{1,bb}).(hemispheres{1,cc}).cortMUA = cat(1,data.(treatment).(whiskDataTypes{1,bb}).(hemispheres{1,cc}).cortMUA,AnalysisResults.(animalIDs.all{1,aa}).EvokedAvgs.Whisk.(hemispheres{1,cc}).(whiskDataTypes{1,bb}).MUA.corticalData);
+            data.(treatment).(whiskDataTypes{1,bb}).(hemispheres{1,cc}).cortGam = cat(1,data.(treatment).(whiskDataTypes{1,bb}).(hemispheres{1,cc}).cortGam,AnalysisResults.(animalIDs.all{1,aa}).EvokedAvgs.Whisk.(hemispheres{1,cc}).(whiskDataTypes{1,bb}).Gam.corticalData);
+            data.(treatment).(whiskDataTypes{1,bb}).(hemispheres{1,cc}).cortS = cat(3,data.(treatment).(whiskDataTypes{1,bb}).(hemispheres{1,cc}).cortS,AnalysisResults.(animalIDs.all{1,aa}).EvokedAvgs.Whisk.(hemispheres{1,cc}).(whiskDataTypes{1,bb}).LFP.corticalS);
+            data.(treatment).(whiskDataTypes{1,bb}).(hemispheres{1,cc}).cortS_Gam = cat(3,data.(treatment).(whiskDataTypes{1,bb}).(hemispheres{1,cc}).cortS_Gam,AnalysisResults.(animalIDs.all{1,aa}).EvokedAvgs.Whisk.(hemispheres{1,cc}).(whiskDataTypes{1,bb}).LFP.corticalS(49:end,20:23));
+            data.(treatment).(whiskDataTypes{1,bb}).(hemispheres{1,cc}).cortT = cat(1,data.(treatment).(whiskDataTypes{1,bb}).(hemispheres{1,cc}).cortT,AnalysisResults.(animalIDs.all{1,aa}).EvokedAvgs.Whisk.(hemispheres{1,cc}).(whiskDataTypes{1,bb}).LFP.T);
+            data.(treatment).(whiskDataTypes{1,bb}).(hemispheres{1,cc}).cortF = cat(1,data.(treatment).(whiskDataTypes{1,bb}).(hemispheres{1,cc}).cortF,AnalysisResults.(animalIDs.all{1,aa}).EvokedAvgs.Whisk.(hemispheres{1,cc}).(whiskDataTypes{1,bb}).LFP.F);
+            data.(treatment).(whiskDataTypes{1,bb}).(hemispheres{1,cc}).timeVector = cat(1,data.(treatment).(whiskDataTypes{1,bb}).(hemispheres{1,cc}).timeVector,AnalysisResults.(animalIDs.all{1,aa}).EvokedAvgs.Whisk.(hemispheres{1,cc}).(whiskDataTypes{1,bb}).timeVector);
         end
         % hippocampal neural data - preallocate necessary variable fields
         data.(treatment).(whiskDataTypes{1,bb}).Hip.dummyCheck = 1;
@@ -56,13 +61,13 @@ for aa = 1:length(animalIDs)
                 data.(treatment).(whiskDataTypes{1,bb}).Hip.(hipVariables{1,ee}) = [];
             end
         end
-        data.(treatment).(whiskDataTypes{1,bb}).Hip.hipMUA = cat(1,data.(treatment).(whiskDataTypes{1,bb}).Hip.hipMUA,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Whisk.adjLH.(whiskDataTypes{1,bb}).MUA.hippocampalData);
-        data.(treatment).(whiskDataTypes{1,bb}).Hip.hipGam = cat(1,data.(treatment).(whiskDataTypes{1,bb}).Hip.hipGam,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Whisk.adjLH.(whiskDataTypes{1,bb}).Gam.hippocampalData);
-        data.(treatment).(whiskDataTypes{1,bb}).Hip.hipS = cat(3,data.(treatment).(whiskDataTypes{1,bb}).Hip.hipS,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Whisk.adjLH.(whiskDataTypes{1,bb}).LFP.hippocampalS);
-        data.(treatment).(whiskDataTypes{1,bb}).Hip.hipS_Gam = cat(3,data.(treatment).(whiskDataTypes{1,bb}).Hip.hipS_Gam,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Whisk.adjLH.(whiskDataTypes{1,bb}).LFP.hippocampalS(49:end,20:23));
-        data.(treatment).(whiskDataTypes{1,bb}).Hip.hipT = cat(1,data.(treatment).(whiskDataTypes{1,bb}).Hip.hipT,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Whisk.adjLH.(whiskDataTypes{1,bb}).LFP.T);
-        data.(treatment).(whiskDataTypes{1,bb}).Hip.hipF = cat(1,data.(treatment).(whiskDataTypes{1,bb}).Hip.hipF,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Whisk.adjLH.(whiskDataTypes{1,bb}).LFP.F);
-        data.(treatment).(whiskDataTypes{1,bb}).Hip.timeVector = cat(1,data.(treatment).(whiskDataTypes{1,bb}).Hip.timeVector,AnalysisResults.(animalIDs{1,aa}).EvokedAvgs.Whisk.adjLH.(whiskDataTypes{1,bb}).timeVector);
+        data.(treatment).(whiskDataTypes{1,bb}).Hip.hipMUA = cat(1,data.(treatment).(whiskDataTypes{1,bb}).Hip.hipMUA,AnalysisResults.(animalIDs.all{1,aa}).EvokedAvgs.Whisk.adjLH.(whiskDataTypes{1,bb}).MUA.hippocampalData);
+        data.(treatment).(whiskDataTypes{1,bb}).Hip.hipGam = cat(1,data.(treatment).(whiskDataTypes{1,bb}).Hip.hipGam,AnalysisResults.(animalIDs.all{1,aa}).EvokedAvgs.Whisk.adjLH.(whiskDataTypes{1,bb}).Gam.hippocampalData);
+        data.(treatment).(whiskDataTypes{1,bb}).Hip.hipS = cat(3,data.(treatment).(whiskDataTypes{1,bb}).Hip.hipS,AnalysisResults.(animalIDs.all{1,aa}).EvokedAvgs.Whisk.adjLH.(whiskDataTypes{1,bb}).LFP.hippocampalS);
+        data.(treatment).(whiskDataTypes{1,bb}).Hip.hipS_Gam = cat(3,data.(treatment).(whiskDataTypes{1,bb}).Hip.hipS_Gam,AnalysisResults.(animalIDs.all{1,aa}).EvokedAvgs.Whisk.adjLH.(whiskDataTypes{1,bb}).LFP.hippocampalS(49:end,20:23));
+        data.(treatment).(whiskDataTypes{1,bb}).Hip.hipT = cat(1,data.(treatment).(whiskDataTypes{1,bb}).Hip.hipT,AnalysisResults.(animalIDs.all{1,aa}).EvokedAvgs.Whisk.adjLH.(whiskDataTypes{1,bb}).LFP.T);
+        data.(treatment).(whiskDataTypes{1,bb}).Hip.hipF = cat(1,data.(treatment).(whiskDataTypes{1,bb}).Hip.hipF,AnalysisResults.(animalIDs.all{1,aa}).EvokedAvgs.Whisk.adjLH.(whiskDataTypes{1,bb}).LFP.F);
+        data.(treatment).(whiskDataTypes{1,bb}).Hip.timeVector = cat(1,data.(treatment).(whiskDataTypes{1,bb}).Hip.timeVector,AnalysisResults.(animalIDs.all{1,aa}).EvokedAvgs.Whisk.adjLH.(whiskDataTypes{1,bb}).timeVector);
     end
 end
 %% concatenate the data from the contra and ipsi data

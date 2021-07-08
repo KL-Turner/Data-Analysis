@@ -1,4 +1,4 @@
-function [] = ProcessIntrinsicData_IOS(animalID,imagingType,rawDataFileIDs,procDataFileIDs)
+function [] = ProcessIntrinsicData_IOS(animalID,imagingType,lensMag,rawDataFileIDs,procDataFileIDs)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering

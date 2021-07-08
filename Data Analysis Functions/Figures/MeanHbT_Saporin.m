@@ -21,16 +21,20 @@ colorREM = [(254/256),(139/256),(0/256)];
 % colorAll = [(183/256),(115/256),(51/256)];
 colorIso = [(0/256),(256/256),(256/256)];
 %% set-up and process data
-animalIDs = {'T141','T155','T156','T157','T142','T144','T159','T172','T150','T165','T166','T177','T179','T186','T187','T188','T189'};
-C57BL6J_IDs = {'T141','T155','T156','T157','T186','T187','T188','T189'};
-SSP_SAP_IDs = {'T142','T144','T159','T172'};
-Blank_SAP_IDs = {'T150','T165','T166','T177','T179'};
+expGroups = {'C57BL6J','SSP-SAP','Blank-SAP'};
+animalIDs.all = {};
+for aa = 1:length(expGroups)
+    folderList = dir(expGroups{1,aa});
+    folderList = folderList(~startsWith({folderList.name},'.'));
+    animalIDs.all = horzcat(animalIDs.all,{folderList.name});
+    animalIDs.(strrep(expGroups{1,aa},'-','_')) = {folderList.name};
+end
 treatments = {'C57BL6J','SSP_SAP','Blank_SAP'};
 behavFields = {'Rest','Whisk','Stim','NREM','REM'};
 %% mean HbT comparison between behaviors
 % pre-allocate the date for each day
-for aa = 1:length(animalIDs)
-    animalID = animalIDs{1,aa};
+for aa = 1:length(animalIDs.all)
+    animalID = animalIDs.all{1,aa};
     whiskFileIDs = unique(AnalysisResults.(animalID).MeanCBV.Whisk.CBV_HbT.FileIDs);
     whiskFileDates = [];
     % identify the unique days present for each animal using the whisking field.
@@ -55,8 +59,8 @@ for aa = 1:length(animalIDs)
     end
 end
 % put data into cell for each unique date
-for ff = 1:length(animalIDs)
-    animalID = animalIDs{1,ff};
+for ff = 1:length(animalIDs.all)
+    animalID = animalIDs.all{1,ff};
     for gg = 1:length(behavFields)
         behavField = behavFields{1,gg};
         % data is structured slightly differently depending on class
@@ -97,8 +101,8 @@ for ff = 1:length(animalIDs)
     end
 end
 % find the mean of the 10-second resting periods from each day to determine a baseline
-for jj = 1:length(animalIDs)
-    animalID = animalIDs{1,jj};
+for jj = 1:length(animalIDs.all)
+    animalID = animalIDs.all{1,jj};
     whiskFileIDs = unique(AnalysisResults.(animalID).MeanCBV.Whisk.CBV_HbT.FileIDs);
     whiskFileDates = [];
     for kk = 1:length(whiskFileIDs)
@@ -114,8 +118,8 @@ for jj = 1:length(animalIDs)
 end
 % subtract the 10-second resting baseline for each day from the other data types. If the day doesn't have resting data,
 % exclude it from analysis
-for mm = 1:length(animalIDs)
-    animalID = animalIDs{1,mm};
+for mm = 1:length(animalIDs.all)
+    animalID = animalIDs.all{1,mm};
     for nn = 1:length(behavFields)
         behavField = behavFields{1,nn};
         % subtract each day's 10-second baseline from each behavior field
@@ -145,8 +149,8 @@ for mm = 1:length(animalIDs)
     end
 end
 % take the mean of the corrected data from each unique day
-for qq = 1:length(animalIDs)
-    animalID = animalIDs{1,qq};
+for qq = 1:length(animalIDs.all)
+    animalID = animalIDs.all{1,qq};
     for rr = 1:length(behavFields)
         behavField = behavFields{1,rr};
         fileDates = fieldnames(data.HbT.(animalID).(behavField));
@@ -182,8 +186,8 @@ for qq = 1:length(animalIDs)
 end
 % P=put all the corrected means from each unique day into a single vector
 nans = 1;
-for uu = 1:length(animalIDs)
-    animalID = animalIDs{1,uu};
+for uu = 1:length(animalIDs.all)
+    animalID = animalIDs.all{1,uu};
     for vv = 1:length(behavFields)
         behavField = behavFields{1,vv};
         fileDates = fieldnames(data.HbT.(animalID).(behavField));
@@ -205,14 +209,14 @@ for uu = 1:length(animalIDs)
     end
 end
 behavFields2 = {'Rest','Whisk','Stim','NREM','REM','Iso'};
-for zz = 1:length(animalIDs)
-    animalID = animalIDs{1,zz};
+for zz = 1:length(animalIDs.all)
+    animalID = animalIDs.all{1,zz};
     % recognize treatment based on animal group
-    if ismember(animalIDs{1,zz},C57BL6J_IDs) == true
+    if ismember(animalIDs.all{1,zz},animalIDs.C57BL6J) == true
         treatment = 'C57BL6J';
-    elseif ismember(animalIDs{1,zz},SSP_SAP_IDs) == true
+    elseif ismember(animalIDs.all{1,zz},animalIDs.SSP_SAP) == true
         treatment = 'SSP_SAP';
-    elseif ismember(animalIDs{1,zz},Blank_SAP_IDs) == true
+    elseif ismember(animalIDs.all{1,zz},animalIDs.Blank_SAP) == true
         treatment = 'Blank_SAP';
     end
     for yy = 1:length(behavFields2)

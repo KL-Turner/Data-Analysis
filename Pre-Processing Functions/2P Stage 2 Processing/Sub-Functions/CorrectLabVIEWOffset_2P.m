@@ -80,7 +80,7 @@ for a = 1:size(mscanDataFiles,1)
         analog_SolenoidOffset = round(abs(analog_offset)/analogSamplingRate);
         analog_whiskerOffset = round(abs(analog_offset)/whiskerCamSamplingRate);
         dsOffset = round(dsFs*(abs(offset)/dsFs));
-        disp(['LabVIEW trailed MScan by ' num2str(-offset/dsFs) ' seconds.']); disp(' ') 
+        disp(['LabVIEW trailed MScan by ' num2str(-offset/dsFs) ' seconds.']); disp(' ')
         if offset > 0
             analog_forceShift = analog_labviewForce(analog_forceOffset:end);
             analog_solenoidShift = analog_labviewSolenoids(analog_SolenoidOffset:end);
@@ -100,7 +100,7 @@ for a = 1:size(mscanDataFiles,1)
             dsWhiskShift = horzcat(dsFs_pad,LabVIEWData.data.dsWhiskerAngle);
             binForceShift = horzcat(dsFs_pad,LabVIEWData.data.binForceSensorL);
             binWhiskShift = horzcat(dsFs_pad,LabVIEWData.data.binWhiskerAngle);
-        end    
+        end
         corrOffset = figure;
         ax1 = subplot(3,1,1);
         plot((1:length(mscanForce))/dsFs,mscanForce,'k')
@@ -129,28 +129,28 @@ for a = 1:size(mscanDataFiles,1)
         xlabel('Time (sec)')
         set(gca,'Ticklength',[0,0])
         axis tight
-        linkaxes([ax1,ax3],'x')       
+        linkaxes([ax1,ax3],'x')
         %% Apply correction to the data, and trim excess time
         MScan_frontCut = trimTime;
         MScan_endCut = trimTime - (trialDuration_LabVIEW - trialDuration_MScan);
         LabVIEW_frontCut = trimTime;
-        LabVIEW_endCut = trimTime;       
+        LabVIEW_endCut = trimTime;
         mscanAnalogSampleDiff = analogSamplingRate*trialDuration_MScan - length(MScanData.data.forceSensor);
-        mscanAnalogCut = floor(MScan_endCut*analogSamplingRate - mscanAnalogSampleDiff);      
+        mscanAnalogCut = floor(MScan_endCut*analogSamplingRate - mscanAnalogSampleDiff);
         mscan_dsAnalogSampleDiff = dsFs*trialDuration_MScan - length(MScanData.data.dsForceSensorM);
-        mscan_dsAnalogCut = floor(MScan_endCut*dsFs - mscan_dsAnalogSampleDiff);    
+        mscan_dsAnalogCut = floor(MScan_endCut*dsFs - mscan_dsAnalogSampleDiff);
         mscan_binForceSampleDiff = dsFs*trialDuration_MScan - length(MScanData.data.binForceSensorM);
-        mscan_binForceCut = floor(MScan_endCut*dsFs - mscan_binForceSampleDiff);      
+        mscan_binForceCut = floor(MScan_endCut*dsFs - mscan_binForceSampleDiff);
         labview_AnalogSampleDiff = analogSamplingRate*trialDuration_LabVIEW - length(analog_forceShift);
-        labview_AnalogCut = floor(LabVIEW_endCut*analogSamplingRate - labview_AnalogSampleDiff);     
+        labview_AnalogCut = floor(LabVIEW_endCut*analogSamplingRate - labview_AnalogSampleDiff);
         labview_WhiskerSampleDiff = whiskerCamSamplingRate*trialDuration_LabVIEW - length(analog_whiskerShift);
-        labview_WhiskerCut = floor(LabVIEW_endCut*whiskerCamSamplingRate - labview_WhiskerSampleDiff);    
+        labview_WhiskerCut = floor(LabVIEW_endCut*whiskerCamSamplingRate - labview_WhiskerSampleDiff);
         labview_dsWhiskSamplingDiff = dsFs*trialDuration_LabVIEW - length(dsWhiskShift);
         labview_dsWhiskCut = floor(LabVIEW_endCut*dsFs - labview_dsWhiskSamplingDiff);
         labview_dsForceSamplingDiff = dsFs*trialDuration_LabVIEW - length(dsForceShift);
-        labview_dsForceCut = floor(LabVIEW_endCut*dsFs - labview_dsForceSamplingDiff); 
+        labview_dsForceCut = floor(LabVIEW_endCut*dsFs - labview_dsForceSamplingDiff);
         labview_binForceSampleDiff = dsFs*trialDuration_LabVIEW - length(binForceShift);
-        labview_binForceCut = floor(LabVIEW_endCut*dsFs - labview_binForceSampleDiff);  
+        labview_binForceCut = floor(LabVIEW_endCut*dsFs - labview_binForceSampleDiff);
         labview_binWhiskSamplingDiff = dsFs*trialDuration_LabVIEW - length(binWhiskShift);
         labview_binWhiskCut = floor(LabVIEW_endCut*dsFs - labview_binWhiskSamplingDiff);
         MScanData.data.forceSensor_trim = MScanData.data.forceSensor(floor(MScan_frontCut*analogSamplingRate):end - (mscanAnalogCut + 1))';
@@ -200,12 +200,14 @@ for a = 1:size(mscanDataFiles,1)
         end
         savefig(corrOffset,[dirpath animalID '_' fileID '_' imageID '_' vesselID '_XCorrShift']);
         close(corrOffset)
-        dirpath = [pathstr '/Figures/Velocity Downsample/'];
-        if ~exist(dirpath,'dir')
-            mkdir(dirpath);
+        if strcmp(MScanData.notes.movieType,'MC') == true
+            dirpath = [pathstr '/Figures/Velocity Downsample/'];
+            if ~exist(dirpath,'dir')
+                mkdir(dirpath);
+            end
+            savefig(dsVelocity,[dirpath animalID '_' fileID '_' imageID '_' vesselID '_dsVelocityShift']);
+            close(dsVelocity)
         end
-        savefig(dsVelocity,[dirpath animalID '_' fileID '_' imageID '_' vesselID '_dsVelocityShift']);
-        close(dsVelocity)
     else
         disp(['Offset in ' mscanDataFile ' and ' labviewDataFile ' has already been corrected. Continuing...']); disp(' ');
     end
