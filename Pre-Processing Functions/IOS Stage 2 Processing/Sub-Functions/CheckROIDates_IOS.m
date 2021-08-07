@@ -1,4 +1,4 @@
-function [ROIs] = CheckROIDates_IOS(animalID,ROIs,ROInames,imagingType)
+function [ROIs] = CheckROIDates_IOS(animalID,ROIs,ROInames,imagingType,lensMag)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -37,8 +37,8 @@ for b = 1:length(firstsFileOfDay)
     for c = 1:length(ROInames)
         ROIname = [ROInames{1,c} '_' strDay];
         if ~isfield(ROIs,(ROIname))
-            if strcmp(ROInames{1,c},'LH') == true || strcmp(ROInames{1,c},'RH') == true
-                [ROIs] = CalculateROICorrelationMatrix_IOS(animalID,strDay,fileID,ROIs,imagingType);
+            if strcmp(ROInames{1,c},'LH') == true || strcmp(ROInames{1,c},'RH') == true || strcmp(ROInames{1,c},'Barrels') == true
+                [ROIs] = CalculateROICorrelationMatrix_IOS(animalID,strDay,fileID,ROIs,imagingType,lensMag);
             else
                 [frames] = ReadDalsaBinary_IOS(animalID,fileID);
                 [ROIs] = CreateBilateralROIs_IOS(frames{1},ROIname,animalID,ROIs);

@@ -1,4 +1,4 @@
-function [AnalysisResults_APOE] = AnalyzeVesselEvokedResponses(animalID,group,rootFolder,AnalysisResults_APOE)
+function [AnalysisResults] = AnalyzeVesselEvokedResponses(animalID,group,rootFolder,AnalysisResults)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -9,7 +9,7 @@ function [AnalysisResults_APOE] = AnalyzeVesselEvokedResponses(animalID,group,ro
 %________________________________________________________________________________________________________________________
 
 %% only run analysis for valid animal IDs
-dataLocation = [rootFolder '\' group '\' animalID '\2P Data\'];
+dataLocation = [rootFolder '\' group '\' animalID '\Combined Imaging\'];
 cd(dataLocation)
 % find and load EventData.mat struct
 eventDataFileStruct = dir('*_EventData.mat');
@@ -37,6 +37,17 @@ whiskCriteriaC.Fieldname = {'duration','puffDistance'};
 whiskCriteriaC.Comparison = {'gt','gt'};
 whiskCriteriaC.Value = {5,5};
 whiskCriteriaNames = {'ShortWhisks','IntermediateWhisks','LongWhisks'};
+% criteria for stimulation
+StimCriteriaA.Value = {'LPadSol'};
+StimCriteriaA.Fieldname = {'solenoidName'};
+StimCriteriaA.Comparison = {'equal'};
+StimCriteriaB.Value = {'RPadSol'};
+StimCriteriaB.Fieldname = {'solenoidName'};
+StimCriteriaB.Comparison = {'equal'};
+StimCriteriaC.Value = {'AudSol'};
+StimCriteriaC.Fieldname = {'solenoidName'};
+StimCriteriaC.Comparison = {'equal'};
+stimCriteriaNames = {'stimCriteriaA','stimCriteriaB','stimCriteriaC'};
 %% analyze whisking-evoked responses
 for qq = 1:length(whiskCriteriaNames)
     % pull a few necessary numbers from the EventData.mat struct such as trial duration and sampling rate
@@ -101,13 +112,96 @@ for qq = 1:length(whiskCriteriaNames)
         vID = whiskArterioleIDs{aa,1};
         meanWhiskEvokedDiam.(vID) = mean(whiskArterioleEvoked.(vID),1)*100;
         stdWhiskEvokedDiam.(vID) = std(whiskArterioleEvoked.(vID),0,1)*100;
+        baselineDates = fieldnames(RestingBaselines.manualSelection.vesselDiameter.data.(vID));
+        baselineDiameters = [];
+        for bb = 1:length(baselineDates)
+            baselineDiameters = cat(1,baselineDiameters,RestingBaselines.manualSelection.vesselDiameter.data.(vID).(baselineDates{bb,1}));
+        end
         % save results
-        AnalysisResults_APOE.(animalID).EvokedAvgs.(whiskCriteriaName).(vID).mean = meanWhiskEvokedDiam.(vID);
-        AnalysisResults_APOE.(animalID).EvokedAvgs.(whiskCriteriaName).(vID).StD = stdWhiskEvokedDiam.(vID);
-        AnalysisResults_APOE.(animalID).EvokedAvgs.(whiskCriteriaName).(vID).timeVector = timeVector;
+        AnalysisResults.(animalID).EvokedAvgs_2P.Whisk.(whiskCriteriaName).(vID).mean = meanWhiskEvokedDiam.(vID);
+        AnalysisResults.(animalID).EvokedAvgs_2P.Whisk.(whiskCriteriaName).(vID).StD = stdWhiskEvokedDiam.(vID);
+        AnalysisResults.(animalID).EvokedAvgs_2P.Whisk.(whiskCriteriaName).(vID).baseline = mean(baselineDiameters);
+        AnalysisResults.(animalID).EvokedAvgs_2P.Whisk.(whiskCriteriaName).(vID).timeVector = timeVector;
+    end
+end
+%% analyze stimulus-evoked responses
+for zz = 1:length(stimCriteriaNames)
+    StimCriteriaName = stimCriteriaNames{1,zz};
+    if strcmp(StimCriteriaName,'stimCriteriaA') == true
+        StimCriteria = StimCriteriaA;
+        solenoid = 'LPadSol';
+    elseif strcmp(StimCriteriaName,'stimCriteriaB') == true
+        StimCriteria = StimCriteriaB;
+        solenoid = 'RPadSol';
+    elseif strcmp(StimCriteriaName,'stimCriteriaC') == true
+        StimCriteria = StimCriteriaC;
+        solenoid = 'AudSol';
+    end
+    % pull data from EventData.mat structure
+    [stimLogical] = FilterEvents_IOS(EventData.vesselDiameter.data.stim,StimCriteria);
+    stimLogical = logical(stimLogical);
+    stimData = EventData.vesselDiameter.data.stim.data(stimLogical,:);
+    stimFileIDs = EventData.vesselDiameter.data.stim.fileIDs(stimLogical,:);
+    stimVesselIDs = EventData.vesselDiameter.data.stim.vesselIDs(stimLogical,:);
+    stimEventTimes = EventData.vesselDiameter.data.stim.eventTime(stimLogical,:);
+    stimDurations = zeros(length(stimEventTimes),1);
+    % keep only the data that occurs within the manually-approved awake regions
+    [finalStimData,finalStimFileIDs,finalStimVesselIDs,~,~] = RemoveInvalidData_2P(stimData,stimFileIDs,stimVesselIDs,stimDurations,stimEventTimes,ManualDecisions);
+    clear procStimData
+    %% filter and detrend data
+    for aa = 1:size(finalStimData,1)
+        StimStrDay = ConvertDate_2P(finalStimFileIDs{aa,1}(1:6));
+        normStimData = (finalStimData(aa,:) - RestingBaselines.manualSelection.vesselDiameter.data.(finalStimVesselIDs{aa,1}).(StimStrDay))./RestingBaselines.manualSelection.vesselDiameter.data.(finalStimVesselIDs{aa,1}).(StimStrDay);
+        filtStimData = sgolayfilt(normStimData,3,17);
+        procStimData{aa,1} = filtStimData - mean(filtStimData(1:(offset*samplingRate))); %#ok<*AGROW>
+    end
+    % input data as time (1st dimension, vertical) by trials (2nd dimension, horizontal)
+    reshapedStimData = zeros(length(procStimData{1,1}),length(procStimData));
+    for bb = 1:length(procStimData)
+        reshapedStimData(:,bb) = procStimData{bb,1};
+    end
+    % remove veins from the artery list
+    uniqueStimVesselIDs = unique(finalStimVesselIDs);
+    dd = 1;
+    clear StimArterioleIDs
+    for cc = 1:length(uniqueStimVesselIDs)
+        if strcmp(uniqueStimVesselIDs{cc,1}(1),'V') == false
+            StimArterioleIDs{dd,1} = uniqueStimVesselIDs{cc,1};
+            dd = dd + 1;
+        end
+    end
+    % split the data based on different arteries
+    clear StimArterioleEvoked
+    for ee = 1:length(StimArterioleIDs)
+        StimArterioleID = StimArterioleIDs{ee,1};
+        gg = 1;
+        for ff = 1:length(finalStimVesselIDs)
+            if strcmp(StimArterioleID,finalStimVesselIDs{ff,1}) == true
+                StimArterioleEvoked.(StimArterioleID)(gg,:) = reshapedStimData(:,ff);
+                gg = gg + 1;
+            end
+        end
+    end
+    % take mean/std of each arteriole's Stim-evoked response
+    for aa = 1:length(StimArterioleIDs)
+        vID = StimArterioleIDs{aa,1};
+        meanStimEvokedDiam.(vID) = mean(StimArterioleEvoked.(vID),1)*100;
+        stdStimEvokedDiam.(vID) = std(StimArterioleEvoked.(vID),0,1)*100;
+        baselineDates = fieldnames(RestingBaselines.manualSelection.vesselDiameter.data.(vID));
+        baselineDiameters = [];
+        for bb = 1:length(baselineDates)
+            baselineDiameters = cat(1,baselineDiameters,RestingBaselines.manualSelection.vesselDiameter.data.(vID).(baselineDates{bb,1}));
+        end
+        % save results
+        AnalysisResults.(animalID).EvokedAvgs_2P.Stim.(solenoid).(vID).count = size(StimArterioleEvoked,1);
+        AnalysisResults.(animalID).EvokedAvgs_2P.Stim.(solenoid).(vID).mean = meanStimEvokedDiam.(vID);
+        AnalysisResults.(animalID).EvokedAvgs_2P.Stim.(solenoid).(vID).StD = stdStimEvokedDiam.(vID);
+        AnalysisResults.(animalID).EvokedAvgs_2P.Stim.(solenoid).(vID).baseline = mean(baselineDiameters);
+        AnalysisResults.(animalID).EvokedAvgs_2P.Stim.(solenoid).(vID).timeVector = timeVector;
     end
 end
 % save data
 cd(rootFolder)
-save('AnalysisResults_APOE.mat','AnalysisResults_APOE')
+save('AnalysisResults.mat','AnalysisResults','-v7.3')
+
 end

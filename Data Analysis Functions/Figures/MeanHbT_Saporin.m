@@ -22,9 +22,10 @@ colorREM = [(254/256),(139/256),(0/256)];
 colorIso = [(0/256),(256/256),(256/256)];
 %% set-up and process data
 expGroups = {'C57BL6J','SSP-SAP','Blank-SAP'};
+setName = 'IOS Set A';
 animalIDs.all = {};
 for aa = 1:length(expGroups)
-    folderList = dir(expGroups{1,aa});
+    folderList = dir([expGroups{1,aa} delim setName]);
     folderList = folderList(~startsWith({folderList.name},'.'));
     animalIDs.all = horzcat(animalIDs.all,{folderList.name});
     animalIDs.(strrep(expGroups{1,aa},'-','_')) = {folderList.name};
@@ -240,10 +241,10 @@ for qqq = 1:length(treatments)
     treatment = treatments{1,qqq};
     for aaa = 1:length(behavFields2)
         behavField = behavFields2{1,aaa};
-        testData.(treatment).(behavField).LH_MeanCBV = mean(testData.(treatment).(behavField).meanLH,1);
-        testData.(treatment).(behavField).LH_StdMeanCBV = std(testData.(treatment).(behavField).meanLH,0,1);
-        testData.(treatment).(behavField).RH_MeanCBV = mean(testData.(treatment).(behavField).meanRH,1);
-        testData.(treatment).(behavField).RH_StdMeanCBV = std(testData.(treatment).(behavField).meanRH,0,1);
+        testData.(treatment).(behavField).LH_MeanCBV = nanmean(testData.(treatment).(behavField).meanLH,1);
+        testData.(treatment).(behavField).LH_StdMeanCBV = nanstd(testData.(treatment).(behavField).meanLH,0,1);
+        testData.(treatment).(behavField).RH_MeanCBV = nanmean(testData.(treatment).(behavField).meanRH,1);
+        testData.(treatment).(behavField).RH_StdMeanCBV = nanstd(testData.(treatment).(behavField).meanRH,0,1);
     end
 end
 %% mean HbT during different behaviors

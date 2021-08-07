@@ -1,4 +1,4 @@
-function [AnalysisResults] = AnalyzeXCorr(animalID,group,saveFigs,rootFolder,AnalysisResults)
+function [AnalysisResults] = AnalyzeXCorr(animalID,group,rootFolder,AnalysisResults)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -156,46 +156,6 @@ for aa = 1:length(dataTypes)
     AnalysisResults.(animalID).XCorr.Rest.(dataType).HbTvLFPxcVals = restMeanHbTvLFPxcVals;
     AnalysisResults.(animalID).XCorr.Rest.(dataType).HbTvMUAxcVals = restMeanHbTvMUAxcVals;
     AnalysisResults.(animalID).XCorr.Rest.(dataType).HbTvMUAxcVals_std = restStdHbTvMUAxcVals;
-    % save figures if desired
-    if strcmp(saveFigs,'y') == true
-        titleID = strrep(dataType,'_',' ');
-        RestingXCorr = figure;
-        sgtitle([animalID ' ' titleID ' resting cross-correlation'])
-        subplot(2,1,1)
-        plot(restMUA_lags,restMeanHbTvMUAxcVals,'k')
-        hold on
-        plot(restMUA_lags,restMeanHbTvMUAxcVals + restStdHbTvMUAxcVals,'color',colors('battleship grey'))
-        plot(restMUA_lags,restMeanHbTvMUAxcVals - restStdHbTvMUAxcVals,'color',colors('battleship grey'))
-        title('MUA XCorr')
-        xticks([-restMaxLag -restMaxLag/2 0 restMaxLag/2 restMaxLag])
-        xticklabels({'-5','-2.5','0','2.5','5'})
-        xlim([-restLagTime*restFrequency restLagTime*restFrequency])
-        xlabel('Lags (sec)')
-        ylabel('Cross-correlation')
-        axis xy
-        axis square
-        set(gca,'box','off')
-        subplot(2,1,2)
-        imagesc(restLFP_lags,rest_F,restMeanHbTvLFPxcVals)
-        title('LFP XCorr')
-        xticks([-restMaxLag -restMaxLag/2 0 restMaxLag/2 restMaxLag])
-        xticklabels({'-5','-2.5','0','2.5','5'})
-        xlim([-restLagTime*restFrequency restLagTime*restFrequency])
-        xlabel('Lags (sec)')
-        ylabel('Freq (Hz)')
-        ylim([1,100])
-        colorbar
-        axis xy
-        axis square
-        set(gca,'box','off')
-        [pathstr,~,~] = fileparts(cd);
-        dirpath = [pathstr '/Figures/XCorr/'];
-        if ~exist(dirpath,'dir')
-            mkdir(dirpath);
-        end
-        savefig(RestingXCorr,[dirpath animalID '_' dataType '_RestingXCorr']);
-        close(RestingXCorr)
-    end
     %% cross-correlation analysis for NREM
     NREM_sleepTime = params.minTime.NREM;   % seconds
     [NREM_finalHbT,NREM_allSleepFileIDs,NREM_finalBinTimes] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.CBV_HbT.(dataType(4:end)),SleepData.(modelType).NREM.FileIDs,SleepData.(modelType).NREM.BinTimes);
@@ -319,40 +279,6 @@ for aa = 1:length(dataTypes)
     AnalysisResults.(animalID).XCorr.NREM.(dataType).HbTvLFPxcVals = NREM_meanHbTvLFPxcVals;
     AnalysisResults.(animalID).XCorr.NREM.(dataType).HbTvMUAxcVals = NREM_meanHbTvMUAxcVals;
     AnalysisResults.(animalID).XCorr.NREM.(dataType).HbTvMUAxcVals_std = NREM_stdHbTvMUAxcVals;
-    % save figures if desired
-    if strcmp(saveFigs,'y') == true
-        NREMXCorr = figure;
-        subplot(2,1,1)
-        sgtitle([animalID ' ' titleID ' NREM cross-correlation'])
-        plot(NREM_MUA_lags,NREM_meanHbTvMUAxcVals,'k')
-        hold on
-        plot(NREM_MUA_lags,NREM_meanHbTvMUAxcVals + NREM_stdHbTvMUAxcVals,'color',colors('battleship grey'))
-        plot(NREM_MUA_lags,NREM_meanHbTvMUAxcVals - NREM_stdHbTvMUAxcVals,'color',colors('battleship grey'))
-        title('MUA XCorr')
-        xticks([-NREM_maxLag -NREM_maxLag/2 0 NREM_maxLag/2 NREM_maxLag])
-        xticklabels({'-5','-2.5','0','2.5','5'})
-        xlim([-NREM_lagTime*NREM_frequency NREM_lagTime*NREM_frequency])
-        xlabel('Lags (sec)')
-        ylabel('Cross-correlation')
-        axis xy
-        axis square
-        set(gca,'box','off')
-        subplot(2,1,2)
-        imagesc(NREM_LFP_lags,NREM_F,NREM_meanHbTvLFPxcVals)
-        title('LFP XCorr')
-        xticks([-NREM_maxLag -NREM_maxLag/2 0 NREM_maxLag/2 NREM_maxLag])
-        xticklabels({'-5','-2.5','0','2.5','5'})
-        xlim([-NREM_lagTime*NREM_frequency NREM_lagTime*NREM_frequency])
-        xlabel('Lags (sec)')
-        ylabel('Freq (Hz)')
-        ylim([1,100])
-        colorbar
-        axis xy
-        axis square
-        set(gca,'box','off')
-        savefig(NREMXCorr,[dirpath animalID '_' dataType '_NREMXCorr']);
-        close(NREMXCorr)
-    end
     %% cross-correlation analysis for REM
     REM_sleepTime = params.minTime.REM;   % seconds
     [REM_finalHbT,REM_allSleepFileIDs,REM_finalBinTimes] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.CBV_HbT.(dataType(4:end)),SleepData.(modelType).REM.FileIDs,SleepData.(modelType).REM.BinTimes);
@@ -477,40 +403,6 @@ for aa = 1:length(dataTypes)
     AnalysisResults.(animalID).XCorr.REM.(dataType).HbTvLFPxcVals = REM_meanHbTvLFPxcVals;
     AnalysisResults.(animalID).XCorr.REM.(dataType).HbTvMUAxcVals = REM_meanHbTvMUAxcVals;
     AnalysisResults.(animalID).XCorr.REM.(dataType).HbTvMUAxcVals_std = REM_stdHbTvMUAxcVals;
-    % save figures if desired
-    if strcmp(saveFigs,'y') == true
-        REMXCorr = figure;
-        subplot(2,1,1)
-        sgtitle([animalID ' ' titleID ' REM cross-correlation'])
-        plot(REM_MUA_lags,REM_meanHbTvMUAxcVals,'k')
-        hold on
-        plot(REM_MUA_lags,REM_meanHbTvMUAxcVals + REM_stdHbTvMUAxcVals,'color',colors('battleship grey'))
-        plot(REM_MUA_lags,REM_meanHbTvMUAxcVals - REM_stdHbTvMUAxcVals,'color',colors('battleship grey'))
-        title('MUA XCorr')
-        xticks([-REM_maxLag -REM_maxLag/2 0 REM_maxLag/2 REM_maxLag])
-        xticklabels({'-5','-2.5','0','2.5','5'})
-        xlim([-REM_lagTime*REM_frequency REM_lagTime*REM_frequency])
-        xlabel('Lags (sec)')
-        ylabel('Cross-correlation')
-        axis xy
-        axis square
-        set(gca,'box','off')
-        subplot(2,1,2)
-        imagesc(REM_LFP_lags,REM_F,REM_meanHbTvLFPxcVals)
-        title('LFP XCorr')
-        xticks([-REM_maxLag -REM_maxLag/2 0 REM_maxLag/2 REM_maxLag])
-        xticklabels({'-5','-2.5','0','2.5','5'})
-        xlim([-REM_lagTime*REM_frequency REM_lagTime*REM_frequency])
-        xlabel('Lags (sec)')
-        ylabel('Freq (Hz)')
-        ylim([1,100])
-        colorbar
-        axis xy
-        axis square
-        set(gca,'box','off')
-        savefig(REMXCorr,[dirpath animalID '_' dataType '_REMXCorr']);
-        close(REMXCorr)
-    end
 end
 % save data
 cd(rootFolder)

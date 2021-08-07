@@ -24,7 +24,7 @@ curDir = cd;
 dirBreaks = strfind(curDir,'\');
 curFolder = curDir(dirBreaks(end) + 1:end);
 imagingType = input('Input imaging type (bilateral or single): ','s'); disp(' ')
-lensMag = 2; % 1.5, 3
+lensMag = '2.0X';   % typically 1.5X bilateral, 2.0X single hemisphere
 %% BLOCK PURPOSE: [1] Process the RawData structure -> Create Threshold data structure and ProcData structure.
 disp('Analyzing Block [2] Creating ProcData files and processing analog data.'); disp(' ')
 ProcessRawDataFiles_IOS(rawDataFileIDs)
@@ -33,7 +33,7 @@ disp('Analyzing Block [2] Proccesing IOS pixel data and ROI analysis.'); disp(' 
 procDataFileStruct = dir('*_ProcData.mat');
 procDataFiles = {procDataFileStruct.name}';
 procDataFileIDs = char(procDataFiles);
-ProcessIntrinsicData_IOS(animalID,imagingType,rawDataFileIDs,procDataFileIDs)
+ProcessIntrinsicData_IOS(animalID,imagingType,lensMag,rawDataFileIDs,procDataFileIDs)
 %% BLOCK PURPOSE: [3] Add Heart Rate to the ProcData structures.
 disp('Analyzing Block [3] Adding heart rate to ProcData files.'); disp(' ')
 ExtractHeartRate_IOS(procDataFileIDs,imagingType)

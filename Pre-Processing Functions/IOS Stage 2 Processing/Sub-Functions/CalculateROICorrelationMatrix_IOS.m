@@ -38,7 +38,7 @@ end
 for a = 1:length(hem)
     isok = false;
     while isok == false
-        disp(['Draw an ROI over the ' hem{1,a}]); disp(' ')
+        disp(['Draw an ROI over the entire ' hem{1,a} ' window']); disp(' ')
         [~,rect] = imcrop;
         hold on;
         ROIoutline = rectangle('Position',rect,'EdgeColor','r');
@@ -95,6 +95,7 @@ for qq = 1:size(procDataFileIDs,1)
     [B,A] = butter(3,2/(ProcData.notes.dsFs/2),'low');
     LH_gammaBandPower = detrend(filtfilt(B,A,ProcData.data.cortical_LH.gammaBandPower - ProcData.data.cortical_LH.gammaBandPower(1)) + ProcData.data.cortical_LH.gammaBandPower(1),'constant');
     RH_gammaBandPower = detrend(filtfilt(B,A,ProcData.data.cortical_RH.gammaBandPower - ProcData.data.cortical_RH.gammaBandPower(1)) + ProcData.data.cortical_RH.gammaBandPower(1),'constant');
+    Hip_gammaBandPower = detrend(filtfilt(B,A,ProcData.data.hippocampus.gammaBandPower - ProcData.data.hippocampus.gammaBandPower(1)) + ProcData.data.hippocampus.gammaBandPower(1),'constant');
     % cross correlation
     lagTime = 5;   % seconds
     maxLag = lagTime*RawData.notes.CBVCamSamplingRate;
@@ -110,6 +111,8 @@ for qq = 1:size(procDataFileIDs,1)
                 gammaBandArray = LH_gammaBandPower;
             elseif strcmp(singleHem,'RH') == true
                 gammaBandArray = RH_gammaBandPower;
+            elseif strcmp(singleHem,'Both') == true
+                gammaBandArray = Hip_gammaBandPower;
             end
         end
         % extract pixel values from each numel index in matrix image
@@ -129,10 +132,18 @@ for qq = 1:size(procDataFileIDs,1)
     end
 end
 % determine the proper size of the ROI based on camera/lens magnification
-if strcmp(lensMag,'1X') == true
+if strcmp(lensMag,'0.75X') == true
     circRadius = 15;   % pixels to be 1 mm in diameter
-elseif strcmp(imagingType,'single') == true
-    circRadius = 30;
+elseif strcmp(lensMag,'1.0X') == true
+    circRadius = 20;
+elseif strcmp(lensMag,'1.5X') == true
+        circRadius = 30;
+elseif strcmp(lensMag,'2.0X') == true
+        circRadius = 40;
+elseif strcmp(lensMag,'2.5X') == true
+        circRadius = 50;
+elseif strcmp(lensMag,'3.0X') == true
+        circRadius = 60;
 end
 % place circle along the most correlation region of each hemisphere
 for f = 1:length(hem)

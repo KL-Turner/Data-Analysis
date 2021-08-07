@@ -105,30 +105,24 @@ for b = 1:length(firstsFileOfDay)
     % determine which correction profile to use for LH data
     correctionDecision = 'n';
     while strcmp(correctionDecision,'n') == true
-        applyCorrection = input(['Apply correction profile to ' strDay ' pixel values? (O/A): '],'s'); disp(' ')
-        if strcmp(applyCorrection,'O') == true || strcmp(applyCorrection,'A') == true
+        applyCorrection = input(['Apply correction profile to ' strDay ' pixel values? (y/n): '],'s'); disp(' ')
+        if strcmp(applyCorrection,'y') == true || strcmp(applyCorrection,'n') == true
             correctionDecision = 'y';
         else
-            disp('Invalid input. Must be ''O'', ''A'''); disp(' ')
+            disp('Invalid input. Must be ''y'', ''n'''); disp(' ')
         end
     end
     sgtitle([animalID ' ' strDay ' pixel correction applied: ' applyCorrection])   
-    % Save the file to directory.
-    pathstr = cd;
-    dirpath = [pathstr '/Pixel Drift Correction/'];
-    if ~exist(dirpath,'dir')
-        mkdir(dirpath);
-    end
-    savefig(fixPixels,[dirpath animalID '_' strDay '_PixelDriftCorrection']);
+    savefig(fixPixels,[animalID '_' strDay '_PixelDriftCorrection']);
     close(fixPixels)   
     % apply corrected data to each file from reshaped matrix
     for d = 1:length(indDayProcDataFileList)
         indDayProcDataFile = indDayProcDataFileList{d,1};
         load(indDayProcDataFile)
         % pixel correction
-        if strcmp(applyCorrection,'O') == true
+        if strcmp(applyCorrection,'n') == true
             ProcData.data.CBV.adjBarrels = ProcData.data.CBV.Barrels;
-        elseif strcmp(applyCorrection,'A') == true
+        elseif strcmp(applyCorrection,'y') == true
             ProcData.data.CBV.adjBarrels = rsAdjCatBarrelsData(:,d)';
         end
         disp(['Saving pixel corrections to ' strDay ' ProcData file ' num2str(d) ' of ' num2str(length(indDayProcDataFileList))]); disp(' ')

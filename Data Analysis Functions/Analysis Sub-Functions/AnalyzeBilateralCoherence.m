@@ -1,4 +1,4 @@
-function [AnalysisResults] = AnalyzeCoherence(animalID,group,rootFolder,AnalysisResults)
+function [Results_BilatCoher] = AnalyzeBilateralCoherence(animalID,group,rootFolder,delim,Results_BilatCoher)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -9,14 +9,13 @@ function [AnalysisResults] = AnalyzeCoherence(animalID,group,rootFolder,Analysis
 %________________________________________________________________________________________________________________________
 
 %% function parameters
-% dataTypes = {'CBV_HbT','deltaBandPower','thetaBandPower','alphaBandPower','betaBandPower','gammaBandPower'};
-dataTypes = {'CBV_HbT','gammaBandPower'};
+dataTypes = {'CBV_HbT','deltaBandPower','thetaBandPower','alphaBandPower','betaBandPower','gammaBandPower'};
 modelType = 'Forest';
 params.minTime.Rest = 10;
 params.minTime.NREM = 30;
 params.minTime.REM = 60;
 %% only run analysis for valid animal IDs
-dataLocation = [rootFolder '\' group '\' animalID '\Bilateral Imaging\'];
+dataLocation = [rootFolder delim group delim animalID delim 'Bilateral Imaging'];
 cd(dataLocation)
 % character list of all ProcData file IDs
 procDataFileStruct = dir('*_ProcData.mat');
@@ -45,10 +44,7 @@ load(sleepDataFileID,'-mat')
 % find and load Forest_ScoringResults.mat struct
 forestScoringResultsFileID = [animalID '_Forest_ScoringResults.mat'];
 load(forestScoringResultsFileID,'-mat')
-% lowpass filter
 samplingRate = RestData.CBV_HbT.adjLH.CBVCamSamplingRate;
-% [z,p,k] = butter(4,1/(samplingRate/2),'low');
-% [sos,g] = zp2sos(z,p,k);
 % criteria for resting
 RestCriteria.Fieldname = {'durations'};
 RestCriteria.Comparison = {'gt'};
@@ -84,7 +80,7 @@ for aa = 1:length(dataTypes)
     [LH_finalRestData,~,~,~] = RemoveInvalidData_IOS(LH_unstimRestingData,restFileIDs,restDurations,restEventTimes,ManualDecisions);
     [RH_finalRestData,~,~,~] = RemoveInvalidData_IOS(RH_unstimRestingData,restFileIDs,restDurations,restEventTimes,ManualDecisions);
     clear LH_ProcRestData RH_ProcRestData
-    % filter, detrend, and truncate data to minimum length to match events
+    % detrend and truncate data to minimum length to match events
     for bb = 1:length(LH_finalRestData)
         if length(LH_finalRestData{bb,1}) < params.minTime.Rest*samplingRate
             restChunkSampleDiff = params.minTime.Rest*samplingRate - length(LH_finalRestData{bb,1});
@@ -92,13 +88,9 @@ for aa = 1:length(dataTypes)
             RH_restPad = (ones(1,restChunkSampleDiff))*RH_finalRestData{bb,1}(end);
             LH_ProcRestData{bb,1} = horzcat(LH_finalRestData{bb,1},LH_restPad); %#ok<*AGROW>
             RH_ProcRestData{bb,1} = horzcat(RH_finalRestData{bb,1},RH_restPad);
-            % LH_ProcRestData{bb,1} = filtfilt(sos,g,detrend(LH_ProcRestData{bb,1},'constant'));
-            % RH_ProcRestData{bb,1} = filtfilt(sos,g,detrend(RH_ProcRestData{bb,1},'constant'));
             LH_ProcRestData{bb,1} = detrend(LH_ProcRestData{bb,1},'constant');
             RH_ProcRestData{bb,1} = detrend(RH_ProcRestData{bb,1},'constant');
         else
-            % LH_ProcRestData{bb,1} = filtfilt(sos,g,detrend(LH_finalRestData{bb,1}(1:(params.minTime.Rest*samplingRate)),'constant'));
-            % RH_ProcRestData{bb,1} = filtfilt(sos,g,detrend(RH_finalRestData{bb,1}(1:(params.minTime.Rest*samplingRate)),'constant'));
             LH_ProcRestData{bb,1} = detrend(LH_finalRestData{bb,1}(1:(params.minTime.Rest*samplingRate)),'constant');
             RH_ProcRestData{bb,1} = detrend(RH_finalRestData{bb,1}(1:(params.minTime.Rest*samplingRate)),'constant');
         end
@@ -111,7 +103,7 @@ for aa = 1:length(dataTypes)
         RH_restData(:,cc) = RH_ProcRestData{cc,1};
     end
     % parameters for coherencyc - information available in function
-    params.tapers = [10,19];   % Tapers [n, 2n - 1]
+    params.tapers = [5,9];   % Tapers [n, 2n - 1]
     params.pad = 1;
     params.Fs = samplingRate;
     params.fpass = [0,1];   % Pass band [0, nyquist]
@@ -120,10 +112,10 @@ for aa = 1:length(dataTypes)
     % calculate the coherence between desired signals
     [C_RestData,~,~,~,~,f_RestData,confC_RestData,~,cErr_RestData] = coherencyc(LH_restData,RH_restData,params);
     % save results
-    AnalysisResults.(animalID).Coherence.Rest.(dataType).C = C_RestData;
-    AnalysisResults.(animalID).Coherence.Rest.(dataType).f = f_RestData;
-    AnalysisResults.(animalID).Coherence.Rest.(dataType).confC = confC_RestData;
-    AnalysisResults.(animalID).Coherence.Rest.(dataType).cErr = cErr_RestData;
+    Results_BilatCoher.(animalID).Rest.(dataType).C = C_RestData;
+    Results_BilatCoher.(animalID).Rest.(dataType).f = f_RestData;
+    Results_BilatCoher.(animalID).Rest.(dataType).confC = confC_RestData;
+    Results_BilatCoher.(animalID).Rest.(dataType).cErr = cErr_RestData;
     %% analyze bilateral coherence during periods of alert
     zz = 1;
     clear LH_AwakeData RH_AwakeData LH_ProcAwakeData RH_ProcAwakeData
@@ -155,11 +147,9 @@ for aa = 1:length(dataTypes)
             end
         end
     end
-    % filter and detrend data
+    % detrend data
     if isempty(LH_AwakeData) == false
         for bb = 1:length(LH_AwakeData)
-            % LH_ProcAwakeData{bb,1} = filtfilt(sos,g,detrend(LH_AwakeData{bb,1},'constant'));
-            % RH_ProcAwakeData{bb,1} = filtfilt(sos,g,detrend(RH_AwakeData{bb,1},'constant'));
             LH_ProcAwakeData{bb,1} = detrend(LH_AwakeData{bb,1},'constant');
             RH_ProcAwakeData{bb,1} = detrend(RH_AwakeData{bb,1},'constant');
         end
@@ -173,16 +163,16 @@ for aa = 1:length(dataTypes)
         % calculate the coherence between desired signals
         [C_AwakeData,~,~,~,~,f_AwakeData,confC_AwakeData,~,cErr_AwakeData] = coherencyc(LH_awakeData,RH_awakeData,params);
         % save results
-        AnalysisResults.(animalID).Coherence.Awake.(dataType).C = C_AwakeData;
-        AnalysisResults.(animalID).Coherence.Awake.(dataType).f = f_AwakeData;
-        AnalysisResults.(animalID).Coherence.Awake.(dataType).confC = confC_AwakeData;
-        AnalysisResults.(animalID).Coherence.Awake.(dataType).cErr = cErr_AwakeData;
+        Results_BilatCoher.(animalID).Awake.(dataType).C = C_AwakeData;
+        Results_BilatCoher.(animalID).Awake.(dataType).f = f_AwakeData;
+        Results_BilatCoher.(animalID).Awake.(dataType).confC = confC_AwakeData;
+        Results_BilatCoher.(animalID).Awake.(dataType).cErr = cErr_AwakeData;
     else
         % save results
-        AnalysisResults.(animalID).Coherence.Awake.(dataType).C = [];
-        AnalysisResults.(animalID).Coherence.Awake.(dataType).f = [];
-        AnalysisResults.(animalID).Coherence.Awake.(dataType).confC = [];
-        AnalysisResults.(animalID).Coherence.Awake.(dataType).cErr = [];
+        Results_BilatCoher.(animalID).Awake.(dataType).C = [];
+        Results_BilatCoher.(animalID).Awake.(dataType).f = [];
+        Results_BilatCoher.(animalID).Awake.(dataType).confC = [];
+        Results_BilatCoher.(animalID).Awake.(dataType).cErr = [];
     end
     %% analyze bilateral coherence during periods of asleep
     zz = 1;
@@ -215,11 +205,9 @@ for aa = 1:length(dataTypes)
             end
         end
     end
-    % ilter and detrend data
+    % detrend data
     if isempty(LH_SleepData) == false
         for bb = 1:length(LH_SleepData)
-            % LH_ProcSleepData{bb,1} = filtfilt(sos,g,detrend(LH_SleepData{bb,1},'constant'));
-            % RH_ProcSleepData{bb,1} = filtfilt(sos,g,detrend(RH_SleepData{bb,1},'constant'));
             LH_ProcSleepData{bb,1} = detrend(LH_SleepData{bb,1},'constant');
             RH_ProcSleepData{bb,1} = detrend(RH_SleepData{bb,1},'constant');
         end
@@ -233,16 +221,16 @@ for aa = 1:length(dataTypes)
         % calculate the coherence between desired signals
         [C_SleepData,~,~,~,~,f_SleepData,confC_SleepData,~,cErr_SleepData] = coherencyc(LH_sleepData,RH_sleepData,params);
         % save results
-        AnalysisResults.(animalID).Coherence.Sleep.(dataType).C = C_SleepData;
-        AnalysisResults.(animalID).Coherence.Sleep.(dataType).f = f_SleepData;
-        AnalysisResults.(animalID).Coherence.Sleep.(dataType).confC = confC_SleepData;
-        AnalysisResults.(animalID).Coherence.Sleep.(dataType).cErr = cErr_SleepData;
+        Results_BilatCoher.(animalID).Sleep.(dataType).C = C_SleepData;
+        Results_BilatCoher.(animalID).Sleep.(dataType).f = f_SleepData;
+        Results_BilatCoher.(animalID).Sleep.(dataType).confC = confC_SleepData;
+        Results_BilatCoher.(animalID).Sleep.(dataType).cErr = cErr_SleepData;
     else
         % save results
-        AnalysisResults.(animalID).Coherence.Sleep.(dataType).C = [];
-        AnalysisResults.(animalID).Coherence.Sleep.(dataType).f = [];
-        AnalysisResults.(animalID).Coherence.Sleep.(dataType).confC = [];
-        AnalysisResults.(animalID).Coherence.Sleep.(dataType).cErr = [];
+        Results_BilatCoher.(animalID).Sleep.(dataType).C = [];
+        Results_BilatCoher.(animalID).Sleep.(dataType).f = [];
+        Results_BilatCoher.(animalID).Sleep.(dataType).confC = [];
+        Results_BilatCoher.(animalID).Sleep.(dataType).cErr = [];
     end
     %% analyze bilateral coherence during periods of all data
     zz = 1;
@@ -264,13 +252,12 @@ for aa = 1:length(dataTypes)
                 RH_AllUnstimData{zz,1} = (ProcData.data.cortical_RH.(dataType) - RestingBaselines.manualSelection.cortical_RH.(dataType).(strDay))./RestingBaselines.manualSelection.cortical_RH.(dataType).(strDay);
             end
             zz = zz + 1;
+            
         end
     end
-    % filter and detrend data
+    % detrend data
     if isempty(LH_AllUnstimData) == false
         for bb = 1:length(LH_AllUnstimData)
-            % LH_ProcAllUnstimData{bb,1} = filtfilt(sos,g,detrend(LH_AllUnstimData{bb,1},'constant'));
-            % RH_ProcAllUnstimData{bb,1} = filtfilt(sos,g,detrend(RH_AllUnstimData{bb,1},'constant'));
             LH_ProcAllUnstimData{bb,1} = detrend(LH_AllUnstimData{bb,1},'constant');
             RH_ProcAllUnstimData{bb,1} = detrend(RH_AllUnstimData{bb,1},'constant');
         end
@@ -284,10 +271,10 @@ for aa = 1:length(dataTypes)
         % calculate the coherence between desired signals
         [C_AllUnstimData,~,~,~,~,f_AllUnstimData,confC_AllUnstimData,~,cErr_AllUnstimData] = coherencyc(LH_allUnstimData,RH_allUnstimData,params);
         % save results
-        AnalysisResults.(animalID).Coherence.All.(dataType).C = C_AllUnstimData;
-        AnalysisResults.(animalID).Coherence.All.(dataType).f = f_AllUnstimData;
-        AnalysisResults.(animalID).Coherence.All.(dataType).confC = confC_AllUnstimData;
-        AnalysisResults.(animalID).Coherence.All.(dataType).cErr = cErr_AllUnstimData;
+        Results_BilatCoher.(animalID).All.(dataType).C = C_AllUnstimData;
+        Results_BilatCoher.(animalID).All.(dataType).f = f_AllUnstimData;
+        Results_BilatCoher.(animalID).All.(dataType).confC = confC_AllUnstimData;
+        Results_BilatCoher.(animalID).All.(dataType).cErr = cErr_AllUnstimData;
     end
     %% analyze bilateral coherence during periods of NREM sleep
     % pull data from SleepData.mat structure
@@ -298,10 +285,8 @@ for aa = 1:length(dataTypes)
         [LH_nremData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.cortical_LH.(dataType),SleepData.(modelType).NREM.FileIDs,SleepData.(modelType).NREM.BinTimes);
         [RH_nremData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.cortical_RH.(dataType),SleepData.(modelType).NREM.FileIDs,SleepData.(modelType).NREM.BinTimes);
     end
-    % filter, detrend, and truncate data to minimum length to match events
+    % detrend and truncate data to minimum length to match events
     for ee = 1:length(LH_nremData)
-        % LH_nremData{ee,1} = filtfilt(sos,g,detrend(LH_nremData{ee,1}(1:(params.minTime.NREM*samplingRate)),'constant'));
-        % RH_nremData{ee,1} = filtfilt(sos,g,detrend(RH_nremData{ee,1}(1:(params.minTime.NREM*samplingRate)),'constant'));
         LH_nremData{ee,1} = detrend(LH_nremData{ee,1}(1:(params.minTime.NREM*samplingRate)),'constant');
         RH_nremData{ee,1} = detrend(RH_nremData{ee,1}(1:(params.minTime.NREM*samplingRate)),'constant');
     end
@@ -315,10 +300,10 @@ for aa = 1:length(dataTypes)
     % calculate the coherence between desired signals
     [C_nrem,~,~,~,~,f_nrem,confC_nrem,~,cErr_nrem] = coherencyc(LH_nrem,RH_nrem,params);
     % save results
-    AnalysisResults.(animalID).Coherence.NREM.(dataType).C = C_nrem;
-    AnalysisResults.(animalID).Coherence.NREM.(dataType).f = f_nrem;
-    AnalysisResults.(animalID).Coherence.NREM.(dataType).confC = confC_nrem;
-    AnalysisResults.(animalID).Coherence.NREM.(dataType).cErr = cErr_nrem;
+    Results_BilatCoher.(animalID).NREM.(dataType).C = C_nrem;
+    Results_BilatCoher.(animalID).NREM.(dataType).f = f_nrem;
+    Results_BilatCoher.(animalID).NREM.(dataType).confC = confC_nrem;
+    Results_BilatCoher.(animalID).NREM.(dataType).cErr = cErr_nrem;
     %% analyze bilateral coherence during periods of REM sleep
     % pull data from SleepData.mat structure
     if strcmp(dataType,'CBV_HbT') == true
@@ -328,10 +313,8 @@ for aa = 1:length(dataTypes)
         [LH_remData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.cortical_LH.(dataType),SleepData.(modelType).REM.FileIDs,SleepData.(modelType).REM.BinTimes);
         [RH_remData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.cortical_RH.(dataType),SleepData.(modelType).REM.FileIDs,SleepData.(modelType).REM.BinTimes);
     end
-    % filter, detrend, and truncate data to minimum length to match events
+    % detrend and truncate data to minimum length to match events
     for gg = 1:length(LH_remData)
-        % LH_remData{gg,1} = filtfilt(sos,g,detrend(LH_remData{gg,1}(1:(params.minTime.REM*samplingRate)),'constant'));
-        % RH_remData{gg,1} = filtfilt(sos,g,detrend(RH_remData{gg,1}(1:(params.minTime.REM*samplingRate)),'constant'));
         LH_remData{gg,1} = detrend(LH_remData{gg,1}(1:(params.minTime.REM*samplingRate)),'constant');
         RH_remData{gg,1} = detrend(RH_remData{gg,1}(1:(params.minTime.REM*samplingRate)),'constant');
         
@@ -346,13 +329,13 @@ for aa = 1:length(dataTypes)
     % calculate the coherence between desired signals
     [C_rem,~,~,~,~,f_rem,confC_rem,~,cErr_rem] = coherencyc(LH_rem,RH_rem,params);
     % save results
-    AnalysisResults.(animalID).Coherence.REM.(dataType).C = C_rem;
-    AnalysisResults.(animalID).Coherence.REM.(dataType).f = f_rem;
-    AnalysisResults.(animalID).Coherence.REM.(dataType).confC = confC_rem;
-    AnalysisResults.(animalID).Coherence.REM.(dataType).cErr = cErr_rem;
+    Results_BilatCoher.(animalID).REM.(dataType).C = C_rem;
+    Results_BilatCoher.(animalID).REM.(dataType).f = f_rem;
+    Results_BilatCoher.(animalID).REM.(dataType).confC = confC_rem;
+    Results_BilatCoher.(animalID).REM.(dataType).cErr = cErr_rem;
 end
 % save data
 cd(rootFolder)
-save('AnalysisResults.mat','AnalysisResults','-v7.3')
+save('Results_BilatCoher.mat','Results_BilatCoher')
 
 end

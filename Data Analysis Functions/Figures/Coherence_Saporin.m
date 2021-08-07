@@ -4,14 +4,15 @@ function [AnalysisResults] = Coherence_Saporin(rootFolder,saveFigs,delim,Analysi
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %
-% Purpose: 
+% Purpose:
 %________________________________________________________________________________________________________________________
 
 %% set-up and process data
 expGroups = {'C57BL6J','SSP-SAP','Blank-SAP'};
+setName = 'IOS Set A';
 animalIDs.all = {};
 for aa = 1:length(expGroups)
-    folderList = dir(expGroups{1,aa});
+    folderList = dir([expGroups{1,aa} delim setName]);
     folderList = folderList(~startsWith({folderList.name},'.'));
     animalIDs.all = horzcat(animalIDs.all,{folderList.name});
     animalIDs.(strrep(expGroups{1,aa},'-','_')) = {folderList.name};
@@ -41,13 +42,17 @@ for aa = 1:length(animalIDs.all)
                 data.(treatment).(behavField).(dataType).C = [];
                 data.(treatment).(behavField).(dataType).f = [];
                 data.(treatment).(behavField).(dataType).confC = [];
+                data.(treatment).(behavField).(dataType).animalID = {};
+                data.(treatment).(behavField).(dataType).treatment = {};
             end
             % don't concatenate empty arrays where there was no data for this behavior
             if isempty(AnalysisResults.(animalID).Coherence.(behavField).(dataType).C) == false
                 % concatenate C/f for existing data - exclude any empty sets
-                data.(treatment).(behavField).(dataType).C = cat(2,data.(treatment).(behavField).(dataType).C,AnalysisResults.(animalID).Coherence.(behavField).(dataType).C);
+                data.(treatment).(behavField).(dataType).C = cat(2,data.(treatment).(behavField).(dataType).C,AnalysisResults.(animalID).Coherence.(behavField).(dataType).C.^2);
                 data.(treatment).(behavField).(dataType).f = cat(1,data.(treatment).(behavField).(dataType).f,AnalysisResults.(animalID).Coherence.(behavField).(dataType).f);
                 data.(treatment).(behavField).(dataType).confC = cat(1,data.(treatment).(behavField).(dataType).confC,AnalysisResults.(animalID).Coherence.(behavField).(dataType).confC);
+                data.(treatment).(behavField).(dataType).animalID = cat(1,data.(treatment).(behavField).(dataType).animalID,animalID);
+                data.(treatment).(behavField).(dataType).treatment = cat(1,data.(treatment).(behavField).(dataType).treatment,treatment);
             end
         end
     end
@@ -67,15 +72,62 @@ for qq = 1:length(treatments)
         end
     end
 end
+%% find Hz peaks in coherence
+treatments2 = {'SSP_SAP','Blank_SAP'};
+behavFields2 = {'Awake','Sleep','All'};
+for qq = 1:length(treatments2)
+    treatment = treatments2{1,qq};
+    for ee = 1:length(behavFields2)
+        behavField = behavFields2{1,ee};
+        for ff = 1:length(dataTypes)
+            dataType = dataTypes{1,ff};
+            for gg = 1:size(data.(treatment).(behavField).(dataType).C,2)
+                F = round(data.(treatment).(behavField).(dataType).f(gg,:),3);
+                C = data.(treatment).(behavField).(dataType).C(:,gg);
+                index001 = find(F == 0.01);
+                index01 = find(F == 0.1);
+                index05 = find(F == 0.5);
+                data.(treatment).(behavField).(dataType).C001(gg,1) = mean(C(1:index001(1)));
+                data.(treatment).(behavField).(dataType).C01(gg,1) = mean(C(index001(1) + 1:index01(1)));
+                data.(treatment).(behavField).(dataType).C05(gg,1) = mean(C(index01(1) + 1:index05(1)));
+            end
+        end
+    end
+end
+%% statistics - generalized linear mixed effects model
+freqBands = {'C001','C01','C05'};
+for qq = 1:length(dataTypes)
+    dataType = dataTypes{1,qq};
+    for aa = 1:length(freqBands)
+        freqBand = freqBands{1,aa};
+        for bb = 1:length(behavFields2)
+            behavField = behavFields2{1,bb};
+            % statistics - generalized linear mixed effects model
+            Stats.(dataType).(freqBand).(behavField).tableSize = cat(1,data.Blank_SAP.(behavField).(dataType).(freqBand),data.SSP_SAP.(behavField).(dataType).(freqBand));
+            Stats.(dataType).(freqBand).(behavField).Table = table('Size',[size(Stats.(dataType).(freqBand).(behavField).tableSize,1),3],'VariableTypes',{'string','string','double'},'VariableNames',{'Mouse','Treatment',freqBand});
+            Stats.(dataType).(freqBand).(behavField).Table.Mouse = cat(1,data.Blank_SAP.(behavField).(dataType).animalID,data.SSP_SAP.(behavField).(dataType).animalID);
+            Stats.(dataType).(freqBand).(behavField).Table.Treatment = cat(1,data.Blank_SAP.(behavField).(dataType).treatment,data.SSP_SAP.(behavField).(dataType).treatment);
+            Stats.(dataType).(freqBand).(behavField).Table.(freqBand) = cat(1,data.Blank_SAP.(behavField).(dataType).(freqBand),data.SSP_SAP.(behavField).(dataType).(freqBand));
+            Stats.(dataType).(freqBand).(behavField).FitFormula = [freqBand ' ~ 1 + Treatment + (1|Mouse)'];
+            Stats.(dataType).(freqBand).(behavField).Stats = fitglme(Stats.(dataType).(freqBand).(behavField).Table,Stats.(dataType).(freqBand).(behavField).FitFormula);
+        end
+    end
+end
 %% average HbT coherence
 summaryFigure1 = figure;
 sgtitle('Bilateral Coherence \DeltaHbT')
 %% coherence^2 between bilateral HbT during rest
 subplot(2,3,1);
-p1 = semilogx(data.C57BL6J.Rest.CBV_HbT.meanf,data.C57BL6J.Rest.CBV_HbT.meanC.^2,'color',colors('sapphire'),'LineWidth',2);
+p1 = semilogx(data.C57BL6J.Rest.CBV_HbT.meanf,data.C57BL6J.Rest.CBV_HbT.meanC,'color',colors('sapphire'),'LineWidth',2);
 hold on
-p2 = semilogx(data.Blank_SAP.Rest.CBV_HbT.meanf,data.Blank_SAP.Rest.CBV_HbT.meanC.^2,'color',colors('north texas green'),'LineWidth',2);
-p3 = semilogx(data.SSP_SAP.Rest.CBV_HbT.meanf,data.SSP_SAP.Rest.CBV_HbT.meanC.^2,'color',colors('electric purple'),'LineWidth',2);
+semilogx(data.C57BL6J.Rest.CBV_HbT.meanf,data.C57BL6J.Rest.CBV_HbT.meanC + data.C57BL6J.Rest.CBV_HbT.stdC,'color',colors('sapphire'),'LineWidth',0.5);
+semilogx(data.C57BL6J.Rest.CBV_HbT.meanf,data.C57BL6J.Rest.CBV_HbT.meanC - data.C57BL6J.Rest.CBV_HbT.stdC,'color',colors('sapphire'),'LineWidth',0.5);
+p2 = semilogx(data.Blank_SAP.Rest.CBV_HbT.meanf,data.Blank_SAP.Rest.CBV_HbT.meanC,'color',colors('north texas green'),'LineWidth',2);
+semilogx(data.Blank_SAP.Rest.CBV_HbT.meanf,data.Blank_SAP.Rest.CBV_HbT.meanC + data.Blank_SAP.Rest.CBV_HbT.stdC,'color',colors('north texas green'),'LineWidth',0.5);
+semilogx(data.Blank_SAP.Rest.CBV_HbT.meanf,data.Blank_SAP.Rest.CBV_HbT.meanC - data.Blank_SAP.Rest.CBV_HbT.stdC,'color',colors('north texas green'),'LineWidth',0.5);
+p3 = semilogx(data.SSP_SAP.Rest.CBV_HbT.meanf,data.SSP_SAP.Rest.CBV_HbT.meanC,'color',colors('electric purple'),'LineWidth',2);
+semilogx(data.SSP_SAP.Rest.CBV_HbT.meanf,data.SSP_SAP.Rest.CBV_HbT.meanC + data.SSP_SAP.Rest.CBV_HbT.stdC,'color',colors('electric purple'),'LineWidth',0.5);
+semilogx(data.SSP_SAP.Rest.CBV_HbT.meanf,data.SSP_SAP.Rest.CBV_HbT.meanC - data.SSP_SAP.Rest.CBV_HbT.stdC,'color',colors('electric purple'),'LineWidth',0.5);
 ylabel('Coherence^2')
 xlabel('Freq (Hz)')
 title({'[Rest] Bilateral coherence^2','\Delta[HbT] (\muM)'})
@@ -85,10 +137,16 @@ set(gca,'box','off')
 legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
 %% coherence^2 between bilateral HbT during NREM
 subplot(2,3,2);
-semilogx(data.C57BL6J.NREM.CBV_HbT.meanf,data.C57BL6J.NREM.CBV_HbT.meanC.^2,'color',colors('sapphire'),'LineWidth',2);
+semilogx(data.C57BL6J.NREM.CBV_HbT.meanf,data.C57BL6J.NREM.CBV_HbT.meanC,'color',colors('sapphire'),'LineWidth',2);
 hold on
-semilogx(data.Blank_SAP.NREM.CBV_HbT.meanf,data.Blank_SAP.NREM.CBV_HbT.meanC.^2,'color',colors('north texas green'),'LineWidth',2);
-semilogx(data.SSP_SAP.NREM.CBV_HbT.meanf,data.SSP_SAP.NREM.CBV_HbT.meanC.^2,'color',colors('electric purple'),'LineWidth',2);
+semilogx(data.C57BL6J.NREM.CBV_HbT.meanf,data.C57BL6J.NREM.CBV_HbT.meanC + data.C57BL6J.NREM.CBV_HbT.stdC,'color',colors('sapphire'),'LineWidth',0.5);
+semilogx(data.C57BL6J.NREM.CBV_HbT.meanf,data.C57BL6J.NREM.CBV_HbT.meanC - data.C57BL6J.NREM.CBV_HbT.stdC,'color',colors('sapphire'),'LineWidth',0.5);
+semilogx(data.Blank_SAP.NREM.CBV_HbT.meanf,data.Blank_SAP.NREM.CBV_HbT.meanC,'color',colors('north texas green'),'LineWidth',2);
+semilogx(data.Blank_SAP.NREM.CBV_HbT.meanf,data.Blank_SAP.NREM.CBV_HbT.meanC + data.Blank_SAP.NREM.CBV_HbT.stdC,'color',colors('north texas green'),'LineWidth',0.5);
+semilogx(data.Blank_SAP.NREM.CBV_HbT.meanf,data.Blank_SAP.NREM.CBV_HbT.meanC - data.Blank_SAP.NREM.CBV_HbT.stdC,'color',colors('north texas green'),'LineWidth',0.5);
+semilogx(data.SSP_SAP.NREM.CBV_HbT.meanf,data.SSP_SAP.NREM.CBV_HbT.meanC,'color',colors('electric purple'),'LineWidth',2);
+semilogx(data.SSP_SAP.NREM.CBV_HbT.meanf,data.SSP_SAP.NREM.CBV_HbT.meanC + data.SSP_SAP.NREM.CBV_HbT.stdC,'color',colors('electric purple'),'LineWidth',0.5);
+semilogx(data.SSP_SAP.NREM.CBV_HbT.meanf,data.SSP_SAP.NREM.CBV_HbT.meanC - data.SSP_SAP.NREM.CBV_HbT.stdC,'color',colors('electric purple'),'LineWidth',0.5);
 ylabel('Coherence^2')
 xlabel('Freq (Hz)')
 title({'[NREM] Bilateral coherence^2','\Delta[HbT] (\muM)'})
@@ -97,10 +155,16 @@ ylim([0,1])
 set(gca,'box','off')
 %% coherence^2 between bilateral HbT during REM
 subplot(2,3,3);
-semilogx(data.C57BL6J.REM.CBV_HbT.meanf,data.C57BL6J.REM.CBV_HbT.meanC.^2,'color',colors('sapphire'),'LineWidth',2);
+semilogx(data.C57BL6J.REM.CBV_HbT.meanf,data.C57BL6J.REM.CBV_HbT.meanC,'color',colors('sapphire'),'LineWidth',2);
 hold on
-semilogx(data.Blank_SAP.REM.CBV_HbT.meanf,data.Blank_SAP.REM.CBV_HbT.meanC.^2,'color',colors('north texas green'),'LineWidth',2);
-semilogx(data.SSP_SAP.REM.CBV_HbT.meanf,data.SSP_SAP.REM.CBV_HbT.meanC.^2,'color',colors('electric purple'),'LineWidth',2);
+semilogx(data.C57BL6J.REM.CBV_HbT.meanf,data.C57BL6J.REM.CBV_HbT.meanC + data.C57BL6J.REM.CBV_HbT.stdC,'color',colors('sapphire'),'LineWidth',0.5);
+semilogx(data.C57BL6J.REM.CBV_HbT.meanf,data.C57BL6J.REM.CBV_HbT.meanC - data.C57BL6J.REM.CBV_HbT.stdC,'color',colors('sapphire'),'LineWidth',0.5);
+semilogx(data.Blank_SAP.REM.CBV_HbT.meanf,data.Blank_SAP.REM.CBV_HbT.meanC,'color',colors('north texas green'),'LineWidth',2);
+semilogx(data.Blank_SAP.REM.CBV_HbT.meanf,data.Blank_SAP.REM.CBV_HbT.meanC + data.Blank_SAP.REM.CBV_HbT.stdC,'color',colors('north texas green'),'LineWidth',0.5);
+semilogx(data.Blank_SAP.REM.CBV_HbT.meanf,data.Blank_SAP.REM.CBV_HbT.meanC - data.Blank_SAP.REM.CBV_HbT.stdC,'color',colors('north texas green'),'LineWidth',0.5);
+semilogx(data.SSP_SAP.REM.CBV_HbT.meanf,data.SSP_SAP.REM.CBV_HbT.meanC,'color',colors('electric purple'),'LineWidth',2);
+semilogx(data.SSP_SAP.REM.CBV_HbT.meanf,data.SSP_SAP.REM.CBV_HbT.meanC + data.SSP_SAP.REM.CBV_HbT.stdC,'color',colors('electric purple'),'LineWidth',0.5);
+semilogx(data.SSP_SAP.REM.CBV_HbT.meanf,data.SSP_SAP.REM.CBV_HbT.meanC - data.SSP_SAP.REM.CBV_HbT.stdC,'color',colors('electric purple'),'LineWidth',0.5);
 ylabel('Coherence^2')
 xlabel('Freq (Hz)')
 title({'[REM] Bilateral coherence^2','\Delta[HbT] (\muM)'})
@@ -109,10 +173,16 @@ ylim([0,1])
 set(gca,'box','off')
 %% coherence^2 between bilateral HbT during Awake
 subplot(2,3,4);
-semilogx(data.C57BL6J.Awake.CBV_HbT.meanf,data.C57BL6J.Awake.CBV_HbT.meanC.^2,'color',colors('sapphire'),'LineWidth',2);
+semilogx(data.C57BL6J.Awake.CBV_HbT.meanf,data.C57BL6J.Awake.CBV_HbT.meanC,'color',colors('sapphire'),'LineWidth',2);
 hold on
-semilogx(data.Blank_SAP.Awake.CBV_HbT.meanf,data.Blank_SAP.Awake.CBV_HbT.meanC.^2,'color',colors('north texas green'),'LineWidth',2);
-semilogx(data.SSP_SAP.Awake.CBV_HbT.meanf,data.SSP_SAP.Awake.CBV_HbT.meanC.^2,'color',colors('electric purple'),'LineWidth',2);
+semilogx(data.C57BL6J.Awake.CBV_HbT.meanf,data.C57BL6J.Awake.CBV_HbT.meanC + data.C57BL6J.Awake.CBV_HbT.stdC,'color',colors('sapphire'),'LineWidth',0.5);
+semilogx(data.C57BL6J.Awake.CBV_HbT.meanf,data.C57BL6J.Awake.CBV_HbT.meanC - data.C57BL6J.Awake.CBV_HbT.stdC,'color',colors('sapphire'),'LineWidth',0.5);
+semilogx(data.Blank_SAP.Awake.CBV_HbT.meanf,data.Blank_SAP.Awake.CBV_HbT.meanC,'color',colors('north texas green'),'LineWidth',2);
+semilogx(data.Blank_SAP.Awake.CBV_HbT.meanf,data.Blank_SAP.Awake.CBV_HbT.meanC + data.Blank_SAP.Awake.CBV_HbT.stdC,'color',colors('north texas green'),'LineWidth',0.5);
+semilogx(data.Blank_SAP.Awake.CBV_HbT.meanf,data.Blank_SAP.Awake.CBV_HbT.meanC - data.Blank_SAP.Awake.CBV_HbT.stdC,'color',colors('north texas green'),'LineWidth',0.5);
+semilogx(data.SSP_SAP.Awake.CBV_HbT.meanf,data.SSP_SAP.Awake.CBV_HbT.meanC,'color',colors('electric purple'),'LineWidth',2);
+semilogx(data.SSP_SAP.Awake.CBV_HbT.meanf,data.SSP_SAP.Awake.CBV_HbT.meanC + data.SSP_SAP.Awake.CBV_HbT.stdC,'color',colors('electric purple'),'LineWidth',0.5);
+semilogx(data.SSP_SAP.Awake.CBV_HbT.meanf,data.SSP_SAP.Awake.CBV_HbT.meanC - data.SSP_SAP.Awake.CBV_HbT.stdC,'color',colors('electric purple'),'LineWidth',0.5);
 ylabel('Coherence^2')
 xlabel('Freq (Hz)')
 title({'[Alert] Bilateral coherence^2','\Delta[HbT] (\muM)'})
@@ -121,10 +191,16 @@ ylim([0,1])
 set(gca,'box','off')
 %% coherence^2 between bilateral HbT during Sleep
 subplot(2,3,5);
-semilogx(data.C57BL6J.Sleep.CBV_HbT.meanf,data.C57BL6J.Sleep.CBV_HbT.meanC.^2,'color',colors('sapphire'),'LineWidth',2);
+semilogx(data.C57BL6J.Sleep.CBV_HbT.meanf,data.C57BL6J.Sleep.CBV_HbT.meanC,'color',colors('sapphire'),'LineWidth',2);
 hold on
-semilogx(data.Blank_SAP.Sleep.CBV_HbT.meanf,data.Blank_SAP.Sleep.CBV_HbT.meanC.^2,'color',colors('north texas green'),'LineWidth',2);
-semilogx(data.SSP_SAP.Sleep.CBV_HbT.meanf,data.SSP_SAP.Sleep.CBV_HbT.meanC.^2,'color',colors('electric purple'),'LineWidth',2);
+semilogx(data.C57BL6J.Sleep.CBV_HbT.meanf,data.C57BL6J.Sleep.CBV_HbT.meanC + data.C57BL6J.Sleep.CBV_HbT.stdC,'color',colors('sapphire'),'LineWidth',0.5);
+semilogx(data.C57BL6J.Sleep.CBV_HbT.meanf,data.C57BL6J.Sleep.CBV_HbT.meanC - data.C57BL6J.Sleep.CBV_HbT.stdC,'color',colors('sapphire'),'LineWidth',0.5);
+semilogx(data.Blank_SAP.Sleep.CBV_HbT.meanf,data.Blank_SAP.Sleep.CBV_HbT.meanC,'color',colors('north texas green'),'LineWidth',2);
+semilogx(data.Blank_SAP.Sleep.CBV_HbT.meanf,data.Blank_SAP.Sleep.CBV_HbT.meanC + data.Blank_SAP.Sleep.CBV_HbT.stdC,'color',colors('north texas green'),'LineWidth',0.5);
+semilogx(data.Blank_SAP.Sleep.CBV_HbT.meanf,data.Blank_SAP.Sleep.CBV_HbT.meanC - data.Blank_SAP.Sleep.CBV_HbT.stdC,'color',colors('north texas green'),'LineWidth',0.5);
+semilogx(data.SSP_SAP.Sleep.CBV_HbT.meanf,data.SSP_SAP.Sleep.CBV_HbT.meanC,'color',colors('electric purple'),'LineWidth',2);
+semilogx(data.SSP_SAP.Sleep.CBV_HbT.meanf,data.SSP_SAP.Sleep.CBV_HbT.meanC + data.SSP_SAP.Sleep.CBV_HbT.stdC,'color',colors('electric purple'),'LineWidth',0.5);
+semilogx(data.SSP_SAP.Sleep.CBV_HbT.meanf,data.SSP_SAP.Sleep.CBV_HbT.meanC - data.SSP_SAP.Sleep.CBV_HbT.stdC,'color',colors('electric purple'),'LineWidth',0.5);
 ylabel('Coherence^2')
 xlabel('Freq (Hz)')
 title({'[Asleep] Bilateral coherence^2','\Delta[HbT] (\muM)'})
@@ -133,10 +209,16 @@ ylim([0,1])
 set(gca,'box','off')
 %% coherence^2 between bilateral HbT during All data
 subplot(2,3,6);
-semilogx(data.C57BL6J.All.CBV_HbT.meanf,data.C57BL6J.All.CBV_HbT.meanC.^2,'color',colors('sapphire'),'LineWidth',2);
+semilogx(data.C57BL6J.All.CBV_HbT.meanf,data.C57BL6J.All.CBV_HbT.meanC,'color',colors('sapphire'),'LineWidth',2);
 hold on
-semilogx(data.Blank_SAP.All.CBV_HbT.meanf,data.Blank_SAP.All.CBV_HbT.meanC.^2,'color',colors('north texas green'),'LineWidth',2);
-semilogx(data.SSP_SAP.All.CBV_HbT.meanf,data.SSP_SAP.All.CBV_HbT.meanC.^2,'color',colors('electric purple'),'LineWidth',2);
+semilogx(data.C57BL6J.All.CBV_HbT.meanf,data.C57BL6J.All.CBV_HbT.meanC + data.C57BL6J.All.CBV_HbT.stdC,'color',colors('sapphire'),'LineWidth',0.5);
+semilogx(data.C57BL6J.All.CBV_HbT.meanf,data.C57BL6J.All.CBV_HbT.meanC - data.C57BL6J.All.CBV_HbT.stdC,'color',colors('sapphire'),'LineWidth',0.5);
+semilogx(data.Blank_SAP.All.CBV_HbT.meanf,data.Blank_SAP.All.CBV_HbT.meanC,'color',colors('north texas green'),'LineWidth',2);
+semilogx(data.Blank_SAP.All.CBV_HbT.meanf,data.Blank_SAP.All.CBV_HbT.meanC + data.Blank_SAP.All.CBV_HbT.stdC,'color',colors('north texas green'),'LineWidth',0.5);
+semilogx(data.Blank_SAP.All.CBV_HbT.meanf,data.Blank_SAP.All.CBV_HbT.meanC - data.Blank_SAP.All.CBV_HbT.stdC,'color',colors('north texas green'),'LineWidth',0.5);
+semilogx(data.SSP_SAP.All.CBV_HbT.meanf,data.SSP_SAP.All.CBV_HbT.meanC,'color',colors('electric purple'),'LineWidth',2);
+semilogx(data.SSP_SAP.All.CBV_HbT.meanf,data.SSP_SAP.All.CBV_HbT.meanC + data.SSP_SAP.All.CBV_HbT.stdC,'color',colors('electric purple'),'LineWidth',0.5);
+semilogx(data.SSP_SAP.All.CBV_HbT.meanf,data.SSP_SAP.All.CBV_HbT.meanC - data.SSP_SAP.All.CBV_HbT.stdC,'color',colors('electric purple'),'LineWidth',0.5);
 ylabel('Coherence^2')
 xlabel('Freq (Hz)')
 title({'[All] Bilateral coherence^2','\Delta[HbT] (\muM)'})
@@ -153,166 +235,172 @@ if strcmp(saveFigs,'y') == true
     set(summaryFigure1,'PaperPositionMode','auto');
     print('-painters','-dpdf','-fillpage',[dirpath 'Coherence_HbT'])
 end
-%% individual HbT coherence
-summaryFigure2 = figure;
-sgtitle('Bilateral Coherence \DeltaHbT - individual animals')
-%% coherence^2 between bilateral HbT during rest
-subplot(2,3,1);
-% C57BL6J
-for aa = 1:size(data.C57BL6J.Rest.CBV_HbT.C,2)
-    semilogx(data.C57BL6J.Rest.CBV_HbT.meanf,data.C57BL6J.Rest.CBV_HbT.C(:,aa).^2,'color',colors('sapphire'),'LineWidth',0.5);
-    hold on
-end
-% Blank-SAP
-for aa = 1:size(data.Blank_SAP.Rest.CBV_HbT.C,2)
-    semilogx(data.Blank_SAP.Rest.CBV_HbT.meanf,data.Blank_SAP.Rest.CBV_HbT.C(:,aa).^2,'color',colors('north texas green'),'LineWidth',0.5);
-    hold on
-end
-% SSP-SAP
-for aa = 1:size(data.SSP_SAP.Rest.CBV_HbT.C,2)
-    semilogx(data.SSP_SAP.Rest.CBV_HbT.meanf,data.SSP_SAP.Rest.CBV_HbT.C(:,aa).^2,'color',colors('electric purple'),'LineWidth',0.5);
-    hold on
-end
-ylabel('Coherence^2')
-xlabel('Freq (Hz)')
-title({'[Rest] Bilateral coherence^2','\Delta[HbT] (\muM)'})
-xlim([1/10,0.5])
-ylim([0,1])
-set(gca,'box','off')
-%% coherence^2 between bilateral HbT during NREM
-subplot(2,3,2);
-% C57BL6J
-for aa = 1:size(data.C57BL6J.NREM.CBV_HbT.C,2)
-    semilogx(data.C57BL6J.NREM.CBV_HbT.meanf,data.C57BL6J.NREM.CBV_HbT.C(:,aa).^2,'color',colors('sapphire'),'LineWidth',0.5);
-    hold on
-end
-% Blank-SAP
-for aa = 1:size(data.Blank_SAP.NREM.CBV_HbT.C,2)
-    semilogx(data.Blank_SAP.NREM.CBV_HbT.meanf,data.Blank_SAP.NREM.CBV_HbT.C(:,aa).^2,'color',colors('north texas green'),'LineWidth',0.5);
-    hold on
-end
-% SSP-SAP
-for aa = 1:size(data.SSP_SAP.NREM.CBV_HbT.C,2)
-    semilogx(data.SSP_SAP.NREM.CBV_HbT.meanf,data.SSP_SAP.NREM.CBV_HbT.C(:,aa).^2,'color',colors('electric purple'),'LineWidth',0.5);
-    hold on
-end
-ylabel('Coherence^2')
-xlabel('Freq (Hz)')
-title({'[NREM] Bilateral coherence^2','\Delta[HbT] (\muM)'})
-xlim([1/30,0.5])
-ylim([0,1])
-set(gca,'box','off')
-%% coherence^2 between bilateral HbT during REM
-subplot(2,3,3);
-% C57BL6J
-for aa = 1:size(data.C57BL6J.REM.CBV_HbT.C,2)
-    semilogx(data.C57BL6J.REM.CBV_HbT.meanf,data.C57BL6J.REM.CBV_HbT.C(:,aa).^2,'color',colors('sapphire'),'LineWidth',0.5);
-    hold on
-end
-% Blank-SAP
-for aa = 1:size(data.Blank_SAP.REM.CBV_HbT.C,2)
-    semilogx(data.Blank_SAP.REM.CBV_HbT.meanf,data.Blank_SAP.REM.CBV_HbT.C(:,aa).^2,'color',colors('north texas green'),'LineWidth',0.5);
-    hold on
-end
-% SSP-SAP
-for aa = 1:size(data.SSP_SAP.REM.CBV_HbT.C,2)
-    semilogx(data.SSP_SAP.REM.CBV_HbT.meanf,data.SSP_SAP.REM.CBV_HbT.C(:,aa).^2,'color',colors('electric purple'),'LineWidth',0.5);
-    hold on
-end
-ylabel('Coherence^2')
-xlabel('Freq (Hz)')
-title({'[REM] Bilateral coherence^2','\Delta[HbT] (\muM)'})
-xlim([1/60,0.5])
-ylim([0,1])
-set(gca,'box','off')
-%% coherence^2 between bilateral HbT during Awake
-subplot(2,3,4);
-% C57BL6J
-for aa = 1:size(data.C57BL6J.Awake.CBV_HbT.C,2)
-    semilogx(data.C57BL6J.Awake.CBV_HbT.meanf,data.C57BL6J.Awake.CBV_HbT.C(:,aa).^2,'color',colors('sapphire'),'LineWidth',0.5);
-    hold on
-end
-% Blank-SAP
-for aa = 1:size(data.Blank_SAP.Awake.CBV_HbT.C,2)
-    semilogx(data.Blank_SAP.Awake.CBV_HbT.meanf,data.Blank_SAP.Awake.CBV_HbT.C(:,aa).^2,'color',colors('north texas green'),'LineWidth',0.5);
-    hold on
-end
-% SSP-SAP
-for aa = 1:size(data.SSP_SAP.Awake.CBV_HbT.C,2)
-    semilogx(data.SSP_SAP.Awake.CBV_HbT.meanf,data.SSP_SAP.Awake.CBV_HbT.C(:,aa).^2,'color',colors('electric purple'),'LineWidth',0.5);
-    hold on
-end
-ylabel('Coherence^2')
-xlabel('Freq (Hz)')
-title({'[Alert] Bilateral coherence^2','\Delta[HbT] (\muM)'})
-xlim([0.003,0.5])
-ylim([0,1])
-set(gca,'box','off')
-%% coherence^2 between bilateral HbT during Sleep
-subplot(2,3,5);
-% C57BL6J
-for aa = 1:size(data.C57BL6J.Sleep.CBV_HbT.C,2)
-    semilogx(data.C57BL6J.Sleep.CBV_HbT.meanf,data.C57BL6J.Sleep.CBV_HbT.C(:,aa).^2,'color',colors('sapphire'),'LineWidth',0.5);
-    hold on
-end
-% Blank-SAP
-for aa = 1:size(data.Blank_SAP.Sleep.CBV_HbT.C,2)
-    semilogx(data.Blank_SAP.Sleep.CBV_HbT.meanf,data.Blank_SAP.Sleep.CBV_HbT.C(:,aa).^2,'color',colors('north texas green'),'LineWidth',0.5);
-    hold on
-end
-% SSP-SAP
-for aa = 1:size(data.SSP_SAP.Sleep.CBV_HbT.C,2)
-    semilogx(data.SSP_SAP.Sleep.CBV_HbT.meanf,data.SSP_SAP.Sleep.CBV_HbT.C(:,aa).^2,'color',colors('electric purple'),'LineWidth',0.5);
-    hold on
-end
-ylabel('Coherence^2')
-xlabel('Freq (Hz)')
-title({'[Asleep] Bilateral coherence^2','\Delta[HbT] (\muM)'})
-xlim([0.003,0.5])
-ylim([0,1])
-set(gca,'box','off')
-%% coherence^2 between bilateral HbT during All data
-subplot(2,3,6);
-% C57BL6J
-for aa = 1:size(data.C57BL6J.All.CBV_HbT.C,2)
-    semilogx(data.C57BL6J.All.CBV_HbT.meanf,data.C57BL6J.All.CBV_HbT.C(:,aa).^2,'color',colors('sapphire'),'LineWidth',0.5);
-    hold on
-end
-% Blank-SAP
-for aa = 1:size(data.Blank_SAP.All.CBV_HbT.C,2)
-    semilogx(data.Blank_SAP.All.CBV_HbT.meanf,data.Blank_SAP.All.CBV_HbT.C(:,aa).^2,'color',colors('north texas green'),'LineWidth',0.5);
-    hold on
-end
-% SSP-SAP
-for aa = 1:size(data.SSP_SAP.All.CBV_HbT.C,2)
-    semilogx(data.SSP_SAP.All.CBV_HbT.meanf,data.SSP_SAP.All.CBV_HbT.C(:,aa).^2,'color',colors('electric purple'),'LineWidth',0.5);
-    hold on
-end
-ylabel('Coherence^2')
-xlabel('Freq (Hz)')
-title({'[All] Bilateral coherence^2','\Delta[HbT] (\muM)'})
-xlim([0.003,0.5])
-ylim([0,1])
-set(gca,'box','off')
-%% save figure(s)
-if strcmp(saveFigs,'y') == true
-    dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'MATLAB Analysis Figures' delim];
-    if ~exist(dirpath,'dir')
-        mkdir(dirpath);
-    end
-    savefig(summaryFigure2,[dirpath 'indCoherence_HbT']);
-    set(summaryFigure2,'PaperPositionMode','auto');
-    print('-painters','-dpdf','-fillpage',[dirpath 'indCoherence_HbT'])
-end
+% %% individual HbT coherence
+% summaryFigure2 = figure;
+% sgtitle('Bilateral Coherence \DeltaHbT - individual animals')
+% %% coherence^2 between bilateral HbT during rest
+% subplot(2,3,1);
+% % C57BL6J
+% for aa = 1:size(data.C57BL6J.Rest.CBV_HbT.C,2)
+%     semilogx(data.C57BL6J.Rest.CBV_HbT.meanf,data.C57BL6J.Rest.CBV_HbT.C(:,aa),'color',colors('sapphire'),'LineWidth',0.5);
+%     hold on
+% end
+% % Blank-SAP
+% for aa = 1:size(data.Blank_SAP.Rest.CBV_HbT.C,2)
+%     semilogx(data.Blank_SAP.Rest.CBV_HbT.meanf,data.Blank_SAP.Rest.CBV_HbT.C(:,aa),'color',colors('north texas green'),'LineWidth',0.5);
+%     hold on
+% end
+% % SSP-SAP
+% for aa = 1:size(data.SSP_SAP.Rest.CBV_HbT.C,2)
+%     semilogx(data.SSP_SAP.Rest.CBV_HbT.meanf,data.SSP_SAP.Rest.CBV_HbT.C(:,aa),'color',colors('electric purple'),'LineWidth',0.5);
+%     hold on
+% end
+% ylabel('Coherence^2')
+% xlabel('Freq (Hz)')
+% title({'[Rest] Bilateral coherence^2','\Delta[HbT] (\muM)'})
+% xlim([1/10,0.5])
+% ylim([0,1])
+% set(gca,'box','off')
+% %% coherence^2 between bilateral HbT during NREM
+% subplot(2,3,2);
+% % C57BL6J
+% for aa = 1:size(data.C57BL6J.NREM.CBV_HbT.C,2)
+%     semilogx(data.C57BL6J.NREM.CBV_HbT.meanf,data.C57BL6J.NREM.CBV_HbT.C(:,aa),'color',colors('sapphire'),'LineWidth',0.5);
+%     hold on
+% end
+% % Blank-SAP
+% for aa = 1:size(data.Blank_SAP.NREM.CBV_HbT.C,2)
+%     semilogx(data.Blank_SAP.NREM.CBV_HbT.meanf,data.Blank_SAP.NREM.CBV_HbT.C(:,aa),'color',colors('north texas green'),'LineWidth',0.5);
+%     hold on
+% end
+% % SSP-SAP
+% for aa = 1:size(data.SSP_SAP.NREM.CBV_HbT.C,2)
+%     semilogx(data.SSP_SAP.NREM.CBV_HbT.meanf,data.SSP_SAP.NREM.CBV_HbT.C(:,aa),'color',colors('electric purple'),'LineWidth',0.5);
+%     hold on
+% end
+% ylabel('Coherence^2')
+% xlabel('Freq (Hz)')
+% title({'[NREM] Bilateral coherence^2','\Delta[HbT] (\muM)'})
+% xlim([1/30,0.5])
+% ylim([0,1])
+% set(gca,'box','off')
+% %% coherence^2 between bilateral HbT during REM
+% subplot(2,3,3);
+% % C57BL6J
+% for aa = 1:size(data.C57BL6J.REM.CBV_HbT.C,2)
+%     semilogx(data.C57BL6J.REM.CBV_HbT.meanf,data.C57BL6J.REM.CBV_HbT.C(:,aa),'color',colors('sapphire'),'LineWidth',0.5);
+%     hold on
+% end
+% % Blank-SAP
+% for aa = 1:size(data.Blank_SAP.REM.CBV_HbT.C,2)
+%     semilogx(data.Blank_SAP.REM.CBV_HbT.meanf,data.Blank_SAP.REM.CBV_HbT.C(:,aa),'color',colors('north texas green'),'LineWidth',0.5);
+%     hold on
+% end
+% % SSP-SAP
+% for aa = 1:size(data.SSP_SAP.REM.CBV_HbT.C,2)
+%     semilogx(data.SSP_SAP.REM.CBV_HbT.meanf,data.SSP_SAP.REM.CBV_HbT.C(:,aa),'color',colors('electric purple'),'LineWidth',0.5);
+%     hold on
+% end
+% ylabel('Coherence^2')
+% xlabel('Freq (Hz)')
+% title({'[REM] Bilateral coherence^2','\Delta[HbT] (\muM)'})
+% xlim([0.01,0.5])
+% ylim([0,1])
+% set(gca,'box','off')
+% %% coherence^2 between bilateral HbT during Awake
+% subplot(2,3,4);
+% % C57BL6J
+% for aa = 1:size(data.C57BL6J.Awake.CBV_HbT.C,2)
+%     semilogx(data.C57BL6J.Awake.CBV_HbT.meanf,data.C57BL6J.Awake.CBV_HbT.C(:,aa),'color',colors('sapphire'),'LineWidth',0.5);
+%     hold on
+% end
+% % Blank-SAP
+% for aa = 1:size(data.Blank_SAP.Awake.CBV_HbT.C,2)
+%     semilogx(data.Blank_SAP.Awake.CBV_HbT.meanf,data.Blank_SAP.Awake.CBV_HbT.C(:,aa),'color',colors('north texas green'),'LineWidth',0.5);
+%     hold on
+% end
+% % SSP-SAP
+% for aa = 1:size(data.SSP_SAP.Awake.CBV_HbT.C,2)
+%     semilogx(data.SSP_SAP.Awake.CBV_HbT.meanf,data.SSP_SAP.Awake.CBV_HbT.C(:,aa),'color',colors('electric purple'),'LineWidth',0.5);
+%     hold on
+% end
+% ylabel('Coherence^2')
+% xlabel('Freq (Hz)')
+% title({'[Alert] Bilateral coherence^2','\Delta[HbT] (\muM)'})
+% xlim([0.003,0.5])
+% ylim([0,1])
+% set(gca,'box','off')
+% %% coherence^2 between bilateral HbT during Sleep
+% subplot(2,3,5);
+% % C57BL6J
+% for aa = 1:size(data.C57BL6J.Sleep.CBV_HbT.C,2)
+%     semilogx(data.C57BL6J.Sleep.CBV_HbT.meanf,data.C57BL6J.Sleep.CBV_HbT.C(:,aa),'color',colors('sapphire'),'LineWidth',0.5);
+%     hold on
+% end
+% % Blank-SAP
+% for aa = 1:size(data.Blank_SAP.Sleep.CBV_HbT.C,2)
+%     semilogx(data.Blank_SAP.Sleep.CBV_HbT.meanf,data.Blank_SAP.Sleep.CBV_HbT.C(:,aa),'color',colors('north texas green'),'LineWidth',0.5);
+%     hold on
+% end
+% % SSP-SAP
+% for aa = 1:size(data.SSP_SAP.Sleep.CBV_HbT.C,2)
+%     semilogx(data.SSP_SAP.Sleep.CBV_HbT.meanf,data.SSP_SAP.Sleep.CBV_HbT.C(:,aa),'color',colors('electric purple'),'LineWidth',0.5);
+%     hold on
+% end
+% ylabel('Coherence^2')
+% xlabel('Freq (Hz)')
+% title({'[Asleep] Bilateral coherence^2','\Delta[HbT] (\muM)'})
+% xlim([0.003,0.5])
+% ylim([0,1])
+% set(gca,'box','off')
+% %% coherence^2 between bilateral HbT during All data
+% subplot(2,3,6);
+% % C57BL6J
+% for aa = 1:size(data.C57BL6J.All.CBV_HbT.C,2)
+%     semilogx(data.C57BL6J.All.CBV_HbT.meanf,data.C57BL6J.All.CBV_HbT.C(:,aa),'color',colors('sapphire'),'LineWidth',0.5);
+%     hold on
+% end
+% % Blank-SAP
+% for aa = 1:size(data.Blank_SAP.All.CBV_HbT.C,2)
+%     semilogx(data.Blank_SAP.All.CBV_HbT.meanf,data.Blank_SAP.All.CBV_HbT.C(:,aa),'color',colors('north texas green'),'LineWidth',0.5);
+%     hold on
+% end
+% % SSP-SAP
+% for aa = 1:size(data.SSP_SAP.All.CBV_HbT.C,2)
+%     semilogx(data.SSP_SAP.All.CBV_HbT.meanf,data.SSP_SAP.All.CBV_HbT.C(:,aa),'color',colors('electric purple'),'LineWidth',0.5);
+%     hold on
+% end
+% ylabel('Coherence^2')
+% xlabel('Freq (Hz)')
+% title({'[All] Bilateral coherence^2','\Delta[HbT] (\muM)'})
+% xlim([0.003,0.5])
+% ylim([0,1])
+% set(gca,'box','off')
+% %% save figure(s)
+% if strcmp(saveFigs,'y') == true
+%     dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'MATLAB Analysis Figures' delim];
+%     if ~exist(dirpath,'dir')
+%         mkdir(dirpath);
+%     end
+%     savefig(summaryFigure2,[dirpath 'indCoherence_HbT']);
+%     set(summaryFigure2,'PaperPositionMode','auto');
+%     print('-painters','-dpdf','-fillpage',[dirpath 'indCoherence_HbT'])
+% end
 %% average gamma-band coherence
 summaryFigure3 = figure;
 sgtitle('Bilateral Coherence Gamma-band [30-100 Hz] (envelope)')
 %% coherence^2 between bilateral gamma-band during Rest
 subplot(2,3,1);
-p1 = semilogx(data.C57BL6J.Rest.gammaBandPower.meanf,data.C57BL6J.Rest.gammaBandPower.meanC.^2,'color',colors('sapphire'),'LineWidth',2);
+p1 = semilogx(data.C57BL6J.Rest.gammaBandPower.meanf,data.C57BL6J.Rest.gammaBandPower.meanC,'color',colors('sapphire'),'LineWidth',2);
 hold on
-p2 = semilogx(data.Blank_SAP.Rest.gammaBandPower.meanf,data.Blank_SAP.Rest.gammaBandPower.meanC.^2,'color',colors('north texas green'),'LineWidth',2);
-p3 = semilogx(data.SSP_SAP.Rest.gammaBandPower.meanf,data.SSP_SAP.Rest.gammaBandPower.meanC.^2,'color',colors('electric purple'),'LineWidth',2);
+semilogx(data.C57BL6J.Rest.gammaBandPower.meanf,data.C57BL6J.Rest.gammaBandPower.meanC + data.C57BL6J.Rest.gammaBandPower.stdC,'color',colors('sapphire'),'LineWidth',0.5);
+semilogx(data.C57BL6J.Rest.gammaBandPower.meanf,data.C57BL6J.Rest.gammaBandPower.meanC - data.C57BL6J.Rest.gammaBandPower.stdC,'color',colors('sapphire'),'LineWidth',0.5);
+p2 = semilogx(data.Blank_SAP.Rest.gammaBandPower.meanf,data.Blank_SAP.Rest.gammaBandPower.meanC,'color',colors('north texas green'),'LineWidth',2);
+semilogx(data.Blank_SAP.Rest.gammaBandPower.meanf,data.Blank_SAP.Rest.gammaBandPower.meanC + data.Blank_SAP.Rest.gammaBandPower.stdC,'color',colors('north texas green'),'LineWidth',0.5);
+semilogx(data.Blank_SAP.Rest.gammaBandPower.meanf,data.Blank_SAP.Rest.gammaBandPower.meanC - data.Blank_SAP.Rest.gammaBandPower.stdC,'color',colors('north texas green'),'LineWidth',0.5);
+p3 = semilogx(data.SSP_SAP.Rest.gammaBandPower.meanf,data.SSP_SAP.Rest.gammaBandPower.meanC,'color',colors('electric purple'),'LineWidth',2);
+semilogx(data.SSP_SAP.Rest.gammaBandPower.meanf,data.SSP_SAP.Rest.gammaBandPower.meanC + data.SSP_SAP.Rest.gammaBandPower.stdC,'color',colors('electric purple'),'LineWidth',0.5);
+semilogx(data.SSP_SAP.Rest.gammaBandPower.meanf,data.SSP_SAP.Rest.gammaBandPower.meanC - data.SSP_SAP.Rest.gammaBandPower.stdC,'color',colors('electric purple'),'LineWidth',0.5);
 ylabel('Coherence^2')
 xlabel('Freq (Hz)')
 title({'[Rest] Bilateral coherence^2','Gamma-band power [30-100 Hz] (%)'})
@@ -322,10 +410,16 @@ set(gca,'box','off')
 legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
 %% coherence^2 between bilateral gamma-band during NREM
 subplot(2,3,2);
-semilogx(data.C57BL6J.NREM.gammaBandPower.meanf,data.C57BL6J.NREM.gammaBandPower.meanC.^2,'color',colors('sapphire'),'LineWidth',2);
+semilogx(data.C57BL6J.NREM.gammaBandPower.meanf,data.C57BL6J.NREM.gammaBandPower.meanC,'color',colors('sapphire'),'LineWidth',2);
 hold on
-semilogx(data.Blank_SAP.NREM.gammaBandPower.meanf,data.Blank_SAP.NREM.gammaBandPower.meanC.^2,'color',colors('north texas green'),'LineWidth',2);
-semilogx(data.SSP_SAP.NREM.gammaBandPower.meanf,data.SSP_SAP.NREM.gammaBandPower.meanC.^2,'color',colors('electric purple'),'LineWidth',2);
+semilogx(data.C57BL6J.NREM.gammaBandPower.meanf,data.C57BL6J.NREM.gammaBandPower.meanC + data.C57BL6J.NREM.gammaBandPower.stdC,'color',colors('sapphire'),'LineWidth',0.5);
+semilogx(data.C57BL6J.NREM.gammaBandPower.meanf,data.C57BL6J.NREM.gammaBandPower.meanC - data.C57BL6J.NREM.gammaBandPower.stdC,'color',colors('sapphire'),'LineWidth',0.5);
+semilogx(data.Blank_SAP.NREM.gammaBandPower.meanf,data.Blank_SAP.NREM.gammaBandPower.meanC,'color',colors('north texas green'),'LineWidth',2);
+semilogx(data.Blank_SAP.NREM.gammaBandPower.meanf,data.Blank_SAP.NREM.gammaBandPower.meanC + data.Blank_SAP.NREM.gammaBandPower.stdC,'color',colors('north texas green'),'LineWidth',0.5);
+semilogx(data.Blank_SAP.NREM.gammaBandPower.meanf,data.Blank_SAP.NREM.gammaBandPower.meanC - data.Blank_SAP.NREM.gammaBandPower.stdC,'color',colors('north texas green'),'LineWidth',0.5);
+semilogx(data.SSP_SAP.NREM.gammaBandPower.meanf,data.SSP_SAP.NREM.gammaBandPower.meanC,'color',colors('electric purple'),'LineWidth',2);
+semilogx(data.SSP_SAP.NREM.gammaBandPower.meanf,data.SSP_SAP.NREM.gammaBandPower.meanC + data.SSP_SAP.NREM.gammaBandPower.stdC,'color',colors('electric purple'),'LineWidth',0.5);
+semilogx(data.SSP_SAP.NREM.gammaBandPower.meanf,data.SSP_SAP.NREM.gammaBandPower.meanC - data.SSP_SAP.NREM.gammaBandPower.stdC,'color',colors('electric purple'),'LineWidth',0.5);
 ylabel('Coherence^2')
 xlabel('Freq (Hz)')
 title({'[NREM] Bilateral coherence^2','Gamma-band power [30-100 Hz] (%)'})
@@ -334,10 +428,16 @@ ylim([0,1])
 set(gca,'box','off')
 %% coherence^2 between bilateral gamma-band during REM
 subplot(2,3,3);
-semilogx(data.C57BL6J.REM.gammaBandPower.meanf,data.C57BL6J.REM.gammaBandPower.meanC.^2,'color',colors('sapphire'),'LineWidth',2);
+semilogx(data.C57BL6J.REM.gammaBandPower.meanf,data.C57BL6J.REM.gammaBandPower.meanC,'color',colors('sapphire'),'LineWidth',2);
 hold on
-semilogx(data.Blank_SAP.REM.gammaBandPower.meanf,data.Blank_SAP.REM.gammaBandPower.meanC.^2,'color',colors('north texas green'),'LineWidth',2);
-semilogx(data.SSP_SAP.REM.gammaBandPower.meanf,data.SSP_SAP.REM.gammaBandPower.meanC.^2,'color',colors('electric purple'),'LineWidth',2);
+semilogx(data.C57BL6J.REM.gammaBandPower.meanf,data.C57BL6J.REM.gammaBandPower.meanC + data.C57BL6J.REM.gammaBandPower.stdC,'color',colors('sapphire'),'LineWidth',0.5);
+semilogx(data.C57BL6J.REM.gammaBandPower.meanf,data.C57BL6J.REM.gammaBandPower.meanC - data.C57BL6J.REM.gammaBandPower.stdC,'color',colors('sapphire'),'LineWidth',0.5);
+semilogx(data.Blank_SAP.REM.gammaBandPower.meanf,data.Blank_SAP.REM.gammaBandPower.meanC,'color',colors('north texas green'),'LineWidth',2);
+semilogx(data.Blank_SAP.REM.gammaBandPower.meanf,data.Blank_SAP.REM.gammaBandPower.meanC + data.Blank_SAP.REM.gammaBandPower.stdC,'color',colors('north texas green'),'LineWidth',0.5);
+semilogx(data.Blank_SAP.REM.gammaBandPower.meanf,data.Blank_SAP.REM.gammaBandPower.meanC - data.Blank_SAP.REM.gammaBandPower.stdC,'color',colors('north texas green'),'LineWidth',0.5);
+semilogx(data.SSP_SAP.REM.gammaBandPower.meanf,data.SSP_SAP.REM.gammaBandPower.meanC,'color',colors('electric purple'),'LineWidth',2);
+semilogx(data.SSP_SAP.REM.gammaBandPower.meanf,data.SSP_SAP.REM.gammaBandPower.meanC + data.SSP_SAP.REM.gammaBandPower.stdC,'color',colors('electric purple'),'LineWidth',0.5);
+semilogx(data.SSP_SAP.REM.gammaBandPower.meanf,data.SSP_SAP.REM.gammaBandPower.meanC - data.SSP_SAP.REM.gammaBandPower.stdC,'color',colors('electric purple'),'LineWidth',0.5);
 ylabel('Coherence^2')
 xlabel('Freq (Hz)')
 title({'[REM] Bilateral coherence^2','Gamma-band power [30-100 Hz] (%)'})
@@ -346,10 +446,16 @@ ylim([0,1])
 set(gca,'box','off')
 %% coherence^2 between bilateral gamma-band during Awake
 subplot(2,3,4);
-semilogx(data.C57BL6J.Awake.gammaBandPower.meanf,data.C57BL6J.Awake.gammaBandPower.meanC.^2,'color',colors('sapphire'),'LineWidth',2);
+semilogx(data.C57BL6J.Awake.gammaBandPower.meanf,data.C57BL6J.Awake.gammaBandPower.meanC,'color',colors('sapphire'),'LineWidth',2);
 hold on
-semilogx(data.Blank_SAP.Awake.gammaBandPower.meanf,data.Blank_SAP.Awake.gammaBandPower.meanC.^2,'color',colors('north texas green'),'LineWidth',2);
-semilogx(data.SSP_SAP.Awake.gammaBandPower.meanf,data.SSP_SAP.Awake.gammaBandPower.meanC.^2,'color',colors('electric purple'),'LineWidth',2);
+semilogx(data.C57BL6J.Awake.gammaBandPower.meanf,data.C57BL6J.Awake.gammaBandPower.meanC + data.C57BL6J.Awake.gammaBandPower.stdC,'color',colors('sapphire'),'LineWidth',0.5);
+semilogx(data.C57BL6J.Awake.gammaBandPower.meanf,data.C57BL6J.Awake.gammaBandPower.meanC - data.C57BL6J.Awake.gammaBandPower.stdC,'color',colors('sapphire'),'LineWidth',0.5);
+semilogx(data.Blank_SAP.Awake.gammaBandPower.meanf,data.Blank_SAP.Awake.gammaBandPower.meanC,'color',colors('north texas green'),'LineWidth',2);
+semilogx(data.Blank_SAP.Awake.gammaBandPower.meanf,data.Blank_SAP.Awake.gammaBandPower.meanC + data.Blank_SAP.Awake.gammaBandPower.stdC,'color',colors('north texas green'),'LineWidth',0.5);
+semilogx(data.Blank_SAP.Awake.gammaBandPower.meanf,data.Blank_SAP.Awake.gammaBandPower.meanC - data.Blank_SAP.Awake.gammaBandPower.stdC,'color',colors('north texas green'),'LineWidth',0.5);
+semilogx(data.SSP_SAP.Awake.gammaBandPower.meanf,data.SSP_SAP.Awake.gammaBandPower.meanC,'color',colors('electric purple'),'LineWidth',2);
+semilogx(data.SSP_SAP.Awake.gammaBandPower.meanf,data.SSP_SAP.Awake.gammaBandPower.meanC + data.SSP_SAP.Awake.gammaBandPower.stdC,'color',colors('electric purple'),'LineWidth',0.5);
+semilogx(data.SSP_SAP.Awake.gammaBandPower.meanf,data.SSP_SAP.Awake.gammaBandPower.meanC - data.SSP_SAP.Awake.gammaBandPower.stdC,'color',colors('electric purple'),'LineWidth',0.5);
 ylabel('Coherence^2')
 xlabel('Freq (Hz)')
 title({'[Alert] Bilateral coherence^2','Gamma-band power [30-100 Hz] (%)'})
@@ -358,10 +464,16 @@ ylim([0,1])
 set(gca,'box','off')
 %% coherence^2 between bilateral gamma-band during Sleep
 subplot(2,3,5);
-semilogx(data.C57BL6J.Sleep.gammaBandPower.meanf,data.C57BL6J.Sleep.gammaBandPower.meanC.^2,'color',colors('sapphire'),'LineWidth',2);
+semilogx(data.C57BL6J.Sleep.gammaBandPower.meanf,data.C57BL6J.Sleep.gammaBandPower.meanC,'color',colors('sapphire'),'LineWidth',2);
 hold on
-semilogx(data.Blank_SAP.Sleep.gammaBandPower.meanf,data.Blank_SAP.Sleep.gammaBandPower.meanC.^2,'color',colors('north texas green'),'LineWidth',2);
-semilogx(data.SSP_SAP.Sleep.gammaBandPower.meanf,data.SSP_SAP.Sleep.gammaBandPower.meanC.^2,'color',colors('electric purple'),'LineWidth',2);
+semilogx(data.C57BL6J.Sleep.gammaBandPower.meanf,data.C57BL6J.Sleep.gammaBandPower.meanC + data.C57BL6J.Sleep.gammaBandPower.stdC,'color',colors('sapphire'),'LineWidth',0.5);
+semilogx(data.C57BL6J.Sleep.gammaBandPower.meanf,data.C57BL6J.Sleep.gammaBandPower.meanC - data.C57BL6J.Sleep.gammaBandPower.stdC,'color',colors('sapphire'),'LineWidth',0.5);
+semilogx(data.Blank_SAP.Sleep.gammaBandPower.meanf,data.Blank_SAP.Sleep.gammaBandPower.meanC,'color',colors('north texas green'),'LineWidth',2);
+semilogx(data.Blank_SAP.Sleep.gammaBandPower.meanf,data.Blank_SAP.Sleep.gammaBandPower.meanC + data.Blank_SAP.Sleep.gammaBandPower.stdC,'color',colors('north texas green'),'LineWidth',0.5);
+semilogx(data.Blank_SAP.Sleep.gammaBandPower.meanf,data.Blank_SAP.Sleep.gammaBandPower.meanC - data.Blank_SAP.Sleep.gammaBandPower.stdC,'color',colors('north texas green'),'LineWidth',0.5);
+semilogx(data.SSP_SAP.Sleep.gammaBandPower.meanf,data.SSP_SAP.Sleep.gammaBandPower.meanC,'color',colors('electric purple'),'LineWidth',2);
+semilogx(data.SSP_SAP.Sleep.gammaBandPower.meanf,data.SSP_SAP.Sleep.gammaBandPower.meanC + data.SSP_SAP.Sleep.gammaBandPower.stdC,'color',colors('electric purple'),'LineWidth',0.5);
+semilogx(data.SSP_SAP.Sleep.gammaBandPower.meanf,data.SSP_SAP.Sleep.gammaBandPower.meanC - data.SSP_SAP.Sleep.gammaBandPower.stdC,'color',colors('electric purple'),'LineWidth',0.5);
 ylabel('Coherence^2')
 xlabel('Freq (Hz)')
 title({'[Asleep] Bilateral coherence^2','Gamma-band power [30-100 Hz] (%)'})
@@ -370,10 +482,16 @@ ylim([0,1])
 set(gca,'box','off')
 %% coherence^2 between bilateral gamma-band during All data
 subplot(2,3,6);
-semilogx(data.C57BL6J.All.gammaBandPower.meanf,data.C57BL6J.All.gammaBandPower.meanC.^2,'color',colors('sapphire'),'LineWidth',2);
+semilogx(data.C57BL6J.All.gammaBandPower.meanf,data.C57BL6J.All.gammaBandPower.meanC,'color',colors('sapphire'),'LineWidth',2);
 hold on
-semilogx(data.Blank_SAP.All.gammaBandPower.meanf,data.Blank_SAP.All.gammaBandPower.meanC.^2,'color',colors('north texas green'),'LineWidth',2);
-semilogx(data.SSP_SAP.All.gammaBandPower.meanf,data.SSP_SAP.All.gammaBandPower.meanC.^2,'color',colors('electric purple'),'LineWidth',2);
+semilogx(data.C57BL6J.All.gammaBandPower.meanf,data.C57BL6J.All.gammaBandPower.meanC + data.C57BL6J.All.gammaBandPower.stdC,'color',colors('sapphire'),'LineWidth',0.5);
+semilogx(data.C57BL6J.All.gammaBandPower.meanf,data.C57BL6J.All.gammaBandPower.meanC - data.C57BL6J.All.gammaBandPower.stdC,'color',colors('sapphire'),'LineWidth',0.5);
+semilogx(data.Blank_SAP.All.gammaBandPower.meanf,data.Blank_SAP.All.gammaBandPower.meanC,'color',colors('north texas green'),'LineWidth',2);
+semilogx(data.Blank_SAP.All.gammaBandPower.meanf,data.Blank_SAP.All.gammaBandPower.meanC + data.Blank_SAP.All.gammaBandPower.stdC,'color',colors('north texas green'),'LineWidth',0.5);
+semilogx(data.Blank_SAP.All.gammaBandPower.meanf,data.Blank_SAP.All.gammaBandPower.meanC - data.Blank_SAP.All.gammaBandPower.stdC,'color',colors('north texas green'),'LineWidth',0.5);
+semilogx(data.SSP_SAP.All.gammaBandPower.meanf,data.SSP_SAP.All.gammaBandPower.meanC,'color',colors('electric purple'),'LineWidth',2);
+semilogx(data.SSP_SAP.All.gammaBandPower.meanf,data.SSP_SAP.All.gammaBandPower.meanC + data.SSP_SAP.All.gammaBandPower.stdC,'color',colors('electric purple'),'LineWidth',0.5);
+semilogx(data.SSP_SAP.All.gammaBandPower.meanf,data.SSP_SAP.All.gammaBandPower.meanC - data.SSP_SAP.All.gammaBandPower.stdC,'color',colors('electric purple'),'LineWidth',0.5);
 ylabel('Coherence^2')
 xlabel('Freq (Hz)')
 title({'[All] Bilateral coherence^2','Gamma-band power [30-100 Hz] (%)'})
@@ -389,157 +507,237 @@ if strcmp(saveFigs,'y') == true
     savefig(summaryFigure3,[dirpath 'Coherence_Gamma']);
     set(summaryFigure3,'PaperPositionMode','auto');
     print('-painters','-dpdf','-fillpage',[dirpath 'Coherence_Gamma'])
-end
-%% individual gamma-band coherence
-summaryFigure4 = figure;
-sgtitle('Bilateral Coherence Gamma-band [30-100 Hz] - individual animals')
-%% coherence^2 between bilateral gamma-band during rest
-subplot(2,3,1);
-% C57BL6J
-for aa = 1:size(data.C57BL6J.Rest.gammaBandPower.C,2)
-    semilogx(data.C57BL6J.Rest.gammaBandPower.meanf,data.C57BL6J.Rest.gammaBandPower.C(:,aa).^2,'color',colors('sapphire'),'LineWidth',0.5);
-    hold on
-end
-% Blank-SAP
-for aa = 1:size(data.Blank_SAP.Rest.gammaBandPower.C,2)
-    semilogx(data.Blank_SAP.Rest.gammaBandPower.meanf,data.Blank_SAP.Rest.gammaBandPower.C(:,aa).^2,'color',colors('north texas green'),'LineWidth',0.5);
-    hold on
-end
-% SSP-SAP
-for aa = 1:size(data.SSP_SAP.Rest.gammaBandPower.C,2)
-    semilogx(data.SSP_SAP.Rest.gammaBandPower.meanf,data.SSP_SAP.Rest.gammaBandPower.C(:,aa).^2,'color',colors('electric purple'),'LineWidth',0.5);
-    hold on
-end
-ylabel('Coherence^2')
-xlabel('Freq (Hz)')
-title({'[Rest] Bilateral coherence^2','Gamma-band power [30-100 Hz] (%)'})
-xlim([1/10,0.5])
-ylim([0,1])
-set(gca,'box','off')
-%% coherence^2 between bilateral gamma-band during NREM
-subplot(2,3,2);
-% C57BL6J
-for aa = 1:size(data.C57BL6J.NREM.gammaBandPower.C,2)
-    semilogx(data.C57BL6J.NREM.gammaBandPower.meanf,data.C57BL6J.NREM.gammaBandPower.C(:,aa).^2,'color',colors('sapphire'),'LineWidth',0.5);
-    hold on
-end
-% Blank-SAP
-for aa = 1:size(data.Blank_SAP.NREM.gammaBandPower.C,2)
-    semilogx(data.Blank_SAP.NREM.gammaBandPower.meanf,data.Blank_SAP.NREM.gammaBandPower.C(:,aa).^2,'color',colors('north texas green'),'LineWidth',0.5);
-    hold on
-end
-% SSP-SAP
-for aa = 1:size(data.SSP_SAP.NREM.gammaBandPower.C,2)
-    semilogx(data.SSP_SAP.NREM.gammaBandPower.meanf,data.SSP_SAP.NREM.gammaBandPower.C(:,aa).^2,'color',colors('electric purple'),'LineWidth',0.5);
-    hold on
-end
-ylabel('Coherence^2')
-xlabel('Freq (Hz)')
-title({'[NREM] Bilateral coherence^2','Gamma-band power [30-100 Hz] (%)'})
-xlim([1/30,0.5])
-ylim([0,1])
-set(gca,'box','off')
-%% coherence^2 between bilateral gamma-band during REM
-subplot(2,3,3);
-% C57BL6J
-for aa = 1:size(data.C57BL6J.REM.gammaBandPower.C,2)
-    semilogx(data.C57BL6J.REM.gammaBandPower.meanf,data.C57BL6J.REM.gammaBandPower.C(:,aa).^2,'color',colors('sapphire'),'LineWidth',0.5);
-    hold on
-end
-% Blank-SAP
-for aa = 1:size(data.Blank_SAP.REM.gammaBandPower.C,2)
-    semilogx(data.Blank_SAP.REM.gammaBandPower.meanf,data.Blank_SAP.REM.gammaBandPower.C(:,aa).^2,'color',colors('north texas green'),'LineWidth',0.5);
-    hold on
-end
-% SSP-SAP
-for aa = 1:size(data.SSP_SAP.REM.gammaBandPower.C,2)
-    semilogx(data.SSP_SAP.REM.gammaBandPower.meanf,data.SSP_SAP.REM.gammaBandPower.C(:,aa).^2,'color',colors('electric purple'),'LineWidth',0.5);
-    hold on
-end
-ylabel('Coherence^2')
-xlabel('Freq (Hz)')
-title({'[REM] Bilateral coherence^2','Gamma-band power [30-100 Hz] (%)'})
-xlim([1/60,0.5])
-ylim([0,1])
-set(gca,'box','off')
-%% coherence^2 between bilateral gamma-band during Awake
-subplot(2,3,4);
-% C57BL6J
-for aa = 1:size(data.C57BL6J.Awake.gammaBandPower.C,2)
-    semilogx(data.C57BL6J.Awake.gammaBandPower.meanf,data.C57BL6J.Awake.gammaBandPower.C(:,aa).^2,'color',colors('sapphire'),'LineWidth',0.5);
-    hold on
-end
-% Blank-SAP
-for aa = 1:size(data.Blank_SAP.Awake.gammaBandPower.C,2)
-    semilogx(data.Blank_SAP.Awake.gammaBandPower.meanf,data.Blank_SAP.Awake.gammaBandPower.C(:,aa).^2,'color',colors('north texas green'),'LineWidth',0.5);
-    hold on
-end
-% SSP-SAP
-for aa = 1:size(data.SSP_SAP.Awake.gammaBandPower.C,2)
-    semilogx(data.SSP_SAP.Awake.gammaBandPower.meanf,data.SSP_SAP.Awake.gammaBandPower.C(:,aa).^2,'color',colors('electric purple'),'LineWidth',0.5);
-    hold on
-end
-ylabel('Coherence^2')
-xlabel('Freq (Hz)')
-title({'[Alert] Bilateral coherence^2','Gamma-band power [30-100 Hz] (%)'})
-xlim([0.003,0.5])
-ylim([0,1])
-set(gca,'box','off')
-%% coherence^2 between bilateral gamma-band during Sleep
-subplot(2,3,5);
-% C57BL6J
-for aa = 1:size(data.C57BL6J.Sleep.gammaBandPower.C,2)
-    semilogx(data.C57BL6J.Sleep.gammaBandPower.meanf,data.C57BL6J.Sleep.gammaBandPower.C(:,aa).^2,'color',colors('sapphire'),'LineWidth',0.5);
-    hold on
-end
-% Blank-SAP
-for aa = 1:size(data.Blank_SAP.Sleep.gammaBandPower.C,2)
-    semilogx(data.Blank_SAP.Sleep.gammaBandPower.meanf,data.Blank_SAP.Sleep.gammaBandPower.C(:,aa).^2,'color',colors('north texas green'),'LineWidth',0.5);
-    hold on
-end
-% SSP-SAP
-for aa = 1:size(data.SSP_SAP.Sleep.gammaBandPower.C,2)
-    semilogx(data.SSP_SAP.Sleep.gammaBandPower.meanf,data.SSP_SAP.Sleep.gammaBandPower.C(:,aa).^2,'color',colors('electric purple'),'LineWidth',0.5);
-    hold on
-end
-ylabel('Coherence^2')
-xlabel('Freq (Hz)')
-title({'[Asleep] Bilateral coherence^2','Gamma-band power [30-100 Hz] (%)'})
-xlim([0.003,0.5])
-ylim([0,1])
-set(gca,'box','off')
-%% coherence^2 between bilateral gamma-band during All data
-subplot(2,3,6);
-% C57BL6J
-for aa = 1:size(data.C57BL6J.All.gammaBandPower.C,2)
-    semilogx(data.C57BL6J.All.gammaBandPower.meanf,data.C57BL6J.All.gammaBandPower.C(:,aa).^2,'color',colors('sapphire'),'LineWidth',0.5);
-    hold on
-end
-% Blank-SAP
-for aa = 1:size(data.Blank_SAP.All.gammaBandPower.C,2)
-    semilogx(data.Blank_SAP.All.gammaBandPower.meanf,data.Blank_SAP.All.gammaBandPower.C(:,aa).^2,'color',colors('north texas green'),'LineWidth',0.5);
-    hold on
-end
-% SSP-SAP
-for aa = 1:size(data.SSP_SAP.All.gammaBandPower.C,2)
-    semilogx(data.SSP_SAP.All.gammaBandPower.meanf,data.SSP_SAP.All.gammaBandPower.C(:,aa).^2,'color',colors('electric purple'),'LineWidth',0.5);
-    hold on
-end
-ylabel('Coherence^2')
-xlabel('Freq (Hz)')
-title({'[All] Bilateral coherence^2','Gamma-band power [30-100 Hz] (%)'})
-xlim([0.003,0.5])
-ylim([0,1])
-set(gca,'box','off')
-%% save figure(s)
-if strcmp(saveFigs,'y') == true
-    dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'MATLAB Analysis Figures' delim];
-    if ~exist(dirpath,'dir')
-        mkdir(dirpath);
+    %% statistical diary
+    diaryFile = [dirpath 'Coherence_Statistics.txt'];
+    if exist(diaryFile,'file') == 2
+        delete(diaryFile)
     end
-    savefig(summaryFigure4,[dirpath 'indCoherence_Gamma']);
-    set(summaryFigure4,'PaperPositionMode','auto');
-    print('-painters','-dpdf','-fillpage',[dirpath 'indCoherence_Gamma'])
+    diary(diaryFile)
+    diary on
+    % Awake stats
+    disp('======================================================================================================================')
+    disp('GLME statistics for gamma Coherence^2 for Awake data')
+    disp('======================================================================================================================')
+    disp('0 -> 0.01 Hz')
+    disp(Stats.gammaBandPower.C001.Awake.Stats)
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    disp('0.01 -> 0.1 Hz')
+    disp(Stats.gammaBandPower.C01.Awake.Stats)
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    disp('0.1 -> 0.5 Hz')
+    disp(Stats.gammaBandPower.C05.Awake.Stats)
+    % Sleep stats
+    disp('======================================================================================================================')
+    disp('GLME statistics for gamma Coherence^2 for Sleep data')
+    disp('======================================================================================================================')
+    disp('0 -> 0.01 Hz')
+    disp(Stats.gammaBandPower.C001.Sleep.Stats)
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    disp('0.01 -> 0.1 Hz')
+    disp(Stats.gammaBandPower.C01.Sleep.Stats)
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    disp('0.1 -> 0.5 Hz')
+    disp(Stats.gammaBandPower.C05.Sleep.Stats)
+    % All stats
+    disp('======================================================================================================================')
+    disp('GLME statistics for gamma Coherence^2 for All data')
+    disp('======================================================================================================================')
+    disp('0 -> 0.01 Hz')
+    disp(Stats.gammaBandPower.C001.All.Stats)
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    disp('0.01 -> 0.1 Hz')
+    disp(Stats.gammaBandPower.C01.All.Stats)
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    disp('0.1 -> 0.5 Hz')
+    disp(Stats.gammaBandPower.C05.All.Stats)
+    % Awake stats
+    disp('======================================================================================================================')
+    disp('GLME statistics for CBV_HbT Coherence^2 for Awake data')
+    disp('======================================================================================================================')
+    disp('0 -> 0.01 Hz')
+    disp(Stats.CBV_HbT.C001.Awake.Stats)
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    disp('0.01 -> 0.1 Hz')
+    disp(Stats.CBV_HbT.C01.Awake.Stats)
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    disp('0.1 -> 0.5 Hz')
+    disp(Stats.CBV_HbT.C05.Awake.Stats)
+    % Sleep stats
+    disp('======================================================================================================================')
+    disp('GLME statistics for CBV_HbT Coherence^2 for Sleep data')
+    disp('======================================================================================================================')
+    disp('0 -> 0.01 Hz')
+    disp(Stats.CBV_HbT.C001.Sleep.Stats)
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    disp('0.01 -> 0.1 Hz')
+    disp(Stats.CBV_HbT.C01.Sleep.Stats)
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    disp('0.1 -> 0.5 Hz')
+    disp(Stats.CBV_HbT.C05.Sleep.Stats)
+    % All stats
+    disp('======================================================================================================================')
+    disp('GLME statistics for CBV_HbT Coherence^2 for All data')
+    disp('======================================================================================================================')
+    disp('0 -> 0.01 Hz')
+    disp(Stats.CBV_HbT.C001.All.Stats)
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    disp('0.01 -> 0.1 Hz')
+    disp(Stats.CBV_HbT.C01.All.Stats)
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    disp('0.1 -> 0.5 Hz')
+    disp(Stats.CBV_HbT.C05.All.Stats)
+    diary off
 end
+% %% individual gamma-band coherence
+% summaryFigure4 = figure;
+% sgtitle('Bilateral Coherence Gamma-band [30-100 Hz] - individual animals')
+% %% coherence^2 between bilateral gamma-band during rest
+% subplot(2,3,1);
+% % C57BL6J
+% for aa = 1:size(data.C57BL6J.Rest.gammaBandPower.C,2)
+%     semilogx(data.C57BL6J.Rest.gammaBandPower.meanf,data.C57BL6J.Rest.gammaBandPower.C(:,aa),'color',colors('sapphire'),'LineWidth',0.5);
+%     hold on
+% end
+% % Blank-SAP
+% for aa = 1:size(data.Blank_SAP.Rest.gammaBandPower.C,2)
+%     semilogx(data.Blank_SAP.Rest.gammaBandPower.meanf,data.Blank_SAP.Rest.gammaBandPower.C(:,aa),'color',colors('north texas green'),'LineWidth',0.5);
+%     hold on
+% end
+% % SSP-SAP
+% for aa = 1:size(data.SSP_SAP.Rest.gammaBandPower.C,2)
+%     semilogx(data.SSP_SAP.Rest.gammaBandPower.meanf,data.SSP_SAP.Rest.gammaBandPower.C(:,aa),'color',colors('electric purple'),'LineWidth',0.5);
+%     hold on
+% end
+% ylabel('Coherence^2')
+% xlabel('Freq (Hz)')
+% title({'[Rest] Bilateral coherence^2','Gamma-band power [30-100 Hz] (%)'})
+% xlim([1/10,0.5])
+% ylim([0,1])
+% set(gca,'box','off')
+% %% coherence^2 between bilateral gamma-band during NREM
+% subplot(2,3,2);
+% % C57BL6J
+% for aa = 1:size(data.C57BL6J.NREM.gammaBandPower.C,2)
+%     semilogx(data.C57BL6J.NREM.gammaBandPower.meanf,data.C57BL6J.NREM.gammaBandPower.C(:,aa),'color',colors('sapphire'),'LineWidth',0.5);
+%     hold on
+% end
+% % Blank-SAP
+% for aa = 1:size(data.Blank_SAP.NREM.gammaBandPower.C,2)
+%     semilogx(data.Blank_SAP.NREM.gammaBandPower.meanf,data.Blank_SAP.NREM.gammaBandPower.C(:,aa),'color',colors('north texas green'),'LineWidth',0.5);
+%     hold on
+% end
+% % SSP-SAP
+% for aa = 1:size(data.SSP_SAP.NREM.gammaBandPower.C,2)
+%     semilogx(data.SSP_SAP.NREM.gammaBandPower.meanf,data.SSP_SAP.NREM.gammaBandPower.C(:,aa),'color',colors('electric purple'),'LineWidth',0.5);
+%     hold on
+% end
+% ylabel('Coherence^2')
+% xlabel('Freq (Hz)')
+% title({'[NREM] Bilateral coherence^2','Gamma-band power [30-100 Hz] (%)'})
+% xlim([1/30,0.5])
+% ylim([0,1])
+% set(gca,'box','off')
+% %% coherence^2 between bilateral gamma-band during REM
+% subplot(2,3,3);
+% % C57BL6J
+% for aa = 1:size(data.C57BL6J.REM.gammaBandPower.C,2)
+%     semilogx(data.C57BL6J.REM.gammaBandPower.meanf,data.C57BL6J.REM.gammaBandPower.C(:,aa),'color',colors('sapphire'),'LineWidth',0.5);
+%     hold on
+% end
+% % Blank-SAP
+% for aa = 1:size(data.Blank_SAP.REM.gammaBandPower.C,2)
+%     semilogx(data.Blank_SAP.REM.gammaBandPower.meanf,data.Blank_SAP.REM.gammaBandPower.C(:,aa),'color',colors('north texas green'),'LineWidth',0.5);
+%     hold on
+% end
+% % SSP-SAP
+% for aa = 1:size(data.SSP_SAP.REM.gammaBandPower.C,2)
+%     semilogx(data.SSP_SAP.REM.gammaBandPower.meanf,data.SSP_SAP.REM.gammaBandPower.C(:,aa),'color',colors('electric purple'),'LineWidth',0.5);
+%     hold on
+% end
+% ylabel('Coherence^2')
+% xlabel('Freq (Hz)')
+% title({'[REM] Bilateral coherence^2','Gamma-band power [30-100 Hz] (%)'})
+% xlim([1/60,0.5])
+% ylim([0,1])
+% set(gca,'box','off')
+% %% coherence^2 between bilateral gamma-band during Awake
+% subplot(2,3,4);
+% % C57BL6J
+% for aa = 1:size(data.C57BL6J.Awake.gammaBandPower.C,2)
+%     semilogx(data.C57BL6J.Awake.gammaBandPower.meanf,data.C57BL6J.Awake.gammaBandPower.C(:,aa),'color',colors('sapphire'),'LineWidth',0.5);
+%     hold on
+% end
+% % Blank-SAP
+% for aa = 1:size(data.Blank_SAP.Awake.gammaBandPower.C,2)
+%     semilogx(data.Blank_SAP.Awake.gammaBandPower.meanf,data.Blank_SAP.Awake.gammaBandPower.C(:,aa),'color',colors('north texas green'),'LineWidth',0.5);
+%     hold on
+% end
+% % SSP-SAP
+% for aa = 1:size(data.SSP_SAP.Awake.gammaBandPower.C,2)
+%     semilogx(data.SSP_SAP.Awake.gammaBandPower.meanf,data.SSP_SAP.Awake.gammaBandPower.C(:,aa),'color',colors('electric purple'),'LineWidth',0.5);
+%     hold on
+% end
+% ylabel('Coherence^2')
+% xlabel('Freq (Hz)')
+% title({'[Alert] Bilateral coherence^2','Gamma-band power [30-100 Hz] (%)'})
+% xlim([0.003,0.5])
+% ylim([0,1])
+% set(gca,'box','off')
+% %% coherence^2 between bilateral gamma-band during Sleep
+% subplot(2,3,5);
+% % C57BL6J
+% for aa = 1:size(data.C57BL6J.Sleep.gammaBandPower.C,2)
+%     semilogx(data.C57BL6J.Sleep.gammaBandPower.meanf,data.C57BL6J.Sleep.gammaBandPower.C(:,aa),'color',colors('sapphire'),'LineWidth',0.5);
+%     hold on
+% end
+% % Blank-SAP
+% for aa = 1:size(data.Blank_SAP.Sleep.gammaBandPower.C,2)
+%     semilogx(data.Blank_SAP.Sleep.gammaBandPower.meanf,data.Blank_SAP.Sleep.gammaBandPower.C(:,aa),'color',colors('north texas green'),'LineWidth',0.5);
+%     hold on
+% end
+% % SSP-SAP
+% for aa = 1:size(data.SSP_SAP.Sleep.gammaBandPower.C,2)
+%     semilogx(data.SSP_SAP.Sleep.gammaBandPower.meanf,data.SSP_SAP.Sleep.gammaBandPower.C(:,aa),'color',colors('electric purple'),'LineWidth',0.5);
+%     hold on
+% end
+% ylabel('Coherence^2')
+% xlabel('Freq (Hz)')
+% title({'[Asleep] Bilateral coherence^2','Gamma-band power [30-100 Hz] (%)'})
+% xlim([0.003,0.5])
+% ylim([0,1])
+% set(gca,'box','off')
+% %% coherence^2 between bilateral gamma-band during All data
+% subplot(2,3,6);
+% % C57BL6J
+% for aa = 1:size(data.C57BL6J.All.gammaBandPower.C,2)
+%     semilogx(data.C57BL6J.All.gammaBandPower.meanf,data.C57BL6J.All.gammaBandPower.C(:,aa),'color',colors('sapphire'),'LineWidth',0.5);
+%     hold on
+% end
+% % Blank-SAP
+% for aa = 1:size(data.Blank_SAP.All.gammaBandPower.C,2)
+%     semilogx(data.Blank_SAP.All.gammaBandPower.meanf,data.Blank_SAP.All.gammaBandPower.C(:,aa),'color',colors('north texas green'),'LineWidth',0.5);
+%     hold on
+% end
+% % SSP-SAP
+% for aa = 1:size(data.SSP_SAP.All.gammaBandPower.C,2)
+%     semilogx(data.SSP_SAP.All.gammaBandPower.meanf,data.SSP_SAP.All.gammaBandPower.C(:,aa),'color',colors('electric purple'),'LineWidth',0.5);
+%     hold on
+% end
+% ylabel('Coherence^2')
+% xlabel('Freq (Hz)')
+% title({'[All] Bilateral coherence^2','Gamma-band power [30-100 Hz] (%)'})
+% xlim([0.003,0.5])
+% ylim([0,1])
+% set(gca,'box','off')
+% %% save figure(s)
+% if strcmp(saveFigs,'y') == true
+%     dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'MATLAB Analysis Figures' delim];
+%     if ~exist(dirpath,'dir')
+%         mkdir(dirpath);
+%     end
+%     savefig(summaryFigure4,[dirpath 'indCoherence_Gamma']);
+%     set(summaryFigure4,'PaperPositionMode','auto');
+%     print('-painters','-dpdf','-fillpage',[dirpath 'indCoherence_Gamma'])
+% end
 
 end

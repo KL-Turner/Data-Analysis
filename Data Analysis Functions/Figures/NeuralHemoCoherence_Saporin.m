@@ -4,27 +4,32 @@ function [AnalysisResults] = NeuralHemoCoherence_Saporin(rootFolder,saveFigs,del
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %
-% Purpose: 
+% Purpose:
 %________________________________________________________________________________________________________________________
 
 %% set-up and process data
-animalIDs = {'T141','T155','T156','T157','T142','T144','T159','T172','T150','T165','T166','T177','T179','T186','T187','T188','T189'};
-C57BL6J_IDs = {'T141','T155','T156','T157','T186','T187','T188','T189'};
-SSP_SAP_IDs = {'T142','T144','T159','T172'};
-Blank_SAP_IDs = {'T150','T165','T166','T177','T179'};
+expGroups = {'C57BL6J','SSP-SAP','Blank-SAP'};
+setName = 'IOS Set A';
+animalIDs.all = {};
+for aa = 1:length(expGroups)
+    folderList = dir([expGroups{1,aa} delim setName]);
+    folderList = folderList(~startsWith({folderList.name},'.'));
+    animalIDs.all = horzcat(animalIDs.all,{folderList.name});
+    animalIDs.(strrep(expGroups{1,aa},'-','_')) = {folderList.name};
+end
 treatments = {'C57BL6J','SSP_SAP','Blank_SAP'};
-behavFields = {'Rest','NREM','REM','Awake','Sleep','All'};
+behavFields = {'Awake','Sleep','All'};
 dataTypes = {'deltaBandPower','thetaBandPower','alphaBandPower','betaBandPower','gammaBandPower'};
 %% average coherence during different behaviors
 % cd through each animal's directory and extract the appropriate analysis results
-for aa = 1:length(animalIDs)
-    animalID = animalIDs{1,aa};
+for aa = 1:length(animalIDs.all)
+    animalID = animalIDs.all{1,aa};
     % recognize treatment based on animal group
-    if ismember(animalID,C57BL6J_IDs) == true
+    if ismember(animalID,animalIDs.C57BL6J) == true
         treatment = 'C57BL6J';
-    elseif ismember(animalIDs{1,aa},SSP_SAP_IDs) == true
+    elseif ismember(animalID,animalIDs.SSP_SAP) == true
         treatment = 'SSP_SAP';
-    elseif ismember(animalIDs{1,aa},Blank_SAP_IDs) == true
+    elseif ismember(animalID,animalIDs.Blank_SAP) == true
         treatment = 'Blank_SAP';
     end
     for bb = 1:length(behavFields)
@@ -40,16 +45,24 @@ for aa = 1:length(animalIDs)
                 data.(treatment).(behavField).(dataType).RH.C = [];
                 data.(treatment).(behavField).(dataType).RH.f = [];
                 data.(treatment).(behavField).(dataType).RH.confC = [];
+                data.(treatment).(behavField).(dataType).LH.animalID = {};
+                data.(treatment).(behavField).(dataType).RH.animalID = {};
+                data.(treatment).(behavField).(dataType).LH.treatment = {};
+                data.(treatment).(behavField).(dataType).RH.treatment = {};
             end
             % don't concatenate empty arrays where there was no data for this behavior
             if isempty(AnalysisResults.(animalID).NeuralHemoCoherence.(behavField).(dataType).adjLH.C) == false
                 % concatenate C/f for existing data - exclude any empty sets
-                data.(treatment).(behavField).(dataType).LH.C = cat(2,data.(treatment).(behavField).(dataType).LH.C,AnalysisResults.(animalID).NeuralHemoCoherence.(behavField).(dataType).adjLH.C);
+                data.(treatment).(behavField).(dataType).LH.C = cat(2,data.(treatment).(behavField).(dataType).LH.C,AnalysisResults.(animalID).NeuralHemoCoherence.(behavField).(dataType).adjLH.C.^2);
                 data.(treatment).(behavField).(dataType).LH.f = cat(1,data.(treatment).(behavField).(dataType).LH.f,AnalysisResults.(animalID).NeuralHemoCoherence.(behavField).(dataType).adjLH.f);
                 data.(treatment).(behavField).(dataType).LH.confC = cat(1,data.(treatment).(behavField).(dataType).LH.confC,AnalysisResults.(animalID).NeuralHemoCoherence.(behavField).(dataType).adjLH.confC);
-                data.(treatment).(behavField).(dataType).RH.C = cat(2,data.(treatment).(behavField).(dataType).RH.C,AnalysisResults.(animalID).NeuralHemoCoherence.(behavField).(dataType).adjRH.C);
+                data.(treatment).(behavField).(dataType).RH.C = cat(2,data.(treatment).(behavField).(dataType).RH.C,AnalysisResults.(animalID).NeuralHemoCoherence.(behavField).(dataType).adjRH.C.^2);
                 data.(treatment).(behavField).(dataType).RH.f = cat(1,data.(treatment).(behavField).(dataType).RH.f,AnalysisResults.(animalID).NeuralHemoCoherence.(behavField).(dataType).adjRH.f);
                 data.(treatment).(behavField).(dataType).RH.confC = cat(1,data.(treatment).(behavField).(dataType).RH.confC,AnalysisResults.(animalID).NeuralHemoCoherence.(behavField).(dataType).adjRH.confC);
+                data.(treatment).(behavField).(dataType).LH.animalID = cat(1,data.(treatment).(behavField).(dataType).LH.animalID,animalID);
+                data.(treatment).(behavField).(dataType).RH.animalID = cat(1,data.(treatment).(behavField).(dataType).RH.animalID,animalID);
+                data.(treatment).(behavField).(dataType).LH.treatment = cat(1,data.(treatment).(behavField).(dataType).LH.treatment,treatment);
+                data.(treatment).(behavField).(dataType).RH.treatment = cat(1,data.(treatment).(behavField).(dataType).RH.treatment,treatment);
             end
         end
     end
@@ -74,89 +87,57 @@ for qq = 1:length(treatments)
         end
     end
 end
+%% find Hz peaks in coherence
+for qq = 1:length(treatments)
+    treatment = treatments{1,qq};
+    for ee = 1:length(behavFields)
+        behavField = behavFields{1,ee};
+        for ff = 1:length(dataTypes)
+            dataType = dataTypes{1,ff};
+            for gg = 1:size(data.(treatment).(behavField).(dataType).RH.C,2)
+                F = round(data.(treatment).(behavField).(dataType).RH.f(gg,:),3);
+                RH_C = data.(treatment).(behavField).(dataType).RH.C(:,gg);
+                index001 = find(F == 0.01);
+                index01 = find(F == 0.1);
+                index05 = find(F == 0.5);
+                data.(treatment).(behavField).(dataType).RH.C001(gg,1) = mean(RH_C(1:index001(1)));
+                data.(treatment).(behavField).(dataType).RH.C01(gg,1) = mean(RH_C(index001(1) + 1:index01(1)));
+                data.(treatment).(behavField).(dataType).RH.C05(gg,1) = mean(RH_C(index01(1) + 1:index05(1)));
+            end
+        end
+    end
+end
+%% statistics - generalized linear mixed effects model
+freqBands = {'C001','C01','C05'};
+for aa = 1:length(freqBands)
+    freqBand = freqBands{1,aa};
+    for bb = 1:length(behavFields)
+        behavField = behavFields{1,bb};
+        % statistics - generalized linear mixed effects model
+        Stats.(freqBand).(behavField).tableSize = cat(1,data.Blank_SAP.(behavField).gammaBandPower.RH.(freqBand),data.SSP_SAP.(behavField).gammaBandPower.RH.(freqBand));
+        Stats.(freqBand).(behavField).Table = table('Size',[size(Stats.(freqBand).(behavField).tableSize,1),3],'VariableTypes',{'string','string','double'},'VariableNames',{'Mouse','Treatment',freqBand});
+        Stats.(freqBand).(behavField).Table.Mouse = cat(1,data.Blank_SAP.(behavField).gammaBandPower.RH.animalID,data.SSP_SAP.(behavField).gammaBandPower.RH.animalID);
+        Stats.(freqBand).(behavField).Table.Treatment = cat(1,data.Blank_SAP.(behavField).gammaBandPower.RH.treatment,data.SSP_SAP.(behavField).gammaBandPower.RH.treatment);
+        Stats.(freqBand).(behavField).Table.(freqBand) = cat(1,data.Blank_SAP.(behavField).gammaBandPower.RH.(freqBand),data.SSP_SAP.(behavField).gammaBandPower.RH.(freqBand));
+        Stats.(freqBand).(behavField).FitFormula = [freqBand ' ~ 1 + Treatment + (1|Mouse)'];
+        Stats.(freqBand).(behavField).Stats = fitglme(Stats.(freqBand).(behavField).Table,Stats.(freqBand).(behavField).FitFormula,'Link','probit');
+    end
+end
 %% average HbT coherence
 summaryFigure1 = figure;
 sgtitle('Gamma-band - \DeltaHbT Coherence')
-% %% coherence^2 between bilateral HbT during rest
-% subplot(3,4,1);
-% p1 = semilogx(data.C57BL6J.Rest.gammaBandPower.LH.meanf,data.C57BL6J.Rest.gammaBandPower.LH.meanC.^2,'color',colors('sapphire'),'LineWidth',2);
-% hold on
-% p2 = semilogx(data.Blank_SAP.Rest.gammaBandPower.LH.meanf,data.Blank_SAP.Rest.gammaBandPower.LH.meanC.^2,'color',colors('north texas green'),'LineWidth',2);
-% p3 = semilogx(data.SSP_SAP.Rest.gammaBandPower.LH.meanf,data.SSP_SAP.Rest.gammaBandPower.LH.meanC.^2,'color',colors('electric purple'),'LineWidth',2);
-% ylabel('Coherence^2')
-% xlabel('Freq (Hz)')
-% title({'[Rest] Neural-hemo coherence^2','Gamma-band \Delta[HbT] (\muM)'})
-% xlim([1/10,0.5])
-% % ylim([0,1])
-% set(gca,'box','off')
-% legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
-% %% coherence^2 between bilateral HbT during rest
-% subplot(3,4,2);
-% p1 = semilogx(data.C57BL6J.Rest.gammaBandPower.RH.meanf,data.C57BL6J.Rest.gammaBandPower.RH.meanC.^2,'color',colors('sapphire'),'LineWidth',2);
-% hold on
-% p2 = semilogx(data.Blank_SAP.Rest.gammaBandPower.RH.meanf,data.Blank_SAP.Rest.gammaBandPower.RH.meanC.^2,'color',colors('north texas green'),'LineWidth',2);
-% p3 = semilogx(data.SSP_SAP.Rest.gammaBandPower.RH.meanf,data.SSP_SAP.Rest.gammaBandPower.RH.meanC.^2,'color',colors('electric purple'),'LineWidth',2);
-% ylabel('Coherence^2')
-% xlabel('Freq (Hz)')
-% title({'[Rest] Neural-hemo coherence^2','Gamma-band \Delta[HbT] (\muM)'})
-% xlim([1/10,0.5])
-% % ylim([0,1])
-% set(gca,'box','off')
-% legend([p1,p2,p3],'C57BL6J','Blank-SAP','SSP-SAP')
-% %% coherence^2 between bilateral HbT during NREM
-% subplot(3,4,3);
-% semilogx(data.C57BL6J.NREM.gammaBandPower.LH.meanf,data.C57BL6J.NREM.gammaBandPower.LH.meanC.^2,'color',colors('sapphire'),'LineWidth',2);
-% hold on
-% semilogx(data.Blank_SAP.NREM.gammaBandPower.LH.meanf,data.Blank_SAP.NREM.gammaBandPower.LH.meanC.^2,'color',colors('north texas green'),'LineWidth',2);
-% semilogx(data.SSP_SAP.NREM.gammaBandPower.LH.meanf,data.SSP_SAP.NREM.gammaBandPower.LH.meanC.^2,'color',colors('electric purple'),'LineWidth',2);
-% ylabel('Coherence^2')
-% xlabel('Freq (Hz)')
-% title({'[NREM] Neural-hemo coherence^2','Gamma-band \Delta[HbT] (\muM)'})
-% xlim([1/30,0.5])
-% % ylim([0,1])
-% set(gca,'box','off')
-% %% coherence^2 between bilateral HbT during NREM
-% subplot(3,4,4);
-% semilogx(data.C57BL6J.NREM.gammaBandPower.RH.meanf,data.C57BL6J.NREM.gammaBandPower.RH.meanC.^2,'color',colors('sapphire'),'LineWidth',2);
-% hold on
-% semilogx(data.Blank_SAP.NREM.gammaBandPower.RH.meanf,data.Blank_SAP.NREM.gammaBandPower.RH.meanC.^2,'color',colors('north texas green'),'LineWidth',2);
-% semilogx(data.SSP_SAP.NREM.gammaBandPower.RH.meanf,data.SSP_SAP.NREM.gammaBandPower.RH.meanC.^2,'color',colors('electric purple'),'LineWidth',2);
-% ylabel('Coherence^2')
-% xlabel('Freq (Hz)')
-% title({'[NREM] Neural-hemo coherence^2','Gamma-band \Delta[HbT] (\muM)'})
-% xlim([1/30,0.5])
-% % ylim([0,1])
-% set(gca,'box','off')
-% %% coherence^2 between bilateral HbT during REM
-% subplot(3,4,5);
-% semilogx(data.C57BL6J.REM.gammaBandPower.LH.meanf,data.C57BL6J.REM.gammaBandPower.LH.meanC.^2,'color',colors('sapphire'),'LineWidth',2);
-% hold on
-% semilogx(data.Blank_SAP.REM.gammaBandPower.LH.meanf,data.Blank_SAP.REM.gammaBandPower.LH.meanC.^2,'color',colors('north texas green'),'LineWidth',2);
-% semilogx(data.SSP_SAP.REM.gammaBandPower.LH.meanf,data.SSP_SAP.REM.gammaBandPower.LH.meanC.^2,'color',colors('electric purple'),'LineWidth',2);
-% ylabel('Coherence^2')
-% xlabel('Freq (Hz)')
-% title({'[REM] Neural-hemo coherence^2','Gamma-band \Delta[HbT] (\muM)'})
-% xlim([1/60,0.5])
-% % ylim([0,1])
-% set(gca,'box','off')
-% %% coherence^2 between bilateral HbT during REM
-% subplot(3,4,6);
-% semilogx(data.C57BL6J.REM.gammaBandPower.RH.meanf,data.C57BL6J.REM.gammaBandPower.RH.meanC.^2,'color',colors('sapphire'),'LineWidth',2);
-% hold on
-% semilogx(data.Blank_SAP.REM.gammaBandPower.RH.meanf,data.Blank_SAP.REM.gammaBandPower.RH.meanC.^2,'color',colors('north texas green'),'LineWidth',2);
-% semilogx(data.SSP_SAP.REM.gammaBandPower.RH.meanf,data.SSP_SAP.REM.gammaBandPower.RH.meanC.^2,'color',colors('electric purple'),'LineWidth',2);
-% ylabel('Coherence^2')
-% xlabel('Freq (Hz)')
-% title({'[REM] Neural-hemo coherence^2','Gamma-band \Delta[HbT] (\muM)'})
-% xlim([1/60,0.5])
-% % ylim([0,1])
-% set(gca,'box','off')
 %% coherence^2 between bilateral HbT during Awake
 subplot(3,2,1);
-s1 = semilogx(data.C57BL6J.Awake.gammaBandPower.LH.meanf,data.C57BL6J.Awake.gammaBandPower.LH.meanC.^2,'color',colors('sapphire'),'LineWidth',2);
+s1 = semilogx(data.C57BL6J.Awake.gammaBandPower.LH.meanf,data.C57BL6J.Awake.gammaBandPower.LH.meanC,'color',colors('sapphire'),'LineWidth',2);
 hold on
-s2 = semilogx(data.Blank_SAP.Awake.gammaBandPower.LH.meanf,data.Blank_SAP.Awake.gammaBandPower.LH.meanC.^2,'color',colors('north texas green'),'LineWidth',2);
-s3 = semilogx(data.SSP_SAP.Awake.gammaBandPower.LH.meanf,data.SSP_SAP.Awake.gammaBandPower.LH.meanC.^2,'color',colors('electric purple'),'LineWidth',2);
+semilogx(data.C57BL6J.Awake.gammaBandPower.LH.meanf,data.C57BL6J.Awake.gammaBandPower.LH.meanC + data.C57BL6J.Awake.gammaBandPower.LH.stdC,'color',colors('sapphire'),'LineWidth',0.5);
+semilogx(data.C57BL6J.Awake.gammaBandPower.LH.meanf,data.C57BL6J.Awake.gammaBandPower.LH.meanC - data.C57BL6J.Awake.gammaBandPower.LH.stdC,'color',colors('sapphire'),'LineWidth',0.5);
+s2 = semilogx(data.Blank_SAP.Awake.gammaBandPower.LH.meanf,data.Blank_SAP.Awake.gammaBandPower.LH.meanC,'color',colors('north texas green'),'LineWidth',2);
+semilogx(data.Blank_SAP.Awake.gammaBandPower.LH.meanf,data.Blank_SAP.Awake.gammaBandPower.LH.meanC + data.Blank_SAP.Awake.gammaBandPower.LH.stdC,'color',colors('north texas green'),'LineWidth',0.5);
+semilogx(data.Blank_SAP.Awake.gammaBandPower.LH.meanf,data.Blank_SAP.Awake.gammaBandPower.LH.meanC - data.Blank_SAP.Awake.gammaBandPower.LH.stdC,'color',colors('north texas green'),'LineWidth',0.5);
+s3 = semilogx(data.SSP_SAP.Awake.gammaBandPower.LH.meanf,data.SSP_SAP.Awake.gammaBandPower.LH.meanC,'color',colors('electric purple'),'LineWidth',2);
+semilogx(data.SSP_SAP.Awake.gammaBandPower.LH.meanf,data.SSP_SAP.Awake.gammaBandPower.LH.meanC + data.SSP_SAP.Awake.gammaBandPower.LH.stdC,'color',colors('electric purple'),'LineWidth',0.5);
+semilogx(data.SSP_SAP.Awake.gammaBandPower.LH.meanf,data.SSP_SAP.Awake.gammaBandPower.LH.meanC - data.SSP_SAP.Awake.gammaBandPower.LH.stdC,'color',colors('electric purple'),'LineWidth',0.5);
 ylabel('Coherence^2')
 xlabel('Freq (Hz)')
 title({'[Alert] LH Neural-hemo coherence^2','Gamma-band \Delta[HbT] (\muM)'})
@@ -166,10 +147,16 @@ legend([s1,s2,s3],'C57BL6J','Blank-SAP','SSP-SAP')
 set(gca,'box','off')
 %% coherence^2 between bilateral HbT during Awake
 subplot(3,2,2);
-semilogx(data.C57BL6J.Awake.gammaBandPower.RH.meanf,data.C57BL6J.Awake.gammaBandPower.RH.meanC.^2,'color',colors('sapphire'),'LineWidth',2);
+semilogx(data.C57BL6J.Awake.gammaBandPower.RH.meanf,data.C57BL6J.Awake.gammaBandPower.RH.meanC,'color',colors('sapphire'),'LineWidth',2);
 hold on
-semilogx(data.Blank_SAP.Awake.gammaBandPower.RH.meanf,data.Blank_SAP.Awake.gammaBandPower.RH.meanC.^2,'color',colors('north texas green'),'LineWidth',2);
-semilogx(data.SSP_SAP.Awake.gammaBandPower.RH.meanf,data.SSP_SAP.Awake.gammaBandPower.RH.meanC.^2,'color',colors('electric purple'),'LineWidth',2);
+semilogx(data.C57BL6J.Awake.gammaBandPower.RH.meanf,data.C57BL6J.Awake.gammaBandPower.RH.meanC + data.C57BL6J.Awake.gammaBandPower.RH.stdC,'color',colors('sapphire'),'LineWidth',0.5);
+semilogx(data.C57BL6J.Awake.gammaBandPower.RH.meanf,data.C57BL6J.Awake.gammaBandPower.RH.meanC - data.C57BL6J.Awake.gammaBandPower.RH.stdC,'color',colors('sapphire'),'LineWidth',0.5);
+semilogx(data.Blank_SAP.Awake.gammaBandPower.RH.meanf,data.Blank_SAP.Awake.gammaBandPower.RH.meanC,'color',colors('north texas green'),'LineWidth',2);
+semilogx(data.Blank_SAP.Awake.gammaBandPower.RH.meanf,data.Blank_SAP.Awake.gammaBandPower.RH.meanC + data.Blank_SAP.Awake.gammaBandPower.RH.stdC,'color',colors('north texas green'),'LineWidth',0.5);
+semilogx(data.Blank_SAP.Awake.gammaBandPower.RH.meanf,data.Blank_SAP.Awake.gammaBandPower.RH.meanC - data.Blank_SAP.Awake.gammaBandPower.RH.stdC,'color',colors('north texas green'),'LineWidth',0.5);
+semilogx(data.SSP_SAP.Awake.gammaBandPower.RH.meanf,data.SSP_SAP.Awake.gammaBandPower.RH.meanC,'color',colors('electric purple'),'LineWidth',2);
+semilogx(data.SSP_SAP.Awake.gammaBandPower.RH.meanf,data.SSP_SAP.Awake.gammaBandPower.RH.meanC + data.SSP_SAP.Awake.gammaBandPower.RH.stdC,'color',colors('electric purple'),'LineWidth',0.5);
+semilogx(data.SSP_SAP.Awake.gammaBandPower.RH.meanf,data.SSP_SAP.Awake.gammaBandPower.RH.meanC - data.SSP_SAP.Awake.gammaBandPower.RH.stdC,'color',colors('electric purple'),'LineWidth',0.5);
 ylabel('Coherence^2')
 xlabel('Freq (Hz)')
 title({'[Alert] RH Neural-hemo coherence^2','Gamma-band \Delta[HbT] (\muM)'})
@@ -178,10 +165,16 @@ xlim([0.003,0.5])
 set(gca,'box','off')
 %% coherence^2 between bilateral HbT during Sleep
 subplot(3,2,3);
-semilogx(data.C57BL6J.Sleep.gammaBandPower.LH.meanf,data.C57BL6J.Sleep.gammaBandPower.LH.meanC.^2,'color',colors('sapphire'),'LineWidth',2);
+semilogx(data.C57BL6J.Sleep.gammaBandPower.LH.meanf,data.C57BL6J.Sleep.gammaBandPower.LH.meanC,'color',colors('sapphire'),'LineWidth',2);
 hold on
-semilogx(data.Blank_SAP.Sleep.gammaBandPower.LH.meanf,data.Blank_SAP.Sleep.gammaBandPower.LH.meanC.^2,'color',colors('north texas green'),'LineWidth',2);
-semilogx(data.SSP_SAP.Sleep.gammaBandPower.LH.meanf,data.SSP_SAP.Sleep.gammaBandPower.LH.meanC.^2,'color',colors('electric purple'),'LineWidth',2);
+semilogx(data.C57BL6J.Sleep.gammaBandPower.LH.meanf,data.C57BL6J.Sleep.gammaBandPower.LH.meanC + data.C57BL6J.Sleep.gammaBandPower.LH.stdC,'color',colors('sapphire'),'LineWidth',0.5);
+semilogx(data.C57BL6J.Sleep.gammaBandPower.LH.meanf,data.C57BL6J.Sleep.gammaBandPower.LH.meanC - data.C57BL6J.Sleep.gammaBandPower.LH.stdC,'color',colors('sapphire'),'LineWidth',0.5);
+semilogx(data.Blank_SAP.Sleep.gammaBandPower.LH.meanf,data.Blank_SAP.Sleep.gammaBandPower.LH.meanC,'color',colors('north texas green'),'LineWidth',2);
+semilogx(data.Blank_SAP.Sleep.gammaBandPower.LH.meanf,data.Blank_SAP.Sleep.gammaBandPower.LH.meanC + data.Blank_SAP.Sleep.gammaBandPower.LH.stdC,'color',colors('north texas green'),'LineWidth',0.5);
+semilogx(data.Blank_SAP.Sleep.gammaBandPower.LH.meanf,data.Blank_SAP.Sleep.gammaBandPower.LH.meanC - data.Blank_SAP.Sleep.gammaBandPower.LH.stdC,'color',colors('north texas green'),'LineWidth',0.5);
+semilogx(data.SSP_SAP.Sleep.gammaBandPower.LH.meanf,data.SSP_SAP.Sleep.gammaBandPower.LH.meanC,'color',colors('electric purple'),'LineWidth',2);
+semilogx(data.SSP_SAP.Sleep.gammaBandPower.LH.meanf,data.SSP_SAP.Sleep.gammaBandPower.LH.meanC + data.SSP_SAP.Sleep.gammaBandPower.LH.stdC,'color',colors('electric purple'),'LineWidth',0.5);
+semilogx(data.SSP_SAP.Sleep.gammaBandPower.LH.meanf,data.SSP_SAP.Sleep.gammaBandPower.LH.meanC - data.SSP_SAP.Sleep.gammaBandPower.LH.stdC,'color',colors('electric purple'),'LineWidth',0.5);
 ylabel('Coherence^2')
 xlabel('Freq (Hz)')
 title({'[Asleep] LH Neural-hemo coherence^2','Gamma-band \Delta[HbT] (\muM)'})
@@ -190,10 +183,16 @@ xlim([0.003,0.5])
 set(gca,'box','off')
 %% coherence^2 between bilateral HbT during Sleep
 subplot(3,2,4);
-semilogx(data.C57BL6J.Sleep.gammaBandPower.RH.meanf,data.C57BL6J.Sleep.gammaBandPower.RH.meanC.^2,'color',colors('sapphire'),'LineWidth',2);
+semilogx(data.C57BL6J.Sleep.gammaBandPower.RH.meanf,data.C57BL6J.Sleep.gammaBandPower.RH.meanC,'color',colors('sapphire'),'LineWidth',2);
 hold on
-semilogx(data.Blank_SAP.Sleep.gammaBandPower.RH.meanf,data.Blank_SAP.Sleep.gammaBandPower.RH.meanC.^2,'color',colors('north texas green'),'LineWidth',2);
-semilogx(data.SSP_SAP.Sleep.gammaBandPower.RH.meanf,data.SSP_SAP.Sleep.gammaBandPower.RH.meanC.^2,'color',colors('electric purple'),'LineWidth',2);
+semilogx(data.C57BL6J.Sleep.gammaBandPower.RH.meanf,data.C57BL6J.Sleep.gammaBandPower.RH.meanC + data.C57BL6J.Sleep.gammaBandPower.RH.stdC,'color',colors('sapphire'),'LineWidth',0.5);
+semilogx(data.C57BL6J.Sleep.gammaBandPower.RH.meanf,data.C57BL6J.Sleep.gammaBandPower.RH.meanC - data.C57BL6J.Sleep.gammaBandPower.RH.stdC,'color',colors('sapphire'),'LineWidth',0.5);
+semilogx(data.Blank_SAP.Sleep.gammaBandPower.RH.meanf,data.Blank_SAP.Sleep.gammaBandPower.RH.meanC,'color',colors('north texas green'),'LineWidth',2);
+semilogx(data.Blank_SAP.Sleep.gammaBandPower.RH.meanf,data.Blank_SAP.Sleep.gammaBandPower.RH.meanC + data.Blank_SAP.Sleep.gammaBandPower.RH.stdC,'color',colors('north texas green'),'LineWidth',0.5);
+semilogx(data.Blank_SAP.Sleep.gammaBandPower.RH.meanf,data.Blank_SAP.Sleep.gammaBandPower.RH.meanC - data.Blank_SAP.Sleep.gammaBandPower.RH.stdC,'color',colors('north texas green'),'LineWidth',0.5);
+semilogx(data.SSP_SAP.Sleep.gammaBandPower.RH.meanf,data.SSP_SAP.Sleep.gammaBandPower.RH.meanC,'color',colors('electric purple'),'LineWidth',2);
+semilogx(data.SSP_SAP.Sleep.gammaBandPower.RH.meanf,data.SSP_SAP.Sleep.gammaBandPower.RH.meanC + data.SSP_SAP.Sleep.gammaBandPower.RH.stdC,'color',colors('electric purple'),'LineWidth',0.5);
+semilogx(data.SSP_SAP.Sleep.gammaBandPower.RH.meanf,data.SSP_SAP.Sleep.gammaBandPower.RH.meanC - data.SSP_SAP.Sleep.gammaBandPower.RH.stdC,'color',colors('electric purple'),'LineWidth',0.5);
 ylabel('Coherence^2')
 xlabel('Freq (Hz)')
 title({'[Asleep] RH Neural-hemo coherence^2','Gamma-band \Delta[HbT] (\muM)'})
@@ -202,10 +201,16 @@ xlim([0.003,0.5])
 set(gca,'box','off')
 %% coherence^2 between bilateral HbT during All data
 subplot(3,2,5);
-semilogx(data.C57BL6J.All.gammaBandPower.LH.meanf,data.C57BL6J.All.gammaBandPower.LH.meanC.^2,'color',colors('sapphire'),'LineWidth',2);
+semilogx(data.C57BL6J.All.gammaBandPower.LH.meanf,data.C57BL6J.All.gammaBandPower.LH.meanC,'color',colors('sapphire'),'LineWidth',2);
 hold on
-semilogx(data.Blank_SAP.All.gammaBandPower.LH.meanf,data.Blank_SAP.All.gammaBandPower.LH.meanC.^2,'color',colors('north texas green'),'LineWidth',2);
-semilogx(data.SSP_SAP.All.gammaBandPower.LH.meanf,data.SSP_SAP.All.gammaBandPower.LH.meanC.^2,'color',colors('electric purple'),'LineWidth',2);
+semilogx(data.C57BL6J.All.gammaBandPower.LH.meanf,data.C57BL6J.All.gammaBandPower.LH.meanC + data.C57BL6J.All.gammaBandPower.LH.stdC,'color',colors('sapphire'),'LineWidth',0.5);
+semilogx(data.C57BL6J.All.gammaBandPower.LH.meanf,data.C57BL6J.All.gammaBandPower.LH.meanC - data.C57BL6J.All.gammaBandPower.LH.stdC,'color',colors('sapphire'),'LineWidth',0.5);
+semilogx(data.Blank_SAP.All.gammaBandPower.LH.meanf,data.Blank_SAP.All.gammaBandPower.LH.meanC,'color',colors('north texas green'),'LineWidth',2);
+semilogx(data.Blank_SAP.All.gammaBandPower.LH.meanf,data.Blank_SAP.All.gammaBandPower.LH.meanC + data.Blank_SAP.All.gammaBandPower.LH.stdC,'color',colors('north texas green'),'LineWidth',0.5);
+semilogx(data.Blank_SAP.All.gammaBandPower.LH.meanf,data.Blank_SAP.All.gammaBandPower.LH.meanC - data.Blank_SAP.All.gammaBandPower.LH.stdC,'color',colors('north texas green'),'LineWidth',0.5);
+semilogx(data.SSP_SAP.All.gammaBandPower.LH.meanf,data.SSP_SAP.All.gammaBandPower.LH.meanC,'color',colors('electric purple'),'LineWidth',2);
+semilogx(data.SSP_SAP.All.gammaBandPower.LH.meanf,data.SSP_SAP.All.gammaBandPower.LH.meanC + data.SSP_SAP.All.gammaBandPower.LH.stdC,'color',colors('electric purple'),'LineWidth',0.5);
+semilogx(data.SSP_SAP.All.gammaBandPower.LH.meanf,data.SSP_SAP.All.gammaBandPower.LH.meanC - data.SSP_SAP.All.gammaBandPower.LH.stdC,'color',colors('electric purple'),'LineWidth',0.5);
 ylabel('Coherence^2')
 xlabel('Freq (Hz)')
 title({'[All] LH Neural-hemo coherence^2','Gamma-band \Delta[HbT] (\muM)'})
@@ -214,10 +219,16 @@ xlim([0.003,0.5])
 set(gca,'box','off')
 %% coherence^2 between bilateral HbT during All data
 subplot(3,2,6);
-semilogx(data.C57BL6J.All.gammaBandPower.RH.meanf,data.C57BL6J.All.gammaBandPower.RH.meanC.^2,'color',colors('sapphire'),'LineWidth',2);
+semilogx(data.C57BL6J.All.gammaBandPower.RH.meanf,data.C57BL6J.All.gammaBandPower.RH.meanC,'color',colors('sapphire'),'LineWidth',2);
 hold on
-semilogx(data.Blank_SAP.All.gammaBandPower.RH.meanf,data.Blank_SAP.All.gammaBandPower.RH.meanC.^2,'color',colors('north texas green'),'LineWidth',2);
-semilogx(data.SSP_SAP.All.gammaBandPower.RH.meanf,data.SSP_SAP.All.gammaBandPower.RH.meanC.^2,'color',colors('electric purple'),'LineWidth',2);
+semilogx(data.C57BL6J.All.gammaBandPower.RH.meanf,data.C57BL6J.All.gammaBandPower.RH.meanC + data.C57BL6J.All.gammaBandPower.RH.stdC,'color',colors('sapphire'),'LineWidth',0.5);
+semilogx(data.C57BL6J.All.gammaBandPower.RH.meanf,data.C57BL6J.All.gammaBandPower.RH.meanC - data.C57BL6J.All.gammaBandPower.RH.stdC,'color',colors('sapphire'),'LineWidth',0.5);
+semilogx(data.Blank_SAP.All.gammaBandPower.RH.meanf,data.Blank_SAP.All.gammaBandPower.RH.meanC,'color',colors('north texas green'),'LineWidth',2);
+semilogx(data.Blank_SAP.All.gammaBandPower.RH.meanf,data.Blank_SAP.All.gammaBandPower.RH.meanC + data.Blank_SAP.All.gammaBandPower.RH.stdC,'color',colors('north texas green'),'LineWidth',0.5);
+semilogx(data.Blank_SAP.All.gammaBandPower.RH.meanf,data.Blank_SAP.All.gammaBandPower.RH.meanC - data.Blank_SAP.All.gammaBandPower.RH.stdC,'color',colors('north texas green'),'LineWidth',0.5);
+semilogx(data.SSP_SAP.All.gammaBandPower.RH.meanf,data.SSP_SAP.All.gammaBandPower.RH.meanC,'color',colors('electric purple'),'LineWidth',2);
+semilogx(data.SSP_SAP.All.gammaBandPower.RH.meanf,data.SSP_SAP.All.gammaBandPower.RH.meanC + data.SSP_SAP.All.gammaBandPower.RH.stdC,'color',colors('electric purple'),'LineWidth',0.5);
+semilogx(data.SSP_SAP.All.gammaBandPower.RH.meanf,data.SSP_SAP.All.gammaBandPower.RH.meanC - data.SSP_SAP.All.gammaBandPower.RH.stdC,'color',colors('electric purple'),'LineWidth',0.5);
 ylabel('Coherence^2')
 xlabel('Freq (Hz)')
 title({'[All] RH Neural-hemo coherence^2','Gamma-band \Delta[HbT] (\muM)'})
@@ -233,6 +244,50 @@ if strcmp(saveFigs,'y') == true
     savefig(summaryFigure1,[dirpath 'NeuralHemoCoherence_Gamma']);
     set(summaryFigure1,'PaperPositionMode','auto');
     print('-painters','-dpdf','-fillpage',[dirpath 'NeuralHemoCoherence_Gamma'])
+    %% statistical diary
+    diaryFile = [dirpath 'NeuralHemoCoherence_Gamma_Statistics.txt'];
+    if exist(diaryFile,'file') == 2
+        delete(diaryFile)
+    end
+    diary(diaryFile)
+    diary on
+    % Awake stats
+    disp('======================================================================================================================')
+    disp('GLME statistics for gamma-HbT Coherence^2 for Awake data')
+    disp('======================================================================================================================')
+    disp('0 -> 0.01 Hz')
+    disp(Stats.C001.Awake.Stats)
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    disp('0.01 -> 0.1 Hz')
+    disp(Stats.C01.Awake.Stats)
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    disp('0.1 -> 0.5 Hz')
+    disp(Stats.C05.Awake.Stats)
+    % Sleep stats
+    disp('======================================================================================================================')
+    disp('GLME statistics for gamma-HbT Coherence^2 for Sleep data')
+    disp('======================================================================================================================')
+    disp('0 -> 0.01 Hz')
+    disp(Stats.C001.Sleep.Stats)
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    disp('0.01 -> 0.1 Hz')
+    disp(Stats.C01.Sleep.Stats)
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    disp('0.1 -> 0.5 Hz')
+    disp(Stats.C05.Sleep.Stats)
+    % All stats
+    disp('======================================================================================================================')
+    disp('GLME statistics for gamma-HbT Coherence^2 for All data')
+    disp('======================================================================================================================')
+    disp('0 -> 0.01 Hz')
+    disp(Stats.C001.All.Stats)
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    disp('0.01 -> 0.1 Hz')
+    disp(Stats.C01.All.Stats)
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    disp('0.1 -> 0.5 Hz')
+    disp(Stats.C05.All.Stats)
+    diary off
 end
 
 end

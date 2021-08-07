@@ -486,7 +486,6 @@ for aa = 1:length(dataTypes)
 end
 %% analyze LFP power spectra during alert/Asleep/all
 behavFields = {'Alert','Asleep','All'};
-Data.Alert = []; Data.Asleep = []; Data.All = [];
 dataTypes = {'LH','RH','Hip'};
 xx = 1; yy = 1; zz = 1;
 analogFs = 20000;
@@ -531,7 +530,7 @@ for aa = 1:length(behavFields)
     behavField = behavFields{1,aa};
     for bb = 1:length(dataTypes)
         dataType = dataTypes{1,bb};
-        if isempty(Data.(behavField)) == false
+        if isempty(Data,behavField) == false
             % detrend data
             procData = {};
             for cc = 1:length(Data.(behavField).(dataType))

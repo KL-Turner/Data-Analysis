@@ -1,4 +1,4 @@
-function [AnalysisResults] = AnalyzeEvokedResponses(animalID,group,saveFigs,rootFolder,AnalysisResults)
+function [AnalysisResults] = AnalyzeEvokedResponses(animalID,group,rootFolder,AnalysisResults)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -9,9 +9,15 @@ function [AnalysisResults] = AnalyzeEvokedResponses(animalID,group,saveFigs,root
 %________________________________________________________________________________________________________________________
 
 %% function parameters
+delim = strfind(group,'\');
+setName = group(delim + 1:end);
+if strcmp(setName,'IOS Set A') == true
+    dataLocation = [rootFolder '\' group '\' animalID '\Bilateral Imaging\'];
+elseif strcmp(setName,'IOS Set B') == true
+    dataLocation = [rootFolder '\' group '\' animalID '\Combined Imaging\'];
+end
 dataTypes = {'adjLH','adjRH'};
 %% only run analysis for valid animal IDs
-dataLocation = [rootFolder '\' group '\' animalID '\Bilateral Imaging\'];
 cd(dataLocation)
 % find and load EventData.mat struct
 eventDataFileStruct = dir('*_EventData.mat');
@@ -33,9 +39,9 @@ allSpecStructFileStruct = dir('*_AllSpecStructB.mat');
 allSpecStructFile = {allSpecStructFileStruct.name}';
 allSpecStructFileID = char(allSpecStructFile);
 load(allSpecStructFileID,'-mat')
-% forest ID sctruct
-forestScoringResultsID = [animalID '_Forest_ScoringResults.mat'];
-load(forestScoringResultsID,'-mat')
+% % forest ID sctruct
+% forestScoringResultsID = [animalID '_Forest_ScoringResults.mat'];
+% load(forestScoringResultsID,'-mat')
 % criteria for whisking
 WhiskCriteriaA.Fieldname = {'duration','duration','puffDistance'};
 WhiskCriteriaA.Comparison = {'gt','lt','gt'};
@@ -62,6 +68,9 @@ stimCriteriaNames = {'stimCriteriaA','stimCriteriaB','stimCriteriaC'};
 for aa = 1:length(dataTypes)
     dataType = dataTypes{1,aa};
     neuralDataType = ['cortical_' dataType(4:end)];
+    if strcmp(setName,'IOS Set B') == true
+        dataType = 'adjBarrels';
+    end
     % pull a few necessary numbers from the EventData.mat struct such as trial duration and sampling rate
     samplingRate = EventData.CBV_HbT.(dataType).whisk.samplingRate;
     specSamplingRate = 10;
@@ -176,84 +185,7 @@ for aa = 1:length(dataTypes)
         % figure time/frequency axis and average each S data matrix through time
         meanWhiskCorticalS = mean(whiskCorticalZhold,3);
         meanWhiskHippocampalS = mean(whiskHippocampalZhold,3);
-        % save figures if desired
-        if strcmp(saveFigs,'y') == true
-            whiskEvoked = figure;
-            sgtitle([animalID ' ' dataType ' whisking-evoked averages - ' whiskCriteriaName])
-            T2 = -2:(1/specSamplingRate):10;
-            subplot(2,3,1);
-            p1 = plot(timeVector,meanWhiskCorticalMUAData,'k');
-            hold on
-            plot(timeVector,meanWhiskCorticalMUAData + stdWhiskCorticalMUAData,'color',colors('battleship grey'))
-            plot(timeVector,meanWhiskCorticalMUAData - stdWhiskCorticalMUAData,'color',colors('battleship grey'))
-            p2 = plot(timeVector,meanWhiskCorticalGamData,'r');
-            hold on
-            plot(timeVector,meanWhiskCorticalGamData + stdWhiskCorticalGamData,'color',colors('deep carrot orange'))
-            plot(timeVector,meanWhiskCorticalGamData - stdWhiskCorticalGamData,'color',colors('deep carrot orange'))
-            title('Cortical MUA/Gam')
-            xlabel('Time (sec)')
-            ylabel('Fold-change (Norm Power)')
-            legend([p1,p2],'MUA','Gam')
-            axis tight
-            axis square
-            set(gca,'box','off')
-            subplot(2,3,4);
-            plot(timeVector,meanWhiskHippocampalMUAData,'k')
-            hold on
-            plot(timeVector,meanWhiskHippocampalMUAData + stdWhiskHippocampalMUAData,'color',colors('battleship grey'))
-            plot(timeVector,meanWhiskHippocampalMUAData - stdWhiskHippocampalMUAData,'color',colors('battleship grey'))
-            plot(timeVector,meanWhiskHippocampalGamData,'r')
-            hold on
-            plot(timeVector,meanWhiskHippocampalGamData + stdWhiskHippocampalGamData,'color',colors('deep carrot orange'))
-            plot(timeVector,meanWhiskHippocampalGamData - stdWhiskHippocampalGamData,'color',colors('deep carrot orange'))
-            title([animalID ' ' dataType ' ' whiskCriteriaName ' whisking-evoked averages'])
-            title('Hippocampal MUA/Gam')
-            xlabel('Time (sec)')
-            ylabel('Fold-change (Norm Power)')
-            axis tight
-            axis square
-            set(gca,'box','off')
-            subplot(2,3,2);
-            imagesc(T2,F,meanWhiskCorticalS)
-            title('Cortical LFP')
-            xlabel('Time (sec)')
-            ylabel('Freq (Hz)')
-            ylim([1 100])
-            caxis([-0.5 1])
-            set(gca,'Ticklength',[0,0])
-            axis xy
-            axis square
-            subplot(2,3,5);
-            imagesc(T2,F,meanWhiskHippocampalS)
-            title('Hippocampal LFP')
-            xlabel('Time (sec)')
-            ylabel('Freq (Hz)')
-            ylim([1,100])
-            caxis([-0.5,1])
-            set(gca,'Ticklength',[0 0])
-            axis xy
-            axis square
-            set(gca,'box','off')
-            subplot(2,3,[3,6]);
-            plot(timeVector,meanWhiskHbTData,'k')
-            hold on
-            plot(timeVector,meanWhiskHbTData + stdWhiskHbTData,'color',colors('battleship grey'))
-            plot(timeVector,meanWhiskHbTData - stdWhiskHbTData,'color',colors('battleship grey'))
-            title('Hemodynamic response')
-            xlabel('Time (sec)')
-            ylabel('\DeltaHbT (\muM)')
-            axis tight
-            axis square
-            set(gca,'box','off')
-            % save figure
-            [pathstr,~,~] = fileparts(cd);
-            dirpath = [pathstr '/Figures/Evoked Responses/'];
-            if ~exist(dirpath, 'dir')
-                mkdir(dirpath);
-            end
-            savefig(whiskEvoked,[dirpath animalID '_' dataType '_' whiskCriteriaName '_WhiskEvokedAverages']);
-            close(whiskEvoked)
-        end
+        T2 = -2:(1/specSamplingRate):10;
         % save results
         AnalysisResults.(animalID).EvokedAvgs.Whisk.(dataType).(whiskCriteriaName).CBV_HbT.HbT = meanWhiskHbTData;
         AnalysisResults.(animalID).EvokedAvgs.Whisk.(dataType).(whiskCriteriaName).CBV_HbT.HbTStD = stdWhiskHbTData;
@@ -277,17 +209,17 @@ for aa = 1:length(dataTypes)
     for gg = 1:length(stimCriteriaNames)
         stimCriteriaName = stimCriteriaNames{1,gg};
         if strcmp(stimCriteriaName,'stimCriteriaA') == true
-            stimCriteria = StimCriteriaA;
+            StimCriteria = StimCriteriaA;
             solenoid = 'LPadSol';
         elseif strcmp(stimCriteriaName,'stimCriteriaB') == true
-            stimCriteria = StimCriteriaB;
+            StimCriteria = StimCriteriaB;
             solenoid = 'RPadSol';
         elseif strcmp(stimCriteriaName,'stimCriteriaC') == true
-            stimCriteria = StimCriteriaC;
+            StimCriteria = StimCriteriaC;
             solenoid = 'AudSol';
         end
         % pull data from EventData.mat structure
-        allStimFilter = FilterEvents_IOS(EventData.CBV_HbT.(dataType).stim,stimCriteria);
+        allStimFilter = FilterEvents_IOS(EventData.CBV_HbT.(dataType).stim,StimCriteria);
         [allStimHbTData] = EventData.CBV_HbT.(dataType).stim.data(allStimFilter,:);
         [allStimCBVData] = EventData.CBV.(dataType).stim.NormData(allStimFilter,:);
         [allStimCortMUAData] = EventData.(neuralDataType).muaPower.stim.NormData(allStimFilter,:);
@@ -382,77 +314,6 @@ for aa = 1:length(dataTypes)
         % figure time/frequency axis and average each S data matrix through time
         meanStimCortS = mean(stimCortZhold,3);
         meanStimHipS = mean(stimHipZhold,3);
-        % Save figures if desired
-        if strcmp(saveFigs,'y') == true
-            stimEvoked = figure;
-            sgtitle([animalID ' ' dataType ' ' solenoid ' stimulus-evoked averages'])
-            subplot(2,3,1);
-            p1 = plot(timeVector,meanStimCortMUAData,'k');
-            hold on
-            plot(timeVector,meanStimCortMUAData + stdStimCortMUAData,'color',colors('battleship grey'))
-            plot(timeVector,meanStimCortMUAData - stdStimCortMUAData,'color',colors('battleship grey'))
-            p2 = plot(timeVector,meanStimCortGamData,'r');
-            hold on
-            plot(timeVector,meanStimCortGamData + stdStimCortGamData,'color',colors('deep carrot orange'))
-            plot(timeVector,meanStimCortGamData - stdStimCortGamData,'color',colors('deep carrot orange'))
-            title('Cortical MUA/Gam')
-            xlabel('Time (sec)')
-            ylabel('Fold-change (Norm Power)')
-            legend([p1,p2],'MUA','Gam')
-            axis tight
-            axis square
-            set(gca,'box','off')
-            subplot(2,3,2);
-            imagesc(T2,F,(meanStimCortS))
-            title('Cortical MUA')
-            xlabel('Time (sec)')
-            ylabel('Freq (Hz)')
-            ylim([1,100])
-            caxis([-0.5,1])
-            set(gca,'Ticklength',[0,0])
-            axis xy
-            axis square
-            set(gca,'box','off')
-            subplot(2,3,4);
-            plot(timeVector,meanStimHipMUAData,'k')
-            hold on
-            plot(timeVector,meanStimHipMUAData + stdStimHipMUAData,'color',colors('battleship grey'))
-            plot(timeVector,meanStimHipMUAData - stdStimHipMUAData,'color',colors('battleship grey'))
-            plot(timeVector,meanStimHipGamData,'r')
-            hold on
-            plot(timeVector,meanStimHipGamData + stdStimHipGamData,'color',colors('deep carrot orange'))
-            plot(timeVector,meanStimHipGamData - stdStimHipGamData,'color',colors('deep carrot orange'))
-            title('Hippocampal MUA/Gam')
-            xlabel('Time (sec)')
-            ylabel('Fold-change (Norm Power)')
-            axis tight
-            axis square
-            set(gca,'box','off')
-            subplot(2,3,5);
-            imagesc(T2,F,meanStimHipS)
-            title('Hippocampal MUA')
-            xlabel('Time (sec)')
-            ylabel('Freq (Hz)')
-            ylim([1,100])
-            caxis([-0.5,1])
-            set(gca,'Ticklength',[0,0])
-            axis xy
-            axis square
-            set(gca,'box','off')
-            subplot(2,3,[3,6]);
-            plot(timeVector,meanStimHbTData,'k')
-            hold on
-            plot(timeVector,meanStimHbTData + stdStimHbTData,'color',colors('battleship grey'))
-            plot(timeVector,meanStimHbTData - stdStimHbTData,'color',colors('battleship grey'))
-            title('Hemodynamics')
-            xlabel('Time (sec)')
-            ylabel('\DeltaHbT (\muM)')
-            axis tight
-            axis square
-            set(gca,'box','off')
-            savefig(stimEvoked,[dirpath animalID '_' dataType '_' solenoid '_StimEvokedAverages']);
-            close(stimEvoked)
-        end
         % save results
         AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoid).count = size(procStimHipMUAData,1);
         AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoid).CBV_HbT.HbT = meanStimHbTData;

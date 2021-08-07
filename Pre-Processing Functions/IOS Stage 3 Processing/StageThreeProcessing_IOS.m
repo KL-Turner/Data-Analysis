@@ -18,7 +18,7 @@
 %________________________________________________________________________________________________________________________
 
 %% BLOCK PURPOSE: [0] Load the script's necessary variables and data structures.
-% Clear the workspace variables and command window.
+% Clear the workspace variables and command windyow.
 zap;
 disp('Analyzing Block [0] Preparing the workspace and loading variables.'); disp(' ')
 % Character list of all RawData files
@@ -35,6 +35,7 @@ curDir = cd;
 dirBreaks = strfind(curDir,'\');
 curFolder = curDir(dirBreaks(end) + 1:end);
 imagingType = input('Input imaging type (bilateral or single): ','s'); disp(' ')
+stimulationType = input('Input stimulation type (single or pulse): ','s'); disp(' ')
 dataTypes = {'CBV','cortical_LH','cortical_RH','hippocampus','EMG'};
 updatedDataTypes = {'CBV','CBV_HbT','cortical_LH','cortical_RH','hippocampus','EMG'};
 neuralDataTypes = {'cortical_LH','cortical_RH','hippocampus'};
@@ -44,7 +45,7 @@ disp('Analyzing Block [1] Categorizing data.'); disp(' ')
 for a = 1:size(procDataFileIDs,1)
     procDataFileID = procDataFileIDs(a,:);
     disp(['Analyzing file ' num2str(a) ' of ' num2str(size(procDataFileIDs,1)) '...']); disp(' ')
-    CategorizeData_IOS(procDataFileID)
+    CategorizeData_IOS(procDataFileID,stimulationType)
 end
 %% BLOCK PURPOSE: [2] Create RestData data structure
 disp('Analyzing Block [2] Create RestData struct for CBV and neural data.'); disp(' ')

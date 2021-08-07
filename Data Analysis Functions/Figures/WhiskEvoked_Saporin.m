@@ -9,9 +9,10 @@ function [AnalysisResults] = WhiskEvoked_Saporin(rootFolder,saveFigs,delim,Analy
 
 %% set-up
 expGroups = {'C57BL6J','SSP-SAP','Blank-SAP'};
+setName = 'IOS Set A';
 animalIDs.all = {};
 for aa = 1:length(expGroups)
-    folderList = dir(expGroups{1,aa});
+    folderList = dir([expGroups{1,aa} delim setName]);
     folderList = folderList(~startsWith({folderList.name},'.'));
     animalIDs.all = horzcat(animalIDs.all,{folderList.name});
     animalIDs.(strrep(expGroups{1,aa},'-','_')) = {folderList.name};

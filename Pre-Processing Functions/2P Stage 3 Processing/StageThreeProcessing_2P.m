@@ -28,6 +28,7 @@ mergedDataFiles = {mergedDirectory.name}';
 mergedDataFileIDs = char(mergedDataFiles);
 [animalID,~,~,~,~,~] = GetFileInfo2_2P(mergedDataFileIDs(1,:));
 genSampleFigs = 'y';
+stimulationType = input('Input stimulation type (single or pulse): ','s'); disp(' ')
 dataTypes = {'vesselDiameter','corticalNeural','hippocampalNeural','EMG'};
 neuralDataTypes = {'corticalNeural','hippocampalNeural'};
 specNeuralDataTypes = {'rawCorticalNeural','rawHippocampalNeural'};
@@ -36,7 +37,7 @@ disp('Analyzing Block [1] Categorizing data.'); disp(' ')
 for aa = 1:size(mergedDataFileIDs,1)
     mergedDataFileID = mergedDataFileIDs(aa,:);
     disp(['Analyzing file ' num2str(aa) ' of ' num2str(size(mergedDataFileIDs,1)) '...']); disp(' ')
-    CategorizeData_2P(mergedDataFileID)
+    CategorizeData_2P(mergedDataFileID,stimulationType)
 end
 %% BLOCK PURPOSE: [2] Create RestData data structure.
 disp('Analyzing Block [2] Creating RestData struct for vessels and neural data.'); disp(' ')
@@ -50,7 +51,7 @@ CreateTrialSpectrograms_2P(mergedDataFileIDs,specNeuralDataTypes);
 %% BLOCK PURPOSE: [5] Create Baselines data structure
 disp('Analyzing Block [5] Create Baselines struct for CBV and neural data.'); disp(' ')
 baselineType = 'setDuration';
-trialDuration_sec = 180;
+trialDuration_sec = 900;
 targetMinutes = 30;
 [RestingBaselines] = CalculateRestingBaselines_2P(animalID,targetMinutes,trialDuration_sec,RestData);
 % Find spectrogram baselines for each day

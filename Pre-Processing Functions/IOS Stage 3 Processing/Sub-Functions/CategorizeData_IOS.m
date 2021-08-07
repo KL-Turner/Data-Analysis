@@ -1,4 +1,4 @@
-function [] = CategorizeData_IOS(procDataFileID)
+function [] = CategorizeData_IOS(procDataFileID,stimulationType)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -12,7 +12,32 @@ function [] = CategorizeData_IOS(procDataFileID)
 
 % Load and Setup
 disp(['Categorizing data for: ' procDataFileID]); disp(' ')
-zapload(procDataFileID)
+load(procDataFileID)
+% condense pulsed stimulations
+if strcmp(stimulationType,'pulse') == true
+    stimulationFields = fieldnames(ProcData.data.stimulations);
+    for aa = 1:length(stimulationFields)
+        stimulationTimes = ProcData.data.stimulations.(stimulationFields{aa,1});
+        ProcData.data.stimulationsOriginal.(stimulationFields{aa,1}) = stimulationTimes;
+        condensedStimulationTimes = [];
+        cc = 1;
+        if isempty(stimulationTimes) == false
+            for bb = 1:length(stimulationTimes)
+                if bb == 1
+                    condensedStimulationTimes(1,bb) = stimulationTimes(1,bb);
+                    cc = cc + 1;
+                else
+                    timeDifference = stimulationTimes(1,bb) - stimulationTimes(1,bb - 1);
+                    if timeDifference > 1 % remove stimulations that are closer than 1 second to the previous
+                        condensedStimulationTimes(1,cc) = stimulationTimes(1,bb);
+                        cc = cc + 1;
+                    end
+                end
+            end
+            ProcData.data.stimulations.(stimulationFields{aa,1}) = condensedStimulationTimes;
+        end
+    end
+end
 whiskerSamplingRate = ProcData.notes.dsFs;
 % Process binary whisking waveform to detect whisking events
 % Setup parameters for link_binary_events

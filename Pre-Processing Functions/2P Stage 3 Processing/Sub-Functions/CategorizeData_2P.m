@@ -1,4 +1,4 @@
-function [] = CategorizeData_2P(mergedDataFileID)
+function [] = CategorizeData_2P(mergedDataFileID,stimulationType)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -13,6 +13,31 @@ function [] = CategorizeData_2P(mergedDataFileID)
 % Load and Setup
 disp(['Categorizing data for: ' mergedDataFileID]); disp(' ')
 load(mergedDataFileID)
+% condense pulsed stimulations
+if strcmp(stimulationType,'pulse') == true
+    stimulationFields = fieldnames(MergedData.data.solenoids);
+    for aa = 1:length(stimulationFields)
+        stimulationTimes = MergedData.data.solenoids.(stimulationFields{aa,1});
+        MergedData.data.solenoidsOriginal.(stimulationFields{aa,1}) = stimulationTimes;
+        condensedStimulationTimes = [];
+        cc = 1;
+        if isempty(stimulationTimes) == false
+            for bb = 1:length(stimulationTimes)
+                if bb == 1
+                    condensedStimulationTimes(1,bb) = stimulationTimes(1,bb);
+                    cc = cc + 1;
+                else
+                    timeDifference = stimulationTimes(1,bb) - stimulationTimes(1,bb - 1);
+                    if timeDifference > 1 % remove stimulations that are closer than 1 second to the previous
+                        condensedStimulationTimes(1,cc) = stimulationTimes(1,bb);
+                        cc = cc + 1;
+                    end
+                end
+            end
+            MergedData.data.solenoids.(stimulationFields{aa,1}) = condensedStimulationTimes;
+        end
+    end
+end
 whiskerSamplingRate = MergedData.notes.dsFs;
 % Process binary whisking waveform to detect whisking events
 % Setup parameters for link_binary_events

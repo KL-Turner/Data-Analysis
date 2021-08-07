@@ -9,9 +9,10 @@ function [AnalysisResults] = PowerSpec2_Saporin(rootFolder,saveFigs,delim,Analys
 
 %% set-up and process data
 expGroups = {'C57BL6J','SSP-SAP','Blank-SAP'};
+setName = 'IOS Set A';
 animalIDs.all = {};
 for aa = 1:length(expGroups)
-    folderList = dir(expGroups{1,aa});
+    folderList = dir([expGroups{1,aa} delim setName]);
     folderList = folderList(~startsWith({folderList.name},'.'));
     animalIDs.all = horzcat(animalIDs.all,{folderList.name});
     animalIDs.(strrep(expGroups{1,aa},'-','_')) = {folderList.name};
@@ -110,9 +111,15 @@ sgtitle('LFP Power Spectra [1-100 Hz]')
 %% LH power spectra of gamma-band power during Alert
 ax1 = subplot(3,2,1);
 L1 = loglog(data.C57BL6J.Alert.gammaBandPower.LH.meanCortf,data.C57BL6J.Alert.gammaBandPower.LH.meanCortS,'color',colors('sapphire'),'LineWidth',2);
+% loglog(data.C57BL6J.Alert.gammaBandPower.LH.meanCortf,data.C57BL6J.Alert.gammaBandPower.LH.stdCortS + data.C57BL6J.Alert.gammaBandPower.LH.meanCortS,'color',colors('sapphire'),'LineWidth',0.5);
+% loglog(data.C57BL6J.Alert.gammaBandPower.LH.meanCortf,data.C57BL6J.Alert.gammaBandPower.LH.stdCortS - data.C57BL6J.Alert.gammaBandPower.LH.meanCortS,'color',colors('sapphire'),'LineWidth',0.5);
 hold on
 L2 = loglog(data.Blank_SAP.Alert.gammaBandPower.LH.meanCortf,data.Blank_SAP.Alert.gammaBandPower.LH.meanCortS,'color',colors('north texas green'),'LineWidth',2);
+% loglog(data.Blank_SAP.Alert.gammaBandPower.LH.meanCortf,data.Blank_SAP.Alert.gammaBandPower.LH.stdCortS + data.Blank_SAP.Alert.gammaBandPower.LH.meanCortS,'color',colors('north texas green'),'LineWidth',0.5);
+% loglog(data.Blank_SAP.Alert.gammaBandPower.LH.meanCortf,data.Blank_SAP.Alert.gammaBandPower.LH.stdCortS - data.Blank_SAP.Alert.gammaBandPower.LH.meanCortS,'color',colors('north texas green'),'LineWidth',0.5);
 L3 = loglog(data.SSP_SAP.Alert.gammaBandPower.LH.meanCortf,data.SSP_SAP.Alert.gammaBandPower.LH.meanCortS,'color',colors('electric purple'),'LineWidth',2);
+% loglog(data.SSP_SAP.Alert.gammaBandPower.LH.meanCortf,data.SSP_SAP.Alert.gammaBandPower.LH.stdCortS + data.SSP_SAP.Alert.gammaBandPower.LH.meanCortS,'color',colors('electric purple'),'LineWidth',0.5);
+% loglog(data.SSP_SAP.Alert.gammaBandPower.LH.meanCortf,data.SSP_SAP.Alert.gammaBandPower.LH.stdCortS - data.SSP_SAP.Alert.gammaBandPower.LH.meanCortS,'color',colors('electric purple'),'LineWidth',0.5);
 title('[Alert] LH (UnRx)')
 ylabel('Power (a.u.)')
 xlabel('Freq (Hz)')
@@ -122,9 +129,15 @@ set(gca,'box','off')
 %% RH power spectra of gamma-band power during Alert
 ax2 = subplot(3,2,2);
 loglog(data.C57BL6J.Alert.gammaBandPower.RH.meanCortf,data.C57BL6J.Alert.gammaBandPower.RH.meanCortS,'color',colors('sapphire'),'LineWidth',2);
+% loglog(data.C57BL6J.Alert.gammaBandPower.RH.meanCortf,data.C57BL6J.Alert.gammaBandPower.RH.stdCortS + data.C57BL6J.Alert.gammaBandPower.RH.meanCortS,'color',colors('sapphire'),'LineWidth',0.5);
+% loglog(data.C57BL6J.Alert.gammaBandPower.RH.meanCortf,data.C57BL6J.Alert.gammaBandPower.RH.stdCortS - data.C57BL6J.Alert.gammaBandPower.RH.meanCortS,'color',colors('sapphire'),'LineWidth',0.5);
 hold on
 loglog(data.Blank_SAP.Alert.gammaBandPower.RH.meanCortf,data.Blank_SAP.Alert.gammaBandPower.RH.meanCortS,'color',colors('north texas green'),'LineWidth',2);
+% loglog(data.Blank_SAP.Alert.gammaBandPower.RH.meanCortf,data.Blank_SAP.Alert.gammaBandPower.RH.stdCortS + data.Blank_SAP.Alert.gammaBandPower.RH.meanCortS,'color',colors('north texas green'),'LineWidth',0.5);
+% loglog(data.Blank_SAP.Alert.gammaBandPower.RH.meanCortf,data.Blank_SAP.Alert.gammaBandPower.RH.stdCortS - data.Blank_SAP.Alert.gammaBandPower.RH.meanCortS,'color',colors('north texas green'),'LineWidth',0.5);
 loglog(data.SSP_SAP.Alert.gammaBandPower.RH.meanCortf,data.SSP_SAP.Alert.gammaBandPower.RH.meanCortS,'color',colors('electric purple'),'LineWidth',2);
+% loglog(data.SSP_SAP.Alert.gammaBandPower.RH.meanCortf,data.SSP_SAP.Alert.gammaBandPower.RH.stdCortS + data.SSP_SAP.Alert.gammaBandPower.RH.meanCortS,'color',colors('electric purple'),'LineWidth',0.5);
+% loglog(data.SSP_SAP.Alert.gammaBandPower.RH.meanCortf,data.SSP_SAP.Alert.gammaBandPower.RH.stdCortS - data.SSP_SAP.Alert.gammaBandPower.RH.meanCortS,'color',colors('electric purple'),'LineWidth',0.5);
 title('[Alert] RH (Rx)')
 ylabel('Power (a.u.)')
 xlabel('Freq (Hz)')
@@ -133,9 +146,15 @@ set(gca,'box','off')
 %% LH power spectra of gamma-band power during Asleep
 ax3 = subplot(3,2,3);
 loglog(data.C57BL6J.Asleep.gammaBandPower.LH.meanCortf,data.C57BL6J.Asleep.gammaBandPower.LH.meanCortS,'color',colors('sapphire'),'LineWidth',2);
+% loglog(data.C57BL6J.Asleep.gammaBandPower.LH.meanCortf,data.C57BL6J.Asleep.gammaBandPower.LH.stdCortS + data.C57BL6J.Asleep.gammaBandPower.LH.meanCortS,'color',colors('sapphire'),'LineWidth',0.5);
+% loglog(data.C57BL6J.Asleep.gammaBandPower.LH.meanCortf,data.C57BL6J.Asleep.gammaBandPower.LH.stdCortS - data.C57BL6J.Asleep.gammaBandPower.LH.meanCortS,'color',colors('sapphire'),'LineWidth',0.5);
 hold on
 loglog(data.Blank_SAP.Asleep.gammaBandPower.LH.meanCortf,data.Blank_SAP.Asleep.gammaBandPower.LH.meanCortS,'color',colors('north texas green'),'LineWidth',2);
+% loglog(data.Blank_SAP.Asleep.gammaBandPower.LH.meanCortf,data.Blank_SAP.Asleep.gammaBandPower.LH.stdCortS + data.Blank_SAP.Asleep.gammaBandPower.LH.meanCortS,'color',colors('north texas green'),'LineWidth',0.5);
+% loglog(data.Blank_SAP.Asleep.gammaBandPower.LH.meanCortf,data.Blank_SAP.Asleep.gammaBandPower.LH.stdCortS - data.Blank_SAP.Asleep.gammaBandPower.LH.meanCortS,'color',colors('north texas green'),'LineWidth',0.5);
 loglog(data.SSP_SAP.Asleep.gammaBandPower.LH.meanCortf,data.SSP_SAP.Asleep.gammaBandPower.LH.meanCortS,'color',colors('electric purple'),'LineWidth',2);
+% loglog(data.SSP_SAP.Asleep.gammaBandPower.LH.meanCortf,data.SSP_SAP.Asleep.gammaBandPower.LH.stdCortS + data.SSP_SAP.Asleep.gammaBandPower.LH.meanCortS,'color',colors('electric purple'),'LineWidth',0.5);
+% loglog(data.SSP_SAP.Asleep.gammaBandPower.LH.meanCortf,data.SSP_SAP.Asleep.gammaBandPower.LH.stdCortS - data.SSP_SAP.Asleep.gammaBandPower.LH.meanCortS,'color',colors('electric purple'),'LineWidth',0.5);
 title('[Asleep] LH (UnRx)')
 ylabel('Power (a.u.)')
 xlabel('Freq (Hz)')
@@ -144,9 +163,15 @@ set(gca,'box','off')
 %% RH power spectra of gamma-band power during Asleep
 ax4 = subplot(3,2,4);
 loglog(data.C57BL6J.Asleep.gammaBandPower.RH.meanCortf,data.C57BL6J.Asleep.gammaBandPower.RH.meanCortS,'color',colors('sapphire'),'LineWidth',2);
+% loglog(data.C57BL6J.Asleep.gammaBandPower.RH.meanCortf,data.C57BL6J.Asleep.gammaBandPower.RH.stdCortS + data.C57BL6J.Asleep.gammaBandPower.RH.meanCortS,'color',colors('sapphire'),'LineWidth',0.5);
+% loglog(data.C57BL6J.Asleep.gammaBandPower.RH.meanCortf,data.C57BL6J.Asleep.gammaBandPower.RH.stdCortS - data.C57BL6J.Asleep.gammaBandPower.RH.meanCortS,'color',colors('sapphire'),'LineWidth',0.5);
 hold on
 loglog(data.Blank_SAP.Asleep.gammaBandPower.RH.meanCortf,data.Blank_SAP.Asleep.gammaBandPower.RH.meanCortS,'color',colors('north texas green'),'LineWidth',2);
+% loglog(data.Blank_SAP.Asleep.gammaBandPower.RH.meanCortf,data.Blank_SAP.Asleep.gammaBandPower.RH.stdCortS + data.Blank_SAP.Asleep.gammaBandPower.RH.meanCortS,'color',colors('north texas green'),'LineWidth',0.5);
+% loglog(data.Blank_SAP.Asleep.gammaBandPower.RH.meanCortf,data.Blank_SAP.Asleep.gammaBandPower.RH.stdCortS - data.Blank_SAP.Asleep.gammaBandPower.RH.meanCortS,'color',colors('north texas green'),'LineWidth',0.5);
 loglog(data.SSP_SAP.Asleep.gammaBandPower.RH.meanCortf,data.SSP_SAP.Asleep.gammaBandPower.RH.meanCortS,'color',colors('electric purple'),'LineWidth',2);
+% loglog(data.SSP_SAP.Asleep.gammaBandPower.RH.meanCortf,data.SSP_SAP.Asleep.gammaBandPower.RH.stdCortS + data.SSP_SAP.Asleep.gammaBandPower.RH.meanCortS,'color',colors('electric purple'),'LineWidth',0.5);
+% loglog(data.SSP_SAP.Asleep.gammaBandPower.RH.meanCortf,data.SSP_SAP.Asleep.gammaBandPower.RH.stdCortS - data.SSP_SAP.Asleep.gammaBandPower.RH.meanCortS,'color',colors('electric purple'),'LineWidth',0.5);
 title('[Asleep] RH (Rx)')
 ylabel('Power (a.u.)')
 xlabel('Freq (Hz)')
@@ -155,9 +180,15 @@ set(gca,'box','off')
 %% LH power spectra of gamma-band power during All data
 ax5 = subplot(3,2,5);
 loglog(data.C57BL6J.All.gammaBandPower.LH.meanCortf,data.C57BL6J.All.gammaBandPower.LH.meanCortS,'color',colors('sapphire'),'LineWidth',2);
+% loglog(data.C57BL6J.All.gammaBandPower.LH.meanCortf,data.C57BL6J.All.gammaBandPower.LH.stdCortS + data.C57BL6J.All.gammaBandPower.LH.meanCortS,'color',colors('sapphire'),'LineWidth',0.5);
+% loglog(data.C57BL6J.All.gammaBandPower.LH.meanCortf,data.C57BL6J.All.gammaBandPower.LH.stdCortS - data.C57BL6J.All.gammaBandPower.LH.meanCortS,'color',colors('sapphire'),'LineWidth',0.5);
 hold on
 loglog(data.Blank_SAP.All.gammaBandPower.LH.meanCortf,data.Blank_SAP.All.gammaBandPower.LH.meanCortS,'color',colors('north texas green'),'LineWidth',2);
+% loglog(data.Blank_SAP.All.gammaBandPower.LH.meanCortf,data.Blank_SAP.All.gammaBandPower.LH.stdCortS + data.Blank_SAP.All.gammaBandPower.LH.meanCortS,'color',colors('north texas green'),'LineWidth',0.5);
+% loglog(data.Blank_SAP.All.gammaBandPower.LH.meanCortf,data.Blank_SAP.All.gammaBandPower.LH.stdCortS - data.Blank_SAP.All.gammaBandPower.LH.meanCortS,'color',colors('north texas green'),'LineWidth',0.5);
 loglog(data.SSP_SAP.All.gammaBandPower.LH.meanCortf,data.SSP_SAP.All.gammaBandPower.LH.meanCortS,'color',colors('electric purple'),'LineWidth',2);
+% loglog(data.SSP_SAP.All.gammaBandPower.LH.meanCortf,data.SSP_SAP.All.gammaBandPower.LH.stdCortS + data.SSP_SAP.All.gammaBandPower.LH.meanCortS,'color',colors('electric purple'),'LineWidth',0.5);
+% loglog(data.SSP_SAP.All.gammaBandPower.LH.meanCortf,data.SSP_SAP.All.gammaBandPower.LH.stdCortS - data.SSP_SAP.All.gammaBandPower.LH.meanCortS,'color',colors('electric purple'),'LineWidth',0.5);
 title('[All] LH (UnRx)')
 ylabel('Power (a.u.)')
 xlabel('Freq (Hz)')
@@ -166,9 +197,15 @@ set(gca,'box','off')
 %% RH power spectra of gamma-band power during All data
 ax6 = subplot(3,2,6);
 loglog(data.C57BL6J.All.gammaBandPower.RH.meanCortf,data.C57BL6J.All.gammaBandPower.RH.meanCortS,'color',colors('sapphire'),'LineWidth',2);
+% loglog(data.C57BL6J.All.gammaBandPower.RH.meanCortf,data.C57BL6J.All.gammaBandPower.RH.stdCortS + data.C57BL6J.All.gammaBandPower.RH.meanCortS,'color',colors('sapphire'),'LineWidth',0.5);
+% loglog(data.C57BL6J.All.gammaBandPower.RH.meanCortf,data.C57BL6J.All.gammaBandPower.RH.stdCortS - data.C57BL6J.All.gammaBandPower.RH.meanCortS,'color',colors('sapphire'),'LineWidth',0.5);
 hold on
 loglog(data.Blank_SAP.All.gammaBandPower.RH.meanCortf,data.Blank_SAP.All.gammaBandPower.RH.meanCortS,'color',colors('north texas green'),'LineWidth',2);
+% loglog(data.Blank_SAP.All.gammaBandPower.RH.meanCortf,data.Blank_SAP.All.gammaBandPower.RH.stdCortS + data.Blank_SAP.All.gammaBandPower.RH.meanCortS,'color',colors('north texas green'),'LineWidth',0.5);
+% loglog(data.Blank_SAP.All.gammaBandPower.RH.meanCortf,data.Blank_SAP.All.gammaBandPower.RH.stdCortS - data.Blank_SAP.All.gammaBandPower.RH.meanCortS,'color',colors('north texas green'),'LineWidth',0.5);
 loglog(data.SSP_SAP.All.gammaBandPower.RH.meanCortf,data.SSP_SAP.All.gammaBandPower.RH.meanCortS,'color',colors('electric purple'),'LineWidth',2);
+% loglog(data.SSP_SAP.All.gammaBandPower.RH.meanCortf,data.SSP_SAP.All.gammaBandPower.RH.stdCortS + data.SSP_SAP.All.gammaBandPower.RH.meanCortS,'color',colors('electric purple'),'LineWidth',0.5);
+% loglog(data.SSP_SAP.All.gammaBandPower.RH.meanCortf,data.SSP_SAP.All.gammaBandPower.RH.stdCortS - data.SSP_SAP.All.gammaBandPower.RH.meanCortS,'color',colors('electric purple'),'LineWidth',0.5);
 title('[All] RH (Rx)')
 ylabel('Power (a.u.)')
 xlabel('Freq (Hz)')
