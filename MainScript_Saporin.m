@@ -28,9 +28,9 @@ addpath(genpath(rootFolder))
 runAnalysis = true;
 if runAnalysis == true
     AnalyzeBehavioralHbT_Handler(rootFolder,delim,'n')
-    AnalyzeBilateralCoherence_Handler(rootFolder,delim,'n')
-    AnalyzeNeuralHemoCoherence_Handler(rootFolder,delim,'n')
-    AnalyzePowerSpectrum_Handler(rootFolder,delim,'n')
+    AnalyzeBilateralCoherence_Handler(rootFolder,delim,'y')
+    AnalyzeNeuralHemoCoherence_Handler(rootFolder,delim,'y')
+    AnalyzePowerSpectrum_Handler(rootFolder,delim,'y')
 end
 %% generate figures
 disp('Loading analysis results and generating figures...'); disp(' ')

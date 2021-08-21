@@ -135,9 +135,12 @@ for zzz = 1:length(hemDataTypes)
                 puffs = ProcData.data.stimulations.LPadSol;
                 % don't include trials with stimulation
                 if isempty(puffs) == true
-                    HbT_AwakeData{zz,1} = ProcData.data.CBV_HbT.(hemDataType);
-                    Gamma_AwakeData{zz,1} = (ProcData.data.(['cortical_' hemDataType(4:5)]).(dataType) - RestingBaselines.manualSelection.(['cortical_' hemDataType(4:5)]).(dataType).(strDay))./RestingBaselines.manualSelection.(['cortical_' hemDataType(4:5)]).(dataType).(strDay);
-                    zz = zz + 1;
+                    motionArtifact = ProcData.notes.motionArtifact;
+                    if motionArtifact == false
+                        HbT_AwakeData{zz,1} = ProcData.data.CBV_HbT.(hemDataType);
+                        Gamma_AwakeData{zz,1} = (ProcData.data.(['cortical_' hemDataType(4:5)]).(dataType) - RestingBaselines.manualSelection.(['cortical_' hemDataType(4:5)]).(dataType).(strDay))./RestingBaselines.manualSelection.(['cortical_' hemDataType(4:5)]).(dataType).(strDay);
+                        zz = zz + 1;
+                    end
                 end
             end
         end
@@ -190,9 +193,12 @@ for zzz = 1:length(hemDataTypes)
                 puffs = ProcData.data.stimulations.LPadSol;
                 % don't include trials with stimulation
                 if isempty(puffs) == true
-                    HbT_SleepData{zz,1} = ProcData.data.CBV_HbT.(hemDataType);
-                    Gamma_SleepData{zz,1} = (ProcData.data.(['cortical_' hemDataType(4:5)]).(dataType) - RestingBaselines.manualSelection.(['cortical_' hemDataType(4:5)]).(dataType).(strDay))./RestingBaselines.manualSelection.(['cortical_' hemDataType(4:5)]).(dataType).(strDay);
-                    zz = zz + 1;
+                    motionArtifact = ProcData.notes.motionArtifact;
+                    if motionArtifact == false
+                        HbT_SleepData{zz,1} = ProcData.data.CBV_HbT.(hemDataType);
+                        Gamma_SleepData{zz,1} = (ProcData.data.(['cortical_' hemDataType(4:5)]).(dataType) - RestingBaselines.manualSelection.(['cortical_' hemDataType(4:5)]).(dataType).(strDay))./RestingBaselines.manualSelection.(['cortical_' hemDataType(4:5)]).(dataType).(strDay);
+                        zz = zz + 1;
+                    end
                 end
             end
         end
@@ -237,9 +243,12 @@ for zzz = 1:length(hemDataTypes)
             puffs = ProcData.data.stimulations.LPadSol;
             % don't include trials with stimulation
             if isempty(puffs) == true
-                HbT_AllUnstimData{zz,1} = ProcData.data.CBV_HbT.(hemDataType);
-                Gamma_AllUnstimData{zz,1} = (ProcData.data.(['cortical_' hemDataType(4:5)]).(dataType) - RestingBaselines.manualSelection.(['cortical_' hemDataType(4:5)]).(dataType).(strDay))./RestingBaselines.manualSelection.(['cortical_' hemDataType(4:5)]).(dataType).(strDay);
-                zz = zz + 1;
+                motionArtifact = ProcData.notes.motionArtifact;
+                if motionArtifact == false
+                    HbT_AllUnstimData{zz,1} = ProcData.data.CBV_HbT.(hemDataType);
+                    Gamma_AllUnstimData{zz,1} = (ProcData.data.(['cortical_' hemDataType(4:5)]).(dataType) - RestingBaselines.manualSelection.(['cortical_' hemDataType(4:5)]).(dataType).(strDay))./RestingBaselines.manualSelection.(['cortical_' hemDataType(4:5)]).(dataType).(strDay);
+                    zz = zz + 1;
+                end
             end
         end
         % filter and detrend data

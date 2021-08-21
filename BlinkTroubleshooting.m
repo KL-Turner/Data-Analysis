@@ -59,15 +59,15 @@ fprintf('Running\n')
 tic
 % Framewise pupil area measurement
 parfor framenum = 1:size(imageStack,3)
-    WorkingImg = imcomplement(uint8(imageStack(:,:,framenum))); %grab frame from image stack
-    FiltImg = medfilt2(WorkingImg,[3,3]); %median filter image
-    ThreshImg  = uint8(double(FiltImg).*BW); %Only look at pixel values in ROI
+    WorkingImg = imcomplement(uint8(imageStack(:,:,framenum))); % grab frame from image stack
+    FiltImg = medfilt2(WorkingImg,[5,5]); % median filter image
+    ThreshImg  = uint8(double(FiltImg).*BW); % Only look at pixel values in ROI
     HoldImg = double(ThreshImg);
     HoldImg(HoldImg == 0) = NaN;
     AvgPix = mean(HoldImg(:),'omitnan');
     MnsubImg = HoldImg - AvgPix; % Mean subtrack ROI pixels
     MnsubImg(isnan(MnsubImg)) = 0;
-    MnsubImg(MnsubImg<0) = 0; % set all negative pixel values to 0;
+    MnsubImg(MnsubImg < 0) = 0; % set all negative pixel values to 0;
     RadPupil = radon(MnsubImg); % transform movie frame in to radon space
     minPupil = min(RadPupil,[],1);
     minMat = repmat(minPupil,size(RadPupil,1),1);

@@ -109,6 +109,20 @@ for bb = 1:size(procDataFileIDs,1)
     [figHandle] = GenerateSingleFigures_IOS(procDataFileID,RestingBaselines,updatedBaselineType,saveFigs,imagingType,hemoType);
     close(figHandle)
 end
+%% Isoflurane manual set
 % SetIsofluraneHbT_IOS()
+%% Check for motion artifacts in LFP
+procDataFileStruct = dir('*_ProcData.mat'); 
+procDataFiles = {procDataFileStruct.name}';
+procDataFileIDs = char(procDataFiles);
+baselineDataFileStruct = dir('*_RestingBaselines.mat');
+baselineDataFile = {baselineDataFileStruct.name}';
+baselineDataFileID = char(baselineDataFile);
+load(baselineDataFileID,'-mat')
+updatedBaselineType = 'manual';
+imagingType = 'bilateral';
+hemoType = 'HbT';
+CheckNeuralMotionArtifacts_IOS(procDataFileIDs,RestingBaselines,updatedBaselineType,imagingType,hemoType)
+
 disp('Stage Three Processing - Complete.'); disp(' ')
  

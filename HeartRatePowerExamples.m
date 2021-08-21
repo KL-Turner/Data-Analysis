@@ -1,12 +1,4 @@
-%________________________________________________________________________________________________________________________
-% Written by Kevin L. Turner
-% The Pennsylvania State University, Dept. of Biomedical Engineering
-% https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
-%
-% Purpose: 
-%________________________________________________________________________________________________________________________
-clear; clc;
+clear; clc; close all;
 colorRfcAwake = [(0/256),(64/256),(64/256)];
 colorRfcNREM = [(0/256),(174/256),(239/256)];
 colorRfcREM = [(190/256),(30/256),(45/256)];
@@ -14,15 +6,14 @@ colorOrange = [(233/256),(105/256),(44/256)];
 colorPink = [(256/256),(28/256),(207/256)];
 colorSapphire = [(15/256),(82/256),(187/256)];
 colorDarkRed = [(164/256),(0/256),(0/256)];
-exampleProcDataFileID = 'T123_200304_14_32_00_ProcData.mat';
-load(exampleProcDataFileID,'-mat')
-exampleRawDataFileID = 'T123_200304_14_32_00_RawData.mat';
-load(exampleRawDataFileID,'-mat')
-exampleSpecDataFileID = 'T123_200304_14_32_00_SpecDataA.mat';
-load(exampleSpecDataFileID,'-mat')
-exampleBaselineFileID = 'T123_RestingBaselines.mat';
-load(exampleBaselineFileID,'-mat')
-strDay = 'Mar04';
+exampleProcDataFileID = uigetfile('*_ProcData.mat','MultiSelect','Off');
+load(exampleProcDataFileID)
+[animalID,fileDate,fileID] = GetFileInfo_Test(exampleProcDataFileID);
+specDataFileID = [animalID '_' fileID '_SpecDataA.mat'];
+load(specDataFileID);
+baselineFileID = [animalID '_RestingBaselines.mat'];
+load(baselineFileID)
+strDay = ConvertDate_Test(fileDate);
 dsFs = ProcData.notes.dsFs;
 analogFs = ProcData.notes.analogSamplingRate;
 % setup butterworth filter coefficients for a 1 Hz and 10 Hz lowpass based on the sampling rate
@@ -37,10 +28,6 @@ filtWhiskerAngle = filtfilt(sos1,g1,ProcData.data.whiskerAngle);
 % force sensor
 filtForceSensor = filtfilt(sos1,g1,abs(ProcData.data.forceSensor));
 % EMG
-analogExpectedLength = ProcData.notes.trialDuration_sec*ProcData.notes.analogSamplingRate;
-rawEMG = RawData.data.EMG(1:min(analogExpectedLength,length(RawData.data.EMG)));
-rawFiltEMG = resample(filtfilt(sos,g,rawEMG - mean(rawEMG)),100,analogFs);
-% rawFiltEMG = filtfilt(sos,g,rawEMG - mean(rawEMG));
 normEMG = ProcData.data.EMG.emg - RestingBaselines.manualSelection.EMG.emg.(strDay);
 filtEMG = filtfilt(sos1,g1,normEMG);
 % heart rate
@@ -70,8 +57,6 @@ ylabel({'Pressure','(a.u.)'},'rotation',-90,'VerticalAlignment','bottom')
 legend([p1,p2],'EMG','Pressure')
 set(gca,'Xticklabel',[])
 set(gca,'box','off')
-xticks([0,60,120,180,240,300,360,420,480,540,600])
-xlim([0,600])
 ylim([-0.1,2.5])
 ax1.TickLength = [0.01,0.01];
 ax1.YAxis(1).Color = 'k';
@@ -88,8 +73,6 @@ ylabel({'Heart rate','Freq (Hz)'},'rotation',-90,'VerticalAlignment','bottom')
 legend([p3,p4],'Whisker angle','Heart rate')
 set(gca,'Xticklabel',[])
 set(gca,'box','off')
-xticks([0,60,120,180,240,300,360,420,480,540,600])
-xlim([0,600])
 ylim([5,10])
 ax2.TickLength = [0.01,0.01];
 ax2.YAxis(1).Color = 'k';
@@ -107,8 +90,6 @@ legend([p5,p6,x3,x1,x2],'Left hem','Right hem','Awake','NREM','REM')
 set(gca,'TickLength',[0,0])
 set(gca,'Xticklabel',[])
 set(gca,'box','off')
-xticks([0,60,120,180,240,300,360,420,480,540,600])
-xlim([0,600])
 ylim([-35,135])
 ax34.TickLength = [0.01,0.01];
 % left cortical electrode spectrogram
@@ -122,8 +103,6 @@ ylabel({'LH cort LFP','Freq (Hz)'})
 set(gca,'Yticklabel','10^1')
 set(gca,'Xticklabel',[])
 set(gca,'box','off')
-xticks([0,60,120,180,240,300,360,420,480,540,600])
-xlim([0,600])
 ax5.TickLength = [0.01,0.01];
 % right cortical electrode spectrogram
 ax6 = subplot(7,1,6);
@@ -136,8 +115,6 @@ ylabel({'RH cort LFP','Freq (Hz)'})
 set(gca,'Yticklabel','10^1')
 set(gca,'Xticklabel',[])
 set(gca,'box','off')
-xticks([0,60,120,180,240,300,360,420,480,540,600])
-xlim([0,600])
 ax6.TickLength = [0.01,0.01];
 % hippocampal electrode spectrogram
 ax7 = subplot(7,1,7);
@@ -149,9 +126,6 @@ caxis([-100,100])
 xlabel('Time (min)')
 ylabel({'Hipp LFP','Freq (Hz)'})
 set(gca,'box','off')
-xticks([0,60,120,180,240,300,360,420,480,540,600])
-xticklabels({'0','1','2','3','4','5','6','7','8','9','10'})
-xlim([0,600])
 ax7.TickLength = [0.01,0.01];
 % axes properties
 ax1Pos = get(ax1,'position');
@@ -164,51 +138,44 @@ ax7Pos(3:4) = ax1Pos(3:4);
 set(ax5,'position',ax5Pos);
 set(ax6,'position',ax6Pos);
 set(ax7,'position',ax7Pos);
-%% raw emg
-figure;
-plot((1:length(rawFiltEMG))/100,rawFiltEMG,'k','LineWidth',0.5);
-title('EMG MUA [300-3000 Hz]')
-xlabel('Time (s)')
-ylabel('Amplitude (a.u.)')
-xticklabels({'0','1','2','3','4','5','6','7','8','9','10'})
-set(gca,'box','off')
-xticks([0,60,120,180,240,300,360,420,480,540,600])
-xlim([0,600])
-ylim([-2.5e-9,3e-9])
 %% heart rate
-% Smooth the signal with a 2 Hz low pass third-order butterworth filter
+[LH_Sr,tr,fr,LH_HR] = FindHeartRate_Test(ProcData.data.CBV.LH,ProcData.notes.CBVCamSamplingRate);
+[RH_Sr,~,~,RH_HR] = FindHeartRate_Test(ProcData.data.CBV.RH,ProcData.notes.CBVCamSamplingRate);
+% Average the two signals from the left and right windows
+Sr = (LH_Sr + RH_Sr)/2;
+HR = (LH_HR + RH_HR)/2;
+% Smooth the signal with a 5 Hz low pass third-order butterworth filter
 [B,A] = butter(3,5/(ProcData.notes.CBVCamSamplingRate/2),'low');
-heartRate = filtfilt(B,A,ProcData.data.HR);   % Filtered heart rate signal
+filtHeartRate = filtfilt(B,A,HR);   % Filtered heart rate signal
 figure;
-imagesc(ProcData.data.tr,ProcData.data.rf,ProcData.data.Sr)
+imagesc(tr,fr,Sr)
 axis xy
-caxis([2,7])
-colormap gray
+caxis([0,5])
 hold on;
-plot(heartRate,'color',colorOrange,'LineWidth',2)
+plot(filtHeartRate,'color',colorOrange,'LineWidth',2)
 title('Spectral estimation of heart rate')
 xlabel('Time(sec')
 ylabel('Freq (Hz)')
-xticklabels({'0','1','2','3','4','5','6','7','8','9','10'})
 set(gca,'box','off')
-xticks([0,60,120,180,240,300,360,420,480,540,600])
-xlim([0,600])
-%% pupil
-pupilArea = ProcData.data.Pupil.pupilArea;
-restPupilArea = mean(pupilArea(565*dsFs:600*dsFs));
-normPupilArea = ((pupilArea - restPupilArea)./restPupilArea)*100;
-figure;
-plot((1:length(normPupilArea))/dsFs,normPupilArea,'k')
-hold on;
-plot((1:length(ProcData.data.Pupil.blinkTimes))/dsFs,ProcData.data.Pupil.blinkTimes,'r')
-title('Pupil area')
-xlabel('Time (sec)')
-ylabel('\DeltaPupil area (%)')
-xticklabels({'0','1','2','3','4','5','6','7','8','9','10'})
-set(gca,'box','off')
-xticks([0,60,120,180,240,300,360,420,480,540,600])
-xlim([0,600])
+%% HR calc
+function [Sr,tr,fr,HR] = FindHeartRate_Test(r,Fr)
+% mean subtract to remove slow drift
+r = r - mean(r);
+ % [time band width, number of tapers]
+tapers_r = [2,3];
+movingwin_r = [3.33,1];
+% Frame rate
+params_r.Fs = Fr;
+params_r.fpass = [5,15];
+params_r.tapers = tapers_r;
+[Sr,tr,fr] = mtspecgramc(r,movingwin_r,params_r);
+% Sr: spectrum; tr: time; fr: frequency
+% largest elements along the frequency direction
+[~,ridx] = max(Sr,[],2);
+HR = fr(ridx);   % heart rate, in Hz
 
+end
+%% semilog axis
 function [] = semilog_imagesc(x,y,C,logaxis)
 surface(x,y,zeros(size(C)),(C),'LineStyle','none');%
 q = gca;
@@ -223,4 +190,40 @@ elseif strcmp(logaxis,'xy') == 1
 end
 axis xy
 axis tight
+end
+%% animal info from file name
+function [animalID,fileDate,fileID] = GetFileInfo_Test(fileName)
+% Identify the extension
+extInd = strfind(fileName(1,:),'.');
+extension = fileName(1,extInd + 1:end);
+% Identify the underscores
+fileBreaks = strfind(fileName(1,:),'_');
+switch extension
+    case 'bin'
+        animalID = [];
+        fileDate = fileName(:,1:fileBreaks(1) - 1);
+        fileID = fileName(:,1:fileBreaks(4) - 1);
+    case 'mat'
+        % Use the known format to parse
+        animalID = fileName(:,1:fileBreaks(1) - 1);
+        if numel(fileBreaks) > 3
+            fileDate = fileName(:,fileBreaks(1) + 1:fileBreaks(2) - 1);
+            fileID = fileName(:,fileBreaks(1) + 1:fileBreaks(5) - 1);
+        else
+            fileDate = [];
+            fileID = [];
+        end
+end
+
+end
+%% numeric date to string
+function [days] = ConvertDate_Test(dateTag)
+days = cell(size(dateTag,1),1);
+for f = 1:size(dateTag,1)
+    days{f} = datestr([2000 + str2double(dateTag(f,1:2)),str2double(dateTag(f,3:4)),str2double(dateTag(f,5:6)),00,00,00],'mmmdd');
+end
+if length(days) == 1
+    days = days{1};
+end
+
 end

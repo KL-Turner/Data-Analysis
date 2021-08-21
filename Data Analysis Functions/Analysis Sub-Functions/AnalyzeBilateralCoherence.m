@@ -140,10 +140,13 @@ for aa = 1:length(dataTypes)
                     LH_AwakeData{zz,1} = ProcData.data.(dataType).adjLH;
                     RH_AwakeData{zz,1} = ProcData.data.(dataType).adjRH;
                 else
-                    LH_AwakeData{zz,1} = (ProcData.data.cortical_LH.(dataType) - RestingBaselines.manualSelection.cortical_LH.(dataType).(strDay))./RestingBaselines.manualSelection.cortical_LH.(dataType).(strDay);
-                    RH_AwakeData{zz,1} = (ProcData.data.cortical_RH.(dataType) - RestingBaselines.manualSelection.cortical_RH.(dataType).(strDay))./RestingBaselines.manualSelection.cortical_RH.(dataType).(strDay);
+                    motionArtifact = ProcData.notes.motionArtifact;
+                    if motionArtifact == false
+                        LH_AwakeData{zz,1} = (ProcData.data.cortical_LH.(dataType) - RestingBaselines.manualSelection.cortical_LH.(dataType).(strDay))./RestingBaselines.manualSelection.cortical_LH.(dataType).(strDay);
+                        RH_AwakeData{zz,1} = (ProcData.data.cortical_RH.(dataType) - RestingBaselines.manualSelection.cortical_RH.(dataType).(strDay))./RestingBaselines.manualSelection.cortical_RH.(dataType).(strDay);
+                        zz = zz + 1;
+                    end
                 end
-                zz = zz + 1;
             end
         end
     end
@@ -198,10 +201,13 @@ for aa = 1:length(dataTypes)
                     LH_SleepData{zz,1} = ProcData.data.(dataType).adjLH;
                     RH_SleepData{zz,1} = ProcData.data.(dataType).adjRH;
                 else
-                    LH_SleepData{zz,1} = (ProcData.data.cortical_LH.(dataType) - RestingBaselines.manualSelection.cortical_LH.(dataType).(strDay))./RestingBaselines.manualSelection.cortical_LH.(dataType).(strDay);
-                    RH_SleepData{zz,1} = (ProcData.data.cortical_RH.(dataType) - RestingBaselines.manualSelection.cortical_RH.(dataType).(strDay))./RestingBaselines.manualSelection.cortical_RH.(dataType).(strDay);
+                    motionArtifact = ProcData.notes.motionArtifact;
+                    if motionArtifact == false
+                        LH_SleepData{zz,1} = (ProcData.data.cortical_LH.(dataType) - RestingBaselines.manualSelection.cortical_LH.(dataType).(strDay))./RestingBaselines.manualSelection.cortical_LH.(dataType).(strDay);
+                        RH_SleepData{zz,1} = (ProcData.data.cortical_RH.(dataType) - RestingBaselines.manualSelection.cortical_RH.(dataType).(strDay))./RestingBaselines.manualSelection.cortical_RH.(dataType).(strDay);
+                        zz = zz + 1;
+                    end
                 end
-                zz = zz + 1;
             end
         end
     end
@@ -248,11 +254,13 @@ for aa = 1:length(dataTypes)
                 LH_AllUnstimData{zz,1} = ProcData.data.(dataType).adjLH;
                 RH_AllUnstimData{zz,1} = ProcData.data.(dataType).adjRH;
             else
-                LH_AllUnstimData{zz,1} = (ProcData.data.cortical_LH.(dataType) - RestingBaselines.manualSelection.cortical_LH.(dataType).(strDay))./RestingBaselines.manualSelection.cortical_LH.(dataType).(strDay);
-                RH_AllUnstimData{zz,1} = (ProcData.data.cortical_RH.(dataType) - RestingBaselines.manualSelection.cortical_RH.(dataType).(strDay))./RestingBaselines.manualSelection.cortical_RH.(dataType).(strDay);
+                motionArtifact = ProcData.notes.motionArtifact;
+                if motionArtifact == false
+                    LH_AllUnstimData{zz,1} = (ProcData.data.cortical_LH.(dataType) - RestingBaselines.manualSelection.cortical_LH.(dataType).(strDay))./RestingBaselines.manualSelection.cortical_LH.(dataType).(strDay);
+                    RH_AllUnstimData{zz,1} = (ProcData.data.cortical_RH.(dataType) - RestingBaselines.manualSelection.cortical_RH.(dataType).(strDay))./RestingBaselines.manualSelection.cortical_RH.(dataType).(strDay);
+                    zz = zz + 1;
+                end
             end
-            zz = zz + 1;
-            
         end
     end
     % detrend data
