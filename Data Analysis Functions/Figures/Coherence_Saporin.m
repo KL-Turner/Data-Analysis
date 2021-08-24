@@ -1,4 +1,4 @@
-function [AnalysisResults] = Coherence_Saporin(rootFolder,saveFigs,delim,AnalysisResults)
+function [] = Coherence_Saporin(rootFolder,saveFigs,delim)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -8,6 +8,8 @@ function [AnalysisResults] = Coherence_Saporin(rootFolder,saveFigs,delim,Analysi
 %________________________________________________________________________________________________________________________
 
 %% set-up and process data
+resultsStruct = 'Results_BilatCoher';
+load(resultsStruct);
 expGroups = {'C57BL6J','SSP-SAP','Blank-SAP'};
 setName = 'IOS Set A';
 animalIDs.all = {};
@@ -46,11 +48,11 @@ for aa = 1:length(animalIDs.all)
                 data.(treatment).(behavField).(dataType).treatment = {};
             end
             % don't concatenate empty arrays where there was no data for this behavior
-            if isempty(AnalysisResults.(animalID).Coherence.(behavField).(dataType).C) == false
+            if isempty(Results_BilatCoher.(animalID).(behavField).(dataType).C) == false
                 % concatenate C/f for existing data - exclude any empty sets
-                data.(treatment).(behavField).(dataType).C = cat(2,data.(treatment).(behavField).(dataType).C,AnalysisResults.(animalID).Coherence.(behavField).(dataType).C.^2);
-                data.(treatment).(behavField).(dataType).f = cat(1,data.(treatment).(behavField).(dataType).f,AnalysisResults.(animalID).Coherence.(behavField).(dataType).f);
-                data.(treatment).(behavField).(dataType).confC = cat(1,data.(treatment).(behavField).(dataType).confC,AnalysisResults.(animalID).Coherence.(behavField).(dataType).confC);
+                data.(treatment).(behavField).(dataType).C = cat(2,data.(treatment).(behavField).(dataType).C,Results_BilatCoher.(animalID).(behavField).(dataType).C.^2);
+                data.(treatment).(behavField).(dataType).f = cat(1,data.(treatment).(behavField).(dataType).f,Results_BilatCoher.(animalID).(behavField).(dataType).f);
+                data.(treatment).(behavField).(dataType).confC = cat(1,data.(treatment).(behavField).(dataType).confC,Results_BilatCoher.(animalID).(behavField).(dataType).confC);
                 data.(treatment).(behavField).(dataType).animalID = cat(1,data.(treatment).(behavField).(dataType).animalID,animalID);
                 data.(treatment).(behavField).(dataType).treatment = cat(1,data.(treatment).(behavField).(dataType).treatment,treatment);
             end
@@ -226,7 +228,7 @@ xlim([0.003,0.5])
 ylim([0,1])
 set(gca,'box','off')
 %% save figure(s)
-if strcmp(saveFigs,'y') == true
+if saveFigs == true
     dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'MATLAB Analysis Figures' delim];
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
@@ -499,7 +501,7 @@ xlim([0.003,0.5])
 ylim([0,1])
 set(gca,'box','off')
 %% save figure(s)
-if strcmp(saveFigs,'y') == true
+if saveFigs == true
     dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'MATLAB Analysis Figures' delim];
     if ~exist(dirpath,'dir')
         mkdir(dirpath);

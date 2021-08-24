@@ -1,4 +1,4 @@
-function [AnalysisResults] = AnalyzeEvokedResponses(animalID,group,rootFolder,AnalysisResults)
+function [Results_Evoked] = AnalyzeEvokedResponses(animalID,group,rootFolder,delim,Results_Evoked)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -9,12 +9,11 @@ function [AnalysisResults] = AnalyzeEvokedResponses(animalID,group,rootFolder,An
 %________________________________________________________________________________________________________________________
 
 %% function parameters
-delim = strfind(group,'\');
 setName = group(delim + 1:end);
 if strcmp(setName,'IOS Set A') == true
-    dataLocation = [rootFolder '\' group '\' animalID '\Bilateral Imaging\'];
+    dataLocation = [rootFolder delim group delim animalID delim 'Bilateral Imaging'];
 elseif strcmp(setName,'IOS Set B') == true
-    dataLocation = [rootFolder '\' group '\' animalID '\Combined Imaging\'];
+    dataLocation = [rootFolder delim group delim animalID delim 'Combined Imaging'];
 end
 dataTypes = {'adjLH','adjRH'};
 %% only run analysis for valid animal IDs
@@ -187,23 +186,23 @@ for aa = 1:length(dataTypes)
         meanWhiskHippocampalS = mean(whiskHippocampalZhold,3);
         T2 = -2:(1/specSamplingRate):10;
         % save results
-        AnalysisResults.(animalID).EvokedAvgs.Whisk.(dataType).(whiskCriteriaName).CBV_HbT.HbT = meanWhiskHbTData;
-        AnalysisResults.(animalID).EvokedAvgs.Whisk.(dataType).(whiskCriteriaName).CBV_HbT.HbTStD = stdWhiskHbTData;
-        AnalysisResults.(animalID).EvokedAvgs.Whisk.(dataType).(whiskCriteriaName).CBV.CBV = meanWhiskCBVData;
-        AnalysisResults.(animalID).EvokedAvgs.Whisk.(dataType).(whiskCriteriaName).CBV.CBVStD = stdWhiskCBVData;
-        AnalysisResults.(animalID).EvokedAvgs.Whisk.(dataType).(whiskCriteriaName).MUA.corticalData = meanWhiskCorticalMUAData;
-        AnalysisResults.(animalID).EvokedAvgs.Whisk.(dataType).(whiskCriteriaName).MUA.corticalStD = stdWhiskCorticalMUAData;
-        AnalysisResults.(animalID).EvokedAvgs.Whisk.(dataType).(whiskCriteriaName).MUA.hippocampalData = meanWhiskHippocampalMUAData;
-        AnalysisResults.(animalID).EvokedAvgs.Whisk.(dataType).(whiskCriteriaName).MUA.hippocampalStD = stdWhiskHippocampalMUAData;
-        AnalysisResults.(animalID).EvokedAvgs.Whisk.(dataType).(whiskCriteriaName).Gam.corticalData = meanWhiskCorticalGamData;
-        AnalysisResults.(animalID).EvokedAvgs.Whisk.(dataType).(whiskCriteriaName).Gam.corticalStD = stdWhiskCorticalGamData;
-        AnalysisResults.(animalID).EvokedAvgs.Whisk.(dataType).(whiskCriteriaName).Gam.hippocampalData = meanWhiskHippocampalGamData;
-        AnalysisResults.(animalID).EvokedAvgs.Whisk.(dataType).(whiskCriteriaName).Gam.hippocampalStD = stdWhiskHippocampalGamData;
-        AnalysisResults.(animalID).EvokedAvgs.Whisk.(dataType).(whiskCriteriaName).timeVector = timeVector;
-        AnalysisResults.(animalID).EvokedAvgs.Whisk.(dataType).(whiskCriteriaName).LFP.corticalS = meanWhiskCorticalS;
-        AnalysisResults.(animalID).EvokedAvgs.Whisk.(dataType).(whiskCriteriaName).LFP.hippocampalS = meanWhiskHippocampalS;
-        AnalysisResults.(animalID).EvokedAvgs.Whisk.(dataType).(whiskCriteriaName).LFP.T = T2;
-        AnalysisResults.(animalID).EvokedAvgs.Whisk.(dataType).(whiskCriteriaName).LFP.F = F;
+        Results_Evoked.(animalID).Whisk.(dataType).(whiskCriteriaName).CBV_HbT.HbT = meanWhiskHbTData;
+        Results_Evoked.(animalID).Whisk.(dataType).(whiskCriteriaName).CBV_HbT.HbTStD = stdWhiskHbTData;
+        Results_Evoked.(animalID).Whisk.(dataType).(whiskCriteriaName).CBV.CBV = meanWhiskCBVData;
+        Results_Evoked.(animalID).Whisk.(dataType).(whiskCriteriaName).CBV.CBVStD = stdWhiskCBVData;
+        Results_Evoked.(animalID).Whisk.(dataType).(whiskCriteriaName).MUA.corticalData = meanWhiskCorticalMUAData;
+        Results_Evoked.(animalID).Whisk.(dataType).(whiskCriteriaName).MUA.corticalStD = stdWhiskCorticalMUAData;
+        Results_Evoked.(animalID).Whisk.(dataType).(whiskCriteriaName).MUA.hippocampalData = meanWhiskHippocampalMUAData;
+        Results_Evoked.(animalID).Whisk.(dataType).(whiskCriteriaName).MUA.hippocampalStD = stdWhiskHippocampalMUAData;
+        Results_Evoked.(animalID).Whisk.(dataType).(whiskCriteriaName).Gam.corticalData = meanWhiskCorticalGamData;
+        Results_Evoked.(animalID).Whisk.(dataType).(whiskCriteriaName).Gam.corticalStD = stdWhiskCorticalGamData;
+        Results_Evoked.(animalID).Whisk.(dataType).(whiskCriteriaName).Gam.hippocampalData = meanWhiskHippocampalGamData;
+        Results_Evoked.(animalID).Whisk.(dataType).(whiskCriteriaName).Gam.hippocampalStD = stdWhiskHippocampalGamData;
+        Results_Evoked.(animalID).Whisk.(dataType).(whiskCriteriaName).timeVector = timeVector;
+        Results_Evoked.(animalID).Whisk.(dataType).(whiskCriteriaName).LFP.corticalS = meanWhiskCorticalS;
+        Results_Evoked.(animalID).Whisk.(dataType).(whiskCriteriaName).LFP.hippocampalS = meanWhiskHippocampalS;
+        Results_Evoked.(animalID).Whisk.(dataType).(whiskCriteriaName).LFP.T = T2;
+        Results_Evoked.(animalID).Whisk.(dataType).(whiskCriteriaName).LFP.F = F;
     end
     %% analyze stimulus-evoked responses
     for gg = 1:length(stimCriteriaNames)
@@ -315,29 +314,29 @@ for aa = 1:length(dataTypes)
         meanStimCortS = mean(stimCortZhold,3);
         meanStimHipS = mean(stimHipZhold,3);
         % save results
-        AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoid).count = size(procStimHipMUAData,1);
-        AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoid).CBV_HbT.HbT = meanStimHbTData;
-        AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoid).CBV_HbT.HbTStD = stdStimHbTData;
-        AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoid).CBV.CBV = meanStimCBVData;
-        AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoid).CBV.CBVStD = stdStimCBVData;
-        AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoid).MUA.corticalData = meanStimCortMUAData;
-        AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoid).MUA.corticalStD = stdStimCortMUAData;
-        AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoid).MUA.hippocampalData = meanStimHipMUAData;
-        AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoid).MUA.hippocampalStD = stdStimHipMUAData;
-        AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoid).Gam.corticalData = meanStimCortGamData;
-        AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoid).Gam.corticalStD = stdStimCortGamData;
-        AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoid).Gam.hippocampalData = meanStimHipGamData;
-        AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoid).Gam.hippocampalStD = stdStimHipGamData;
-        AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoid).timeVector = timeVector;
-        AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoid).LFP.corticalS = meanStimCortS;
-        AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoid).LFP.hippocampalS = meanStimHipS;
-        AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoid).LFP.T = T2;
-        AnalysisResults.(animalID).EvokedAvgs.Stim.(dataType).(solenoid).LFP.F = F;
+        Results_Evoked.(animalID).Stim.(dataType).(solenoid).count = size(procStimHipMUAData,1);
+        Results_Evoked.(animalID).Stim.(dataType).(solenoid).CBV_HbT.HbT = meanStimHbTData;
+        Results_Evoked.(animalID).Stim.(dataType).(solenoid).CBV_HbT.HbTStD = stdStimHbTData;
+        Results_Evoked.(animalID).Stim.(dataType).(solenoid).CBV.CBV = meanStimCBVData;
+        Results_Evoked.(animalID).Stim.(dataType).(solenoid).CBV.CBVStD = stdStimCBVData;
+        Results_Evoked.(animalID).Stim.(dataType).(solenoid).MUA.corticalData = meanStimCortMUAData;
+        Results_Evoked.(animalID).Stim.(dataType).(solenoid).MUA.corticalStD = stdStimCortMUAData;
+        Results_Evoked.(animalID).Stim.(dataType).(solenoid).MUA.hippocampalData = meanStimHipMUAData;
+        Results_Evoked.(animalID).Stim.(dataType).(solenoid).MUA.hippocampalStD = stdStimHipMUAData;
+        Results_Evoked.(animalID).Stim.(dataType).(solenoid).Gam.corticalData = meanStimCortGamData;
+        Results_Evoked.(animalID).Stim.(dataType).(solenoid).Gam.corticalStD = stdStimCortGamData;
+        Results_Evoked.(animalID).Stim.(dataType).(solenoid).Gam.hippocampalData = meanStimHipGamData;
+        Results_Evoked.(animalID).Stim.(dataType).(solenoid).Gam.hippocampalStD = stdStimHipGamData;
+        Results_Evoked.(animalID).Stim.(dataType).(solenoid).timeVector = timeVector;
+        Results_Evoked.(animalID).Stim.(dataType).(solenoid).LFP.corticalS = meanStimCortS;
+        Results_Evoked.(animalID).Stim.(dataType).(solenoid).LFP.hippocampalS = meanStimHipS;
+        Results_Evoked.(animalID).Stim.(dataType).(solenoid).LFP.T = T2;
+        Results_Evoked.(animalID).Stim.(dataType).(solenoid).LFP.F = F;
     end
 end
 % save data
 cd(rootFolder)
-save('AnalysisResults.mat','AnalysisResults','-v7.3')
+save('Results_Evoked.mat','Results_Evoked')
 
 end
 

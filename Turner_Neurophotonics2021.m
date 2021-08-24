@@ -198,9 +198,9 @@ pupilArea = ProcData.data.Pupil.pupilArea;
 restPupilArea = mean(pupilArea(565*dsFs:600*dsFs));
 normPupilArea = ((pupilArea - restPupilArea)./restPupilArea)*100;
 figure;
-plot((1:length(normPupilArea))/dsFs,normPupilArea,'k')
+plot((1:length(normPupilArea))/dsFs,median(normPupilArea,3),'k')
 hold on;
-plot((1:length(ProcData.data.Pupil.blinkTimes))/dsFs,ProcData.data.Pupil.blinkTimes,'r')
+scatter((1:length(ProcData.data.Pupil.blinkTimes))/dsFs,ProcData.data.Pupil.blinkTimes,'r')
 title('Pupil area')
 xlabel('Time (sec)')
 ylabel('\DeltaPupil area (%)')

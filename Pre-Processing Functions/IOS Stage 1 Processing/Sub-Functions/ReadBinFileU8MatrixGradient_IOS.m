@@ -23,7 +23,7 @@ disp(['ReadBinFileU8MatrixGradient: ' num2str(nFrameToRead) ' frames to read.'])
 % Pre-allocate
 imageGrad = int8(zeros(width,height,nFrameToRead));
 for n = 1:nFrameToRead
-    z = fread(fid, pixelsPerFrame,'*uint8',0,'l');
+    z = fread(fid,pixelsPerFrame,'*uint8',0,'l');
     indImg = reshape(z(1:pixelsPerFrame),width,height);
     imageGrad(:,:,n) = int8(gradient(double(indImg)));
 end

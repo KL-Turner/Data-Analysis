@@ -1,4 +1,3 @@
-function[PupilTracker,BW,intensityThresh]=PupilTracker_KLTest(pupilCamFileID,BW,intensityThresh,varargin)
 %Inputs:
 %pupilCamFileID: character string of .bin file of eye camera
 %intensityThresh: pixel intensity threshold for pre-radon image
@@ -10,7 +9,7 @@ function[PupilTracker,BW,intensityThresh]=PupilTracker_KLTest(pupilCamFileID,BW,
 %overlayed as blue mask.
 
 % This code requires a GPU for optimal performance
-close all;
+clear; clc; close all;
 %% Check for existing mask of eye region
 if ~exist('BW','var')
     BW=[];
@@ -23,9 +22,7 @@ if ~exist('filNum','var')
     filNum=1;
 end
 %% Get Files to analyze
-if ~ischar(pupilCamFileID)
 pupilCamFileID = uigetfile('*_PupilCam.bin','MultiSelect','off'); %If the variable 'pupilCamFileID' is not a character string of a filename this will allow you to manually select a file
-end
 fid = fopen(pupilCamFileID); % This reads the binary file in to the work space
 fseek(fid,0,'eof'); %find the end of the video frame
 fileSize = ftell(fid); %calculate file size
@@ -40,13 +37,13 @@ BlinkThresh=0.35;% Arbitrary threshold used to binarize data for blink detection
 imageHeight=200; %How many pixels tall is the frame
 imageWidth=200;%How many pixels wide is the frame
 pixelsPerFrame = imageWidth*imageHeight;
-skippedPixels = pixelsPerFrame; 
-nFramesToRead=9000;
+skippedPixels = pixelsPerFrame;
+nFramesToRead=27000;
 imageStack = zeros(imageHeight,imageWidth,nFramesToRead);
 
 %% Read .bin File to imageStack
 for a = 1:nFramesToRead
-%     disp(['Creating image stack: (' num2str(a) '/' num2str(nFramesToRead) ')']); disp(' ')
+    %     disp(['Creating image stack: (' num2str(a) '/' num2str(nFramesToRead) ')']); disp(' ')
     fseek(fid,a*skippedPixels,'bof');
     z = fread(fid,pixelsPerFrame,'*uint8','b');
     img = reshape(z(1:pixelsPerFrame),imageWidth,imageHeight);
@@ -71,7 +68,7 @@ if isempty(BW)
     [BW]=roipoly(WorkingImg);
 end
 %% Set Pupil intensity threshold
-    
+
 Thresh_Set=4.5; % stardard deviations beyond mean intensity to binarize image for pupil tracking
 medFilt_Params=[5 5]; % [x y] dimensions for 2d median filter of images
 WorkingImg=imcomplement(imageStack(:,:,2)); %grab frame from image stack
@@ -94,7 +91,7 @@ normFit=theFit./sum(theFit); %Normalize fit so sum of gaussian ==1
 
 
 if isempty(intensityThresh)
-intensityThresh=phat(1)+( Thresh_Set*phat(2)); % set threshold as 4 sigma above population mean estimated from MLE
+    intensityThresh=phat(1)+( Thresh_Set*phat(2)); % set threshold as 4 sigma above population mean estimated from MLE
 end
 testImg=ThreshImg;
 testImg(ThreshImg>=intensityThresh)=1;
@@ -114,7 +111,7 @@ xlim([0 256]);
 figure(103);imshow(testThresh);
 title('Pixels above threshold');
 if strcmpi(thresh_ok,'n')
-thresh_ok=input('Is pupil threshold value ok? (y/n)\n','s');
+    thresh_ok=input('Is pupil threshold value ok? (y/n)\n','s');
 end
 if strcmpi(thresh_ok,'n')
     intensityThresh=input('Manually set pupil intensity threshold\n');
@@ -218,7 +215,7 @@ rowNum=ceil(size(PupilTracker.BlinkFrames,4)/4);
 %  axis xy
 %  colormap gray
 % end
-    
+
 %where the program determines the eyes are closed.
 PlotPupilArea=PupilTracker.Pupil_Area;
 PlotPupilArea((Blinks-5:Blinks+30))=NaN;
@@ -228,10 +225,9 @@ BlinkTimes=BlinkTimes*(1.1*max(PupilTracker.Pupil_Area(:)));
 PupilTime=(1:length(PupilTracker.Pupil_Area))/30;
 PupilTracker.blinkInds=Blinks; %Blink location in Frame Indicies
 %% Visualize pupil diameter and blink times
-figure;plot(PupilTime,PlotPupilArea,'k','LineWidth',1);
+figure;plot(PupilTime,medfilt1(PlotPupilArea,11),'k','LineWidth',1);
 hold on; scatter(PupilTime,BlinkTimes,50,'r','filled');
 xlabel('Time (sec)');
 ylabel('Pupil area (pixels)');
 title('Pupil area changes');
 legend('Pupil area','Eyes closed');
-end
