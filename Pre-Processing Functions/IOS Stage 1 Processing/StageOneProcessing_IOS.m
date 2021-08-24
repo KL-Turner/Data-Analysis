@@ -65,7 +65,7 @@ for a = 1:length(fileNames)
         %% BLOCK PURPOSE: [3] Start Whisker tracker.
         disp('Analyzing Block [3] Starting whisker tracking.'); disp(' ')
         [whiskerAngle] = WhiskerTrackerParallel_IOS(fileID);
-        inds = isnan(whiskerAngle) == 1; %#ok<COMPNOP>
+        inds = isnan(whiskerAngle) == 1; 
         whiskerAngle(inds) = [];
         %% BLOCK PURPOSE: [4] Save the notes and data.
         disp('Analyzing Block [4] Evaluating data to save to RawData file.'); disp(' ')
