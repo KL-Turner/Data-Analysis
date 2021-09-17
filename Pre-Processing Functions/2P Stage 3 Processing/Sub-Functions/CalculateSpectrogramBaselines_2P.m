@@ -16,6 +16,7 @@ for a = 1:length(neuralDataTypes)
     restS5 = cell(size(restFileList,1),1);
     % Obtain the spectrogram information from all the resting files
     for b = 1:length(restFileList)
+        clear SpecData S1 T1 S5 T5
         fileID = restFileList{b,1};   % FileID of currently loaded file
         % Load in neural data from current file
         for c = 1:size(specDataFiles,1)
@@ -26,7 +27,6 @@ for a = 1:length(neuralDataTypes)
                 T1 = round(SpecData.(neuralDataType).oneSec.T,1);
                 S5 = SpecData.(neuralDataType).fiveSec.S;
                 T5 = round(SpecData.(neuralDataType).fiveSec.T,3);
-                break
             end
         end
         restS1{b,1} = S1;
@@ -43,16 +43,10 @@ for a = 1:length(neuralDataTypes)
         S5_trialRest = [];
         for e = 1:length(RestingBaselines.(baselineType).baselineFileInfo.fileIDs)
             restFileID = RestingBaselines.(baselineType).baselineFileInfo.fileIDs{e,1};
-%             test = size(S1_data,2)/30;
-%             if test > 500
-%                 trialDuration_sec = 900;
-%             else
-%                 trialDuration_sec = 270;
-%             end
             if strcmp(fileID,restFileID)
                 restDuration1 = round(RestingBaselines.(baselineType).baselineFileInfo.durations(e,1),1);
                 restDuration5 = round(RestingBaselines.(baselineType).baselineFileInfo.durations(e,1),1);
-                startTime1 = round(RestingBaselines.(baselineType).baselineFileInfo.eventTimes(e,1),1);
+                startTime1 = double(round(RestingBaselines.(baselineType).baselineFileInfo.eventTimes(e,1),1));
                 startTime5 = round(RestingBaselines.(baselineType).baselineFileInfo.eventTimes(e,1),1);
                 % 1 second spectrogram conditions and indexing
                 if startTime1 >= 0.5 && (startTime1 + restDuration1) <= (trialDuration_sec - 0.5)
@@ -78,7 +72,7 @@ for a = 1:length(neuralDataTypes)
         trialRestData.([strDay '_' fileID]).fiveSec.S_avg = S_trialAvg5;
     end
     fields = fieldnames(trialRestData);
-    uniqueDays = GetUniqueDays_2P(RestingBaselines.(baselineType).baselineFileInfo.fileIDs);   
+    uniqueDays = GetUniqueDays_2P(RestingBaselines.(baselineType).baselineFileInfo.fileIDs);
     for f = 1:length(uniqueDays)
         g = 1;
         for field = 1:length(fields)
@@ -89,7 +83,7 @@ for a = 1:length(neuralDataTypes)
                 g = g + 1;
             end
         end
-    end   
+    end
     dayFields = fieldnames(S_avgs.oneSec);
     for h = 1:length(dayFields)
         dayVals1 = [];

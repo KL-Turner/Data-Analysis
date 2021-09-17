@@ -1,4 +1,4 @@
-function [AnalysisResults] = NeuralHemoCoherence_Saporin(rootFolder,saveFigs,delim,AnalysisResults)
+function [] = NeuralHemoCoherence_Saporin(rootFolder,saveFigs,delim)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -6,6 +6,7 @@ function [AnalysisResults] = NeuralHemoCoherence_Saporin(rootFolder,saveFigs,del
 %
 % Purpose:
 %________________________________________________________________________________________________________________________
+
 
 %% set-up and process data
 expGroups = {'C57BL6J','SSP-SAP','Blank-SAP'};
