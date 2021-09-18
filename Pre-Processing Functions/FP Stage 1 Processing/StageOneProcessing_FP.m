@@ -41,12 +41,20 @@ for a = 1:length(fileNames)
         disp('Analyzing Block [2] Importing .tdms data from all channels.'); disp(' ')
         trialData = ReadInTDMSWhiskerTrials_FP([fileID '.tdms']);
         % Left, Right, and hippocampal electrodes
-        dataRow = strcmp(trialData.data.names,'Cortical_LH');
+        dataRow = strcmp(trialData.data.names,'cortLH');
         cortical_LH = trialData.data.vals(dataRow,:)/str2double(trialData.amplifierGain);
-        dataRow = strcmp(trialData.data.names,'Cortical_RH');
+        dataRow = strcmp(trialData.data.names,'cortRH');
         cortical_RH = trialData.data.vals(dataRow,:)/str2double(trialData.amplifierGain);
-        dataRow = strcmp(trialData.data.names,'Hippocampus');
+        dataRow = strcmp(trialData.data.names,'hipp');
         hippocampus = trialData.data.vals(dataRow,:)/str2double(trialData.amplifierGain);
+        % Force sensor and EMG
+        dataRow = strcmp(trialData.data.names,'forceSensor');
+        forceSensor = trialData.data.vals(dataRow,:);
+        dataRow = strcmp(trialData.data.names,'EMG');
+        EMG = trialData.data.vals(dataRow,:)/str2double(trialData.amplifierGain);
+        % duplicate fiber signal
+        dataRow = strcmp(trialData.data.names,'560LH');
+        LH_560 = trialData.data.vals(dataRow,:);
         % Left, Right, Auditory solenoids. Combine the arrays together.
         dataRow = strcmp(trialData.data.names,'LPadSol');
         LPadSol = gt(trialData.data.vals(dataRow,:),0.5)*1;    % ID amplitude is 1
@@ -54,14 +62,7 @@ for a = 1:length(fileNames)
         RPadSol = gt(trialData.data.vals(dataRow,:),0.5)*2;    % ID amplitude is 2
         dataRow = strcmp(trialData.data.names,'AudSol');
         AudSol = gt(trialData.data.vals(dataRow,:),0.5)*3;     % ID amplitude is 3
-        dataRow = strcmp(trialData.data.names,'OptoLED');
-        OptoLED = gt(trialData.data.vals(dataRow,:),0.5)*4;    % ID amplitude is 4
-        stimulations = LPadSol + RPadSol + AudSol + OptoLED;
-        % Force sensor and EMG
-        dataRow = strcmp(trialData.data.names,'Force_Sensor');
-        forceSensor = trialData.data.vals(dataRow,:);
-        dataRow = strcmp(trialData.data.names,'EMG');
-        EMG = trialData.data.vals(dataRow,:)/str2double(trialData.amplifierGain);
+        stimulations = LPadSol + RPadSol + AudSol;
         %% BLOCK PURPOSE: [3] Start Whisker tracker.
         disp('Analyzing Block [3] Starting whisker tracking.'); disp(' ')
         [whiskerAngle] = WhiskerTrackerParallel_FP(fileID);
@@ -76,33 +77,12 @@ for a = 1:length(fileNames)
         RawData.notes.solenoidPSI = str2double(trialData.solenoidPSI);
         RawData.notes.isofluraneTime = str2double(trialData.isofluraneTime);
         RawData.notes.sessionID = trialData.sessionID;
-        RawData.notes.amplifierGain = str2double(trialData.amplifierGain);
-        RawData.notes.LEDpower_mW = trialData.LEDpower_mW;
-        RawData.notes.CBVCamSamplingRate = str2double(trialData.CBVCamSamplingRate);
+        RawData.notes.amplifierGain = str2double(trialData.amplifierGain);        
         RawData.notes.whiskCamSamplingRate = str2double(trialData.whiskCamSamplingRate);
-        RawData.notes.webCamSamplingRate = str2double(trialData.webCamSamplingRate);
-        RawData.notes.pupilCamSamplingRate = str2double(trialData.pupilCamSamplingRate);
         RawData.notes.analogSamplingRate = str2double(trialData.analogSamplingRate);
         RawData.notes.trialDuration_sec = str2double(trialData.trialDuration_sec);
-        RawData.notes.CBVCamPixelWidth = str2double(trialData.CBVCamPixelWidth);
-        RawData.notes.CBVCamPixelHeight = str2double(trialData.CBVCamPixelHeight);
-        RawData.notes.CBVCamBitDepth = str2double(trialData.CBVCamBitDepth);
-        RawData.notes.pupilCamPixelWidth = str2double(trialData.pupilCamPixelWidth);
-        RawData.notes.pupilCamPixelHeight = str2double(trialData.pupilCamPixelHeight);
         RawData.notes.whiskCamPixelHeight = str2double(trialData.whiskCamPixelHeight);
         RawData.notes.whiskCamPixelWidth = str2double(trialData.whiskCamPixelWidth);
-        RawData.notes.CBVCamExposureTime_microsec = str2double(trialData.CBVCamExposureTime_microsec);
-        RawData.notes.CBVCamBinning = trialData.CBVCamBinning;
-        RawData.notes.droppedPupilCamFrameIndex = trialData.droppedPupilCamFrameIndex;
-        RawData.notes.droppedWhiskCamFrameIndex = trialData.droppedWhiskCamFrameIndex;
-        RawData.notes.solenoidDutyCycle = str2double(trialData.Sol_DutyCycle);
-        RawData.notes.solenoidFreq = str2double(trialData.Sol_Freq);
-        RawData.notes.solenoidDuration_sec = str2double(trialData.Sol_Duration_sec);
-        RawData.notes.LEDdutyCycle = str2double(trialData.LED_DutyCycle);
-        RawData.notes.LEDfreq = str2double(trialData.LED_Freq);
-        RawData.notes.LEDduration_sec = str2double(trialData.LED_Duration_sec);
-        RawData.notes.interstim_sec = str2double(trialData.Interstim_sec);
-        RawData.notes.stimOffset_sec = str2double(trialData.Stim_Offset_sec);
         % Data
         RawData.data.cortical_LH = cortical_LH;
         RawData.data.cortical_RH = cortical_RH;
@@ -111,6 +91,7 @@ for a = 1:length(fileNames)
         RawData.data.EMG = EMG;
         RawData.data.whiskerAngle = whiskerAngle;
         RawData.data.stimulations = stimulations;
+        RawData.data.LH_560 = LH_560;
         disp(['File Created. Saving RawData File ' num2str(a) '...']); disp(' ')
         save([trialData.animalID '_' fileID '_RawData'],'RawData')
     else
