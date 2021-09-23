@@ -108,7 +108,7 @@ for aa = 1:size(fiberDataFileIDs,1)
     axis tight
     %% save files
     RawData.notes.doric = FiberData.notes;
-    save(rawDataFileID,'RawData')
+    save(rawDataFileID,'RawData','-v7.3')
     %% Save the file to directory.
     [pathstr,~,~] = fileparts(cd);
     dirpath = [pathstr '/Figures/XCorr Shift/'];

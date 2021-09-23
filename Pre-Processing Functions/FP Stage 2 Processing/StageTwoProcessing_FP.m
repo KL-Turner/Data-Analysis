@@ -38,4 +38,4 @@ CorrectLabVIEWOffset_FP(fiberDataFileIDs,rawDataFileIDs,trimTime)
 disp('Analyzing Block [3] Creating ProcData files and processing analog data.'); disp(' ')
 ProcessRawDataFiles_FP(rawDataFileIDs)
 %% fin.
-disp('IOS Stage Two Processing - Complete.'); disp(' ')
+disp('Fiber Photometry Stage Two Processing - Complete.'); disp(' ')
