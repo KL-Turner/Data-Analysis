@@ -22,15 +22,23 @@ for a = 1:size(rawDataFiles,1)
     load(rawDataFile);
     % Transfer RawData notes to ProcData structure.
     ProcData.notes = RawData.notes;
-    % Expected durations
-    analogExpectedLength = ProcData.notes.trialDuration_sec*ProcData.notes.analogSamplingRate;
-    %% Save solenoid times (in seconds). Identify the solenoids by amplitude.
+    ProcData.notes.dsFs = 30; % downsampled Fs
+    analogExpectedLength = ProcData.notes.trialDuration_sec_trim*ProcData.notes.analogSamplingRate;
+    dsExpectedLength = ProcData.notes.trialDuration_sec_trim*ProcData.notes.dsFs;
+    %% identify the solenoids by amplitude.
     ProcData.data.stimulations.LPadSol = find(diff(RawData.data.stimulations) == 1)/RawData.notes.analogSamplingRate;
     ProcData.data.stimulations.RPadSol = find(diff(RawData.data.stimulations) == 2)/RawData.notes.analogSamplingRate;
     ProcData.data.stimulations.AudSol = find(diff(RawData.data.stimulations) == 3)/RawData.notes.analogSamplingRate;
-    ProcData.data.stimulations.OptoLED = find(diff(RawData.data.stimulations) == 4)/RawData.notes.analogSamplingRate;
-    %% Process neural data into its various forms.
-    ProcData.notes.dsFs = 30;   % downsampled Fs
+    %% resample doric data to 30 Hz
+    ProcData.data.HbT.LH = (resample(RawData.data.LH_560.zScored_trim,ProcData.notes.dsFs,ProcData.notes.doric.samplingRate));
+    ProcData.data.HbT.LH = ProcData.data.HbT.LH(1:dsExpectedLength);
+    ProcData.data.HbT.RH = (resample(RawData.data.RH_560.zScored_trim,ProcData.notes.dsFs,ProcData.notes.doric.samplingRate));
+    ProcData.data.HbT.RH = ProcData.data.HbT.RH(1:dsExpectedLength);
+    ProcData.data.GCaMP7s.LH = (resample(RawData.data.LH_465.zScored_trim,ProcData.notes.dsFs,ProcData.notes.doric.samplingRate));
+    ProcData.data.GCaMP7s.LH = ProcData.data.GCaMP7s.LH(1:dsExpectedLength);
+    ProcData.data.GCaMP7s.RH = (resample(RawData.data.RH_465.zScored_trim,ProcData.notes.dsFs,ProcData.notes.doric.samplingRate));
+    ProcData.data.GCaMP7s.RH = ProcData.data.GCaMP7s.RH(1:dsExpectedLength);
+    %% process neural data into its various forms.
     neuralDataTypes = {'cortical_LH','cortical_RH','hippocampus'};
     for c = 1:length(neuralDataTypes)
         neuralDataType = neuralDataTypes{1,c};
@@ -54,14 +62,11 @@ for a = 1:size(rawDataFiles,1)
         ProcData.data.(neuralDataType).deltaBandPower = deltaBandPower;
     end
     %% Patch and binarize the whisker angle and set the resting angle to zero degrees.
-    [patchedWhisk] = PatchWhiskerAngle_FP(RawData.data.whiskerAngle,RawData.notes.whiskCamSamplingRate,RawData.notes.trialDuration_sec,RawData.notes.droppedWhiskCamFrameIndex);
-    RawData.data.patchedWhiskerAngle = patchedWhisk;
-    % Create filter for whisking/movement
     filtThreshold = 20;
     filtOrder = 2;
     [z,p,k] = butter(filtOrder,filtThreshold/(RawData.notes.whiskCamSamplingRate/2),'low');
     [sos,g] = zp2sos(z,p,k);
-    filteredWhiskers = filtfilt(sos,g,patchedWhisk - mean(patchedWhisk));
+    filteredWhiskers = filtfilt(sos,g,RawData.data.whiskerAngle - mean(RawData.data.whiskerAngle));
     resampledWhisk = resample(filteredWhiskers,ProcData.notes.dsFs,RawData.notes.whiskCamSamplingRate);
     % Binarize the whisker waveform (wwf)
     threshfile = dir('*_Thresholds.mat');
@@ -114,8 +119,7 @@ for a = 1:size(rawDataFiles,1)
     EMGPwr = log10(conv(filtEMG.^2,smoothingKernel,'same'));
     resampEMG = resample(EMGPwr,ProcData.notes.dsFs,ProcData.notes.analogSamplingRate);
     ProcData.data.EMG.emg = resampEMG;
-    %% Save the processed data
-    save(rawDataFile, 'RawData')
+    %% save the processed data
     save(procDataFile, 'ProcData')
 end
 

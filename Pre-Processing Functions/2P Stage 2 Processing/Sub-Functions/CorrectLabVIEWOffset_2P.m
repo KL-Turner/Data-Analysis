@@ -214,4 +214,3 @@ for a = 1:size(mscanDataFiles,1)
 end
 
 end
-

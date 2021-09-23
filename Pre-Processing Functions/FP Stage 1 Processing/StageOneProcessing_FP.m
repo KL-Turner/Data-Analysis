@@ -54,20 +54,21 @@ for a = 1:length(fileNames)
         EMG = trialData.data.vals(dataRow,:)/str2double(trialData.amplifierGain);
         % duplicate fiber signal
         dataRow = strcmp(trialData.data.names,'560LH');
-        LH_560 = trialData.data.vals(dataRow,:);
+        sync = trialData.data.vals(dataRow,:);
         % Left, Right, Auditory solenoids. Combine the arrays together.
         dataRow = strcmp(trialData.data.names,'LPadSol');
-        LPadSol = gt(trialData.data.vals(dataRow,:),0.5)*1;    % ID amplitude is 1
+        LPadSol = gt(trialData.data.vals(dataRow,:),0.5)*1; % ID amplitude is 1
         dataRow = strcmp(trialData.data.names,'RPadSol');
-        RPadSol = gt(trialData.data.vals(dataRow,:),0.5)*2;    % ID amplitude is 2
+        RPadSol = gt(trialData.data.vals(dataRow,:),0.5)*2; % ID amplitude is 2
         dataRow = strcmp(trialData.data.names,'AudSol');
-        AudSol = gt(trialData.data.vals(dataRow,:),0.5)*3;     % ID amplitude is 3
+        AudSol = gt(trialData.data.vals(dataRow,:),0.5)*3;  % ID amplitude is 3
         stimulations = LPadSol + RPadSol + AudSol;
         %% BLOCK PURPOSE: [3] Start Whisker tracker.
         disp('Analyzing Block [3] Starting whisker tracking.'); disp(' ')
         [whiskerAngle] = WhiskerTrackerParallel_FP(fileID);
-        inds = isnan(whiskerAngle) == 1; 
-        whiskerAngle(inds) = [];
+        indsA = isnan(whiskerAngle); 
+        indsB = indsA == 1; 
+        whiskerAngle(indsB) = [];
         %% BLOCK PURPOSE: [4] Save the notes and data.
         disp('Analyzing Block [4] Evaluating data to save to RawData file.'); disp(' ')
         % notes - all variables are descriptive
@@ -91,7 +92,7 @@ for a = 1:length(fileNames)
         RawData.data.EMG = EMG;
         RawData.data.whiskerAngle = whiskerAngle;
         RawData.data.stimulations = stimulations;
-        RawData.data.LH_560 = LH_560;
+        RawData.data.sync = sync;
         disp(['File Created. Saving RawData File ' num2str(a) '...']); disp(' ')
         save([trialData.animalID '_' fileID '_RawData'],'RawData')
     else
