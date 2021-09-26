@@ -39,7 +39,6 @@ imagingType = 'bilateral';
 % stimulationType = input('Input stimulation type (single or pulse): ','s'); disp(' ')
 stimulationType = 'single';
 dataTypes = {'cortical_LH','cortical_RH','hippocampus','EMG'};
-updatedDataTypes = {'cortical_LH','cortical_RH','hippocampus','EMG'};
 neuralDataTypes = {'cortical_LH','cortical_RH','hippocampus'};
 basefile = ([animalID '_RestingBaselines.mat']);
 %% BLOCK PURPOSE: [1] Categorize data
@@ -51,7 +50,10 @@ for a = 1:size(procDataFileIDs,1)
 end
 %% BLOCK PURPOSE: [2] Create RestData data structure
 disp('Analyzing Block [2] Create RestData struct for CBV and neural data.'); disp(' ')
-[RestData] = ExtractRestingData_FP(procDataFileIDs,dataTypes,imagingType);
+[RestData] = ExtractRestingData_FP(procDataFileIDs,dataTypes);
+%% BLOCK PURPOSE: [8] Create the EventData structure for CBV and neural data
+disp('Analyzing Block [8] Create EventData struct for CBV and neural data.'); disp(' ')
+[EventData] = ExtractEventTriggeredData_FP(procDataFileIDs,dataTypes);
 %% BLOCK PURPOSE: [3] Analyze the spectrogram for each session.
 disp('Analyzing Block [3] Analyzing the spectrogram for each file.'); disp(' ')
 CreateTrialSpectrograms_FP(rawDataFileIDs,neuralDataTypes);
@@ -67,19 +69,9 @@ targetMinutes = 60;
 NormalizeSpectrograms_FP(neuralDataTypes,RestingBaselines);
 %% BLOCK PURPOSE: [5] Manually select files for custom baseline calculation
 disp('Analyzing Block [5] Manually select files for custom baseline calculation.'); disp(' ')
-hemoType = 'reflectance';
-[RestingBaselines] = CalculateManualRestingBaselinesTimeIndeces_FP(imagingType,hemoType);
-%% BLOCK PURPOSE [6] Add delta HbT field to each processed data file
-disp('Analyzing Block [6] Adding delta HbT to each ProcData file.'); disp(' ')
-updatedBaselineType = 'manualSelection';
-UpdateTotalHemoglobin_FP(procDataFileIDs,RestingBaselines,updatedBaselineType,imagingType)
-%% BLOCK PURPOSE: [7] Re-create the RestData structure now that HbT is available
-disp('Analyzing Block [7] Creating RestData struct for CBV and neural data.'); disp(' ')
-[RestData] = ExtractRestingData_FP(procDataFileIDs,updatedDataTypes,imagingType);
-%% BLOCK PURPOSE: [8] Create the EventData structure for CBV and neural data
-disp('Analyzing Block [8] Create EventData struct for CBV and neural data.'); disp(' ')
-[EventData] = ExtractEventTriggeredData_FP(procDataFileIDs,updatedDataTypes,imagingType);
+[RestingBaselines] = CalculateManualRestingBaselinesTimeIndeces_FP();
 %% BLOCK PURPOSE: [9] Normalize RestData and EventData structures by the resting baseline
+updatedBaselineType = 'manualSelection';
 % Character list of all ProcData files
 restDataFileStruct = dir('*_RestData.mat');
 restDataFiles = {restDataFileStruct.name}';
@@ -109,22 +101,12 @@ NormalizeSpectrograms_FP(neuralDataTypes,RestingBaselines);
 % Create a structure with all spectrograms for convenient analysis further downstream
 CreateAllSpecDataStruct_FP(animalID,neuralDataTypes)
 %% BLOCK PURPOSE [11] Generate single trial figures
-disp('Analyzing Block [11] Generating single trial summary figures'); disp(' ')
-updatedBaselineType = 'manualSelection';
-saveFigs = 'y';
-% reflectance
-hemoType = 'reflectance';
-for bb = 1:size(procDataFileIDs,1)
-    procDataFileID = procDataFileIDs(bb,:);
-    [figHandle] = GenerateSingleFigures_FP(procDataFileID,RestingBaselines,updatedBaselineType,saveFigs,imagingType,hemoType);
-    close(figHandle)
-end
-% HbT
-hemoType = 'HbT';
-for bb = 1:size(procDataFileIDs,1)
-    procDataFileID = procDataFileIDs(bb,:);
-    [figHandle] = GenerateSingleFigures_FP(procDataFileID,RestingBaselines,updatedBaselineType,saveFigs,imagingType,hemoType);
-    close(figHandle)
-end
+% disp('Analyzing Block [11] Generating single trial summary figures'); disp(' ')
+% saveFigs = 'y';
+% for bb = 1:size(procDataFileIDs,1)
+%     procDataFileID = procDataFileIDs(bb,:);
+%     [figHandle] = GenerateSingleFigures_FP(procDataFileID,saveFigs);
+%     close(figHandle)
+% end
 
 disp('Stage Three Processing - Complete.'); disp(' ')

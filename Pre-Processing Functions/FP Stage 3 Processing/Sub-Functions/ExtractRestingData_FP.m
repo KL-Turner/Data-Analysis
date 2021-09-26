@@ -1,4 +1,4 @@
-function [RestData] = ExtractRestingData_FP(procdataFiles,dataTypes,imagingType)
+function [RestData] = ExtractRestingData_FP(procdataFiles,dataTypes)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % Ph.D. Candidate, Department of Bioengineering
@@ -15,16 +15,8 @@ end
 % go through each datatype and extract the corresponding data
 for a = 1:length(dataTypes)
     dataType = dataTypes(a);
-    if strcmp(dataType,'HbT') == true || strcmp(dataType,'CBV_HbT') == true
-        if strcmp(imagingType,'bilateral') == true
-            subDataTypes = {'LH','adjLH','RH','adjRH'};
-        elseif strcmp(imagingType,'single') == true
-            subDataTypes = {'Barrels','adjBarrels','Veinous'};
-        end
-    elseif strcmp(dataType,'EMG') == true
+    if strcmp(dataType,'EMG') == true
         subDataTypes = {'emg'};
-    elseif strcmp(dataType,'flow') == true
-        subDataTypes = {'data'};
     else
         subDataTypes = {'deltaBandPower','thetaBandPower','alphaBandPower','betaBandPower','gammaBandPower','muaPower'};
     end

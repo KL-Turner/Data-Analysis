@@ -1,7 +1,7 @@
-function [EventData] = ExtractEventTriggeredData_FP(procdataFiles,dataTypes,imagingType)
+function [EventData] = ExtractEventTriggeredData_FP(procdataFiles,dataTypes)
 %________________________________________________________________________________________________________________________
-% Written by Kevin L. Turner 
-% Ph.D. Candidate, Department of Bioengineering 
+% Written by Kevin L. Turner
+% Ph.D. Candidate, Department of Bioengineering
 % The Pennsylvania State University
 % Adapted from code written by Aaron T. Winder
 %________________________________________________________________________________________________________________________
@@ -18,21 +18,13 @@ if not(iscell(dataTypes))
 end
 for a = 1:length(dataTypes)
     dataType = char(dataTypes(a));
-    if strcmp(dataType,'CBV') == true || strcmp(dataType,'CBV_HbT') == true
-        if strcmp(imagingType,'bilateral') == true
-            subDataTypes = {'LH','adjLH','RH','adjRH'};
-        elseif strcmp(imagingType,'single') == true
-            subDataTypes = {'Barrels','adjBarrels','Veinous'};
-        end
-    elseif strcmp(dataType,'EMG') == true
+    if strcmp(dataType,'EMG') == true
         subDataTypes = {'emg'};
-    elseif strcmp(dataType,'flow') == true
-        subDataTypes = {'data'};
     else
         subDataTypes = {'deltaBandPower','thetaBandPower','alphaBandPower','betaBandPower','gammaBandPower','muaPower'};
     end
-    temp = struct();    
-    for b = 1:size(procdataFiles,1)    
+    temp = struct();
+    for b = 1:size(procdataFiles,1)
         % Load ProcData File
         filename = procdataFiles(b,:);
         load(filename);
@@ -63,7 +55,7 @@ for a = 1:length(dataTypes)
                     temp.(sDT).(behaviorFields{d}).fileIDs = blankCell;
                     temp.(sDT).(behaviorFields{d}).fileDates = blankCell;
                     temp.(sDT).(behaviorFields{d}).data = blankCell;
-                end          
+                end
                 % Assemble a structure to send to the sub-functions
                 fieldName2 = dataType;
                 try
@@ -88,7 +80,7 @@ for a = 1:length(dataTypes)
                 % dataType
                 temp.(sDT).(behaviorFields{d}).samplingRate = {samplingRate};
                 temp.(sDT).(behaviorFields{d}).trialDuration_sec = {trialDuration_sec};
-            end 
+            end
         end
     end
     % Convert the temporary stuct into a final structure
@@ -147,12 +139,12 @@ dTs = fieldnames(temp);
 for a = 1:length(dTs)
     dT = dTs{a};
     % Get dataType names
-    behaviorFields = fieldnames(temp.(dT));   
+    behaviorFields = fieldnames(temp.(dT));
     % Intialize Behavior fields of the dataType sub-structure
     structArray2 = cell(size(behaviorFields));
     EventData.(dataType).(dT) = cell2struct(structArray2,behaviorFields,1);
     for b = 1:length(behaviorFields)
-        behavior = behaviorFields{b};       
+        behavior = behaviorFields{b};
         % Get Behavior names
         eventFields = fieldnames(temp.(dT).(behavior));
         % Initialize Event fields for the Behavior sub-structure

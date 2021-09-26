@@ -1,4 +1,4 @@
-function [RestingBaselines] = CalculateManualRestingBaselinesTimeIndeces_FP(imagingType,hemoType)
+function [RestingBaselines] = CalculateManualRestingBaselinesTimeIndeces_FP()
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -43,12 +43,11 @@ for a = 1:size(procDataFileIDs,1)
     ManualDecisions.fileIDs{a,1} = procDataFileIDs(a,:);
     if isfield(ProcData,'manualBaselineInfo') == false
         saveFigs = 'n';
-        baselineType = 'setDuration';
         b = false;
         while b == false
             % load a figure with the data to visualize which periods are rest. Note that this data is, by default, normalized
             % by the first 30 minutes of data which may or may not reflect accurate normalizations
-            [singleTrialFig] = GenerateSingleFigures_FP(procDataFileID,RestingBaselines,baselineType,saveFigs,imagingType,hemoType);
+            [singleTrialFig] = GenerateSingleFigures_FP(procDataFileID,saveFigs);
             fileDecision = input(['Use data from ' procDataFileID ' for resting baseline calculation? (y/n): '], 's'); disp(' ')
             if strcmp(fileDecision,'y') || strcmp(fileDecision,'n')
                 b = true;
