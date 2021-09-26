@@ -81,18 +81,18 @@ for a = 1:length(fileNames)
         RawData.notes.amplifierGain = str2double(trialData.amplifierGain);        
         RawData.notes.whiskCamSamplingRate = str2double(trialData.whiskCamSamplingRate);
         RawData.notes.analogSamplingRate = str2double(trialData.analogSamplingRate);
-        RawData.notes.trialDuration_sec = str2double(trialData.trialDuration_sec);
+        RawData.notes.trialDuration_long = str2double(trialData.trialDuration_sec);
         RawData.notes.whiskCamPixelHeight = str2double(trialData.whiskCamPixelHeight);
         RawData.notes.whiskCamPixelWidth = str2double(trialData.whiskCamPixelWidth);
         % Data
-        RawData.data.cortical_LH = cortical_LH;
-        RawData.data.cortical_RH = cortical_RH;
-        RawData.data.hippocampus = hippocampus;
-        RawData.data.forceSensor = forceSensor;
-        RawData.data.EMG = EMG;
-        RawData.data.whiskerAngle = whiskerAngle;
-        RawData.data.stimulations = stimulations;
-        RawData.data.sync = sync;
+        RawData.data.cortical_LH_long = cortical_LH;
+        RawData.data.cortical_RH_long = cortical_RH;
+        RawData.data.hippocampus_long = hippocampus;
+        RawData.data.forceSensor_long = forceSensor;
+        RawData.data.EMG_long = EMG;
+        RawData.data.whiskerAngle_long = whiskerAngle;
+        RawData.data.stimulations_long = stimulations;
+        RawData.data.sync_long = sync;
         disp(['File Created. Saving RawData File ' num2str(a) '...']); disp(' ')
         save([trialData.animalID '_' fileID '_RawData'],'RawData')
     else

@@ -23,20 +23,20 @@ for a = 1:size(rawDataFiles,1)
     % Transfer RawData notes to ProcData structure.
     ProcData.notes = RawData.notes;
     ProcData.notes.dsFs = 30; % downsampled Fs
-    analogExpectedLength = ProcData.notes.trialDuration_sec_trim*ProcData.notes.analogSamplingRate;
-    dsExpectedLength = ProcData.notes.trialDuration_sec_trim*ProcData.notes.dsFs;
+    analogExpectedLength = ProcData.notes.trialDuration_sec*ProcData.notes.analogSamplingRate;
+    dsExpectedLength = ProcData.notes.trialDuration_sec*ProcData.notes.dsFs;
     %% identify the solenoids by amplitude.
     ProcData.data.stimulations.LPadSol = find(diff(RawData.data.stimulations) == 1)/RawData.notes.analogSamplingRate;
     ProcData.data.stimulations.RPadSol = find(diff(RawData.data.stimulations) == 2)/RawData.notes.analogSamplingRate;
     ProcData.data.stimulations.AudSol = find(diff(RawData.data.stimulations) == 3)/RawData.notes.analogSamplingRate;
     %% resample doric data to 30 Hz
-    ProcData.data.HbT.LH = (resample(RawData.data.LH_560.zScored_trim,ProcData.notes.dsFs,ProcData.notes.doric.samplingRate));
+    ProcData.data.HbT.LH = (resample(RawData.data.LH_560.zScored,ProcData.notes.dsFs,ProcData.notes.doric.samplingRate));
     ProcData.data.HbT.LH = ProcData.data.HbT.LH(1:dsExpectedLength);
-    ProcData.data.HbT.RH = (resample(RawData.data.RH_560.zScored_trim,ProcData.notes.dsFs,ProcData.notes.doric.samplingRate));
+    ProcData.data.HbT.RH = (resample(RawData.data.RH_560.zScored,ProcData.notes.dsFs,ProcData.notes.doric.samplingRate));
     ProcData.data.HbT.RH = ProcData.data.HbT.RH(1:dsExpectedLength);
-    ProcData.data.GCaMP7s.LH = (resample(RawData.data.LH_465.zScored_trim,ProcData.notes.dsFs,ProcData.notes.doric.samplingRate));
+    ProcData.data.GCaMP7s.LH = (resample(RawData.data.LH_465.zScored,ProcData.notes.dsFs,ProcData.notes.doric.samplingRate));
     ProcData.data.GCaMP7s.LH = ProcData.data.GCaMP7s.LH(1:dsExpectedLength);
-    ProcData.data.GCaMP7s.RH = (resample(RawData.data.RH_465.zScored_trim,ProcData.notes.dsFs,ProcData.notes.doric.samplingRate));
+    ProcData.data.GCaMP7s.RH = (resample(RawData.data.RH_465.zScored,ProcData.notes.dsFs,ProcData.notes.doric.samplingRate));
     ProcData.data.GCaMP7s.RH = ProcData.data.GCaMP7s.RH(1:dsExpectedLength);
     %% process neural data into its various forms.
     neuralDataTypes = {'cortical_LH','cortical_RH','hippocampus'};
@@ -120,7 +120,7 @@ for a = 1:size(rawDataFiles,1)
     resampEMG = resample(EMGPwr,ProcData.notes.dsFs,ProcData.notes.analogSamplingRate);
     ProcData.data.EMG.emg = resampEMG;
     %% save the processed data
-    save(procDataFile, 'ProcData')
+    save(procDataFile,'ProcData')
 end
 
 end

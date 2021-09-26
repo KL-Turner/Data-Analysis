@@ -15,7 +15,7 @@ end
 % go through each datatype and extract the corresponding data
 for a = 1:length(dataTypes)
     dataType = dataTypes(a);
-    if strcmp(dataType,'CBV') == true || strcmp(dataType,'CBV_HbT') == true
+    if strcmp(dataType,'HbT') == true || strcmp(dataType,'CBV_HbT') == true
         if strcmp(imagingType,'bilateral') == true
             subDataTypes = {'LH','adjLH','RH','adjRH'};
         elseif strcmp(imagingType,'single') == true
@@ -44,7 +44,7 @@ for a = 1:length(dataTypes)
             % Get the date and file identifier for the data to be saved with each resting event
             [animal,fileDate,fileID] = GetFileInfo_FP(procdataFile);
             % Sampling frequency for element of dataTypes
-            Fs = ProcData.notes.CBVCamSamplingRate;                                     
+            Fs = ProcData.notes.dsFs;                                     
             % Expected number of samples for element of dataType
             trialDuration_sec = ProcData.notes.trialDuration_sec;
             expectedLength = trialDuration_sec*Fs;

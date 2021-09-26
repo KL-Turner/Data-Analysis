@@ -23,16 +23,18 @@ for aa = 1:size(fiberDataFileIDs,1)
     whiskCamSamplingRate = RawData.notes.whiskCamSamplingRate;
     doricSamplingRate = FiberData.notes.samplingRate;
     whiskerCamSamplingRate = RawData.notes.whiskCamSamplingRate;
-    trialDuration = RawData.notes.trialDuration_sec;
+    trialDuration = RawData.notes.trialDuration_long;
     dsFs = 100; % Hz
-    labviewSyncSignal = resample(detrend(RawData.data.sync,'constant'),dsFs,analogSamplingRate);
-    fiberSyncSignal = resample(detrend(FiberData.data.sync,'constant'),dsFs,doricSamplingRate);
+    labviewSyncSignal = detrend(resample(RawData.data.sync_long,dsFs,analogSamplingRate),'constant');
+    labviewSyncSignal = labviewSyncSignal(dsFs*trialDuration/4:dsFs*trialDuration/2);
+    fiberSyncSignal = detrend(resample(FiberData.data.sync,dsFs,doricSamplingRate),'constant');
+    fiberSyncSignal = fiberSyncSignal(dsFs*trialDuration/4:dsFs*trialDuration/2);
     sampleDiff = length(labviewSyncSignal) - length(fiberSyncSignal);
     fiberSyncSignal = vertcat(fiberSyncSignal,zeros(sampleDiff,1));
     % dsFs xcorr
     maxLag = 10*dsFs;
     [r,lags] = xcorr(labviewSyncSignal,fiberSyncSignal,maxLag);
-    [~,index] = max(r(1:(length(r) - 1)/2));
+    [~,index] = max(r(1:(length(r) - 1)/2) - dsFs/10);
     offset = lags(index);
     offsetTime = abs(offset/dsFs);
     disp(['LabVIEW trailed Doric by ' num2str(offsetTime) ' seconds.']); disp(' ')
@@ -42,7 +44,7 @@ for aa = 1:size(fiberDataFileIDs,1)
     labviewSyncShift = horzcat(dsFs_pad,labviewSyncSignal);
     corrOffset = figure;
     ax1 = subplot(3,1,1);
-    plot((1:length(fiberSyncSignal))/dsFs,fiberSyncSignal,'k')
+    plot((1:length(fiberSyncSignal))/dsFs,fiberSyncSignal,'b')
     hold on;
     plot((1:length(labviewSyncSignal))/dsFs,labviewSyncSignal,'r')
     title({[animalID ' ' fileID ' sync channel data'],'offset correction between Doric and LabVIEW DAQ'})
@@ -76,34 +78,34 @@ for aa = 1:size(fiberDataFileIDs,1)
     for cc = 1:length(doricFields)
         subfields = fieldnames(FiberData.data.(doricFields{1,cc}));
         for dd = 1:length(subfields)
-            RawData.data.(doricFields{1,cc}).([char(subfields(dd,1)) '_trim']) = FiberData.data.(doricFields{1,cc}).(char(subfields(dd,1)))(floor(trimTime*doricSamplingRate):end - (doricCut + 1));
+            RawData.data.(doricFields{1,cc}).(char(subfields(dd,1))) = FiberData.data.(doricFields{1,cc}).(char(subfields(dd,1)))(floor(trimTime*doricSamplingRate):end - (doricCut + 1));
         end
     end
-    RawData.data.sync_trim = FiberData.data.sync(floor(trimTime*doricSamplingRate):end - (doricCut + 1));
+    RawData.data.fiberSync = FiberData.data.sync(floor(trimTime*doricSamplingRate):end - (doricCut + 1));
     %% apply labview correction to the data and trim excess time
-    labviewAnalogPad = zeros(1,round(offsetTime*analogSamplingRate));
-    labviewAnalogShift = horzcat(labviewAnalogPad,RawData.data.sync);
-    labviewAnalogSampleDiff = analogSamplingRate*trialDuration - length(labviewAnalogShift);
-    labviewAnalogCut = trimTime*analogSamplingRate - labviewAnalogSampleDiff;
-    labviewFields = {'cortical_LH','cortical_RH','hippocampus','EMG','forceSensor','stimulations','LH_560'};
+    labviewFields = {'cortical_LH','cortical_RH','hippocampus','EMG','forceSensor','stimulations','sync'};
     for cc = 1:length(labviewFields)
-        RawData.data.([labviewFields{1,cc} '_trim']) = labviewAnalogShift(floor(trimTime*analogSamplingRate):end - (labviewAnalogCut + 1));
+        labviewAnalogPad = zeros(1,round(offsetTime*analogSamplingRate));
+        labviewAnalogShift = horzcat(labviewAnalogPad,RawData.data.([labviewFields{1,cc} '_long']));
+        labviewAnalogSampleDiff = analogSamplingRate*trialDuration - length(labviewAnalogShift);
+        labviewAnalogCut = trimTime*analogSamplingRate - labviewAnalogSampleDiff;
+        RawData.data.(labviewFields{1,cc}) = labviewAnalogShift(floor(trimTime*analogSamplingRate):end - (labviewAnalogCut + 1));
     end
     labviewWhiskerPad = zeros(1,round(offsetTime*whiskCamSamplingRate));
-    labviewWhiskerShift = horzcat(labviewWhiskerPad,RawData.data.whiskerAngle);
+    labviewWhiskerShift = horzcat(labviewWhiskerPad,RawData.data.whiskerAngle_long);
     labviewWhiskerSampleDiff = whiskCamSamplingRate*trialDuration - length(labviewWhiskerShift);
     labviewWhiskerCut = trimTime*whiskerCamSamplingRate - labviewWhiskerSampleDiff;
-    RawData.data.whiskerAngle_trim = labviewWhiskerShift(floor(trimTime*whiskCamSamplingRate):end - (labviewWhiskerCut + 1));
+    RawData.data.whiskerAngle = labviewWhiskerShift(floor(trimTime*whiskCamSamplingRate):end - (labviewWhiskerCut + 1));
     RawData.notes.offsetCorrect = true;
     RawData.notes.trimTime = trimTime;
-    RawData.notes.trialDuration_sec_trim = trialDuration - 2*trimTime;
+    RawData.notes.trialDuration_sec = trialDuration - 2*trimTime;
     %% check shift
-    labviewSyncSignal_2 = resample(detrend(RawData.data.LH_560_trim,'constant'),dsFs,analogSamplingRate);
-    fiberSyncSignal_2 = resample(detrend(RawData.data.sync_trim,'constant'),dsFs,doricSamplingRate);
+    labviewSyncSignal_2 = resample(detrend(RawData.data.fiberSync,'constant'),dsFs,doricSamplingRate);
+    fiberSyncSignal_2 = resample(detrend(RawData.data.sync,'constant'),dsFs,analogSamplingRate);
     checkShift = figure;
-    p1  =  plot((1:length(fiberSyncSignal_2))/dsFs,fiberSyncSignal_2 ,'k');
+    p1  =  plot((1:length(fiberSyncSignal_2))/dsFs,fiberSyncSignal_2 ,'b');
     hold on;
-    p2 = plot((1:length(labviewSyncSignal_2))/dsFs,labviewSyncSignal_2 ,'b');
+    p2 = plot((1:length(labviewSyncSignal_2))/dsFs,labviewSyncSignal_2 ,'r');
     legend([p1,p2],'Doric','LabVIEW')
     axis tight
     %% save files

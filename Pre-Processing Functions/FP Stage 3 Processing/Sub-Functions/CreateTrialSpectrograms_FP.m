@@ -18,7 +18,7 @@ for aa = 1:size(rawDataFiles,1)
     % 5 second spectrograms with 1/5 second step size
     if ~exist(specDataFileIDA,'file') == true
         SpecData = [];
-        if exist('RawData') == false
+        if exist('RawData','file') == false
             load(rawDataFile);
             duration = RawData.notes.trialDuration_sec;
             analogFs = RawData.notes.analogSamplingRate;
@@ -61,7 +61,7 @@ for aa = 1:size(rawDataFiles,1)
     % 1 second spectrograms with 1/10 Hz step size
     if ~exist(specDataFileIDB,'file') == true
         SpecData = [];
-        if exist('RawData') == false
+        if exist('RawData','file') == false
             load(rawDataFile);
             duration = RawData.notes.trialDuration_sec;
             analogFs = RawData.notes.analogSamplingRate;
@@ -103,7 +103,7 @@ for aa = 1:size(rawDataFiles,1)
     % 1 second spectrograms with 1/30 Hz step size
     if ~exist(specDataFileIDC,'file') == true
         SpecData = [];
-        if exist('RawData') == false
+        if exist('RawData','file') == false
             load(rawDataFile);
             duration = RawData.notes.trialDuration_sec;
             analogFs = RawData.notes.analogSamplingRate;
