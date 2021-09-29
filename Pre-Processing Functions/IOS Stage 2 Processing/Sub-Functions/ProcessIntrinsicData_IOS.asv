@@ -32,7 +32,7 @@ end
 if strcmp(imagingType,'true') == false
     ExtractGCaMPData_IOS(ROIs,ROInames,rawDataFileIDs)
 else
-    ExtractCBVData_IOS(ROIs,ROInames,rawDataFileIDs)
+ExtractCBVData_IOS(ROIs,ROInames,rawDataFileIDs)
 end
 % Go through each ProcData file and add the pixel data to each
 for a = 1:size(procDataFileIDs,1)

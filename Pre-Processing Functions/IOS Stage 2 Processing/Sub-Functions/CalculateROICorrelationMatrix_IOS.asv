@@ -135,23 +135,19 @@ for zz = 1:length(frameDeck)
     maxLag = lagTime*RawData.notes.CBVCamSamplingRate;
     for d = 1:length(hem)
         hemisphere = hem{1,d};
-        if strcmpi(imagingType,'gcamp') == false
-            if strcmpi(hemisphere,'LH') == true
+        if strcmpi(hemisphere,'LH') == true
+            gammaBandArray = LH_gammaBandPower;
+        elseif strcmpi(hemisphere,'RH') == true
+            gammaBandArray = RH_gammaBandPower;
+        elseif strcmpi(hemisphere,'Barrels') == true
+            singleHem = ProcData.notes.hemisphere;
+            if strcmpi(singleHem,'LH') == true
                 gammaBandArray = LH_gammaBandPower;
-            elseif strcmpi(hemisphere,'RH') == true
+            elseif strcmpi(singleHem,'RH') == true
                 gammaBandArray = RH_gammaBandPower;
-            elseif strcmpi(hemisphere,'Barrels') == true
-                singleHem = ProcData.notes.hemisphere;
-                if strcmpi(singleHem,'LH') == true
-                    gammaBandArray = LH_gammaBandPower;
-                elseif strcmpi(singleHem,'RH') == true
-                    gammaBandArray = RH_gammaBandPower;
-                elseif strcmpi(singleHem,'Both') == true
-                    gammaBandArray = Hip_gammaBandPower;
-                end
+            elseif strcmpi(singleHem,'Both') == true
+                gammaBandArray = Hip_gammaBandPower;
             end
-        else
-            gammaBandArray = Hip_gammaBandPower;
         end
         % extract pixel values from each numel index in matrix image
         for e = 1:size(imageStack.(hemisphere),1)
@@ -187,10 +183,10 @@ elseif strcmpi(lensMag,'2.5X') == true
 elseif strcmpi(lensMag,'3.0X') == true
     circRadius = 30;
 end
-if imageWidth == 128
-    % determine the proper size of the ROI based on camera/lens magnification
-    circRadius = circRadius/2;   % pixels to be 1 mm in diameter
-end
+% if imageWidth == 128
+%     % determine the proper size of the ROI based on camera/lens magnification
+%     circRadius = circRadius/2;   % pixels to be 1 mm in diameter
+% end
 % place circle along the most correlation region of each hemisphere
 for f = 1:length(hem)
     rectMask = ROIs.([hem{1,f} '_' strDay]).rect;
