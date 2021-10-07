@@ -98,12 +98,12 @@ NormalizeSpectrograms_FP(neuralDataTypes,RestingBaselines);
 % Create a structure with all spectrograms for convenient analysis further downstream
 CreateAllSpecDataStruct_FP(animalID,neuralDataTypes)
 %% BLOCK PURPOSE [11] Generate single trial figures
-% disp('Analyzing Block [11] Generating single trial summary figures'); disp(' ')
-% saveFigs = 'y';
-% for bb = 1:size(procDataFileIDs,1)
-%     procDataFileID = procDataFileIDs(bb,:);
-%     [figHandle] = GenerateSingleFigures_FP(procDataFileID,saveFigs);
-%     close(figHandle)
-% end
+disp('Analyzing Block [11] Generating single trial summary figures'); disp(' ')
+saveFigs = 'y';
+for bb = 1:size(procDataFileIDs,1)
+    procDataFileID = procDataFileIDs(bb,:);
+    [figHandle] = GenerateSingleFigures_FP(procDataFileID,saveFigs);
+    close(figHandle)
+end
 
 disp('Stage Three Processing - Complete.'); disp(' ')

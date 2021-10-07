@@ -25,7 +25,7 @@ for n = 1:nFramesToRead
     img = reshape(z,imageHeight,imageWidth);
     imageStack(:,:,n) = rot90(img',2);
 end
-fclose('all');
+% fclose('all');
 %% Create implay movie for the desired timeframe
 handle = implay(imageStack,Fs);
 handle.Visual.ColorMap.UserRange = 1; 
@@ -63,7 +63,11 @@ close(roiFig)
 cbvFrames = imageStack(:,:,3:2:end - 1);
 gcampFrames = imageStack(:,:,4:2:end);
 numFrames = size(cbvFrames,3);
-figure; imagesc(cbvFrames(:,:,3)); caxis([0,2000]); colormap gray; axis image
+figure; 
+imagesc(cbvFrames(:,:,3)); 
+caxis([0,2000]); 
+colormap gray; 
+axis image
 % LH - apply image mask to each frame of the stack
 LH_cbvRefl = zeros(1,numFrames);
 LH_gcampRefl = zeros(1,numFrames);
@@ -84,7 +88,7 @@ for n = 1:numFrames
     RH_cbvRefl(n) = mean(nonzeros(RH_cbvMask));
     RH_gcampRefl(n) = mean(nonzeros(RH_gcampMask));
 end
-%%
+%% generate figure
 figure; 
 plot(detrend(LH_cbvRefl,'constant'))
 hold on
@@ -92,3 +96,8 @@ plot(detrend(RH_cbvRefl,'constant'))
 plot(detrend(LH_gcampRefl,'constant'))
 plot(detrend(RH_gcampRefl,'constant'))
 legend('LH CBV','RH CBV','LH gcamp','RH gcamp')
+%% display correlation between cbv and gcamp
+LH_R = corrcoef(LH_cbvRefl,LH_gcampRefl);
+RH_R = corrcoef(LH_cbvRefl,LH_gcampRefl);
+disp(['LH R: ' num2str(LH_R(2))]);
+disp(['RH R: ' num2str(RH_R(2))]); disp(' ')

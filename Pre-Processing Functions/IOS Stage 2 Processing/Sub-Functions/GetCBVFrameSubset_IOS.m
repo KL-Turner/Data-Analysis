@@ -1,4 +1,4 @@
-function [imageStack] = GetCBVFrameSubset_IOS(filename, image_height, image_width, frameInds)
+function [imageStack] = GetCBVFrameSubset_IOS(filename,imageHeight,imageWidth,frameInds)
 %___________________________________________________________________________________________________
 % Edited by Kevin L. Turner
 % Ph.D. Candidate, Department of Bioengineering 
@@ -28,7 +28,7 @@ function [imageStack] = GetCBVFrameSubset_IOS(filename, image_height, image_widt
 %               ImageStack - [array] a 3D array of images                   
 %_______________________________________________________________
 
-pixels_per_frame=image_width*image_height; % number to give to fread along with 16-bit pixel depth flag
+pixels_per_frame=imageWidth*imageHeight; % number to give to fread along with 16-bit pixel depth flag
 skipped_pixels = pixels_per_frame*2; % Multiply by two because there are 16 bits (2 bytes) per pixel
 NumFrames = length(frameInds);
 
@@ -42,7 +42,7 @@ if fid == -1
 end
 
 %preallocate memory
-imageStack = NaN*ones(image_height, image_width, NumFrames);
+imageStack = NaN*ones(imageHeight, imageWidth, NumFrames);
 
 % Loop over each frame
 t1 = tic;
@@ -50,7 +50,7 @@ for n=1:NumFrames
     fseek(fid,frameInds(n)*skipped_pixels,'bof');
     z=fread(fid, pixels_per_frame,'*int16','b');
     % Convert linear array into a 256x256x1 frame
-    img=reshape(z,image_height,image_width);
+    img=reshape(z,imageHeight,imageWidth);
     
     % Orient the frame so that rostral is up
     imageStack(:,:,n) = rot90(img',2);
@@ -58,3 +58,6 @@ end
 elapsed = toc(t1);
 % wraptext(['GetCBVFrameSubset: Frames acquired in ' num2str(elapsed) ' seconds.'])
 fclose('all');
+
+end
+

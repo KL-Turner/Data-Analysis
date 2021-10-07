@@ -15,7 +15,7 @@ if strcmp(imagingType,'bilateral') == true
 elseif strcmp(imagingType,'single') == true
     ROInames = {'Barrels','Cement'};
 elseif strcmp(imagingType,'gcamp') == true
-    ROInames = {'LH','RH'};
+    ROInames = {'LH','RH','Cement'};
 end
 % create/load pre-existing ROI file with the coordinates
 ROIFileDir = dir('*_ROIs.mat');
@@ -30,7 +30,7 @@ end
 [ROIs] = CheckROIDates_IOS(animalID,ROIs,ROInames,imagingType,lensMag);
 % Extract CBV data from each ROI for each RawData file in the directory that hasn't been processed yet.
 if strcmp(imagingType,'true') == false
-    ExtractGCaMPData_IOS(ROIs,ROInames,rawDataFileIDs)
+    ExtractGCaMPData_IOS(ROIs,ROInames,rawDataFileIDs,procDataFileIDs)
 else
     ExtractCBVData_IOS(ROIs,ROInames,rawDataFileIDs)
 end
@@ -44,10 +44,15 @@ for a = 1:size(procDataFileIDs,1)
     [~,fileDate,~] = GetFileInfo_IOS(rawDataFileID);
     strDay = ConvertDate_IOS(fileDate);
     for b = 1:length(ROInames)
-        ProcData.data.CBV.(ROInames{1,b}) = RawData.data.CBV.([ROInames{1,b} '_' strDay])(1:end - 1);
+        if strcmp(imagingType,'gcamp') == true
+            ProcData.data.CBV.(ROInames{1,b}) = RawData.data.CBV.([ROInames{1,b} '_' strDay]);
+            ProcData.data.GCaMP7s.(ROInames{1,b}) = RawData.data.GCaMP7s.([ROInames{1,b} '_' strDay]);
+            ProcData.notes.CBVCamSamplingRate = 30;
+        else
+            ProcData.data.CBV.(ROInames{1,b}) = RawData.data.CBV.([ROInames{1,b} '_' strDay])(1:end - 1);
+        end
+        CheckForNaNs_IOS(ProcData);
+        save(procDataFileID,'ProcData')
     end
-    CheckForNaNs_IOS(ProcData);
-    save(procDataFileID,'ProcData')
-end
-
+    
 end

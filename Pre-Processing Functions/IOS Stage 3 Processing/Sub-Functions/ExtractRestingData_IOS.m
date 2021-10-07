@@ -15,7 +15,7 @@ end
 % go through each datatype and extract the corresponding data
 for a = 1:length(dataTypes)
     dataType = dataTypes(a);
-    if strcmp(dataType,'CBV') == true || strcmp(dataType,'CBV_HbT') == true
+    if strcmp(dataType,'CBV') == true || strcmp(dataType,'CBV_HbT') == true || strcmp(dataType,'GCaMP7s') == true
         if strcmp(imagingType,'bilateral') == true
             subDataTypes = {'LH','adjLH','RH','adjRH'};
         elseif strcmp(imagingType,'single') == true

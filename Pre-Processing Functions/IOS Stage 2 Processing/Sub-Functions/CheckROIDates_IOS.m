@@ -25,7 +25,7 @@ end
 ROIFileDir = dir('*_ROIs.mat');
 ROIFileName = {ROIFileDir.name}';
 ROIFileID = char(ROIFileName);
-if exist(ROIFileID)
+if exist(ROIFileID,'file')
     load(ROIFileID);
 else
     ROIs = [];
@@ -38,10 +38,14 @@ for b = 1:length(firstsFileOfDay)
         ROIname = [ROInames{1,c} '_' strDay];
         if ~isfield(ROIs,(ROIname))
             if strcmp(ROInames{1,c},'LH') == true || strcmp(ROInames{1,c},'RH') == true || strcmp(ROInames{1,c},'Barrels') == true
-                [ROIs] = CalculateROICorrelationMatrix_IOS(animalID,strDay,fileID,ROIs,imagingType,lensMag);
+                if strcmpi(imagingType,'gcamp') == true
+                    [ROIs] = PlaceGCaMP_ROIs_IOS(animalID,fileID,ROIs,imagingType,lensMag);
+                else
+                    [ROIs] = CalculateROICorrelationMatrix_IOS(animalID,strDay,fileID,ROIs,imagingType,lensMag);
+                end
             else
                 [frames] = ReadDalsaBinary_IOS(animalID,fileID);
-                [ROIs] = CreateBilateralROIs_IOS(frames{1},ROIname,animalID,ROIs);
+                [ROIs] = CreateFreeHandROIs_IOS(frames{1},ROIname,animalID,ROIs);
             end
             save([animalID '_ROIs.mat'],'ROIs');
         end

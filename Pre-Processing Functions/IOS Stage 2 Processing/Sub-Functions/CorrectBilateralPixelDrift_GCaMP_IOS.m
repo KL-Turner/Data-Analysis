@@ -1,4 +1,4 @@
-function [] = CorrectBilateralPixelDrift_IOS(procDataFileIDs)
+function [] = CorrectBilateralPixelDrift_GCaMP_IOS(procDataFileIDs)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -22,8 +22,8 @@ end
 % go through each day and concate the data to observe slow drift
 for b = 1:length(firstsFileOfDay)
     indDayProcDataFileList = {};
-    catLH_CBVdata = [];
-    catRH_CBVdata = [];
+    catLH_GCaMP7sdata = [];
+    catRH_GCaMP7sdata = [];
     catCement_cementData = [];
     fileName = firstsFileOfDay{1,b};
     [~,fileDate,~] = GetFileInfo_IOS(fileName);
@@ -36,17 +36,17 @@ for b = 1:length(firstsFileOfDay)
             p = p + 1;
         end
     end
-    % load the processed CBV/cement data from each file and concat it into one array
+    % load the processed GCaMP7s/cement data from each file and concat it into one array
     for d = 1:length(indDayProcDataFileList)
         indDayProcDataFile = indDayProcDataFileList{d,1};
         load(indDayProcDataFile)
         samplingRate = ProcData.notes.CBVCamSamplingRate;
         trialDuration = ProcData.notes.trialDuration_sec;
-        LH_CBVdata = ProcData.data.CBV.LH;
-        RH_CBVdata = ProcData.data.CBV.RH;
-        Cement_cementData = ProcData.data.CBV.Cement;
-        catLH_CBVdata = horzcat(catLH_CBVdata,LH_CBVdata); %#ok<AGROW>
-        catRH_CBVdata = horzcat(catRH_CBVdata,RH_CBVdata); %#ok<AGROW>
+        LH_GCaMP7sdata = ProcData.data.GCaMP7s.LH;
+        RH_GCaMP7sdata = ProcData.data.GCaMP7s.RH;
+        Cement_cementData = ProcData.data.GCaMP7s.Cement;
+        catLH_GCaMP7sdata = horzcat(catLH_GCaMP7sdata,LH_GCaMP7sdata); %#ok<AGROW>
+        catRH_GCaMP7sdata = horzcat(catRH_GCaMP7sdata,RH_GCaMP7sdata); %#ok<AGROW>
         catCement_cementData = horzcat(catCement_cementData,Cement_cementData); %#ok<AGROW>
     end
     % establish whether a slow exponential trend exists for the data
@@ -67,10 +67,10 @@ for b = 1:length(firstsFileOfDay)
     Cement_modelFit_norm = (Cement_modelFit_Y - min(Cement_modelFit_Y))./min(Cement_modelFit_Y);
     Cement_modelFit_flip = 1 - Cement_modelFit_norm;
     % apply exponential correction to original data
-    LH_adjCat_CBVdata = catLH_CBVdata.*Cement_modelFit_flip';
-    LH_rsAdjCat_CBVdata = reshape(LH_adjCat_CBVdata,[samplingRate*trialDuration,length(indDayProcDataFileList)]);
-    RH_adjCat_CBVdata = catRH_CBVdata.*Cement_modelFit_flip';
-    RH_rsAdjCat_CBVdata = reshape(RH_adjCat_CBVdata,[samplingRate*trialDuration,length(indDayProcDataFileList)]);
+    LH_adjCat_GCaMP7sdata = catLH_GCaMP7sdata.*Cement_modelFit_flip';
+    LH_rsAdjCat_GCaMP7sdata = reshape(LH_adjCat_GCaMP7sdata,[samplingRate*trialDuration,length(indDayProcDataFileList)]);
+    RH_adjCat_GCaMP7sdata = catRH_GCaMP7sdata.*Cement_modelFit_flip';
+    RH_rsAdjCat_GCaMP7sdata = reshape(RH_adjCat_GCaMP7sdata,[samplingRate*trialDuration,length(indDayProcDataFileList)]);
     % comparison showing original LH data and the corrected data
     fixPixels = figure;
     subplot(1,3,1)
@@ -80,24 +80,24 @@ for b = 1:length(firstsFileOfDay)
     title('Cement ROI drift')
     xlabel('Time (sec)')
     ylabel('12-bit pixel val')
-    legend('cement reflectance','exp fit')
+    legend('cement data','exp fit')
     axis tight
     axis square
     subplot(1,3,2)
-    p1 = plot(x,catLH_CBVdata,'k');
+    p1 = plot(x,catLH_GCaMP7sdata,'k');
     hold on
-    p2 = plot(x,LH_adjCat_CBVdata,'g');
-    title('LH ROI CBV Reflectance')
+    p2 = plot(x,LH_adjCat_GCaMP7sdata,'g');
+    title('LH ROI GCaMP7s')
     xlabel('Time (sec)')
     ylabel('12-bit pixel val')
     legend([p1,p2],'original data','proposed corrected')
     axis tight
     axis square
     subplot(1,3,3)
-    p1 = plot(x,catRH_CBVdata,'k');
+    p1 = plot(x,catRH_GCaMP7sdata,'k');
     hold on
-    p2 = plot(x,RH_adjCat_CBVdata,'g');
-    title('RH ROI CBV Reflectance')
+    p2 = plot(x,RH_adjCat_GCaMP7sdata,'g');
+    title('RH ROI GCaMP7s')
     xlabel('Time (sec)')
     ylabel('12-bit pixel val')
     legend([p1,p2],'original data','proposed corrected')
@@ -113,8 +113,8 @@ for b = 1:length(firstsFileOfDay)
             disp('Invalid input'); disp(' ')
         end
     end
-    sgtitle({[animalID ' ' strDay ' green frames'];['pixel correction applied: ' applyCorrection]})
-    savefig(fixPixels,[animalID '_' strDay '_CBV_PixelDriftCorrection']);
+    sgtitle({[animalID ' ' strDay ' blue frames'];['pixel correction applied: ' applyCorrection]})
+    savefig(fixPixels,[animalID '_' strDay '_GCaMP_PixelDriftCorrection']);
     close(fixPixels)
     % apply corrected data to each file from reshaped matrix
     for d = 1:length(indDayProcDataFileList)
@@ -122,11 +122,11 @@ for b = 1:length(firstsFileOfDay)
         load(indDayProcDataFile)
         % pixel correction
         if strcmp(applyCorrection,'n') == true
-            ProcData.data.CBV.adjLH = ProcData.data.CBV.LH;
-            ProcData.data.CBV.adjRH = ProcData.data.CBV.RH;
+            ProcData.data.GCaMP7s.adjLH = ProcData.data.GCaMP7s.LH;
+            ProcData.data.GCaMP7s.adjRH = ProcData.data.GCaMP7s.RH;
         elseif strcmp(applyCorrection,'y') == true
-            ProcData.data.CBV.adjLH = LH_rsAdjCat_CBVdata(:,d)';
-            ProcData.data.CBV.adjRH = RH_rsAdjCat_CBVdata(:,d)';
+            ProcData.data.GCaMP7s.adjLH = LH_rsAdjCat_GCaMP7sdata(:,d)';
+            ProcData.data.GCaMP7s.adjRH = RH_rsAdjCat_GCaMP7sdata(:,d)';
         end
         disp(['Saving pixel corrections to ' strDay ' ProcData file ' num2str(d) ' of ' num2str(length(indDayProcDataFileList))]); disp(' ')
         save(indDayProcDataFile,'ProcData')

@@ -1,4 +1,4 @@
-function [] = CorrectLabVIEWOffset_FP(fiberDataFileIDs,rawDataFileIDs,trimTime)
+function [] = CorrectLabVIEWOffset_FP(trialDataFileIDs,rawDataFileIDs,trimTime)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -11,24 +11,25 @@ function [] = CorrectLabVIEWOffset_FP(fiberDataFileIDs,rawDataFileIDs,trimTime)
 %            lags. The beginning/end of all signals are then snipped appropriately after shifting.
 %________________________________________________________________________________________________________________________
 
-for aa = 1:size(fiberDataFileIDs,1)
+for aa = 1:size(trialDataFileIDs,1)
     %% find offset between the two force sensor signals using the cross correlation
-    fiberDataFileID = fiberDataFileIDs(aa,:);
-    load(fiberDataFileID);
+    trialDataFileID = trialDataFileIDs(aa,:);
+    load(trialDataFileID);
     rawDataFileID = rawDataFileIDs(aa,:);
     load(rawDataFileID)
-    disp(['Correcting offset in file number ' num2str(aa) ' of ' num2str(size(fiberDataFileIDs, 1)) '...']); disp(' ');
+    disp(['Correcting offset in file number ' num2str(aa) ' of ' num2str(size(trialDataFileIDs, 1)) '...']); disp(' ');
     [animalID,~,fileID] = GetFileInfo_FP(rawDataFileID);
     analogSamplingRate = RawData.notes.analogSamplingRate;
     whiskCamSamplingRate = RawData.notes.whiskCamSamplingRate;
-    doricSamplingRate = FiberData.notes.samplingRate;
+    doricSamplingRate = trialData.notes.samplingRate;
     whiskerCamSamplingRate = RawData.notes.whiskCamSamplingRate;
     trialDuration = RawData.notes.trialDuration_long;
+    doricTrialDuration = trialDuration - 0.25;
     dsFs = 100; % Hz
     labviewSyncSignal = detrend(resample(RawData.data.sync_long,dsFs,analogSamplingRate),'constant');
     labviewSyncSignal = labviewSyncSignal(dsFs*trialDuration/4:dsFs*trialDuration/2);
-    fiberSyncSignal = detrend(resample(FiberData.data.sync,dsFs,doricSamplingRate),'constant');
-    fiberSyncSignal = fiberSyncSignal(dsFs*trialDuration/4:dsFs*trialDuration/2);
+    fiberSyncSignal = detrend(resample(trialData.syncData,dsFs,doricSamplingRate),'constant');
+    fiberSyncSignal = fiberSyncSignal(round(dsFs*doricTrialDuration/4):round(dsFs*doricTrialDuration/2));
     sampleDiff = length(labviewSyncSignal) - length(fiberSyncSignal);
     fiberSyncSignal = vertcat(fiberSyncSignal,zeros(sampleDiff,1));
     % dsFs xcorr
@@ -43,6 +44,7 @@ for aa = 1:size(fiberDataFileIDs,1)
     dsFs_pad = zeros(1,abs(dsOffset));
     labviewSyncShift = horzcat(dsFs_pad,labviewSyncSignal);
     corrOffset = figure;
+    sgtitle([rawDataFileID ' cross ' trialDataFileID])
     ax1 = subplot(3,1,1);
     plot((1:length(fiberSyncSignal))/dsFs,fiberSyncSignal,'b')
     hold on;
@@ -72,16 +74,16 @@ for aa = 1:size(fiberDataFileIDs,1)
     axis tight
     linkaxes([ax1,ax3],'x')
     %% apply doric correction to the data and trim excess time
-    doricSampleDiff = doricSamplingRate*trialDuration - length(FiberData.data.sync);
+    doricSampleDiff = doricSamplingRate*(trialDuration) - length(trialData.syncData);
     doricCut = floor(trimTime*doricSamplingRate - doricSampleDiff);
     doricFields = {'RH_405','RH_465','RH_560','LH_405','LH_465','LH_560'};
     for cc = 1:length(doricFields)
-        subfields = fieldnames(FiberData.data.(doricFields{1,cc}));
+        subfields = fieldnames(trialData.Opticaldata.(doricFields{1,cc}));
         for dd = 1:length(subfields)
-            RawData.data.(doricFields{1,cc}).(char(subfields(dd,1))) = FiberData.data.(doricFields{1,cc}).(char(subfields(dd,1)))(floor(trimTime*doricSamplingRate):end - (doricCut + 1));
+            RawData.data.(doricFields{1,cc}).(char(subfields(dd,1))) = trialData.Opticaldata.(doricFields{1,cc}).(char(subfields(dd,1)))(floor(trimTime*doricSamplingRate):end - (doricCut + 1));
         end
     end
-    RawData.data.fiberSync = FiberData.data.sync(floor(trimTime*doricSamplingRate):end - (doricCut + 1));
+    RawData.data.fiberSync = trialData.syncData(floor(trimTime*doricSamplingRate):end - (doricCut + 1));
     %% apply labview correction to the data and trim excess time
     labviewFields = {'cortical_LH','cortical_RH','hippocampus','EMG','forceSensor','stimulations','sync'};
     for cc = 1:length(labviewFields)
@@ -107,9 +109,10 @@ for aa = 1:size(fiberDataFileIDs,1)
     hold on;
     p2 = plot((1:length(labviewSyncSignal_2))/dsFs,labviewSyncSignal_2 ,'r');
     legend([p1,p2],'Doric','LabVIEW')
+    title([rawDataFileID ' cross ' trialDataFileID])
     axis tight
     %% save files
-    RawData.notes.doric = FiberData.notes;
+    RawData.notes.doric = trialData.notes;
     save(rawDataFileID,'RawData','-v7.3')
     %% Save the file to directory.
     [pathstr,~,~] = fileparts(cd);
@@ -119,6 +122,10 @@ for aa = 1:size(fiberDataFileIDs,1)
     end
     savefig(corrOffset,[dirpath animalID '_' fileID '_XCorrShift']);
     close(corrOffset)
+    dirpath = [pathstr '/Figures/Shift Check/'];
+    if ~exist(dirpath,'dir')
+        mkdir(dirpath);
+    end
     savefig(checkShift,[dirpath animalID '_' fileID '_ShiftCheck']);
     close(checkShift)
 end

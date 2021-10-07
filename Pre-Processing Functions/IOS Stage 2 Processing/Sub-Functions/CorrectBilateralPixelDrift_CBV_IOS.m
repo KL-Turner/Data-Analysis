@@ -1,4 +1,4 @@
-function [] = CorrectBilateralPixelDrift_IOS(procDataFileIDs)
+function [] = CorrectBilateralPixelDrift_CBV_IOS(procDataFileIDs)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering

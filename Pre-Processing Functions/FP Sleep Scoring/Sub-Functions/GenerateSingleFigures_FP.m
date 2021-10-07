@@ -70,9 +70,9 @@ end
 %% Figure
 figHandle = figure;
 % force sensor and EMG
-ax1 = subplot(6,1,1);
+ax1 = subplot(7,1,1);
 fileID2 = strrep(fileID,'_',' ');
-p1 = plot((1:length(filtForceSensor))/ProcData.notes.dsFs,filtForceSensor,'color',colors('sapphire'),'LineWidth',1);
+p1 = plot((1:length(filtForceSensor))/ProcData.notes.dsFs,filtForceSensor,'color',colors('north texas green'),'LineWidth',1);
 title([animalID ' IOS behavioral characterization and CBV dynamics for ' fileID2])
 ylabel('Force Sensor (Volts)')
 xlim([0,ProcData.notes.trialDuration_sec])
@@ -86,8 +86,8 @@ set(gca,'Xticklabel',[])
 set(gca,'box','off')
 axis tight
 % Whisker angle and heart rate
-ax2 = subplot(6,1,2);
-p3 = plot((1:length(filteredWhiskerAngle))/ProcData.notes.dsFs,-filteredWhiskerAngle,'color',colors('blue-green'),'LineWidth',1);
+ax2 = subplot(7,1,2);
+plot((1:length(filteredWhiskerAngle))/ProcData.notes.dsFs,-filteredWhiskerAngle,'color',colors('dark pink'),'LineWidth',1);
 ylabel('Angle (deg)')
 xlim([0,ProcData.notes.trialDuration_sec])
 ylim([-20,60])
@@ -96,45 +96,34 @@ set(gca,'Xticklabel',[])
 set(gca,'box','off')
 axis tight
 % CBV and behavioral indeces
-ax3 = subplot(6,1,3);
-s1 = scatter((1:length(binForce))/ProcData.notes.dsFs,forceInds,'.','MarkerEdgeColor',colors('sapphire'));
+ax3 = subplot(7,1,3);
+s1 = scatter((1:length(binForce))/ProcData.notes.dsFs,forceInds,'.','MarkerEdgeColor',colors('north texas green'));
 hold on
-s2 = scatter((1:length(binWhiskers))/ProcData.notes.dsFs,whiskInds,'.','MarkerEdgeColor',colors('blue-green'));
-s3 = scatter(LPadSol,LPad_Yvals,'v','MarkerEdgeColor','k','MarkerFaceColor','c');
-s4 = scatter(RPadSol,RPad_Yvals,'v','MarkerEdgeColor','k','MarkerFaceColor','m');
-s5 = scatter(AudSol,Aud_Yvals,'v','MarkerEdgeColor','k','MarkerFaceColor','g');
+s2 = scatter((1:length(binWhiskers))/ProcData.notes.dsFs,whiskInds,'.','MarkerEdgeColor',colors('dark pink'));
 p5 = plot((1:length(filtLH_HbT))/ProcData.notes.dsFs,filtLH_HbT,'color',colors('dark candy apple red'),'LineWidth',1);
-p6 = plot((1:length(filtRH_HbT))/ProcData.notes.dsFs,filtRH_HbT,'color',colors('rich black'),'LineWidth',1);
-ylabel('HbT zScore')
-yyaxis right
-p7 = plot((1:length(filtLH_GCaMP))/ProcData.notes.dsFs,filtLH_GCaMP,'color',colors('dark candy apple red'),'LineWidth',1);
-p8 = plot((1:length(filtRH_GCaMP))/ProcData.notes.dsFs,filtRH_GCaMP,'color',colors('rich black'),'LineWidth',1);
+p6 = plot((1:length(filtRH_HbT))/ProcData.notes.dsFs,filtRH_HbT,'color',colors('sapphire'),'LineWidth',1);
+ylabel('CBV zScore')
+legend([p5,p6,s1,s2],'LH CBV','RH CBV','movement','whisking')
+xlim([0,ProcData.notes.trialDuration_sec])
+set(gca,'TickLength',[0,0])
+set(gca,'Xticklabel',[])
+set(gca,'box','off')
+axis tight
+% GCaMP and behavioral indeces
+ax4 = subplot(7,1,4);
+p7 = plot((1:length(filtLH_GCaMP))/ProcData.notes.dsFs,filtLH_GCaMP,'color',colors('electric purple'),'LineWidth',1);
+hold on
+p8 = plot((1:length(filtRH_GCaMP))/ProcData.notes.dsFs,filtRH_GCaMP,'color',colors('vegas gold'),'LineWidth',1);
 ylabel('GCaMP7s zScore')
-legend([p5,p6,p7,p8,s1,s2,s3,s4,s5],'LH HbT','RH HbT','LH GCaMP7s','RH GCaMP7s','movement','whisking',',LPad sol','RPad sol','Aud sol')
+legend([p7,p8],'LH GCaMP7s','RH GCaMP7s')
 xlim([0,ProcData.notes.trialDuration_sec])
 set(gca,'TickLength',[0,0])
 set(gca,'Xticklabel',[])
 set(gca,'box','off')
 axis tight
 % Left cortical electrode spectrogram
-ax4 = subplot(6,1,4);
+ax5 = subplot(7,1,5);
 Semilog_ImageSC(T,F,cortical_LHnormS,'y')
-axis xy
-c4 = colorbar;
-ylabel(c4,'\DeltaP/P (%)')
-caxis([-100,100])
-ylabel('Frequency (Hz)')
-set(gca,'Yticklabel','10^1')
-xlim([0,ProcData.notes.trialDuration_sec])
-set(gca,'TickLength',[0,0])
-set(gca,'Xticklabel',[])
-set(gca,'box','off')
-yyaxis right
-ylabel('Left cortical LFP')
-set(gca,'Yticklabel', [])
-% Right cortical electrode spectrogram
-ax5 = subplot(6,1,5);
-Semilog_ImageSC(T,F,cortical_RHnormS,'y')
 axis xy
 c5 = colorbar;
 ylabel(c5,'\DeltaP/P (%)')
@@ -146,13 +135,29 @@ set(gca,'TickLength',[0,0])
 set(gca,'Xticklabel',[])
 set(gca,'box','off')
 yyaxis right
+ylabel('Left cortical LFP')
+set(gca,'Yticklabel', [])
+% Right cortical electrode spectrogram
+ax6 = subplot(7,1,6);
+Semilog_ImageSC(T,F,cortical_RHnormS,'y')
+axis xy
+c6 = colorbar;
+ylabel(c6,'\DeltaP/P (%)')
+caxis([-100,100])
+ylabel('Frequency (Hz)')
+set(gca,'Yticklabel','10^1')
+xlim([0,ProcData.notes.trialDuration_sec])
+set(gca,'TickLength',[0,0])
+set(gca,'Xticklabel',[])
+set(gca,'box','off')
+yyaxis right
 ylabel('Right cortical LFP')
 set(gca,'Yticklabel',[])
 % Hippocampal electrode spectrogram
-ax6 = subplot(6,1,6);
+ax7 = subplot(7,1,7);
 Semilog_ImageSC(T,F,hippocampusNormS,'y')
-c6 = colorbar;
-ylabel(c6,'\DeltaP/P (%)')
+c7 = colorbar;
+ylabel(c7,'\DeltaP/P (%)')
 caxis([-100,100])
 xlabel('Time (sec)')
 ylabel('Frequency (Hz)')
@@ -163,17 +168,17 @@ yyaxis right
 ylabel('Hippocampal LFP')
 set(gca,'Yticklabel',[])
 % Axes properties
-linkaxes([ax1,ax2,ax3,ax4,ax5,ax6],'x')
+linkaxes([ax1,ax2,ax3,ax4,ax5,ax6,ax7],'x')
 ax1Pos = get(ax1,'position');
-ax4Pos = get(ax4,'position');
 ax5Pos = get(ax5,'position');
 ax6Pos = get(ax6,'position');
-ax4Pos(3:4) = ax1Pos(3:4);
+ax7Pos = get(ax7,'position');
 ax5Pos(3:4) = ax1Pos(3:4);
 ax6Pos(3:4) = ax1Pos(3:4);
-set(ax4,'position',ax4Pos);
+ax7Pos(3:4) = ax1Pos(3:4);
 set(ax5,'position',ax5Pos);
 set(ax6,'position',ax6Pos);
+set(ax7,'position',ax7Pos);
 %% save the file to directory.
 if strcmp(saveFigs,'y') == true
     [pathstr,~,~] = fileparts(cd);
@@ -181,7 +186,7 @@ if strcmp(saveFigs,'y') == true
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
-    savefig(figHandle,[dirpath animalID '_' fileID '_' hemoType '_SingleTrialFig']);
+    savefig(figHandle,[dirpath animalID '_' fileID '_SingleTrialFig']);
 end
 
 end

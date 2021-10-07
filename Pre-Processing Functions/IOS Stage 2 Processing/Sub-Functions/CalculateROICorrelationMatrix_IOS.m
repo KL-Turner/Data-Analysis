@@ -27,10 +27,11 @@ colorbar
 axis image
 caxis([0 2^RawData.notes.CBVCamBitDepth])
 set(gca,'Ticklength',[0,0])
+
 % determine which ROIs to draw based on imaging type
-if strcmpi(imagingType,'bilateral') == true || strcmpi(imagingType,'gcamp') == true
+if strcmp(imagingType,'bilateral') == true
     hem = {'LH','RH'};
-elseif strcmpi(imagingType,'single') == true
+elseif strcmp(imagingType,'single') == true
     hem = {'Barrels'};
 end
 % draw ROI for the mask over the entire windows
@@ -42,7 +43,7 @@ for a = 1:length(hem)
         hold on;
         ROIoutline = rectangle('Position',rect,'EdgeColor','r');
         checkMask = input('Is the ROI okay? (y/n): ','s'); disp(' ')
-        if strcmpi(checkMask,'y') == true
+        if strcmp(checkMask,'y') == true
             isok = true;
             ROIs.([hem{1,a} '_' strDay]).rect = rect;
         end
@@ -59,7 +60,7 @@ windowDataFileStruct = dir('*_WindowCam.bin');
 windowDataFiles = {windowDataFileStruct.name}';
 windowDataFileIDs = char(windowDataFiles);
 for qq = 1:size(procDataFileIDs,1)
-    disp(['Extracting pixel values from file (' num2str(qq) '/' num2str(size(procDataFileIDs,1)) ')']); disp(' ')
+    disp(['Analyzing cross correlation matrix (' num2str(qq) '/' num2str(size(procDataFileIDs,1)) ')']); disp(' ')
     load(procDataFileIDs(qq,:));
     imageHeight = ProcData.notes.CBVCamPixelHeight;
     imageWidth = ProcData.notes.CBVCamPixelWidth;
@@ -78,48 +79,13 @@ for qq = 1:size(procDataFileIDs,1)
         img = reshape(z(1:pixelsPerFrame),imageWidth,imageHeight);
         frames{n} = rot90(img',2);
     end
-    if strcmpi(imagingType,'gcamp') == true
-        gcampCheck = figure;
-        frames = frames(2:end);
-        for xx = 1:10
-            subplot(2,5,xx)
-            imagesc(frames{1,xx})
-            axis image
-            colormap gray
-        end
-        cbvFrames = input('Are green LED frames even or odd: ','s'); disp(' ')
-        close(gcampCheck)
-        contCheck = false;
-        while contCheck == false
-            if strcmpi(cbvFrames,'even') == true
-                frameDeck{1,qq} = frames(2:2:end);
-                ProcData.notes.greenFrames = even;
-                ProcData.notes.blueFrames = odd;
-                save(procDataFileIDs(qq,:),'ProcData')
-                contCheck = true;
-            elseif strcmpi(cbvFrames,'odd') == true
-                frameDeck{1,qq} = frames(1:2:end);
-                ProcData.notes.greenFrames = 'odd';
-                ProcData.notes.blueFrames = 'even';
-                save(procDataFileIDs(qq,:),'ProcData')
-                contCheck = true;
-            end
-        end
-    else
-        frameDeck{1,qq} = frames;
-    end
     fclose('all');
-end
-for zz = 1:length(frameDeck)
-    frames = frameDeck{1,zz};
-    load(procDataFileIDs(zz,:));
-    disp(['Analyzing cross correlation matrix from file (' num2str(zz) '/' num2str(size(procDataFileIDs,1)) ')']); disp(' ')
     for b = 1:length(hem)
         imageMask = nan(size(frames{1}));
         rectMask = ROIs.([hem{1,b} '_' strDay]).rect;
         rectMask = round(rectMask);
         imageMask(rectMask(2):(rectMask(2) + rectMask(4)),rectMask(1):(rectMask(1) + rectMask(3))) = 1;
-        for c = 1:length(frames)
+        for c = 1:length(frames) - 1
             frame = frames{1,c};
             frameHold = double(frame).*imageMask;
             imageStack.(hem{1,b})(:,c) = frameHold(~isnan(frameHold));
@@ -135,33 +101,25 @@ for zz = 1:length(frameDeck)
     maxLag = lagTime*RawData.notes.CBVCamSamplingRate;
     for d = 1:length(hem)
         hemisphere = hem{1,d};
-        if strcmpi(imagingType,'gcamp') == false
-            if strcmpi(hemisphere,'LH') == true
+        if strcmp(hemisphere,'LH') == true
+            gammaBandArray = LH_gammaBandPower;
+        elseif strcmp(hemisphere,'RH') == true
+            gammaBandArray = RH_gammaBandPower;
+        elseif strcmp(hemisphere,'Barrels') == true
+            singleHem = ProcData.notes.hemisphere;
+            if strcmp(singleHem,'LH') == true
                 gammaBandArray = LH_gammaBandPower;
-            elseif strcmpi(hemisphere,'RH') == true
+            elseif strcmp(singleHem,'RH') == true
                 gammaBandArray = RH_gammaBandPower;
-            elseif strcmpi(hemisphere,'Barrels') == true
-                singleHem = ProcData.notes.hemisphere;
-                if strcmpi(singleHem,'LH') == true
-                    gammaBandArray = LH_gammaBandPower;
-                elseif strcmpi(singleHem,'RH') == true
-                    gammaBandArray = RH_gammaBandPower;
-                elseif strcmpi(singleHem,'Both') == true
-                    gammaBandArray = Hip_gammaBandPower;
-                end
+            elseif strcmp(singleHem,'Both') == true
+                gammaBandArray = Hip_gammaBandPower;
             end
-        else
-            gammaBandArray = Hip_gammaBandPower;
         end
         % extract pixel values from each numel index in matrix image
         for e = 1:size(imageStack.(hemisphere),1)
             pixelArray = imageStack.(hemisphere)(e,:);
             pixelArray = detrend(filtfilt(B,A,pixelArray - pixelArray(1)) + pixelArray(1),'constant');
-            try
-                [xcorrVals,lags] = xcorr(pixelArray,gammaBandArray,maxLag,'coeff');
-            catch
-                keyboard
-            end
+            [xcorrVals,lags] = xcorr(pixelArray,gammaBandArray,maxLag,'coeff');
             zeroPoint = find(lags == 0);
             validVals = xcorrVals(zeroPoint:zeroPoint + 45);
             maxCorr = min(validVals);
@@ -174,22 +132,18 @@ for zz = 1:length(frameDeck)
     end
 end
 % determine the proper size of the ROI based on camera/lens magnification
-if strcmpi(lensMag,'0.75X') == true
+if strcmp(lensMag,'0.75X') == true
     circRadius = 7.5;   % pixels to be 1 mm in diameter
-elseif strcmpi(lensMag,'1.0X') == true
+elseif strcmp(lensMag,'1.0X') == true
     circRadius = 10;
-elseif strcmpi(lensMag,'1.5X') == true
-    circRadius = 15;
-elseif strcmpi(lensMag,'2.0X') == true
-    circRadius = 20;
-elseif strcmpi(lensMag,'2.5X') == true
-    circRadius = 25;
-elseif strcmpi(lensMag,'3.0X') == true
-    circRadius = 30;
-end
-if imageWidth == 128
-    % determine the proper size of the ROI based on camera/lens magnification
-    circRadius = circRadius/2;   % pixels to be 1 mm in diameter
+elseif strcmp(lensMag,'1.5X') == true
+        circRadius = 15;
+elseif strcmp(lensMag,'2.0X') == true
+        circRadius = 20;
+elseif strcmp(lensMag,'2.5X') == true
+        circRadius = 25;
+elseif strcmp(lensMag,'3.0X') == true
+        circRadius = 30;
 end
 % place circle along the most correlation region of each hemisphere
 for f = 1:length(hem)
@@ -213,7 +167,7 @@ for f = 1:length(hem)
         circ = drawcircle('Center',[0,0],'Radius',circRadius,'Color','r');
         checkCircle = input('Is the ROI okay? (y/n): ','s'); disp(' ')
         circPosition = round(circ.Center);
-        if strcmpi(checkCircle,'y') == true
+        if strcmp(checkCircle,'y') == true
             isok = true;
             rectBottomLeftCorner = [rectMask(1),rectMask(2) + rectMask(4)];
             rectTopLeftCorner = [rectMask(1),rectMask(2)];
@@ -228,10 +182,10 @@ end
 fig = figure;
 imagesc(frames{1})
 hold on;
-if strcmpi(imagingType,'bilateral') == true || strcmp(imagingType,'gcamp') == true
+if strcmp(imagingType,'bilateral') == true
     drawcircle('Center',ROIs.(['LH_' strDay]).circPosition,'Radius',ROIs.(['LH_' strDay]).circRadius,'Color','r');
     drawcircle('Center',ROIs.(['RH_' strDay]).circPosition,'Radius',ROIs.(['RH_' strDay]).circRadius,'Color','r');
-elseif strcmpi(imagingType,'single')
+elseif strcmp(imagingType,'single')
     drawcircle('Center',ROIs.(['Barrels_' strDay]).circPosition,'Radius',ROIs.(['Barrels_' strDay]).circRadius,'Color','r');
 end
 title([animalID ' final ROI placement'])
@@ -240,7 +194,7 @@ ylabel('Image size (pixels)')
 colormap gray
 colorbar
 axis image
-caxis([0,2^RawData.notes.CBVCamBitDepth])
+caxis([0 2^RawData.notes.CBVCamBitDepth])
 savefig(fig,[animalID '_' strDay '_ROIs.fig'])
 
 end

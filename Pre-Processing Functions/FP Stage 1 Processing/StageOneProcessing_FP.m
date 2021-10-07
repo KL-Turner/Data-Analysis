@@ -36,7 +36,7 @@ for a = 1:length(fileNames)
     [~,~,fileID] = GetFileInfo_FP(indFile);
     % Determine if a RawData file has already been created for this file. If it has, skip it
     fileExist = ls(['*' fileID '_RawData.mat']);
-    if isempty(fileExist)
+%     if isempty(fileExist)
         %% BLOCK PURPOSE: [2] Import .tdms data (All channels).
         disp('Analyzing Block [2] Importing .tdms data from all channels.'); disp(' ')
         trialData = ReadInTDMSWhiskerTrials_FP([fileID '.tdms']);
@@ -95,8 +95,8 @@ for a = 1:length(fileNames)
         RawData.data.sync_long = sync;
         disp(['File Created. Saving RawData File ' num2str(a) '...']); disp(' ')
         save([trialData.animalID '_' fileID '_RawData'],'RawData')
-    else
-        disp('File already exists. Continuing...'); disp(' ')
-    end
+%     else
+%         disp('File already exists. Continuing...'); disp(' ')
+%     end
 end
 disp('Fiber Photometry One Processing - Complete.'); disp(' ')

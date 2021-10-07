@@ -36,8 +36,9 @@ dirBreaks = strfind(curDir,'\');
 curFolder = curDir(dirBreaks(end) + 1:end);
 imagingType = input('Input imaging type (bilateral or single): ','s'); disp(' ')
 stimulationType = input('Input stimulation type (single or pulse): ','s'); disp(' ')
-dataTypes = {'CBV','cortical_LH','cortical_RH','hippocampus','EMG'};
-updatedDataTypes = {'CBV','CBV_HbT','cortical_LH','cortical_RH','hippocampus','EMG'};
+ledColor = input('Input isosbestic LED color (green or lime): ','s'); disp(' ')
+dataTypes = {'CBV','GCaMP7s','cortical_LH','cortical_RH','hippocampus','EMG'};
+updatedDataTypes = {'CBV','CBV_HbT','GCaMP7s','cortical_LH','cortical_RH','hippocampus','EMG'};
 neuralDataTypes = {'cortical_LH','cortical_RH','hippocampus'};
 basefile = ([animalID '_RestingBaselines.mat']);
 %% BLOCK PURPOSE: [1] Categorize data
@@ -70,7 +71,7 @@ hemoType = 'reflectance';
 %% BLOCK PURPOSE [6] Add delta HbT field to each processed data file
 disp('Analyzing Block [6] Adding delta HbT to each ProcData file.'); disp(' ')
 updatedBaselineType = 'manualSelection';
-UpdateTotalHemoglobin_IOS(procDataFileIDs,RestingBaselines,updatedBaselineType,imagingType)
+UpdateTotalHemoglobin_IOS(procDataFileIDs,RestingBaselines,updatedBaselineType,imagingType,ledColor)
 %% BLOCK PURPOSE: [7] Re-create the RestData structure now that HbT is available
 disp('Analyzing Block [7] Creating RestData struct for CBV and neural data.'); disp(' ')
 [RestData] = ExtractRestingData_IOS(procDataFileIDs,updatedDataTypes,imagingType);
@@ -128,6 +129,6 @@ end
 % SetIsofluraneHbT_IOS()
 
 %% Neural motion artifacts
-CheckNeuralMotionArtifacts_IOS(procDataFileIDs,RestingBaselines,baselineType,imagingType,hemoType)
+% CheckNeuralMotionArtifacts_IOS(procDataFileIDs,RestingBaselines,baselineType,imagingType,hemoType)
 
 disp('Stage Three Processing - Complete.'); disp(' ')
