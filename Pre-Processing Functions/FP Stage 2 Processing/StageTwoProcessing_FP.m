@@ -26,7 +26,7 @@ curFolder = curDir(dirBreaks(end) + 1:end);
 %% BLOCK PURPOSE: [1] Fiber Photometry data
 disp('Analyzing Block [1] Creating ProcData files and processing analog data.'); disp(' ')
 csvFiles = ls('*.csv');
-% AnalyzeFiberPhotometryData_FP_Temp(csvFiles)
+AnalyzeFiberPhotometryData_FP_Temp(csvFiles)
 %% BLOCK PURPOSE: [2] Correct the offset between the MScan and LabVIEW acquisiton.
 disp('Analyzing Block [2] Correcting LabVIEW time offset.'); disp(' ')
 fiberDataFileStruct = dir('*_FiberData.mat');
