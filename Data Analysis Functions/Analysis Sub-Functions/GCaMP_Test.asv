@@ -78,8 +78,7 @@ for n = 1:numFrames
     LH_cbvRefl(n) = mean(nonzeros(LH_cbvMask));
     LH_gcampRefl(n) = mean(nonzeros(LH_gcampMask));
 end
-LH_cbvRefl_norm = (LH_cbvRefl - mean(LH_cbvRefl))./mean(LH_cbvRefl);
-LH_gcampRefl_norm = (LH_gcampRefl - mean(LH_gcampRefl))./mean(LH_gcampRefl);
+LH_cbvRefl_norm = (LH_cbvRefl - mean(LH_cbvRefl))./mean(LH_cbvRefl_norm);
 % RH - apply image mask to each frame of the stack
 RH_cbvRefl = zeros(1,numFrames);
 RH_gcampRefl = zeros(1,numFrames);
@@ -90,17 +89,14 @@ for n = 1:numFrames
     RH_cbvRefl(n) = mean(nonzeros(RH_cbvMask));
     RH_gcampRefl(n) = mean(nonzeros(RH_gcampMask));
 end
-RH_cbvRefl_norm = (RH_cbvRefl - mean(RH_cbvRefl))./mean(RH_cbvRefl);
-RH_gcampRefl_norm = (RH_gcampRefl - mean(RH_gcampRefl))./mean(RH_gcampRefl);
 %% generate figure
 figure; 
-plot(detrend(LH_cbvRefl_norm,'constant'))
+plot(detrend(LH_cbvRefl,'constant'))
 hold on
-plot(detrend(RH_cbvRefl_norm,'constant'))
-plot(detrend(LH_gcampRefl_norm,'constant'))
-plot(detrend(RH_gcampRefl_norm,'constant'))
-legend('LH CBV','RH CBV','LH GCaMP7s','RH GCaMP7s')
-ylabel('Percent (%)')
+plot(detrend(RH_cbvRefl,'constant'))
+plot(detrend(LH_gcampRefl,'constant'))
+plot(detrend(RH_gcampRefl,'constant'))
+legend('LH CBV','RH CBV','LH gcamp','RH gcamp')
 %% display correlation between cbv and gcamp
 LH_R = corrcoef(LH_cbvRefl,LH_gcampRefl);
 RH_R = corrcoef(LH_cbvRefl,LH_gcampRefl);

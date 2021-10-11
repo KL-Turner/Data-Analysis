@@ -27,7 +27,7 @@ imagingType = input('Input imaging type (bilateral, single, GCaMP): ','s'); disp
 lensMag = '1.5X';   % typically 1.5X bilateral, 2.0X single hemisphere
 %% BLOCK PURPOSE: [1] Process the RawData structure -> Create Threshold data structure and ProcData structure.
 disp('Analyzing Block [1] Creating ProcData files and processing analog data.'); disp(' ')
-% ProcessRawDataFiles_IOS(rawDataFileIDs)
+ProcessRawDataFiles_IOS(rawDataFileIDs)
 %% BLOCK PURPOSE: [2] Process IOS pixel data from each ROI.
 disp('Analyzing Block [2] Proccesing IOS pixel data and ROI analysis.'); disp(' ')
 procDataFileStruct = dir('*_ProcData.mat');
