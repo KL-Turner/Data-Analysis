@@ -57,8 +57,9 @@ ROIs.RH_xi = RH_xi;
 ROIs.RH_yi = RH_yi;
 close(roiFig)
 %% extract CBV/GCaMP frames
-cbvFrames = imageStack(:,:,3:2:end - 1);
-gcampFrames = imageStack(:,:,4:2:end);
+gcampFrames = imageStack(:,:,1:3:end - 1);
+oxyFrames = imageStack(:,:,2:3:end);
+cbvFrames = imageStack(:,:,3:3:end);
 numFrames = size(cbvFrames,3);
 % figure; 
 % imagesc(cbvFrames(:,:,3)); 
@@ -68,27 +69,35 @@ numFrames = size(cbvFrames,3);
 % LH - apply image mask to each frame of the stack
 LH_cbvRefl = zeros(1,numFrames);
 LH_gcampRefl = zeros(1,numFrames);
+LH_oxyRefl = zeros(1,numFrames);
 for n = 1:numFrames
     LH_mask = roipoly(cbvFrames(:,:,1),ROIs.LH_xi,ROIs.LH_yi);
     LH_cbvMask = LH_mask.*double(cbvFrames(:,:,n));
     LH_gcampMask = LH_mask.*double(gcampFrames(:,:,n));
+    LH_oxyMask = LH_mask.*double(oxyFrames(:,:,n));
     LH_cbvRefl(n) = mean(nonzeros(LH_cbvMask));
     LH_gcampRefl(n) = mean(nonzeros(LH_gcampMask));
+    LH_oxyRefl(n) = mean(nonzeros(LH_oxyMask));
 end
 LH_cbvRefl_norm = (LH_cbvRefl - mean(LH_cbvRefl))./mean(LH_cbvRefl);
 LH_gcampRefl_norm = (LH_gcampRefl - mean(LH_gcampRefl))./mean(LH_gcampRefl);
+LH_oxyRefl_norm = (LH_oxyRefl - mean(LH_oxyRefl))./mean(LH_oxyRefl);
 % RH - apply image mask to each frame of the stack
 RH_cbvRefl = zeros(1,numFrames);
 RH_gcampRefl = zeros(1,numFrames);
+RH_oxyRefl = zeros(1,numFrames);
 for n = 1:numFrames
     RH_mask = roipoly(cbvFrames(:,:,1),ROIs.RH_xi,ROIs.RH_yi);
     RH_cbvMask = RH_mask.*double(cbvFrames(:,:,n));
     RH_gcampMask = RH_mask.*double(gcampFrames(:,:,n));
+    RH_oxyMask = RH_mask.*double(oxyFrames(:,:,n));
     RH_cbvRefl(n) = mean(nonzeros(RH_cbvMask));
     RH_gcampRefl(n) = mean(nonzeros(RH_gcampMask));
+    RH_oxyRefl(n) = mean(nonzeros(RH_oxyMask));
 end
 RH_cbvRefl_norm = (RH_cbvRefl - mean(RH_cbvRefl))./mean(RH_cbvRefl);
 RH_gcampRefl_norm = (RH_gcampRefl - mean(RH_gcampRefl))./mean(RH_gcampRefl);
+RH_oxyRefl_norm = (RH_oxyRefl - mean(RH_oxyRefl))./mean(RH_oxyRefl);
 %% generate figure
 figure; 
 plot(detrend(LH_cbvRefl_norm,'constant'))
@@ -96,7 +105,9 @@ hold on
 plot(detrend(RH_cbvRefl_norm,'constant'))
 plot(detrend(LH_gcampRefl_norm,'constant'))
 plot(detrend(RH_gcampRefl_norm,'constant'))
-legend('LH CBV','RH CBV','LH GCaMP7s','RH GCaMP7s')
+plot(detrend(LH_oxyRefl_norm,'constant'))
+plot(detrend(RH_oxyRefl_norm,'constant'))
+legend('LH CBV','RH CBV','LH GCaMP7s','RH GCaMP7s','LH deoxy','RH deoxy')
 ylabel('Percent (%)')
 %% display correlation between cbv and gcamp
 LH_R = corrcoef(LH_cbvRefl,LH_gcampRefl);
