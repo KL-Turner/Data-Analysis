@@ -15,15 +15,15 @@ end
 % go through each datatype and extract the corresponding data
 for a = 1:length(dataTypes)
     dataType = dataTypes(a);
-    if strcmp(dataType,'CBV') == true || strcmp(dataType,'CBV_HbT') == true || strcmp(dataType,'GCaMP7s') == true
-        if strcmp(imagingType,'bilateral') == true
+    if strcmpi(dataType,'CBV') == true || strcmp(dataType,'CBV_HbT') == true || strcmp(dataType,'GCaMP7s') == true
+        if strcmpi(imagingType,'bilateral') == true || strcmpi(imagingType,'GCaMP') == true
             subDataTypes = {'LH','adjLH','RH','adjRH'};
-        elseif strcmp(imagingType,'single') == true
-            subDataTypes = {'Barrels','adjBarrels','Veinous'};
+        elseif strcmpi(imagingType,'single') == true
+            subDataTypes = {'Barrels','adjBarrels'};
         end
-    elseif strcmp(dataType,'EMG') == true
+    elseif strcmpi(dataType,'EMG') == true
         subDataTypes = {'emg'};
-    elseif strcmp(dataType,'flow') == true
+    elseif strcmpi(dataType,'flow') == true
         subDataTypes = {'data'};
     else
         subDataTypes = {'deltaBandPower','thetaBandPower','alphaBandPower','betaBandPower','gammaBandPower','muaPower'};

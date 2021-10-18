@@ -15,7 +15,7 @@ strDay = ConvertDate_IOS(fileDate);
 % setup butterworth filter coefficients for a 1 Hz and 10 Hz lowpass based on the sampling rate
 [z1,p1,k1] = butter(4,10/(ProcData.notes.dsFs/2),'low');
 [sos1,g1] = zp2sos(z1,p1,k1);
-[z2,p2,k2] = butter(4,1/(ProcData.notes.dsFs/2),'low');
+[z2,p2,k2] = butter(4,1/(ProcData.notes.CBVCamSamplingRate/2),'low');
 [sos2,g2] = zp2sos(z2,p2,k2);
 % whisker angle
 filteredWhiskerAngle = filtfilt(sos1,g1,ProcData.data.whiskerAngle);
@@ -33,7 +33,7 @@ RPadSol = ProcData.data.stimulations.RPadSol;
 AudSol = ProcData.data.stimulations.AudSol;
 OptoLED = ProcData.data.stimulations.OptoLED;
 % CBV data
-if strcmp(imagingType,'bilateral') == true
+if strcmp(imagingType,'bilateral') == true || strcmpi(imagingType,'GCaMP') == true
     if strcmp(hemoType,'reflectance') == true
         LH_CBV = ProcData.data.CBV.adjLH;
         normLH_CBV = (LH_CBV - RestingBaselines.(baselineType).CBV.adjLH.(strDay))./(RestingBaselines.(baselineType).CBV.adjLH.(strDay));
@@ -66,7 +66,7 @@ hippocampusNormS = SpecData.hippocampus.normS.*100;
 T = SpecData.cortical_LH.T;
 F = SpecData.cortical_LH.F;
 % Yvals for behavior Indices
-if strcmp(imagingType,'bilateral') == true
+if strcmp(imagingType,'bilateral') == true || strcmpi(imagingType,'GCaMP') == true
     if strcmp(hemoType,'reflectance') == true
         if max(filtLH_CBV) >= max(filtRH_CBV)
             whisking_Yvals = 1.10*max(filtLH_CBV)*ones(size(binWhiskers));
@@ -173,7 +173,7 @@ s3 = scatter(LPadSol,LPad_Yvals,'v','MarkerEdgeColor','k','MarkerFaceColor','c')
 s4 = scatter(RPadSol,RPad_Yvals,'v','MarkerEdgeColor','k','MarkerFaceColor','m');
 s5 = scatter(AudSol,Aud_Yvals,'v','MarkerEdgeColor','k','MarkerFaceColor','g');
 s6 = scatter(OptoLED,Opto_Yvals,'v','MarkerEdgeColor','k','MarkerFaceColor','b');
-if strcmp(imagingType,'bilateral') == true
+if strcmp(imagingType,'bilateral') == true || strcmpi(imagingType,'GCaMP') == true
     if strcmp(hemoType,'reflectance') == true
         p5 = plot((1:length(filtLH_CBV))/ProcData.notes.CBVCamSamplingRate,filtLH_CBV,'color',colors('dark candy apple red'),'LineWidth',1);
         p6 = plot((1:length(filtRH_CBV))/ProcData.notes.CBVCamSamplingRate,filtRH_CBV,'color',colors('rich black'),'LineWidth',1);

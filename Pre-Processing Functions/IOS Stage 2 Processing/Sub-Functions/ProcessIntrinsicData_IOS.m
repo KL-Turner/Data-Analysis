@@ -47,7 +47,7 @@ for a = 1:size(procDataFileIDs,1)
         if strcmp(imagingType,'gcamp') == true
             ProcData.data.CBV.(ROInames{1,b}) = RawData.data.CBV.([ROInames{1,b} '_' strDay]);
             ProcData.data.GCaMP7s.(ROInames{1,b}) = RawData.data.GCaMP7s.([ROInames{1,b} '_' strDay]);
-            ProcData.notes.CBVCamSamplingRate = 30;
+            ProcData.notes.CBVCamSamplingRate = RawData.notes.CBVCamSamplingRate/2;
         else
             ProcData.data.CBV.(ROInames{1,b}) = RawData.data.CBV.([ROInames{1,b} '_' strDay])(1:end - 1);
         end

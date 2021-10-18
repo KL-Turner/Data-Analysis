@@ -19,7 +19,7 @@ end
 for a = 1:length(dataTypes)
     dataType = char(dataTypes(a));
     if strcmp(dataType,'CBV') == true || strcmp(dataType,'CBV_HbT') == true || strcmp(dataType,'GCaMP7s') == true
-        if strcmp(imagingType,'bilateral') == true
+        if strcmp(imagingType,'bilateral') == true || strcmpi(imagingType,'GCaMP') == true
             subDataTypes = {'LH','adjLH','RH','adjRH'};
         elseif strcmp(imagingType,'single') == true
             subDataTypes = {'Barrels','adjBarrels','Veinous'};

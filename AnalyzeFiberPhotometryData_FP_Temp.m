@@ -23,7 +23,7 @@ function AnalyzeFiberPhotometryData_FP_Temp(csvFiles)
 % any slow decrease in signal intensity from each trial, rescales all of
 % the data on the same interval [0,1] and then z-score normalizes the data
 %_________________________________________________________________________________________________________________
-csvFiles= ls('*.csv'); %this is temporary KWG   
+% csvFiles= ls('*.csv'); %this is temporary KWG   
 clearvars -except csvFiles
 for qq = 1:size(csvFiles,1)
 
@@ -83,16 +83,19 @@ for qq = 1:size(csvFiles,1)
     [sosFinal,gFinal] = zp2sos(z3,p3,k3);
     
     %% Find trial start/end indicies
-    offsetFrame=round(0.25*FiberData(qq).notes.samplingRate,0); %skip first 0.25 sec from each trial
-    trialDiff=diff(csvData(:,3));
-    stopInds=find(trialDiff<-0.1)-1;
-    startInds=find(trialDiff>0.1)+1;
+    timeJump=find(diff(timeArray)>1); %Find indicies of imaging trial end
+    offsetFrame=round(0.5*FiberData(qq).notes.samplingRate,0); %skip first 0.5 sec from each trial
+%     trialDiff=diff(csvData(:,3));
+%     stopInds=find(trialDiff<-0.1)-1;
+%     startInds=find(trialDiff>0.1)+1;
+    stopInds=[(timeJump-offsetFrame);(length(channelData)-offsetFrame)];
+    startInds=[offsetFrame;(timeJump+offsetFrame)];
     
-    diffStop=find(diff(stopInds)<10); % Find any indicies that were triggered by signal bounce
-    diffStart=find(diff(startInds)<10);% Find any indicies that were triggered by signal bounce
-    
-    stopInds(diffStop)=[];% Remove any indicies that were triggered by signal bounce
-    startInds(diffStart)=[];% Remove any indicies that were triggered by signal bounce
+%     diffStop=find(diff(stopInds)<10); % Find any indicies that were triggered by signal bounce
+%     diffStart=find(diff(startInds)<10);% Find any indicies that were triggered by signal bounce
+%     
+%     stopInds(diffStop)=[];% Remove any indicies that were triggered by signal bounce
+%     startInds(diffStart)=[];% Remove any indicies that were triggered by signal bounce
     
     spacedData=[];
     spacedSync=[];
@@ -108,8 +111,8 @@ for qq = 1:size(csvFiles,1)
             spacedSync=[syncSignals;spaceMat(:,1)];
             trialwiseData{qq,nn}=lowPassData;
         elseif nn==length(stopInds)
-            syncSignals=syncData((startInds(nn-1)+offsetFrame):stopInds(nn));
-            theSignals=channelData(((startInds(nn-1)+offsetFrame):stopInds(nn)),:);
+            syncSignals=syncData(startInds(nn):stopInds(nn));
+            theSignals=channelData((startInds(nn):stopInds(nn)),:);
             firstPoint=repmat(theSignals(1,:),length(theSignals),1);
             theSignals=theSignals-firstPoint; %This sets the signal data to have a first value of 0 which eliminates any filter initiation transients KWG
             fitSignal=filtfilt(sosFit,gFit,theSignals);    % low pass filter data below 0.05Hz before fitting to remove metabolic clearance/photobleaching trends KWG
@@ -118,8 +121,8 @@ for qq = 1:size(csvFiles,1)
             spacedSync=[spacedSync;syncSignals];
             trialwiseData{qq,nn}=lowPassData;
         else
-            syncSignals=syncData((startInds(nn-1)+offsetFrame):stopInds(nn));
-            theSignals=channelData(((startInds(nn-1)+offsetFrame):stopInds(nn)),:);
+            syncSignals=syncData(startInds(nn):stopInds(nn));
+            theSignals=channelData((startInds(nn):stopInds(nn)),:);
             firstPoint=repmat(theSignals(1,:),length(theSignals),1);
             theSignals=theSignals-firstPoint; %This sets the signal data to have a first value of 0 which eliminates any filter initiation transients KWG
             fitSignal=filtfilt(sosFit,gFit,theSignals);    % low pass filter data below 0.05Hz before fitting to remove metabolic clearance/photobleaching trends KWG

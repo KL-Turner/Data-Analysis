@@ -34,11 +34,16 @@ procDataFileIDs = char(procDataFiles);
 curDir = cd;
 dirBreaks = strfind(curDir,'\');
 curFolder = curDir(dirBreaks(end) + 1:end);
-imagingType = input('Input imaging type (bilateral or single): ','s'); disp(' ')
+imagingType = input('Input imaging type (bilateral, single, GCaMP): ','s'); disp(' ')
 stimulationType = input('Input stimulation type (single or pulse): ','s'); disp(' ')
 ledColor = input('Input isosbestic LED color (green or lime): ','s'); disp(' ')
-dataTypes = {'CBV','GCaMP7s','cortical_LH','cortical_RH','hippocampus','EMG'};
-updatedDataTypes = {'CBV','CBV_HbT','GCaMP7s','cortical_LH','cortical_RH','hippocampus','EMG'};
+if strcmpi(imagingType,'GCaMP') == true
+    dataTypes = {'CBV','GCaMP7s','cortical_LH','cortical_RH','hippocampus','EMG'};
+    updatedDataTypes = {'CBV','CBV_HbT','GCaMP7s','cortical_LH','cortical_RH','hippocampus','EMG'};
+else
+    dataTypes = {'CBV','cortical_LH','cortical_RH','hippocampus','EMG'};
+    updatedDataTypes = {'CBV','CBV_HbT','cortical_LH','cortical_RH','hippocampus','EMG'};
+end
 neuralDataTypes = {'cortical_LH','cortical_RH','hippocampus'};
 basefile = ([animalID '_RestingBaselines.mat']);
 %% BLOCK PURPOSE: [1] Categorize data
@@ -72,6 +77,7 @@ hemoType = 'reflectance';
 disp('Analyzing Block [6] Adding delta HbT to each ProcData file.'); disp(' ')
 updatedBaselineType = 'manualSelection';
 UpdateTotalHemoglobin_IOS(procDataFileIDs,RestingBaselines,updatedBaselineType,imagingType,ledColor)
+CorrectGCaMPattenuation_IOS(procDataFileIDs,RestingBaselines)
 %% BLOCK PURPOSE: [7] Re-create the RestData structure now that HbT is available
 disp('Analyzing Block [7] Creating RestData struct for CBV and neural data.'); disp(' ')
 [RestData] = ExtractRestingData_IOS(procDataFileIDs,updatedDataTypes,imagingType);
@@ -111,19 +117,20 @@ CreateAllSpecDataStruct_IOS(animalID,neuralDataTypes)
 disp('Analyzing Block [11] Generating single trial summary figures'); disp(' ')
 updatedBaselineType = 'manualSelection';
 saveFigs = 'y';
-% reflectance
-hemoType = 'reflectance';
-for bb = 1:size(procDataFileIDs,1)
-    procDataFileID = procDataFileIDs(bb,:);
-    [figHandle] = GenerateSingleFigures_IOS(procDataFileID,RestingBaselines,updatedBaselineType,saveFigs,imagingType,hemoType);
-    close(figHandle)
-end
 % HbT
 hemoType = 'HbT';
-for bb = 1:size(procDataFileIDs,1)
-    procDataFileID = procDataFileIDs(bb,:);
-    [figHandle] = GenerateSingleFigures_IOS(procDataFileID,RestingBaselines,updatedBaselineType,saveFigs,imagingType,hemoType);
-    close(figHandle)
+if strcmpi(imagingType,'GCaMP') == true
+    for bb = 1:size(procDataFileIDs,1)
+        procDataFileID = procDataFileIDs(bb,:);
+        [figHandle] = GenerateSingleFigures_GCaMP(procDataFileID,RestingBaselines,updatedBaselineType,saveFigs,imagingType,hemoType);
+        close(figHandle)
+    end
+else
+    for bb = 1:size(procDataFileIDs,1)
+        procDataFileID = procDataFileIDs(bb,:);
+        [figHandle] = GenerateSingleFigures_IOS(procDataFileID,RestingBaselines,updatedBaselineType,saveFigs,imagingType,hemoType);
+        close(figHandle)
+    end
 end
 %% Isoflurane manual set
 % SetIsofluraneHbT_IOS()

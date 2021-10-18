@@ -60,6 +60,7 @@ for qq = 1:size(procDataFileList,1)
         colormap gray
     end
     cbvFrames = input('Are green LED frames even or odd: ','s'); disp(' ')
+%     cbvFrames = 'even';
     close(gcampCheck)
     contCheck = false;
     while contCheck == false
