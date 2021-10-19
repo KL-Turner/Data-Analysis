@@ -61,8 +61,9 @@ for a = 1:size(mergedDataFileIDs, 1)
             SpecData.(neuralDataType).oneSec.movingwin = movingwin1;
             save(specDataFileID,'SpecData');
         end
+    else
+        disp('File exists. continuing...'); disp(' ')
     end
-    disp('File exists. continuing...'); disp(' ')
 end
 
 end

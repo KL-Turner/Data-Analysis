@@ -164,7 +164,7 @@ for aa = 1:length(dataTypes)
             end
         end
         % check labels to match arousal state
-        if sum(strcmp(scoringLabels,'Not Asleep')) > 144   % 36 bins (180 total) or 3 minutes of Asleep
+        if sum(strcmp(scoringLabels,'Not Sleep')) > 144   % 36 bins (180 total) or 3 minutes of Asleep
             load(procDataFileID,'-mat')
             puffs = ProcData.data.stimulations.LPadSol;
             % don't include trials with stimulation
@@ -172,6 +172,7 @@ for aa = 1:length(dataTypes)
                 if strcmp(dataType,'CBV_HbT') == true
                     LH_AwakeData{zz,1} = ProcData.data.(dataType).adjLH;
                     RH_AwakeData{zz,1} = ProcData.data.(dataType).adjRH;
+                    zz = zz + 1;
                 else
                     motionArtifact = ProcData.notes.motionArtifact;
                     if motionArtifact == false
@@ -253,7 +254,7 @@ for aa = 1:length(dataTypes)
             end
         end
         % check labels to match arousal state
-        if sum(strcmp(scoringLabels,'Not Asleep')) < 36   % 36 bins (180 total) or 3 minutes of awake
+        if sum(strcmp(scoringLabels,'Not Sleep')) < 36   % 36 bins (180 total) or 3 minutes of awake
             load(procDataFileID,'-mat')
             puffs = ProcData.data.stimulations.LPadSol;
             % don't include trials with stimulation
@@ -261,6 +262,7 @@ for aa = 1:length(dataTypes)
                 if strcmp(dataType,'CBV_HbT') == true
                     LH_AsleepData{zz,1} = ProcData.data.(dataType).adjLH;
                     RH_AsleepData{zz,1} = ProcData.data.(dataType).adjRH;
+                    zz = zz + 1;
                 else
                     motionArtifact = ProcData.notes.motionArtifact;
                     if motionArtifact == false
@@ -342,6 +344,7 @@ for aa = 1:length(dataTypes)
             if strcmp(dataType,'CBV_HbT') == true
                 LH_AllUnstimData{zz,1} = ProcData.data.(dataType).adjLH;
                 RH_AllUnstimData{zz,1} = ProcData.data.(dataType).adjRH;
+                zz = zz + 1;
             else
                 motionArtifact = ProcData.notes.motionArtifact;
                 if motionArtifact == false

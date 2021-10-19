@@ -1,4 +1,4 @@
-function [AnalysisResults] = AnalyzeVesselEvokedResponses(animalID,group,rootFolder,AnalysisResults)
+function [Results_VesselEvoked] = AnalyzeVesselEvokedResponses(animalID,group,rootFolder,delim,Results_VesselEvoked)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -9,7 +9,7 @@ function [AnalysisResults] = AnalyzeVesselEvokedResponses(animalID,group,rootFol
 %________________________________________________________________________________________________________________________
 
 %% only run analysis for valid animal IDs
-dataLocation = [rootFolder '\' group '\' animalID '\Combined Imaging\'];
+dataLocation = [rootFolder delim group delim animalID delim 'Combined Imaging'];
 cd(dataLocation)
 % find and load EventData.mat struct
 eventDataFileStruct = dir('*_EventData.mat');
@@ -118,10 +118,10 @@ for qq = 1:length(whiskCriteriaNames)
             baselineDiameters = cat(1,baselineDiameters,RestingBaselines.manualSelection.vesselDiameter.data.(vID).(baselineDates{bb,1}));
         end
         % save results
-        AnalysisResults.(animalID).EvokedAvgs_2P.Whisk.(whiskCriteriaName).(vID).mean = meanWhiskEvokedDiam.(vID);
-        AnalysisResults.(animalID).EvokedAvgs_2P.Whisk.(whiskCriteriaName).(vID).StD = stdWhiskEvokedDiam.(vID);
-        AnalysisResults.(animalID).EvokedAvgs_2P.Whisk.(whiskCriteriaName).(vID).baseline = mean(baselineDiameters);
-        AnalysisResults.(animalID).EvokedAvgs_2P.Whisk.(whiskCriteriaName).(vID).timeVector = timeVector;
+        Results_VesselEvoked.(animalID).Whisk.(whiskCriteriaName).(vID).mean = meanWhiskEvokedDiam.(vID);
+        Results_VesselEvoked.(animalID).Whisk.(whiskCriteriaName).(vID).StD = stdWhiskEvokedDiam.(vID);
+        Results_VesselEvoked.(animalID).Whisk.(whiskCriteriaName).(vID).baseline = mean(baselineDiameters);
+        Results_VesselEvoked.(animalID).Whisk.(whiskCriteriaName).(vID).timeVector = timeVector;
     end
 end
 %% analyze stimulus-evoked responses
@@ -193,15 +193,15 @@ for zz = 1:length(stimCriteriaNames)
             baselineDiameters = cat(1,baselineDiameters,RestingBaselines.manualSelection.vesselDiameter.data.(vID).(baselineDates{bb,1}));
         end
         % save results
-        AnalysisResults.(animalID).EvokedAvgs_2P.Stim.(solenoid).(vID).count = size(StimArterioleEvoked,1);
-        AnalysisResults.(animalID).EvokedAvgs_2P.Stim.(solenoid).(vID).mean = meanStimEvokedDiam.(vID);
-        AnalysisResults.(animalID).EvokedAvgs_2P.Stim.(solenoid).(vID).StD = stdStimEvokedDiam.(vID);
-        AnalysisResults.(animalID).EvokedAvgs_2P.Stim.(solenoid).(vID).baseline = mean(baselineDiameters);
-        AnalysisResults.(animalID).EvokedAvgs_2P.Stim.(solenoid).(vID).timeVector = timeVector;
+        Results_VesselEvoked.(animalID).Stim.(solenoid).(vID).count = size(StimArterioleEvoked,1);
+        Results_VesselEvoked.(animalID).Stim.(solenoid).(vID).mean = meanStimEvokedDiam.(vID);
+        Results_VesselEvoked.(animalID).Stim.(solenoid).(vID).StD = stdStimEvokedDiam.(vID);
+        Results_VesselEvoked.(animalID).Stim.(solenoid).(vID).baseline = mean(baselineDiameters);
+        Results_VesselEvoked.(animalID).Stim.(solenoid).(vID).timeVector = timeVector;
     end
 end
 % save data
 cd(rootFolder)
-save('AnalysisResults.mat','AnalysisResults','-v7.3')
+save('Results_VesselEvoked.mat','Results_VesselEvoked')
 
 end

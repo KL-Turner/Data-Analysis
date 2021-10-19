@@ -200,7 +200,7 @@ for aa = 1:length(dataTypes)
                 vv = 1;
                 for uu = 1:length(finalFileIDs)
                     fileID = finalFileIDs{uu,1}(1:6);
-                    date{tt,1} = ConvertDate_IOS(uniqueDays{tt,1});
+                    date{tt,1} = ConvertDate_2P(uniqueDays{tt,1});
                     if strcmp(fileID, uniqueDays{tt,1}) == 1
                         tempData.(date{tt,1}){vv,1} = finalRestData{uu,1};
                         vv = vv + 1;

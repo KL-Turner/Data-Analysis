@@ -97,7 +97,6 @@ for a = 1:size(mscanDataFiles,1)
     end
 end
 
-
 %% LabVIEW data file analysis
 for b = 1:size(labviewDataFiles,1)
     labviewDataFile = labviewDataFiles(b,:);

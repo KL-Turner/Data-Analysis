@@ -3,7 +3,7 @@
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %
-%   Purpose: 1) Categorize behavioral (rest,whisk,stim) data using previously processed data structures, add 'flags'  
+%   Purpose: 1) Categorize behavioral (rest,whisk,stim) data using previously processed data structures, add 'flags'
 %            2) Create a temporary RestData structure that contains periods of rest - use this for initial figures
 %            3) Analyze neural data and create different spectrograms for each file's electrodes
 %            4) Uses periods when animal is not being stimulated or moving to establish an initial baseline
@@ -11,7 +11,7 @@
 %            6) Use the best baseline to convert reflectance changes to total hemoglobin
 %            7) Re-create the RestData structure now that we can deltaHbT
 %            8) Create an EventData structure looking at the different data types after whisking or stimulation
-%            9) Apply the resting baseline to each data type to create a percentage change 
+%            9) Apply the resting baseline to each data type to create a percentage change
 %            10) Use the time indeces of the resting baseline file to apply a percentage change to the spectrograms
 %            11) Use the time indeces of the resting baseline file to create a reflectance pixel-based baseline
 %            12) Generate a summary figure for all of the analyzed and processed data
@@ -19,14 +19,14 @@
 
 %% BLOCK PURPOSE: [0] Load the script's necessary variables and data structures.
 % Clear the workspace variables and command windyow.
-zap;
+% zap;
 disp('Analyzing Block [0] Preparing the workspace and loading variables.'); disp(' ')
 % Character list of all RawData files
 rawDataFileStruct = dir('*_RawData.mat');
 rawDataFiles = {rawDataFileStruct.name}';
 rawDataFileIDs = char(rawDataFiles);
 % Character list of all ProcData files
-procDataFileStruct = dir('*_ProcData.mat'); 
+procDataFileStruct = dir('*_ProcData.mat');
 procDataFiles = {procDataFileStruct.name}';
 procDataFileIDs = char(procDataFiles);
 [animalID,~,~] = GetFileInfo_IOS(procDataFileIDs(1,:));
@@ -34,13 +34,19 @@ procDataFileIDs = char(procDataFiles);
 curDir = cd;
 dirBreaks = strfind(curDir,'\');
 curFolder = curDir(dirBreaks(end) + 1:end);
-imagingType = input('Input imaging type (bilateral or single): ','s'); disp(' ')
+imagingType = input('Input imaging type (bilateral, single, GCaMP): ','s'); disp(' ')
 stimulationType = input('Input stimulation type (single or pulse): ','s'); disp(' ')
-dataTypes = {'CBV','cortical_LH','cortical_RH','hippocampus','EMG'};
-updatedDataTypes = {'CBV','CBV_HbT','cortical_LH','cortical_RH','hippocampus','EMG'};
+ledColor = input('Input isosbestic LED color (green or lime): ','s'); disp(' ')
+if strcmpi(imagingType,'GCaMP') == true
+    dataTypes = {'CBV','GCaMP7s','cortical_LH','cortical_RH','hippocampus','EMG'};
+    updatedDataTypes = {'CBV','CBV_HbT','GCaMP7s','cortical_LH','cortical_RH','hippocampus','EMG'};
+else
+    dataTypes = {'CBV','cortical_LH','cortical_RH','hippocampus','EMG'};
+    updatedDataTypes = {'CBV','CBV_HbT','cortical_LH','cortical_RH','hippocampus','EMG'};
+end
 neuralDataTypes = {'cortical_LH','cortical_RH','hippocampus'};
 basefile = ([animalID '_RestingBaselines.mat']);
-%% BLOCK PURPOSE: [1] Categorize data 
+%% BLOCK PURPOSE: [1] Categorize data
 disp('Analyzing Block [1] Categorizing data.'); disp(' ')
 for a = 1:size(procDataFileIDs,1)
     procDataFileID = procDataFileIDs(a,:);
@@ -70,7 +76,8 @@ hemoType = 'reflectance';
 %% BLOCK PURPOSE [6] Add delta HbT field to each processed data file
 disp('Analyzing Block [6] Adding delta HbT to each ProcData file.'); disp(' ')
 updatedBaselineType = 'manualSelection';
-UpdateTotalHemoglobin_IOS(procDataFileIDs,RestingBaselines,updatedBaselineType,imagingType)
+UpdateTotalHemoglobin_IOS(procDataFileIDs,RestingBaselines,updatedBaselineType,imagingType,ledColor)
+CorrectGCaMPattenuation_IOS(procDataFileIDs,RestingBaselines)
 %% BLOCK PURPOSE: [7] Re-create the RestData structure now that HbT is available
 disp('Analyzing Block [7] Creating RestData struct for CBV and neural data.'); disp(' ')
 [RestData] = ExtractRestingData_IOS(procDataFileIDs,updatedDataTypes,imagingType);
@@ -78,6 +85,21 @@ disp('Analyzing Block [7] Creating RestData struct for CBV and neural data.'); d
 disp('Analyzing Block [8] Create EventData struct for CBV and neural data.'); disp(' ')
 [EventData] = ExtractEventTriggeredData_IOS(procDataFileIDs,updatedDataTypes,imagingType);
 %% BLOCK PURPOSE: [9] Normalize RestData and EventData structures by the resting baseline
+% Character list of all ProcData files
+restDataFileStruct = dir('*_RestData.mat');
+restDataFiles = {restDataFileStruct.name}';
+restDataFileIDs = char(restDataFiles);
+load(restDataFileIDs)
+% Character list of all ProcData files
+eventDataFileStruct = dir('*_EventData.mat');
+eventDataFiles = {eventDataFileStruct.name}';
+eventDataFileIDs = char(eventDataFiles);
+load(eventDataFileIDs)
+% Character list of all ProcData files
+baseDataFileStruct = dir('*_RestingBaselines.mat');
+baseDataFiles = {baseDataFileStruct.name}';
+baseDataFileIDs = char(baseDataFiles);
+load(baseDataFileIDs)
 disp('Analyzing Block [9] Normalizing RestData and EventData structures by the resting baseline.'); disp(' ')
 [RestData] = NormBehavioralDataStruct_IOS(RestData,RestingBaselines,updatedBaselineType);
 save([animalID '_RestData.mat'],'RestData','-v7.3')
@@ -95,34 +117,25 @@ CreateAllSpecDataStruct_IOS(animalID,neuralDataTypes)
 disp('Analyzing Block [11] Generating single trial summary figures'); disp(' ')
 updatedBaselineType = 'manualSelection';
 saveFigs = 'y';
-% reflectance
-hemoType = 'reflectance';
-for bb = 1:size(procDataFileIDs,1)
-    procDataFileID = procDataFileIDs(bb,:);
-    [figHandle] = GenerateSingleFigures_IOS(procDataFileID,RestingBaselines,updatedBaselineType,saveFigs,imagingType,hemoType);
-    close(figHandle)
-end
 % HbT
 hemoType = 'HbT';
-for bb = 1:size(procDataFileIDs,1)
-    procDataFileID = procDataFileIDs(bb,:);
-    [figHandle] = GenerateSingleFigures_IOS(procDataFileID,RestingBaselines,updatedBaselineType,saveFigs,imagingType,hemoType);
-    close(figHandle)
+if strcmpi(imagingType,'GCaMP') == true
+    for bb = 1:size(procDataFileIDs,1)
+        procDataFileID = procDataFileIDs(bb,:);
+        [figHandle] = GenerateSingleFigures_GCaMP(procDataFileID,RestingBaselines,updatedBaselineType,saveFigs,imagingType,hemoType);
+        close(figHandle)
+    end
+else
+    for bb = 1:size(procDataFileIDs,1)
+        procDataFileID = procDataFileIDs(bb,:);
+        [figHandle] = GenerateSingleFigures_IOS(procDataFileID,RestingBaselines,updatedBaselineType,saveFigs,imagingType,hemoType);
+        close(figHandle)
+    end
 end
 %% Isoflurane manual set
 % SetIsofluraneHbT_IOS()
-%% Check for motion artifacts in LFP
-procDataFileStruct = dir('*_ProcData.mat'); 
-procDataFiles = {procDataFileStruct.name}';
-procDataFileIDs = char(procDataFiles);
-baselineDataFileStruct = dir('*_RestingBaselines.mat');
-baselineDataFile = {baselineDataFileStruct.name}';
-baselineDataFileID = char(baselineDataFile);
-load(baselineDataFileID,'-mat')
-updatedBaselineType = 'manual';
-imagingType = 'bilateral';
-hemoType = 'HbT';
-CheckNeuralMotionArtifacts_IOS(procDataFileIDs,RestingBaselines,updatedBaselineType,imagingType,hemoType)
+
+%% Neural motion artifacts
+% CheckNeuralMotionArtifacts_IOS(procDataFileIDs,RestingBaselines,baselineType,imagingType,hemoType)
 
 disp('Stage Three Processing - Complete.'); disp(' ')
- 

@@ -133,17 +133,17 @@ for qq = 1:size(procDataFileIDs,1)
 end
 % determine the proper size of the ROI based on camera/lens magnification
 if strcmp(lensMag,'0.75X') == true
-    circRadius = 15;   % pixels to be 1 mm in diameter
+    circRadius = 7.5;   % pixels to be 1 mm in diameter
 elseif strcmp(lensMag,'1.0X') == true
-    circRadius = 20;
+    circRadius = 10;
 elseif strcmp(lensMag,'1.5X') == true
-        circRadius = 30;
+        circRadius = 15;
 elseif strcmp(lensMag,'2.0X') == true
-        circRadius = 40;
+        circRadius = 20;
 elseif strcmp(lensMag,'2.5X') == true
-        circRadius = 50;
+        circRadius = 25;
 elseif strcmp(lensMag,'3.0X') == true
-        circRadius = 60;
+        circRadius = 30;
 end
 % place circle along the most correlation region of each hemisphere
 for f = 1:length(hem)

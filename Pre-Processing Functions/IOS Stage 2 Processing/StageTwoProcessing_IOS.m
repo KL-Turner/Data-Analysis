@@ -23,10 +23,10 @@ rawDataFileIDs = char(rawDataFiles);
 curDir = cd;
 dirBreaks = strfind(curDir,'\');
 curFolder = curDir(dirBreaks(end) + 1:end);
-imagingType = input('Input imaging type (bilateral or single): ','s'); disp(' ')
-lensMag = '2.0X';   % typically 1.5X bilateral, 2.0X single hemisphere
+imagingType = input('Input imaging type (bilateral, single, GCaMP): ','s'); disp(' ')
+lensMag = '1.5X';   % typically 1.5X bilateral, 2.0X single hemisphere
 %% BLOCK PURPOSE: [1] Process the RawData structure -> Create Threshold data structure and ProcData structure.
-disp('Analyzing Block [2] Creating ProcData files and processing analog data.'); disp(' ')
+disp('Analyzing Block [1] Creating ProcData files and processing analog data.'); disp(' ')
 ProcessRawDataFiles_IOS(rawDataFileIDs)
 %% BLOCK PURPOSE: [2] Process IOS pixel data from each ROI.
 disp('Analyzing Block [2] Proccesing IOS pixel data and ROI analysis.'); disp(' ')
@@ -43,6 +43,9 @@ if strcmp(imagingType,'bilateral') == true
     CorrectBilateralPixelDrift_IOS(procDataFileIDs)
 elseif strcmp(imagingType,'single') == true
     CorrectPixelDrift_IOS(procDataFileIDs)
+elseif strcmpi(imagingType,'gcamp')  == true
+    CorrectBilateralPixelDrift_CBV_IOS(procDataFileIDs)
+    CorrectBilateralPixelDrift_GCaMP_IOS(procDataFileIDs)
 end
 %% fin.
 disp('IOS Stage Two Processing - Complete.'); disp(' ')

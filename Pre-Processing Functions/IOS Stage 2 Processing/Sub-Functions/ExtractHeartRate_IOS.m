@@ -14,7 +14,7 @@ for a = 1:size(procDataFiles,1)
     procDataFile = procDataFiles(a,:);
     disp(['Extracting heart rate from ProcData file ' num2str(a) ' of ' num2str(size(procDataFiles, 1)) '...']); disp(' ')
     load(procDataFile)
-    if strcmp(imagingType,'bilateral') == true
+    if strcmp(imagingType,'bilateral') == true || strcmpi(imagingType,'gcamp') == true
         % Pull out the left and right window heart rate. They should be essentiall6 identical
         [~,~,~,LH_HR] = FindHeartRate_IOS(ProcData.data.CBV.LH,ProcData.notes.CBVCamSamplingRate);
         [~,~,~,RH_HR] = FindHeartRate_IOS(ProcData.data.CBV.RH,ProcData.notes.CBVCamSamplingRate);

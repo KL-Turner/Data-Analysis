@@ -8,6 +8,8 @@ function [AnalysisResults] = StimEvoked2_Saporin(rootFolder,saveFigs,delim,Analy
 %________________________________________________________________________________________________________________________
 
 %% set-up
+resultsStruct = 'Results_Evoked';
+load(resultsStruct);
 expGroups = {'SSP-SAP','Blank-SAP'};
 setName = 'IOS Set B';
 animalIDs.all = {};

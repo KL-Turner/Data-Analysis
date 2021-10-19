@@ -77,28 +77,30 @@ for b = 1:length(firstsFileOfDay)
     plot(x,filtCatCement_cementData,'k')
     hold on
     plot(x,Cement_modelFit_Y,'g')
-    title('Cement drift fit C')
+    title('Cement ROI drift')
     xlabel('Time (sec)')
     ylabel('12-bit pixel val')
-    legend('cement data','exp fit')
+    legend('cement reflectance','exp fit')
     axis tight
     axis square
     subplot(1,3,2)
-    plot(x,catLH_CBVdata,'k')
+    p1 = plot(x,catLH_CBVdata,'k');
     hold on
-    plot(x,LH_adjCat_CBVdata,'g')
-    title('LH corrected data')
+    p2 = plot(x,LH_adjCat_CBVdata,'g');
+    title('LH ROI CBV Reflectance')
     xlabel('Time (sec)')
     ylabel('12-bit pixel val')
+    legend([p1,p2],'original data','proposed corrected')
     axis tight
     axis square
     subplot(1,3,3)
-    plot(x,catRH_CBVdata,'k')
+    p1 = plot(x,catRH_CBVdata,'k');
     hold on
-    plot(x,RH_adjCat_CBVdata,'g')
-    title('RH corrected data')
+    p2 = plot(x,RH_adjCat_CBVdata,'g');
+    title('RH ROI CBV Reflectance')
     xlabel('Time (sec)')
     ylabel('12-bit pixel val')
+    legend([p1,p2],'original data','proposed corrected')
     axis tight
     axis square
     % determine which correction profile to use for RH data
@@ -111,8 +113,8 @@ for b = 1:length(firstsFileOfDay)
             disp('Invalid input'); disp(' ')
         end
     end
-    sgtitle([animalID ' ' strDay ' pixel correction applied: ' applyCorrection])
-    savefig(fixPixels,[animalID '_' strDay '_PixelDriftCorrection']);
+    sgtitle({[animalID ' ' strDay ' green frames'];['pixel correction applied: ' applyCorrection]})
+    savefig(fixPixels,[animalID '_' strDay '_CBV_PixelDriftCorrection']);
     close(fixPixels)
     % apply corrected data to each file from reshaped matrix
     for d = 1:length(indDayProcDataFileList)

@@ -139,6 +139,7 @@ for aa = 1:length(dataTypes)
                 if strcmp(dataType,'CBV_HbT') == true
                     LH_AwakeData{zz,1} = ProcData.data.(dataType).adjLH;
                     RH_AwakeData{zz,1} = ProcData.data.(dataType).adjRH;
+                    zz = zz + 1;
                 else
                     motionArtifact = ProcData.notes.motionArtifact;
                     if motionArtifact == false
@@ -200,6 +201,7 @@ for aa = 1:length(dataTypes)
                 if strcmp(dataType,'CBV_HbT') == true
                     LH_SleepData{zz,1} = ProcData.data.(dataType).adjLH;
                     RH_SleepData{zz,1} = ProcData.data.(dataType).adjRH;
+                    zz = zz + 1;
                 else
                     motionArtifact = ProcData.notes.motionArtifact;
                     if motionArtifact == false
@@ -253,6 +255,7 @@ for aa = 1:length(dataTypes)
             if strcmp(dataType,'CBV_HbT') == true
                 LH_AllUnstimData{zz,1} = ProcData.data.(dataType).adjLH;
                 RH_AllUnstimData{zz,1} = ProcData.data.(dataType).adjRH;
+                zz = zz + 1;
             else
                 motionArtifact = ProcData.notes.motionArtifact;
                 if motionArtifact == false
