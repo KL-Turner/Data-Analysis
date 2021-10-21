@@ -10,7 +10,7 @@ function [RestingBaselines] = CalculateManualRestingBaselinesTimeIndeces_IOS(ima
 
 disp('Calculating the resting baselines using manually selected files each unique day...'); disp(' ')
 % character list of all ProcData files
-procDataFileStruct = dir('*_ProcData.mat');
+procDataFileStruct = dir('*_ProcData.mat'); 
 procDataFiles = {procDataFileStruct.name}';
 procDataFileIDs = char(procDataFiles);
 % find and load RestingBaselines.mat struct
@@ -102,110 +102,108 @@ end
 % these will typically be CBV, Delta, Theta, Gamma, and MUA, etc
 dataTypes = fieldnames(RestData);
 for e = 1:length(dataTypes)
-    dataType = char(dataTypes(e));
-    if strcmp(dataType,'Pupil') == false
-        % find any sub-dataTypes. These are typically LH, RH
-        subDataTypes = fieldnames(RestData.(dataType));
-        for f = 1:length(subDataTypes)
-            subDataType = char(subDataTypes(f));
-            % use the criteria we specified earlier to find all resting events that are greater than the criteria
-            [restLogical] = FilterEvents_IOS(RestData.(dataType).(subDataType),RestCriteria);
-            [puffLogical] = FilterEvents_IOS(RestData.(dataType).(subDataType),PuffCriteria);
-            combRestLogical = logical(restLogical.*puffLogical);
-            allRestFileIDs = RestData.(dataType).(subDataType).fileIDs(combRestLogical,:);
-            allRestDurations = RestData.(dataType).(subDataType).durations(combRestLogical,:);
-            allRestEventTimes = RestData.(dataType).(subDataType).eventTimes(combRestLogical,:);
-            allRestingData = RestData.(dataType).(subDataType).data(combRestLogical,:);
-            % find the unique days and unique file IDs
-            uniqueDays = GetUniqueDays_IOS(RestData.(dataType).(subDataType).fileIDs);
-            uniqueFiles = unique(RestData.(dataType).(subDataType).fileIDs);
-            numberOfFiles = length(unique(RestData.(dataType).(subDataType).fileIDs));
-            % loop through each unique day in order to create a logical to filter the file list
-            for g = 1:length(uniqueDays)
-                uniqueDay = uniqueDays(g);
-                h = 1;
-                for j = 1:numberOfFiles
-                    uniqueFileID = uniqueFiles(j);
-                    uniqueFileID_short = uniqueFileID{1}(1:6);
-                    goodFile = 'n';
-                    % determine if the file occurs during this specific day - this is for all files
-                    for k = 1:length(subFilterFileList)
-                        subFilterFile = subFilterFileList{k,1};
-                        if strcmp(uniqueFileID,subFilterFile) == true
-                            goodFile = 'y';
-                        end
-                    end
-                    % determine whether the approved files are part of the 'approved' file list
-                    if strcmp(uniqueDay,uniqueFileID_short) == true && strcmp(goodFile,'y') == true
-                        uniqueDayFiltLogical{g,1}(j,1) = 1;
-                        h = h + 1;
-                    else
-                        uniqueDayFiltLogical{g,1}(j,1) = 0;
+    dataType = char(dataTypes(e));   
+    % find any sub-dataTypes. These are typically LH, RH
+    subDataTypes = fieldnames(RestData.(dataType));
+    for f = 1:length(subDataTypes)
+        subDataType = char(subDataTypes(f));
+        % use the criteria we specified earlier to find all resting events that are greater than the criteria
+        [restLogical] = FilterEvents_IOS(RestData.(dataType).(subDataType),RestCriteria);
+        [puffLogical] = FilterEvents_IOS(RestData.(dataType).(subDataType),PuffCriteria);
+        combRestLogical = logical(restLogical.*puffLogical);
+        allRestFileIDs = RestData.(dataType).(subDataType).fileIDs(combRestLogical,:);  
+        allRestDurations = RestData.(dataType).(subDataType).durations(combRestLogical,:);
+        allRestEventTimes = RestData.(dataType).(subDataType).eventTimes(combRestLogical,:);
+        allRestingData = RestData.(dataType).(subDataType).data(combRestLogical,:);       
+        % find the unique days and unique file IDs
+        uniqueDays = GetUniqueDays_IOS(RestData.(dataType).(subDataType).fileIDs);
+        uniqueFiles = unique(RestData.(dataType).(subDataType).fileIDs);
+        numberOfFiles = length(unique(RestData.(dataType).(subDataType).fileIDs));        
+        % loop through each unique day in order to create a logical to filter the file list
+        for g = 1:length(uniqueDays)
+            uniqueDay = uniqueDays(g);
+            h = 1;
+            for j = 1:numberOfFiles
+                uniqueFileID = uniqueFiles(j);
+                uniqueFileID_short = uniqueFileID{1}(1:6);
+                goodFile = 'n';
+                % determine if the file occurs during this specific day - this is for all files
+                for k = 1:length(subFilterFileList)
+                    subFilterFile = subFilterFileList{k,1};
+                    if strcmp(uniqueFileID,subFilterFile) == true
+                        goodFile = 'y';
                     end
                 end
-            end
-            finalUniqueDayFiltLogical = any(sum(cell2mat(uniqueDayFiltLogical'),2),2);
-            % now that the appropriate files from each day are identified, loop through each file name with respect to the original
-            % list of ALL resting files, only keeping the ones that fall within the first targetMinutes of each day.
-            filtRestFiles = uniqueFiles(finalUniqueDayFiltLogical,:);
-            for m = 1:length(allRestFileIDs)
-                fileCompare = strcmp(allRestFileIDs{m},filtRestFiles);
-                includeFile = sum(fileCompare);
-                if includeFile == 1
-                    allFileFilter(m,1) = 1;
+                % determine whether the approved files are part of the 'approved' file list
+                if strcmp(uniqueDay,uniqueFileID_short) == true && strcmp(goodFile,'y') == true
+                    uniqueDayFiltLogical{g,1}(j,1) = 1;
+                    h = h + 1;
                 else
-                    allFileFilter(m,1) = 0;
+                    uniqueDayFiltLogical{g,1}(j,1) = 0;
                 end
             end
-            AllFileFilter = logical(allFileFilter);
-            filtFileIDs = allRestFileIDs(AllFileFilter,:);
-            filtDurations = allRestDurations(AllFileFilter,:);
-            filtEventTimes = allRestEventTimes(AllFileFilter,:);
-            filtRestData = allRestingData(AllFileFilter,:);
-            % now that we have decimated the original list to only reflect the proper unique day, approved files
-            % we want to only take events that occur during our approved time duration
-            for n = 1:length(filtFileIDs)
-                finalFileID = filtFileIDs{n,1};
-                for o = 1:length(subFilterFileList)
-                    sFile = subFilterFileList{o,1};
-                    if strcmp(finalFileID,sFile) == true
-                        sTime = subFilterStartTimes{o,1};
-                        eTime = subFilterEndTimes{o,1};
-                    end
-                end
-                eventTime = filtEventTimes(n,1);
-                % 2 seconds before event time, 10 seconds after
-                if (eventTime-2) >= sTime && (eventTime+10) <= eTime
-                    eventTimeFilter(n,1) = 1;
-                else
-                    eventTimeFilter(n,1) = 0;
-                end
+        end
+        finalUniqueDayFiltLogical = any(sum(cell2mat(uniqueDayFiltLogical'),2),2);        
+        % now that the appropriate files from each day are identified, loop through each file name with respect to the original
+        % list of ALL resting files, only keeping the ones that fall within the first targetMinutes of each day.
+        filtRestFiles = uniqueFiles(finalUniqueDayFiltLogical,:);
+        for m = 1:length(allRestFileIDs)
+            fileCompare = strcmp(allRestFileIDs{m},filtRestFiles);
+            includeFile = sum(fileCompare);
+            if includeFile == 1
+                allFileFilter(m,1) = 1;
+            else
+                allFileFilter(m,1) = 0;
             end
-            EventTimeFilter = logical(eventTimeFilter);
-            finalEventFileIDs = filtFileIDs(EventTimeFilter,:);
-            finalEventDurations = filtDurations(EventTimeFilter,:);
-            finalEventTimes = filtEventTimes(EventTimeFilter,:);
-            finalEventRestData = filtRestData(EventTimeFilter,:);
-            % again loop through each unique day and pull out the data that corresponds to the final resting files
-            for p = 1:length(uniqueDays)
-                q= 1;
-                for r = 1:length(finalEventFileIDs)
-                    uniqueFileID_short = finalEventFileIDs{r,1}(1:6);
-                    uniqueDate{p,1} = ConvertDate_IOS(uniqueDays{p,1});
-                    if strcmp(uniqueFileID_short,uniqueDays{p,1}) == 1
-                        tempData.(uniqueDate{p,1}){q,1} = finalEventRestData{r,1};
-                        q = q + 1;
-                    end
+        end
+        AllFileFilter = logical(allFileFilter);
+        filtFileIDs = allRestFileIDs(AllFileFilter,:);
+        filtDurations = allRestDurations(AllFileFilter,:);
+        filtEventTimes = allRestEventTimes(AllFileFilter,:);
+        filtRestData = allRestingData(AllFileFilter,:);        
+        % now that we have decimated the original list to only reflect the proper unique day, approved files
+        % we want to only take events that occur during our approved time duration
+        for n = 1:length(filtFileIDs)
+            finalFileID = filtFileIDs{n,1};
+            for o = 1:length(subFilterFileList)
+                sFile = subFilterFileList{o,1};
+                if strcmp(finalFileID,sFile) == true
+                    sTime = subFilterStartTimes{o,1};
+                    eTime = subFilterEndTimes{o,1};
                 end
             end
-            % find the means of each unique day
-            for s = 1:size(uniqueDate,1)
-                tempDataMeans{s,1} = cellfun(@(x)mean(x),tempData.(uniqueDate{s,1}));
+            eventTime = filtEventTimes(n,1);
+            % 2 seconds before event time, 10 seconds after
+            if (eventTime-2) >= sTime && (eventTime+10) <= eTime
+                eventTimeFilter(n,1) = 1;
+            else
+                eventTimeFilter(n,1) = 0;
             end
-            % save the means into the Baseline struct under the current loop iteration with the associated dates
-            for t = 1:length(uniqueDays)
-                RestingBaselines.manualSelection.(dataType).(subDataType).(uniqueDate{t,1}) = mean(tempDataMeans{t,1});
+        end
+        EventTimeFilter = logical(eventTimeFilter);
+        finalEventFileIDs = filtFileIDs(EventTimeFilter,:);
+        finalEventDurations = filtDurations(EventTimeFilter,:);
+        finalEventTimes = filtEventTimes(EventTimeFilter,:);
+        finalEventRestData = filtRestData(EventTimeFilter,:);       
+        % again loop through each unique day and pull out the data that corresponds to the final resting files
+        for p = 1:length(uniqueDays)
+            q= 1;
+            for r = 1:length(finalEventFileIDs)
+                uniqueFileID_short = finalEventFileIDs{r,1}(1:6);
+                uniqueDate{p,1} = ConvertDate_IOS(uniqueDays{p,1});
+                if strcmp(uniqueFileID_short,uniqueDays{p,1}) == 1
+                    tempData.(uniqueDate{p,1}){q,1} = finalEventRestData{r,1};
+                    q = q + 1;
+                end
             end
+        end     
+        % find the means of each unique day
+        for s = 1:size(uniqueDate,1)
+            tempDataMeans{s,1} = cellfun(@(x)mean(x),tempData.(uniqueDate{s,1}));
+        end
+        % save the means into the Baseline struct under the current loop iteration with the associated dates
+        for t = 1:length(uniqueDays)
+            RestingBaselines.manualSelection.(dataType).(subDataType).(uniqueDate{t,1}) = mean(tempDataMeans{t,1});
         end
     end
 end
