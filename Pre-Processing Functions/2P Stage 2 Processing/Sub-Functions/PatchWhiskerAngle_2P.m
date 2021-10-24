@@ -11,7 +11,7 @@ function [patchedWhiskerAngle,sampleDiff] = PatchWhiskerAngle_2P(whiskerAngle,fs
 %________________________________________________________________________________________________________________________
 
 expectedSamples = expectedDuration_Sec*fs;
-droppedFrameIndex = str2num(droppedFrameIndex); %#ok<ST2NM>
+droppedFrameIndex = str2num(ProcData.notes.); %#ok<ST2NM>
 sampleDiff = expectedSamples - length(whiskerAngle);
 framesPerIndex = ceil(sampleDiff/length(droppedFrameIndex));
 % loop through each index, linear interpolate the values between the index and the right edge, then shift the samples.

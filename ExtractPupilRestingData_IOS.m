@@ -1,3 +1,4 @@
+function [RestData] = ExtractPupilRestingData_IOS(procDataFileIDs)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % Ph.D. Candidate, Department of Bioengineering
@@ -7,10 +8,6 @@
 % Purpose: Extracts all resting data periods from the data using behavioral flags
 %________________________________________________________________________________________________________________________
 
-% character list of all ProcData files
-procDataFileStruct = dir('*_ProcData.mat');
-procDataFiles = {procDataFileStruct.name}';
-procDataFileIDs = char(procDataFiles);
 % load rest data file
 restDataFileID = ls('*_RestData.mat');
 load(restDataFileID)
@@ -52,7 +49,7 @@ for c = 1:size(procDataFileIDs,1)
             end
         end
         % add all periods of rest to a cell array for all files
-        restVals{zz,1} = trialRestVals';
+        restVals{zz,1} = trialRestVals'; %#ok<*AGROW>
         % transfer information about resting periods to the new structure
         eventTimes{zz,1} = trialEventTimes';
         durations{zz,1} = trialDurations';
@@ -73,3 +70,5 @@ RestData.Pupil.pupilArea.CBVCamSamplingRate = Fs;
 RestData.Pupil.pupilArea.trialDuration_sec = trialDuration_sec;
 % save updated structure
 save([animal '_RestData.mat'],'RestData','-v7.3');
+
+end
