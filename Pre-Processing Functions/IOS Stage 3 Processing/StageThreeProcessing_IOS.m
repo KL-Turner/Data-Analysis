@@ -77,7 +77,7 @@ hemoType = 'reflectance';
 disp('Analyzing Block [6] Adding delta HbT to each ProcData file.'); disp(' ')
 updatedBaselineType = 'manualSelection';
 UpdateTotalHemoglobin_IOS(procDataFileIDs,RestingBaselines,updatedBaselineType,imagingType,ledColor)
-CorrectGCaMPattenuation_IOS(procDataFileIDs,RestingBaselines)
+% CorrectGCaMPattenuation_IOS(procDataFileIDs,RestingBaselines)
 %% BLOCK PURPOSE: [7] Re-create the RestData structure now that HbT is available
 disp('Analyzing Block [7] Creating RestData struct for CBV and neural data.'); disp(' ')
 [RestData] = ExtractRestingData_IOS(procDataFileIDs,updatedDataTypes,imagingType);

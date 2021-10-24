@@ -25,21 +25,22 @@ end
 % add root folder to Matlab's working directory
 addpath(genpath(rootFolder))
 %% analysis subfunctions
-runAnalysis = false;
+runAnalysis = true;
 if runAnalysis == true
-    AnalyzeBehavioralHbT_Handler(rootFolder,delim,false)
-    AnalyzeBilateralCoherence_Handler(rootFolder,delim,false)
-    AnalyzeNeuralHemoCoherence_Handler(rootFolder,delim,false)
-    AnalyzePowerSpectrum_Handler(rootFolder,delim,true)
-    AnalyzePearsonCorrelation_Handler(rootFolder,delim,false)
-    AnalyzeCrossCorrelation_Handler(rootFolder,delim,false)
-    AnalyzeEvokedResponsesA_Handler(rootFolder,delim,false)
-    AnalyzeEvokedResponsesB_Handler(rootFolder,delim,false)
-    AnalyzeVesselEvokedResponses_Handler(rootFolder,delim,false)
-    AnalyzeArousalTransitions_Handler(rootFolder,delim,false)
-    AnalyzeArousalStateProbability_Handler(rootFolder,delim,false)
-    AnalyzeWhiskingBehavior_Handler(rootFolder,delim,false)
-    AnalyzePowerSpectrum_LFP_Handler(rootFolder,delim,false)
+%     AnalyzeBehavioralHbT_Handler(rootFolder,delim,false)
+%     AnalyzeBilateralCoherence_Handler(rootFolder,delim,false)
+%     AnalyzeNeuralHemoCoherence_Handler(rootFolder,delim,false)
+%     AnalyzePowerSpectrum_Handler(rootFolder,delim,false)
+%     AnalyzePearsonCorrelation_Handler(rootFolder,delim,false)
+%     AnalyzeCrossCorrelation_Handler(rootFolder,delim,false)
+%     AnalyzeEvokedResponsesA_Handler(rootFolder,delim,false)
+%     AnalyzeEvokedResponsesB_Handler(rootFolder,delim,false)
+%     AnalyzeVesselEvokedResponses_Handler(rootFolder,delim,false)
+%     AnalyzeArousalTransitions_Handler(rootFolder,delim,false)
+%     AnalyzeArousalStateProbability_Handler(rootFolder,delim,false)
+%     AnalyzeWhiskingBehavior_Handler(rootFolder,delim,false)
+%     AnalyzePowerSpectrum_LFP_Handler(rootFolder,delim,false)
+%     AnalyzeVesselBaselineShift_Handler(rootFolder,delim,true)
 end
 %% generate figures
 disp('Loading analysis results and generating figures...'); disp(' ')
@@ -50,6 +51,7 @@ saveFigs = true;
 % StimEvoked_Bilateral_IOS(rootFolder,saveFigs,delim);
 % StimEvoked_PulseTrain_IOS(rootFolder,saveFigs,delim);
 % StimEvoked_PulseTrain_2PLSM(rootFolder,saveFigs,delim);
+BaselineShift_2PLSM(rootFolder,saveFigs,delim);
 % CrossCorrelation_Bilateral_IOS(rootFolder,saveFigs,delim);
 % BilateralCoherence_Bilateral_IOS(rootFolder,saveFigs,delim);
 % NeuralHemoCoherence_Bilateral_IOS(rootFolder,saveFigs,delim);

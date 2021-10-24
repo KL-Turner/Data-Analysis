@@ -96,4 +96,6 @@ for bb = 1:size(mergedDataFileIDs,1)
     [figHandle] = GenerateSingleFigures_2P(mergedDataFileID,updatedBaselineType,saveFigs,RestingBaselines);
     close(figHandle)
 end
+%% Set Isoflurane boundary times
+SetIsofluraneBoundary_2P(RestingBaselines)
 disp('Stage Three Processing - Complete.'); disp(' ')

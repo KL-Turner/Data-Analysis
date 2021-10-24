@@ -43,6 +43,10 @@ for aa = 1:length(animalIDs.all)
                     data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).(cortVariables{1,dd}) = [];
                 end
             end
+            X = ~isreal(Results_Evoked.(animalIDs.all{1,aa}).Stim.(hemispheres{1,cc}).(solenoidNames{1,bb}).CBV_HbT.HbT);
+            if X == true
+                keyboard
+            end
             data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).HbT = cat(1,data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).HbT,Results_Evoked.(animalIDs.all{1,aa}).Stim.(hemispheres{1,cc}).(solenoidNames{1,bb}).CBV_HbT.HbT);
             data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).timeVector = cat(1,data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).timeVector,Results_Evoked.(animalIDs.all{1,aa}).Stim.(hemispheres{1,cc}).(solenoidNames{1,bb}).timeVector);
             data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).count = cat(1,data.(treatment).(solenoidNames{1,bb}).(hemispheres{1,cc}).count,Results_Evoked.(animalIDs.all{1,aa}).Stim.(hemispheres{1,cc}).(solenoidNames{1,bb}).count);
@@ -76,7 +80,7 @@ for ee = 1:length(treatments)
         for ff = 1:length(compDataTypes)
             compDataType = compDataTypes{1,ff};
             data.(treatment).(compDataType).(hemisphere).meanHbT = mean(data.(treatment).(compDataType).(hemisphere).HbT,1);
-            data.(treatment).(compDataType).(hemisphere).stdHbT = std(data.(treatment).(compDataType).(hemisphere).HbT,0,1);
+            data.(treatment).(compDataType).(hemisphere).stdErrHbT = std(data.(treatment).(compDataType).(hemisphere).HbT,0,1)./sqrt(size(data.(treatment).(compDataType).(hemisphere).HbT,1));
             data.(treatment).(compDataType).(hemisphere).meanTimeVector = mean(data.(treatment).(compDataType).(hemisphere).timeVector,1);
             data.(treatment).(compDataType).(hemisphere).meanCount = mean(data.(treatment).(compDataType).(hemisphere).count,1);
             data.(treatment).(compDataType).(hemisphere).stdCount = std(data.(treatment).(compDataType).(hemisphere).count,0,1);
@@ -91,12 +95,12 @@ ax1 = subplot(1,3,1);
 % Blank-SAP
 p1 = plot(data.Blank_SAP.Contra.adjBarrels.meanTimeVector,data.Blank_SAP.Contra.adjBarrels.meanHbT,'color',colors('north texas green'),'LineWidth',2);
 hold on
-plot(data.Blank_SAP.Contra.adjBarrels.meanTimeVector,data.Blank_SAP.Contra.adjBarrels.meanHbT + data.Blank_SAP.Contra.adjBarrels.stdHbT,'color',colors('north texas green'),'LineWidth',0.5)
-plot(data.Blank_SAP.Contra.adjBarrels.meanTimeVector,data.Blank_SAP.Contra.adjBarrels.meanHbT - data.Blank_SAP.Contra.adjBarrels.stdHbT,'color',colors('north texas green'),'LineWidth',0.5)
+plot(data.Blank_SAP.Contra.adjBarrels.meanTimeVector,data.Blank_SAP.Contra.adjBarrels.meanHbT + data.Blank_SAP.Contra.adjBarrels.stdErrHbT,'color',colors('north texas green'),'LineWidth',0.5)
+plot(data.Blank_SAP.Contra.adjBarrels.meanTimeVector,data.Blank_SAP.Contra.adjBarrels.meanHbT - data.Blank_SAP.Contra.adjBarrels.stdErrHbT,'color',colors('north texas green'),'LineWidth',0.5)
 % SSP-SAP
 p2 = plot(data.SSP_SAP.Contra.adjBarrels.meanTimeVector,data.SSP_SAP.Contra.adjBarrels.meanHbT,'color',colors('electric purple'),'LineWidth',2);
-plot(data.SSP_SAP.Contra.adjBarrels.meanTimeVector,data.SSP_SAP.Contra.adjBarrels.meanHbT + data.SSP_SAP.Contra.adjBarrels.stdHbT,'color',colors('electric purple'),'LineWidth',0.5)
-plot(data.SSP_SAP.Contra.adjBarrels.meanTimeVector,data.SSP_SAP.Contra.adjBarrels.meanHbT - data.SSP_SAP.Contra.adjBarrels.stdHbT,'color',colors('electric purple'),'LineWidth',0.5)
+plot(data.SSP_SAP.Contra.adjBarrels.meanTimeVector,data.SSP_SAP.Contra.adjBarrels.meanHbT + data.SSP_SAP.Contra.adjBarrels.stdErrHbT,'color',colors('electric purple'),'LineWidth',0.5)
+plot(data.SSP_SAP.Contra.adjBarrels.meanTimeVector,data.SSP_SAP.Contra.adjBarrels.meanHbT - data.SSP_SAP.Contra.adjBarrels.stdErrHbT,'color',colors('electric purple'),'LineWidth',0.5)
 title('Contra Stim')
 ylabel('\DeltaHbT (\muM)')
 xlabel('Peri-stimulus time (s)')
@@ -109,12 +113,12 @@ ax2 = subplot(1,3,2);
 % Blank-SAP
 plot(data.Blank_SAP.Ipsi.adjBarrels.meanTimeVector,data.Blank_SAP.Ipsi.adjBarrels.meanHbT,'color',colors('north texas green'),'LineWidth',2);
 hold on
-plot(data.Blank_SAP.Ipsi.adjBarrels.meanTimeVector,data.Blank_SAP.Ipsi.adjBarrels.meanHbT + data.Blank_SAP.Ipsi.adjBarrels.stdHbT,'color',colors('north texas green'),'LineWidth',0.5)
-plot(data.Blank_SAP.Ipsi.adjBarrels.meanTimeVector,data.Blank_SAP.Ipsi.adjBarrels.meanHbT - data.Blank_SAP.Ipsi.adjBarrels.stdHbT,'color',colors('north texas green'),'LineWidth',0.5)
+plot(data.Blank_SAP.Ipsi.adjBarrels.meanTimeVector,data.Blank_SAP.Ipsi.adjBarrels.meanHbT + data.Blank_SAP.Ipsi.adjBarrels.stdErrHbT,'color',colors('north texas green'),'LineWidth',0.5)
+plot(data.Blank_SAP.Ipsi.adjBarrels.meanTimeVector,data.Blank_SAP.Ipsi.adjBarrels.meanHbT - data.Blank_SAP.Ipsi.adjBarrels.stdErrHbT,'color',colors('north texas green'),'LineWidth',0.5)
 % SSP-SAP
 plot(data.SSP_SAP.Ipsi.adjBarrels.meanTimeVector,data.SSP_SAP.Ipsi.adjBarrels.meanHbT,'color',colors('electric purple'),'LineWidth',2);
-plot(data.SSP_SAP.Ipsi.adjBarrels.meanTimeVector,data.SSP_SAP.Ipsi.adjBarrels.meanHbT + data.SSP_SAP.Ipsi.adjBarrels.stdHbT,'color',colors('electric purple'),'LineWidth',0.5)
-plot(data.SSP_SAP.Ipsi.adjBarrels.meanTimeVector,data.SSP_SAP.Ipsi.adjBarrels.meanHbT - data.SSP_SAP.Ipsi.adjBarrels.stdHbT,'color',colors('electric purple'),'LineWidth',0.5)
+plot(data.SSP_SAP.Ipsi.adjBarrels.meanTimeVector,data.SSP_SAP.Ipsi.adjBarrels.meanHbT + data.SSP_SAP.Ipsi.adjBarrels.stdErrHbT,'color',colors('electric purple'),'LineWidth',0.5)
+plot(data.SSP_SAP.Ipsi.adjBarrels.meanTimeVector,data.SSP_SAP.Ipsi.adjBarrels.meanHbT - data.SSP_SAP.Ipsi.adjBarrels.stdErrHbT,'color',colors('electric purple'),'LineWidth',0.5)
 title('Ipsi Stim')
 ylabel('\DeltaHbT (\muM)')
 xlabel('Peri-stimulus time (s)')
@@ -126,12 +130,12 @@ ax3 = subplot(1,3,3);
 % Blank-SAP
 plot(data.Blank_SAP.Auditory.adjBarrels.meanTimeVector,data.Blank_SAP.Auditory.adjBarrels.meanHbT,'color',colors('north texas green'),'LineWidth',2);
 hold on
-plot(data.Blank_SAP.Auditory.adjBarrels.meanTimeVector,data.Blank_SAP.Auditory.adjBarrels.meanHbT + data.Blank_SAP.Auditory.adjBarrels.stdHbT,'color',colors('north texas green'),'LineWidth',0.5)
-plot(data.Blank_SAP.Auditory.adjBarrels.meanTimeVector,data.Blank_SAP.Auditory.adjBarrels.meanHbT - data.Blank_SAP.Auditory.adjBarrels.stdHbT,'color',colors('north texas green'),'LineWidth',0.5)
+plot(data.Blank_SAP.Auditory.adjBarrels.meanTimeVector,data.Blank_SAP.Auditory.adjBarrels.meanHbT + data.Blank_SAP.Auditory.adjBarrels.stdErrHbT,'color',colors('north texas green'),'LineWidth',0.5)
+plot(data.Blank_SAP.Auditory.adjBarrels.meanTimeVector,data.Blank_SAP.Auditory.adjBarrels.meanHbT - data.Blank_SAP.Auditory.adjBarrels.stdErrHbT,'color',colors('north texas green'),'LineWidth',0.5)
 % SSP-SAP
 plot(data.SSP_SAP.Auditory.adjBarrels.meanTimeVector,data.SSP_SAP.Auditory.adjBarrels.meanHbT,'color',colors('electric purple'),'LineWidth',2);
-plot(data.SSP_SAP.Auditory.adjBarrels.meanTimeVector,data.SSP_SAP.Auditory.adjBarrels.meanHbT + data.SSP_SAP.Auditory.adjBarrels.stdHbT,'color',colors('electric purple'),'LineWidth',0.5)
-plot(data.SSP_SAP.Auditory.adjBarrels.meanTimeVector,data.SSP_SAP.Auditory.adjBarrels.meanHbT - data.SSP_SAP.Auditory.adjBarrels.stdHbT,'color',colors('electric purple'),'LineWidth',0.5)
+plot(data.SSP_SAP.Auditory.adjBarrels.meanTimeVector,data.SSP_SAP.Auditory.adjBarrels.meanHbT + data.SSP_SAP.Auditory.adjBarrels.stdErrHbT,'color',colors('electric purple'),'LineWidth',0.5)
+plot(data.SSP_SAP.Auditory.adjBarrels.meanTimeVector,data.SSP_SAP.Auditory.adjBarrels.meanHbT - data.SSP_SAP.Auditory.adjBarrels.stdErrHbT,'color',colors('electric purple'),'LineWidth',0.5)
 title('Auditory Stim')
 ylabel('\DeltaHbT (\muM)')
 xlabel('Peri-stimulus time (s)')

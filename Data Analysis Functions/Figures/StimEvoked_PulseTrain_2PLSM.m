@@ -75,7 +75,7 @@ for ee = 1:length(treatments)
     for ff = 1:length(compDataTypes)
         compDataType = compDataTypes{1,ff};
         data.(treatment).(compDataType).meanDiameter = mean(data.(treatment).(compDataType).diameter,1);
-        data.(treatment).(compDataType).stdDiameter = std(data.(treatment).(compDataType).diameter,0,1);
+        data.(treatment).(compDataType).stdErrDiameter = std(data.(treatment).(compDataType).diameter,0,1)./sqrt(size(data.(treatment).(compDataType).diameter,1));
         data.(treatment).(compDataType).meanTimeVector = mean(data.(treatment).(compDataType).timeVector,1);
         data.(treatment).(compDataType).meanCount = mean(data.(treatment).(compDataType).count,1);
         data.(treatment).(compDataType).stdCount = std(data.(treatment).(compDataType).count,0,1);
@@ -101,12 +101,12 @@ ax1 = subplot(1,3,1);
 % Blank-SAP
 p1 = plot(data.Blank_SAP.Contra.meanTimeVector,data.Blank_SAP.Contra.meanDiameter,'color',colors('north texas green'),'LineWidth',2);
 hold on
-plot(data.Blank_SAP.Contra.meanTimeVector,data.Blank_SAP.Contra.meanDiameter + data.Blank_SAP.Contra.stdDiameter,'color',colors('north texas green'),'LineWidth',0.5)
-plot(data.Blank_SAP.Contra.meanTimeVector,data.Blank_SAP.Contra.meanDiameter - data.Blank_SAP.Contra.stdDiameter,'color',colors('north texas green'),'LineWidth',0.5)
+plot(data.Blank_SAP.Contra.meanTimeVector,data.Blank_SAP.Contra.meanDiameter + data.Blank_SAP.Contra.stdErrDiameter,'color',colors('north texas green'),'LineWidth',0.5)
+plot(data.Blank_SAP.Contra.meanTimeVector,data.Blank_SAP.Contra.meanDiameter - data.Blank_SAP.Contra.stdErrDiameter,'color',colors('north texas green'),'LineWidth',0.5)
 % SSP-SAP
 p2 = plot(data.SSP_SAP.Contra.meanTimeVector,data.SSP_SAP.Contra.meanDiameter,'color',colors('electric purple'),'LineWidth',2);
-plot(data.SSP_SAP.Contra.meanTimeVector,data.SSP_SAP.Contra.meanDiameter + data.SSP_SAP.Contra.stdDiameter,'color',colors('electric purple'),'LineWidth',0.5)
-plot(data.SSP_SAP.Contra.meanTimeVector,data.SSP_SAP.Contra.meanDiameter - data.SSP_SAP.Contra.stdDiameter,'color',colors('electric purple'),'LineWidth',0.5)
+plot(data.SSP_SAP.Contra.meanTimeVector,data.SSP_SAP.Contra.meanDiameter + data.SSP_SAP.Contra.stdErrDiameter,'color',colors('electric purple'),'LineWidth',0.5)
+plot(data.SSP_SAP.Contra.meanTimeVector,data.SSP_SAP.Contra.meanDiameter - data.SSP_SAP.Contra.stdErrDiameter,'color',colors('electric purple'),'LineWidth',0.5)
 title('Contra Stim')
 ylabel('\DeltaD/D (%)')
 xlabel('Peri-stimulus time (s)')
@@ -119,12 +119,12 @@ ax2 = subplot(1,3,2);
 % Blank-SAP
 plot(data.Blank_SAP.Ipsi.meanTimeVector,data.Blank_SAP.Ipsi.meanDiameter,'color',colors('north texas green'),'LineWidth',2);
 hold on
-plot(data.Blank_SAP.Ipsi.meanTimeVector,data.Blank_SAP.Ipsi.meanDiameter + data.Blank_SAP.Ipsi.stdDiameter,'color',colors('north texas green'),'LineWidth',0.5)
-plot(data.Blank_SAP.Ipsi.meanTimeVector,data.Blank_SAP.Ipsi.meanDiameter - data.Blank_SAP.Ipsi.stdDiameter,'color',colors('north texas green'),'LineWidth',0.5)
+plot(data.Blank_SAP.Ipsi.meanTimeVector,data.Blank_SAP.Ipsi.meanDiameter + data.Blank_SAP.Ipsi.stdErrDiameter,'color',colors('north texas green'),'LineWidth',0.5)
+plot(data.Blank_SAP.Ipsi.meanTimeVector,data.Blank_SAP.Ipsi.meanDiameter - data.Blank_SAP.Ipsi.stdErrDiameter,'color',colors('north texas green'),'LineWidth',0.5)
 % SSP-SAP
 plot(data.SSP_SAP.Ipsi.meanTimeVector,data.SSP_SAP.Ipsi.meanDiameter,'color',colors('electric purple'),'LineWidth',2);
-plot(data.SSP_SAP.Ipsi.meanTimeVector,data.SSP_SAP.Ipsi.meanDiameter + data.SSP_SAP.Ipsi.stdDiameter,'color',colors('electric purple'),'LineWidth',0.5)
-plot(data.SSP_SAP.Ipsi.meanTimeVector,data.SSP_SAP.Ipsi.meanDiameter - data.SSP_SAP.Ipsi.stdDiameter,'color',colors('electric purple'),'LineWidth',0.5)
+plot(data.SSP_SAP.Ipsi.meanTimeVector,data.SSP_SAP.Ipsi.meanDiameter + data.SSP_SAP.Ipsi.stdErrDiameter,'color',colors('electric purple'),'LineWidth',0.5)
+plot(data.SSP_SAP.Ipsi.meanTimeVector,data.SSP_SAP.Ipsi.meanDiameter - data.SSP_SAP.Ipsi.stdErrDiameter,'color',colors('electric purple'),'LineWidth',0.5)
 title('Ipsi Stim')
 ylabel('\DeltaD/D (%)')
 xlabel('Peri-stimulus time (s)')
@@ -136,12 +136,12 @@ ax3 = subplot(1,3,3);
 % Blank-SAP
 plot(data.Blank_SAP.Auditory.meanTimeVector,data.Blank_SAP.Auditory.meanDiameter,'color',colors('north texas green'),'LineWidth',2);
 hold on
-plot(data.Blank_SAP.Auditory.meanTimeVector,data.Blank_SAP.Auditory.meanDiameter + data.Blank_SAP.Auditory.stdDiameter,'color',colors('north texas green'),'LineWidth',0.5)
-plot(data.Blank_SAP.Auditory.meanTimeVector,data.Blank_SAP.Auditory.meanDiameter - data.Blank_SAP.Auditory.stdDiameter,'color',colors('north texas green'),'LineWidth',0.5)
+plot(data.Blank_SAP.Auditory.meanTimeVector,data.Blank_SAP.Auditory.meanDiameter + data.Blank_SAP.Auditory.stdErrDiameter,'color',colors('north texas green'),'LineWidth',0.5)
+plot(data.Blank_SAP.Auditory.meanTimeVector,data.Blank_SAP.Auditory.meanDiameter - data.Blank_SAP.Auditory.stdErrDiameter,'color',colors('north texas green'),'LineWidth',0.5)
 % SSP-SAP
 plot(data.SSP_SAP.Auditory.meanTimeVector,data.SSP_SAP.Auditory.meanDiameter,'color',colors('electric purple'),'LineWidth',2);
-plot(data.SSP_SAP.Auditory.meanTimeVector,data.SSP_SAP.Auditory.meanDiameter + data.SSP_SAP.Auditory.stdDiameter,'color',colors('electric purple'),'LineWidth',0.5)
-plot(data.SSP_SAP.Auditory.meanTimeVector,data.SSP_SAP.Auditory.meanDiameter - data.SSP_SAP.Auditory.stdDiameter,'color',colors('electric purple'),'LineWidth',0.5)
+plot(data.SSP_SAP.Auditory.meanTimeVector,data.SSP_SAP.Auditory.meanDiameter + data.SSP_SAP.Auditory.stdErrDiameter,'color',colors('electric purple'),'LineWidth',0.5)
+plot(data.SSP_SAP.Auditory.meanTimeVector,data.SSP_SAP.Auditory.meanDiameter - data.SSP_SAP.Auditory.stdErrDiameter,'color',colors('electric purple'),'LineWidth',0.5)
 title('Auditory Stim')
 ylabel('\DeltaD/D (%)')
 xlabel('Peri-stimulus time (s)')
