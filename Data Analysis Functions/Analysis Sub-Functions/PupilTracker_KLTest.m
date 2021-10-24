@@ -135,6 +135,7 @@ imageFrames=gpuArray(imageStack);
 roiInt(1:size(imageFrames,3))=NaN;
 roiInt=gpuArray(roiInt);
 for framenum=1:size(imageStack,3)
+    disp(num2str(framenum))
     FiltImg=medfilt2(imcomplement(imageFrames(:,:,framenum)),medFilt_Params);%medfilt2(imcomplement(imageStack(:,:,framenum)),[11 11]);
     ThreshImg=uint8(double(FiltImg).*BW); %Only look at pixel values in ROI
     roiInt_temp=sum(ThreshImg,1);
@@ -163,6 +164,7 @@ for framenum=1:size(imageStack,3)
     area_filled=regionprops(FillPupil,'FilledArea','Image','FilledImage','Centroid','MajorAxisLength','MinorAxisLength');
     %     area_filled=regionprops(FillPupil,'Area','Centroid','MajorAxisLength','MinorAxisLength');
     if size(area_filled,1)>1
+        clear theArea areaLogical
         for num=1:size(area_filled,1)
             theArea(num)=area_filled(num).FilledArea;
         end
