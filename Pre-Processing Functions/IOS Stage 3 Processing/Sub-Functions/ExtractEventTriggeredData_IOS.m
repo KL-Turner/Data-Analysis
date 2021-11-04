@@ -18,7 +18,7 @@ if not(iscell(dataTypes))
 end
 for a = 1:length(dataTypes)
     dataType = char(dataTypes(a));
-    if strcmp(dataType,'CBV') == true || strcmp(dataType,'CBV_HbT') == true || strcmp(dataType,'GCaMP7s') == true
+    if strcmp(dataType,'CBV') == true || strcmp(dataType,'CBV_HbT') == true || strcmp(dataType,'GCaMP7s') == true || strcmp(dataType,'Deoxy') == true
         if strcmp(imagingType,'bilateral') == true || strcmpi(imagingType,'GCaMP') == true
             subDataTypes = {'LH','adjLH','RH','adjRH'};
         elseif strcmp(imagingType,'single') == true

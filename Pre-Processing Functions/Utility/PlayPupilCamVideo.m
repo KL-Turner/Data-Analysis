@@ -4,71 +4,39 @@
 % https://github.com/KL-Turner
 %________________________________________________________________________________________________________________________
 %
-%   Purpose: 
+%   Purpose:
 %________________________________________________________________________________________________________________________
 %
-%   Inputs: 
+%   Inputs:
 %
-%   Outputs:        
+%   Outputs:
 %
-%   Last Revised:    
+%   Last Revised:
 %________________________________________________________________________________________________________________________
 
-clear
-clc
-
+zap;
 % User inputs for file information
-pupilCamFileID = uigetfile('*_PupilCam.bin','MultiSelect','off');
-animalID = input('Input the animal ID: ', 's'); disp(' ')
-rawDataFileID = [animalID '_' pupilCamFileID(1:end - 13) '_RawData.mat'];
-
-disp(['Loading relevant file information from ' rawDataFileID '...']); disp(' ')
-try
-    load(rawDataFileID)
-catch
-    disp([rawDataFileID ' does not appear to be in the current file path']); disp(' ')
-    return
-end
-
-trialDuration = RawData.notes.trialDuration_sec;
-disp([pupilCamFileID ' is ' num2str(trialDuration) ' seconds long.']); disp(' ')
-startTime = input('Input the desired start time (sec): '); disp(' ')
-endTime = input('Input the desired end time (sec): '); disp(' ')
-
-if startTime >= trialDuration || startTime < 0
-    disp(['A start time of  ' num2str(startTime) ' is not a valid input']); disp(' ')
-    return
-elseif endTime > trialDuration || endTime <= startTime || endTime <= 0
-    disp(['An end time of  ' num2str(startTime) ' is not a valid input']); disp(' ')
-    return
-end
-
-imageHeight = RawData.notes.pupilCamPixelHeight;                                                                                                            
-imageWidth = RawData.notes.pupilCamPixelWidth;
-Fs = RawData.notes.pupilCamSamplingRate;
-
-frameStart = floor(startTime)*Fs;
-frameEnd = floor(endTime)*Fs;         
-frameInds = frameStart:frameEnd;
-
+procDataFileID = uigetfile('*_ProcData.mat','MultiSelect','off');
+load(procDataFileID)
+[~,fileDate,fileID] = GetFileInfo_IOS(procDataFileID);
+pupilCamFileID = [fileID '_PupilCam.bin'];
+trialDuration = ProcData.notes.trialDuration_sec;
+fid = fopen(pupilCamFileID); % reads the binary file in to the work space
+fseek(fid,0,'eof'); % find the end of the video frame
+fileSize = ftell(fid); % calculate file size
+fseek(fid,0,'bof'); % find the begining of video frames
+imageHeight = ProcData.notes.pupilCamPixelHeight; % how many pixels tall is the frame
+imageWidth = ProcData.notes.pupilCamPixelWidth; % how many pixels wide is the frame
+samplingRate = ProcData.notes.pupilCamSamplingRate;
 pixelsPerFrame = imageWidth*imageHeight;
-skippedPixels = pixelsPerFrame;   % Multiply by two because there are 16 bits (2 bytes) per pixel
-fid = fopen(pupilCamFileID);
-fseek(fid,0,'eof');
-fileSize = ftell(fid);
-fseek(fid,0,'bof');
-nFramesToRead = length(frameInds);
+skippedPixels = pixelsPerFrame;
+nFramesToRead = floor(fileSize/(pixelsPerFrame));
 imageStack = zeros(imageHeight,imageWidth,nFramesToRead);
-for a = 1:nFramesToRead
-    disp(['Creating image stack: (' num2str(a) '/' num2str(nFramesToRead) ')']); disp(' ')
-    fseek(fid,frameInds(a)*skippedPixels,'bof');
+for dd = 1:nFramesToRead
+    fseek(fid,(dd - 1)*skippedPixels,'bof');
     z = fread(fid,pixelsPerFrame,'*uint8','b');
     img = reshape(z(1:pixelsPerFrame),imageWidth,imageHeight);
-    imageStack(:,:,a) = flip(imrotate(img,-90),2);
+    imageStack(:,:,dd) = flip(imrotate(img,-90),2);
 end
 fclose('all');
-
-handle = implay(imageStack, Fs);
-handle.Visual.ColorMap.UserRange = 1; 
-handle.Visual.ColorMap.UserRangeMin = min(img(:)); 
-handle.Visual.ColorMap.UserRangeMax = max(img(:));
+sliceViewer(imageStack)

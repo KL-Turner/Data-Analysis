@@ -38,8 +38,8 @@ imagingType = input('Input imaging type (bilateral, single, GCaMP): ','s'); disp
 stimulationType = input('Input stimulation type (single or pulse): ','s'); disp(' ')
 ledColor = input('Input isosbestic LED color (green or lime): ','s'); disp(' ')
 if strcmpi(imagingType,'GCaMP') == true
-    dataTypes = {'CBV','GCaMP7s','cortical_LH','cortical_RH','hippocampus','EMG'};
-    updatedDataTypes = {'CBV','CBV_HbT','GCaMP7s','cortical_LH','cortical_RH','hippocampus','EMG'};
+    dataTypes = {'CBV','GCaMP7s','Deoxy','cortical_LH','cortical_RH','hippocampus','EMG'};
+    updatedDataTypes = {'CBV','CBV_HbT','GCaMP7s','Deoxy','cortical_LH','cortical_RH','hippocampus','EMG'};
 else
     dataTypes = {'CBV','cortical_LH','cortical_RH','hippocampus','EMG'};
     updatedDataTypes = {'CBV','CBV_HbT','cortical_LH','cortical_RH','hippocampus','EMG'};
@@ -77,7 +77,7 @@ hemoType = 'reflectance';
 disp('Analyzing Block [6] Adding delta HbT to each ProcData file.'); disp(' ')
 updatedBaselineType = 'manualSelection';
 UpdateTotalHemoglobin_IOS(procDataFileIDs,RestingBaselines,updatedBaselineType,imagingType,ledColor)
-% CorrectGCaMPattenuation_IOS(procDataFileIDs,RestingBaselines)
+CorrectGCaMPattenuation_IOS(procDataFileIDs,RestingBaselines)
 %% BLOCK PURPOSE: [7] Re-create the RestData structure now that HbT is available
 disp('Analyzing Block [7] Creating RestData struct for CBV and neural data.'); disp(' ')
 [RestData] = ExtractRestingData_IOS(procDataFileIDs,updatedDataTypes,imagingType);

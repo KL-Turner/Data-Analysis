@@ -12,6 +12,7 @@ function [EventData] = ExtractPupilEventTriggeredData_IOS(procDataFileIDs)
 % load rest data file
 eventDataFileID = ls('*_EventData.mat');
 load(eventDataFileID)
+EventData.Pupil = [];
 epoch.duration = 12;
 epoch.offset = 2;
 % Control for dataTypes as string
@@ -24,7 +25,7 @@ for a = 1:length(dataTypes)
         % Load ProcData File
         procDataFileID = procDataFileIDs(b,:);
         load(procDataFileID);
-        if strcmp(ProcData.data.Pupil.frameCheck,'y') == true
+        if strcmp(ProcData.data.Pupil.diameterCheck,'y') == true
             % Get the date and file ID to include in the EventData structure
             [animal,fileDate,fileID] = GetFileInfo_IOS(procDataFileID);
             % Get the types of behaviors present in the file (stim,whisk,rest)

@@ -45,7 +45,7 @@ for b = 1:length(firstsFileOfDay)
                 end
             else
                 [frames] = ReadDalsaBinary_IOS(animalID,fileID);
-                [ROIs] = CreateFreeHandROIs_IOS(frames{1},ROIname,animalID,ROIs);
+                [ROIs] = CreateFreeHandROIs_IOS(frames{3},ROIname,animalID,ROIs);
             end
             save([animalID '_ROIs.mat'],'ROIs');
         end

@@ -43,9 +43,10 @@ if strcmp(imagingType,'bilateral') == true
     CorrectBilateralPixelDrift_IOS(procDataFileIDs)
 elseif strcmp(imagingType,'single') == true
     CorrectPixelDrift_IOS(procDataFileIDs)
-elseif strcmpi(imagingType,'gcamp')  == true
+elseif strcmpi(imagingType,'GCaMP')  == true
     CorrectBilateralPixelDrift_CBV_IOS(procDataFileIDs)
     CorrectBilateralPixelDrift_GCaMP_IOS(procDataFileIDs)
+    CorrectBilateralPixelDrift_Deoxy_IOS(procDataFileIDs)
 end
 %% fin.
 disp('IOS Stage Two Processing - Complete.'); disp(' ')

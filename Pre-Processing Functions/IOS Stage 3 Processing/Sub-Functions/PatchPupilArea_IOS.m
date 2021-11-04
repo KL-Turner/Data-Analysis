@@ -10,18 +10,24 @@ function [] = PatchPupilArea_IOS(procDataFileID)
 %________________________________________________________________________________________________________________________
 
 load(procDataFileID)
-if isfield(ProcData.notes,'pupilPatch') == false %#ok<NODEF>
+if isfield(ProcData.data.Pupil,'pupilPatch') == false %#ok<NODEF>
     [animalID,~,fileID] = GetFileInfo_IOS(procDataFileID);
     % expected number of frames based on trial duration and sampling rate
     expectedSamples = ProcData.notes.trialDuration_sec*ProcData.notes.pupilCamSamplingRate;
     droppedFrameIndex = str2num(ProcData.notes.droppedPupilCamFrameIndex); %#ok<ST2NM>
     sampleDiff = expectedSamples - length(ProcData.data.Pupil.pupilArea);
     framesPerIndex = ceil(sampleDiff/length(droppedFrameIndex));
+    blinks = ProcData.data.Pupil.blinkInds;
     %% patch NaN values
-    pupilArea = ProcData.data.Pupil.pupilArea;
+    try
+        pupilArea = ProcData.data.Pupil.originalPupilArea;
+    catch
+        ProcData.data.Pupil.originalPupilArea = ProcData.data.Pupil.pupilArea;
+        pupilArea = ProcData.data.Pupil.pupilArea;
+    end
     nanLogical = isnan(pupilArea);
     nanIndex = find(nanLogical == 1);
-    if sum(nanLogical) > 1
+    if sum(nanLogical) > 1 && sum(nanLogical) < 10000
         while sum(nanLogical) >= 1
             pupilArea = fillmissing(pupilArea,'movmedian',3);
             nanLogical = isnan(pupilArea);
@@ -29,9 +35,9 @@ if isfield(ProcData.notes,'pupilPatch') == false %#ok<NODEF>
         % check length of missing data. If there's periods > than 1 second of continuous NaN then mark the file as bad
         testPatch = fillmissing(ProcData.data.Pupil.pupilArea,'movmedian',31);
         if sum(isnan(testPatch)) > 1
-            ProcData.data.Pupil.frameCheck = false;
+            ProcData.data.Pupil.diameterCheck = 'n';
+            ProcData.data.Pupil.diameterCheckComplete = 'y';
         else
-            % check interpolation figure
             nanFigure = figure;
             plot((1:length(pupilArea))./ProcData.notes.pupilCamSamplingRate,pupilArea,'k');
             hold on
@@ -61,6 +67,7 @@ if isfield(ProcData.notes,'pupilPatch') == false %#ok<NODEF>
     end
     %% patch missing frames now that NaN are gone
     if ~isempty(droppedFrameIndex)
+        addedFrames = 0;
         % each dropped index
         for cc = 1:length(droppedFrameIndex)
             % for the first event, it's okay to start at the actual index
@@ -79,20 +86,47 @@ if isfield(ProcData.notes,'pupilPatch') == false %#ok<NODEF>
             if cc == 1
                 patchFrameVals = interp1(1:length(pupilArea),pupilArea,patchFrameInds);   % linear interp
                 snipPatchFrameVals = patchFrameVals(2:end - 1);
-                patchedPupilArea = horzcat(pupilArea(1:leftEdge),snipPatchFrameVals,pupilArea(rightEdge:end));
+                try
+                    patchedPupilArea = horzcat(pupilArea(1:leftEdge),snipPatchFrameVals,pupilArea(rightEdge:end));
+                catch
+                    patchedPupilArea = horzcat(pupilArea(1:end),snipPatchFrameVals);
+                end
             else
                 patchFrameVals = interp1(1:length(patchedPupilArea),patchedPupilArea,patchFrameInds);   % linear interp
                 snipPatchFrameVals = patchFrameVals(2:end - 1);
                 patchedPupilArea = horzcat(patchedPupilArea(1:leftEdge),snipPatchFrameVals,patchedPupilArea(rightEdge:end));
             end
+            addedFrames = addedFrames + length(snipPatchFrameVals);
+            addedFrameIndex(1,cc) = addedFrames;
+            if cc == 1
+                for qq = 1:length(blinks)
+                    if leftEdge < blinks(1,qq)
+                        shiftedBlinks(1,qq) = blinks(1,qq) + addedFrames;
+                    else
+                        shiftedBlinks(1,qq) = blinks(1,qq);
+                    end
+                end
+            else
+                for qq = 1:length(blinks)
+                    if leftEdge < blinks(1,qq)
+                        shiftedBlinks(1,qq) = shiftedBlinks(1,qq) + addedFrames;
+                    else
+                        shiftedBlinks(1,qq) = shiftedBlinks(1,qq);
+                    end
+                end
+            end
         end
         % due to rounding up on the number of dropped frames per index, we have a few extra frames. Snip them off.
         patchedPupilArea = patchedPupilArea(1:expectedSamples);
+        if isempty(blinks) == false
+            ProcData.data.Pupil.shiftedBlinks = shiftedBlinks;
+            ProcData.data.Pupil.addedFrameIndex = addedFrameIndex;
+        end
     else
         patchedPupilArea = pupilArea(1:expectedSamples);
     end
     ProcData.data.Pupil.pupilArea = patchedPupilArea;
-    ProcData.data.Pupil.pupilPatch = true;
+    ProcData.data.Pupil.pupilPatch = 'y';
     save(procDataFileID,'ProcData')
 end
 

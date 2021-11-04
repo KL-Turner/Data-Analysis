@@ -143,12 +143,13 @@ for e = 1:length(dataTypes)
             end
         end
         % find the means of each unique day
-        for s = 1:size(uniqueDate,1)
-            tempDataMeans{s,1} = cellfun(@(x)nanmean(x),tempData.(uniqueDate{s,1}));
+        validDates = fieldnames(tempData);
+        for s = 1:size(validDates,1)
+            tempDataMeans{s,1} = cellfun(@(x)nanmean(x),tempData.(validDates{s,1}));
         end
         % save the means into the Baseline struct under the current loop iteration with the associated dates
-        for t = 1:length(uniqueDays)
-            RestingBaselines.manualSelection.(dataType).(subDataType).(uniqueDate{t,1}) = mean(tempDataMeans{t,1});
+        for t = 1:length(validDates)
+            RestingBaselines.manualSelection.(dataType).(subDataType).(validDates{t,1}) = mean(tempDataMeans{t,1});
         end
     end
 end

@@ -11,13 +11,14 @@ function [RestData] = ExtractPupilRestingData_IOS(procDataFileIDs)
 % load rest data file
 restDataFileID = ls('*_RestData.mat');
 load(restDataFileID)
+RestData.Pupil = [];
 % analyze each proc data file
 zz = 1;
 for c = 1:size(procDataFileIDs,1)
     disp(['Extracting resting pupil area from ProcData file ' num2str(c) '/' num2str(size(procDataFileIDs,1))]); disp(' ')
     procDataFileID = procDataFileIDs(c,:);
     load(procDataFileID);
-    if strcmp(ProcData.data.Pupil.frameCheck,'y') == true
+    if strcmp(ProcData.data.Pupil.diameterCheck,'y') == true
         % get the date and file identifier for the data to be saved with each resting event
         [animal,fileDate,fileID] = GetFileInfo_IOS(procDataFileID);
         % sampling frequency for element of dataTypes

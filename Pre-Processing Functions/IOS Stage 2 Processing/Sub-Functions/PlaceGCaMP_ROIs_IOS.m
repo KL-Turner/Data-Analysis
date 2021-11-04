@@ -43,7 +43,7 @@ for qq = 1:size(procDataFileList,1)
     fseek(fid,0,'eof');
     fseek(fid,0,'bof');
     % identify the number of frames to read. Each frame has a previously defined width and height (as inputs), along with a grayscale "depth" of 2"
-    nFramesToRead = 11;
+    nFramesToRead = 10;
     % preallocate memory
     frames = cell(1,nFramesToRead);
     for n = 1:nFramesToRead
@@ -52,36 +52,46 @@ for qq = 1:size(procDataFileList,1)
         frames{n} = rot90(img',2);
     end
     gcampCheck = figure;
-    frames = frames(2:end);
+    frames = frames(1:end);
     for xx = 1:10
         subplot(2,5,xx)
         imagesc(frames{1,xx})
         axis image
         colormap gray
     end
-    cbvFrames = input('Are green LED frames even or odd: ','s'); disp(' ')
-%     cbvFrames = 'even';
-    close(gcampCheck)
     contCheck = false;
     while contCheck == false
-        if strcmpi(cbvFrames,'even') == true
+        gcampFrames = input('Which index are blue LED frames (1,2,3): '); disp(' ')
+        if gcampFrames == 1
             if qq == 1
-                roiFrame = frames{2};
+                roiFrame = frames{3};
             end
-            ProcData.notes.greenFrames = 'even';
-            ProcData.notes.blueFrames = 'odd';
+            ProcData.notes.blueFrames = 1;
+            ProcData.notes.redFrames = 2;
+            ProcData.notes.greenFrames = 3;
             save(procDataFileIDs(qq,:),'ProcData')
             contCheck = true;
-        elseif strcmpi(cbvFrames,'odd') == true
+        elseif gcampFrames == 2
             if qq == 1
                 roiFrame = frames{1};
             end
-            ProcData.notes.greenFrames = 'odd';
-            ProcData.notes.blueFrames = 'even';
+            ProcData.notes.blueFrames = 2;
+            ProcData.notes.redFrames = 3;
+            ProcData.notes.greenFrames = 1;
+            save(procDataFileIDs(qq,:),'ProcData')
+            contCheck = true;
+        elseif gcampFrames == 3
+            if qq == 1
+                roiFrame = frames{2};
+            end
+            ProcData.notes.blueFrames = 3;
+            ProcData.notes.redFrames = 1;
+            ProcData.notes.greenFrames = 2;
             save(procDataFileIDs(qq,:),'ProcData')
             contCheck = true;
         end
     end
+    close(gcampCheck)
     fclose('all');
 end
 % determine the proper size of the ROI based on camera/lens magnification
@@ -129,7 +139,7 @@ for f = 1:length(hem)
 end
 % check final image
 fig = figure;
-imagesc(frames{1})
+imagesc(roiFrame)
 hold on;
 if strcmpi(imagingType,'bilateral') == true || strcmp(imagingType,'gcamp') == true
     drawcircle('Center',ROIs.(['LH_' strDay]).circPosition,'Radius',ROIs.(['LH_' strDay]).circRadius,'Color','r');

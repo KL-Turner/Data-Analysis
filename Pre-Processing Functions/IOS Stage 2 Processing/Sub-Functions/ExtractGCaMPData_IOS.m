@@ -19,13 +19,18 @@ for a = 1:size(rawDataFileIDs,1)
     load(rawDataFileID)
     load(procDataFileID)
     [frames] = ReadDalsaBinary_IOS(animalID,[fileID '_WindowCam.bin']);
-    frames = frames(2:end);   % remove underexposed first frame
-    if strcmp(ProcData.notes.greenFrames,'odd') == true
-        cbvFrames = frames(1:2:end);
-        gcampFrames = frames(2:2:end);
-    elseif strcmp(ProcData.notes.greenFrames,'even') == true
-        cbvFrames = frames(2:2:end);
-        gcampFrames = frames(1:2:end);
+    if ProcData.notes.greenFrames == 1
+        cbvFrames = frames(1:3:end - 1);
+        gcampFrames = frames(2:3:end);
+        deoxyFrames = frames(3:3:end);
+    elseif ProcData.notes.greenFrames == 2
+        cbvFrames = frames(2:3:end);
+        gcampFrames = frames(3:3:end);
+        deoxyFrames = frames(1:3:end - 1);
+    elseif ProcData.notes.greenFrames == 3
+        cbvFrames = frames(3:3:end);
+        gcampFrames = frames(1:3:end - 1);
+        deoxyFrames = frames(2:3:end);
     end
     for b = 1:length(ROInames)
         ROIshortName = ROInames{1,b};
@@ -36,21 +41,25 @@ for a = 1:size(rawDataFileIDs,1)
         imagesc(frames{1});
         axis image;
         colormap gray
-        if strcmp(ROIshortName,'LH') == true || strcmp(ROIshortName,'RH') == true 
+        if strcmp(ROIshortName,'LH') == true || strcmp(ROIshortName,'RH') == true
             circROI = drawcircle('Center',ROIs.(ROIname).circPosition,'Radius',ROIs.(ROIname).circRadius);
             mask = createMask(circROI,frames{1});
             close(maskFig)
             cbvMeanIntensity = BinToIntensity_IOS(mask,cbvFrames);
             gcampMeanIntensity = BinToIntensity_IOS(mask,gcampFrames);
+            deoxyMeanIntensity = BinToIntensity_IOS(mask,deoxyFrames);
             RawData.data.CBV.(ROIname) = cbvMeanIntensity;
             RawData.data.GCaMP7s.(ROIname) = gcampMeanIntensity;
+            RawData.data.Deoxy.(ROIname) = deoxyMeanIntensity;
         elseif strcmp(ROIshortName,'Cement') == true
             mask = roipoly(frames{1},ROIs.(ROIname).xi,ROIs.(ROIname).yi);
             close(maskFig)
             cbvCementMeanIntensity = BinToIntensity_IOS(mask,cbvFrames);
             gcampCementMeanIntensity = BinToIntensity_IOS(mask,gcampFrames);
+            deoxyCementMeanIntensity = BinToIntensity_IOS(mask,deoxyFrames);
             RawData.data.CBV.(ROIname) = cbvCementMeanIntensity;
             RawData.data.GCaMP7s.(ROIname) = gcampCementMeanIntensity;
+            RawData.data.Deoxy.(ROIname) = deoxyCementMeanIntensity;
         end
     end
     save(rawDataFileID,'RawData')

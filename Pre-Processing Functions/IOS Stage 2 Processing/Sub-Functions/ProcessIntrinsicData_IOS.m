@@ -47,12 +47,15 @@ for a = 1:size(procDataFileIDs,1)
         if strcmp(imagingType,'gcamp') == true
             ProcData.data.CBV.(ROInames{1,b}) = RawData.data.CBV.([ROInames{1,b} '_' strDay]);
             ProcData.data.GCaMP7s.(ROInames{1,b}) = RawData.data.GCaMP7s.([ROInames{1,b} '_' strDay]);
-            ProcData.notes.CBVCamSamplingRate = RawData.notes.CBVCamSamplingRate/2;
+            ProcData.data.Deoxy.(ROInames{1,b}) = RawData.data.Deoxy.([ROInames{1,b} '_' strDay]);
+            ProcData.notes.CBVCamSamplingRate = RawData.notes.CBVCamSamplingRate/3;
         else
             ProcData.data.CBV.(ROInames{1,b}) = RawData.data.CBV.([ROInames{1,b} '_' strDay])(1:end - 1);
         end
-        CheckForNaNs_IOS(ProcData);
+        CheckForNaNs_IOS(ProcData,imagingType);
         save(procDataFileID,'ProcData')
     end
-    
 end
+
+end
+

@@ -7,10 +7,12 @@
 %            2) Patch any NaN values or droppped camera frames via interpolation
 %            3) Manually check the first 5 and last 5 frames of each session to verify eye integrity/discharge
 %            4) Manually check each blink for false positives
-%            5) Extract resting pupil area and add it to RestData.mat structure
-%            6) Determine baseline pupil area during rest and add it to RestingBaselines.mat
-%            7) Extract whisking/stimulus triggered pupil area and add it to EventData.mat
-%            8) Normalize RestData.mat and EventData.mat structures using resting baseline
+%            5) Manually check each file's pupil diameter
+%            6) Extract resting pupil area and add it to RestData.mat structure
+%            7) Determine baseline pupil area during rest and add it to RestingBaselines.mat
+%            8) Extract whisking/stimulus triggered pupil area and add it to EventData.mat
+%            9) Normalize RestData.mat and EventData.mat structures using resting baseline
+%           10) Update pupil data in SleepData.mat
 %________________________________________________________________________________________________________________________
 
 %% BLOCK PURPOSE: [0] Load the script's necessary variables and data structures.
@@ -43,20 +45,30 @@ for cc = 1:size(procDataFileIDs)
     disp(['Manually checking blinks of file ' num2str(cc) '/' num2str(size(procDataFileIDs,1))]); disp(' ')
     CheckPupilBlinks_IOS(procDataFileIDs(cc,:))
 end
-%% BLOCK PURPOSE: [5] Add pupil area to RestData.mat
-disp('Analyzing Block [5] Adding pupil area to RestData.mat'); disp(' ')
+%% BLOCK PURPOSE: [5] Verify diameter
+disp('Analyzing Block [4] Manually check pupil diameter.'); disp(' ')
+for dd = 1:size(procDataFileIDs)
+    disp(['Manually checking pupil diameter of file ' num2str(dd) '/' num2str(size(procDataFileIDs,1))]); disp(' ')
+    CheckPupilDiameter_IOS(procDataFileIDs(dd,:))
+end
+%% BLOCK PURPOSE: [6] Add pupil area to RestData.mat
+disp('Analyzing Block [6] Adding pupil area to RestData.mat'); disp(' ')
 [RestData] = ExtractPupilRestingData_IOS(procDataFileIDs);
-%% BLOCK PURPOSE: [6] Add pupil baseline to Restingbaselines.mat
-disp('Analyzing Block [6] Adding pupil baseline to RestingBaselines.mat'); disp(' ')
+%% BLOCK PURPOSE: [7] Add pupil baseline to Restingbaselines.mat
+disp('Analyzing Block [7] Adding pupil baseline to RestingBaselines.mat'); disp(' ')
 [RestingBaselines] = AddPupilRestingBaseline_IOS();
-%% BLOCK PURPOSE: [7] Add pupil area to EventData.mat
-disp('Analyzing Block [7] Add pupil whisk/stim data to EventData.mat'); disp(' ')
+%% BLOCK PURPOSE: [8] Add pupil area to EventData.mat
+disp('Analyzing Block [8] Add pupil whisk/stim data to EventData.mat'); disp(' ')
 [EventData] = ExtractPupilEventTriggeredData_IOS(procDataFileIDs);
-%% BLOCK PURPOSE: [8] Normalize Rest/Event data structures
-disp('Analyzing Block [8] Normalizing Rest/Event data structures.'); disp(' ')
+%% BLOCK PURPOSE: [9] Normalize Rest/Event data structures
+disp('Analyzing Block [9] Normalizing Rest/Event data structures.'); disp(' ')
 [RestData] = NormBehavioralDataStruct_IOS(RestData,RestingBaselines,'manualSelection');
 save([animalID '_RestData.mat'],'RestData','-v7.3')
 [EventData] = NormBehavioralDataStruct_IOS(EventData,RestingBaselines,'manualSelection');
 save([animalID '_EventData.mat'],'EventData','-v7.3')
+%% BLOCK PURPOSE: [10] Add pupil data to SleepData.mat
+disp('Analyzing Block [10] Adding pupil data to SleepData structure.'); disp(' ')
+AddPupilSleepParameters_IOS(procDataFileIDs)
+UpdatePupilSleepData_IOS(procDataFileIDs)
 %% fin
 disp('Pupil Core Processing - Complete.'); disp(' ')

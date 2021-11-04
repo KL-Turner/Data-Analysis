@@ -48,9 +48,9 @@ if isfield(PupilData,'firstFileOfDay') == false
             roiImage = uint8(roiImage); % convert double floating point data to unsignned 8bit integers
             workingImg{cc,1} = imcomplement(roiImage); % grab frame from image stack
         end
-        figure; 
+        desiredFig = figure;
         if length(workingImg) > 25
-            workingImg = workingImg(1:25,1); 
+            workingImg = workingImg(1:25,1);
         end
         for dd = 1:length(workingImg)
             subplot(5,5,dd)
@@ -60,9 +60,34 @@ if isfield(PupilData,'firstFileOfDay') == false
             colormap gray
             title(['Session ' num2str(dd)])
         end
-        clear workingImg
+        % choose desired file
         desiredFile = input('Which file looks best for ROI drawing: '); disp(' ')
         PupilData.firstFileOfDay{1,bb} = dayFilenames.(strDay)(desiredFile,:);
+        % resize image if larger than 200x200
+        if ProcData.notes.pupilCamPixelHeight > 200
+            newROI = [1,1,199,199];
+            newROIFig = figure;
+            imagesc(workingImg{desiredFile,1})
+            axis image
+            axis off
+            colormap gray
+            h = imrect(gca,newROI); %#ok<IMRECT>
+            addNewPositionCallback(h,@(p) title(mat2str(p,3)));
+            fcn = makeConstrainToRectFcn('imrect',get(gca,'XLim'),get(gca,'YLim'));
+            setPositionConstraintFcn(h,fcn)
+            position = wait(h);
+            newImage = imcrop(workingImg{desiredFile,1},position);
+            newImageFig = figure;
+            imagesc(newImage)
+            axis image
+            axis off
+            colormap gray
+            PupilData.resizePosition{1,bb} = position;
+            close(newROIFig)
+            close(newImageFig)
+        end
+        clear workingImg
+        close(desiredFig)
     end
     firstFileOfDay = PupilData.firstFileOfDay;
     save([animalID '_PupilData.mat'],'PupilData');
@@ -89,6 +114,9 @@ for bb = 1:length(firstFileOfDay)
         img = reshape(z(1:pixelsPerFrame),imageWidth,imageHeight);
         roiImage(:,:,1) = flip(imrotate(img,-90),2);
         roiImage = uint8(roiImage); % convert double floating point data to unsignned 8bit integers
+        if isfield(PupilData,'resizePosition') == true
+            roiImage = imcrop(roiImage,PupilData.resizePosition{1,bb});
+        end
         workingImg = imcomplement(roiImage); % grab frame from image stack
         disp('Draw roi around eye'); disp(' ')
         eyeFigure = figure;
@@ -100,7 +128,7 @@ for bb = 1:length(firstFileOfDay)
         medFiltParams = [5,5]; % [x,y] dimensions for 2d median filter of images
         filtImg = medfilt2(workingImg,medFiltParams); % median filter image
         threshImg = uint8(double(filtImg).*eyeROI); % only look at pixel values in ROI
-        [phat,pci] = mle(reshape(threshImg(threshImg ~= 0),1,numel(threshImg(threshImg ~= 0))),'distribution','Normal');
+        [phat,~] = mle(reshape(threshImg(threshImg ~= 0),1,numel(threshImg(threshImg ~= 0))),'distribution','Normal');
         %% figure for verifying pupil threshold
         pupilROIFig = figure;
         subplot(1,3,1)
@@ -167,20 +195,28 @@ for bb = 1:length(firstFileOfDay)
     end
 end
 %% run pupil/blink tracking on all data files
-theAngles = 1:1:180; % projection angles measured during radon transform of pupil
-pupilHistEdges = 1:1:256; %#ok<NASGU> % camera data is unsigned 8bit integers. Ignore 0 values
-radonThresh = 0.05; % arbitrary threshold used to clean up radon transform above values ==1 below ==0
-pupilThresh = 0.35; % arbitrary threshold used to clean up inverse radon transform above values ==1 below ==0
-blinkThresh = 0.35; % arbitrary threshold used to binarize data for blink detection above values ==1 below ==0
-medFiltParams = [5,5]; % [x,y] dimensions for 2d median filter of images
 for cc = 1:size(procDataFileIDs,1)
+    clearvars -except procDataFileIDs PupilData cc
     procDataFileID = procDataFileIDs(cc,:);
     load(procDataFileID)
+    ProcData.data.Pupil = [];
     disp(['Checking pupil tracking status of file (' num2str(cc) '/' num2str(size(procDataFileIDs,1)) ')']); disp(' ')
     if isfield(ProcData.data,'Pupil') == false
         [animalID,fileDate,fileID] = GetFileInfo_IOS(procDataFileID);
         strDay = ConvertDate_IOS(fileDate);
         pupilCamFileID = [fileID '_PupilCam.bin'];
+        idx = 0;
+        for qq = 1:size(PupilData.firstFileOfDay,2)
+            if strfind(PupilData.firstFileOfDay{1,qq},fileDate) >= 5
+                idx = qq;
+            end
+        end
+        theAngles = 1:1:180; % projection angles measured during radon transform of pupil
+        pupilHistEdges = 1:1:256; %#ok<NASGU> % camera data is unsigned 8bit integers. Ignore 0 values
+        radonThresh = 0.05; % arbitrary threshold used to clean up radon transform above values ==1 below ==0
+        pupilThresh = 0.35; % arbitrary threshold used to clean up inverse radon transform above values ==1 below ==0
+        blinkThresh = 0.35; % arbitrary threshold used to binarize data for blink detection above values ==1 below ==0
+        medFiltParams = [5,5]; % [x,y] dimensions for 2d median filter of images
         fid = fopen(pupilCamFileID); % reads the binary file in to the work space
         fseek(fid,0,'eof'); % find the end of the video frame
         fileSize = ftell(fid); % calculate file size
@@ -191,13 +227,17 @@ for cc = 1:size(procDataFileIDs,1)
         pixelsPerFrame = imageWidth*imageHeight;
         skippedPixels = pixelsPerFrame;
         nFramesToRead = floor(fileSize/(pixelsPerFrame));
-        imageStack = zeros(imageHeight,imageWidth,nFramesToRead);
+        imageStack = zeros(200,200,nFramesToRead);
         % read .bin file to imageStack
         for dd = 1:nFramesToRead
             fseek(fid,(dd - 1)*skippedPixels,'bof');
             z = fread(fid,pixelsPerFrame,'*uint8','b');
             img = reshape(z(1:pixelsPerFrame),imageWidth,imageHeight);
-            imageStack(:,:,dd) = flip(imrotate(img,-90),2);
+            if isfield(PupilData,'resizePosition') == true
+                imageStack(:,:,dd) = imcrop(flip(imrotate(img,-90),2),PupilData.resizePosition{1,idx});
+            else
+                imageStack(:,:,dd) = flip(imrotate(img,-90),2);
+            end
         end
         imageStack = uint8(imageStack); % convert double floating point data to unsignned 8bit integers
         workingImg = imcomplement(imageStack(:,:,2)); % grab frame from image stack
@@ -234,7 +274,7 @@ for cc = 1:size(procDataFileIDs,1)
             threshPupil(normPupil >= radonThresh) = 1;
             threshPupil(normPupil < radonThresh) = 0; % binarize radon projection
             radonPupil = gather(iradon(double(threshPupil),theAngles,'linear','Hamming',size(workingImg,2))); % transform back to image space
-            [Pupil_Pix,pupilBoundaries] = bwboundaries(radonPupil > pupilThresh*max(radonPupil(:)),8,'noholes'); % find area corresponding to pupil on binary image
+            [~,pupilBoundaries] = bwboundaries(radonPupil > pupilThresh*max(radonPupil(:)),8,'noholes'); % find area corresponding to pupil on binary image
             fillPupil = pupilBoundaries;
             fillPupil = imfill(fillPupil,'holes'); % fill any subthreshold pixels inside the pupil boundary
             areaFilled = regionprops(fillPupil,'FilledArea','Image','FilledImage','Centroid','MajorAxisLength','MinorAxisLength');
@@ -280,7 +320,7 @@ for cc = 1:size(procDataFileIDs,1)
         blinks = find((abs(diff(ProcData.data.Pupil.roiIntensity))./ProcData.data.Pupil.roiIntensity(2:end)) >= blinkThresh) + 1;
         ProcData.data.Pupil.blinkFrames = overlay(:,:,:,blinks);
         plotPupilArea = ProcData.data.Pupil.pupilArea;
-        plotPupilArea((blinks - 5:blinks + 30)) = NaN;
+        plotPupilArea((blinks - 1:blinks + 1)) = NaN;
         blinkTimes(1:size(ProcData.data.Pupil.pupilArea,2)) = NaN;
         blinkTimes(blinks) = 1;
         ProcData.data.Pupil.blinkTimes = blinkTimes*(1.1*max(ProcData.data.Pupil.pupilArea(:)));
