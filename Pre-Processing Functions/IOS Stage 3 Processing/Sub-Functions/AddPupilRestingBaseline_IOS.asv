@@ -156,11 +156,11 @@ for e = 1:length(dataTypes)
     end
 end
 % save results
-RestingBaselines.manualSelection.baselineFileInfo.Pupil.fileIDs = finalEventFileIDs;
-RestingBaselines.manualSelection.baselineFileInfo.Pupil.eventTimes = finalEventTimes;
-RestingBaselines.manualSelection.baselineFileInfo.Pupil.durations = finalEventDurations;
-RestingBaselines.manualSelection.baselineFileInfo.Pupil.selections = ManualDecisions.validFiles;
-RestingBaselines.manualSelection.baselineFileInfo.Pupil.selectionFiles = ManualDecisions.fileIDs;
+RestingBaselines.manualSelection.baselineFileInfo.fileIDs = finalEventFileIDs;
+RestingBaselines.manualSelection.baselineFileInfo.eventTimes = finalEventTimes;
+RestingBaselines.manualSelection.baselineFileInfo.durations = finalEventDurations;
+RestingBaselines.manualSelection.baselineFileInfo.selections = ManualDecisions.validFiles;
+RestingBaselines.manualSelection.baselineFileInfo.selectionFiles = ManualDecisions.fileIDs;
 save(baselineDataFileID,'RestingBaselines')
 
 end

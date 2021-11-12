@@ -21,6 +21,9 @@ if isfield(ProcData.data.Pupil,'pupilPatch') == false %#ok<NODEF>
     %% patch NaN values
     try
         pupilArea = ProcData.data.Pupil.originalPupilArea;
+        pupilMajor = ProcData.data.Pupil.originalPupilArea;
+        pupilMinor = ProcData.data.Pupil.originalPupilArea;
+        pupilCentroid = ProcData.data.Pupil.originalPupilArea;
     catch
         ProcData.data.Pupil.originalPupilArea = ProcData.data.Pupil.pupilArea;
         pupilArea = ProcData.data.Pupil.pupilArea;

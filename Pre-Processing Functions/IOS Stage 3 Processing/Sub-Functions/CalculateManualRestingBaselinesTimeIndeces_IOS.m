@@ -18,6 +18,7 @@ baselineDataFileStruct = dir('*_RestingBaselines.mat');
 baselineDataFiles = {baselineDataFileStruct.name}';
 baselineDataFileID = char(baselineDataFiles);
 load(baselineDataFileID)
+RestingBaselines.manualSelection = [];
 % find and load RestData.mat struct
 restDataFileStruct = dir('*_RestData.mat');
 restDataFiles = {restDataFileStruct.name}';
@@ -204,7 +205,8 @@ for e = 1:length(dataTypes)
             end
             % save the means into the Baseline struct under the current loop iteration with the associated dates
             for t = 1:length(uniqueDays)
-                RestingBaselines.manualSelection.(dataType).(subDataType).(uniqueDate{t,1}) = mean(tempDataMeans{t,1});
+                RestingBaselines.manualSelection.(dataType).(subDataType).(uniqueDate{t,1}).mean = mean(tempDataMeans{t,1},'omitnan');
+                RestingBaselines.manualSelection.(dataType).(subDataType).(uniqueDate{t,1}).std = std(tempDataMeans{t,1},'omitnan');
             end
         end
     end

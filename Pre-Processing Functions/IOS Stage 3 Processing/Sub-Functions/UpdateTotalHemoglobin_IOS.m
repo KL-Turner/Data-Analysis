@@ -32,7 +32,7 @@ for a = 1:size(procDataFileIDs,1)
     end
     for b = 1:length(cbvFields)
         cbvField = cbvFields{1,b};
-        ProcData.data.CBV_HbT.(cbvField) = (log(ProcData.data.CBV.(cbvField)/RestingBaselines.(baselineType).CBV.(cbvField).(strDay)))*weightedcoeffHbT*conv2um;
+        ProcData.data.CBV_HbT.(cbvField) = (log(ProcData.data.CBV.(cbvField)/RestingBaselines.(baselineType).CBV.(cbvField).(strDay).mean))*weightedcoeffHbT*conv2um;
     end
     save(procDataFileID,'ProcData')
 end

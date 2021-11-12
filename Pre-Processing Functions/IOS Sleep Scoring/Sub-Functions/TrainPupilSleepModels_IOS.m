@@ -1,4 +1,4 @@
-function [animalID] = TrainSleepModels_IOS()
+function [animalID] = TrainPupilSleepModels_IOS()
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -13,7 +13,7 @@ startingDirectory = cd;
 trainingDirectory = [startingDirectory '\Training Data\'];
 cd(trainingDirectory)
 % character list of all training files
-trainingDataFileStruct = dir('*_TrainingData.mat');
+trainingDataFileStruct = dir('*_PupilTrainingData.mat');
 trainingDataFiles = {trainingDataFileStruct.name}';
 trainingDataFileIDs = char(trainingDataFiles);
 % Load each updated training set and concatenate the data into table
@@ -21,17 +21,17 @@ for bb = 1:size(trainingDataFileIDs,1)
     trainingTableFileID = trainingDataFileIDs(bb,:);
     if bb == 1
         load(trainingTableFileID)
-        dataLength = size(trainingTable,1);
-        joinedTableOdd = trainingTable;
+        dataLength = size(pupilTrainingTable,1);
+        joinedTableOdd = pupilTrainingTable;
     elseif bb == 2
         load(trainingTableFileID)
-        joinedTableEven = trainingTable;
+        joinedTableEven = pupilTrainingTable;
     elseif rem(bb,2) == 1
         load(trainingTableFileID)
-        joinedTableOdd = vertcat(joinedTableOdd,trainingTable); %#ok<*AGROW>
+        joinedTableOdd = vertcat(joinedTableOdd,pupilTrainingTable); %#ok<*AGROW>
     elseif rem(bb,2) == 0
         load(trainingTableFileID)
-        joinedTableEven = vertcat(joinedTableEven,trainingTable);
+        joinedTableEven = vertcat(joinedTableEven,pupilTrainingTable);
     end
 end
 % train on odd data
@@ -47,21 +47,20 @@ dirpath = [startingDirectory '\Figures\Sleep Models\'];
 if ~exist(dirpath,'dir')
     mkdir(dirpath);
 end
-
 %% Train Support Vector Machine (SVM) classifier
 t = templateSVM('Standardize',true,'KernelFunction','gaussian');
 disp('Training Support Vector Machine...'); disp(' ')
-SVM_MDL = fitcecoc(Xodd,Yodd,'Learners',t,'FitPosterior',true,'ClassNames',{'Not Sleep','NREM Sleep','REM Sleep'},'Verbose',2);
+Pupil_SVM_MDL = fitcecoc(Xodd,Yodd,'Learners',t,'FitPosterior',true,'ClassNames',{'Not Sleep','NREM Sleep','REM Sleep'},'Verbose',2);
 % save model in desired location
-save([dirpath animalID '_IOS_SVM_SleepScoringModel.mat'],'SVM_MDL')
+save([dirpath animalID '_IOS_SVM_PupilSleepScoringModel.mat'],'Pupil_SVM_MDL')
 % determine k-fold loss of the model
 disp('Cross-validating (3-fold) the support vector machine classifier...'); disp(' ')
-CV_SVM_MDL = crossval(SVM_MDL,'kfold',3);
-loss = kfoldLoss(CV_SVM_MDL);
+Pupil_CV_SVM_MDL = crossval(Pupil_SVM_MDL,'kfold',3);
+loss = kfoldLoss(Pupil_CV_SVM_MDL);
 disp(['k-fold loss classification error: ' num2str(loss*100) '%']); disp(' ')
 % use the model to generate a set of scores for the even set of data
-[XoddLabels,~] = predict(SVM_MDL,Xodd);
-[XevenLabels,~] = predict(SVM_MDL,Xeven);
+[XoddLabels,~] = predict(Pupil_SVM_MDL,Xodd);
+[XevenLabels,~] = predict(Pupil_SVM_MDL,Xeven);
 % apply a logical patch on the REM events
 oddREMindex = strcmp(XoddLabels,'REM Sleep');
 evenREMindex = strcmp(XevenLabels,'REM Sleep');
@@ -96,12 +95,12 @@ for jj = 1:length(XevenLabels)
     end
 end
 % save labels for later confusion matrix
-ConfusionData.SVM.trainYlabels = Yodd.behavState;
-ConfusionData.SVM.trainXlabels = XoddLabels;
-ConfusionData.SVM.testYlabels = Yeven.behavState;
-ConfusionData.SVM.testXlabels = XevenLabels;
+PupilConfusionData.SVM.trainYlabels = Yodd.behavState;
+PupilConfusionData.SVM.trainXlabels = XoddLabels;
+PupilConfusionData.SVM.testYlabels = Yeven.behavState;
+PupilConfusionData.SVM.testXlabels = XevenLabels;
 % confusion matrix
-SVM_confMat = figure;
+Pupil_SVM_confMat = figure;
 sgtitle('Support Vector Machine Classifier Confusion Matrix')
 % training data confusion chart
 subplot(1,2,1)
@@ -111,8 +110,12 @@ oddCM.RowSummary = 'row-normalized';
 oddCM.Title = 'Training Data';
 oddConfVals = oddCM.NormalizedValues;
 oddTotalScores = sum(oddConfVals(:));
-oddSVM_accuracy = (sum(oddConfVals([1,5,9])/oddTotalScores))*100;
-disp(['Support Vector Machine model prediction accuracy (training): ' num2str(oddSVM_accuracy) '%']); disp(' ')
+try
+    oddSVM_accuracy = (sum(oddConfVals([1,5,9])/oddTotalScores))*100;
+    disp(['Support Vector Machine model prediction accuracy (training): ' num2str(oddSVM_accuracy) '%']); disp(' ')
+catch
+    PupilConfusionData.SVM.noREM = 1;
+end
 % testing data confusion chart
 subplot(1,2,2)
 evenCM = confusionchart(Yeven.behavState,XevenLabels);
@@ -121,27 +124,30 @@ evenCM.RowSummary = 'row-normalized';
 evenCM.Title = 'Testing Data';
 evenConfVals = evenCM.NormalizedValues;
 evenTotalScores = sum(evenConfVals(:));
-evenSVM_accuracy = (sum(evenConfVals([1,5,9])/evenTotalScores))*100;
-disp(['Support Vector Machine model prediction accuracy (testing): ' num2str(evenSVM_accuracy) '%']); disp(' ')
+try
+    evenSVM_accuracy = (sum(evenConfVals([1,5,9])/evenTotalScores))*100;
+    disp(['Support Vector Machine model prediction accuracy (testing): ' num2str(evenSVM_accuracy) '%']); disp(' ')
+catch
+    PupilConfusionData.SVM.noREM = 1;
+end
 % save model and figure
-savefig(SVM_confMat,[dirpath animalID '_IOS_SVM_ConfusionMatrix']);
-close(SVM_confMat)
-
+savefig(Pupil_SVM_confMat,[dirpath animalID '_IOS_SVM_PupilConfusionMatrix']);
+close(Pupil_SVM_confMat)
 %% Ensemble classification - AdaBoostM2, Subspace, Bag, LPBoost,RUSBoost, TotalBoost
 disp('Training Ensemble Classifier...'); disp(' ')
 t = templateTree('Reproducible',true);
-EC_MDL = fitcensemble(Xodd,Yodd,'OptimizeHyperparameters','auto','Learners',t,'HyperparameterOptimizationOptions',...
+Pupil_EC_MDL = fitcensemble(Xodd,Yodd,'OptimizeHyperparameters','auto','Learners',t,'HyperparameterOptimizationOptions',...
     struct('AcquisitionFunctionName','expected-improvement-plus'),'ClassNames',{'Not Sleep','NREM Sleep','REM Sleep'});
 % save model in desired location
-save([dirpath animalID '_IOS_EC_SleepScoringModel.mat'],'EC_MDL')
+save([dirpath animalID '_IOS_EC_PupilSleepScoringModel.mat'],'Pupil_EC_MDL')
 % determine k-fold loss of the model
 disp('Cross-validating (3-fold) the ensemble classifier...'); disp(' ')
-CV_EC_MDL = crossval(EC_MDL,'kfold',3);
-loss = kfoldLoss(CV_EC_MDL);
+Pupil_CV_EC_MDL = crossval(Pupil_EC_MDL,'kfold',3);
+loss = kfoldLoss(Pupil_CV_EC_MDL);
 disp(['k-fold loss classification error: ' num2str(loss*100) '%']); disp(' ')
 % use the model to generate a set of scores for the even set of data
-[XoddLabels,~] = predict(EC_MDL,Xodd);
-[XevenLabels,~] = predict(EC_MDL,Xeven);
+[XoddLabels,~] = predict(Pupil_EC_MDL,Xodd);
+[XevenLabels,~] = predict(Pupil_EC_MDL,Xeven);
 % apply a logical patch on the REM events
 oddREMindex = strcmp(XoddLabels,'REM Sleep');
 evenREMindex = strcmp(XevenLabels,'REM Sleep');
@@ -176,12 +182,12 @@ for jj = 1:length(XevenLabels)
     end
 end
 % save labels for later confusion matrix
-ConfusionData.EC.trainYlabels= Yodd.behavState;
-ConfusionData.EC.trainXlabels = XoddLabels;
-ConfusionData.EC.testYlabels = Yeven.behavState;
-ConfusionData.EC.testXlabels = XevenLabels;
+PupilConfusionData.EC.trainYlabels= Yodd.behavState;
+PupilConfusionData.EC.trainXlabels = XoddLabels;
+PupilConfusionData.EC.testYlabels = Yeven.behavState;
+PupilConfusionData.EC.testXlabels = XevenLabels;
 % confusion matrix
-EC_confMat = figure;
+Pupil_EC_confMat = figure;
 sgtitle('Support Vector Machine Classifier Confusion Matrix')
 % training data confusion chart
 subplot(1,2,1)
@@ -191,8 +197,12 @@ oddCM.RowSummary = 'row-normalized';
 oddCM.Title = 'Training Data';
 oddConfVals = oddCM.NormalizedValues;
 oddTotalScores = sum(oddConfVals(:));
-oddEC_accuracy = (sum(oddConfVals([1,5,9])/oddTotalScores))*100;
-disp(['Ensemble model prediction accuracy (training): ' num2str(oddEC_accuracy) '%']); disp(' ')
+try
+    oddEC_accuracy = (sum(oddConfVals([1,5,9])/oddTotalScores))*100;
+    disp(['Ensemble model prediction accuracy (training): ' num2str(oddEC_accuracy) '%']); disp(' ')
+catch
+    PupilConfusionData.EC.noREM = 1;
+end
 % testing data confusion chart
 subplot(1,2,2)
 evenCM = confusionchart(Yeven.behavState,XevenLabels);
@@ -201,20 +211,23 @@ evenCM.RowSummary = 'row-normalized';
 evenCM.Title = 'Testing Data';
 evenConfVals = evenCM.NormalizedValues;
 evenTotalScores = sum(evenConfVals(:));
-evenEC_accuracy = (sum(evenConfVals([1,5,9])/evenTotalScores))*100;
-disp(['Ensemble model prediction accuracy (testing): ' num2str(evenEC_accuracy) '%']); disp(' ')
+try
+    evenEC_accuracy = (sum(evenConfVals([1,5,9])/evenTotalScores))*100;
+    disp(['Ensemble model prediction accuracy (testing): ' num2str(evenEC_accuracy) '%']); disp(' ')
+catch
+    PupilConfusionData.EC.noREM = 1;
+end
 % save model and figure
-savefig(EC_confMat,[dirpath animalID '_IOS_EC_ConfusionMatrix']);
-close(EC_confMat)
-
+savefig(Pupil_EC_confMat,[dirpath animalID '_IOS_EC_PupilConfusionMatrix']);
+close(Pupil_EC_confMat)
 %% Decision Tree classification
 disp('Training Decision Tree Classifier...'); disp(' ')
-DT_MDL = fitctree(Xodd,Yodd,'ClassNames',{'Not Sleep','NREM Sleep','REM Sleep'});
+Pupil_DT_MDL = fitctree(Xodd,Yodd,'ClassNames',{'Not Sleep','NREM Sleep','REM Sleep'});
 % save model in desired location
-save([dirpath animalID '_IOS_DT_SleepScoringModel.mat'],'DT_MDL')
+save([dirpath animalID '_IOS_DT_PupilSleepScoringModel.mat'],'Pupil_DT_MDL')
 % use the model to generate a set of scores for the even set of data
-[XoddLabels,~] = predict(DT_MDL,Xodd);
-[XevenLabels,~] = predict(DT_MDL,Xeven);
+[XoddLabels,~] = predict(Pupil_DT_MDL,Xodd);
+[XevenLabels,~] = predict(Pupil_DT_MDL,Xeven);
 % apply a logical patch on the REM events
 oddREMindex = strcmp(XoddLabels,'REM Sleep');
 evenREMindex = strcmp(XevenLabels,'REM Sleep');
@@ -249,12 +262,12 @@ for jj = 1:length(XevenLabels)
     end
 end
 % save labels for later confusion matrix
-ConfusionData.DT.trainYlabels = Yodd.behavState;
-ConfusionData.DT.trainXlabels = XoddLabels;
-ConfusionData.DT.testYlabels = Yeven.behavState;
-ConfusionData.DT.testXlabels = XevenLabels;
+PupilConfusionData.DT.trainYlabels = Yodd.behavState;
+PupilConfusionData.DT.trainXlabels = XoddLabels;
+PupilConfusionData.DT.testYlabels = Yeven.behavState;
+PupilConfusionData.DT.testXlabels = XevenLabels;
 % confusion matrix
-DT_confMat = figure;
+Pupil_DT_confMat = figure;
 sgtitle('Decision Tree Classifier Confusion Matrix')
 % training data confusion chart
 subplot(1,2,1)
@@ -264,8 +277,12 @@ oddCM.RowSummary = 'row-normalized';
 oddCM.Title = 'Training Data';
 oddConfVals = oddCM.NormalizedValues;
 oddTotalScores = sum(oddConfVals(:));
-oddDT_accuracy = (sum(oddConfVals([1,5,9])/oddTotalScores))*100;
-disp(['Support Vector Machine model prediction accuracy (training): ' num2str(oddDT_accuracy) '%']); disp(' ')
+try
+    oddDT_accuracy = (sum(oddConfVals([1,5,9])/oddTotalScores))*100;
+    disp(['Support Vector Machine model prediction accuracy (training): ' num2str(oddDT_accuracy) '%']); disp(' ')
+catch
+    PupilConfusionData.DT.noREM = 1;
+end
 % testing data confusion chart
 subplot(1,2,2)
 evenCM = confusionchart(Yeven.behavState,XevenLabels);
@@ -274,24 +291,27 @@ evenCM.RowSummary = 'row-normalized';
 evenCM.Title = 'Testing Data';
 evenConfVals = evenCM.NormalizedValues;
 evenTotalScores = sum(evenConfVals(:));
-evenDT_accuracy = (sum(evenConfVals([1,5,9])/evenTotalScores))*100;
-disp(['Decision Tree model prediction accuracy (testing): ' num2str(evenDT_accuracy) '%']); disp(' ')
+try
+    evenDT_accuracy = (sum(evenConfVals([1,5,9])/evenTotalScores))*100;
+    disp(['Decision Tree model prediction accuracy (testing): ' num2str(evenDT_accuracy) '%']); disp(' ')
+catch
+    PupilConfusionData.DT.noREM = 1;
+end
 % save model and figure
-savefig(DT_confMat,[dirpath animalID '_IOS_DT_ConfusionMatrix']);
-close(DT_confMat)
-
+savefig(Pupil_DT_confMat,[dirpath animalID '_IOS_DT_PupilConfusionMatrix']);
+close(Pupil_DT_confMat)
 %% Random forest
 disp('Training Random Forest Classifier...'); disp(' ')
 numTrees = 128;
-RF_MDL = TreeBagger(numTrees,Xodd,Yodd,'Method','Classification','Surrogate','all','OOBPrediction','on','ClassNames',{'Not Sleep','NREM Sleep','REM Sleep'});
+Pupil_RF_MDL = TreeBagger(numTrees,Xodd,Yodd,'Method','Classification','Surrogate','all','OOBPrediction','on','ClassNames',{'Not Sleep','NREM Sleep','REM Sleep'});
 % save model in desired location
-save([dirpath animalID '_IOS_RF_SleepScoringModel.mat'],'RF_MDL')
+save([dirpath animalID '_IOS_RF_PupilSleepScoringModel.mat'],'Pupil_RF_MDL')
 % determine the misclassification probability (for classification trees) for out-of-bag observations in the training data
-RF_OOBerror = oobError(RF_MDL,'Mode','Ensemble');
+RF_OOBerror = oobError(Pupil_RF_MDL,'Mode','Ensemble');
 disp(['Random Forest out-of-bag error: ' num2str(RF_OOBerror*100) '%']); disp(' ')
 % use the model to generate a set of scores for the even set of data
-[XoddLabels,~] = predict(RF_MDL,Xodd);
-[XevenLabels,~] = predict(RF_MDL,Xeven);
+[XoddLabels,~] = predict(Pupil_RF_MDL,Xodd);
+[XevenLabels,~] = predict(Pupil_RF_MDL,Xeven);
 % apply a logical patch on the REM events
 oddREMindex = strcmp(XoddLabels,'REM Sleep');
 evenREMindex = strcmp(XevenLabels,'REM Sleep');
@@ -326,12 +346,12 @@ for jj = 1:length(XevenLabels)
     end
 end
 % save labels for later confusion matrix
-ConfusionData.RF.trainYlabels = Yodd.behavState;
-ConfusionData.RF.trainXlabels = XoddLabels;
-ConfusionData.RF.testYlabels = Yeven.behavState;
-ConfusionData.RF.testXlabels = XevenLabels;
+PupilConfusionData.RF.trainYlabels = Yodd.behavState;
+PupilConfusionData.RF.trainXlabels = XoddLabels;
+PupilConfusionData.RF.testYlabels = Yeven.behavState;
+PupilConfusionData.RF.testXlabels = XevenLabels;
 % confusion matrix
-RF_confMat = figure;
+Pupil_RF_confMat = figure;
 sgtitle('Random Forest Classifier Confusion Matrix')
 % training data confusion chart
 subplot(1,2,1)
@@ -341,8 +361,12 @@ oddCM.RowSummary = 'row-normalized';
 oddCM.Title = 'Training Data';
 oddConfVals = oddCM.NormalizedValues;
 oddTotalScores = sum(oddConfVals(:));
-oddRF_accuracy = (sum(oddConfVals([1,5,9])/oddTotalScores))*100;
-disp(['Random Forest model prediction accuracy (training): ' num2str(oddRF_accuracy) '%']); disp(' ')
+try
+    oddRF_accuracy = (sum(oddConfVals([1,5,9])/oddTotalScores))*100;
+    disp(['Random Forest model prediction accuracy (training): ' num2str(oddRF_accuracy) '%']); disp(' ')
+catch
+    PupilConfusionData.RF.noREM = 1;
+end
 % testing data confusion chart
 subplot(1,2,2)
 evenCM = confusionchart(Yeven.behavState,XevenLabels);
@@ -351,21 +375,24 @@ evenCM.RowSummary = 'row-normalized';
 evenCM.Title = 'Testing Data';
 evenConfVals = evenCM.NormalizedValues;
 evenTotalScores = sum(evenConfVals(:));
-evenRF_accuracy = (sum(evenConfVals([1,5,9])/evenTotalScores))*100;
-disp(['Random Forest model prediction accuracy (testing): ' num2str(evenRF_accuracy) '%']); disp(' ')
+try
+    evenRF_accuracy = (sum(evenConfVals([1,5,9])/evenTotalScores))*100;
+    disp(['Random Forest model prediction accuracy (testing): ' num2str(evenRF_accuracy) '%']); disp(' ')
+catch
+    PupilConfusionData.RF.noREM = 1;
+end
 % save model and figure
-savefig(RF_confMat,[dirpath animalID '_IOS_RF_ConfusionMatrix']);
-close(RF_confMat)
-
+savefig(Pupil_RF_confMat,[dirpath animalID '_IOS_RF_PupilConfusionMatrix']);
+close(Pupil_RF_confMat)
 %% k-nearest neighbor classifier
 disp('Training k-nearest neighbor Classifier...'); disp(' ')
 t = templateKNN('NumNeighbors',5,'Standardize',1);
-KNN_MDL = fitcecoc(Xodd,Yodd,'Learners',t);
+Pupil_KNN_MDL = fitcecoc(Xodd,Yodd,'Learners',t);
 % save model in desired location
-save([dirpath animalID '_IOS_KNN_SleepScoringModel.mat'],'KNN_MDL')
+save([dirpath animalID '_IOS_KNN_PupilSleepScoringModel.mat'],'Pupil_KNN_MDL')
 % use the model to generate a set of scores for the even set of data
-[XoddLabels,~] = predict(KNN_MDL,Xodd);
-[XevenLabels,~] = predict(KNN_MDL,Xeven);
+[XoddLabels,~] = predict(Pupil_KNN_MDL,Xodd);
+[XevenLabels,~] = predict(Pupil_KNN_MDL,Xeven);
 % apply a logical patch on the REM events
 oddREMindex = strcmp(XoddLabels,'REM Sleep');
 evenREMindex = strcmp(XevenLabels,'REM Sleep');
@@ -400,12 +427,12 @@ for jj = 1:length(XevenLabels)
     end
 end
 % save labels for later confusion matrix
-ConfusionData.KNN.trainYlabels = Yodd.behavState;
-ConfusionData.KNN.trainXlabels = XoddLabels;
-ConfusionData.KNN.testYlabels = Yeven.behavState;
-ConfusionData.KNN.testXlabels = XevenLabels;
+PupilConfusionData.KNN.trainYlabels = Yodd.behavState;
+PupilConfusionData.KNN.trainXlabels = XoddLabels;
+PupilConfusionData.KNN.testYlabels = Yeven.behavState;
+PupilConfusionData.KNN.testXlabels = XevenLabels;
 % confusion matrix
-KNN_confMat = figure;
+Pupil_KNN_confMat = figure;
 sgtitle('Support Vector Machine Classifier Confusion Matrix')
 % training data confusion chart
 subplot(1,2,1)
@@ -415,8 +442,12 @@ oddCM.RowSummary = 'row-normalized';
 oddCM.Title = 'Training Data';
 oddConfVals = oddCM.NormalizedValues;
 oddTotalScores = sum(oddConfVals(:));
-oddKNN_accuracy = (sum(oddConfVals([1,5,9])/oddTotalScores))*100;
-disp(['k-Nearest Neighbor model prediction accuracy (training): ' num2str(oddKNN_accuracy) '%']); disp(' ')
+try
+    oddKNN_accuracy = (sum(oddConfVals([1,5,9])/oddTotalScores))*100;
+    disp(['k-Nearest Neighbor model prediction accuracy (training): ' num2str(oddKNN_accuracy) '%']); disp(' ')
+catch
+    PupilConfusionData.KNN.noREM = 1;
+end
 % testing data confusion chart
 subplot(1,2,2)
 evenCM = confusionchart(Yeven.behavState,XevenLabels);
@@ -425,20 +456,23 @@ evenCM.RowSummary = 'row-normalized';
 evenCM.Title = 'Testing Data';
 evenConfVals = evenCM.NormalizedValues;
 evenTotalScores = sum(evenConfVals(:));
-evenKNN_accuracy = (sum(evenConfVals([1,5,9])/evenTotalScores))*100;
-disp(['k-Nearest Neightbor model prediction accuracy (testing): ' num2str(evenKNN_accuracy) '%']); disp(' ')
+try
+    evenKNN_accuracy = (sum(evenConfVals([1,5,9])/evenTotalScores))*100;
+    disp(['k-Nearest Neightbor model prediction accuracy (testing): ' num2str(evenKNN_accuracy) '%']); disp(' ')
+catch
+    PupilConfusionData.KNN.noREM = 1;
+end
 % save model and figure
-savefig(KNN_confMat,[dirpath animalID '_IOS_KNN_ConfusionMatrix']);
-close(KNN_confMat)
-
+savefig(Pupil_KNN_confMat,[dirpath animalID '_IOS_KNN_PupilConfusionMatrix']);
+close(Pupil_KNN_confMat)
 %% Naive Bayes classifier
 disp('Training naive Bayes Classifier...'); disp(' ')
-NB_MDL = fitcnb(Xodd,Yodd,'ClassNames',{'Not Sleep','NREM Sleep','REM Sleep'});
+Pupil_NB_MDL = fitcnb(Xodd,Yodd,'ClassNames',{'Not Sleep','NREM Sleep','REM Sleep'});
 % save model in desired location
-save([dirpath animalID '_IOS_NB_SleepScoringModel.mat'],'NB_MDL')
+save([dirpath animalID '_IOS_NB_PupilSleepScoringModel.mat'],'Pupil_NB_MDL')
 % use the model to generate a set of scores for the even set of data
-[XoddLabels,~] = predict(NB_MDL,Xodd);
-[XevenLabels,~] = predict(NB_MDL,Xeven);
+[XoddLabels,~] = predict(Pupil_NB_MDL,Xodd);
+[XevenLabels,~] = predict(Pupil_NB_MDL,Xeven);
 % apply a logical patch on the REM events
 oddREMindex = strcmp(XoddLabels,'REM Sleep');
 evenREMindex = strcmp(XevenLabels,'REM Sleep');
@@ -473,12 +507,12 @@ for jj = 1:length(XevenLabels)
     end
 end
 % save labels for later confusion matrix
-ConfusionData.NB.trainYlabels = Yodd.behavState;
-ConfusionData.NB.trainXlabels = XoddLabels;
-ConfusionData.NB.testYlabels = Yeven.behavState;
-ConfusionData.NB.testXlabels = XevenLabels;
+PupilConfusionData.NB.trainYlabels = Yodd.behavState;
+PupilConfusionData.NB.trainXlabels = XoddLabels;
+PupilConfusionData.NB.testYlabels = Yeven.behavState;
+PupilConfusionData.NB.testXlabels = XevenLabels;
 % confusion matrix
-NB_confMat = figure;
+Pupil_NB_confMat = figure;
 sgtitle('Naive Bayes Classifier Confusion Matrix')
 % training data confusion chart
 subplot(1,2,1)
@@ -488,8 +522,12 @@ oddCM.RowSummary = 'row-normalized';
 oddCM.Title = 'Training Data';
 oddConfVals = oddCM.NormalizedValues;
 oddTotalScores = sum(oddConfVals(:));
-oddNB_accuracy = (sum(oddConfVals([1,5,9])/oddTotalScores))*100;
-disp(['Naive Bayes model prediction accuracy (training): ' num2str(oddNB_accuracy) '%']); disp(' ')
+try
+    oddNB_accuracy = (sum(oddConfVals([1,5,9])/oddTotalScores))*100;
+    disp(['Naive Bayes model prediction accuracy (training): ' num2str(oddNB_accuracy) '%']); disp(' ')
+catch
+    PupilConfusionData.NB.noREM = 1;
+end
 % testing data confusion chart
 subplot(1,2,2)
 evenCM = confusionchart(Yeven.behavState,XevenLabels);
@@ -498,13 +536,17 @@ evenCM.RowSummary = 'row-normalized';
 evenCM.Title = 'Testing Data';
 evenConfVals = evenCM.NormalizedValues;
 evenTotalScores = sum(evenConfVals(:));
-evenNB_accuracy = (sum(evenConfVals([1,5,9])/evenTotalScores))*100;
-disp(['Naive Bayes model prediction accuracy (testing): ' num2str(evenNB_accuracy) '%']); disp(' ')
+try
+    evenNB_accuracy = (sum(evenConfVals([1,5,9])/evenTotalScores))*100;
+    disp(['Naive Bayes model prediction accuracy (testing): ' num2str(evenNB_accuracy) '%']); disp(' ')
+catch
+    PupilConfusionData.NB.noREM = 1;
+end
 % save model and figure
-savefig(NB_confMat,[dirpath animalID '_IOS_NB_ConfusionMatrix']);
-close(NB_confMat)
+savefig(Pupil_NB_confMat,[dirpath animalID '_IOS_NB_PupilConfusionMatrix']);
+close(Pupil_NB_confMat)
 cd(startingDirectory)
 % save confusion matrix results
-save([dirpath animalID '_ConfusionData.mat'],'ConfusionData')
+save([dirpath animalID '_PupilConfusionData.mat'],'PupilConfusionData')
 
 end

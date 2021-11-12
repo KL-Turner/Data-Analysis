@@ -41,7 +41,7 @@ for dT = 1:length(dataTypes)
                                 NormData(dayInds) = normDayData;
                             else
                                 try
-                                    dayBaseline = RestingBaselines.(baselineType).(dataType).(hemDataType).(strDay);
+                                    dayBaseline = RestingBaselines.(baselineType).(dataType).(hemDataType).(strDay).mean;
                                 catch
                                     dayBaseline = NaN;
                                 end
@@ -72,7 +72,7 @@ for dT = 1:length(dataTypes)
                         dayData = DataStruct.(dataType).(hemDataType).data(dayInds);
                         normDayData = cell(size(dayData));
                         try
-                            dayBaseline = RestingBaselines.(baselineType).(dataType).(hemDataType).(strDay);
+                            dayBaseline = RestingBaselines.(baselineType).(dataType).(hemDataType).(strDay).mean;
                         catch
                             dayBaseline = NaN;
                         end

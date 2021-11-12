@@ -1,4 +1,4 @@
-function [Results_BehavDiameter] = AnalyzeBehavioralDiameter(animalID,rootFolder,delim,Results_BehavDiameter)
+function [Results_BehavArea] = AnalyzeBehavioralArea_Pupil(animalID,rootFolder,delim,Results_BehavArea)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -84,14 +84,14 @@ restData = RestData.Pupil.pupilArea.data(combRestLogical,:);
 for gg = 1:length(finalRestData)
     procRestData{gg,1} = filtfilt(sos,g,finalRestData{gg,1}); %#ok<*AGROW>
 end
-% take mean [] during resting epochs
+% take nanmean [] during resting epochs
 for nn = 1:length(procRestData)
-    restMeanData(nn,1) = mean(procRestData{nn,1}(1:end));
+    restMeanData(nn,1) = nanmean(procRestData{nn,1}(1:end));
 end
 % save results
-Results_BehavDiameter.(animalID).Rest.meanPupilArea = restMeanData;
-Results_BehavDiameter.(animalID).Rest.indPupilArea = procRestData;
-Results_BehavDiameter.(animalID).Rest.fileIDs = finalRestFileIDs;
+Results_BehavArea.(animalID).Rest.meanPupilArea = restMeanData;
+Results_BehavArea.(animalID).Rest.indPupilArea = procRestData;
+Results_BehavArea.(animalID).Rest.fileIDs = finalRestFileIDs;
 %% analyze [] during periods of moderate whisking (2-5 seconds)
 % pull data from EventData.mat structure
 [whiskLogical] = FilterEvents_IOS(EventData.Pupil.pupilArea.whisk,WhiskCriteria);
@@ -103,19 +103,20 @@ whiskDurations = EventData.Pupil.pupilArea.whisk.duration(combWhiskLogical,:);
 whiskData = EventData.Pupil.pupilArea.whisk.data(combWhiskLogical,:);
 % keep only the data that occurs within the manually-approved awake regions
 [finalWhiskData,finalWhiskFileIDs,~,~] = RemoveInvalidData_IOS(whiskData,whiskFileIDs,whiskDurations,whiskEventTimes,ManualDecisions);
-% filter [] and mean-subtract 2 seconds prior to whisk
+% filter [] and nanmean-subtract 2 seconds prior to whisk
 for gg = 1:size(finalWhiskData,1)
-    procWhiskData = filtfilt(sos,g,finalWhiskData(gg,:));
+    zWhiskData = (finalWhiskData - RestingBaselines);
+    procWhiskData(gg,:) = filtfilt(sos,g,zWhiskData(gg,:));
 end
-% take mean [] during whisking epochs from onset through 5 seconds
+% take nanmean [] during whisking epochs from onset through 5 seconds
 for nn = 1:size(procWhiskData,1)
-    whiskMean{nn,1} = mean(procWhiskData(nn,params.Offset*samplingRate:params.minTime.Whisk*samplingRate),2);
+    whiskMean{nn,1} = nanmean(procWhiskData(nn,params.Offset*samplingRate:params.minTime.Whisk*samplingRate),2);
     whisknd{nn,1} = procWhiskData(nn,params.Offset*samplingRate:params.minTime.Whisk*samplingRate);
 end
 % save results
-Results_BehavDiameter.(animalID).Whisk.meanPupilArea = cell2mat(whiskMean);
-Results_BehavDiameter.(animalID).Whisk.indPupilArea = whisknd;
-Results_BehavDiameter.(animalID).Whisk.fileIDs = finalWhiskFileIDs;
+Results_BehavArea.(animalID).Whisk.meanPupilArea = cell2mat(whiskMean);
+Results_BehavArea.(animalID).Whisk.indPupilArea = whisknd;
+Results_BehavArea.(animalID).Whisk.fileIDs = finalWhiskFileIDs;
 %% analyze [] during periods of stimulation
 % pull data from EventData.mat structure
 LH_stimFilter = FilterEvents_IOS(EventData.Pupil.pupilArea.stim,StimCriteriaA);
@@ -131,74 +132,74 @@ RH_stimDurations = zeros(length(RH_stimEventTimes),1);
 % keep only the data that occurs within the manually-approved awake regions
 [LH_finalStimData,LH_finalStimFileIDs,~,~] = RemoveInvalidData_IOS(LH_stimData,LH_stimFileIDs,LH_stimDurations,LH_stimEventTimes,ManualDecisions);
 [RH_finalStimData,RH_finalStimFileIDs,~,~] = RemoveInvalidData_IOS(RH_stimData,RH_stimFileIDs,RH_stimDurations,RH_stimEventTimes,ManualDecisions);
-% filter [] and mean-subtract 2 seconds prior to stimulus (left hem)
+% filter [] and nanmean-subtract 2 seconds prior to stimulus (left hem)
 for gg = 1:size(LH_finalStimData,1)
     LH_ProcStimData = filtfilt(sos,g,LH_finalStimData(gg,:));
 end
-% filter [] and mean-subtract 2 seconds prior to stimulus (right hem)
+% filter [] and nanmean-subtract 2 seconds prior to stimulus (right hem)
 for gg = 1:size(RH_finalStimData,1)
     RH_ProcStimData = filtfilt(sos,g,RH_finalStimData(gg,:));
 end
-% take mean [] 1-2 seconds after stimulation (left hem)
+% take nanmean [] 1-2 seconds after stimulation (left hem)
 for nn = 1:size(LH_ProcStimData,1)
-    LH_stimMean{nn,1} = mean(LH_ProcStimData(nn,(params.Offset + 1)*samplingRate:params.minTime.Stim*samplingRate),2);
+    LH_stimMean{nn,1} = nanmean(LH_ProcStimData(nn,(params.Offset + 1)*samplingRate:params.minTime.Stim*samplingRate),2);
     LH_stim{nn,1} = LH_ProcStimData(nn,(params.Offset + 1)*samplingRate:params.minTime.Stim*samplingRate);
 end
-% take mean [] 1-2 seconds after stimulation (right hem)
+% take nanmean [] 1-2 seconds after stimulation (right hem)
 for nn = 1:size(RH_ProcStimData,1)
-    RH_stimMean{nn,1} = mean(RH_ProcStimData(nn,(params.Offset + 1)*samplingRate:params.minTime.Stim*samplingRate),2);
+    RH_stimMean{nn,1} = nanmean(RH_ProcStimData(nn,(params.Offset + 1)*samplingRate:params.minTime.Stim*samplingRate),2);
     RH_stim{nn,1} = RH_ProcStimData(nn,(params.Offset + 1)*samplingRate:params.minTime.Stim*samplingRate);
 end
 % save results
-Results_BehavDiameter.(animalID).Stim.meanPupilArea = cat(1,cell2mat(LH_stimMean),cell2mat(RH_stimMean));
-Results_BehavDiameter.(animalID).Stim.indPupilArea = cat(1,LH_stim,RH_stim);
-Results_BehavDiameter.(animalID).Stim.fileIDs = cat(1,LH_finalStimFileIDs,RH_finalStimFileIDs);
+Results_BehavArea.(animalID).Stim.meanPupilArea = cat(1,cell2mat(LH_stimMean),cell2mat(RH_stimMean));
+Results_BehavArea.(animalID).Stim.indPupilArea = cat(1,LH_stim,RH_stim);
+Results_BehavArea.(animalID).Stim.fileIDs = cat(1,LH_finalStimFileIDs,RH_finalStimFileIDs);
 %% analyze [] during periods of NREM sleep
 % pull data from SleepData.mat structure
 if isempty(SleepData.(modelType).NREM.data.Pupil) == false
     [nremData,nremFileIDs,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.Pupil.pupilArea,SleepData.(modelType).NREM.data.Pupil.fileIDs,SleepData.(modelType).NREM.data.Pupil.binTimes);
-    % filter and take mean [] during NREM epochs
+    % filter and take nanmean [] during NREM epochs
     for nn = 1:length(nremData)
         try
-            nremMean(nn,1) = mean(filtfilt(sos,g,nremData{nn,1}(1:end)));
+            nremMean(nn,1) = nanmean(filtfilt(sos,g,nremData{nn,1}(1:end)));
         catch
             nremMean(nn,1) = nanmean(nremData{nn,1}(1:end));
         end
     end
     % save results
-    Results_BehavDiameter.(animalID).NREM.meanPupilArea = nremMean;
-    Results_BehavDiameter.(animalID).NREM.indPupilArea = nremData;
-    Results_BehavDiameter.(animalID).NREM.FileIDs = nremFileIDs;
+    Results_BehavArea.(animalID).NREM.meanPupilArea = nremMean;
+    Results_BehavArea.(animalID).NREM.indPupilArea = nremData;
+    Results_BehavArea.(animalID).NREM.FileIDs = nremFileIDs;
 else
     % save results
-    Results_BehavDiameter.(animalID).NREM.meanPupilArea = [];
-    Results_BehavDiameter.(animalID).NREM.indPupilArea = [];
-    Results_BehavDiameter.(animalID).NREM.FileIDs = [];
+    Results_BehavArea.(animalID).NREM.meanPupilArea = [];
+    Results_BehavArea.(animalID).NREM.indPupilArea = [];
+    Results_BehavArea.(animalID).NREM.FileIDs = [];
 end
 %% analyze [] during periods of REM sleep
 % pull data from SleepData.mat structure
 if isempty(SleepData.(modelType).REM.data.Pupil) == false
     [remData,remFileIDs,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.Pupil.pupilArea,SleepData.(modelType).REM.data.Pupil.fileIDs,SleepData.(modelType).REM.data.Pupil.binTimes);
-    % filter and take mean [] during REM epochs
+    % filter and take nanmean [] during REM epochs
     for nn = 1:length(remData)
         try
-            remMean(nn,1) = mean(filtfilt(sos,g,remData{nn,1}(1:end)));
+            remMean(nn,1) = nanmean(filtfilt(sos,g,remData{nn,1}(1:end)));
         catch
             remMean(nn,1) = nanmean(remData{nn,1}(1:end));
         end
     end
     % save results
-    Results_BehavDiameter.(animalID).REM.meanPupilArea = remMean;
-    Results_BehavDiameter.(animalID).REM.indPupilArea = remData;
-    Results_BehavDiameter.(animalID).REM.FileIDs = remFileIDs;
+    Results_BehavArea.(animalID).REM.meanPupilArea = remMean;
+    Results_BehavArea.(animalID).REM.indPupilArea = remData;
+    Results_BehavArea.(animalID).REM.FileIDs = remFileIDs;
 else
     % save results
-    Results_BehavDiameter.(animalID).REM.meanPupilArea = [];
-    Results_BehavDiameter.(animalID).REM.indPupilArea = [];
-    Results_BehavDiameter.(animalID).REM.FileIDs = [];
+    Results_BehavArea.(animalID).REM.meanPupilArea = [];
+    Results_BehavArea.(animalID).REM.indPupilArea = [];
+    Results_BehavArea.(animalID).REM.FileIDs = [];
 end
 % save data
 cd([rootFolder delim])
-save('Results_BehavDiameter.mat','Results_BehavDiameter')
+save('Results_BehavArea.mat','Results_BehavArea')
 
 end

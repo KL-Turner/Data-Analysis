@@ -1,3 +1,4 @@
+function [] = Pupil_CoreProcessing()
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -24,8 +25,8 @@ procDataFileStruct = dir('*_ProcData.mat');
 procDataFiles = {procDataFileStruct.name}';
 procDataFileIDs = char(procDataFiles);
 [animalID,~,~] = GetFileInfo_IOS(procDataFileIDs(1,:));
-%% BLOCK PURPOSE: [1] Track pupil diameter/area
-disp('Analyzing Block [1] Tracking pupil diameter and blink detection.'); disp(' ')
+%% BLOCK PURPOSE: [1] Track pupil area and blink detetction
+disp('Analyzing Block [1] Tracking pupil area and blink detection.'); disp(' ')
 TrackPupilDiameter_IOS(procDataFileIDs)
 %% BLOCK PURPOSE: [2] Patch pupil area
 disp('Analyzing Block [2]Patching NaN values and interpolating dropped frames.'); disp(' ')
@@ -41,33 +42,51 @@ for bb = 1:size(procDataFileIDs,1)
 end
 %% BLOCK PURPOSE: [4] Verify blinks
 disp('Analyzing Block [4] Manually check blinks.'); disp(' ')
-for cc = 1:size(procDataFileIDs)
+for cc = 1:size(procDataFileIDs,1)
     disp(['Manually checking blinks of file ' num2str(cc) '/' num2str(size(procDataFileIDs,1))]); disp(' ')
     CheckPupilBlinks_IOS(procDataFileIDs(cc,:))
 end
-%% BLOCK PURPOSE: [5] Verify diameter
-disp('Analyzing Block [4] Manually check pupil diameter.'); disp(' ')
-for dd = 1:size(procDataFileIDs)
-    disp(['Manually checking pupil diameter of file ' num2str(dd) '/' num2str(size(procDataFileIDs,1))]); disp(' ')
+%% BLOCK PURPOSE: [5] Verify pupil area
+disp('Analyzing Block [4] Manually check pupil area.'); disp(' ')
+for dd = 1:size(procDataFileIDs,1)
+    disp(['Manually checking pupil area of file ' num2str(dd) '/' num2str(size(procDataFileIDs,1))]); disp(' ')
     CheckPupilDiameter_IOS(procDataFileIDs(dd,:))
 end
-%% BLOCK PURPOSE: [6] Add pupil area to RestData.mat
+%% BLOCK PURPOSE: [6] Convert area to diameter
+disp('Analyzing Block [6] Converting pupil area to diameter in mm'); disp(' ')
+for ee = 1:size(procDataFileIDs,1)
+    disp(['Converting pupil area to pupil diameter of file ' num2str(ee) '/' num2str(size(procDataFileIDs,1))]); disp(' ')
+    ConvertPupilAreaTo Diameter_IOS(procDataFileIDs(ee,:))
+end
+%% BLOCK PURPOSE: [7] Add pupil area to RestData.mat
 disp('Analyzing Block [6] Adding pupil area to RestData.mat'); disp(' ')
-[RestData] = ExtractPupilRestingData_IOS(procDataFileIDs);
-%% BLOCK PURPOSE: [7] Add pupil baseline to Restingbaselines.mat
+dataTypes = {'pupilArea','diameter','mmArea','mmDiameter'};
+ExtractPupilRestingData_IOS(procDataFileIDs,dataTypes);
+%% BLOCK PURPOSE: [8] Add pupil baseline to Restingbaselines.mat
 disp('Analyzing Block [7] Adding pupil baseline to RestingBaselines.mat'); disp(' ')
 [RestingBaselines] = AddPupilRestingBaseline_IOS();
-%% BLOCK PURPOSE: [8] Add pupil area to EventData.mat
-disp('Analyzing Block [8] Add pupil whisk/stim data to EventData.mat'); disp(' ')
+%% BLOCK PURPOSE: [9] zScore pupil data
+disp('Analyzing Block [7] Z-scoring pupil data'); disp(' ')
+for ff = 1:size(procDataFileIDs,1)
+    disp(['Z-scoring pupil data of file ' num2str(ff) '/' num2str(size(procDataFileIDs,1))]); disp(' ')
+    procDataFileID = procDataFileIDs(ff,:);
+    zScorePupilData_IOS(procDataFileID,RestingBaselines)
+end
+%% BLOCK PURPOSE: [10] Add pupil area to RestData.mat
+disp('Analyzing Block [10] Adding pupil area to RestData.mat'); disp(' ')
+dataTypes = {'pupilArea','diameter','mmArea','mmDiameter','zArea','zDiameter'};
+[RestData] = ExtractPupilRestingData_IOS(procDataFileIDs,dataTypes);
+%% BLOCK PURPOSE: [11] Add pupil area to EventData.mat
+disp('Analyzing Block [11] Add pupil whisk/stim data to EventData.mat'); disp(' ')
 [EventData] = ExtractPupilEventTriggeredData_IOS(procDataFileIDs);
-%% BLOCK PURPOSE: [9] Normalize Rest/Event data structures
-disp('Analyzing Block [9] Normalizing Rest/Event data structures.'); disp(' ')
+%% BLOCK PURPOSE: [12] Normalize Rest/Event data structures
+disp('Analyzing Block [12] Normalizing Rest/Event data structures.'); disp(' ')
 [RestData] = NormBehavioralDataStruct_IOS(RestData,RestingBaselines,'manualSelection');
 save([animalID '_RestData.mat'],'RestData','-v7.3')
 [EventData] = NormBehavioralDataStruct_IOS(EventData,RestingBaselines,'manualSelection');
 save([animalID '_EventData.mat'],'EventData','-v7.3')
-%% BLOCK PURPOSE: [10] Add pupil data to SleepData.mat
-disp('Analyzing Block [10] Adding pupil data to SleepData structure.'); disp(' ')
+%% BLOCK PURPOSE: [13] Add pupil data to SleepData.mat
+disp('Analyzing Block [13] Adding pupil data to SleepData structure.'); disp(' ')
 AddPupilSleepParameters_IOS(procDataFileIDs)
 UpdatePupilSleepData_IOS(procDataFileIDs)
 %% fin

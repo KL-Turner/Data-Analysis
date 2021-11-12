@@ -27,13 +27,18 @@ addpath(genpath(rootFolder))
 %% analysis subfunctions
 runAnalysis = true;
 if runAnalysis == true
-    AnalyzeBehavioralDiameter_Handler(rootFolder,delim,false)
+    AnalyzeBehavioralArea_Pupil_Handler(rootFolder,delim,true)
+    AnalyzeEvokedResponses_Pupil_Handler(rootFolder,delim,true)
+    AnalyzePupilSleepModelAccuracy_Pupil_Handler(rootFolder,delim,true)
+    AnalyzeSleepModelAccuracy_Pupil_Handler(rootFolder,delim,true)
+    AnalyzePupilAreaSleepProbability_Pupil_Handler(rootFolder,delim,true)
+    AnalyzeBlinkResponses_Pupil_Handler(rootFolder,delim,true)
+    
 %     AnalyzeBilateralCoherence_Handler(rootFolder,delim,false)
 %     AnalyzeNeuralHemoCoherence_Handler(rootFolder,delim,false)
 %     AnalyzePowerSpectrum_Handler(rootFolder,delim,false)
 %     AnalyzePearsonCorrelation_Handler(rootFolder,delim,false)
 %     AnalyzeCrossCorrelation_Handler(rootFolder,delim,false)
-%     AnalyzeEvokedResponsesA_Handler(rootFolder,delim,false)
 %     AnalyzeEvokedResponsesB_Handler(rootFolder,delim,false)
 %     AnalyzeVesselEvokedResponses_Handler(rootFolder,delim,false)
 %     AnalyzeArousalTransitions_Handler(rootFolder,delim,false)
@@ -45,8 +50,11 @@ end
 %% generate figures
 disp('Loading analysis results and generating figures...'); disp(' ')
 saveFigs = true;
-% DiaphoraseCellCounts_Bilateral_IOS(rootFolder,saveFigs,delim);
-% WhiskEvoked_Bilateral_IOS(rootFolder,saveFigs,delim);
+% ArousalStateDiameter_Pupil(rootFolder,saveFigs,delim);
+% WhiskStimEvoked_Pupil(rootFolder,saveFigs,delim);
+% PupilSleepModelAccuracy2_Pupil(rootFolder,saveFigs,delim);
+% PupilSleepProbability_Pupil(rootFolder,saveFigs,delim)
+BlinkResponses_Pupil(rootFolder,saveFigs,delim)
 % WhiskingBehavior_Bilateral_IOS(rootFolder,saveFigs,delim);
 % StimEvoked_Bilateral_IOS(rootFolder,saveFigs,delim);
 % StimEvoked_PulseTrain_IOS(rootFolder,saveFigs,delim);
@@ -59,7 +67,6 @@ saveFigs = true;
 % ArousalTransitions_Bilateral_IOS(rootFolder,saveFigs,delim);
 % PowerSpectrumLFP_Bilateral_IOS(rootFolder,saveFigs,delim);
 % PearsonsCorr_Bilateral_IOS(rootFolder,saveFigs,delim);
-% ArousalStateHemodynamics_Bilateral_IOS(rootFolder,saveFigs,delim);
 % SleepAmounts_Bilateral_IOS(rootFolder,saveFigs,delim)
 
 end

@@ -8,10 +8,13 @@ function [xCurve,yCurve] = SmoothHistogramBinsFit(histData,bins,fitFunc)
 %   Take from https://www.mathworks.com/help/curvefit/examples/smoothing-a-histogram.html
 %________________________________________________________________________________________________________________________
 
+% h = 2*iqr(histData)*(length(histData)^(-1/3));
+% bins = round((max(histData) - min(histData))/h);
 curveFig = figure;
 h = histfit(histData,bins,fitFunc);
-yt = get(gca, 'YTick');
-set(gca, 'YTick', yt, 'YTickLabel', yt/numel(histData))
+axis tight
+yt = get(gca,'YTick');
+set(gca,'YTick',yt,'YTickLabel',yt/numel(histData))
 curve = h(2);
 xCurve = curve.XData;
 yCurve = curve.YData/numel(histData);

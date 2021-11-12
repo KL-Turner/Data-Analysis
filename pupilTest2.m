@@ -4,10 +4,6 @@ animalIDs = {'T99','T101','T102','T103','T105','T108','T109','T110','T111','T119
 for aa = 1:length(animalIDs)
     animalID = animalIDs{1,aa};
     cd([animalID '/Bilateral Imaging/']);
-    procDataFileStruct = dir('*_ProcData.mat');
-    procDataFiles = {procDataFileStruct.name}';
-    procDataFileIDs = char(procDataFiles);
-    AddPupilSleepParameters_IOS(procDataFileIDs)
-    UpdatePupilSleepData_IOS(procDataFileIDs)
+    Pupil_CoreProcessing
     cd(curDir)
 end

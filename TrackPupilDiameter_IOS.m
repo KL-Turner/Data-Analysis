@@ -307,7 +307,7 @@ for cc = 1:size(procDataFileIDs,1)
         end
         ProcData.data.Pupil.pupilArea = medfilt1(pupilArea);
         ProcData.data.Pupil.pupilMajor = pupilMajor;
-        ProcData.data.Pupil.pupiMinor = pupilMinor;
+        ProcData.data.Pupil.pupilMinor = pupilMinor;
         ProcData.data.Pupil.pupilCentroid = pupilCentroid;
         ProcData.data.Pupil.eyeROI = eyeROI;
         ProcData.data.Pupil.roiIntensity = gather(roiInt);
@@ -323,7 +323,6 @@ for cc = 1:size(procDataFileIDs,1)
         plotPupilArea((blinks - 1:blinks + 1)) = NaN;
         blinkTimes(1:size(ProcData.data.Pupil.pupilArea,2)) = NaN;
         blinkTimes(blinks) = 1;
-        ProcData.data.Pupil.blinkTimes = blinkTimes*(1.1*max(ProcData.data.Pupil.pupilArea(:)));
         ProcData.data.Pupil.blinkInds = blinks;
         % save data
         disp(['Saving pupil tracking results to: ' procDataFileID]); disp(' ')

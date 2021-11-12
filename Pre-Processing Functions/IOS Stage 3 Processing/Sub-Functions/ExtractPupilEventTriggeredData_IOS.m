@@ -19,7 +19,7 @@ epoch.offset = 2;
 dataTypes = {'Pupil'};
 for a = 1:length(dataTypes)
     dataType = char(dataTypes(a));
-    subDataTypes = {'pupilArea'};
+    subDataTypes = {'pupilArea','diameter','mmArea','mmDiameter'};
     temp = struct();
     for b = 1:size(procDataFileIDs,1)
         % Load ProcData File
