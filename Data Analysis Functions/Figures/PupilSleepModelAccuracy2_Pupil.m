@@ -1,4 +1,4 @@
-function [] = PupilSleepModelAccuracy_Pupil(rootFolder,saveFigs,delim)
+function [] = PupilSleepModelAccuracy2_Pupil(rootFolder,saveFigs,delim)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -33,8 +33,8 @@ for dd = 1:length(modelNames)
     holdXlabels.pupil.(modelName) = Results_PupilSleepModel.(modelName).testXlabels;
     holdYlabels.pupil.(modelName) = Results_PupilSleepModel.(modelName).testYlabels;
 end
-% confusion matrix
-figure;
+%% confusion matrix
+summaryFigure = figure;
 sgtitle('Standard physiological sleep scoring classification model')
 subplot(2,3,1)
 cm = confusionchart(holdYlabels.physio.SVM,holdXlabels.physio.SVM);
@@ -84,8 +84,18 @@ confVals = cm.NormalizedValues;
 totalScores = sum(confVals(:));
 modelAccuracy = round((sum(confVals([1,5,9])/totalScores))*100,1);
 cm.Title = {'Naive Bayes',['total accuracy: ' num2str(modelAccuracy) ' (%)']};
+%% save figure(s)
+if saveFigs == true
+    dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'Sleep Model Accuracy' delim];
+    if ~exist(dirpath,'dir')
+        mkdir(dirpath);
+    end
+    savefig(summaryFigure,[dirpath 'Physio_SleepModel']);
+    set(summaryFigure,'PaperPositionMode','auto');
+    print('-painters','-dpdf','-bestfit',[dirpath 'Physio_SleepModel'])
+end
 %% confusion matrix
-figure;
+summaryFigure2 = figure;
 sgtitle('Pupil/Whisker sleep scoring classification model')
 subplot(2,3,1)
 cm = confusionchart(holdYlabels.pupil.SVM,holdXlabels.pupil.SVM);
@@ -135,16 +145,15 @@ confVals = cm.NormalizedValues;
 totalScores = sum(confVals(:));
 modelAccuracy = round((sum(confVals([1,4])/totalScores))*100,1);
 cm.Title = {'Naive Bayes',['total accuracy: ' num2str(modelAccuracy) ' (%)']};
-%%
-% % save figure(s)
-% if saveFigs == true
-%     dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'Stimulus-evoked Pupil Area' delim];
-%     if ~exist(dirpath,'dir')
-%         mkdir(dirpath);
-%     end
-%     savefig(summaryFigure2,[dirpath 'Stimulus_PupilArea']);
-%     set(summaryFigure2,'PaperPositionMode','auto');
-%     print('-painters','-dpdf','-bestfit',[dirpath 'Stimulus_PupilArea'])
-% end
+%% save figure(s)
+if saveFigs == true
+    dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'Sleep Model Accuracy' delim];
+    if ~exist(dirpath,'dir')
+        mkdir(dirpath);
+    end
+    savefig(summaryFigure2,[dirpath 'Pupil_SleepModel']);
+    set(summaryFigure2,'PaperPositionMode','auto');
+    print('-painters','-dpdf','-bestfit',[dirpath 'Pupil_SleepModel'])
+end
 
 end

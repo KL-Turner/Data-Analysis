@@ -27,7 +27,7 @@ NREMsleepTime = 30;   % seconds
 REMsleepTime = 60;   % seconds
 SleepData.Forest.NREM.data.Pupil = [];
 SleepData.Forest.REM.data.Pupil = [];
-dataTypes = {'pupilArea','diameter','mmArea','mmDiameter','zArea','zDiameter'};
+dataTypes = {'pupilArea','diameter','mmArea','mmDiameter','zArea','zDiameter','LH_HbT','RH_HbT','LH_gammaBandPower','RH_gammaBandPower'};
 %% BLOCK PURPOSE: Create sleep scored data structure.
 % Identify sleep epochs and place in SleepEventData.mat structure
 sleepBins = NREMsleepTime/5;
@@ -49,7 +49,17 @@ for a = 1:size(procDataFileIDs,1) % Loop through the list of ProcData files
             for indexCount = 1:length(fixedSleepIndex) % Loop through the length of sleep Index, and pull out associated data
                 for aa = 1:length(dataTypes)
                     dataType = dataTypes{1,aa};
-                    data.(dataType).data{indexCount,1} = ProcData.sleep.parameters.Pupil.(dataType){fixedSleepIndex(indexCount),1}; %#ok<*AGROW>
+                    if strcmp(dataType,'LH_HbT') == true
+                        data.(dataType).data{indexCount,1} = ProcData.sleep.parameters.CBV.hbtLH{fixedSleepIndex(indexCount),1}; %#ok<*AGROW>
+                    elseif strcmp(dataType,'RH_HbT') == true
+                        data.(dataType).data{indexCount,1} = ProcData.sleep.parameters.CBV.hbtRH{fixedSleepIndex(indexCount),1}; %#ok<*AGROW>
+                    elseif strcmp(dataType,'LH_gammaBandPower') == true
+                        data.(dataType).data{indexCount,1} = ProcData.sleep.parameters.cortical_LH.gammaBandPower{fixedSleepIndex(indexCount),1}; %#ok<*AGROW>
+                    elseif strcmp(dataType,'RH_gammaBandPower') == true
+                        data.(dataType).data{indexCount,1} = ProcData.sleep.parameters.cortical_RH.gammaBandPower{fixedSleepIndex(indexCount),1}; %#ok<*AGROW>
+                    else
+                        data.(dataType).data{indexCount,1} = ProcData.sleep.parameters.Pupil.(dataType){fixedSleepIndex(indexCount),1}; %#ok<*AGROW>
+                    end
                 end
                 binTimes{indexCount,1} = 5*fixedSleepIndex(indexCount);
             end
@@ -138,7 +148,17 @@ for a = 1:size(procDataFileIDs,1) % Loop through the list of ProcData files
             for indexCount = 1:length(fixedSleepIndex) % Loop through the length of sleep Index, and pull out associated data
                 for aa = 1:length(dataTypes)
                     dataType = dataTypes{1,aa};
-                    data.(dataType).data{indexCount,1} = ProcData.sleep.parameters.Pupil.(dataType){fixedSleepIndex(indexCount),1}; %#ok<*AGROW>
+                    if strcmp(dataType,'LH_HbT') == true
+                        data.(dataType).data{indexCount,1} = ProcData.sleep.parameters.CBV.hbtLH{fixedSleepIndex(indexCount),1}; %#ok<*AGROW>
+                    elseif strcmp(dataType,'RH_HbT') == true
+                        data.(dataType).data{indexCount,1} = ProcData.sleep.parameters.CBV.hbtRH{fixedSleepIndex(indexCount),1}; %#ok<*AGROW>
+                    elseif strcmp(dataType,'LH_gammaBandPower') == true
+                        data.(dataType).data{indexCount,1} = ProcData.sleep.parameters.cortical_LH.gammaBandPower{fixedSleepIndex(indexCount),1}; %#ok<*AGROW>
+                    elseif strcmp(dataType,'RH_gammaBandPower') == true
+                        data.(dataType).data{indexCount,1} = ProcData.sleep.parameters.cortical_RH.gammaBandPower{fixedSleepIndex(indexCount),1}; %#ok<*AGROW>
+                    else
+                        data.(dataType).data{indexCount,1} = ProcData.sleep.parameters.Pupil.(dataType){fixedSleepIndex(indexCount),1}; %#ok<*AGROW>
+                    end
                 end
                 binTimes{indexCount,1} = 5*fixedSleepIndex(indexCount);
             end

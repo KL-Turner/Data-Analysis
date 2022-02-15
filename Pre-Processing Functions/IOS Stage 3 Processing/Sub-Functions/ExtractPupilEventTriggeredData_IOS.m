@@ -19,7 +19,7 @@ epoch.offset = 2;
 dataTypes = {'Pupil'};
 for a = 1:length(dataTypes)
     dataType = char(dataTypes(a));
-    subDataTypes = {'pupilArea','diameter','mmArea','mmDiameter'};
+    subDataTypes = {'pupilArea','diameter','mmArea','mmDiameter','zArea','zDiameter','LH_HbT','RH_HbT','LH_gammaBandPower','RH_gammaBandPower'};
     temp = struct();
     for b = 1:size(procDataFileIDs,1)
         % Load ProcData File
@@ -44,11 +44,18 @@ for a = 1:length(dataTypes)
                         temp.(sDT) = [];
                     end
                     % Assemble a structure to send to the sub-functions
-                    fieldName2 = dataType;
-                    try
+                    if strcmp(sDT,'LH_HbT') == true || strcmp(sDT,'RH_HbT') == true
+                        fieldName2 = 'CBV_HbT';
                         data = ProcData.data.(fieldName2);
-                    catch % some files don't have certain fields. Skip those
-                        data = [];
+                    elseif strcmp(sDT,'LH_gammaBandPower') == true
+                        fieldName2 = 'cortical_LH';
+                        data = ProcData.data.(fieldName2);
+                    elseif strcmp(sDT,'RH_gammaBandPower') == true
+                        fieldName2 = 'cortical_RH';
+                        data = ProcData.data.(fieldName2);
+                    else
+                        fieldName2 = dataType;
+                        data = ProcData.data.(fieldName2);
                     end
                     data.Flags = ProcData.flags;
                     data.notes = ProcData.notes;
@@ -84,6 +91,13 @@ eventTime = data.Flags.(behavior).eventTime;
 trialDuration = data.notes.trialDuration_sec;
 samplingRate = data.notes.dsFs;
 % Get the content from data.(dataType)
+if strcmp(dataType,'LH_HbT') == true
+    dataType = 'adjLH';
+elseif strcmp(dataType,'RH_HbT') == true
+    dataType = 'adjRH';
+elseif strcmp(dataType,'LH_gammaBandPower') == true || strcmp(dataType,'RH_gammaBandPower') == true
+    dataType = 'gammaBandPower';
+end
 data = getfield(data,{},dataType,{});
 % Calculate start/stop times (seconds) for the events
 allEpochStarts = eventTime - epoch.offset*ones(size(eventTime));

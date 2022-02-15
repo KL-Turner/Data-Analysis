@@ -4,6 +4,7 @@ animalIDs = {'T99','T101','T102','T103','T105','T108','T109','T110','T111','T119
 for aa = 1:length(animalIDs)
     animalID = animalIDs{1,aa};
     cd([animalID '/Bilateral Imaging/']);
-    Pupil_CoreProcessing
+    disp(num2str(aa));
+    Pupil_CoreProcessing()
     cd(curDir)
 end

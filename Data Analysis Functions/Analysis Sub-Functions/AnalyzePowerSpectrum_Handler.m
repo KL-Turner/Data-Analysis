@@ -1,4 +1,4 @@
-function [] = AnalyzePowerSpectrum_Handler(rootFolder,delim,runFromStart)
+open function [] = AnalyzePowerSpectrum_Handler(rootFolder,delim,runFromStart)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering

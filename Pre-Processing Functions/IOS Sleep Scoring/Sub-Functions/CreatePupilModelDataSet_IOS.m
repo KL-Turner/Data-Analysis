@@ -9,11 +9,11 @@ function [] = CreatePupilModelDataSet_IOS(procDataFileIDs)
 
 for a = 1:size(procDataFileIDs,1)
     procDataFileID = procDataFileIDs(a,:);
-    pupilModelDataSetID = [procDataFileID(1:end-12) 'PupilModelData.mat'];
+    pupilModelDataSetID = [procDataFileID(1:end - 12) 'PupilModelData.mat'];
     load(procDataFileID)
     if strcmp(ProcData.data.Pupil.diameterCheck,'y') == true
         %% Create table to send into model
-        variableNames = {'pupilArea','numWhiskEvents'};
+        variableNames = {'zDiameter','numWhiskEvents'};
         % pre-allocation
         numWhiskEvents_column = zeros(180,1);
         avgPupilArea_column = zeros(180,1);
@@ -22,7 +22,7 @@ for a = 1:size(procDataFileIDs,1)
             % number of binarized whisking events
             numWhiskEvents_column(b,1) = sum(ProcData.sleep.parameters.binWhiskerAngle{b,1});
             % average pupil area
-            avgPupilArea_column(b,1) = round(nanmean(ProcData.sleep.parameters.Pupil.pupilArea{b,1}),1);
+            avgPupilArea_column(b,1) = round(mean(ProcData.sleep.parameters.Pupil.zDiameter{b,1},'omitnan'),2);
         end
         % create table
         pupilParamsTable = table(avgPupilArea_column,numWhiskEvents_column,'VariableNames',variableNames);

@@ -46,7 +46,17 @@ for aa = 1:length(dataTypes)
                 stopInd = min(startInd + dur,expectedLength - round(0.2*Fs));
                 try
                     % extract data from the trial and add to the cell array for the current loaded file
-                    trialRestVals{d} = ProcData.data.Pupil.(dataType)(:,startInd:stopInd);
+                    if strcmp(dataType,'LH_HbT') == true
+                        trialRestVals{d} = ProcData.data.CBV_HbT.adjLH(:,startInd:stopInd);
+                    elseif strcmp(dataType,'RH_HbT') == true
+                        trialRestVals{d} = ProcData.data.CBV_HbT.adjRH(:,startInd:stopInd);
+                    elseif strcmp(dataType,'LH_gammaBandPower') == true
+                        trialRestVals{d} = ProcData.data.cortical_LH.gammaBandPower(:,startInd:stopInd);
+                    elseif strcmp(dataType,'RH_gammaBandPower') == true
+                        trialRestVals{d} = ProcData.data.cortical_RH.gammaBandPower(:,startInd:stopInd);
+                    else
+                        trialRestVals{d} = ProcData.data.Pupil.(dataType)(:,startInd:stopInd);
+                    end
                 catch % some files don't have certain fields. Skip those
                     trialRestVals{d} = [];
                 end

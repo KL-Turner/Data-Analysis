@@ -34,6 +34,5 @@ for bb = 1:length(animalIDs)
     multiWaitbar('Analyzing pupil sleep model accuracy','Value',aa/waitBarLength);
     aa = aa + 1;
 end
-multiWaitbar('CloseAll');
 
 end

@@ -26,14 +26,15 @@ curFolder = curDir(dirBreaks(end) + 1:end);
 %% BLOCK PURPOSE: [1] Fiber Photometry data
 disp('Analyzing Block [1] Creating ProcData files and processing analog data.'); disp(' ')
 csvFiles = ls('*.csv');
-AnalyzeFiberPhotometryData_FP_Temp(csvFiles)
+% AnalyzeFiberPhotometryData_FP_Temp(csvFiles)
+AnalyzeFiberPhotometryData_FP_KG(csvFiles)
 %% BLOCK PURPOSE: [2] Correct the offset between the MScan and LabVIEW acquisiton.
 disp('Analyzing Block [2] Correcting LabVIEW time offset.'); disp(' ')
 fiberDataFileStruct = dir('*_FiberData.mat');
 fiberDataFiles = {fiberDataFileStruct.name}';
-fiberDataFileIDs = char(fiberDataFiles);
-trimTime = 15; % sec
-CorrectLabVIEWOffset_FP(fiberDataFileIDs,rawDataFileIDs,trimTime)
+fiberDataFileID = char(fiberDataFiles);
+% CorrectLabVIEWOffset_FP(fiberDataFileIDs,rawDataFileIDs,trimTime)
+TemplateMatchFiberData_FP(fiberDataFileID,rawDataFileIDs)
 %% BLOCK PURPOSE: [3] Process the RawData structure -> Create Threshold data structure and ProcData structure.
 disp('Analyzing Block [3] Creating ProcData files and processing analog data.'); disp(' ')
 ProcessRawDataFiles_FP(rawDataFileIDs)

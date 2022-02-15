@@ -12,7 +12,7 @@ for a = 1:size(procDataFileIDs,1)
     procDataFileID = procDataFileIDs(a,:);
     pupilModelDataFileID = [procDataFileID(1:end - 12) 'PupilModelData.mat'];
     pupilTrainingDataFileID = [procDataFileID(1:end - 12) 'PupilTrainingData.mat'];
-    trainingDataFileID = [procDataFileID(1:end-12) 'TrainingData.mat'];
+    trainingDataFileID = [procDataFileID(1:end - 12) 'TrainingData.mat'];
     load(procDataFileID)
     if strcmp(ProcData.data.Pupil.diameterCheck,'y') == true
         load(pupilModelDataFileID)

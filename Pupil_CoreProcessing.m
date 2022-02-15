@@ -18,7 +18,7 @@ function [] = Pupil_CoreProcessing()
 
 %% BLOCK PURPOSE: [0] Load the script's necessary variables and data structures.
 % Clear the workspace variables and command windyow.
-zap;
+% zap;
 disp('Analyzing Block [0] Preparing the workspace and loading variables.'); disp(' ')
 % Character list of all ProcData files
 procDataFileStruct = dir('*_ProcData.mat');
@@ -56,7 +56,7 @@ end
 disp('Analyzing Block [6] Converting pupil area to diameter in mm'); disp(' ')
 for ee = 1:size(procDataFileIDs,1)
     disp(['Converting pupil area to pupil diameter of file ' num2str(ee) '/' num2str(size(procDataFileIDs,1))]); disp(' ')
-    ConvertPupilAreaTo Diameter_IOS(procDataFileIDs(ee,:))
+    ConvertPupilAreaToDiameter_IOS(procDataFileIDs(ee,:))
 end
 %% BLOCK PURPOSE: [7] Add pupil area to RestData.mat
 disp('Analyzing Block [6] Adding pupil area to RestData.mat'); disp(' ')
@@ -74,7 +74,7 @@ for ff = 1:size(procDataFileIDs,1)
 end
 %% BLOCK PURPOSE: [10] Add pupil area to RestData.mat
 disp('Analyzing Block [10] Adding pupil area to RestData.mat'); disp(' ')
-dataTypes = {'pupilArea','diameter','mmArea','mmDiameter','zArea','zDiameter'};
+dataTypes = {'pupilArea','diameter','mmArea','mmDiameter','zArea','zDiameter','LH_HbT','RH_HbT','LH_gammaBandPower','RH_gammaBandPower'};
 [RestData] = ExtractPupilRestingData_IOS(procDataFileIDs,dataTypes);
 %% BLOCK PURPOSE: [11] Add pupil area to EventData.mat
 disp('Analyzing Block [11] Add pupil whisk/stim data to EventData.mat'); disp(' ')

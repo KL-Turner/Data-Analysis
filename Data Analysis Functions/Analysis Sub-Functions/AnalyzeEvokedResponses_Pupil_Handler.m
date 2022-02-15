@@ -26,14 +26,13 @@ animalIDs = {folderList.name};
 waitBarLength = waitBarLength + length(animalIDs);
 % run analysis for each animal in the group
 aa = 1;
-multiWaitbar('Analyzing whisk/stim-evoked pupil Area',0,'Color','P'); pause(0.25);
+multiWaitbar('Analyzing whisk/stim-evoked pupil data',0,'Color','P'); pause(0.25);
 for bb = 1:length(animalIDs)
     if isfield(Results_Evoked,(animalIDs{1,bb})) == false
         [Results_Evoked] = AnalyzeEvokedResponses_Pupil(animalIDs{1,bb},rootFolder,delim,Results_Evoked);
     end
-    multiWaitbar('Analyzing whisk/stim-evoked pupil Area','Value',aa/waitBarLength);
+    multiWaitbar('Analyzing whisk/stim-evoked pupil data','Value',aa/waitBarLength);
     aa = aa + 1;
 end
-multiWaitbar('CloseAll');
 
 end

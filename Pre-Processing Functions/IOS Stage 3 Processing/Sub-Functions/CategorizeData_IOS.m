@@ -51,9 +51,9 @@ modBinWhiskers = ProcData.data.binWhiskerAngle;
 % modBinWhiskers([1,end]) = 1;
 % Link the binarized whisking for use in GetWhiskingdata function
 binWhiskers = LinkBinaryEvents_IOS(gt(modBinWhiskers,0),[linkThresh breakThresh]*whiskerSamplingRate);
-% Added 2/6/18 with atw. Code throws errors if binWhiskers(1)=1 and binWhiskers(2) = 0, or if 
-% binWhiskers(1) = 0 and binWhiskers(2) = 1. This happens in GetWhiskingdata because starts of 
-% whisks are detected by taking the derivative of binWhiskers. Purpose of following lines is to 
+% Added 2/6/18 with atw. Code throws errors if binWhiskers(1)=1 and binWhiskers(2) = 0, or if
+% binWhiskers(1) = 0 and binWhiskers(2) = 1. This happens in GetWhiskingdata because starts of
+% whisks are detected by taking the derivative of binWhiskers. Purpose of following lines is to
 % handle trials where the above conditions occur and avoid difficult dimension errors.
 if binWhiskers(1) == 0 && binWhiskers(2) == 1
     binWhiskers(1) = 1;
@@ -77,10 +77,18 @@ save(procDataFileID,'ProcData');
 end
 
 function [puffTimes] = GetPuffTimes_IOS(ProcData)
-solNames = fieldnames(ProcData.data.stimulations);
+try
+    solNames = fieldnames(ProcData.data.stimulations);
+catch
+    solNames = fieldnames(ProcData.data.solenoids);
+end
 puffList = cell(1, length(solNames));
 for sN = 1:length(solNames)
-    puffList{sN} = ProcData.data.stimulations.(solNames{sN});
+    try
+        puffList{sN} = ProcData.data.stimulations.(solNames{sN});
+    catch
+        puffList{sN} = ProcData.data.solenoids.(solNames{sN});
+    end
 end
 puffTimes = cell2mat(puffList);
 end
@@ -95,7 +103,11 @@ trialDuration = ProcData.notes.trialDuration_sec;
 preTime = 1;
 postTime = 1;
 % Get puffer IDs
-solNames = fieldnames(ProcData.data.stimulations);
+try
+    solNames = fieldnames(ProcData.data.stimulations);
+catch
+    solNames = fieldnames(ProcData.data.solenoids);
+end
 Stim.solenoidName = cell(length(puffTimes),1);
 Stim.eventTime = zeros(length(puffTimes),1);
 Stim.whiskScore_Pre = zeros(length(puffTimes),1);
@@ -104,8 +116,12 @@ Stim.movementScore_Pre = zeros(length(puffTimes),1);
 Stim.movementScore_Post = zeros(length(puffTimes),1);
 j = 1;
 for sN = 1:length(solNames)
-    solPuffTimes = ProcData.data.stimulations.(solNames{sN});
-    for spT = 1:length(solPuffTimes) 
+    try
+        solPuffTimes = ProcData.data.stimulations.(solNames{sN});
+    catch
+        solPuffTimes = ProcData.data.solenoids.(solNames{sN});
+    end
+    for spT = 1:length(solPuffTimes)
         if trialDuration - solPuffTimes(spT) <= postTime
             disp(['Puff at time: ' solPuffTimes(spT) ' is too close to trial end'])
             continue;
@@ -116,7 +132,7 @@ for sN = 1:length(solNames)
         wPreStart = max(round((solPuffTimes(spT) - preTime)*whiskerSamplingRate),1);
         mPreStart = max(round((solPuffTimes(spT) - preTime)*forceSensorSamplingRate),1);
         wPostEnd = round((solPuffTimes(spT) + postTime)*whiskerSamplingRate);
-        mPostEnd = round((solPuffTimes(spT) + postTime)*forceSensorSamplingRate);        
+        mPostEnd = round((solPuffTimes(spT) + postTime)*forceSensorSamplingRate);
         % Calculate the percent of the pre-stim time that the animal moved or whisked
         whiskScorePre = sum(ProcData.data.binWhiskerAngle(wPreStart:wPuffInd))/(preTime*whiskerSamplingRate);
         whiskScorePost = sum(ProcData.data.binWhiskerAngle(wPuffInd:wPostEnd))/(postTime*whiskerSamplingRate);
@@ -127,7 +143,7 @@ for sN = 1:length(solNames)
         Stim.eventTime(j) = solPuffTimes(spT)';
         Stim.whiskScore_Pre(j) = whiskScorePre';
         Stim.whiskScore_Post(j) = whiskScorePost';
-        Stim.movementScore_Pre(j) = moveScorePre'; 
+        Stim.movementScore_Pre(j) = moveScorePre';
         Stim.movementScore_Post(j) = moveScorePost';
         j = j + 1;
     end
@@ -140,7 +156,7 @@ timeElapsed = abs(nonzeros(puffMat - puffMat'));
 if isempty(timeElapsed)
     puffTimeElapsed = 0;
 else
-% if not empty, Reshape the array to compensate for nonzeros command
+    % if not empty, Reshape the array to compensate for nonzeros command
     puffTimeElapsed = reshape(timeElapsed,numel(puffTimes) - 1,numel(puffTimes));
 end
 % Convert to cell and add to struct, if length of Puff_Times = 0, coerce to
@@ -160,10 +176,10 @@ whiskEdge = diff(binWhiskerAngle);
 whiskSamples = find(whiskEdge > 0);
 whiskStarts = whiskSamples/whiskerSamplingRate;
 % Classify each whisking event by duration, whisking intensity, rest durations
-sampleVec = 1:length(binWhiskerAngle); 
+sampleVec = 1:length(binWhiskerAngle);
 % Identify periods of whisking/resting, include beginning and end of trial
 % if needed (hence unique command) for correct interval calculation
-highSamples = unique([1, sampleVec(binWhiskerAngle),sampleVec(end)]); 
+highSamples = unique([1, sampleVec(binWhiskerAngle),sampleVec(end)]);
 lowSamples = unique([1, sampleVec(not(binWhiskerAngle)),sampleVec(end)]);
 % Calculate the number of samples between consecutive high/low samples.
 dHigh = diff(highSamples);
@@ -241,9 +257,9 @@ linkThresh = 0.5;   % seconds
 breakThresh = 0;   % seconds
 binWhiskerAngle = LinkBinaryEvents_IOS(gt(modBinarizedWhiskers,0),[linkThresh breakThresh]*whiskerSamplingRate);
 binForceSensor = LinkBinaryEvents_IOS(modBinarizedForceSensor,[linkThresh breakThresh]*forceSensorSamplingRate);
-% Combine binWhiskerAngle, binForceSensor, and puffTimes, to find periods of rest. 
+% Combine binWhiskerAngle, binForceSensor, and puffTimes, to find periods of rest.
 % Downsample bin_wwf to match length of bin_pswf
-sampleVec = 1:length(binWhiskerAngle); 
+sampleVec = 1:length(binWhiskerAngle);
 whiskHigh = sampleVec(binWhiskerAngle)/whiskerSamplingRate;
 dsBinarizedWhiskers = zeros(size(binForceSensor));
 % Find Bin_wwf == 1. Convert indexes into pswf time. Coerce converted indexes
@@ -263,8 +279,8 @@ stops = samples/Fs;
 % Identify periods of whisking/resting, include beginning and end of trial
 % if needed (hence unique command) for correct interval calculation
 sampleVec = 1:length(logical(wfBin));
-highSamples = unique([1,sampleVec(wfBin),sampleVec(end)]); 
-lowSamples = unique([1,sampleVec(not(wfBin)),sampleVec(end)]); 
+highSamples = unique([1,sampleVec(wfBin),sampleVec(end)]);
+lowSamples = unique([1,sampleVec(not(wfBin)),sampleVec(end)]);
 % Calculate the number of samples between consecutive high/low samples.
 dHigh = diff(highSamples);
 dLow = diff(lowSamples);
@@ -277,7 +293,7 @@ whiskDur = whiskLength/Fs;
 % Control for the beginning/end of the trial to correctly map rests/whisks
 % onto the whisk_starts. Use index 2 and end-1 since it is assumed that the
 % first and last indexes of a trial are the end/beginning of a volitional movement.
-if not(wfBin(2)) 
+if not(wfBin(2))
     whiskDur = [NaN,whiskDur];
 end
 if wfBin(end - 1)

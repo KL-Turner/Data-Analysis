@@ -4,13 +4,13 @@ function [] = MainScript_Pupil()
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %________________________________________________________________________________________________________________________
-% Purpose: 
+% Purpose:
 %
 % Scripts used to pre-process the original data are located in the folder "Pre-Processing Scripts".
 % Functions that are used in both the analysis and pre-processing are located in the analysis folder.
 %________________________________________________________________________________________________________________________
 
-clear; clc; close all;
+zap;
 %% verify code repository and data are in the current directory/added path
 currentFolder = pwd;
 addpath(genpath(currentFolder));
@@ -25,27 +25,22 @@ end
 % add root folder to Matlab's working directory
 addpath(genpath(rootFolder))
 %% analysis subfunctions
-runAnalysis = true;
+runAnalysis = false;
 if runAnalysis == true
-    AnalyzeBehavioralArea_Pupil_Handler(rootFolder,delim,true)
-    AnalyzeEvokedResponses_Pupil_Handler(rootFolder,delim,true)
-    AnalyzePupilSleepModelAccuracy_Pupil_Handler(rootFolder,delim,true)
-    AnalyzeSleepModelAccuracy_Pupil_Handler(rootFolder,delim,true)
-    AnalyzePupilAreaSleepProbability_Pupil_Handler(rootFolder,delim,true)
-    AnalyzeBlinkResponses_Pupil_Handler(rootFolder,delim,true)
-    
-%     AnalyzeBilateralCoherence_Handler(rootFolder,delim,false)
-%     AnalyzeNeuralHemoCoherence_Handler(rootFolder,delim,false)
-%     AnalyzePowerSpectrum_Handler(rootFolder,delim,false)
-%     AnalyzePearsonCorrelation_Handler(rootFolder,delim,false)
-%     AnalyzeCrossCorrelation_Handler(rootFolder,delim,false)
-%     AnalyzeEvokedResponsesB_Handler(rootFolder,delim,false)
-%     AnalyzeVesselEvokedResponses_Handler(rootFolder,delim,false)
-%     AnalyzeArousalTransitions_Handler(rootFolder,delim,false)
-%     AnalyzeArousalStateProbability_Handler(rootFolder,delim,false)
-%     AnalyzeWhiskingBehavior_Handler(rootFolder,delim,false)
-%     AnalyzePowerSpectrum_LFP_Handler(rootFolder,delim,false)
-%     AnalyzeVesselBaselineShift_Handler(rootFolder,delim,true)
+    AnalyzeBehavioralArea_Pupil_Handler(rootFolder,delim,false)
+    AnalyzeEvokedResponses_Pupil_Handler(rootFolder,delim,false)
+    AnalyzeSleepModelAccuracy_Pupil_Handler(rootFolder,delim,false)
+    AnalyzePupilSleepModelAccuracy_Pupil_Handler(rootFolder,delim,false)
+    AnalyzePupilAreaSleepProbability_Pupil_Handler(rootFolder,delim,false)
+    AnalyzeBlinkResponses_Pupil_Handler(rootFolder,delim,false)
+    AnalyzePowerSpectrum_Pupil_Handler(rootFolder,delim,false)
+    AnalyzeCoherence_Pupil_Handler(rootFolder,delim,false)
+    AnalyzeCrossCorrelation_Pupil_Handler(rootFolder,delim,false)
+    AnalyzeStimulusBlinks_Pupil_Handler(rootFolder,delim,false)
+    AnalyzeBlinkPeriodogram_Pupil_Handler(rootFolder,delim,false)
+    AnalyzePupilHbTRelationship_Pupil_Handler(rootFolder,delim,false)
+    AnalyzePupilGammaRelationship_Pupil_Handler(rootFolder,delim,false)
+    multiWaitbar('CloseAll');
 end
 %% generate figures
 disp('Loading analysis results and generating figures...'); disp(' ')
@@ -54,19 +49,25 @@ saveFigs = true;
 % WhiskStimEvoked_Pupil(rootFolder,saveFigs,delim);
 % PupilSleepModelAccuracy2_Pupil(rootFolder,saveFigs,delim);
 % PupilSleepProbability_Pupil(rootFolder,saveFigs,delim)
-BlinkResponses_Pupil(rootFolder,saveFigs,delim)
-% WhiskingBehavior_Bilateral_IOS(rootFolder,saveFigs,delim);
-% StimEvoked_Bilateral_IOS(rootFolder,saveFigs,delim);
-% StimEvoked_PulseTrain_IOS(rootFolder,saveFigs,delim);
-% StimEvoked_PulseTrain_2PLSM(rootFolder,saveFigs,delim);
-% BaselineShift_2PLSM(rootFolder,saveFigs,delim);
-% CrossCorrelation_Bilateral_IOS(rootFolder,saveFigs,delim);
-% BilateralCoherence_Bilateral_IOS(rootFolder,saveFigs,delim);
-% NeuralHemoCoherence_Bilateral_IOS(rootFolder,saveFigs,delim);
-% PowerSpectrum_Bilateral_IOS(rootFolder,saveFigs,delim);
-% ArousalTransitions_Bilateral_IOS(rootFolder,saveFigs,delim);
-% PowerSpectrumLFP_Bilateral_IOS(rootFolder,saveFigs,delim);
-% PearsonsCorr_Bilateral_IOS(rootFolder,saveFigs,delim);
-% SleepAmounts_Bilateral_IOS(rootFolder,saveFigs,delim)
+% BlinkResponses_Pupil(rootFolder,saveFigs,delim)
+% PowerSpectrum_Pupil(rootFolder,saveFigs,delim)
+% Coherence_Pupil(rootFolder,saveFigs,delim)
+% CrossCorrelation_Pupil(rootFolder,saveFigs,delim);
+% BlinkPeriodogram_Pupil(rootFolder,saveFigs,delim);
+% StimulusBlinks_Pupil(rootFolder,saveFigs,delim)
+% PupilHbTRelationship(rootFolder,saveFigs,delim)
+% PupilGammaRelationship(rootFolder,saveFigs,delim)
+%% final figures
+% Fig1_TBD(rootFolder,saveFigs,delim)
+% Fig2_TBD(rootFolder,saveFigs,delim)
+% Fig3_TBD(rootFolder,saveFigs,delim)
+% Fig4_TBD(rootFolder,saveFigs,delim)
+% Fig5_TBD(rootFolder,saveFigs,delim)
+
+
+FigS1_TBD(rootFolder,saveFigs,delim)
+FigS2_TBD(rootFolder,saveFigs,delim)
+% FigS3_TBD(rootFolder,saveFigs,delim)
+% FigS4_TBD(rootFolder,saveFigs,delim)
 
 end

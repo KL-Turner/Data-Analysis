@@ -13,10 +13,14 @@ for aa = 1:length(animalIDs)
     animalID = animalIDs{1,aa};
     dataLocation = [rootFolder delim 'Data' delim animalID delim 'Training Data'];
     cd(dataLocation)
+    % character list of all ProcData files
+    procDataFileStruct = dir('*_ProcData.mat');
+    procDataFiles = {procDataFileStruct.name}';
+    procDataFileIDs = char(procDataFiles);
     % prepare training data by updating parameters
-    %     AddPupilSleepParameters_IOS(procDataFileIDs)
-    %     CreatePupilModelDataSet_IOS(procDataFileIDs)
-    %     CreatePupilTrainingDataSet_IOS(procDataFileIDs)
+    AddPupilSleepParameters_IOS(procDataFileIDs)
+    CreatePupilModelDataSet_IOS(procDataFileIDs)
+    CreatePupilTrainingDataSet_IOS(procDataFileIDs)
     % training data file IDs
     pupilTrainingDataFileStruct = dir('*_PupilTrainingData.mat');
     pupilTrainingDataFiles = {pupilTrainingDataFileStruct.name}';

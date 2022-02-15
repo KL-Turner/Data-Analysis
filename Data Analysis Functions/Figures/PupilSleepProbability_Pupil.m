@@ -18,7 +18,7 @@ summaryFigure = figure;
 ax1 = subplot(1,1,1);
 yyaxis right
 h1 = histogram(diameterAllCatMeans,edges,'Normalization','probability','EdgeColor','k','FaceColor',colors('dark candy apple red'));
-ylabel('\DeltaArea Probability distribution','rotation',-90,'VerticalAlignment','bottom')
+ylabel('Probability','rotation',-90,'VerticalAlignment','bottom')
 yyaxis left
 p1 = plot(edges,sgolayfilt(medfilt1(awakeProbPerc,10,'truncate'),3,17),'-','color','b','LineWidth',2);
 hold on
@@ -28,8 +28,8 @@ ylabel({'Arousal-state probability (%)'})
 xlim([100,3500])
 ylim([0,100])
 legend([p1,p2,p3,h1],'Awake','NREM','REM','\DeltaArea','Location','NorthEast')
-title('\DeltaArea (pixels) vs. arousal state probability')
-xlabel('\DeltaArea (pixels)')
+title('Diameter (Z Units) vs. arousal state probability')
+xlabel('Diameter (Z Units)')
 axis square
 set(gca,'box','off')
 set(gca,'TickLength',[0.03,0.03]);
@@ -37,16 +37,15 @@ set(h1,'facealpha',0.2);
 ax1.TickLength = [0.03,0.03];
 ax1.YAxis(1).Color = 'k';
 ax1.YAxis(2).Color = colors_eLife2020('dark candy apple red');
-%
-% % save figure(s)
-% if saveFigs == true
-%     dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'Stimulus-evoked Pupil Area' delim];
-%     if ~exist(dirpath,'dir')
-%         mkdir(dirpath);
-%     end
-%     savefig(summaryFigure2,[dirpath 'Stimulus_PupilArea']);
-%     set(summaryFigure2,'PaperPositionMode','auto');
-%     print('-painters','-dpdf','-bestfit',[dirpath 'Stimulus_PupilArea'])
-% end
+%% save figure(s)
+if saveFigs == true
+    dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'Diameter vs. Sleep Probability' delim];
+    if ~exist(dirpath,'dir')
+        mkdir(dirpath);
+    end
+    savefig(summaryFigure,[dirpath 'Diameter_SleepProbability']);
+    set(summaryFigure,'PaperPositionMode','auto');
+    print('-painters','-dpdf','-bestfit',[dirpath 'Diameter_SleepProbability'])
+end
 
 end

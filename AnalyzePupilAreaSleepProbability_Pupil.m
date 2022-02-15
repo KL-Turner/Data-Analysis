@@ -39,9 +39,9 @@ for aa = 1:length(animalIDs)
             end
             for cc = 1:numBins
                 if cc == 1
-                    diameterBinSamples = ProcData.data.Pupil.pupilArea(1:samplesPerBin);
+                    diameterBinSamples = ProcData.data.Pupil.zDiameter(1:samplesPerBin);
                 else
-                    diameterBinSamples = ProcData.data.Pupil.pupilArea((cc - 1)*samplesPerBin + 1:cc*samplesPerBin);
+                    diameterBinSamples = ProcData.data.Pupil.zDiameter((cc - 1)*samplesPerBin + 1:cc*samplesPerBin);
                 end
                 diameterAllCatMeans = cat(1,diameterAllCatMeans,nanmean(diameterBinSamples));
             end

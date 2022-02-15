@@ -4,18 +4,18 @@ function [] = AnalyzeBehavioralArea_Pupil_Handler(rootFolder,delim,runFromStart)
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %
-% Purpose: 
+% Purpose:
 %________________________________________________________________________________________________________________________
 
 % create or load results structure
 if runFromStart == true
-    Results_BehavArea = [];
+    Results_BehavData = [];
 elseif runFromStart == false
     % load existing results structure, if it exists
-    if exist('Results_BehavArea.mat','file') == 2
-        load('Results_BehavArea.mat','-mat')
+    if exist('Results_BehavData.mat','file') == 2
+        load('Results_BehavData.mat','-mat')
     else
-        Results_BehavArea = [];
+        Results_BehavData = [];
     end
 end
 % determine waitbar length
@@ -26,14 +26,13 @@ animalIDs = {folderList.name};
 waitBarLength = waitBarLength + length(animalIDs);
 % run analysis for each animal in the group
 aa = 1;
-multiWaitbar('Analyzing behavioral pupil Area',0,'Color','P'); pause(0.25);
+multiWaitbar('Analyzing behavioral pupil data',0,'Color','P'); pause(0.25);
 for bb = 1:length(animalIDs)
-    if isfield(Results_BehavArea,(animalIDs{1,bb})) == false
-        [Results_BehavArea] = AnalyzeBehavioralArea_Pupil(animalIDs{1,bb},rootFolder,delim,Results_BehavArea);
+    if isfield(Results_BehavData,(animalIDs{1,bb})) == false
+        [Results_BehavData] = AnalyzeBehavioralArea_Pupil(animalIDs{1,bb},rootFolder,delim,Results_BehavData);
     end
-    multiWaitbar('Analyzing behavioral pupil Area','Value',aa/waitBarLength);
+    multiWaitbar('Analyzing behavioral pupil data','Value',aa/waitBarLength);
     aa = aa + 1;
 end
-multiWaitbar('CloseAll');
 
 end

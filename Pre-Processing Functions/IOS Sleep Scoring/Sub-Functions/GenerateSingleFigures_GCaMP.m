@@ -43,10 +43,10 @@ normRH_GCaMP7s = (RH_GCaMP7s - 1)*100;
 filtRH_GCaMP7s = filtfilt(sos2,g2,normRH_GCaMP7s);
 % Deoxy signal
 LH_deoxy = ProcData.data.Deoxy.adjLH;
-normLH_deoxy = ((LH_deoxy - RestingBaselines.manualSelection.Deoxy.adjLH.(strDay))./RestingBaselines.manualSelection.Deoxy.adjLH.(strDay))*100;
+normLH_deoxy = ((LH_deoxy - RestingBaselines.manualSelection.Deoxy.adjLH.(strDay).mean)./RestingBaselines.manualSelection.Deoxy.adjLH.(strDay).mean)*100;
 filtLH_deoxy = filtfilt(sos2,g2,normLH_deoxy);
 RH_deoxy = ProcData.data.Deoxy.adjRH;
-normRH_deoxy = ((RH_deoxy - RestingBaselines.manualSelection.Deoxy.adjRH.(strDay))./RestingBaselines.manualSelection.Deoxy.adjRH.(strDay))*100;
+normRH_deoxy = ((RH_deoxy - RestingBaselines.manualSelection.Deoxy.adjRH.(strDay).mean)./RestingBaselines.manualSelection.Deoxy.adjRH.(strDay).mean)*100;
 filtRH_deoxy = filtfilt(sos2,g2,normRH_deoxy);
 % cortical and hippocampal spectrograms
 specDataFile = [animalID '_' fileID '_SpecDataA.mat'];
