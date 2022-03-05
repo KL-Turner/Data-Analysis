@@ -10,7 +10,7 @@ function [] = PatchPupilArea_IOS(procDataFileID)
 %________________________________________________________________________________________________________________________
 
 load(procDataFileID)
-if isfield(ProcData.data.Pupil,'pupilPatch') == false %#ok<NODEF>
+% if isfield(ProcData.data.Pupil,'pupilPatch') == false %#ok<NODEF>
     [animalID,~,fileID] = GetFileInfo_IOS(procDataFileID);
     % expected number of frames based on trial duration and sampling rate
     expectedSamples = ProcData.notes.trialDuration_sec*ProcData.notes.pupilCamSamplingRate;
@@ -131,6 +131,6 @@ if isfield(ProcData.data.Pupil,'pupilPatch') == false %#ok<NODEF>
     ProcData.data.Pupil.pupilArea = patchedPupilArea;
     ProcData.data.Pupil.pupilPatch = 'y';
     save(procDataFileID,'ProcData')
-end
+% end
 
 end

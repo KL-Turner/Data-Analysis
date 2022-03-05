@@ -11,6 +11,7 @@ function [] = MainScript_Pupil()
 %________________________________________________________________________________________________________________________
 
 zap;
+multiWaitbar('CloseAll');
 %% verify code repository and data are in the current directory/added path
 currentFolder = pwd;
 addpath(genpath(currentFolder));
@@ -25,21 +26,23 @@ end
 % add root folder to Matlab's working directory
 addpath(genpath(rootFolder))
 %% analysis subfunctions
-runAnalysis = false;
+runAnalysis = true;
 if runAnalysis == true
-    AnalyzeBehavioralArea_Pupil_Handler(rootFolder,delim,false)
-    AnalyzeEvokedResponses_Pupil_Handler(rootFolder,delim,false)
-    AnalyzeSleepModelAccuracy_Pupil_Handler(rootFolder,delim,false)
-    AnalyzePupilSleepModelAccuracy_Pupil_Handler(rootFolder,delim,false)
-    AnalyzePupilAreaSleepProbability_Pupil_Handler(rootFolder,delim,false)
-    AnalyzeBlinkResponses_Pupil_Handler(rootFolder,delim,false)
-    AnalyzePowerSpectrum_Pupil_Handler(rootFolder,delim,false)
-    AnalyzeCoherence_Pupil_Handler(rootFolder,delim,false)
-    AnalyzeCrossCorrelation_Pupil_Handler(rootFolder,delim,false)
-    AnalyzeStimulusBlinks_Pupil_Handler(rootFolder,delim,false)
-    AnalyzeBlinkPeriodogram_Pupil_Handler(rootFolder,delim,false)
-    AnalyzePupilHbTRelationship_Pupil_Handler(rootFolder,delim,false)
-    AnalyzePupilGammaRelationship_Pupil_Handler(rootFolder,delim,false)
+    %     AnalyzeBehavioralArea_Pupil_Handler(rootFolder,delim,false)
+    %     AnalyzeEvokedResponses_Pupil_Handler(rootFolder,delim,false)
+    %     AnalyzeSleepModelAccuracy_Pupil_Handler(rootFolder,delim,false)
+    %     AnalyzePupilSleepModelAccuracy_Pupil_Handler(rootFolder,delim,false)
+    %     AnalyzePupilAreaSleepProbability_Pupil_Handler(rootFolder,delim,false)
+    %     AnalyzeBlinkResponses_Pupil_Handler(rootFolder,delim,false)
+    %     AnalyzePowerSpectrum_Pupil_Handler(rootFolder,delim,false)
+    %     AnalyzeCoherence_Pupil_Handler(rootFolder,delim,true)
+    %     AnalyzeCrossCorrelation_Pupil_Handler(rootFolder,delim,false)
+    %     AnalyzeStimulusBlinks_Pupil_Handler(rootFolder,delim,false)
+    %     AnalyzeBlinkPeriodogram_Pupil_Handler(rootFolder,delim,false)
+    %     AnalyzePupilHbTRelationship_Pupil_Handler(rootFolder,delim,false)
+    %     AnalyzePupilGammaRelationship_Pupil_Handler(rootFolder,delim,false)
+    %     AnalyzeBlinkCoherogram_Pupil_Handler(rootFolder,delim,false)
+    AnalyzeBlinkTransition_Pupil_Handler(rootFolder,delim,false)
     multiWaitbar('CloseAll');
 end
 %% generate figures
@@ -57,16 +60,17 @@ saveFigs = true;
 % StimulusBlinks_Pupil(rootFolder,saveFigs,delim)
 % PupilHbTRelationship(rootFolder,saveFigs,delim)
 % PupilGammaRelationship(rootFolder,saveFigs,delim)
-%% final figures
+% BlinkCoherogram(rootFolder,saveFigs,delim)
+BlinkTransition(rootFolder,saveFigs,delim)
+%% main figures
 % Fig1_TBD(rootFolder,saveFigs,delim)
 % Fig2_TBD(rootFolder,saveFigs,delim)
 % Fig3_TBD(rootFolder,saveFigs,delim)
 % Fig4_TBD(rootFolder,saveFigs,delim)
 % Fig5_TBD(rootFolder,saveFigs,delim)
-
-
-FigS1_TBD(rootFolder,saveFigs,delim)
-FigS2_TBD(rootFolder,saveFigs,delim)
+%% supplement
+% FigS1_TBD(rootFolder,saveFigs,delim)
+% FigS2_TBD(rootFolder,saveFigs,delim)
 % FigS3_TBD(rootFolder,saveFigs,delim)
 % FigS4_TBD(rootFolder,saveFigs,delim)
 

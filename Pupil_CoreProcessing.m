@@ -27,7 +27,7 @@ procDataFileIDs = char(procDataFiles);
 [animalID,~,~] = GetFileInfo_IOS(procDataFileIDs(1,:));
 %% BLOCK PURPOSE: [1] Track pupil area and blink detetction
 disp('Analyzing Block [1] Tracking pupil area and blink detection.'); disp(' ')
-TrackPupilDiameter_IOS(procDataFileIDs)
+TrackPupilDiameter_IOS_wCorrection(procDataFileIDs)
 %% BLOCK PURPOSE: [2] Patch pupil area
 disp('Analyzing Block [2]Patching NaN values and interpolating dropped frames.'); disp(' ')
 for aa = 1:size(procDataFileIDs,1)
@@ -51,6 +51,12 @@ disp('Analyzing Block [4] Manually check pupil area.'); disp(' ')
 for dd = 1:size(procDataFileIDs,1)
     disp(['Manually checking pupil area of file ' num2str(dd) '/' num2str(size(procDataFileIDs,1))]); disp(' ')
     CheckPupilDiameter_IOS(procDataFileIDs(dd,:))
+end
+%% BLOCK PURPOSE: [2] Patch pupil area
+disp('Analyzing Block [2]Patching NaN values and interpolating dropped frames.'); disp(' ')
+for aa = 1:size(procDataFileIDs,1)
+    disp(['Patching pupil area of file ' num2str(aa) '/' num2str(size(procDataFileIDs,1))]); disp(' ')
+    PatchPupilArea2_IOS(procDataFileIDs(aa,:))
 end
 %% BLOCK PURPOSE: [6] Convert area to diameter
 disp('Analyzing Block [6] Converting pupil area to diameter in mm'); disp(' ')

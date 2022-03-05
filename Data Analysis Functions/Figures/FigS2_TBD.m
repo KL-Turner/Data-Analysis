@@ -1,4 +1,4 @@
-function [] = FigS1_TBD(rootFolder,saveFigs,delim)
+function [] = FigS2_TBD(rootFolder,saveFigs,delim)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering

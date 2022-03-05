@@ -9,6 +9,7 @@ function [] = CheckPupilDiameter_IOS(procDataFileID)
 %________________________________________________________________________________________________________________________
 
 load(procDataFileID)
+ProcData.data.Pupil.diameterCheckComplete = [];
 if strcmpi(ProcData.data.Pupil.frameCheck,'y') == true %#ok<*NODEF>
     if isfield(ProcData.data.Pupil,'diameterCheckComplete') == false
         % load files and extract video information

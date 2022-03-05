@@ -107,7 +107,7 @@ for zzz = 1:length(hemDataTypes)
         params.trialave = 1;
         params.err = [2,0.05];
         % calculate the coherence between desired signals
-        [C_RestData,~,~,~,~,f_RestData,confC_RestData,~,cErr_RestData] = coherencyc(HbT_restDataMat,Pupil_restDataMat,params);
+        [C_RestData,~,~,~,~,f_RestData,confC_RestData,~,cErr_RestData] = coherencyc_eLife2020(HbT_restDataMat,Pupil_restDataMat,params);
         % save results
         Results_Coherence.(animalID).Rest.(dataType).(hemDataType).C = C_RestData;
         Results_Coherence.(animalID).Rest.(dataType).(hemDataType).f = f_RestData;

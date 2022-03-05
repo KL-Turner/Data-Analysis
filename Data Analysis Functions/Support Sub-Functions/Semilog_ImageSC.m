@@ -1,4 +1,4 @@
-function [] = semilog_imagesc(x,y,C,logaxis)
+function [] = Semilog_ImageSC(x,y,C,logaxis)
 %________________________________________________________________________________________________________________________
 % Utilized in analysis by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering

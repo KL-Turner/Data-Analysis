@@ -1,3 +1,4 @@
+function [] = StageThreeProcessing_IOS(
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -19,7 +20,7 @@
 
 %% BLOCK PURPOSE: [0] Load the script's necessary variables and data structures.
 % Clear the workspace variables and command windyow.
-zap;
+% zap;
 disp('Analyzing Block [0] Preparing the workspace and loading variables.'); disp(' ')
 % Character list of all RawData files
 rawDataFileStruct = dir('*_RawData.mat');

@@ -1,3 +1,4 @@
+function [] = SleepScoreMainScript_IOS()
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -8,7 +9,7 @@
 %________________________________________________________________________________________________________________________
 
 % Clear workspace/Load in file names for various analysis
-clear; clc; close all
+% zap;
 disp('Loading necessary file names...'); disp(' ')
 baselineType = 'manualSelection';
 startingDirectory = cd;

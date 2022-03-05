@@ -12,7 +12,7 @@
 
 %% BLOCK PURPOSE: [0] Load the script's necessary variables and data structures.
 % Clear the workspace variables and command window.
-zap;
+% zap;
 disp('Analyzing Block [0] Preparing the workspace and loading variables.'); disp(' ')
 % Character list of all RawData files
 rawDataFileStruct = dir('*_RawData.mat');
@@ -25,9 +25,9 @@ dirBreaks = strfind(curDir,'\');
 curFolder = curDir(dirBreaks(end) + 1:end);
 %% BLOCK PURPOSE: [1] Fiber Photometry data
 disp('Analyzing Block [1] Creating ProcData files and processing analog data.'); disp(' ')
-csvFiles = ls('*.csv');
+csvFile = ls('*.csv');
 % AnalyzeFiberPhotometryData_FP_Temp(csvFiles)
-AnalyzeFiberPhotometryData_FP_KG(csvFiles)
+AnalyzeFiberPhotometryData_FP_KG(csvFile)
 %% BLOCK PURPOSE: [2] Correct the offset between the MScan and LabVIEW acquisiton.
 disp('Analyzing Block [2] Correcting LabVIEW time offset.'); disp(' ')
 fiberDataFileStruct = dir('*_FiberData.mat');
