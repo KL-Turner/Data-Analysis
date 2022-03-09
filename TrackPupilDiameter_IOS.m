@@ -132,7 +132,7 @@ for bb = 1:length(firstFileOfDay)
         %% figure for verifying pupil threshold
         pupilROIFig = figure;
         subplot(1,3,1)
-        pupilHist = histogram(threshImg((threshImg ~= 0)),'BinEdges',pupilHistEdges);
+        pupilHist = histogram(threshImg((threshImg ~= 0)),'BinEdges',pupilHistEdges,'probability');
         xlabel('Pixel intensities');
         ylabel('Bin Counts');
         title('Histogram of image pixel intensities')

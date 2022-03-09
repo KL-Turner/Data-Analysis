@@ -27,7 +27,7 @@ procDataFileIDs = char(procDataFiles);
 [animalID,~,~] = GetFileInfo_IOS(procDataFileIDs(1,:));
 %% BLOCK PURPOSE: [1] Track pupil area and blink detetction
 disp('Analyzing Block [1] Tracking pupil area and blink detection.'); disp(' ')
-TrackPupilDiameter_IOS_wCorrection(procDataFileIDs)
+RunPupilTracker_iterativeCorrection_backup(procDataFileIDs)
 %% BLOCK PURPOSE: [2] Patch pupil area
 disp('Analyzing Block [2]Patching NaN values and interpolating dropped frames.'); disp(' ')
 for aa = 1:size(procDataFileIDs,1)

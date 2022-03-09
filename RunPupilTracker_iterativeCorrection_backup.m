@@ -1,12 +1,13 @@
-function [] = TrackPupilDiameter_IOS_wCorrection(procDataFileIDs)
+function [] = RunPupilTracker_iterativeCorrection_backup(procDataFileIDs)
 %________________________________________________________________________________________________________________________
-% Written by K.W. Gheres & Kevin L. Turner
+% Written by Kyle W. Gheres & Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %________________________________________________________________________________________________________________________
 %
-%   Purpose: Track pupil diameter and detect periods of blinking
+%   Purpose: Track changes in pupil area and detect periods of blinking
 %________________________________________________________________________________________________________________________
+
 
 % create/load pre-existing ROI file with the coordinates
 ROIFileDir = dir('*_PupilData.mat');
@@ -122,14 +123,14 @@ for bb = 1:length(firstFileOfDay)
         eyeFigure = figure;
         title('Draw ROI around eye')
         [eyeROI] = roipoly(workingImg);
-        %% model the distribution of pixel intensities as a gaussian to estimate/isolate the population of pupil pixels
+        % model the distribution of pixel intensities as a gaussian to estimate/isolate the population of pupil pixels
         pupilHistEdges = 1:1:256; % camera data is unsigned 8bit integers. Ignore 0 values
         threshSet = 4.5; % StD beyond mean intensity to binarize image for pupil tracking
         medFiltParams = [5,5]; % [x,y] dimensions for 2d median filter of images
         filtImg = medfilt2(workingImg,medFiltParams); % median filter image
         threshImg = uint8(double(filtImg).*eyeROI); % only look at pixel values in ROI
         [phat,~] = mle(reshape(threshImg(threshImg ~= 0),1,numel(threshImg(threshImg ~= 0))),'distribution','Normal');
-        %% figure for verifying pupil threshold
+        % figure for verifying pupil threshold
         pupilROIFig = figure;
         subplot(1,3,1)
         pupilHist = histogram(threshImg((threshImg ~= 0)),'BinEdges',pupilHistEdges,'probability');
@@ -159,7 +160,7 @@ for bb = 1:length(firstFileOfDay)
         subplot(1,3,3)
         imshow(testThresh);
         title('Pixels above threshold');
-        %% check threshold
+        % check threshold
         threshOK = false;
         manualPupilThreshold = [];
         while threshOK == false
@@ -194,12 +195,11 @@ for bb = 1:length(firstFileOfDay)
         save([animalID '_PupilData.mat'],'PupilData');
     end
 end
-%% run pupil/blink tracking on all data files
+% run pupil/blink tracking on all data files
 for cc = 1:size(procDataFileIDs,1)
     clearvars -except procDataFileIDs PupilData cc
     procDataFileID = procDataFileIDs(cc,:);
     load(procDataFileID)
-    %     ProcData.data.Pupil = [];
     disp(['Checking pupil tracking status of file (' num2str(cc) '/' num2str(size(procDataFileIDs,1)) ')']); disp(' ')
     %     if isfield(ProcData.data,'Pupil') == false
     [animalID,fileDate,fileID] = GetFileInfo_IOS(procDataFileID);
@@ -211,11 +211,11 @@ for cc = 1:size(procDataFileIDs,1)
             idx = qq;
         end
     end
+    % run pupil/blink tracking on all data files
     theAngles = 1:1:180; % projection angles measured during radon transform of pupil
-    pupilHistEdges = 1:1:256; %#ok<NASGU> % camera data is unsigned 8bit integers. Ignore 0 values
-    radonThresh = 0.05; % arbitrary threshold used to clean up radon transform above values ==1 below ==0
-    pupilThresh = 0.25; % arbitrary threshold used to clean up inverse radon transform above values ==1 below ==0
-    blinkThresh = 0.35; % arbitrary threshold used to binarize data for blink detection above values ==1 below ==0
+    radonThresh = 0.05; % arbitrary threshold used to clean up radon transform above values == 1 below == 0
+    pupilThresh = 0.25; % arbitrary threshold used to clean up inverse radon transform above values == 1 below == 0
+    blinkThresh = 0.35; % arbitrary threshold used to binarize data for blink detection above values == 1 below == 0
     medFiltParams = [5,5]; % [x,y] dimensions for 2d median filter of images
     fid = fopen(pupilCamFileID); % reads the binary file in to the work space
     fseek(fid,0,'eof'); % find the end of the video frame
@@ -229,6 +229,7 @@ for cc = 1:size(procDataFileIDs,1)
     nFramesToRead = floor(fileSize/(pixelsPerFrame));
     imageStack = zeros(200,200,nFramesToRead);
     % read .bin file to imageStack
+    % read .bin file to imageStack
     for dd = 1:nFramesToRead
         fseek(fid,(dd - 1)*skippedPixels,'bof');
         z = fread(fid,pixelsPerFrame,'*uint8','b');
@@ -239,8 +240,11 @@ for cc = 1:size(procDataFileIDs,1)
             imageStack(:,:,dd) = flip(imrotate(img,-90),2);
         end
     end
-    imageStack = uint8(imageStack); % convert double floating point data to unsignned 8bit integers
-    workingImg = imcomplement(imageStack(:,:,2)); % grab frame from image stack
+    % convert double floating point data to unsignned 8bit integers
+    imageStack = uint8(imageStack);
+    % grab frame from image stack
+    workingImg = imcomplement(imageStack(:,:,2));
+    ProcData.data.Pupil.firstFrame = imageStack(:,:,2);
     % pre-allocate empty structures
     pupilArea(1:size(imageStack,3)) = NaN; % area of pupil
     pupilMajor(1:size(imageStack,3)) = NaN; % length of major axis of pupil
@@ -256,166 +260,194 @@ for cc = 1:size(procDataFileIDs,1)
     imageFrames = gpuArray(imageStack);
     roiInt(1:size(imageFrames,3)) = NaN;
     roiInt = gpuArray(roiInt);
+    correctedFlag=false;
+    last_frame_ok = 1;
     for frameNum = 1:size(imageStack,3)
         filtImg = medfilt2(imcomplement(imageFrames(:,:,frameNum)),medFiltParams);
-        threshImg = uint8(double(filtImg).*eyeROI); % only look at pixel values in ROI
+        % only look at pixel values in ROI
+        threshImg = uint8(double(filtImg).*eyeROI);
         roiInt_temp = sum(threshImg,1);
         roiInt(frameNum) = sum(roiInt_temp,2);
         isoPupil = threshImg;
         isoPupil(isoPupil < intensityThresh) = 0;
         isoPupil(isoPupil >= intensityThresh) = 1;
-        isoPupil = medfilt2(isoPupil,medFiltParams);
+        %isoPupil = medfilt2(isoPupil,medFiltParams); Removed median filter KWG
         radPupil = radon(isoPupil);
         minPupil = min(radPupil,[],1);
         minMat = repmat(minPupil,size(radPupil,1),1);
         maxMat = repmat(max((radPupil - minMat),[],1),size(radPupil,1),1);
-        normPupil = (radPupil - minMat)./maxMat; % normalize each projection angle to its min and max values. Each value should now be between [0 1]
+        %normalize each projection angle to its min and max values. Each value should now be between [0 1]
+        normPupil = (radPupil - minMat)./maxMat;
         threshPupil = normPupil;
+        % binarize radon projection
         threshPupil(normPupil >= radonThresh) = 1;
-        threshPupil(normPupil < radonThresh) = 0; % binarize radon projection
-        radonPupil = gather(iradon(double(threshPupil),theAngles,'linear','Hamming',size(workingImg,2))); % transform back to image space
-        [~,pupilBoundaries] = bwboundaries(radonPupil > pupilThresh*max(radonPupil(:)),8,'noholes'); % find area corresponding to pupil on binary image
-        fillPupil = pupilBoundaries;
-        fillPupil = imfill(fillPupil,8,'holes'); % fill any subthreshold pixels inside the pupil boundary
-        areaFilled = regionprops(fillPupil,'FilledArea','Image','FilledImage','Centroid','MajorAxisLength','MinorAxisLength');
-        if frameNum>1
-            if abs((roiInt(frameNum)-roiInt(frameNum-1))/roiInt(frameNum))>=blinkThresh
-                areaFilled=[];
-                fillPupil(:)=0;
+        threshPupil(normPupil < radonThresh) = 0;
+        %transform back to image space
+        radonPupil = gather(iradon(double(threshPupil),theAngles,'linear','Hamming',size(workingImg,2)));
+        if frameNum == 1
+            saveRadonImg = radonPupil;
+        end
+        % find area corresponding to pupil on binary image
+        [~,pupilBoundaries,objNum,adjacency] = bwboundaries(radonPupil >pupilThresh*max(radonPupil(:)),8,'noholes');
+        % [~,pupilBoundaries,objNum,adjacency] = bwboundaries(gather(isoPupil),8,'noholes');
+        if objNum==1
+            fillPupil = pupilBoundaries;
+            % fill any subthreshold pixels inside the pupil boundary
+            fillPupil = imfill(fillPupil,8,'holes');
+            areaFilled = regionprops(fillPupil,'FilledArea','Image','FilledImage','Centroid','MajorAxisLength','MinorAxisLength');
+        else
+            areaFilled = regionprops(pupilBoundaries,'FilledArea','Image','FilledImage','Centroid','MajorAxisLength','MinorAxisLength');
+        end
+        if frameNum > 1
+            if abs((roiInt(frameNum) - roiInt(frameNum - 1))/roiInt(frameNum)) >= blinkThresh % Exclude fitting frame during blinks
+                areaFilled = [];
+                fillPupil(:) = 0;
             end
         end
-        if ~isempty(areaFilled)
-            if size(areaFilled,1) > 1
+        if ~isempty(areaFilled) %Is an pupil identified
+            if size(areaFilled,1) > 1 %Is the pupil fragmented in to multiple ROI
                 clear theArea areaLogical
                 for num = 1:size(areaFilled,1)
-                    theArea(num) = areaFilled(num).FilledArea; %#ok<*AGROW>
+                    theArea(num) = areaFilled(num).FilledArea; %#ok<*SAGROW>
                 end
-                maxArea = max(theArea);
+                maxArea = max(theArea);%Find the ROI with the largest area
                 areaLogical = theArea == maxArea;
                 areaFilled = areaFilled(areaLogical);
-                areaFilled=areaFilled(1);
-                %% Check for aberrant pupil diameter changes
+                areaFilled = areaFilled(1);
+                % check for aberrant pupil diameter changes
                 if frameNum > 1
-                    fracChange=(maxArea-pupilArea(frameNum-1))/pupilArea(frameNum-1);
-                    centChange=areaFilled.Centroid-pupilCentroid(frameNum-1,:);
-                    volFlag=fracChange<-0.1;
-                    centFlag=abs(max(centChange))>10;
-                    if ~isnan(pupilArea(frameNum-1))
-                        if (maxArea-pupilArea(frameNum-1))/pupilArea(frameNum-1)<-0.1 %|| max(centChange)>10
-                            %% Correct aberrant diameters by altering radon threshold
-                            pupilSweep=pupilThresh-(0:0.05:pupilThresh);
-                            for sweepNum=2:size(pupilSweep,2)
-                                if  volFlag==1 %||centFlag==1
-                                    sweepArea=[];
-                                    [~,sweepBoundaries] = bwboundaries(radonPupil > pupilSweep(sweepNum)*max(radonPupil(:)),8,'noholes');
-                                    fillSweep=sweepBoundaries;
-                                    fillSweep=imfill(fillSweep,8,'holes');
-                                    areaSweep= regionprops(fillSweep,'FilledArea','Image','FilledImage','Centroid','MajorAxisLength','MinorAxisLength');
-                                    for num = 1:size(areaSweep,1)
-                                        sweepArea(num) = areaSweep(num).FilledArea; %#ok<*AGROW>
+                    fracChange = (maxArea - pupilArea(frameNum-1))/pupilArea(frameNum-1); %frame-wise fractional change
+                    volFlag = fracChange <- 0.1; % does the change exceed a 10% reduction in pupil size
+                    if ~isnan(pupilArea(frameNum - 1)) %does the current frame follow a blink
+                        if volFlag==true
+                            if correctedFlag==false
+                                last_frame_ok=frameNum-1;
+                                correctedFlag=true;
+                            end
+                            % correct aberrant diameters by altering radon threshold
+                            pupilSweep = intensityThresh - (1:100); %adjust threshold of binary image instead of radon image KWG
+                            for sweepNum = 1:size(pupilSweep,2)
+                                if volFlag == true
+                                    isoSweep = threshImg; % get video frame
+                                    isoSweep(isoSweep < pupilSweep(sweepNum)) = 0; %set all pixel intensities below thresh to zero
+                                    isoSweep(isoSweep>= pupilSweep(sweepNum)) = 1; %set all pixel intensities above thresh to one
+                                    inPupil=[];
+                                    [~,correctBoundaries,~] = bwboundaries(gather(isoSweep),8,'noholes'); %Get above threshold regions
+                                    fillCorrection = correctBoundaries;
+                                    fillCorrection =imfill(fillCorrection,8,'holes'); %fill holes in regions
+                                    areaCorrect = regionprops(fillCorrection,'FilledArea','Image','FilledImage','Centroid','MajorAxisLength','MinorAxisLength','PixelList'); %find region properties
+                                    for areaNum=1:size(areaCorrect,1)
+                                        areaCentroid=round(areaCorrect(areaNum).Centroid,0);
+                                        inPupil(areaNum)=pupilBoundary(areaCentroid(2),areaCentroid(1),last_frame_ok); %determine if centroid of region was in previous pupil volume
                                     end
-                                    maxSweep = max(sweepArea);
-                                    sweepLogical = sweepArea == maxSweep;
-                                    if sum(sweepLogical) > 1
-                                        x = true;
-                                        for aa = 1:length(sweepLogical)
-                                            if x == true && sweepLogical(1,aa) == 1
-                                                sweepLogical(1,aa) = 1;
-                                                x = false;
-                                            else
-                                                sweepLogical(1,aa) = 0;
-                                            end
+                                    theInds=inPupil==1;
+                                    theInds2=find(inPupil==1);
+                                    keepRegions=areaCorrect(theInds); %keep only regions within previous pupil measurements
+                                    keepMask=zeros(size(fillCorrection,1),size(fillCorrection,2));
+                                    for keepNum=1:size(keepRegions,1)
+                                        for pixNum=1:size(keepRegions(keepNum).PixelList)
+                                            keepMask(keepRegions(keepNum).PixelList(pixNum,2),keepRegions(keepNum).PixelList(pixNum,1))=1; %remap kept regions
                                         end
                                     end
-                                    fracChange = (maxSweep - pupilArea(frameNum - 1)/pupilArea(frameNum - 1));
-                                    centChange = areaSweep(sweepLogical).Centroid - pupilCentroid(frameNum - 1,:);
-                                    volFlag = fracChange < -0.1;
-                                    centFlag = abs(max(centChange)) > 10;
-                                    %                                     holdMat = labeloverlay(imageStack(:,:,frameNum),fillSweep,'Transparency',0.8);
-                                    %                                     figure(99);imshow(holdMat);
+                                    fuseMask=bwconvhull(keepMask); %use convex hull operation to enclose regions previously within pupil
+                                    fusedCorrect = regionprops(fuseMask,'FilledArea','Image','FilledImage','Centroid','MajorAxisLength','MinorAxisLength','PixelList'); %measure new corrected pupil volume
+                                    if ~isempty(fusedCorrect)
+                                        fracChange = (fusedCorrect.FilledArea - pupilArea(last_frame_ok))/pupilArea(last_frame_ok);
+                                        volFlag = fracChange < -0.1;
+                                    else
+                                        fracChange=100; % if no data present force frac change outside threshold to keep frame
+                                    end
                                 end
                             end
-                            if  abs(fracChange)>0.1
-                                fillPupil(:)=0;
-                                areaFilled.FilledArea=NaN;
-                                areaFilled.MajorAxisLength=NaN;
-                                areaFilled.MinorAxisLength=NaN;
-                                areaFilled.Centroid=[NaN,NaN];
-                            else
-                                fillPupil=fillSweep;
-                                areaFilled=areaSweep(sweepLogical);
+                            % this can be used to insert NaN if the change is > 10%
+                            if  abs(fracChange) < 0.1 %changed to only fill data withing a +/- 10% change in area
+                                fillPupil = fuseMask;
+                                areaFilled = fusedCorrect;
                             end
                             if ~exist('correctedFrames','var')
-                                frameInd=1;
-                                correctedFrames(frameInd)=frameNum;
+                                frameInd = 1;
+                                correctedFrames(frameInd) = frameNum;
                             else
-                                frameInd=frameInd+1;
-                                correctedFrames(frameInd)=frameNum;
+                                frameInd = frameInd + 1;
+                                correctedFrames(frameInd) = frameNum;
                             end
+                        else
+                            correctedFlag=false;
+                            last_frame_ok=frameNum;
                         end
                     end
                 end
             else
-                if frameNum>1
-                    %% Check for aberrant pupil diameter changes
-                    fracChange=(areaFilled.FilledArea-pupilArea(frameNum-1))/pupilArea(frameNum-1);
-                    centChange=areaFilled.Centroid-pupilCentroid(frameNum-1,:);
-                    volFlag=fracChange<-0.1;
-                    centFlag=abs(max(centChange))>10;
-                    if ~isnan(pupilArea(frameNum-1))
-                        if (areaFilled.FilledArea-pupilArea(frameNum-1))/pupilArea(frameNum-1)<-0.1 %|| max(centChange)>10
-                            %% Correct aberrant diameters by altering radon threshold
-                            pupilSweep=pupilThresh-(0:0.01:pupilThresh);
-                            for sweepNum=2:size(pupilSweep,2)
-                                if volFlag==1 %|| centFlag==1
-                                    sweepArea=[];
-                                    [~,sweepBoundaries] = bwboundaries(radonPupil > pupilSweep(sweepNum)*max(radonPupil(:)),8,'noholes');
-                                    fillSweep=sweepBoundaries;
-                                    fillSweep=imfill(fillSweep,8,'holes');
-                                    areaSweep= regionprops(fillSweep,'FilledArea','Image','FilledImage','Centroid','MajorAxisLength','MinorAxisLength');
+                if frameNum > 1
+                    % check for aberrant pupil diameter changes
+                    fracChange = (areaFilled.FilledArea - pupilArea(frameNum-1))/pupilArea(frameNum-1);
+                    volFlag = fracChange < -0.1;
+                    if ~isnan(pupilArea(frameNum - 1))
+                        if volFlag==true
+                            if correctedFlag==false
+                                last_frame_ok=frameNum-1;
+                                correctedFlag=true;
+                            end
+                            % correct aberrant diameters with previous pupil
+                            % locations
+                            pupilSweep = intensityThresh - (1:100); %adjust threshold of binary image instead of radon image KWG
+                            for sweepNum = 1:size(pupilSweep,2)
+                                if volFlag == true
+                                    isoSweep = threshImg; % get video frame
+                                    isoSweep(isoSweep < pupilSweep(sweepNum)) = 0; % set all pixel intensities below thresh to zero
+                                    isoSweep(isoSweep>= pupilSweep(sweepNum)) = 1; % set all pixel intensities above thresh to one
+                                    radSweep = radon(isoSweep); %take radon transform of binarized image
+                                    minPupil = min(radSweep,[],1);
+                                    minMat = repmat(minPupil,size(radSweep,1),1);
+                                    maxMat = repmat(max((radSweep - minMat),[],1),size(radSweep,1),1);
+                                    %normalize each projection angle to its min and max values. Each value should now be between [0 1]
+                                    normSweep = (radSweep - minMat)./maxMat;
+                                    threshSweep = normSweep;
+                                    %binarize radon projection
+                                    threshSweep(normSweep >= radonThresh) = 1;
+                                    threshSweep(normSweep < radonThresh) = 0;
+                                    %transform back to image space
+                                    radonSweep = gather(iradon(double(threshSweep),theAngles,'linear','Hamming',size(workingImg,2)));
+                                    sweepArea = [];
+                                    [~,sweepBoundaries] = bwboundaries(radonSweep > pupilSweep(sweepNum)*max(radonSweep(:)),8,'noholes');
+                                    fillSweep = sweepBoundaries;
+                                    fillSweep = imfill(fillSweep,8,'holes');
+                                    areaSweep = regionprops(fillSweep,'FilledArea','Image','FilledImage','Centroid','MajorAxisLength','MinorAxisLength');
                                     for num = 1:size(areaSweep,1)
                                         sweepArea(num) = areaSweep(num).FilledArea; %#ok<*AGROW>
                                     end
                                     maxSweep = max(sweepArea);
                                     sweepLogical = sweepArea == maxSweep;
-                                    fracChange=(maxSweep-pupilArea(frameNum-1))/pupilArea(frameNum-1);
-                                    centChange=areaSweep(sweepLogical).Centroid-pupilCentroid(frameNum-1,:);
-                                    volFlag=fracChange<-0.1;
-                                    centFlag=abs(max(centChange))>10;
-                                    %                                         holdMat = labeloverlay(imageStack(:,:,frameNum),fillSweep,'Transparency',0.8);
-                                    %                                         figure(100);imshow(holdMat);
+                                    fracChange = (maxSweep - pupilArea(last_frame_ok))/pupilArea(last_frame_ok);
+                                    volFlag = fracChange < -0.1;
                                 end
-                                
                             end
-                            if  abs(fracChange)>0.1
-                                fillPupil(:)=0;
-                                areaFilled.FilledArea=NaN;
-                                areaFilled.MajorAxisLength=NaN;
-                                areaFilled.MinorAxisLength=NaN;
-                                areaFilled.Centroid=[NaN,NaN];
-                            else
-                                fillPupil=fillSweep;
-                                areaFilled=areaSweep(sweepLogical);
+                            % this can be used to insert NaN if the change is > 10%
+                            if abs(fracChange) < 0.1
+                                fillPupil = fillCorrection;
+                                areaFilled = areaCorrect(sweepLogical);
                             end
                             if ~exist('correctedFrames','var')
-                                frameInd=1;
+                                frameInd = 1;
                                 correctedFrames(frameInd)=frameNum;
                             else
-                                frameInd=frameInd+1;
-                                correctedFrames(frameInd)=frameNum;
+                                frameInd = frameInd + 1;
+                                correctedFrames(frameInd) = frameNum;
                             end
+                        else
+                            correctedFlag=false;
+                            last_frame_ok=frameNum;
                         end
                     end
                 end
             end
-            
             pupilArea(frameNum) = areaFilled.FilledArea;
             pupilMajor(frameNum) = areaFilled.MajorAxisLength;
             pupilMinor(frameNum) = areaFilled.MinorAxisLength;
             pupilCentroid(frameNum,:) = areaFilled.Centroid;
             pupilBoundary(:,:,frameNum) = fillPupil;
             holdMat = labeloverlay(imageStack(:,:,frameNum),fillPupil,'Transparency',0.8);
-            if size(holdMat,3)==1
+            if size(holdMat,3) == 1
                 overlay(:,:,:,frameNum) = repmat(holdMat,1,1,3);
             else
                 overlay(:,:,:,frameNum) = holdMat;
@@ -427,10 +459,14 @@ for cc = 1:size(procDataFileIDs,1)
             pupilCentroid(frameNum,:) = NaN;
             pupilBoundary(:,:,frameNum) = fillPupil;
             holdMat = labeloverlay(imageStack(:,:,frameNum),fillPupil);
-            overlay(:,:,:,frameNum) = repmat(holdMat,1,1,3);
+            if size(holdMat,3) == 1
+                overlay(:,:,:,frameNum) = repmat(holdMat,1,1,3);
+            else
+                overlay(:,:,:,frameNum) = holdMat;
+            end
         end
     end
-    ProcData.data.Pupil.pupilArea = pupilArea;
+    ProcData.data.Pupil.rawPupilArea = pupilArea;
     ProcData.data.Pupil.pupilMajor = pupilMajor;
     ProcData.data.Pupil.pupilMinor = pupilMinor;
     ProcData.data.Pupil.pupilCentroid = pupilCentroid;
@@ -444,33 +480,109 @@ for cc = 1:size(procDataFileIDs,1)
     disp(['File processing time: ' minText(1) ' min ' secText ' seconds']); disp(' ')
     blinks = find((abs(diff(ProcData.data.Pupil.roiIntensity))./ProcData.data.Pupil.roiIntensity(2:end)) >= blinkThresh) + 1;
     ProcData.data.Pupil.blinkFrames = overlay(:,:,:,blinks);
-    plotPupilArea = ProcData.data.Pupil.pupilArea;
-    plotPupilArea((blinks - 1:blinks + 1)) = NaN;
-    blinkTimes(1:size(ProcData.data.Pupil.pupilArea,2)) = NaN;
-    blinkTimes(blinks) = 1;
     ProcData.data.Pupil.blinkInds = blinks;
-    % save data
-    disp(['Saving pupil tracking results to: ' procDataFileID]); disp(' ')
-    save(procDataFileID,'ProcData')
-    %% visualize pupil diameter and blink times
-    pupilFigure = figure;
-    plot((1:length(ProcData.data.Pupil.pupilArea))/samplingRate,plotPupilArea,'k','LineWidth',1);
+    % patch NaNs
+    
+    pupilNaNs = isnan(pupilArea);
+    
+    ProcData.data.Pupil.nanPupilPatch = fillmissing(data.pupilArea,'movmedian',31);
+    % patch sudden spikes
+    diffArea = abs(diff(data.nanPupilPatch));
+    % threshold for interpolation
+    threshold = 500;
+    diffIndex = diffArea > threshold;
+    [linkedDiffIndex] = LinkBinaryEvents(gt(diffIndex,0),[30,0]);
+    edgeFound = false;
+    % identify edges for interpolation
+    xx = 1;
+    for aa = 1:length(linkedDiffIndex)
+        if edgeFound == false
+            if linkedDiffIndex(1,aa) == 1
+                startEdge(xx,1) = aa;
+                edgeFound = true;
+            end
+        elseif edgeFound == true
+            if linkedDiffIndex(1,aa) == 0
+                endEdge(xx,1) = aa;
+                xx = xx + 1;
+                edgeFound = false;
+            end
+        end
+    end
+    % fill from start:ending edges of rapid pupil fluctuations that weren't NaN
+    nanPupilArea = pupilArea;
+    for aa = 1:length(startEdge)
+        startTime = startEdge(aa,1);
+        endTime = endEdge(aa,1);
+        nanPupilArea(startTime:endTime) = NaN;
+        data.patchedPupilArea = fillmissing(nanPupilArea,'spline');
+    end
+    % subplot for eye ROI
+    figure
+    subplot(2,2,1)
+    imagesc(workingImg)
     hold on;
-    scatter((1:length(ProcData.data.Pupil.pupilArea))/samplingRate,blinkTimes*max(plotPupilArea),50,'r','filled');
+    x1 = plot(x12,y12,'color','r','LineWidth',1');
+    title('ROI to measure changes in pupil area')
+    legend(x1,'eye ROI')
+    colormap gray
+    axis image
+    axis off
+    % subplot for ROI histrogram and threshold
+    subplot(2,2,2)
+    pupilHist = histogram(threshImg((threshImg ~= 0)),'BinEdges',pupilHistEdges,'Normalization','Probability');
+    theFit = pdf('normal',pupilHist.BinEdges,phat(1),phat(2)); % generate distribution from mle fit of data
+    normFit = theFit./sum(theFit); % normalize fit so sum of gaussian ==1
+    hold on;
+    plot(pupilHist.BinEdges,normFit,'r','LineWidth',2);
+    xline(intensityThresh,'--c','LineWidth',1);
+    title('Histogram of image pixel intensities')
+    xlabel('Pixel intensities');
+    ylabel('Bin Counts');
+    legend({'Normalized Bin Counts','MLE fit of data','Pupil intensity threshold'},'Location','northwest');
+    xlim([0,256]);
+    axis square
+    % subplot for radon transform
+    subplot(2,2,3)
+    imagesc(saveRadonImg)
+    title('Radon transform back to image space')
+    colormap gray
+    axis image
+    axis off
+    % subplot for measured pupil area
+    subplot(2,2,4)
+    imagesc(overlay(:,:,:,1));
+    title('Calculated pupil area')
+    colormap gray
+    axis image
+    % patch falsely rapid transitions
+    figure
+    sgtitle('Pupil area changes');
+    subplot(2,1,1)
+    hold on;
+    nanVals = isnan(data.pupilArea);
+    nanInds = find(nanVals == 1);
+    for aa = 1:length(nanInds)
+        x1 = xline(nanInds(1,aa)/samplingRate,'g');
+    end
+    difInds = find(diffIndex == 1);
+    for bb = 1:length(difInds)
+        x2 = xline(difInds(1,bb)/samplingRate,'b');
+    end
+    p1 = plot((1:length(data.pupilArea))/samplingRate,data.pupilArea,'k','LineWidth',1);
     xlabel('Time (sec)');
     ylabel('Pupil area (pixels)');
-    title('Pupil area changes');
-    legend('Pupil area','Eyes closed');
+    legend([p1,x1,x2],'Original pupil area','ROI loss','ROI inaccuracy');
     set(gca,'box','off')
-    % save the file to directory.
-    [pathstr,~,~] = fileparts(cd);
-    dirpath = [pathstr '/Figures/Pupil Tracking/'];
-    if ~exist(dirpath,'dir')
-        mkdir(dirpath);
-    end
-    savefig(pupilFigure,[dirpath animalID '_' fileID '_PupilTracking']);
-    close(pupilFigure)
-    %      end
+    axis tight
+    subplot(2,1,2)
+    plot((1:length(data.patchedPupilArea))/samplingRate,medfilt1(data.patchedPupilArea,7),'k','LineWidth',1);
+    xlabel('Time (sec)');
+    ylabel('Pupil area (pixels)');
+    legend('Patched & medfilt pupil area');
+    set(gca,'box','off')
+    axis tight
+    % end
 end
 
 end

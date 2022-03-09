@@ -89,7 +89,7 @@ for aa = 1:size(procDataFileIDs,1)
                     cc = cc + 1;
                 else
                     timeDifference = blinkEvents(1,bb) - blinkEvents(1,bb - 1);
-                    if timeDifference > 6
+                    if timeDifference > 30
                         condensedBlinkTimes(1,cc) = blinkEvents(1,bb);
                         cc = cc + 1;
                     end
@@ -169,6 +169,11 @@ for bb = 1:length(dataTypes)
         % leading/lagging coherence
         [leadC,~,~,~,~,leadf] = coherencyc(data3,data4,params);
         [lagC,~,~,~,~,lagf] = coherencyc(data5,data6,params);
+        % leading/lagging power spectrum
+        [LH_leadS,pwrf,~] = mtspectrumc(data3,params);
+        [RH_leadS,~,~] = mtspectrumc(data4,params);
+        [LH_lagS,~,~] = mtspectrumc(data5,params);
+        [RH_lagS,~,~] = mtspectrumc(data6,params);
         %% Save results
         Results_BlinkCoherogram.(animalID).(dataType).(blinkState).C = C';
         Results_BlinkCoherogram.(animalID).(dataType).(blinkState).phi = phi;
@@ -178,6 +183,11 @@ for bb = 1:length(dataTypes)
         Results_BlinkCoherogram.(animalID).(dataType).(blinkState).lagC = lagC;
         Results_BlinkCoherogram.(animalID).(dataType).(blinkState).leadf = leadf;
         Results_BlinkCoherogram.(animalID).(dataType).(blinkState).lagf = lagf;
+        Results_BlinkCoherogram.(animalID).(dataType).(blinkState).LH_leadS = LH_leadS;
+        Results_BlinkCoherogram.(animalID).(dataType).(blinkState).RH_leadS = RH_leadS;
+        Results_BlinkCoherogram.(animalID).(dataType).(blinkState).LH_lagS = LH_lagS;
+        Results_BlinkCoherogram.(animalID).(dataType).(blinkState).RH_lagS = RH_lagS;
+        Results_BlinkCoherogram.(animalID).(dataType).(blinkState).pwrf = pwrf;
     end
 end
 % save data

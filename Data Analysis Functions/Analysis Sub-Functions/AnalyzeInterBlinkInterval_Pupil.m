@@ -1,4 +1,4 @@
-function [Results_BlinkTransition] = AnalyzeBlinkTransition_Pupil(animalID,rootFolder,delim,Results_BlinkTransition)
+function [Results_InterBlinkInterval] = AnalyzeInterBlinkInterval_Pupil(animalID,rootFolder,delim,Results_InterBlinkInterval)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -26,14 +26,12 @@ scoringResultsFile = {scoringResultsFileStruct.name}';
 scoringResultsFileID = char(scoringResultsFile);
 load(scoringResultsFileID,'-mat')
 samplingRate = 30; % lowpass filter
-edgeTime = 30; % sec
-binTime = 5; % sec
-arousalClassifications = [];
-fileIDs = {};
-blinkTimes = [];
+catDurations = [];
+catAllDurations = [];
+catInterBlinkInterval = [];
 for aa = 1:size(procDataFileIDs,1)
     procDataFileID = procDataFileIDs(aa,:);
-    [animalID,~,fileID] = GetFileInfo_IOS(procDataFileID);
+    [animalID,~,~] = GetFileInfo_IOS(procDataFileID);
     load(procDataFileID)
     if strcmp(ProcData.data.Pupil.frameCheck,'y') == true
         if isfield(ProcData.data.Pupil,'shiftedBlinks') == true
@@ -91,44 +89,45 @@ for aa = 1:size(procDataFileIDs,1)
                     end
                 end
             end
-            % extract blink triggered data
-            for dd = 1:length(condensedBlinkTimes)
-                blink = condensedBlinkTimes(1,dd);
-                if (blink/samplingRate) >= 31 && (blink/samplingRate) <= 869
-                    for zz = 1:length(ScoringResults.fileIDs)
-                        if strcmp(ScoringResults.fileIDs{zz,1},fileID) == true
-                            labels = ScoringResults.labels{zz,1};
-                        end
+            blinkLogical = []; durations = [];
+            for bb = 1:length(condensedBlinkTimes)
+                blinkLogical(1,bb) = find(blinkEvents == condensedBlinkTimes(1,bb));
+            end
+            for cc = 1:length(blinkLogical)
+                if cc < length(blinkLogical)
+                    startTime = blinkEvents(blinkLogical(1,cc));
+                    endTime = blinkEvents(blinkLogical(1,cc + 1) - 1);
+                    durations(cc,1) = ((endTime - startTime) + 1)/30;
+                elseif cc == length(blinkLogical)
+                    if blinkLogical(1,cc) == length(blinkEvents)
+                        durations(cc,1) = 1/30;
+                    elseif blinkLogical(1,cc) < length(blinkEvents)
+                        startTime = blinkEvents(blinkLogical(1,cc));
+                        endTime = blinkEvents(end);
+                        durations(cc,1) = ((endTime - startTime) + 1)/30;
                     end
-                    blinkSec = blink/30;
-                    blinkBin = ceil(blinkSec/binTime);
-                    arousalClassifications = cat(1,arousalClassifications,labels(blinkBin - edgeTime/binTime:blinkBin + edgeTime/binTime)');
-                    fileIDs = cat(1,fileIDs,{fileID});
-                    blinkTimes = cat(1,blinkTimes,blink);
                 end
             end
+            interBlinkInterval = [];
+            for bb = 1:length(condensedBlinkTimes) - 1
+                interBlinkInterval(bb,1) = condensedBlinkTimes(1,bb + 1)/30 - condensedBlinkTimes(1,bb)/30;
+            end
+        end
+        if isempty(durations) == false
+            if length(durations) > 1 == true
+                catDurations = cat(1,catDurations,durations(1:end - 1));
+            end
+            catAllDurations = cat(1,catDurations,durations);
+            catInterBlinkInterval = cat(1,catInterBlinkInterval,interBlinkInterval);
         end
     end
-end
-%% analyze coherogram
-arousalClasses = {'Not Sleep','NREM Sleep','REM Sleep'};
-reshapedArousalClassicifications = reshape(arousalClassifications,[size(arousalClassifications,1)*size(arousalClassifications,2),1]);
-for aa = 1:length(arousalClasses)
-    for bb = 1:length(reshapedArousalClassicifications)
-        if strcmp(reshapedArousalClassicifications(bb),arousalClasses{1,aa}) == true
-            classArray(bb) = 1;
-        else
-            classArray(bb) = 0;
-        end
-    end
-    classMatrix{aa,1} = reshape(classArray,[size(arousalClassifications,1),size(arousalClassifications,2)]);
 end
 %% Save results
-Results_BlinkTransition.(animalID).awakeProbabilityMatrix = classMatrix{1,1};
-Results_BlinkTransition.(animalID).nremProbabilityMatrix = classMatrix{2,1};
-Results_BlinkTransition.(animalID).remProbabilityMatrix = classMatrix{3,1};
+Results_InterBlinkInterval.(animalID).durations = catDurations;
+Results_InterBlinkInterval.(animalID).allDurations = catAllDurations;
+Results_InterBlinkInterval.(animalID).interBlinkInterval = catInterBlinkInterval;
 % save data
 cd([rootFolder delim])
-save('Results_BlinkTransition.mat','Results_BlinkTransition')
+save('Results_InterBlinkInterval.mat','Results_InterBlinkInterval')
 
 end

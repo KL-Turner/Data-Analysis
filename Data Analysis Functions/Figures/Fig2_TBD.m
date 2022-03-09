@@ -119,13 +119,19 @@ for aa = 1:length(animalIDs)
             dataType = dataTypes{1,cc};
             % pre-allocate necessary variable fields
             data.(behavField).(dataType).dummCheck = 1;
-            if isfield(data.(behavField).(dataType),'xcVals') == false
-                data.(behavField).(dataType).xcVals = [];
+            if isfield(data.(behavField).(dataType),'LH_xcVals') == false
+                data.(behavField).(dataType).LH_xcVals = [];
+                data.(behavField).(dataType).RH_xcVals = [];
                 data.(behavField).(dataType).lags = [];
             end
             if isfield(Results_CrossCorrelation.(animalID),behavField) == true
-                data.(behavField).(dataType).xcVals = cat(1,data.(behavField).(dataType).xcVals,Results_CrossCorrelation.(animalID).(behavField).LH_HbT.(dataType).xcVals,Results_CrossCorrelation.(animalID).(behavField).RH_HbT.(dataType).xcVals);
+                data.(behavField).(dataType).LH_xcVals = cat(1,data.(behavField).(dataType).LH_xcVals,Results_CrossCorrelation.(animalID).(behavField).LH_HbT.(dataType).xcVals);
+                data.(behavField).(dataType).RH_xcVals = cat(1,data.(behavField).(dataType).RH_xcVals,Results_CrossCorrelation.(animalID).(behavField).RH_HbT.(dataType).xcVals);
                 data.(behavField).(dataType).lags = cat(1,data.(behavField).(dataType).lags,Results_CrossCorrelation.(animalID).(behavField).LH_HbT.(dataType).lags,Results_CrossCorrelation.(animalID).(behavField).RH_HbT.(dataType).lags);
+                data.(behavField).animalID{aa,1} = animalID;
+                data.(behavField).behavior{aa,1} = behavField;
+                data.(behavField).LH{aa,1} = 'LH';
+                data.(behavField).RH{aa,1} = 'RH';
             end
         end
     end
@@ -135,52 +141,31 @@ for dd = 1:length(behavFields)
     behavField = behavFields{1,dd};
     for ff = 1:length(dataTypes)
         dataType = dataTypes{1,ff};
+        data.(behavField).(dataType).xcVals = cat(1,data.(behavField).(dataType).LH_xcVals,data.(behavField).(dataType).RH_xcVals);
         data.(behavField).(dataType).meanXcVals = mean(data.(behavField).(dataType).xcVals,1);
         data.(behavField).(dataType).stdXcVals = std(data.(behavField).(dataType).xcVals,0,1);
         data.(behavField).(dataType).meanLags = mean(data.(behavField).(dataType).lags,1);
     end
 end
-%% variables for loops
-resultsStruct = 'Results_PowerSpectrum';
-load(resultsStruct);
-animalIDs = fieldnames(Results_PowerSpectrum);
-behavFields = {'Rest','NREM','REM','Awake','Asleep','All'};
-dataTypes = {'mmArea','mmDiameter','zArea','zDiameter'};
-% pre-allocate data structure
-for aa = 1:length(behavFields)
-    behavField = behavFields{1,aa};
-    for bb = 1:length(dataTypes)
-        dataType = dataTypes{1,bb};
-        data.(behavField).(dataType).S = [];
-        data.(behavField).(dataType).f = [];
-    end
-end
-% power spectra during different behaviors
-% cd through each animal's directory and extract the appropriate analysis results
-for aa = 1:length(animalIDs)
-    animalID = animalIDs{aa,1};
-    for bb = 1:length(behavFields)
-        behavField = behavFields{1,bb};
-        for cc = 1:length(dataTypes)
-            dataType = dataTypes{1,cc};
-            % don't concatenate empty arrays where there was no data for this behavior
-            if isempty(Results_PowerSpectrum.(animalID).(behavField).(dataType).S) == false
-                data.(behavField).(dataType).S = cat(2,data.(behavField).(dataType).S,Results_PowerSpectrum.(animalID).(behavField).(dataType).S);
-                data.(behavField).(dataType).f = cat(1,data.(behavField).(dataType).f,Results_PowerSpectrum.(animalID).(behavField).(dataType).f);
-            end
-        end
-    end
-end
-% take mean/StD of S/f
-for aa = 1:length(behavFields)
-    behavField = behavFields{1,aa};
-    for bb = 1:length(dataTypes)
-        dataType = dataTypes{1,bb};
-        data.(behavField).(dataType).meanS = mean(data.(behavField).(dataType).S,2);
-        data.(behavField).(dataType).stdS = std(data.(behavField).(dataType).S,0,2);
-        data.(behavField).(dataType).meanf = mean(data.(behavField).(dataType).f,1);
-    end
-end
+% % find max/time to peak
+% for gg = 1:length(behavFields)
+%     behavField = behavFields{1,gg};
+%     for hh = 1:size(data.(behavField).(dataType).LH_xcVals,1)
+%         % hbt
+%         gammaArray = data.(behavField).(dataType).LH_xcVals(hh,:);
+%         [gammaMax,gammaIndex] = max(gammaArray);
+%         data.(behavField).gammaPeak(hh,1) = gammaMax;
+%         data.(behavField).gammaTTP(hh,1) = data.(behavField).meanLags(gammaIndex)/30;
+%     end
+% end
+% % mean/std
+% for ii = 1:length(behavFields)
+%     behavField = behavFields{1,ii};
+%     data.(behavField).meanMuaPeak = mean(data.(behavField).muaPeak,1);
+%     data.(behavField).stdMuaPeak = std(data.(behavField).muaPeak,0,1);
+%     data.(behavField).meanMuaTTP = mean(data.(behavField).muaTTP,1);
+%     data.(behavField).stdMuaTTP = std(data.(behavField).muaTTP,0,1);
+% end
 %% variables for loops
 resultsStruct = 'Results_Coherence';
 load(resultsStruct);
@@ -235,8 +220,30 @@ end
 %% figures
 summaryFigure = figure;
 sgtitle('Figure 2')
+%%
+subplot(3,3,1);
+%
+p1 = plot(timeVector,procData.interWhisk.zDiameter.mean,'color',colors('vegas gold'),'LineWidth',2);
+hold on
+plot(timeVector,procData.interWhisk.zDiameter.mean + procData.interWhisk.zDiameter.std,'color',colors('vegas gold'),'LineWidth',0.5)
+plot(timeVector,procData.interWhisk.zDiameter.mean - procData.interWhisk.zDiameter.std,'color',colors('vegas gold'),'LineWidth',0.5)
+%
+p2 = plot(timeVector,procData.stimSolenoid.zDiameter.mean,'color',colors('dark candy apple red'),'LineWidth',2);
+plot(timeVector,procData.stimSolenoid.zDiameter.mean + procData.stimSolenoid.zDiameter.std,'color',colors('dark candy apple red'),'LineWidth',0.5)
+plot(timeVector,procData.stimSolenoid.zDiameter.mean - procData.stimSolenoid.zDiameter.std,'color',colors('dark candy apple red'),'LineWidth',0.5)
+%
+p3 = plot(timeVector,procData.controlSolenoid.zDiameter.mean,'color',colors('deep carrot orange'),'LineWidth',2);
+hold on
+plot(timeVector,procData.controlSolenoid.zDiameter.mean + procData.controlSolenoid.zDiameter.std,'color',colors('deep carrot orange'),'LineWidth',0.5)
+plot(timeVector,procData.controlSolenoid.zDiameter.mean - procData.controlSolenoid.zDiameter.std,'color',colors('deep carrot orange'),'LineWidth',0.5)
+ylabel('\DeltaZ Units')
+xlabel('Time (s)')
+legend([p1,p2,p3],'Whisk','Stim','Aud')
+set(gca,'box','off')
+xlim([-2,10])
+axis square
 %% mm pupil diameter scatter
-ax2 = subplot(2,4,1);
+ax2 = subplot(3,3,2);
 scatter(ones(1,length(data.Rest.indMeanDiameter))*1,data.Rest.indMeanDiameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colorRest,'jitter','on','jitterAmount',0.25);
 hold on
 e1 = errorbar(1,data.Rest.meanDiameter,data.Rest.stdDiameter,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
@@ -272,7 +279,7 @@ xlim([0,length(behavFields) + 1])
 set(gca,'box','off')
 ax2.TickLength = [0.03,0.03];
 %% mm pupil diameter scatter
-ax4 = subplot(2,4,2);
+ax4 = subplot(3,3,3);
 scatter(ones(1,length(data.Rest.indMeanzDiameter))*1,data.Rest.indMeanzDiameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colorRest,'jitter','on','jitterAmount',0.25);
 hold on
 e1 = errorbar(1,data.Rest.meanzDiameter,data.Rest.stdzDiameter,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
@@ -308,29 +315,58 @@ xlim([0,length(behavFields) + 1])
 set(gca,'box','off')
 ax4.TickLength = [0.03,0.03];
 %%
-subplot(2,4,3);
-%
-p1 = plot(timeVector,procData.interWhisk.zDiameter.mean,'color',colors('vegas gold'),'LineWidth',2);
+subplot(3,4,5);
+L1 = semilogx(data.Rest.zDiameter.meanHbTf,data.Rest.zDiameter.meanHbTC,'color',colorRest,'LineWidth',2);
 hold on
-plot(timeVector,procData.interWhisk.zDiameter.mean + procData.interWhisk.zDiameter.std,'color',colors('vegas gold'),'LineWidth',0.5)
-plot(timeVector,procData.interWhisk.zDiameter.mean - procData.interWhisk.zDiameter.std,'color',colors('vegas gold'),'LineWidth',0.5)
-%
-p2 = plot(timeVector,procData.stimSolenoid.zDiameter.mean,'color',colors('dark candy apple red'),'LineWidth',2);
-plot(timeVector,procData.stimSolenoid.zDiameter.mean + procData.stimSolenoid.zDiameter.std,'color',colors('dark candy apple red'),'LineWidth',0.5)
-plot(timeVector,procData.stimSolenoid.zDiameter.mean - procData.stimSolenoid.zDiameter.std,'color',colors('dark candy apple red'),'LineWidth',0.5)
-%
-p3 = plot(timeVector,procData.controlSolenoid.zDiameter.mean,'color',colors('deep carrot orange'),'LineWidth',2);
-hold on
-plot(timeVector,procData.controlSolenoid.zDiameter.mean + procData.controlSolenoid.zDiameter.std,'color',colors('deep carrot orange'),'LineWidth',0.5)
-plot(timeVector,procData.controlSolenoid.zDiameter.mean - procData.controlSolenoid.zDiameter.std,'color',colors('deep carrot orange'),'LineWidth',0.5)
-ylabel('\DeltaZ Units')
-xlabel('Time (s)')
-legend([p1,p2,p3],'Whisk','Stim','Aud')
+rectangle('Position',[0.005,0.1,0.1 - 0.005,1],'FaceColor','w','EdgeColor','w')
+L2 = semilogx(data.NREM.zDiameter.meanHbTf,data.NREM.zDiameter.meanHbTC,'color',colorNREM,'LineWidth',2);
+rectangle('Position',[0.005,0.1,1/30 - 0.005,1],'FaceColor','w','EdgeColor','w')
+L3 = semilogx(data.REM.zDiameter.meanHbTf,data.REM.zDiameter.meanHbTC,'color',colorREM,'LineWidth',2);
+rectangle('Position',[0.005,0.1,1/60 - 0.005,1],'FaceColor','w','EdgeColor','w')
+L4 = semilogx(data.Awake.zDiameter.meanHbTf,data.Awake.zDiameter.meanHbTC,'color',colorAlert,'LineWidth',2);
+L5 = semilogx(data.Asleep.zDiameter.meanHbTf,data.Asleep.zDiameter.meanHbTC,'color',colorAsleep,'LineWidth',2);
+L6 = semilogx(data.All.zDiameter.meanHbTf,data.All.zDiameter.meanHbTC,'color',colorAll,'LineWidth',2);
+xline(1/10,'color','k');
+xline(1/30,'color','k');
+xline(1/60,'color','k');
+title('HbT and zDiameter')
+ylabel('Coherence')
+xlabel('Freq (Hz)')
+legend([L1,L2,L3,L4,L5,L6],'Rest','NREM','REM','Alert','Asleep','All','Location','NorthEast')
+% axis square
+xlim([0.003,1])
+ylim([0,1])
 set(gca,'box','off')
-xlim([-2,10])
-axis square
+%% HbT:Pupil Stats
+% 0.003:0.01
+% 0.3:0.5
 %%
-subplot(2,4,4);
+subplot(3,4,7);
+L1 = semilogx(data.Rest.zDiameter.meangammaf,data.Rest.zDiameter.meangammaC,'color',colorRest,'LineWidth',2);
+hold on
+rectangle('Position',[0.005,0.1,0.1 - 0.005,1],'FaceColor','w','EdgeColor','w')
+L2 = semilogx(data.NREM.zDiameter.meangammaf,data.NREM.zDiameter.meangammaC,'color',colorNREM,'LineWidth',2);
+rectangle('Position',[0.005,0.1,1/30 - 0.005,1],'FaceColor','w','EdgeColor','w')
+L3 = semilogx(data.REM.zDiameter.meangammaf,data.REM.zDiameter.meangammaC,'color',colorREM,'LineWidth',2);
+rectangle('Position',[0.005,0.1,1/60 - 0.005,1],'FaceColor','w','EdgeColor','w')
+L4 = semilogx(data.Awake.zDiameter.meangammaf,data.Awake.zDiameter.meangammaC,'color',colorAlert,'LineWidth',2);
+L5 = semilogx(data.Asleep.zDiameter.meangammaf,data.Asleep.zDiameter.meangammaC,'color',colorAsleep,'LineWidth',2);
+L6 = semilogx(data.All.zDiameter.meangammaf,data.All.zDiameter.meangammaC,'color',colorAll,'LineWidth',2);
+xline(1/10,'color','k');
+xline(1/30,'color','k');
+xline(1/60,'color','k');
+title('gamma-band and zDiameter')
+ylabel('Coherence')
+xlabel('Freq (Hz)')
+% axis square
+xlim([0.003,1])
+ylim([0,1])
+set(gca,'box','off')
+%% Gamma:Pupil Stats
+% 0.003:0.01
+% 0.3:0.5
+%%
+subplot(3,6,13);
 freq = 30;
 lagSec = 30;
 plot(data.Rest.zDiameter.meanLags,data.Rest.zDiameter.meanXcVals,'color',colorRest);
@@ -349,52 +385,13 @@ ylabel('Correlation')
 title('zDiameter')
 axis square
 set(gca,'box','off')
-%%
-subplot(2,2,3);
-L1 = semilogx(data.Rest.zDiameter.meanHbTf,data.Rest.zDiameter.meanHbTC,'color',colorRest,'LineWidth',2);
-hold on
-rectangle('Position',[0.005,0.1,0.1 - 0.005,1],'FaceColor','w','EdgeColor','w')
-L2 = semilogx(data.NREM.zDiameter.meanHbTf,data.NREM.zDiameter.meanHbTC,'color',colorNREM,'LineWidth',2);
-rectangle('Position',[0.005,0.1,1/30 - 0.005,1],'FaceColor','w','EdgeColor','w')
-L3 = semilogx(data.REM.zDiameter.meanHbTf,data.REM.zDiameter.meanHbTC,'color',colorREM,'LineWidth',2);
-rectangle('Position',[0.005,0.1,1/60 - 0.005,1],'FaceColor','w','EdgeColor','w')
-L4 = semilogx(data.Awake.zDiameter.meanHbTf,data.Awake.zDiameter.meanHbTC,'color',colorAlert,'LineWidth',2);
-L5 = semilogx(data.Asleep.zDiameter.meanHbTf,data.Asleep.zDiameter.meanHbTC,'color',colorAsleep,'LineWidth',2);
-L6 = semilogx(data.All.zDiameter.meanHbTf,data.All.zDiameter.meanHbTC,'color',colorAll,'LineWidth',2);
-xline(1/10,'color','k');
-xline(1/30,'color','k');
-xline(1/60,'color','k');
-title('HbT and zDiameter')
-ylabel('Coherence')
-xlabel('Freq (Hz)')
-legend([L1,L2,L3,L4,L5,L6],'Rest','NREM','REM','Alert','Asleep','All','Location','SouthEast')
-% axis square
-xlim([0.003,1])
-ylim([0,1])
-set(gca,'box','off')
-%%
-subplot(2,2,4);
-L1 = semilogx(data.Rest.zDiameter.meangammaf,data.Rest.zDiameter.meangammaC,'color',colorRest,'LineWidth',2);
-hold on
-rectangle('Position',[0.005,0.1,0.1 - 0.005,1],'FaceColor','w','EdgeColor','w')
-L2 = semilogx(data.NREM.zDiameter.meangammaf,data.NREM.zDiameter.meangammaC,'color',colorNREM,'LineWidth',2);
-rectangle('Position',[0.005,0.1,1/30 - 0.005,1],'FaceColor','w','EdgeColor','w')
-L3 = semilogx(data.REM.zDiameter.meangammaf,data.REM.zDiameter.meangammaC,'color',colorREM,'LineWidth',2);
-rectangle('Position',[0.005,0.1,1/60 - 0.005,1],'FaceColor','w','EdgeColor','w')
-L4 = semilogx(data.Awake.zDiameter.meangammaf,data.Awake.zDiameter.meangammaC,'color',colorAlert,'LineWidth',2);
-L5 = semilogx(data.Asleep.zDiameter.meangammaf,data.Asleep.zDiameter.meangammaC,'color',colorAsleep,'LineWidth',2);
-L6 = semilogx(data.All.zDiameter.meangammaf,data.All.zDiameter.meangammaC,'color',colorAll,'LineWidth',2);
-xline(1/10,'color','k');
-xline(1/30,'color','k');
-xline(1/60,'color','k');
-title('gamma-band and zDiameter')
-ylabel('Coherence')
-xlabel('Freq (Hz)')
-legend([L1,L2,L3,L4,L5,L6],'Rest','NREM','REM','Alert','Asleep','All','Location','SouthEast')
-% axis square
-xlim([0.003,1])
-ylim([0,1])
-set(gca,'box','off')
+%% HbT XCorr stats
+% peak (awake,NREM,REM)
+% time-to-peak (awake, NREM, REM)
+%% Gamma XCorr
+%% Gamma XCorr
+% peak stats (Alert, Asleep, All)
+% time-to-peak (alert, asleep, all)
 %% save figure(s)
 if saveFigs == true
     dirpath = [rootFolder delim 'Summary Figures and Structures' delim];
