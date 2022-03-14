@@ -1,4 +1,3 @@
-function [] = RunPupilTracker_iterativeCorrection_backup(procDataFileIDs)
 %________________________________________________________________________________________________________________________
 % Written by Kyle W. Gheres & Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -8,6 +7,11 @@ function [] = RunPupilTracker_iterativeCorrection_backup(procDataFileIDs)
 %   Purpose: Track changes in pupil area and detect periods of blinking
 %________________________________________________________________________________________________________________________
 
+clear; clc;
+procDataFileIDs = uigetfile('*ProcData.mat','multiselect','on');
+if iscell(procDataFileIDs)
+    procDataFileIDs = procDataFileIDs';
+end
 %% create/load pre-existing ROI file with the coordinates
 ROIFileDir = dir('*_PupilData.mat');
 if isempty(ROIFileDir) == true
@@ -567,7 +571,7 @@ for cc = 1:size(procDataFileIDs,1)
         endEdgeB = [];
         for aa = 1:length(linkedDiffIndex)
             if edgeFoundB == false
-                if (linkedDiffIndex(1,aa) == 1) == true && (aa < length(linkedDiffIndex)) == true
+                if linkedDiffIndex(1,aa) == 1 && (length(linkedDiffIndex) < aa) == true
                     startEdgeB(xx,1) = aa;
                     edgeFoundB = true;
                 end
@@ -648,7 +652,7 @@ for cc = 1:size(procDataFileIDs,1)
             mkdir(dirpath);
         end
         savefig(trackingFig,[dirpath animalID '_' fileID '_Tracking']);
-        close(trackingFig)
+%         close(trackingFig)
         % end
     end
 end

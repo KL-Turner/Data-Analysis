@@ -14,7 +14,7 @@
 %   Last Revised:
 %________________________________________________________________________________________________________________________
 
-zap;
+clear; clc;
 % User inputs for file information
 procDataFileID = uigetfile('*_ProcData.mat','MultiSelect','off');
 load(procDataFileID)
