@@ -9,9 +9,8 @@ function [] = CreateModelDataSet_IOS(procDataFileIDs)
 
 for a = 1:size(procDataFileIDs,1)
     procDataFileID = procDataFileIDs(a,:);
-    modelDataSetID = [procDataFileID(1:end-12) 'ModelData.mat'];
+    modelDataSetID = [procDataFileID(1:end - 12) 'ModelData.mat'];
     load(procDataFileID)
-    disp(['Creating model data set for ' procDataFileID '... (' num2str(a) '/' num2str(size(procDataFileIDs,1)) ')' ]); disp(' ')
     %% Create table to send into model
     variableNames = {'maxCortDelta','maxCortBeta','maxCortGamma','maxHippTheta','numWhiskEvents','avgEMG','avgHeartRate'};
     % pre-allocation

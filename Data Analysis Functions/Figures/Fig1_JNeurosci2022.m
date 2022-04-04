@@ -1,4 +1,4 @@
-function [] = Fig1_TBD(rootFolder,saveFigs,delim)
+function [] = Fig1_JNeurosci2022(rootFolder,saveFigs,delim)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -20,7 +20,7 @@ dataStructure = 'Results_Example.mat';
 load(dataStructure)
 %% tracking algorithm images
 % subplot for eye ROI
-Fig1A = figure('Name','Figure Panel 1 - Turner et al. 2022');
+Fig1A = figure('Name','Figure Panel 1 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
 subplot(2,2,1)
 imagesc(Results_Example.workingImg)
 hold on;
@@ -36,12 +36,13 @@ Results_Example.pupilHist = histogram(Results_Example.threshImg((Results_Example
 hold on;
 plot(Results_Example.pupilHist.BinEdges,Results_Example.normFit,'r','LineWidth',2);
 xline(Results_Example.intensityThresh,'--m','LineWidth',1);
-title('Histogram of image pixel intensities')
-xlabel('Pixel intensities');
-ylabel('Bin Counts');
-legend({'Normalized Bin Counts','MLE fit of data','Pupil intensity threshold'},'Location','northwest');
+title('Histogram of image pixel intensity')
+xlabel('Pixel intensity');
+ylabel('Bin Count');
+legend({'Normalized bin counts','MLE fit of data','Pupil intensity threshold'},'Location','northwest');
 xlim([0,256]);
 axis square
+set(gca,'box','off')
 % subplot for radon transform
 subplot(2,2,3)
 imagesc(Results_Example.saveRadonImg)
@@ -52,7 +53,7 @@ axis image
 axis off
 % subplot for measured pupil area
 subplot(2,2,4)
-imagesc(Results_Example.overlay);
+imagesc(Results_Example.overlay(:,:,:,1));
 title('Calculated pupil area')
 colormap gray
 axis image
@@ -63,12 +64,12 @@ if saveFigs == true
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
-    savefig(Fig1A,[dirpath 'Fig1A']);
+    savefig(Fig1A,[dirpath 'Fig1A_JNeurosci2022']);
     set(Fig1A,'PaperPositionMode','auto');
-    print('-vector','-dpdf','-fillpage',[dirpath 'Fig1A'])
+    print('-vector','-dpdf','-fillpage',[dirpath 'Fig1A_JNeurosci2022'])
 end
 %% example pupil/eye images
-Fig1B = figure('Name','Figure Panel 1 - Turner et al. 2022');
+Fig1B = figure('Name','Figure Panel 1 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
 sgtitle('Representative eye/blink images')
 subplot(1,7,1)
 imagesc(Results_Example.images(:,:,1));
@@ -118,16 +119,18 @@ if saveFigs == true
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
-    savefig(Fig1B,[dirpath 'Fig1B']);
+    savefig(Fig1B,[dirpath 'Fig1B_JNeurosci2022']);
     set(Fig1B,'PaperPositionMode','auto');
-    print('-painters','-dpdf','-fillpage',[dirpath 'Fig1B'])
+    print('-vector','-dpdf','-fillpage',[dirpath 'Fig1B_JNeurosci2022'])
 end
 %% example trial
-Fig1C =  figure('Name','Figure Panel 1 - Turner et al. 2022');
+Fig1C =  figure('Name','Figure Panel 1 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
 sgtitle('Example trial')
 % pupil
 ax12 = subplot(6,1,[1,2]);
-p1 = plot((1:length(Results_Example.filtPupilArea))/Results_Example.dsFs,Results_Example.filtPupilArea,'color',colors('black'));
+p1 = plot((1:length(Results_Example.filtPupilDiameter))/Results_Example.dsFs,Results_Example.filtPupilDiameter,'color',colors('black'));
+blinkInds = find(Results_Example.blinkTimes > 1); 
+Results_Example.blinkTimes(blinkInds) = max(Results_Example.filtPupilDiameter);
 hold on;
 s1 = scatter((1:length(Results_Example.blinkTimes))/Results_Example.dsFs,Results_Example.blinkTimes,'r');
 x1 = xline(1200/Results_Example.dsFs,'g');
@@ -138,7 +141,7 @@ xline(18510/Results_Example.dsFs,'g')
 xline(23458/Results_Example.dsFs,'g')
 xline(26332/Results_Example.dsFs,'g')
 xlabel('Time (sec)')
-ylabel('\DeltaPupil area (pixels)')
+ylabel('Diameter (mm)')
 set(gca,'Xticklabel',[])
 set(gca,'box','off')
 xticks([0,60,120,180,240,300,360,420,480,540,600,660,720,780,840,900])
@@ -197,15 +200,15 @@ if saveFigs == true
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
-    savefig(Fig1C,[dirpath 'Fig1C']);
+    savefig(Fig1C,[dirpath 'Fig1C_JNeurosci2022']);
     % remove surface subplots because they take forever to render
     cla(ax6);
     set(ax6,'YLim',[1,99]);
     set(Fig1C,'PaperPositionMode','auto');
-    print('-painters','-dpdf','-fillpage',[dirpath 'Fig1C'])
+    print('-vector','-dpdf','-fillpage',[dirpath 'Fig1C_JNeurosci2022'])
     close(Fig1C)
     % subplot figure
-    subplotImgs = figure;
+    subplotImgs = figure('Name','Figure Panel 1 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
     % example 1 LH cortical LFP
     Semilog_ImageSC(Results_Example.T,Results_Example.F,Results_Example.hippocampusNormS,'y')
     caxis([-100,100])
@@ -214,14 +217,14 @@ if saveFigs == true
     axis tight
     axis off
     xlim([0,900])
-    print('-painters','-dtiffn',[dirpath 'Fig1_SpecImages'])
+    print('-vector','-dtiffn',[dirpath 'Fig1_SpecImages_JNeurosci2022'])
     close(subplotImgs)
     % remake original figure
-    figure('Name','Figure Panel 1 - Turner et al. 2022');
+    figure('Name','Figure Panel 1 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
     sgtitle('Example trial')
     % pupil
     ax12 = subplot(6,1,[1,2]);
-    p1 = plot((1:length(Results_Example.filtPupilArea))/Results_Example.dsFs,Results_Example.filtPupilArea,'color',colors('black'));
+    p1 = plot((1:length(Results_Example.filtPupilDiameter))/Results_Example.dsFs,Results_Example.filtPupilDiameter,'color',colors('black'));
     hold on;
     s1 = scatter((1:length(Results_Example.blinkTimes))/Results_Example.dsFs,Results_Example.blinkTimes,'r');
     x1 = xline(1200/Results_Example.dsFs,'g');
@@ -232,7 +235,7 @@ if saveFigs == true
     xline(23458/Results_Example.dsFs,'g')
     xline(26332/Results_Example.dsFs,'g')
     xlabel('Time (sec)')
-    ylabel('\DeltaPupil area (pixels)')
+    ylabel('Diameter (mm)')
     set(gca,'Xticklabel',[])
     set(gca,'box','off')
     xticks([0,60,120,180,240,300,360,420,480,540,600,660,720,780,840,900])

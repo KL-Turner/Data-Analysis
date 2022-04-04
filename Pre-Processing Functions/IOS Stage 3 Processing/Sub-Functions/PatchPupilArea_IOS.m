@@ -10,7 +10,7 @@ function [] = PatchPupilArea_IOS(procDataFileID)
 %________________________________________________________________________________________________________________________
 
 load(procDataFileID)
-% if isfield(ProcData.data.Pupil,'pupilPatch') == false %#ok<NODEF>
+if isfield(ProcData.data.Pupil,'pupilPatch') == false %#ok<NODEF>
     [animalID,~,fileID] = GetFileInfo_IOS(procDataFileID);
     % expected number of frames based on trial duration and sampling rate
     expectedSamples = ProcData.notes.trialDuration_sec*ProcData.notes.pupilCamSamplingRate;
@@ -19,18 +19,10 @@ load(procDataFileID)
     framesPerIndex = ceil(sampleDiff/length(droppedFrameIndex));
     blinks = ProcData.data.Pupil.blinkInds;
     %% patch NaN values
-    try
-        pupilArea = ProcData.data.Pupil.originalPupilArea;
-        pupilMajor = ProcData.data.Pupil.originalPupilArea;
-        pupilMinor = ProcData.data.Pupil.originalPupilArea;
-        pupilCentroid = ProcData.data.Pupil.originalPupilArea;
-    catch
-        ProcData.data.Pupil.originalPupilArea = ProcData.data.Pupil.pupilArea;
-        pupilArea = ProcData.data.Pupil.pupilArea;
-    end
+    pupilArea = ProcData.data.Pupil.pupilArea;
     nanLogical = isnan(pupilArea);
     nanIndex = find(nanLogical == 1);
-    if sum(nanLogical) > 1 && sum(nanLogical) < 10000
+    if sum(nanLogical) > 1 && sum(nanLogical) < 1000
         while sum(nanLogical) >= 1
             pupilArea = fillmissing(pupilArea,'movmedian',3);
             nanLogical = isnan(pupilArea);
@@ -87,7 +79,7 @@ load(procDataFileID)
             % concatenate the original data for the first index, then the new patched data for all subsequent
             % indeces. Take the values from 1:left edge, add in the new frames, then right edge to end.
             if cc == 1
-                patchFrameVals = interp1(1:length(pupilArea),pupilArea,patchFrameInds);   % linear interp
+                patchFrameVals = interp1(1:length(pupilArea),pupilArea,patchFrameInds); % linear interp
                 snipPatchFrameVals = patchFrameVals(2:end - 1);
                 try
                     patchedPupilArea = horzcat(pupilArea(1:leftEdge),snipPatchFrameVals,pupilArea(rightEdge:end));
@@ -95,7 +87,7 @@ load(procDataFileID)
                     patchedPupilArea = horzcat(pupilArea(1:end),snipPatchFrameVals);
                 end
             else
-                patchFrameVals = interp1(1:length(patchedPupilArea),patchedPupilArea,patchFrameInds);   % linear interp
+                patchFrameVals = interp1(1:length(patchedPupilArea),patchedPupilArea,patchFrameInds); % linear interp
                 snipPatchFrameVals = patchFrameVals(2:end - 1);
                 patchedPupilArea = horzcat(patchedPupilArea(1:leftEdge),snipPatchFrameVals,patchedPupilArea(rightEdge:end));
             end
@@ -131,6 +123,6 @@ load(procDataFileID)
     ProcData.data.Pupil.pupilArea = patchedPupilArea;
     ProcData.data.Pupil.pupilPatch = 'y';
     save(procDataFileID,'ProcData')
-% end
+end
 
 end

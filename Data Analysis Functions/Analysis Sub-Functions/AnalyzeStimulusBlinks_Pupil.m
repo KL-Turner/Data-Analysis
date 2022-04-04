@@ -58,9 +58,8 @@ for aa = 1:size(procDataFileIDs,1)
             linkThresh = 0.5;   % seconds, Link events < 0.5 seconds apart
             breakThresh = 0;   % seconds changed by atw on 2/6/18 from 0.07
             binWhiskerAngle = [0,ProcData.data.binWhiskerAngle,0];
-            binWhiskers = LinkBinaryEvents_IOS(gt(binWhiskerAngle,0),[linkThresh breakThresh]*30);          
-            binWidth = 5;
-            bins = 5*binWidth;
+            binWhiskers = binWhiskerAngle;
+%             binWhiskers = LinkBinaryEvents_IOS(gt(binWhiskerAngle,0),[linkThresh breakThresh]*30);          
             for tt = 1:length(stimSamples)
                 stimSample = stimSamples(1,tt);
                 blinkGroup = [];
@@ -104,7 +103,7 @@ for aa = 1:size(procDataFileIDs,1)
                         cc = cc + 1;
                     else
                         timeDifference = stimBlinks(1,bb) - stimBlinks(1,bb - 1);
-                        if timeDifference > 6
+                        if timeDifference > 30
                             condensedBlinkTimes(1,cc) = stimBlinks(1,bb);
                             cc = cc + 1;
                         end

@@ -1,4 +1,4 @@
-function [] = Fig3_TBD(rootFolder,saveFigs,delim)
+function [] = Fig3_JNeurosci2022(rootFolder,saveFigs,delim)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -35,7 +35,6 @@ data.meanBinProb = mean(data.binProb,1);
 data.stdBinProb = std(data.binProb,0,1);
 data.meanIndBinProb = mean(data.indBinProb,1);
 data.stdIndBinProb = std(data.indBinProb,0,1);
-
 
 resultsStruct = 'Results_BlinkResponses';
 load(resultsStruct);
@@ -158,7 +157,7 @@ for aa = 1:length(animalIDs)
     allBlinkDuration = cat(1,allBlinkDuration,Results_InterBlinkInterval.(animalID).allDurations);
 end
 %% figures
-Fig3 = figure('Name','Figure Panel 3 - Turner et al. 2022');
+Fig3 = figure('Name','Figure Panel 3 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
 %%
 subplot(2,4,1)
 title('Interblink interval vs. blink duration')
@@ -246,13 +245,13 @@ ylim([0,100])
 axis square
 %% save figure(s)
 if saveFigs == true
-    dirpath = [rootFolder delim 'Summary Figures and Structures' delim];
+    dirpath = [rootFolder delim 'Summary Figures and Structures' delim ' Figure Panels' delim];
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
-    savefig(Fig3,[dirpath 'Fig3_TBD']);
+    savefig(Fig3,[dirpath 'Fig3_JNeurosci2022']);
     set(Fig3,'PaperPositionMode','auto');
-    print('-painters','-dpdf','-bestfit',[dirpath 'Fig3_TBD'])
+    print('-vector','-dpdf','-bestfit',[dirpath 'Fig3_JNeurosci2022'])
 end
 
 end

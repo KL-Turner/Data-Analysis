@@ -28,10 +28,17 @@ EMG = ProcData.data.EMG.emg;
 % heart rate
 heartRate = ProcData.data.heartRate;
 % stimulations
-LPadSol = ProcData.data.stimulations.LPadSol;
-RPadSol = ProcData.data.stimulations.RPadSol;
-AudSol = ProcData.data.stimulations.AudSol;
-OptoLED = ProcData.data.stimulations.OptoLED;
+try
+    LPadSol = ProcData.data.stimulations.LPadSol;
+    RPadSol = ProcData.data.stimulations.RPadSol;
+    AudSol = ProcData.data.stimulations.AudSol;
+    OptoLED = ProcData.data.stimulations.OptoLED;
+catch
+    LPadSol = ProcData.data.solenoids.LPadSol;
+    RPadSol = ProcData.data.solenoids.RPadSol;
+    AudSol = ProcData.data.solenoids.AudSol;
+    OptoLED = [];
+end
 % CBV data
 if strcmp(imagingType,'bilateral') == true || strcmpi(imagingType,'GCaMP') == true
     if strcmp(hemoType,'reflectance') == true

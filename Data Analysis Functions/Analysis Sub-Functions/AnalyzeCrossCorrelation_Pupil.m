@@ -15,7 +15,7 @@ modelType = 'Forest';
 params.minTime.Rest = 10;
 params.minTime.NREM = 30;
 params.minTime.REM = 60;
-%% load in relevent data structures 
+%% load in relevent data structures
 dataLocation = [rootFolder delim 'Data' delim animalID delim 'Bilateral Imaging'];
 cd(dataLocation)
 % identify and load RestData.mat struct
@@ -99,6 +99,7 @@ for aa = 1:length(dataTypes)
             end
         end
         % run cross correlation between data types
+        restXcVals = [];
         if isempty(catRestData) == false
             restLagTime = 5; % seconds
             restFrequency = samplingRate; % Hz
@@ -161,13 +162,14 @@ for aa = 1:length(dataTypes)
             end
         end
         % process, filter + detrend each array
+        alertXcVals = [];
         if isempty(alertData) == false
             for ee = 1:length(alertData)
                 alertProcData.data{ee,1} = filtfilt(sos,g,detrend(alertData{ee,1},'constant'));
                 alertProcData.pupil{ee,1} = filtfilt(sos,g,detrend(alertPupilData{ee,1},'constant'));
             end
             % set parameters for cross-correlation analysis
-            alertLagTime = 10; % seconds
+            alertLagTime = 30; % seconds
             alertFrequency = samplingRate; % Hz
             alertMaxLag = alertLagTime*alertFrequency;
             % run cross-correlation analysis - average through time
@@ -227,13 +229,14 @@ for aa = 1:length(dataTypes)
             end
         end
         % process, filter + detrend each array
+        asleepXcVals = [];
         if isempty(asleepData) == false
             for ee = 1:length(asleepData)
                 asleepProcData.data{ee,1} = filtfilt(sos,g,detrend(asleepData{ee,1},'constant'));
                 asleepProcData.pupil{ee,1} = filtfilt(sos,g,detrend(asleepPupilData{ee,1},'constant'));
             end
             % set parameters for cross-correlation analysis
-            asleepLagTime = 10; % seconds
+            asleepLagTime = 30; % seconds
             asleepFrequency = samplingRate; % Hz
             asleepMaxLag = asleepLagTime*asleepFrequency;
             % run cross-correlation analysis - average through time
@@ -284,13 +287,14 @@ for aa = 1:length(dataTypes)
             end
         end
         % process, filter + detrend each array
+        allXcVals = [];
         if isempty(allData) == false
             for dd = 1:length(allData)
                 allProcData.data{dd,1} = filtfilt(sos,g,detrend(allData{dd,1},'constant'));
                 allProcData.pupil{dd,1} = filtfilt(sos,g,detrend(allPupilData{dd,1},'constant'));
             end
             % set parameters for cross-correlation analysis
-            allLagTime = 10; % seconds
+            allLagTime = 30; % seconds
             allFrequency = samplingRate; % Hz
             allMaxLag = allLagTime*allFrequency;
             % run cross-correlation analysis - average through time
@@ -326,9 +330,11 @@ for aa = 1:length(dataTypes)
                         dd = dd + 1;
                     end
                 end
+                % process, filter + detrend each array
+                NREM_xcVals = [];
                 if isempty(NREM_finalVals) == false
                     % run cross-correlation analysis - average through time
-                    NREM_lagTime = 5; % seconds
+                    NREM_lagTime = 15; % seconds
                     NREM_frequency = samplingRate; % Hz
                     NREM_maxLag = NREM_lagTime*NREM_frequency;
                     for ee = 1:length(NREM_finalVals)
@@ -369,9 +375,11 @@ for aa = 1:length(dataTypes)
                         dd = dd + 1;
                     end
                 end
+                % process, filter + detrend each array
+                REM_xcVals = [];
                 if isempty(REM_finalVals) == false
                     % run cross-correlation analysis - average through time
-                    REM_lagTime = 5; % seconds
+                    REM_lagTime = 15; % seconds
                     REM_frequency = samplingRate; % Hz
                     REM_maxLag = REM_lagTime*REM_frequency;
                     for ee = 1:length(REM_finalVals)

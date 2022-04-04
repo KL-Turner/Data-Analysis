@@ -522,7 +522,7 @@ for cc = 1:size(procDataFileIDs,1)
         endEdgeA = [];
         for aa = 1:length(linkedBlinkIndex)
             if edgeFoundA == false
-                if linkedBlinkIndex(1,aa) == 1
+                if linkedBlinkIndex(1,aa) == 1 && (aa < length(linkedBlinkIndex)) == true
                     startEdgeA(xx,1) = aa;
                     edgeFoundA = true;
                 end

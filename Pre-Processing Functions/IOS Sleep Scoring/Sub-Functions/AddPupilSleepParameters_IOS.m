@@ -15,7 +15,10 @@ for a = 1:size(procDataFileIDs,1)
         dataTypes = {'pupilArea','diameter','mmArea','mmDiameter','zArea','zDiameter'};
         for aa = 1:length(dataTypes)
             dataType = dataTypes{1,aa};
-            data.(dataType).data = ProcData.data.Pupil.(dataType);
+            samplingRate = ProcData.notes.dsFs;
+            [z,p,k] = butter(4,1/(samplingRate/2),'low');
+            [sos,g] = zp2sos(z,p,k);
+            data.(dataType).data = filtfilt(sos,g,ProcData.data.Pupil.(dataType));
             data.(dataType).struct = cell(180,1);           
             % loop through all samples across the 15 minutes in 5 second bins (180 total)
             for b = 1:180

@@ -75,6 +75,7 @@ for aa = 1:size(procDataFileIDs,1)
         end
         % condense blinks
         condensedBlinkTimes = [];
+        durations = [];
         if isempty(blinkEvents) == false
             cc = 1;
             for bb = 1:length(blinkEvents)

@@ -208,10 +208,7 @@ for cc = 1:size(procDataFileIDs,1)
     end
     load(char(procDataFileID))
     disp(['Checking pupil tracking status of file (' num2str(cc) '/' num2str(size(procDataFileIDs,1)) ')']); disp(' ')
-    % if isfield(ProcData.data,'Pupil') == false
-    if isfield(ProcData.data.Pupil,'algorithmUpdate') == false
-        ProcData.data.Pupil.originalPupilArea = ProcData.data.Pupil.pupilArea;
-        ProcData.data.Pupil.originalBlinkInds = ProcData.data.Pupil.blinkInds;
+    if isfield(ProcData.data,'Pupil') == false
         [animalID,fileDate,fileID] = GetFileInfo_IOS(procDataFileID);
         strDay = ConvertDate_IOS(fileDate);
         pupilCamFileID = [fileID '_PupilCam.bin'];
@@ -526,7 +523,7 @@ for cc = 1:size(procDataFileIDs,1)
         endEdgeA = [];
         for aa = 1:length(linkedBlinkIndex)
             if edgeFoundA == false
-                if linkedBlinkIndex(1,aa) == 1
+                if linkedBlinkIndex(1,aa) == 1 && (aa < length(linkedBlinkIndex)) == true
                     startEdgeA(xx,1) = aa;
                     edgeFoundA = true;
                 end
@@ -652,7 +649,7 @@ for cc = 1:size(procDataFileIDs,1)
             mkdir(dirpath);
         end
         savefig(trackingFig,[dirpath animalID '_' fileID '_Tracking']);
-%         close(trackingFig)
+        close(trackingFig)
         % end
     end
 end

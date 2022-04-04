@@ -13,19 +13,19 @@ for a = 1:size(procDataFileIDs,1)
     load(procDataFileID)
     if strcmp(ProcData.data.Pupil.diameterCheck,'y') == true
         %% Create table to send into model
-        variableNames = {'zDiameter','numWhiskEvents'};
+        variableNames = {'zDiameter','mmDiameter'};
         % pre-allocation
-        numWhiskEvents_column = zeros(180,1);
-        avgPupilArea_column = zeros(180,1);
+        avgZDiameter_column = zeros(180,1);
+        avgmmDiameter_column = zeros(180,1);
         % extract relevant parameters from each epoch
-        for b = 1:length(numWhiskEvents_column)
+        for b = 1:length(avgZDiameter_column)
             % number of binarized whisking events
-            numWhiskEvents_column(b,1) = sum(ProcData.sleep.parameters.binWhiskerAngle{b,1});
             % average pupil area
-            avgPupilArea_column(b,1) = round(mean(ProcData.sleep.parameters.Pupil.zDiameter{b,1},'omitnan'),2);
+            avgZDiameter_column(b,1) = mean(ProcData.sleep.parameters.Pupil.zDiameter{b,1},'omitnan');
+            avgmmDiameter_column(b,1) = mean(ProcData.sleep.parameters.Pupil.mmDiameter{b,1},'omitnan');
         end
         % create table
-        pupilParamsTable = table(avgPupilArea_column,numWhiskEvents_column,'VariableNames',variableNames);
+        pupilParamsTable = table(avgZDiameter_column,avgmmDiameter_column,'VariableNames',variableNames);
         save(pupilModelDataSetID,'pupilParamsTable')
     end
 end

@@ -43,20 +43,18 @@ for aa = 1:length(animalIDs)
                 else
                     diameterBinSamples = ProcData.data.Pupil.zDiameter((cc - 1)*samplesPerBin + 1:cc*samplesPerBin);
                 end
-                diameterAllCatMeans = cat(1,diameterAllCatMeans,nanmean(diameterBinSamples));
+                diameterAllCatMeans = cat(1,diameterAllCatMeans,mean(diameterBinSamples,'omitnan'));
             end
         end
     end
 end
 %% put each mean and scoring label into a cell
-% minDiameter = floor(min(diameterAllCatMeans)/100)*10;
-% maxDiameter = ceil(max(diameterAllCatMeans)/100)*10;]
-minDiameter = 0;
-maxDiameter = 6150;
-stepSize = 10;
+minDiameter = floor(min(diameterAllCatMeans) - 0.1);
+maxDiameter = ceil(max(diameterAllCatMeans) + 0.1);
+stepSize = 0.1;
 awakeBins = minDiameter:stepSize:maxDiameter;
-cutDown = 100;
-cutUp = 3500;
+cutDown = -8;
+cutUp = 6.5;
 probBinLabels = cell(length(minDiameter:stepSize:maxDiameter),1);
 probBinMeans = cell(length(minDiameter:stepSize:maxDiameter),1);
 discBins = discretize(diameterAllCatMeans,awakeBins);
@@ -112,17 +110,29 @@ for gg = 1:length(finCatLabels)
         end
     end
 end
+% strcmp the bins and if the bin is not in REM (Awake/NREM) set to 0, else set 1
+for gg = 1:length(finCatLabels)
+    for hh = 1:length(finCatLabels{gg,1})
+        if strcmp(finCatLabels{gg,1}{hh,1},'NREM Sleep') == true || strcmp(finCatLabels{gg,1}{hh,1},'REM Sleep') == true
+            asleepProbEvents{gg,1}(hh,1) = 1;
+        else
+            asleepProbEvents{gg,1}(hh,1) = 0;
+        end
+    end
+end
 % take probability of each bin
 for ii = 1:length(awakeProbEvents)
     awakeProbPerc(ii,1) = sum(awakeProbEvents{ii,1})/length(awakeProbEvents{ii,1})*100;
     nremProbPerc(ii,1) = sum(nremProbEvents{ii,1})/length(nremProbEvents{ii,1})*100;
     remProbPerc(ii,1) = sum(remProbEvents{ii,1})/length(remProbEvents{ii,1})*100;
+    asleepProbPerc(ii,1) = sum(asleepProbEvents{ii,1})/length(asleepProbEvents{ii,1})*100;
 end
 % save results
 Results_SleepProbability.diameterCatMeans = diameterAllCatMeans;
 Results_SleepProbability.awakeProbPerc = awakeProbPerc;
 Results_SleepProbability.nremProbPerc = nremProbPerc;
 Results_SleepProbability.remProbPerc = remProbPerc;
+Results_SleepProbability.asleepProbPerc = asleepProbPerc;
 % save data
 cd([rootFolder delim])
 save('Results_SleepProbability.mat','Results_SleepProbability')

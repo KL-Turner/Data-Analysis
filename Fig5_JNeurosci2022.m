@@ -1,4 +1,4 @@
-function [] = Fig5_TBD(rootFolder,saveFigs,delim)
+function [] = Fig5_JNeurosci2022(rootFolder,saveFigs,delim)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -110,7 +110,7 @@ end
 [HbTStats.h,HbTStats.p,HbTStats.ci,HbTStats.stats] = ttest2(data.HbT.Awake.leadC035,data.HbT.Awake.lagC035,'Alpha',0.01);
 [GammaStats.h,GammaStats.p,GammaStats.ci,GammaStats.stats] = ttest2(data.gamma.Awake.leadC035,data.gamma.Awake.lagC035,'Alpha',0.01);
 %%
-Fig5 =  figure('Name','Figure Panel 5 - Turner et al. 2022');
+Fig5A =  figure('Name','Figure Panel 2 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
 ax1 = subplot(2,4,1);
 Semilog_ImageSC(data.HbT.Awake.meanT,data.HbT.Awake.meanF,data.HbT.Awake.meanC,'y')
 c1 = colorbar;
@@ -252,15 +252,15 @@ if saveFigs == true
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
-    savefig(Fig5,[dirpath 'Fig5_TBD']);
+    savefig(Fig5A,[dirpath 'Fig5A_JNeurosci2022']);
     % remove surface subplots because they take forever to render
     cla(ax1);
     set(ax1,'YLim',[0,3]);
     cla(ax2);
     set(ax2,'YLim',[0,3]);
-    set(Fig5,'PaperPositionMode','auto');
-    print('-painters','-dpdf','-bestfit',[dirpath 'Fig5_TBD'])
-    close(Fig5)
+    set(Fig5A,'PaperPositionMode','auto');
+    print('-vector','-dpdf','-bestfit',[dirpath 'Fig5A_JNeurosci2022'])
+    close(Fig5A)
     % subplot figure
     subplotImgs = figure;
     % example 1 LH cortical LFP
@@ -278,9 +278,9 @@ if saveFigs == true
     axis xy
     axis off
     set(gca,'box','off')
-    print('-painters','-dtiffn',[dirpath 'Fig5_CohImages'])
+    print('-vector','-dtiffn',[dirpath 'Fig5_CohImages'])
     close(subplotImgs)
-    figure('Name','Figure Panel 5 - Turner et al. 2022');
+    figure('Name','Figure Panel 5 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
     subplot(2,4,1);
     Semilog_ImageSC(data.HbT.Awake.meanT,data.HbT.Awake.meanF,data.HbT.Awake.meanC,'y')
     c1 = colorbar;

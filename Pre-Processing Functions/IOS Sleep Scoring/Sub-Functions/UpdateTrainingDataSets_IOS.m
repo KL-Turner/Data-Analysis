@@ -10,8 +10,8 @@ function [] = UpdateTrainingDataSets_IOS(procDataFileIDs)
 
 for a = 1:size(procDataFileIDs,1)
     procDataFileID = procDataFileIDs(a,:);
-    modelDataSetID = [procDataFileID(1:end-12) 'ModelData.mat'];
-    trainingDataSetID = [procDataFileID(1:end-12) 'TrainingData.mat'];
+    modelDataSetID = [procDataFileID(1:end - 12) 'ModelData.mat'];
+    trainingDataSetID = [procDataFileID(1:end - 12) 'TrainingData.mat'];
     load(modelDataSetID)
     load(trainingDataSetID)
     disp(['Updating training data set for ' trainingDataSetID '...' ]); disp(' ')

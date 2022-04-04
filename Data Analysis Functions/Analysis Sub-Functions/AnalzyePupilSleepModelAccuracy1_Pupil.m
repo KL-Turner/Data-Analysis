@@ -1,4 +1,4 @@
-function [] = AnalzyePupilSleepModelAccuracy2_Pupil(animalIDs,rootFolder,delim)
+function [] = AnalzyePupilSleepModelAccuracy1_Pupil(animalIDs,rootFolder,delim)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering

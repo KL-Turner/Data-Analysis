@@ -1,4 +1,4 @@
-function [] = Fig2_TBD(rootFolder,saveFigs,delim)
+function [] = Fig2_JNeurosci2022(rootFolder,saveFigs,delim)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -411,7 +411,7 @@ gammaPeakTable.Hemisphere = cat(1,data.XCorr.Rest.zDiameter.LH,data.XCorr.Rest.z
 gammaPeakFitFormula = 'Peak ~ 1 + Behavior + (1|Mouse) + (1|Mouse:Hemisphere)';
 gammaPeakStats = fitglme(gammaPeakTable,gammaPeakFitFormula); %#ok<*NASGU>
 %% figures
-Fig2 = figure('Name','Figure Panel 2 - Turner et al. 2022');
+Fig2A = figure('Name','Figure Panel 2 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
 %%
 subplot(3,4,1);
 %
@@ -738,17 +738,16 @@ axis square
 set(gca,'box','off')
 %% save figure(s)
 if saveFigs == true
-    dirpath = [rootFolder delim 'Summary Figures and Structures' delim];
+    dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'Figure Panels' delim];
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
-    savefig(Fig2,[dirpath 'Fig2_TBD']);
-    set(Fig2,'PaperPositionMode','auto');
-    print('-painters','-dpdf','-bestfit',[dirpath 'Fig2_TBD'])
+    savefig(Fig2A,[dirpath 'Fig2A_JNeurosci2022']);
+    set(Fig2A,'PaperPositionMode','auto');
+    print('-vector','-dpdf','-bestfit',[dirpath 'Fig2A_JNeurosci2022'])
 end
-
 %%
-figure;
+Fig2B = figure('Name','Figure Panel 2 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
 subplot(2,2,1)
 scatter(ones(1,length(data.XCorr.Rest.zDiameter.peak_HbT))*1,data.XCorr.Rest.zDiameter.peak_HbT,75,'MarkerEdgeColor','k','MarkerFaceColor',colorRest,'jitter','on','jitterAmount',0.25);
 hold on
@@ -932,5 +931,15 @@ axis square
 xlim([0,7])
 set(gca,'box','off')
 ax2.TickLength = [0.03,0.03];
+%% save figure(s)
+if saveFigs == true
+    dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'Figure Panels' delim];
+    if ~exist(dirpath,'dir')
+        mkdir(dirpath);
+    end
+    savefig(Fig2B,[dirpath 'Fig2B_JNeurosci2022']);
+    set(Fig2B,'PaperPositionMode','auto');
+    print('-vector','-dpdf','-bestfit',[dirpath 'Fig2B_JNeurosci2022'])
+end
 
 end

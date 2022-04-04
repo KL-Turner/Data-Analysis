@@ -1,4 +1,4 @@
-function [] = Fig3_TBD(rootFolder,saveFigs,delim)
+function [] = Fig4_JNeurosci2022(rootFolder,saveFigs,delim)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -6,36 +6,6 @@ function [] = Fig3_TBD(rootFolder,saveFigs,delim)
 %
 % Purpose:
 %________________________________________________________________________________________________________________________
-
-%% variables for loops
-resultsStruct = 'Results_BlinkPeriodogram';
-load(resultsStruct);
-data.f2 = Results_BlinkPeriodogram.results.f;
-data.pxx = Results_BlinkPeriodogram.results.pxx;
-data.meanPxx = mean(data.pxx,2,'omitnan');
-data.meanF2 = data.f2;
-%% variables for loops
-resultsStruct = 'Results_StimulusBlinks';
-load(resultsStruct);
-animalIDs = fieldnames(Results_StimulusBlinks);
-%% pre-allocate data structure
-data.stimPerc = []; data.binProb = []; data.indBinProb = []; data.duration = [];
-% cd through each animal's directory and extract the appropriate analysis results
-for aa = 1:length(animalIDs)
-    animalID = animalIDs{aa,1};
-    data.stimPerc = cat(1,data.stimPerc,Results_StimulusBlinks.(animalID).stimPercentage);
-    data.duration = cat(1,data.duration,Results_StimulusBlinks.(animalID).stimPercentageDuration);
-    data.binProb = cat(1,data.binProb,Results_StimulusBlinks.(animalID).binProbability);
-    data.indBinProb = cat(1,data.indBinProb,Results_StimulusBlinks.(animalID).indBinProbability);
-end
-data.meanStimPerc = mean(data.stimPerc,1);
-data.stdStimPerc = std(data.stimPerc,0,1);
-data.meanDuration = mean(data.duration,1);
-data.meanBinProb = mean(data.binProb,1);
-data.stdBinProb = std(data.binProb,0,1);
-data.meanIndBinProb = mean(data.indBinProb,1);
-data.stdIndBinProb = std(data.indBinProb,0,1);
-
 
 resultsStruct = 'Results_BlinkResponses';
 load(resultsStruct);
@@ -123,136 +93,204 @@ for bb = 1:length(blinkStates)
     data.(blinkState).meanWhisk_F = mean(data.(blinkState).whisk_F*100,1);
     data.(blinkState).stdWhisk_F = std(data.(blinkState).whisk_F*100,0,1)./sqrt(size(data.(blinkState).whisk_F,1));
 end
-
-
-
-%% variables for loops
-resultsStruct = 'Results_BlinkTransition';
-load(resultsStruct);
-animalIDs = fieldnames(Results_BlinkTransition);
-% take data from each animal corresponding to the CBV-gamma relationship
-catAwakeMat = [];
-catNremMat = [];
-catRemMat = [];
-for aa = 1:length(animalIDs)
-    animalID = animalIDs{aa,1};
-    catAwakeMat = cat(1,catAwakeMat,Results_BlinkTransition.(animalID).awakeProbabilityMatrix);
-    catNremMat = cat(1,catNremMat,Results_BlinkTransition.(animalID).nremProbabilityMatrix);
-    catRemMat = cat(1,catRemMat,Results_BlinkTransition.(animalID).remProbabilityMatrix);
-end
-% average probability
-awakeProbability = smooth(mean(catAwakeMat,1))*100;
-nremProbability = smooth(mean(catNremMat,1))*100;
-remProbability = smooth(mean(catRemMat,1))*100;
-
-%% variables for loops
-resultsStruct = 'Results_InterBlinkInterval';
-load(resultsStruct);
-animalIDs = fieldnames(Results_InterBlinkInterval);
-interblink = []; blinkDuration = []; allInterBlink = []; allBlinkDuration = [];
-for aa = 1:length(animalIDs)
-    animalID = animalIDs{aa,1};
-    interblink = cat(1,interblink,mean(Results_InterBlinkInterval.(animalID).interBlinkInterval));
-    allInterBlink = cat(1,allInterBlink,Results_InterBlinkInterval.(animalID).interBlinkInterval);
-    blinkDuration = cat(1,blinkDuration,mean(Results_InterBlinkInterval.(animalID).allDurations));
-    allBlinkDuration = cat(1,allBlinkDuration,Results_InterBlinkInterval.(animalID).allDurations);
-end
-%% figures
-Fig3 = figure('Name','Figure Panel 3 - Turner et al. 2022');
-%%
-subplot(2,4,1)
-title('Interblink interval vs. blink duration')
-scatter(blinkDuration,interblink)
+%% HbT
+Fig4A = figure('Name','Figure Panel 4 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
+subplot(4,4,1);
+plot(timeVector,data.Awake.meanHbT_T,'color',colors('smoky black'),'LineWidth',2);
+hold on
+plot(timeVector,data.Awake.meanHbT_T + data.Awake.stdHbT_T,'color',colors('smoky black'),'LineWidth',0.5)
+plot(timeVector,data.Awake.meanHbT_T - data.Awake.stdHbT_T,'color',colors('smoky black'),'LineWidth',0.5)
+title('Low Whisk Blink Awake HbT')
+ylabel('\DeltaHbT (\muM)')
+xlabel('Peri-blink time (s)')
+set(gca,'box','off')
+xlim([-10,10])
 axis square
-%%
-subplot(2,4,2)
-title('Interblink interval histogram')
-histogram(allInterBlink,'Normalization','Probability')
+subplot(4,4,2);
+plot(timeVector,data.Awake.meanHbT_F,'color',colors('smoky black'),'LineWidth',2);
+hold on
+plot(timeVector,data.Awake.meanHbT_F + data.Awake.stdHbT_F,'color',colors('smoky black'),'LineWidth',0.5)
+plot(timeVector,data.Awake.meanHbT_F - data.Awake.stdHbT_F,'color',colors('smoky black'),'LineWidth',0.5)
+title('High Whisk Blink Awake HbT')
+ylabel('\DeltaHbT (\muM)')
+xlabel('Peri-blink time (s)')
+set(gca,'box','off')
+xlim([-10,10])
 axis square
-%%
-subplot(2,4,3)
-semilogx(data.meanF1,data.meanS)
-title('Power Spectrum')
+subplot(4,4,3);
+plot(timeVector,data.Asleep.meanHbT_T,'color',colors('smoky black'),'LineWidth',2);
+hold on
+plot(timeVector,data.Asleep.meanHbT_T + data.Asleep.stdHbT_T,'color',colors('smoky black'),'LineWidth',0.5)
+plot(timeVector,data.Asleep.meanHbT_T - data.Asleep.stdHbT_T,'color',colors('smoky black'),'LineWidth',0.5)
+title('Low Whisk Blink Asleep HbT')
+ylabel('\DeltaHbT (\muM)')
+xlabel('Peri-blink time (s)')
+set(gca,'box','off')
+xlim([-10,10])
+axis square
+subplot(4,4,4);
+plot(timeVector,data.Asleep.meanHbT_F,'color',colors('smoky black'),'LineWidth',2);
+hold on
+plot(timeVector,data.Asleep.meanHbT_F + data.Asleep.stdHbT_F,'color',colors('smoky black'),'LineWidth',0.5)
+plot(timeVector,data.Asleep.meanHbT_F - data.Asleep.stdHbT_F,'color',colors('smoky black'),'LineWidth',0.5)
+title('High Whisk Blink Asleep HbT')
+ylabel('\DeltaHbT (\muM)')
+xlabel('Peri-blink time (s)')
+set(gca,'box','off')
+xlim([-10,10])
+axis square
+%% EMG
+subplot(4,4,5);
+plot(timeVector,data.Awake.meanEMG_T,'color',colors('smoky black'),'LineWidth',2);
+hold on
+plot(timeVector,data.Awake.meanEMG_T + data.Awake.stdEMG_T,'color',colors('smoky black'),'LineWidth',0.5)
+plot(timeVector,data.Awake.meanEMG_T - data.Awake.stdEMG_T,'color',colors('smoky black'),'LineWidth',0.5)
+title('Awake EMG')
 ylabel('Power (a.u.)')
-xlabel('Freq (Hz)')
+xlabel('Peri-blink time (s)')
 set(gca,'box','off')
-xlim([0.003,1]);
+xlim([-10,10])
 axis square
-%%
-subplot(2,4,4)
-semilogx(data.meanF2,data.meanPxx)
-title('Lomb-Scargle Periodogram')
+subplot(4,4,6);
+plot(timeVector,data.Awake.meanEMG_F,'color',colors('smoky black'),'LineWidth',2);
+hold on
+plot(timeVector,data.Awake.meanEMG_F + data.Awake.stdEMG_F,'color',colors('smoky black'),'LineWidth',0.5)
+plot(timeVector,data.Awake.meanEMG_F - data.Awake.stdEMG_F,'color',colors('smoky black'),'LineWidth',0.5)
+title('Awake EMG')
 ylabel('Power (a.u.)')
-xlabel('Freq (Hz)')
+xlabel('Peri-blink time (s)')
 set(gca,'box','off')
-xlim([0.003,1]);
+xlim([-10,10])
 axis square
-%%
-subplot(2,4,5)
-p1 = plot(timeVector,data.Awake.meanWhisk,'k','LineWidth',2);
+subplot(4,4,7);
+plot(timeVector,data.Asleep.meanEMG_T,'color',colors('smoky black'),'LineWidth',2);
 hold on
-plot(timeVector,data.Awake.meanWhisk + data.Awake.stdWhisk,'k','LineWidth',0.5)
-plot(timeVector,data.Awake.meanWhisk - data.Awake.stdWhisk,'k','LineWidth',0.5)
-p2 = plot(timeVector,data.Asleep.meanWhisk,'r','LineWidth',2);
-plot(timeVector,data.Asleep.meanWhisk + data.Asleep.stdWhisk,'r','LineWidth',0.5)
-plot(timeVector,data.Asleep.meanWhisk - data.Asleep.stdWhisk,'r','LineWidth',0.5)
-xlabel('Time (s)')
-ylabel('Probability (%)')
-title('Whisk probability before/after blink')
-legend([p1,p2],'Awake','Asleep')
+plot(timeVector,data.Asleep.meanEMG_T + data.Asleep.stdEMG_T,'color',colors('smoky black'),'LineWidth',0.5)
+plot(timeVector,data.Asleep.meanEMG_T - data.Asleep.stdEMG_T,'color',colors('smoky black'),'LineWidth',0.5)
+title('Asleep EMG')
+ylabel('Power (a.u.)')
+xlabel('Peri-blink time (s)')
 set(gca,'box','off')
+xlim([-10,10])
 axis square
-%%
-subplot(2,4,6)
-plot(0.5:0.5:5,data.meanBinProb,'k','LineWidth',2)
-hold on; 
-plot(0.5:0.5:5,data.meanBinProb + data.stdBinProb,'k','LineWidth',0.5)
-plot(0.5:0.5:5,data.meanBinProb - data.stdBinProb,'k','LineWidth',0.5)
-title('Probability of defensive blinking post-stimulus')
-ylabel('Time (s)')
-xlabel('Probability (%)')
-set(gca,'box','off')
-xlim([0,5]);
-axis square
-%%
-subplot(2,4,7)
-scatter(data.duration,data.stimPerc,75,'MarkerEdgeColor','k','MarkerFaceColor','k');
+subplot(4,4,8);
+plot(timeVector,data.Asleep.meanEMG_F,'color',colors('smoky black'),'LineWidth',2);
 hold on
-e1 = errorbar(data.meanDuration,data.meanStimPerc,data.stdStimPerc,'d','MarkerEdgeColor','k','MarkerFaceColor','g');
-e1.Color = 'black';
-e1.MarkerSize = 10;
-e1.CapSize = 10;
-title('Probability of defensive blinking post-whisker stimulus')
-xlabel('Peri-blink whisk duration (s)')
-ylabel('Probability (%)')
+plot(timeVector,data.Asleep.meanEMG_F + data.Asleep.stdEMG_F,'color',colors('smoky black'),'LineWidth',0.5)
+plot(timeVector,data.Asleep.meanEMG_F - data.Asleep.stdEMG_F,'color',colors('smoky black'),'LineWidth',0.5)
+title('Asleep EMG')
+ylabel('Power (a.u.)')
+xlabel('Peri-blink time (s)')
 set(gca,'box','off')
-% xlim([0.5,1.5]);
+xlim([-10,10])
 axis square
-%%
-subplot(2,4,8)
-p1 = plot(awakeProbability);
-hold on
-p2 = plot(nremProbability);
-p3 = plot(remProbability);
-x1 = xline(7);
-title('Arousal state probability adjacent to blinking')
-xlabel('Time (sec)')
-ylabel('Probability (%)')
-legend([p1,p2,p3,x1],'Awake','NREM','REM','Blink')
-xticks([1,3,5,7,9,11,13])
-xticklabels({'-30','-20','-10','0','10','20','30'})
-xlim([1,13])
-ylim([0,100])
+%% CORT
+subplot(4,4,9);
+imagesc(T,F,data.Awake.meanCort_T)
+title('Awake Cortical LFP')
+ylabel('Freq (Hz)')
+xlabel('Peri-blink time (s)')
+set(gca,'box','off')
+xlim([-10,10])
+caxis([-20,20]) 
+c1 = colorbar;
+ylabel(c1,'\DeltaP/P (%)','rotation',-90,'VerticalAlignment','bottom')
 axis square
+axis xy
+subplot(4,4,10);
+imagesc(T,F,data.Awake.meanCort_F)
+title('Awake Cortical LFP')
+ylabel('Freq (Hz)')
+xlabel('Peri-blink time (s)')
+set(gca,'box','off')
+xlim([-10,10])
+caxis([-20,20]) 
+c2 = colorbar;
+ylabel(c2,'\DeltaP/P (%)','rotation',-90,'VerticalAlignment','bottom')
+axis square
+axis xy
+subplot(4,4,11);
+imagesc(T,F,data.Asleep.meanCort_T)
+title('Asleep Cortical LFP')
+ylabel('Freq (Hz)')
+xlabel('Peri-blink time (s)')
+set(gca,'box','off')
+xlim([-10,10])
+caxis([-100,100]) 
+c3 = colorbar;
+ylabel(c3,'\DeltaP/P (%)','rotation',-90,'VerticalAlignment','bottom')
+axis square
+axis xy
+subplot(4,4,12);
+imagesc(T,F,data.Asleep.meanCort_F)
+title('Asleep Cortical LFP')
+ylabel('Freq (Hz)')
+xlabel('Peri-blink time (s)')
+set(gca,'box','off')
+xlim([-10,10])
+caxis([-100,100]) 
+c4 = colorbar;
+ylabel(c4,'\DeltaP/P (%)','rotation',-90,'VerticalAlignment','bottom')
+axis square
+axis xy
+%% HIP
+subplot(4,4,13);
+imagesc(T,F,data.Awake.meanHip_T)
+title('Awake Hippocampal LFP')
+ylabel('Freq (Hz)')
+xlabel('Peri-blink time (s)')
+set(gca,'box','off')
+xlim([-10,10])
+caxis([-20,20]) 
+c5 = colorbar;
+ylabel(c5,'\DeltaP/P (%)','rotation',-90,'VerticalAlignment','bottom')
+axis square
+axis xy
+subplot(4,4,14);
+imagesc(T,F,data.Awake.meanHip_F)
+title('Awake Hippocampal LFP')
+ylabel('Freq (Hz)')
+xlabel('Peri-blink time (s)')
+set(gca,'box','off')
+xlim([-10,10])
+caxis([-20,20]) 
+c6 = colorbar;
+ylabel(c6,'\DeltaP/P (%)','rotation',-90,'VerticalAlignment','bottom')
+axis square
+axis xy
+subplot(4,4,15);
+imagesc(T,F,data.Asleep.meanHip_T)
+title('Asleep Hippocampal LFP')
+ylabel('Freq (Hz)')
+xlabel('Peri-blink time (s)')
+set(gca,'box','off')
+xlim([-10,10])
+caxis([-100,100]) 
+c7 = colorbar;
+ylabel(c7,'\DeltaP/P (%)','rotation',-90,'VerticalAlignment','bottom')
+axis square
+axis xy
+subplot(4,4,16);
+imagesc(T,F,data.Asleep.meanHip_F)
+title('Asleep Hippocampal LFP')
+ylabel('Freq (Hz)')
+xlabel('Peri-blink time (s)')
+set(gca,'box','off')
+xlim([-10,10])
+caxis([-100,100]) 
+c8 = colorbar;
+ylabel(c8,'\DeltaP/P (%)','rotation',-90,'VerticalAlignment','bottom')
+axis square
+axis xy
 %% save figure(s)
 if saveFigs == true
-    dirpath = [rootFolder delim 'Summary Figures and Structures' delim];
+    dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'Figure Panels' delim];
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
-    savefig(Fig3,[dirpath 'Fig3_TBD']);
-    set(Fig3,'PaperPositionMode','auto');
-    print('-painters','-dpdf','-bestfit',[dirpath 'Fig3_TBD'])
+    savefig(Fig4A,[dirpath 'Fig4_JNeurosci2022']);
+    set(Fig4A,'PaperPositionMode','auto');
+    print('-vector','-dpdf','-bestfit',[dirpath 'Fig4_JNeurosci2022'])
 end
 
 end

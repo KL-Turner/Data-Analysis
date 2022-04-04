@@ -4,7 +4,7 @@ function [] = AnalyzeBlinkPeriodogram_Pupil_Handler(rootFolder,delim,runFromStar
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %
-% Purpose: 
+% Purpose:
 %________________________________________________________________________________________________________________________
 
 % create or load results structure
@@ -33,6 +33,36 @@ for bb = 1:length(animalIDs)
     end
     multiWaitbar('Analyzing blinking Lomb-Scargle periodogram','Value',aa/waitBarLength);
     aa = aa + 1;
+end
+
+if isfield(Results_BlinkPeriodogram,'results') == false  
+    %% pre-allocate data structure
+    data.f1 = []; data.S = []; data.blinkArray = [];
+    % cd through each animal's directory and extract the appropriate analysis results
+    for aa = 1:length(animalIDs)
+        animalID = animalIDs{aa,1};
+        data.blinkArray = cat(2,data.blinkArray,Results_BlinkPeriodogram.(animalID).blinkArray);
+        data.S = cat(2,data.S,Results_BlinkPeriodogram.(animalID).S);
+        data.f1 = cat(1,data.f1,Results_BlinkPeriodogram.(animalID).f);
+    end
+    data.meanS = mean(data.S,2);
+    data.meanF1 = mean(data.f1,1);
+    %% mean/std
+    [data.pxx,data.f2] = plomb(data.blinkArray,2);
+    bb = 1; pxx2 = [];
+    for aa = 1:length(animalIDs)
+        animalID = animalIDs{aa,1};
+        avgLen = size(Results_BlinkPeriodogram.(animalID).blinkArray,2);
+        if bb == 1
+            pxx2(:,aa) = mean(data.pxx(:,bb:bb + avgLen),2);
+        else
+            pxx2(:,aa) = mean(data.pxx(:,bb + 1:bb + avgLen - 1),2);
+        end
+        bb = bb + avgLen;
+    end
+    Results_BlinkPeriodogram.results.f = data.f2;
+    Results_BlinkPeriodogram.results.pxx = pxx2;
+    save('Results_BlinkPeriodogram.mat','Results_BlinkPeriodogram')
 end
 
 end

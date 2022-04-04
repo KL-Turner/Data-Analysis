@@ -19,7 +19,7 @@ for a = 1:size(procDataFileIDs,1)
     % hippocampal delta
     hippDelta = ProcData.data.hippocampus.deltaBandPower;
     hippBaselineDelta = RestingBaselines.(baselineType).hippocampus.deltaBandPower.(strDay).mean;
-    hippDeltaNeuro = (hippDelta-hippBaselineDelta)/hippBaselineDelta; 
+    hippDeltaNeuro = (hippDelta - hippBaselineDelta)/hippBaselineDelta; 
     % cortical delta
     LH_Delta = ProcData.data.cortical_LH.deltaBandPower;
     RH_Delta = ProcData.data.cortical_RH.deltaBandPower;
