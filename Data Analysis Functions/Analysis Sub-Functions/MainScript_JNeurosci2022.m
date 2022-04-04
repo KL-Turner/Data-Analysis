@@ -52,11 +52,11 @@ end
 %% main figures
 disp('Loading analysis results and generating figures...'); disp(' ')
 saveFigs = true;
-Fig1_JNeurosci2022(rootFolder,saveFigs,delim)
+% Fig1_JNeurosci2022(rootFolder,saveFigs,delim)
 Fig2_JNeurosci2022(rootFolder,saveFigs,delim)
-Fig3_JNeurosci2022(rootFolder,saveFigs,delim)
-Fig4_JNeurosci2022(rootFolder,saveFigs,delim)
-Fig5_JNeurosci2022(rootFolder,saveFigs,delim)
-Fig6_JNeurosci2022(rootFolder,saveFigs,delim)
-TextReadOuts_JNeurosci2022()
+% Fig3_JNeurosci2022(rootFolder,saveFigs,delim)
+% Fig4_JNeurosci2022(rootFolder,saveFigs,delim)
+% Fig5_JNeurosci2022(rootFolder,saveFigs,delim)
+% Fig6_JNeurosci2022(rootFolder,saveFigs,delim)
+% TextReadOuts_JNeurosci2022()
 end

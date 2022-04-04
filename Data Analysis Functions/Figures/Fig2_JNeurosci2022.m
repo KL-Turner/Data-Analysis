@@ -48,15 +48,15 @@ end
 for dd = 1:length(dataTypes)
     dataType = dataTypes{1,dd};
     procData.briefWhisk.(dataType).mean = mean(data.briefWhisk.(dataType),1);
-    procData.briefWhisk.(dataType).std = std(data.briefWhisk.(dataType),0,1)./sqrt(size(data.briefWhisk.(dataType),1));
+    procData.briefWhisk.(dataType).sem = std(data.briefWhisk.(dataType),0,1)./sqrt(size(data.briefWhisk.(dataType),1));
     procData.interWhisk.(dataType).mean = mean(data.interWhisk.(dataType),1);
-    procData.interWhisk.(dataType).std = std(data.interWhisk.(dataType),0,1)./sqrt(size(data.interWhisk.(dataType),1));
+    procData.interWhisk.(dataType).sem = std(data.interWhisk.(dataType),0,1)./sqrt(size(data.interWhisk.(dataType),1));
     procData.extendWhisk.(dataType).mean = mean(data.extendWhisk.(dataType),1);
-    procData.extendWhisk.(dataType).std = std(data.extendWhisk.(dataType),0,1)./sqrt(size(data.extendWhisk.(dataType),1));
+    procData.extendWhisk.(dataType).sem = std(data.extendWhisk.(dataType),0,1)./sqrt(size(data.extendWhisk.(dataType),1));
     procData.stimSolenoid.(dataType).mean = mean(data.stimSolenoid.(dataType),1);
-    procData.stimSolenoid.(dataType).std = std(data.stimSolenoid.(dataType),0,1)./sqrt(size(data.stimSolenoid.(dataType),1));
+    procData.stimSolenoid.(dataType).sem = std(data.stimSolenoid.(dataType),0,1)./sqrt(size(data.stimSolenoid.(dataType),1));
     procData.controlSolenoid.(dataType).mean = mean(data.controlSolenoid.(dataType),1);
-    procData.controlSolenoid.(dataType).std = std(data.controlSolenoid.(dataType),0,1)./sqrt(size(data.controlSolenoid.(dataType),1));
+    procData.controlSolenoid.(dataType).sem = std(data.controlSolenoid.(dataType),0,1)./sqrt(size(data.controlSolenoid.(dataType),1));
 end
 %% pupil diameter during different arousel states
 resultsStruct = 'Results_BehavData.mat';
@@ -94,15 +94,34 @@ for ee = 1:length(behavFields)
     behavField = behavFields{1,ee};
     % diameter
     data.(behavField).meanDiameter = mean(data.(behavField).indMeanDiameter,1,'omitnan');
-    data.(behavField).stdDiameter = std(data.(behavField).indMeanDiameter,0,1,'omitnan');
+    data.(behavField).stdDiameter = std(data.(behavField).indMeanDiameter,0,1,'omitnan');%./sqrt(length(data.(behavField.indMeanDiameter)));
     realIndex = ~isnan(data.(behavField).indDiameter);
     data.(behavField).indDiameter = data.(behavField).indDiameter(realIndex);
     % z diameter
     data.(behavField).meanzDiameter = mean(data.(behavField).indMeanzDiameter,1,'omitnan');
-    data.(behavField).stdzDiameter = std(data.(behavField).indMeanzDiameter,0,1,'omitnan');
+    data.(behavField).stdzDiameter = std(data.(behavField).indMeanzDiameter,0,1,'omitnan');%./sqrt(length(data.(behavField.indMeanzDiameter)));
     realIndex = ~isnan(data.(behavField).indzDiameter);
     data.(behavField).indzDiameter = data.(behavField).indzDiameter(realIndex);
 end
+numComp = 4;
+% mm diameter
+[~,pWhisk_mm,~,~] = ttest2(data.Rest.indMeanDiameter,data.Whisk.indMeanDiameter); 
+disp(['Bonferroni-corrected p-value (Rest vs. Whisk mmDiameter): ' num2str(pWhisk_mm/numComp)]); disp(' ')
+[~,pStim_mm,~,~] = ttest2(data.Rest.indMeanDiameter,data.Stim.indMeanDiameter); 
+disp(['Bonferroni-corrected p-value (Rest vs. Stim mmDiameter): ' num2str(pStim_mm/numComp)]); disp(' ')
+[~,pNREM_mm,~,~] = ttest2(data.Rest.indMeanDiameter,data.NREM.indMeanDiameter); 
+disp(['Bonferroni-corrected p-value (Rest vs. NREM mmDiameter): ' num2str(pNREM_mm/numComp)]); disp(' ')
+[~,pREM_mm,~,~] = ttest2(data.Rest.indMeanDiameter,data.REM.indMeanDiameter); 
+disp(['Bonferroni-corrected p-value (Rest vs. REM mmDiameter): ' num2str(pREM_mm/numComp)]); disp(' ')
+% z diameter
+[~,pWhisk_z,~,~] = ttest2(data.Rest.indMeanDiameter,data.Whisk.indMeanzDiameter); 
+disp(['Bonferroni-corrected p-value (Rest vs. Whisk zDiameter): ' num2str(pWhisk_z/numComp)]); disp(' ')
+[~,pStim_z,~,~] = ttest2(data.Rest.indMeanDiameter,data.Stim.indMeanzDiameter); 
+disp(['Bonferroni-corrected p-value (Rest vs. Stim zDiameter): ' num2str(pStim_z/numComp)]); disp(' ')
+[~,pNREM_z,~,~] = ttest2(data.Rest.indMeanDiameter,data.NREM.indMeanzDiameter); 
+disp(['Bonferroni-corrected p-value (Rest vs. NREM zDiameter): ' num2str(pNREM_z/numComp)]); disp(' ')
+[~,pREM_z,~,~] = ttest2(data.Rest.indMeanDiameter,data.REM.indMeanzDiameter); 
+disp(['Bonferroni-corrected p-value (Rest vs. REM zDiameter): ' num2str(pREM_z/numComp)]); disp(' ')
 %% pupil power spectrum
 resultsStruct = 'Results_PowerSpectrum';
 load(resultsStruct);
@@ -140,7 +159,7 @@ for aa = 1:length(behavFields)
     for bb = 1:length(dataTypes)
         dataType = dataTypes{1,bb};
         data.(behavField).(dataType).meanS = mean(data.(behavField).(dataType).S,2);
-        data.(behavField).(dataType).stdS = std(data.(behavField).(dataType).S,0,2);
+        data.(behavField).(dataType).semS = std(data.(behavField).(dataType).S,0,2)./sqrt(size(data.(behavField).(dataType).S,2));
         data.(behavField).(dataType).meanf = mean(data.(behavField).(dataType).f,1);
     end
 end
@@ -185,12 +204,12 @@ for aa = 1:length(behavFields)
     for bb = 1:length(dataTypes)
         dataType = dataTypes{1,bb};
         data.Coherr.(behavField).(dataType).meanHbTC = mean(data.Coherr.(behavField).(dataType).HbTC,2);
-        data.Coherr.(behavField).(dataType).stdHbTC = std(data.Coherr.(behavField).(dataType).HbTC,0,2);
+        data.Coherr.(behavField).(dataType).semHbTC = std(data.Coherr.(behavField).(dataType).HbTC,0,2)./sqrt(size(data.Coherr.(behavField).(dataType).HbTC,2));
         data.Coherr.(behavField).(dataType).meanHbTf = mean(data.Coherr.(behavField).(dataType).HbTf,1);
         
-        data.Coherr.(behavField).(dataType).meangammaC = mean(data.Coherr.(behavField).(dataType).gammaC,2);
-        data.Coherr.(behavField).(dataType).stdgammaC = std(data.Coherr.(behavField).(dataType).gammaC,0,2);
-        data.Coherr.(behavField).(dataType).meangammaf = mean(data.Coherr.(behavField).(dataType).gammaf,1);
+        data.Coherr.(behavField).(dataType).meanGammaC = mean(data.Coherr.(behavField).(dataType).gammaC,2);
+        data.Coherr.(behavField).(dataType).semGammaC = std(data.Coherr.(behavField).(dataType).gammaC,0,2)./sqrt(size(data.Coherr.(behavField).(dataType).gammaC,2));
+        data.Coherr.(behavField).(dataType).meanGammaf = mean(data.Coherr.(behavField).(dataType).gammaf,1);
     end
 end
 % find 0.1/0.01 Hz peaks in coherence
@@ -368,27 +387,27 @@ for dd = 1:length(behavFields)
         % HbT XC mean/std
         data.XCorr.(behavField).(dataType).xcVals_HbT = cat(1,data.XCorr.(behavField).(dataType).LH_xcVals_HbT,data.XCorr.(behavField).(dataType).RH_xcVals_HbT);
         data.XCorr.(behavField).(dataType).meanXcVals_HbT = mean(data.XCorr.(behavField).(dataType).xcVals_HbT,1);
-        data.XCorr.(behavField).(dataType).stdXcVals_HbT = std(data.XCorr.(behavField).(dataType).xcVals_HbT,0,1)./sqrt(size(data.XCorr.(behavField).(dataType).xcVals_HbT,1));
+        data.XCorr.(behavField).(dataType).semXcVals_HbT = std(data.XCorr.(behavField).(dataType).xcVals_HbT,0,1)./sqrt(size(data.XCorr.(behavField).(dataType).xcVals_HbT,1));
         % HbT peak lag mean/std
         data.XCorr.(behavField).(dataType).peakLag_HbT = cat(1,data.XCorr.(behavField).(dataType).LH_peakLag_HbT,data.XCorr.(behavField).(dataType).RH_peakLag_HbT);
         data.XCorr.(behavField).(dataType).meanPeakLag_HbT = mean(data.XCorr.(behavField).(dataType).peakLag_HbT,1);
-        data.XCorr.(behavField).(dataType).stdPeakLag_HbT = std(data.XCorr.(behavField).(dataType).peakLag_HbT,0,1)./sqrt(size(data.XCorr.(behavField).(dataType).peakLag_HbT,1));
+        data.XCorr.(behavField).(dataType).stdPeakLag_HbT = std(data.XCorr.(behavField).(dataType).peakLag_HbT,0,1);%./sqrt(size(data.XCorr.(behavField).(dataType).peakLag_HbT,1));
         % HbT peak mean/std
         data.XCorr.(behavField).(dataType).peak_HbT = cat(1,data.XCorr.(behavField).(dataType).LH_peak_HbT,data.XCorr.(behavField).(dataType).RH_peak_HbT);
         data.XCorr.(behavField).(dataType).meanPeak_HbT = mean(data.XCorr.(behavField).(dataType).peak_HbT,1);
-        data.XCorr.(behavField).(dataType).stdPeak_HbT = std(data.XCorr.(behavField).(dataType).peak_HbT,0,1)./sqrt(size(data.XCorr.(behavField).(dataType).peak_HbT,1));
+        data.XCorr.(behavField).(dataType).stdPeak_HbT = std(data.XCorr.(behavField).(dataType).peak_HbT,0,1);%./sqrt(size(data.XCorr.(behavField).(dataType).peak_HbT,1));
         % Gamma XC mean/std
         data.XCorr.(behavField).(dataType).xcVals_gamma = cat(1,data.XCorr.(behavField).(dataType).LH_xcVals_gamma,data.XCorr.(behavField).(dataType).RH_xcVals_gamma);
         data.XCorr.(behavField).(dataType).meanXcVals_gamma = mean(data.XCorr.(behavField).(dataType).xcVals_gamma,1);
-        data.XCorr.(behavField).(dataType).stdXcVals_gamma = std(data.XCorr.(behavField).(dataType).xcVals_gamma,0,1)./sqrt(size(data.XCorr.(behavField).(dataType).xcVals_gamma,1));
+        data.XCorr.(behavField).(dataType).semXcVals_gamma = std(data.XCorr.(behavField).(dataType).xcVals_gamma,0,1)./sqrt(size(data.XCorr.(behavField).(dataType).xcVals_gamma,1));
         % Gamma peak lag mean/std
         data.XCorr.(behavField).(dataType).peakLag_gamma = cat(1,data.XCorr.(behavField).(dataType).LH_peakLag_gamma,data.XCorr.(behavField).(dataType).RH_peakLag_gamma);
         data.XCorr.(behavField).(dataType).meanPeakLag_gamma = mean(data.XCorr.(behavField).(dataType).peakLag_gamma,1);
-        data.XCorr.(behavField).(dataType).stdPeakLag_gamma = std(data.XCorr.(behavField).(dataType).peakLag_gamma,0,1)./sqrt(size(data.XCorr.(behavField).(dataType).peakLag_gamma,1));
+        data.XCorr.(behavField).(dataType).stdPeakLag_gamma = std(data.XCorr.(behavField).(dataType).peakLag_gamma,0,1);%./sqrt(size(data.XCorr.(behavField).(dataType).peakLag_gamma,1));
         % Gamma peak mean/std
         data.XCorr.(behavField).(dataType).peak_gamma = cat(1,data.XCorr.(behavField).(dataType).LH_peak_gamma,data.XCorr.(behavField).(dataType).RH_peak_gamma);
         data.XCorr.(behavField).(dataType).meanPeak_gamma = mean(data.XCorr.(behavField).(dataType).peak_gamma,1);
-        data.XCorr.(behavField).(dataType).stdPeak_gamma = std(data.XCorr.(behavField).(dataType).peak_gamma,0,1)./sqrt(size(data.XCorr.(behavField).(dataType).peak_gamma,1));
+        data.XCorr.(behavField).(dataType).stdPeak_gamma = std(data.XCorr.(behavField).(dataType).peak_gamma,0,1);%./sqrt(size(data.XCorr.(behavField).(dataType).peak_gamma,1));
         % Lags time vector
         data.XCorr.(behavField).(dataType).meanLags = mean(data.XCorr.(behavField).(dataType).lags,1);
     end
@@ -417,17 +436,17 @@ subplot(3,4,1);
 %
 p1 = plot(timeVector,procData.interWhisk.zDiameter.mean,'color',colors('vegas gold'),'LineWidth',2);
 hold on
-plot(timeVector,procData.interWhisk.zDiameter.mean + procData.interWhisk.zDiameter.std,'color',colors('vegas gold'),'LineWidth',0.5)
-plot(timeVector,procData.interWhisk.zDiameter.mean - procData.interWhisk.zDiameter.std,'color',colors('vegas gold'),'LineWidth',0.5)
+plot(timeVector,procData.interWhisk.zDiameter.mean + procData.interWhisk.zDiameter.sem,'color',colors('vegas gold'),'LineWidth',0.5)
+plot(timeVector,procData.interWhisk.zDiameter.mean - procData.interWhisk.zDiameter.sem,'color',colors('vegas gold'),'LineWidth',0.5)
 %
 p2 = plot(timeVector,procData.stimSolenoid.zDiameter.mean,'color',colors('dark candy apple red'),'LineWidth',2);
-plot(timeVector,procData.stimSolenoid.zDiameter.mean + procData.stimSolenoid.zDiameter.std,'color',colors('dark candy apple red'),'LineWidth',0.5)
-plot(timeVector,procData.stimSolenoid.zDiameter.mean - procData.stimSolenoid.zDiameter.std,'color',colors('dark candy apple red'),'LineWidth',0.5)
+plot(timeVector,procData.stimSolenoid.zDiameter.mean + procData.stimSolenoid.zDiameter.sem,'color',colors('dark candy apple red'),'LineWidth',0.5)
+plot(timeVector,procData.stimSolenoid.zDiameter.mean - procData.stimSolenoid.zDiameter.sem,'color',colors('dark candy apple red'),'LineWidth',0.5)
 %
 p3 = plot(timeVector,procData.controlSolenoid.zDiameter.mean,'color',colors('deep carrot orange'),'LineWidth',2);
 hold on
-plot(timeVector,procData.controlSolenoid.zDiameter.mean + procData.controlSolenoid.zDiameter.std,'color',colors('deep carrot orange'),'LineWidth',0.5)
-plot(timeVector,procData.controlSolenoid.zDiameter.mean - procData.controlSolenoid.zDiameter.std,'color',colors('deep carrot orange'),'LineWidth',0.5)
+plot(timeVector,procData.controlSolenoid.zDiameter.mean + procData.controlSolenoid.zDiameter.sem,'color',colors('deep carrot orange'),'LineWidth',0.5)
+plot(timeVector,procData.controlSolenoid.zDiameter.mean - procData.controlSolenoid.zDiameter.sem,'color',colors('deep carrot orange'),'LineWidth',0.5)
 ylabel('\DeltaZ Units')
 xlabel('Time (s)')
 title('Evoked pupil zDiameter')
@@ -534,14 +553,26 @@ set(gca,'box','off')
 subplot(3,4,5);
 semilogx(data.Coherr.Rest.zDiameter.meanHbTf,data.Coherr.Rest.zDiameter.meanHbTC,'color',colorRest,'LineWidth',2);
 hold on
+semilogx(data.Coherr.Rest.zDiameter.meanHbTf,data.Coherr.Rest.zDiameter.meanHbTC + data.Coherr.Rest.zDiameter.semHbTC,'color',colorRest,'LineWidth',0.5);
+semilogx(data.Coherr.Rest.zDiameter.meanHbTf,data.Coherr.Rest.zDiameter.meanHbTC - data.Coherr.Rest.zDiameter.semHbTC,'color',colorRest,'LineWidth',0.5);
 rectangle('Position',[0.005,0.1,0.1 - 0.005,1],'FaceColor','w','EdgeColor','w')
 semilogx(data.Coherr.NREM.zDiameter.meanHbTf,data.Coherr.NREM.zDiameter.meanHbTC,'color',colorNREM,'LineWidth',2);
+semilogx(data.Coherr.NREM.zDiameter.meanHbTf,data.Coherr.NREM.zDiameter.meanHbTC + data.Coherr.NREM.zDiameter.semHbTC,'color',colorNREM,'LineWidth',0.5);
+semilogx(data.Coherr.NREM.zDiameter.meanHbTf,data.Coherr.NREM.zDiameter.meanHbTC - data.Coherr.NREM.zDiameter.semHbTC,'color',colorNREM,'LineWidth',0.5);
 rectangle('Position',[0.005,0.1,1/30 - 0.005,1],'FaceColor','w','EdgeColor','w')
 semilogx(data.Coherr.REM.zDiameter.meanHbTf,data.Coherr.REM.zDiameter.meanHbTC,'color',colorREM,'LineWidth',2);
+semilogx(data.Coherr.REM.zDiameter.meanHbTf,data.Coherr.REM.zDiameter.meanHbTC + data.Coherr.REM.zDiameter.semHbTC,'color',colorREM,'LineWidth',0.5);
+semilogx(data.Coherr.REM.zDiameter.meanHbTf,data.Coherr.REM.zDiameter.meanHbTC - data.Coherr.REM.zDiameter.semHbTC,'color',colorREM,'LineWidth',0.5);
 rectangle('Position',[0.005,0.1,1/60 - 0.005,1],'FaceColor','w','EdgeColor','w')
 semilogx(data.Coherr.Awake.zDiameter.meanHbTf,data.Coherr.Awake.zDiameter.meanHbTC,'color',colorAlert,'LineWidth',2);
+semilogx(data.Coherr.Awake.zDiameter.meanHbTf,data.Coherr.Awake.zDiameter.meanHbTC + data.Coherr.Awake.zDiameter.semHbTC,'color',colorAlert,'LineWidth',0.5);
+semilogx(data.Coherr.Awake.zDiameter.meanHbTf,data.Coherr.Awake.zDiameter.meanHbTC - data.Coherr.Awake.zDiameter.semHbTC,'color',colorAlert,'LineWidth',0.5);
 semilogx(data.Coherr.Asleep.zDiameter.meanHbTf,data.Coherr.Asleep.zDiameter.meanHbTC,'color',colorAsleep,'LineWidth',2);
+semilogx(data.Coherr.Asleep.zDiameter.meanHbTf,data.Coherr.Asleep.zDiameter.meanHbTC + data.Coherr.Asleep.zDiameter.semHbTC,'color',colorAsleep,'LineWidth',0.5);
+semilogx(data.Coherr.Asleep.zDiameter.meanHbTf,data.Coherr.Asleep.zDiameter.meanHbTC - data.Coherr.Asleep.zDiameter.semHbTC,'color',colorAsleep,'LineWidth',0.5);
 semilogx(data.Coherr.All.zDiameter.meanHbTf,data.Coherr.All.zDiameter.meanHbTC,'color',colorAll,'LineWidth',2);
+semilogx(data.Coherr.All.zDiameter.meanHbTf,data.Coherr.All.zDiameter.meanHbTC + data.Coherr.All.zDiameter.semHbTC,'color',colorAll,'LineWidth',0.5);
+semilogx(data.Coherr.All.zDiameter.meanHbTf,data.Coherr.All.zDiameter.meanHbTC - data.Coherr.All.zDiameter.semHbTC,'color',colorAll,'LineWidth',0.5);
 xline(1/50,'color','b');
 xline(1/10,'color','k');
 xline(1/30,'color','k');
@@ -583,16 +614,28 @@ set(gca,'box','off')
 ax2.TickLength = [0.03,0.03];
 %%
 subplot(3,4,7);
-semilogx(data.Coherr.Rest.zDiameter.meangammaf,data.Coherr.Rest.zDiameter.meangammaC,'color',colorRest,'LineWidth',2);
+semilogx(data.Coherr.Rest.zDiameter.meanGammaf,data.Coherr.Rest.zDiameter.meanGammaC,'color',colorRest,'LineWidth',2);
 hold on
+semilogx(data.Coherr.Rest.zDiameter.meanGammaf,data.Coherr.Rest.zDiameter.meanGammaC + data.Coherr.Rest.zDiameter.semGammaC,'color',colorRest,'LineWidth',0.5);
+semilogx(data.Coherr.Rest.zDiameter.meanGammaf,data.Coherr.Rest.zDiameter.meanGammaC - data.Coherr.Rest.zDiameter.semGammaC,'color',colorRest,'LineWidth',0.5);
 rectangle('Position',[0.005,0.1,0.1 - 0.005,1],'FaceColor','w','EdgeColor','w')
-semilogx(data.Coherr.NREM.zDiameter.meangammaf,data.Coherr.NREM.zDiameter.meangammaC,'color',colorNREM,'LineWidth',2);
+semilogx(data.Coherr.NREM.zDiameter.meanGammaf,data.Coherr.NREM.zDiameter.meanGammaC,'color',colorNREM,'LineWidth',2);
+semilogx(data.Coherr.NREM.zDiameter.meanGammaf,data.Coherr.NREM.zDiameter.meanGammaC + data.Coherr.NREM.zDiameter.semGammaC,'color',colorNREM,'LineWidth',0.5);
+semilogx(data.Coherr.NREM.zDiameter.meanGammaf,data.Coherr.NREM.zDiameter.meanGammaC - data.Coherr.NREM.zDiameter.semGammaC,'color',colorNREM,'LineWidth',0.5);
 rectangle('Position',[0.005,0.1,1/30 - 0.005,1],'FaceColor','w','EdgeColor','w')
-semilogx(data.Coherr.REM.zDiameter.meangammaf,data.Coherr.REM.zDiameter.meangammaC,'color',colorREM,'LineWidth',2);
+semilogx(data.Coherr.REM.zDiameter.meanGammaf,data.Coherr.REM.zDiameter.meanGammaC,'color',colorREM,'LineWidth',2);
+semilogx(data.Coherr.REM.zDiameter.meanGammaf,data.Coherr.REM.zDiameter.meanGammaC + data.Coherr.REM.zDiameter.semGammaC,'color',colorREM,'LineWidth',0.5);
+semilogx(data.Coherr.REM.zDiameter.meanGammaf,data.Coherr.REM.zDiameter.meanGammaC - data.Coherr.REM.zDiameter.semGammaC,'color',colorREM,'LineWidth',0.5);
 rectangle('Position',[0.005,0.1,1/60 - 0.005,1],'FaceColor','w','EdgeColor','w')
-semilogx(data.Coherr.Awake.zDiameter.meangammaf,data.Coherr.Awake.zDiameter.meangammaC,'color',colorAlert,'LineWidth',2);
-semilogx(data.Coherr.Asleep.zDiameter.meangammaf,data.Coherr.Asleep.zDiameter.meangammaC,'color',colorAsleep,'LineWidth',2);
-semilogx(data.Coherr.All.zDiameter.meangammaf,data.Coherr.All.zDiameter.meangammaC,'color',colorAll,'LineWidth',2);
+semilogx(data.Coherr.Awake.zDiameter.meanGammaf,data.Coherr.Awake.zDiameter.meanGammaC,'color',colorAlert,'LineWidth',2);
+semilogx(data.Coherr.Awake.zDiameter.meanGammaf,data.Coherr.Awake.zDiameter.meanGammaC + data.Coherr.Awake.zDiameter.semGammaC,'color',colorAlert,'LineWidth',0.5);
+semilogx(data.Coherr.Awake.zDiameter.meanGammaf,data.Coherr.Awake.zDiameter.meanGammaC - data.Coherr.Awake.zDiameter.semGammaC,'color',colorAlert,'LineWidth',0.5);
+semilogx(data.Coherr.Asleep.zDiameter.meanGammaf,data.Coherr.Asleep.zDiameter.meanGammaC,'color',colorAsleep,'LineWidth',2);
+semilogx(data.Coherr.Asleep.zDiameter.meanGammaf,data.Coherr.Asleep.zDiameter.meanGammaC + data.Coherr.Asleep.zDiameter.semGammaC,'color',colorAsleep,'LineWidth',0.5);
+semilogx(data.Coherr.Asleep.zDiameter.meanGammaf,data.Coherr.Asleep.zDiameter.meanGammaC - data.Coherr.Asleep.zDiameter.semGammaC,'color',colorAsleep,'LineWidth',0.5);
+semilogx(data.Coherr.All.zDiameter.meanGammaf,data.Coherr.All.zDiameter.meanGammaC,'color',colorAll,'LineWidth',2);
+semilogx(data.Coherr.All.zDiameter.meanGammaf,data.Coherr.All.zDiameter.meanGammaC + data.Coherr.All.zDiameter.semGammaC,'color',colorAll,'LineWidth',0.5);
+semilogx(data.Coherr.All.zDiameter.meanGammaf,data.Coherr.All.zDiameter.meanGammaC - data.Coherr.All.zDiameter.semGammaC,'color',colorAll,'LineWidth',0.5);
 xline(1/50,'color','b');
 xline(1/10,'color','k');
 xline(1/30,'color','k');
@@ -638,17 +681,14 @@ freq = 30;
 lagSec = 5;
 plot(data.XCorr.Rest.zDiameter.meanLags,data.XCorr.Rest.zDiameter.meanXcVals_HbT,'color',colorRest,'LineWidth',2);
 hold on
-plot(data.XCorr.Rest.zDiameter.meanLags,data.XCorr.Rest.zDiameter.meanXcVals_HbT + data.XCorr.Rest.zDiameter.stdXcVals_HbT,'color',colorRest,'LineWidth',0.5);
-plot(data.XCorr.Rest.zDiameter.meanLags,data.XCorr.Rest.zDiameter.meanXcVals_HbT - data.XCorr.Rest.zDiameter.stdXcVals_HbT,'color',colorRest,'LineWidth',0.5);
-
+plot(data.XCorr.Rest.zDiameter.meanLags,data.XCorr.Rest.zDiameter.meanXcVals_HbT + data.XCorr.Rest.zDiameter.semXcVals_HbT,'color',colorRest,'LineWidth',0.5);
+plot(data.XCorr.Rest.zDiameter.meanLags,data.XCorr.Rest.zDiameter.meanXcVals_HbT - data.XCorr.Rest.zDiameter.semXcVals_HbT,'color',colorRest,'LineWidth',0.5);
 plot(data.XCorr.NREM.zDiameter.meanLags,data.XCorr.NREM.zDiameter.meanXcVals_HbT,'color',colorNREM,'LineWidth',2);
-plot(data.XCorr.NREM.zDiameter.meanLags,data.XCorr.NREM.zDiameter.meanXcVals_HbT + data.XCorr.NREM.zDiameter.stdXcVals_HbT,'color',colorNREM,'LineWidth',0.5);
-plot(data.XCorr.NREM.zDiameter.meanLags,data.XCorr.NREM.zDiameter.meanXcVals_HbT - data.XCorr.NREM.zDiameter.stdXcVals_HbT,'color',colorNREM,'LineWidth',0.5);
-
+plot(data.XCorr.NREM.zDiameter.meanLags,data.XCorr.NREM.zDiameter.meanXcVals_HbT + data.XCorr.NREM.zDiameter.semXcVals_HbT,'color',colorNREM,'LineWidth',0.5);
+plot(data.XCorr.NREM.zDiameter.meanLags,data.XCorr.NREM.zDiameter.meanXcVals_HbT - data.XCorr.NREM.zDiameter.semXcVals_HbT,'color',colorNREM,'LineWidth',0.5);
 plot(data.XCorr.REM.zDiameter.meanLags,data.XCorr.REM.zDiameter.meanXcVals_HbT,'color',colorREM,'LineWidth',2);
-plot(data.XCorr.REM.zDiameter.meanLags,data.XCorr.REM.zDiameter.meanXcVals_HbT + data.XCorr.REM.zDiameter.stdXcVals_HbT,'color',colorREM,'LineWidth',0.5);
-plot(data.XCorr.REM.zDiameter.meanLags,data.XCorr.REM.zDiameter.meanXcVals_HbT - data.XCorr.REM.zDiameter.stdXcVals_HbT,'color',colorREM,'LineWidth',0.5);
-
+plot(data.XCorr.REM.zDiameter.meanLags,data.XCorr.REM.zDiameter.meanXcVals_HbT + data.XCorr.REM.zDiameter.semXcVals_HbT,'color',colorREM,'LineWidth',0.5);
+plot(data.XCorr.REM.zDiameter.meanLags,data.XCorr.REM.zDiameter.meanXcVals_HbT - data.XCorr.REM.zDiameter.semXcVals_HbT,'color',colorREM,'LineWidth',0.5);
 title({'Blank-SAP treated RH REM','MUA-[HbT] XCorr'})
 xticks([-lagSec*freq,-lagSec*freq/2,0,lagSec*freq/2,lagSec*freq])
 xticklabels({'-5','-2.5','0','2.5','5'})
@@ -664,17 +704,14 @@ freq = 30;
 lagSec = 10;
 plot(data.XCorr.Alert.zDiameter.meanLags,data.XCorr.Alert.zDiameter.meanXcVals_HbT,'color',colorAlert,'LineWidth',2);
 hold on
-plot(data.XCorr.Alert.zDiameter.meanLags,data.XCorr.Alert.zDiameter.meanXcVals_HbT + data.XCorr.Alert.zDiameter.stdXcVals_HbT,'color',colorAlert,'LineWidth',0.5);
-plot(data.XCorr.Alert.zDiameter.meanLags,data.XCorr.Alert.zDiameter.meanXcVals_HbT - data.XCorr.Alert.zDiameter.stdXcVals_HbT,'color',colorAlert,'LineWidth',0.5);
-
+plot(data.XCorr.Alert.zDiameter.meanLags,data.XCorr.Alert.zDiameter.meanXcVals_HbT + data.XCorr.Alert.zDiameter.semXcVals_HbT,'color',colorAlert,'LineWidth',0.5);
+plot(data.XCorr.Alert.zDiameter.meanLags,data.XCorr.Alert.zDiameter.meanXcVals_HbT - data.XCorr.Alert.zDiameter.semXcVals_HbT,'color',colorAlert,'LineWidth',0.5);
 plot(data.XCorr.Asleep.zDiameter.meanLags,data.XCorr.Asleep.zDiameter.meanXcVals_HbT,'color',colorAsleep,'LineWidth',2);
-plot(data.XCorr.Asleep.zDiameter.meanLags,data.XCorr.Asleep.zDiameter.meanXcVals_HbT + data.XCorr.Asleep.zDiameter.stdXcVals_HbT,'color',colorAsleep,'LineWidth',0.5);
-plot(data.XCorr.Asleep.zDiameter.meanLags,data.XCorr.Asleep.zDiameter.meanXcVals_HbT - data.XCorr.Asleep.zDiameter.stdXcVals_HbT,'color',colorAsleep,'LineWidth',0.5);
-
+plot(data.XCorr.Asleep.zDiameter.meanLags,data.XCorr.Asleep.zDiameter.meanXcVals_HbT + data.XCorr.Asleep.zDiameter.semXcVals_HbT,'color',colorAsleep,'LineWidth',0.5);
+plot(data.XCorr.Asleep.zDiameter.meanLags,data.XCorr.Asleep.zDiameter.meanXcVals_HbT - data.XCorr.Asleep.zDiameter.semXcVals_HbT,'color',colorAsleep,'LineWidth',0.5);
 plot(data.XCorr.All.zDiameter.meanLags,data.XCorr.All.zDiameter.meanXcVals_HbT,'color',colorAll,'LineWidth',2);
-plot(data.XCorr.All.zDiameter.meanLags,data.XCorr.All.zDiameter.meanXcVals_HbT + data.XCorr.All.zDiameter.stdXcVals_HbT,'color',colorAll,'LineWidth',0.5);
-plot(data.XCorr.All.zDiameter.meanLags,data.XCorr.All.zDiameter.meanXcVals_HbT - data.XCorr.All.zDiameter.stdXcVals_HbT,'color',colorAll,'LineWidth',0.5);
-
+plot(data.XCorr.All.zDiameter.meanLags,data.XCorr.All.zDiameter.meanXcVals_HbT + data.XCorr.All.zDiameter.semXcVals_HbT,'color',colorAll,'LineWidth',0.5);
+plot(data.XCorr.All.zDiameter.meanLags,data.XCorr.All.zDiameter.meanXcVals_HbT - data.XCorr.All.zDiameter.semXcVals_HbT,'color',colorAll,'LineWidth',0.5);
 title({'Blank-SAP treated RH REM','MUA-[HbT] XCorr'})
 xticks([-lagSec*freq,-lagSec*freq/2,0,lagSec*freq/2,lagSec*freq])
 xticklabels({'-10','-5','0','5','10'})
@@ -690,17 +727,14 @@ freq = 30;
 lagSec = 5;
 plot(data.XCorr.Rest.zDiameter.meanLags,data.XCorr.Rest.zDiameter.meanXcVals_gamma,'color',colorRest,'LineWidth',2);
 hold on
-plot(data.XCorr.Rest.zDiameter.meanLags,data.XCorr.Rest.zDiameter.meanXcVals_gamma + data.XCorr.Rest.zDiameter.stdXcVals_gamma,'color',colorRest,'LineWidth',0.5);
-plot(data.XCorr.Rest.zDiameter.meanLags,data.XCorr.Rest.zDiameter.meanXcVals_gamma - data.XCorr.Rest.zDiameter.stdXcVals_gamma,'color',colorRest,'LineWidth',0.5);
-
+plot(data.XCorr.Rest.zDiameter.meanLags,data.XCorr.Rest.zDiameter.meanXcVals_gamma + data.XCorr.Rest.zDiameter.semXcVals_gamma,'color',colorRest,'LineWidth',0.5);
+plot(data.XCorr.Rest.zDiameter.meanLags,data.XCorr.Rest.zDiameter.meanXcVals_gamma - data.XCorr.Rest.zDiameter.semXcVals_gamma,'color',colorRest,'LineWidth',0.5);
 plot(data.XCorr.NREM.zDiameter.meanLags,data.XCorr.NREM.zDiameter.meanXcVals_gamma,'color',colorNREM,'LineWidth',2);
-plot(data.XCorr.NREM.zDiameter.meanLags,data.XCorr.NREM.zDiameter.meanXcVals_gamma + data.XCorr.NREM.zDiameter.stdXcVals_gamma,'color',colorNREM,'LineWidth',0.5);
-plot(data.XCorr.NREM.zDiameter.meanLags,data.XCorr.NREM.zDiameter.meanXcVals_gamma - data.XCorr.NREM.zDiameter.stdXcVals_gamma,'color',colorNREM,'LineWidth',0.5);
-
+plot(data.XCorr.NREM.zDiameter.meanLags,data.XCorr.NREM.zDiameter.meanXcVals_gamma + data.XCorr.NREM.zDiameter.semXcVals_gamma,'color',colorNREM,'LineWidth',0.5);
+plot(data.XCorr.NREM.zDiameter.meanLags,data.XCorr.NREM.zDiameter.meanXcVals_gamma - data.XCorr.NREM.zDiameter.semXcVals_gamma,'color',colorNREM,'LineWidth',0.5);
 plot(data.XCorr.REM.zDiameter.meanLags,data.XCorr.REM.zDiameter.meanXcVals_gamma,'color',colorREM,'LineWidth',2);
-plot(data.XCorr.REM.zDiameter.meanLags,data.XCorr.REM.zDiameter.meanXcVals_gamma + data.XCorr.REM.zDiameter.stdXcVals_gamma,'color',colorREM,'LineWidth',0.5);
-plot(data.XCorr.REM.zDiameter.meanLags,data.XCorr.REM.zDiameter.meanXcVals_gamma - data.XCorr.REM.zDiameter.stdXcVals_gamma,'color',colorREM,'LineWidth',0.5);
-
+plot(data.XCorr.REM.zDiameter.meanLags,data.XCorr.REM.zDiameter.meanXcVals_gamma + data.XCorr.REM.zDiameter.semXcVals_gamma,'color',colorREM,'LineWidth',0.5);
+plot(data.XCorr.REM.zDiameter.meanLags,data.XCorr.REM.zDiameter.meanXcVals_gamma - data.XCorr.REM.zDiameter.semXcVals_gamma,'color',colorREM,'LineWidth',0.5);
 title({'Blank-SAP treated RH REM','MUA-[HbT] XCorr'})
 xticks([-lagSec*freq,-lagSec*freq/2,0,lagSec*freq/2,lagSec*freq])
 xticklabels({'-5','-2.5','0','2.5','5'})
@@ -716,17 +750,14 @@ freq = 30;
 lagSec = 10;
 plot(data.XCorr.Alert.zDiameter.meanLags,data.XCorr.Alert.zDiameter.meanXcVals_gamma,'color',colorAlert,'LineWidth',2);
 hold on
-plot(data.XCorr.Alert.zDiameter.meanLags,data.XCorr.Alert.zDiameter.meanXcVals_gamma + data.XCorr.Alert.zDiameter.stdXcVals_gamma,'color',colorAlert,'LineWidth',0.5);
-plot(data.XCorr.Alert.zDiameter.meanLags,data.XCorr.Alert.zDiameter.meanXcVals_gamma - data.XCorr.Alert.zDiameter.stdXcVals_gamma,'color',colorAlert,'LineWidth',0.5);
-
+plot(data.XCorr.Alert.zDiameter.meanLags,data.XCorr.Alert.zDiameter.meanXcVals_gamma + data.XCorr.Alert.zDiameter.semXcVals_gamma,'color',colorAlert,'LineWidth',0.5);
+plot(data.XCorr.Alert.zDiameter.meanLags,data.XCorr.Alert.zDiameter.meanXcVals_gamma - data.XCorr.Alert.zDiameter.semXcVals_gamma,'color',colorAlert,'LineWidth',0.5);
 plot(data.XCorr.Asleep.zDiameter.meanLags,data.XCorr.Asleep.zDiameter.meanXcVals_gamma,'color',colorAsleep,'LineWidth',2);
-plot(data.XCorr.Asleep.zDiameter.meanLags,data.XCorr.Asleep.zDiameter.meanXcVals_gamma + data.XCorr.Asleep.zDiameter.stdXcVals_gamma,'color',colorAsleep,'LineWidth',0.5);
-plot(data.XCorr.Asleep.zDiameter.meanLags,data.XCorr.Asleep.zDiameter.meanXcVals_gamma - data.XCorr.Asleep.zDiameter.stdXcVals_gamma,'color',colorAsleep,'LineWidth',0.5);
-
+plot(data.XCorr.Asleep.zDiameter.meanLags,data.XCorr.Asleep.zDiameter.meanXcVals_gamma + data.XCorr.Asleep.zDiameter.semXcVals_gamma,'color',colorAsleep,'LineWidth',0.5);
+plot(data.XCorr.Asleep.zDiameter.meanLags,data.XCorr.Asleep.zDiameter.meanXcVals_gamma - data.XCorr.Asleep.zDiameter.semXcVals_gamma,'color',colorAsleep,'LineWidth',0.5);
 plot(data.XCorr.All.zDiameter.meanLags,data.XCorr.All.zDiameter.meanXcVals_gamma,'color',colorAll,'LineWidth',2);
-plot(data.XCorr.All.zDiameter.meanLags,data.XCorr.All.zDiameter.meanXcVals_gamma + data.XCorr.All.zDiameter.stdXcVals_gamma,'color',colorAll,'LineWidth',0.5);
-plot(data.XCorr.All.zDiameter.meanLags,data.XCorr.All.zDiameter.meanXcVals_gamma - data.XCorr.All.zDiameter.stdXcVals_gamma,'color',colorAll,'LineWidth',0.5);
-
+plot(data.XCorr.All.zDiameter.meanLags,data.XCorr.All.zDiameter.meanXcVals_gamma + data.XCorr.All.zDiameter.semXcVals_gamma,'color',colorAll,'LineWidth',0.5);
+plot(data.XCorr.All.zDiameter.meanLags,data.XCorr.All.zDiameter.meanXcVals_gamma - data.XCorr.All.zDiameter.semXcVals_gamma,'color',colorAll,'LineWidth',0.5);
 title({'Blank-SAP treated RH REM','MUA-[HbT] XCorr'})
 xticks([-lagSec*freq,-lagSec*freq/2,0,lagSec*freq/2,lagSec*freq])
 xticklabels({'-10','-5','0','5','10'})

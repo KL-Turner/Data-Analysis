@@ -248,7 +248,7 @@ xlim([0.03,1])
 set(gca,'box','off')
 %% save figure(s)
 if saveFigs == true
-    dirpath = [rootFolder delim 'Summary Figures and Structures' delim];
+    dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'Figure Panels' delim];
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end

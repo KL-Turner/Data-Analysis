@@ -10,6 +10,14 @@ function [] = Fig3_JNeurosci2022(rootFolder,saveFigs,delim)
 %% variables for loops
 resultsStruct = 'Results_BlinkPeriodogram';
 load(resultsStruct);
+animalIDs = fieldnames(Results_BlinkPeriodogram);
+for aa = 1:length(animalIDs) - 1
+    animalID = animalIDs{aa,1};
+    data.f1(aa,:) = Results_BlinkPeriodogram.(animalID).f;
+    data.S(aa,:) = Results_BlinkPeriodogram.(animalID).S;
+end
+data.meanf1 = mean(data.f1,1);
+data.meanS = mean(data.S,1);
 data.f2 = Results_BlinkPeriodogram.results.f;
 data.pxx = Results_BlinkPeriodogram.results.pxx;
 data.meanPxx = mean(data.pxx,2,'omitnan');
@@ -170,7 +178,7 @@ histogram(allInterBlink,'Normalization','Probability')
 axis square
 %%
 subplot(2,4,3)
-semilogx(data.meanF1,data.meanS)
+semilogx(data.meanf1,data.meanS)
 title('Power Spectrum')
 ylabel('Power (a.u.)')
 xlabel('Freq (Hz)')
@@ -245,7 +253,7 @@ ylim([0,100])
 axis square
 %% save figure(s)
 if saveFigs == true
-    dirpath = [rootFolder delim 'Summary Figures and Structures' delim ' Figure Panels' delim];
+    dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'Figure Panels' delim];
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
