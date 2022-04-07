@@ -105,22 +105,22 @@ for ee = 1:length(behavFields)
 end
 numComp = 4;
 % mm diameter
-[~,pWhisk_mm,~,~] = ttest2(data.Rest.indMeanDiameter,data.Whisk.indMeanDiameter); 
+[~,pWhisk_mm,~,~] = ttest2(data.Rest.indMeanDiameter,data.Whisk.indMeanDiameter);
 disp(['Bonferroni-corrected p-value (Rest vs. Whisk mmDiameter): ' num2str(pWhisk_mm/numComp)]); disp(' ')
-[~,pStim_mm,~,~] = ttest2(data.Rest.indMeanDiameter,data.Stim.indMeanDiameter); 
+[~,pStim_mm,~,~] = ttest2(data.Rest.indMeanDiameter,data.Stim.indMeanDiameter);
 disp(['Bonferroni-corrected p-value (Rest vs. Stim mmDiameter): ' num2str(pStim_mm/numComp)]); disp(' ')
-[~,pNREM_mm,~,~] = ttest2(data.Rest.indMeanDiameter,data.NREM.indMeanDiameter); 
+[~,pNREM_mm,~,~] = ttest2(data.Rest.indMeanDiameter,data.NREM.indMeanDiameter);
 disp(['Bonferroni-corrected p-value (Rest vs. NREM mmDiameter): ' num2str(pNREM_mm/numComp)]); disp(' ')
-[~,pREM_mm,~,~] = ttest2(data.Rest.indMeanDiameter,data.REM.indMeanDiameter); 
+[~,pREM_mm,~,~] = ttest2(data.Rest.indMeanDiameter,data.REM.indMeanDiameter);
 disp(['Bonferroni-corrected p-value (Rest vs. REM mmDiameter): ' num2str(pREM_mm/numComp)]); disp(' ')
 % z diameter
-[~,pWhisk_z,~,~] = ttest2(data.Rest.indMeanDiameter,data.Whisk.indMeanzDiameter); 
+[~,pWhisk_z,~,~] = ttest2(data.Rest.indMeanDiameter,data.Whisk.indMeanzDiameter);
 disp(['Bonferroni-corrected p-value (Rest vs. Whisk zDiameter): ' num2str(pWhisk_z/numComp)]); disp(' ')
-[~,pStim_z,~,~] = ttest2(data.Rest.indMeanDiameter,data.Stim.indMeanzDiameter); 
+[~,pStim_z,~,~] = ttest2(data.Rest.indMeanDiameter,data.Stim.indMeanzDiameter);
 disp(['Bonferroni-corrected p-value (Rest vs. Stim zDiameter): ' num2str(pStim_z/numComp)]); disp(' ')
-[~,pNREM_z,~,~] = ttest2(data.Rest.indMeanDiameter,data.NREM.indMeanzDiameter); 
+[~,pNREM_z,~,~] = ttest2(data.Rest.indMeanDiameter,data.NREM.indMeanzDiameter);
 disp(['Bonferroni-corrected p-value (Rest vs. NREM zDiameter): ' num2str(pNREM_z/numComp)]); disp(' ')
-[~,pREM_z,~,~] = ttest2(data.Rest.indMeanDiameter,data.REM.indMeanzDiameter); 
+[~,pREM_z,~,~] = ttest2(data.Rest.indMeanDiameter,data.REM.indMeanzDiameter);
 disp(['Bonferroni-corrected p-value (Rest vs. REM zDiameter): ' num2str(pREM_z/numComp)]); disp(' ')
 %% pupil power spectrum
 resultsStruct = 'Results_PowerSpectrum';
@@ -206,7 +206,7 @@ for aa = 1:length(behavFields)
         data.Coherr.(behavField).(dataType).meanHbTC = mean(data.Coherr.(behavField).(dataType).HbTC,2);
         data.Coherr.(behavField).(dataType).semHbTC = std(data.Coherr.(behavField).(dataType).HbTC,0,2)./sqrt(size(data.Coherr.(behavField).(dataType).HbTC,2));
         data.Coherr.(behavField).(dataType).meanHbTf = mean(data.Coherr.(behavField).(dataType).HbTf,1);
-        
+
         data.Coherr.(behavField).(dataType).meanGammaC = mean(data.Coherr.(behavField).(dataType).gammaC,2);
         data.Coherr.(behavField).(dataType).semGammaC = std(data.Coherr.(behavField).(dataType).gammaC,0,2)./sqrt(size(data.Coherr.(behavField).(dataType).gammaC,2));
         data.Coherr.(behavField).(dataType).meanGammaf = mean(data.Coherr.(behavField).(dataType).gammaf,1);
@@ -290,21 +290,21 @@ for aa = 1:length(animalIDs)
                 data.XCorr.(behavField).(dataType).LH_xcVals_HbT = [];
                 data.XCorr.(behavField).(dataType).LH_peakLag_HbT = [];
                 data.XCorr.(behavField).(dataType).LH_peak_HbT = [];
-                
+
                 data.XCorr.(behavField).(dataType).RH_xcVals_HbT = [];
                 data.XCorr.(behavField).(dataType).RH_peakLag_HbT = [];
                 data.XCorr.(behavField).(dataType).RH_peak_HbT = [];
-                
+
                 data.XCorr.(behavField).(dataType).LH_xcVals_gamma = [];
                 data.XCorr.(behavField).(dataType).LH_peakLag_gamma = [];
                 data.XCorr.(behavField).(dataType).LH_peak_gamma = [];
-                
+
                 data.XCorr.(behavField).(dataType).RH_xcVals_gamma = [];
                 data.XCorr.(behavField).(dataType).RH_peakLag_gamma = [];
                 data.XCorr.(behavField).(dataType).RH_peak_gamma = [];
-                
+
                 data.XCorr.(behavField).(dataType).lags = [];
-                
+
                 data.XCorr.(behavField).(dataType).animalID = {};
                 data.XCorr.(behavField).(dataType).behavField = {};
                 data.XCorr.(behavField).(dataType).LH = {};
@@ -312,63 +312,63 @@ for aa = 1:length(animalIDs)
             end
             if isfield(Results_CrossCorrelation.(animalID),behavField) == true
                 if isempty(Results_CrossCorrelation.(animalID).(behavField).LH_HbT.(dataType).xcVals) == false
-                    
+
                     data.XCorr.(behavField).(dataType).LH_xcVals_HbT = cat(1,data.XCorr.(behavField).(dataType).LH_xcVals_HbT,Results_CrossCorrelation.(animalID).(behavField).LH_HbT.(dataType).xcVals);
                     midPoint = floor(length(Results_CrossCorrelation.(animalID).(behavField).LH_HbT.(dataType).xcVals)/2);
                     [minVal,minIndex] = min(Results_CrossCorrelation.(animalID).(behavField).LH_HbT.(dataType).xcVals(midPoint:midPoint + 30*3));
-%                     [maxVal,maxIndex] = max(Results_CrossCorrelation.(animalID).(behavField).LH_HbT.(dataType).xcVals(midPoint:midPoint + 30*3));
-%                     if abs(minVal) > maxVal
-                        index = minIndex;
-                        data.XCorr.(behavField).(dataType).LH_peakLag_HbT = cat(1,data.XCorr.(behavField).(dataType).LH_peakLag_HbT,index/30);
-                        data.XCorr.(behavField).(dataType).LH_peak_HbT = cat(1,data.XCorr.(behavField).(dataType).LH_peak_HbT,minVal);
-%                     else
-%                         index = maxIndex;
-%                         data.XCorr.(behavField).(dataType).LH_peakLag_HbT = cat(1,data.XCorr.(behavField).(dataType).LH_peakLag_HbT,index/30);
-%                         data.XCorr.(behavField).(dataType).LH_peak_HbT = cat(1,data.XCorr.(behavField).(dataType).LH_peak_HbT,maxVal);
-%                     end
-                    
+                    %                     [maxVal,maxIndex] = max(Results_CrossCorrelation.(animalID).(behavField).LH_HbT.(dataType).xcVals(midPoint:midPoint + 30*3));
+                    %                     if abs(minVal) > maxVal
+                    index = minIndex;
+                    data.XCorr.(behavField).(dataType).LH_peakLag_HbT = cat(1,data.XCorr.(behavField).(dataType).LH_peakLag_HbT,index/30);
+                    data.XCorr.(behavField).(dataType).LH_peak_HbT = cat(1,data.XCorr.(behavField).(dataType).LH_peak_HbT,minVal);
+                    %                     else
+                    %                         index = maxIndex;
+                    %                         data.XCorr.(behavField).(dataType).LH_peakLag_HbT = cat(1,data.XCorr.(behavField).(dataType).LH_peakLag_HbT,index/30);
+                    %                         data.XCorr.(behavField).(dataType).LH_peak_HbT = cat(1,data.XCorr.(behavField).(dataType).LH_peak_HbT,maxVal);
+                    %                     end
+
                     data.XCorr.(behavField).(dataType).RH_xcVals_HbT = cat(1,data.XCorr.(behavField).(dataType).RH_xcVals_HbT,Results_CrossCorrelation.(animalID).(behavField).RH_HbT.(dataType).xcVals);
                     midPoint = floor(length(Results_CrossCorrelation.(animalID).(behavField).RH_HbT.(dataType).xcVals)/2);
                     [minVal,minIndex] = min(Results_CrossCorrelation.(animalID).(behavField).RH_HbT.(dataType).xcVals(midPoint:midPoint + 30*3));
-%                     [maxVal,maxIndex] = max(Results_CrossCorrelation.(animalID).(behavField).RH_HbT.(dataType).xcVals(midPoint:midPoint + 30*3));
-%                     if abs(minVal) > maxVal
-                        index = minIndex;
-                        data.XCorr.(behavField).(dataType).RH_peakLag_HbT = cat(1,data.XCorr.(behavField).(dataType).RH_peakLag_HbT,index/30);
-                        data.XCorr.(behavField).(dataType).RH_peak_HbT = cat(1,data.XCorr.(behavField).(dataType).RH_peak_HbT,minVal);
-%                     else
-%                         index = maxIndex;
-%                         data.XCorr.(behavField).(dataType).RH_peakLag_HbT = cat(1,data.XCorr.(behavField).(dataType).RH_peakLag_HbT,index/30);
-%                         data.XCorr.(behavField).(dataType).RH_peak_HbT = cat(1,data.XCorr.(behavField).(dataType).RH_peak_HbT,maxVal);
-%                     end
-                    
+                    %                     [maxVal,maxIndex] = max(Results_CrossCorrelation.(animalID).(behavField).RH_HbT.(dataType).xcVals(midPoint:midPoint + 30*3));
+                    %                     if abs(minVal) > maxVal
+                    index = minIndex;
+                    data.XCorr.(behavField).(dataType).RH_peakLag_HbT = cat(1,data.XCorr.(behavField).(dataType).RH_peakLag_HbT,index/30);
+                    data.XCorr.(behavField).(dataType).RH_peak_HbT = cat(1,data.XCorr.(behavField).(dataType).RH_peak_HbT,minVal);
+                    %                     else
+                    %                         index = maxIndex;
+                    %                         data.XCorr.(behavField).(dataType).RH_peakLag_HbT = cat(1,data.XCorr.(behavField).(dataType).RH_peakLag_HbT,index/30);
+                    %                         data.XCorr.(behavField).(dataType).RH_peak_HbT = cat(1,data.XCorr.(behavField).(dataType).RH_peak_HbT,maxVal);
+                    %                     end
+
                     data.XCorr.(behavField).(dataType).LH_xcVals_gamma = cat(1,data.XCorr.(behavField).(dataType).LH_xcVals_gamma,Results_CrossCorrelation.(animalID).(behavField).LH_gammaBandPower.(dataType).xcVals);
                     midPoint = floor(length(Results_CrossCorrelation.(animalID).(behavField).LH_gammaBandPower.(dataType).xcVals)/2);
                     [minVal,minIndex] = min(Results_CrossCorrelation.(animalID).(behavField).LH_gammaBandPower.(dataType).xcVals(midPoint - 30*3:midPoint));
-%                     [maxVal,maxIndex] = max(Results_CrossCorrelation.(animalID).(behavField).LH_gammaBandPower.(dataType).xcVals(midPoint - 30*3:midPoint));
-%                     if abs(minVal) > maxVal
-                        index = minIndex;
-                        data.XCorr.(behavField).(dataType).LH_peakLag_gamma = cat(1,data.XCorr.(behavField).(dataType).LH_peakLag_gamma,(length(midPoint - 30*3:midPoint) - index)/30);
-                        data.XCorr.(behavField).(dataType).LH_peak_gamma = cat(1,data.XCorr.(behavField).(dataType).LH_peak_gamma,minVal);
-%                     else
-%                         index = maxIndex;
-%                         data.XCorr.(behavField).(dataType).LH_peakLag_gamma = cat(1,data.XCorr.(behavField).(dataType).LH_peakLag_gamma,(length(midPoint - 30*3:midPoint) - index)/30);
-%                         data.XCorr.(behavField).(dataType).LH_peak_gamma = cat(1,data.XCorr.(behavField).(dataType).LH_peak_gamma,maxVal);
-%                     end
-                    
+                    %                     [maxVal,maxIndex] = max(Results_CrossCorrelation.(animalID).(behavField).LH_gammaBandPower.(dataType).xcVals(midPoint - 30*3:midPoint));
+                    %                     if abs(minVal) > maxVal
+                    index = minIndex;
+                    data.XCorr.(behavField).(dataType).LH_peakLag_gamma = cat(1,data.XCorr.(behavField).(dataType).LH_peakLag_gamma,(length(midPoint - 30*3:midPoint) - index)/30);
+                    data.XCorr.(behavField).(dataType).LH_peak_gamma = cat(1,data.XCorr.(behavField).(dataType).LH_peak_gamma,minVal);
+                    %                     else
+                    %                         index = maxIndex;
+                    %                         data.XCorr.(behavField).(dataType).LH_peakLag_gamma = cat(1,data.XCorr.(behavField).(dataType).LH_peakLag_gamma,(length(midPoint - 30*3:midPoint) - index)/30);
+                    %                         data.XCorr.(behavField).(dataType).LH_peak_gamma = cat(1,data.XCorr.(behavField).(dataType).LH_peak_gamma,maxVal);
+                    %                     end
+
                     data.XCorr.(behavField).(dataType).RH_xcVals_gamma = cat(1,data.XCorr.(behavField).(dataType).RH_xcVals_gamma,Results_CrossCorrelation.(animalID).(behavField).RH_gammaBandPower.(dataType).xcVals);
                     midPoint = floor(length(Results_CrossCorrelation.(animalID).(behavField).RH_gammaBandPower.(dataType).xcVals)/2);
                     [minVal,minIndex] = min(Results_CrossCorrelation.(animalID).(behavField).RH_gammaBandPower.(dataType).xcVals(midPoint - 30*3:midPoint));
-%                     [maxVal,maxIndex] = max(Results_CrossCorrelation.(animalID).(behavField).RH_gammaBandPower.(dataType).xcVals(midPoint - 30*3:midPoint));
-%                     if abs(minVal) > maxVal
-                        index = minIndex;
-                        data.XCorr.(behavField).(dataType).RH_peakLag_gamma = cat(1,data.XCorr.(behavField).(dataType).RH_peakLag_gamma,(length(midPoint - 30*3:midPoint) - index)/30);
-                        data.XCorr.(behavField).(dataType).RH_peak_gamma = cat(1,data.XCorr.(behavField).(dataType).RH_peak_gamma,minVal);
-%                     else
-%                         index = maxIndex;
-%                         data.XCorr.(behavField).(dataType).RH_peakLag_gamma = cat(1,data.XCorr.(behavField).(dataType).RH_peakLag_gamma,(length(midPoint - 30*3:midPoint) - index)/30);
-%                         data.XCorr.(behavField).(dataType).RH_peak_gamma = cat(1,data.XCorr.(behavField).(dataType).RH_peak_gamma,maxVal);
-%                     end
-                    
+                    %                     [maxVal,maxIndex] = max(Results_CrossCorrelation.(animalID).(behavField).RH_gammaBandPower.(dataType).xcVals(midPoint - 30*3:midPoint));
+                    %                     if abs(minVal) > maxVal
+                    index = minIndex;
+                    data.XCorr.(behavField).(dataType).RH_peakLag_gamma = cat(1,data.XCorr.(behavField).(dataType).RH_peakLag_gamma,(length(midPoint - 30*3:midPoint) - index)/30);
+                    data.XCorr.(behavField).(dataType).RH_peak_gamma = cat(1,data.XCorr.(behavField).(dataType).RH_peak_gamma,minVal);
+                    %                     else
+                    %                         index = maxIndex;
+                    %                         data.XCorr.(behavField).(dataType).RH_peakLag_gamma = cat(1,data.XCorr.(behavField).(dataType).RH_peakLag_gamma,(length(midPoint - 30*3:midPoint) - index)/30);
+                    %                         data.XCorr.(behavField).(dataType).RH_peak_gamma = cat(1,data.XCorr.(behavField).(dataType).RH_peak_gamma,maxVal);
+                    %                     end
+
                     data.XCorr.(behavField).(dataType).lags = cat(1,data.XCorr.(behavField).(dataType).lags,Results_CrossCorrelation.(animalID).(behavField).LH_HbT.(dataType).lags,Results_CrossCorrelation.(animalID).(behavField).RH_HbT.(dataType).lags);
                     data.XCorr.(behavField).(dataType).animalID = cat(1,data.XCorr.(behavField).(dataType).animalID,animalID);
                     data.XCorr.(behavField).(dataType).behavField = cat(1,data.XCorr.(behavField).(dataType).behavField,behavField);
