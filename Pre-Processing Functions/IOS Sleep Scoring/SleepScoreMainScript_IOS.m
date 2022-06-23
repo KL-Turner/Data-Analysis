@@ -10,23 +10,24 @@ function [] = SleepScoreMainScript_IOS()
 zap;
 disp('Loading necessary file names...'); disp(' ')
 baselineType = 'manualSelection';
-startingDirectory = cd;
-% create training data set for each animal
-baselineDirectory = [startingDirectory '\Bilateral Imaging\'];
-cd(baselineDirectory)
 % load the baseline structure
 baselinesFileStruct = dir('*_RestingBaselines.mat');
 baselinesFile = {baselinesFileStruct.name}';
 baselinesFileID = char(baselinesFile);
 load(baselinesFileID)
-cd(startingDirectory)
-% cd to the animal's training set folde
-trainingDirectory = [startingDirectory '\Training Data\'];
-cd(trainingDirectory)
 % character list of all ProcData files
 procDataFileStruct = dir('*_ProcData.mat');
 procDataFiles = {procDataFileStruct.name}';
 procDataFileIDs = char(procDataFiles);
+% check and load TrainingFileDates
+trainingDatesFileStruct = dir('*_TrainingFileDates.mat');
+trainingDatesFile = {trainingDatesFileStruct.name}';
+trainingDatesFileID = char(trainingDatesFile);
+if isempty(trainingDatesFileID) == true
+    [TrainingFiles] = SelectTrainingDates_IOS(procDataFileIDs);
+else
+    load(trainingDatesFileID,'-mat')
+end
 % add sleep parameters (each behavior we care about during sleep)
 AddSleepParameters_IOS(procDataFileIDs,RestingBaselines,baselineType)
 % create a table of values for sleep scoring model
