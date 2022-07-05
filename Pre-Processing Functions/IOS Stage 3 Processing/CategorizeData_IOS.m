@@ -313,4 +313,5 @@ Rest.eventTime = stops';
 Rest.duration = restDur';
 Rest.puffDistance = puffTimeCell;
 Rest.whiskDuration = whiskDur';
+
 end

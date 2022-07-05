@@ -1,4 +1,4 @@
-function [SleepData] = CreateSleepData_IOS(startingDirectory,trainingDirectory,baselineDirectory,NREMsleepTime,REMsleepTime,modelName,SleepData)
+function [SleepData] = CreateSleepData_IOS(NREMsleepTime,REMsleepTime,modelName,TrainingFiles,SleepData)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -10,18 +10,22 @@ function [SleepData] = CreateSleepData_IOS(startingDirectory,trainingDirectory,b
 %          struct along with the file's name.
 %________________________________________________________________________________________________________________________
 
-if strcmp(modelName,'Manual') == false
-    cd(baselineDirectory)
-    % character list of all ProcData files
-    procDataFileStruct = dir('*_ProcData.mat');
-    procDataFiles = {procDataFileStruct.name}';
-    procDataFileIDs = char(procDataFiles);
-else
-    cd(trainingDirectory)
-    % character list of all ProcData files
-    procDataFileStruct = dir('*_ProcData.mat');
-    procDataFiles = {procDataFileStruct.name}';
-    procDataFileIDs = char(procDataFiles);
+% character list of all ProcData files
+procDataFileStruct = dir('*_ProcData.mat');
+procDataFiles = {procDataFileStruct.name}';
+procDataFileIDs = char(procDataFiles);
+if strcmp(modelName,'Manual') == true
+    cc = 1;
+    % reduce file list to those with the training dates
+    for aa = 1:size(procDataFileIDs,1)
+        procDataFileID = procDataFileIDs(aa,:);
+        [~,fileDate,~] = GetFileInfo_IOS(procDataFileID);
+        if strcmp(fileDate,TrainingFiles.day1) == true || strcmp(fileDate,TrainingFiles.day2) == true
+            trainingFileList(cc,:) = procDataFileID;
+            cc = cc + 1;
+        end
+    end
+    procDataFileIDs = trainingFileList;
 end
 % create NREM sleep scored data structure.
 % identify sleep epochs and place in SleepEventData.mat structure
@@ -65,8 +69,8 @@ for aa = 1:size(procDataFileIDs,1) % loop through the list of ProcData files
             LH_CBV{indexCount,1} = ProcData.sleep.parameters.CBV.LH{fixedSleepIndex(indexCount),1};
             RH_CBV{indexCount,1} = ProcData.sleep.parameters.CBV.RH{fixedSleepIndex(indexCount),1};
             % HbT
-            LH_hbtCBV{indexCount,1} = ProcData.sleep.parameters.CBV.hbtLH{fixedSleepIndex(indexCount),1};
-            RH_hbtCBV{indexCount,1} = ProcData.sleep.parameters.CBV.hbtRH{fixedSleepIndex(indexCount),1};
+            LH_hbtCBV{indexCount,1} = ProcData.sleep.parameters.CBV_HbT.hbtLH{fixedSleepIndex(indexCount),1};
+            RH_hbtCBV{indexCount,1} = ProcData.sleep.parameters.CBV_HbT.hbtRH{fixedSleepIndex(indexCount),1};
             % whiskers, heart rate, LDF
             WhiskerAcceleration{indexCount,1} = ProcData.sleep.parameters.whiskerAcceleration{fixedSleepIndex(indexCount),1};
             HeartRate{indexCount,1} = ProcData.sleep.parameters.heartRate{fixedSleepIndex(indexCount),1};

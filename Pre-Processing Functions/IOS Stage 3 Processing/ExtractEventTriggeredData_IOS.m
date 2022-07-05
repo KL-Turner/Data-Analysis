@@ -18,14 +18,16 @@ if not(iscell(dataTypes))
 end
 for a = 1:length(dataTypes)
     dataType = char(dataTypes(a));
-    if strcmp(dataType,'CBV') == true || strcmp(dataType,'CBV_HbT') == true || strcmp(dataType,'GCaMP7s') == true || strcmp(dataType,'Deoxy') == true
+    if strcmp(dataType,'CBV') == true || strcmp(dataType,'CBV_HbT') == true || strcmp(dataType,'Deoxy') == true
         if strcmpi(imagingType,'bilateral') == true 
             subDataTypes = {'LH','adjLH','RH','adjRH'};
-        elseif strcmpi(imagingType,'GCaMP') == true
+        elseif strcmpi(imagingType,'GCaMP') == true % for CBV/HbT/Deoxy datatypes within GCaMP imaging sessions
             subDataTypes = {'LH','RH','frontalLH','frontalRH'};
         elseif strcmpi(imagingType,'single') == true
             subDataTypes = {'Barrels','adjBarrels','Veinous'};
         end
+    elseif strcmp(dataType,'GCaMP7s') == true % for actual GCaMP data types
+        subDataTypes = {'LH','RH','frontalLH','frontalRH','corLH','corRH','corFrontalLH','corFrontalRH'};
     elseif strcmp(dataType,'EMG') == true
         subDataTypes = {'emg'};
     elseif strcmp(dataType,'flow') == true

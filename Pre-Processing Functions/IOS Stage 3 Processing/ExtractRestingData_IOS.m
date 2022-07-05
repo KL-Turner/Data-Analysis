@@ -1,4 +1,4 @@
-function [RestData] = ExtractRestingData_IOS(procdataFiles,dataTypes,imagingType)
+function [RestData] = ExtractRestingData_IOS(procdataFiles,dataTypes,imagingType,iteration)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -16,13 +16,19 @@ end
 % go through each datatype and extract the corresponding data
 for a = 1:length(dataTypes)
     dataType = dataTypes(a);
-    if strcmpi(dataType,'CBV') == true || strcmp(dataType,'CBV_HbT') == true || strcmp(dataType,'GCaMP7s') == true || strcmp(dataType,'Deoxy') == true
+    if strcmpi(dataType,'CBV') == true || strcmp(dataType,'CBV_HbT') == true || strcmp(dataType,'Deoxy') == true
         if strcmpi(imagingType,'bilateral') == true
             subDataTypes = {'LH','adjLH','RH','adjRH'};
-        elseif strcmpi(imagingType,'GCaMP') == true
+        elseif strcmpi(imagingType,'GCaMP') == true % for CBV/HbT/Deoxy datatypes within GCaMP imaging sessions
             subDataTypes = {'LH','RH','frontalLH','frontalRH'};
-        elseif strcmpi(imagingType,'single') == true
+        elseif strcmp(imagingType,'single') == true
             subDataTypes = {'Barrels','adjBarrels'};
+        end
+    elseif strcmpi(dataType,'GCaMP7s') == true % for actual GCaMP data types
+        if iteration == 1
+            subDataTypes = {'LH','RH','frontalLH','frontalRH'};
+        elseif iteration == 2
+            subDataTypes = {'LH','RH','frontalLH','frontalRH','corLH','corRH','corFrontalLH','corFrontalRH'};
         end
     elseif strcmpi(dataType,'EMG') == true
         subDataTypes = {'emg'};

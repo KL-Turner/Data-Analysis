@@ -1,4 +1,4 @@
-function [] = AddSleepParameters_IOS(procDataFileIDs,RestingBaselines,baselineType)
+function [] = AddSleepParameters_IOS(procDataFileIDs,RestingBaselines,baselineType,imagingType)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -9,10 +9,11 @@ function [] = AddSleepParameters_IOS(procDataFileIDs,RestingBaselines,baselineTy
 
 for aa = 1:size(procDataFileIDs,1)
     procDataFileID = procDataFileIDs(aa,:);
+    disp(['Adding sleep parameters to ProcData file (' num2str(aa) '/' num2str(size(procDataFileIDs,1)) ')']); disp(' ')
     [~,fileDate,~] = GetFileInfo_IOS(procDataFileID);
     strDay = ConvertDate_IOS(fileDate);
     load(procDataFileID)
-    specDataFileID = [procDataFileID(1:end-12) 'SpecDataA.mat'];
+    specDataFileID = [procDataFileID(1:end - 12) 'SpecDataA.mat'];
     load(specDataFileID)
     % create folder for the neural data of each electrode
     % hippocampal delta
@@ -24,8 +25,8 @@ for aa = 1:size(procDataFileIDs,1)
     RH_Delta = ProcData.data.cortical_RH.deltaBandPower;
     LH_baselineDelta = RestingBaselines.(baselineType).cortical_LH.deltaBandPower.(strDay).mean;
     RH_baselineDelta = RestingBaselines.(baselineType).cortical_RH.deltaBandPower.(strDay).mean;
-    LH_DeltaNeuro = (LH_Delta-LH_baselineDelta)/LH_baselineDelta;
-    RH_DeltaNeuro = (RH_Delta-RH_baselineDelta)/RH_baselineDelta;
+    LH_DeltaNeuro = (LH_Delta - LH_baselineDelta)/LH_baselineDelta;
+    RH_DeltaNeuro = (RH_Delta - RH_baselineDelta)/RH_baselineDelta;
     % hippocampal theta
     hippTheta = ProcData.data.hippocampus.thetaBandPower;
     hippBaselineTheta = RestingBaselines.(baselineType).hippocampus.thetaBandPower.(strDay).mean;
@@ -46,41 +47,41 @@ for aa = 1:size(procDataFileIDs,1)
     RH_Alpha = ProcData.data.cortical_RH.alphaBandPower;
     LH_baselineAlpha = RestingBaselines.(baselineType).cortical_LH.alphaBandPower.(strDay).mean;
     RH_baselineAlpha = RestingBaselines.(baselineType).cortical_LH.alphaBandPower.(strDay).mean;
-    LH_AlphaNeuro = (LH_Alpha-LH_baselineAlpha)/LH_baselineAlpha;
-    RH_AlphaNeuro = (RH_Alpha-RH_baselineAlpha)/RH_baselineAlpha;
+    LH_AlphaNeuro = (LH_Alpha - LH_baselineAlpha)/LH_baselineAlpha;
+    RH_AlphaNeuro = (RH_Alpha - RH_baselineAlpha)/RH_baselineAlpha;
     % hippocampal beta
     hippBeta = ProcData.data.hippocampus.betaBandPower;
     hippBaselineBeta = RestingBaselines.(baselineType).hippocampus.betaBandPower.(strDay).mean;
-    hippBetaNeuro = (hippBeta-hippBaselineBeta)/hippBaselineBeta;
+    hippBetaNeuro = (hippBeta - hippBaselineBeta)/hippBaselineBeta;
     % cortical beta
     LH_Beta = ProcData.data.cortical_LH.betaBandPower;
     RH_Beta = ProcData.data.cortical_RH.betaBandPower;
     LH_baselineBeta = RestingBaselines.(baselineType).cortical_LH.betaBandPower.(strDay).mean;
     RH_baselineBeta = RestingBaselines.(baselineType).cortical_LH.betaBandPower.(strDay).mean;
-    LH_BetaNeuro = (LH_Beta-LH_baselineBeta)/LH_baselineBeta;
-    RH_BetaNeuro = (RH_Beta-RH_baselineBeta)/RH_baselineBeta;
+    LH_BetaNeuro = (LH_Beta - LH_baselineBeta)/LH_baselineBeta;
+    RH_BetaNeuro = (RH_Beta - RH_baselineBeta)/RH_baselineBeta;
     % hippocampal gamma
     hippGamma = ProcData.data.hippocampus.gammaBandPower;
     hippBaselineGamma = RestingBaselines.(baselineType).hippocampus.gammaBandPower.(strDay).mean;
-    hippGammaNeuro = (hippGamma-hippBaselineGamma)/hippBaselineGamma;
+    hippGammaNeuro = (hippGamma - hippBaselineGamma)/hippBaselineGamma;
     % cortical gamma
     LH_Gamma = ProcData.data.cortical_LH.gammaBandPower;
     RH_Gamma = ProcData.data.cortical_RH.gammaBandPower;
     LH_baselineGamma = RestingBaselines.(baselineType).cortical_LH.gammaBandPower.(strDay).mean;
     RH_baselineGamma = RestingBaselines.(baselineType).cortical_LH.gammaBandPower.(strDay).mean;
-    LH_GammaNeuro = (LH_Gamma-LH_baselineGamma)/LH_baselineGamma;
-    RH_GammaNeuro = (RH_Gamma-RH_baselineGamma)/RH_baselineGamma;
+    LH_GammaNeuro = (LH_Gamma - LH_baselineGamma)/LH_baselineGamma;
+    RH_GammaNeuro = (RH_Gamma - RH_baselineGamma)/RH_baselineGamma;
     % hippocampal MUA
     hippMUA = ProcData.data.hippocampus.muaPower;
     hippBaselineMUA = RestingBaselines.(baselineType).hippocampus.muaPower.(strDay).mean;
-    hippMUANeuro = (hippMUA-hippBaselineMUA)/hippBaselineMUA;
+    hippMUANeuro = (hippMUA - hippBaselineMUA)/hippBaselineMUA;
     % cortical MUA
     LH_MUA = ProcData.data.cortical_LH.muaPower;
     RH_MUA = ProcData.data.cortical_RH.muaPower;
     LH_baselineMUA = RestingBaselines.(baselineType).cortical_LH.muaPower.(strDay).mean;
     RH_baselineMUA = RestingBaselines.(baselineType).cortical_LH.muaPower.(strDay).mean;
-    LH_MUANeuro = (LH_MUA-LH_baselineMUA)/LH_baselineMUA;
-    RH_MUANeuro = (RH_MUA-RH_baselineMUA)/RH_baselineMUA;
+    LH_MUANeuro = (LH_MUA - LH_baselineMUA)/LH_baselineMUA;
+    RH_MUANeuro = (RH_MUA - RH_baselineMUA)/RH_baselineMUA;
     % divide the neural signals into five second bins and put them in a cell array
     hipptempDeltaStruct = cell(180,1);
     hipptempThetaStruct = cell(180,1);
@@ -446,35 +447,152 @@ for aa = 1:size(procDataFileIDs,1)
     % create folder for the left and right CBV data
     CBVfs = ProcData.notes.CBVCamSamplingRate;
     timeBin = 5;
-    LH_CBV = ProcData.data.CBV.adjLH;
-    RH_CBV = ProcData.data.CBV.adjRH;
-    LH_NormCBV = (LH_CBV-RestingBaselines.(baselineType).CBV.adjLH.(strDay).mean)/RestingBaselines.(baselineType).CBV.adjLH.(strDay).mean;
-    RH_NormCBV = (RH_CBV-RestingBaselines.(baselineType).CBV.adjRH.(strDay).mean)/RestingBaselines.(baselineType).CBV.adjRH.(strDay).mean;
-    LH_HbT = ProcData.data.CBV_HbT.adjLH;
-    RH_HbT = ProcData.data.CBV_HbT.adjRH;
-    LH_tempCBVStruct = cell(180,1);
-    RH_tempCBVStruct = cell(180,1);
-    hbtLH_tempCBVStruct = cell(180,1);
-    hbtRH_tempCBVStruct = cell(180,1);
-    for hh = 1:180
-        if hh == 1
-            LH_tempCBVStruct(hh,1) = {LH_NormCBV(hh:CBVfs*timeBin)};
-            RH_tempCBVStruct(hh,1) = {RH_NormCBV(hh:CBVfs*timeBin)};
-            hbtLH_tempCBVStruct(hh,1) = {LH_HbT(hh:CBVfs*timeBin)};
-            hbtRH_tempCBVStruct(hh,1) = {RH_HbT(hh:CBVfs*timeBin)};
-        else
-            LH_tempCBVStruct(hh,1) = {LH_NormCBV((((CBVfs*timeBin*(hh - 1)) + 1)):(CBVfs*timeBin*hh))};
-            RH_tempCBVStruct(hh,1) = {RH_NormCBV((((CBVfs*timeBin*(hh - 1)) + 1)):(CBVfs*timeBin*hh))};
-            hbtLH_tempCBVStruct(hh,1) = {LH_HbT((((CBVfs*timeBin*(hh - 1)) + 1)):(CBVfs*timeBin*hh))};
-            hbtRH_tempCBVStruct(hh,1) = {RH_HbT((((CBVfs*timeBin*(hh - 1)) + 1)):(CBVfs*timeBin*hh))};
+    if strcmpi(imagingType,'bilateral') == true
+        LH_CBV = ProcData.data.CBV.adjLH;
+        RH_CBV = ProcData.data.CBV.adjRH;
+        LH_NormCBV = (LH_CBV - RestingBaselines.(baselineType).CBV.adjLH.(strDay).mean)/RestingBaselines.(baselineType).CBV.adjLH.(strDay).mean;
+        RH_NormCBV = (RH_CBV - RestingBaselines.(baselineType).CBV.adjRH.(strDay).mean)/RestingBaselines.(baselineType).CBV.adjRH.(strDay).mean;
+        LH_HbT = ProcData.data.CBV_HbT.adjLH;
+        RH_HbT = ProcData.data.CBV_HbT.adjRH;
+        LH_tempCBVStruct = cell(180,1);
+        RH_tempCBVStruct = cell(180,1);
+        hbtLH_tempCBVStruct = cell(180,1);
+        hbtRH_tempCBVStruct = cell(180,1);
+        for hh = 1:180
+            if hh == 1
+                LH_tempCBVStruct(hh,1) = {LH_NormCBV(hh:CBVfs*timeBin)};
+                RH_tempCBVStruct(hh,1) = {RH_NormCBV(hh:CBVfs*timeBin)};
+                hbtLH_tempCBVStruct(hh,1) = {LH_HbT(hh:CBVfs*timeBin)};
+                hbtRH_tempCBVStruct(hh,1) = {RH_HbT(hh:CBVfs*timeBin)};
+            else
+                LH_tempCBVStruct(hh,1) = {LH_NormCBV((((CBVfs*timeBin*(hh - 1)) + 1)):(CBVfs*timeBin*hh))};
+                RH_tempCBVStruct(hh,1) = {RH_NormCBV((((CBVfs*timeBin*(hh - 1)) + 1)):(CBVfs*timeBin*hh))};
+                hbtLH_tempCBVStruct(hh,1) = {LH_HbT((((CBVfs*timeBin*(hh - 1)) + 1)):(CBVfs*timeBin*hh))};
+                hbtRH_tempCBVStruct(hh,1) = {RH_HbT((((CBVfs*timeBin*(hh - 1)) + 1)):(CBVfs*timeBin*hh))};
+            end
         end
+        % save hemodynamic data under ProcData file
+        ProcData.sleep.parameters.CBV.LH = LH_tempCBVStruct;
+        ProcData.sleep.parameters.CBV.RH = RH_tempCBVStruct;
+        ProcData.sleep.parameters.CBV.hbtLH = hbtLH_tempCBVStruct;
+        ProcData.sleep.parameters.CBV.hbtRH = hbtRH_tempCBVStruct;
+        save(procDataFileID,'ProcData');
+    elseif strcmpi(imagingType,'GCaMP') == true
+        % reflectance somatosensory and frontal ROIs
+        LH_CBV = ProcData.data.CBV.LH;
+        RH_CBV = ProcData.data.CBV.RH;
+        LH_NormCBV = (LH_CBV - RestingBaselines.(baselineType).CBV.LH.(strDay).mean)/RestingBaselines.(baselineType).CBV.LH.(strDay).mean;
+        RH_NormCBV = (RH_CBV - RestingBaselines.(baselineType).CBV.RH.(strDay).mean)/RestingBaselines.(baselineType).CBV.RH.(strDay).mean;
+        frontalLH_CBV = ProcData.data.CBV.frontalLH;
+        frontalRH_CBV = ProcData.data.CBV.frontalRH;
+        frontalLH_NormCBV = (frontalLH_CBV - RestingBaselines.(baselineType).CBV.frontalLH.(strDay).mean)/RestingBaselines.(baselineType).CBV.frontalLH.(strDay).mean;
+        frontalRH_NormCBV = (frontalRH_CBV - RestingBaselines.(baselineType).CBV.frontalRH.(strDay).mean)/RestingBaselines.(baselineType).CBV.frontalRH.(strDay).mean;
+        LH_tempCBVStruct = cell(180,1);
+        RH_tempCBVStruct = cell(180,1);
+        frontalLH_tempCBVStruct = cell(180,1);
+        frontalRH_tempCBVStruct = cell(180,1);
+        for hh = 1:180
+            if hh == 1
+                LH_tempCBVStruct(hh,1) = {LH_NormCBV(hh:CBVfs*timeBin)};
+                RH_tempCBVStruct(hh,1) = {RH_NormCBV(hh:CBVfs*timeBin)};
+                frontalLH_tempCBVStruct(hh,1) = {frontalLH_NormCBV(hh:CBVfs*timeBin)};
+                frontalRH_tempCBVStruct(hh,1) = {frontalRH_NormCBV(hh:CBVfs*timeBin)};
+            else
+                LH_tempCBVStruct(hh,1) = {LH_NormCBV((((CBVfs*timeBin*(hh - 1)) + 1)):(CBVfs*timeBin*hh))};
+                RH_tempCBVStruct(hh,1) = {RH_NormCBV((((CBVfs*timeBin*(hh - 1)) + 1)):(CBVfs*timeBin*hh))};
+                frontalLH_tempCBVStruct(hh,1) = {frontalLH_NormCBV((((CBVfs*timeBin*(hh - 1)) + 1)):(CBVfs*timeBin*hh))};
+                frontalRH_tempCBVStruct(hh,1) = {frontalRH_NormCBV((((CBVfs*timeBin*(hh - 1)) + 1)):(CBVfs*timeBin*hh))};
+            end
+        end
+        % save hemodynamic data under ProcData file
+        ProcData.sleep.parameters.CBV.LH = LH_tempCBVStruct;
+        ProcData.sleep.parameters.CBV.RH = RH_tempCBVStruct;
+        ProcData.sleep.parameters.CBV.frontalLH = frontalLH_tempCBVStruct;
+        ProcData.sleep.parameters.CBV.frontalRH = frontalRH_tempCBVStruct;
+        % HbT somatosensory and frontal ROIs
+        LH_HbT = ProcData.data.CBV_HbT.LH;
+        RH_HbT = ProcData.data.CBV_HbT.RH;
+        frontalLH_HbT = ProcData.data.CBV_HbT.frontalLH;
+        frontalRH_HbT = ProcData.data.CBV_HbT.frontalRH;
+        hbtLH_tempCBVStruct = cell(180,1);
+        hbtRH_tempCBVStruct = cell(180,1);
+        hbtFrontalLH_tempCBVStruct = cell(180,1);
+        hbtFrontalRH_tempCBVStruct = cell(180,1);
+        for hh = 1:180
+            if hh == 1
+                hbtLH_tempCBVStruct(hh,1) = {LH_HbT(hh:CBVfs*timeBin)};
+                hbtRH_tempCBVStruct(hh,1) = {RH_HbT(hh:CBVfs*timeBin)};
+                hbtFrontalLH_tempCBVStruct(hh,1) = {frontalLH_HbT(hh:CBVfs*timeBin)};
+                hbtFrontalRH_tempCBVStruct(hh,1) = {frontalRH_HbT(hh:CBVfs*timeBin)};
+            else
+                hbtLH_tempCBVStruct(hh,1) = {LH_HbT((((CBVfs*timeBin*(hh - 1)) + 1)):(CBVfs*timeBin*hh))};
+                hbtRH_tempCBVStruct(hh,1) = {RH_HbT((((CBVfs*timeBin*(hh - 1)) + 1)):(CBVfs*timeBin*hh))};
+                hbtFrontalLH_tempCBVStruct(hh,1) = {frontalLH_HbT((((CBVfs*timeBin*(hh - 1)) + 1)):(CBVfs*timeBin*hh))};
+                hbtFrontalRH_tempCBVStruct(hh,1) = {frontalRH_HbT((((CBVfs*timeBin*(hh - 1)) + 1)):(CBVfs*timeBin*hh))};
+            end
+        end
+        % save hemodynamic data under ProcData file
+        ProcData.sleep.parameters.CBV_HbT.LH = hbtLH_tempCBVStruct;
+        ProcData.sleep.parameters.CBV_HbT.RH = hbtRH_tempCBVStruct;
+        ProcData.sleep.parameters.CBV_HbT.frontalLH = hbtFrontalLH_tempCBVStruct;
+        ProcData.sleep.parameters.CBV_HbT.frontalRH = hbtFrontalRH_tempCBVStruct;
+        % GCaMP7s somatosensory and frontal ROIs
+        LH_GCaMP7s = ProcData.data.GCaMP7s.corLH;
+        RH_GCaMP7s = ProcData.data.GCaMP7s.corRH;
+        frontalLH_GCaMP7s = ProcData.data.GCaMP7s.corFrontalLH;
+        frontalRH_GCaMP7s = ProcData.data.GCaMP7s.corFrontalRH;
+        GCaMP7sLH_tempCBVStruct = cell(180,1);
+        GCaMP7sRH_tempCBVStruct = cell(180,1);
+        GCaMP7sFrontalLH_tempCBVStruct = cell(180,1);
+        GCaMP7sFrontalRH_tempCBVStruct = cell(180,1);
+        for hh = 1:180
+            if hh == 1
+                GCaMP7sLH_tempCBVStruct(hh,1) = {LH_GCaMP7s(hh:CBVfs*timeBin)};
+                GCaMP7sRH_tempCBVStruct(hh,1) = {RH_GCaMP7s(hh:CBVfs*timeBin)};
+                GCaMP7sFrontalLH_tempCBVStruct(hh,1) = {frontalLH_GCaMP7s(hh:CBVfs*timeBin)};
+                GCaMP7sFrontalRH_tempCBVStruct(hh,1) = {frontalRH_GCaMP7s(hh:CBVfs*timeBin)};
+            else
+                GCaMP7sLH_tempCBVStruct(hh,1) = {LH_GCaMP7s((((CBVfs*timeBin*(hh - 1)) + 1)):(CBVfs*timeBin*hh))};
+                GCaMP7sRH_tempCBVStruct(hh,1) = {RH_GCaMP7s((((CBVfs*timeBin*(hh - 1)) + 1)):(CBVfs*timeBin*hh))};
+                GCaMP7sFrontalLH_tempCBVStruct(hh,1) = {frontalLH_GCaMP7s((((CBVfs*timeBin*(hh - 1)) + 1)):(CBVfs*timeBin*hh))};
+                GCaMP7sFrontalRH_tempCBVStruct(hh,1) = {frontalRH_GCaMP7s((((CBVfs*timeBin*(hh - 1)) + 1)):(CBVfs*timeBin*hh))};
+            end
+        end
+        % save hemodynamic data under ProcData file
+        ProcData.sleep.parameters.GCaMP7s.LH = GCaMP7sLH_tempCBVStruct;
+        ProcData.sleep.parameters.GCaMP7s.RH = GCaMP7sRH_tempCBVStruct;
+        ProcData.sleep.parameters.GCaMP7s.frontalLH = GCaMP7sFrontalLH_tempCBVStruct;
+        ProcData.sleep.parameters.GCaMP7s.frontalRH = GCaMP7sFrontalRH_tempCBVStruct;
+        % Deoxy somatosensory and frontal ROIs
+        LH_Deoxy = ProcData.data.Deoxy.LH;
+        RH_Deoxy = ProcData.data.Deoxy.RH;
+        frontalLH_Deoxy = ProcData.data.Deoxy.frontalLH;
+        frontalRH_Deoxy = ProcData.data.Deoxy.frontalRH;
+        deoxyLH_tempCBVStruct = cell(180,1);
+        deoxyRH_tempCBVStruct = cell(180,1);
+        deoxyFrontalLH_tempCBVStruct = cell(180,1);
+        deoxyFrontalRH_tempCBVStruct = cell(180,1);
+        for hh = 1:180
+            if hh == 1
+                deoxyLH_tempCBVStruct(hh,1) = {LH_Deoxy(hh:CBVfs*timeBin)};
+                deoxyRH_tempCBVStruct(hh,1) = {RH_Deoxy(hh:CBVfs*timeBin)};
+                deoxyFrontalLH_tempCBVStruct(hh,1) = {frontalLH_Deoxy(hh:CBVfs*timeBin)};
+                deoxyFrontalRH_tempCBVStruct(hh,1) = {frontalRH_Deoxy(hh:CBVfs*timeBin)};
+            else
+                deoxyLH_tempCBVStruct(hh,1) = {LH_Deoxy((((CBVfs*timeBin*(hh - 1)) + 1)):(CBVfs*timeBin*hh))};
+                deoxyRH_tempCBVStruct(hh,1) = {RH_Deoxy((((CBVfs*timeBin*(hh - 1)) + 1)):(CBVfs*timeBin*hh))};
+                deoxyFrontalLH_tempCBVStruct(hh,1) = {frontalLH_Deoxy((((CBVfs*timeBin*(hh - 1)) + 1)):(CBVfs*timeBin*hh))};
+                deoxyFrontalRH_tempCBVStruct(hh,1) = {frontalRH_Deoxy((((CBVfs*timeBin*(hh - 1)) + 1)):(CBVfs*timeBin*hh))};
+            end
+        end
+        % save hemodynamic data under ProcData file
+        ProcData.sleep.parameters.Deoxy.LH = deoxyLH_tempCBVStruct;
+        ProcData.sleep.parameters.Deoxy.RH = deoxyRH_tempCBVStruct;
+        ProcData.sleep.parameters.Deoxy.frontalLH = deoxyFrontalLH_tempCBVStruct;
+        ProcData.sleep.parameters.Deoxy.frontalRH = deoxyFrontalRH_tempCBVStruct;
+        % save data structure
+        save(procDataFileID,'ProcData');
     end
-    % save hemodynamic data under ProcData file
-    ProcData.sleep.parameters.CBV.LH = LH_tempCBVStruct;
-    ProcData.sleep.parameters.CBV.RH = RH_tempCBVStruct;
-    ProcData.sleep.parameters.CBV.hbtLH = hbtLH_tempCBVStruct;
-    ProcData.sleep.parameters.CBV.hbtRH = hbtRH_tempCBVStruct;
-    save(procDataFileID,'ProcData');
 end
 
 end

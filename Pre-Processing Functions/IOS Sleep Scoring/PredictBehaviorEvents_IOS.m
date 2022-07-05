@@ -1,4 +1,4 @@
-function [ScoringResults] = PredictBehaviorEvents_IOS(animalID,startingDirectory,baselineDirectory,modelDataFileIDs,modelName)
+function [ScoringResults] = PredictBehaviorEvents_IOS(animalID,modelDataFileIDs,modelName)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -7,10 +7,9 @@ function [ScoringResults] = PredictBehaviorEvents_IOS(animalID,startingDirectory
 % Purpose: Use trained model to predict arousal states on all files
 %________________________________________________________________________________________________________________________
 
+% directory path for saving data
 disp(['Predicting behavior events using ' modelName ' model']); disp(' ')
 % load appropriate model
-modelDirectory = [startingDirectory '\Figures\Sleep Models\'];
-cd(modelDirectory)
 notManual = 'y';
 if strcmp(modelName,'SVM') == true
     modelName = [animalID '_IOS_SVM_SleepScoringModel.mat'];
@@ -31,7 +30,6 @@ elseif strcmp(modelName,'Manual') == true
     notManual = 'n';
     modelType = 'Manual';
 end
-cd(baselineDirectory)
 % go through each manual file and sleep score it using the chosen model
 if strcmp(notManual,'y') == true
     for a = 1:size(modelDataFileIDs,1)
@@ -85,6 +83,5 @@ else
     ScoringResults = [];
 end
 save([animalID '_' modelType '_ScoringResults'],'ScoringResults')
-cd(startingDirectory)
 
 end

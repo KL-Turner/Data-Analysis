@@ -1,4 +1,4 @@
-function [] = CreateTrainingDataSet_IOS(procDataFileIDs,RestingBaselines,baselineType)
+function [] = CreateTrainingDataSet_IOS(procDataFileIDs,RestingBaselines,baselineType,imagingType,TrainingFiles)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -7,18 +7,33 @@ function [] = CreateTrainingDataSet_IOS(procDataFileIDs,RestingBaselines,baselin
 % Purpose: Go through each file and train a data set for the model or for model validation
 %________________________________________________________________________________________________________________________
 
-for a = 1:size(procDataFileIDs,1)
-    procDataFileID = procDataFileIDs(a,:);
-    modelDataFileID = [procDataFileID(1:end-12) 'ModelData.mat'];
-    trainingDataFileID = [procDataFileID(1:end-12) 'TrainingData.mat'];
+cc = 1;
+% reduce file list to those with the training dates
+for aa = 1:size(procDataFileIDs,1)
+    procDataFileID = procDataFileIDs(aa,:);
+    [~,fileDate,~] = GetFileInfo_IOS(procDataFileID);
+    if strcmp(fileDate,TrainingFiles.day1) == true || strcmp(fileDate,TrainingFiles.day2) == true
+        trainingFileList(cc,:) = procDataFileID;
+        cc = cc + 1;
+    end
+end
+% go through each training file
+for bb = 1:size(trainingFileList,1)
+    procDataFileID = trainingFileList(bb,:);
+    disp(['Manually training ProcData file (' num2str(bb) '/' num2str(size(trainingFileList,1)) ')']); disp(' ')
+    modelDataFileID = [procDataFileID(1:end - 12) 'ModelData.mat'];
+    trainingDataFileID = [procDataFileID(1:end - 12) 'TrainingData.mat'];
     if ~exist(trainingDataFileID,'file')
         disp(['Loading ' procDataFileID ' for manual sleep scoring.' ]); disp(' ')
         load(procDataFileID)
         load(modelDataFileID)
         saveFigs = 'n';
-        imagingType = 'bilateral';
         hemoType = 'HbT';
-        [figHandle,~,~,ax3,~,~,~] = GenerateSingleFigures_IOS(procDataFileID,RestingBaselines,baselineType,saveFigs,imagingType,hemoType);
+        if strcmpi(imagingType,'GCaMP') == true
+            [figHandle,~,~,ax3,~,~] = GenerateSingleFigures_GCaMP_Sleep_IOS(procDataFileID);
+        else
+            [figHandle,~,~,ax3,~,~,~] = GenerateSingleFigures_IOS(procDataFileID,RestingBaselines,baselineType,saveFigs,imagingType,hemoType);
+        end
         trialDuration = ProcData.notes.trialDuration_sec;
         numBins = trialDuration/5;
         behavioralState = cell(180,1);

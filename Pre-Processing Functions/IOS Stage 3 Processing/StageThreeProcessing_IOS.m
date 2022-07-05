@@ -46,13 +46,13 @@ end
 neuralDataTypes = {'cortical_LH','cortical_RH','hippocampus'};
 basefile = ([animalID '_RestingBaselines.mat']);
 % categorize data
-for a = 1:size(procDataFileIDs,1)
-    procDataFileID = procDataFileIDs(a,:);
-    disp(['Analyzing file ' num2str(a) ' of ' num2str(size(procDataFileIDs,1)) '...']); disp(' ')
+for aa = 1:size(procDataFileIDs,1)
+    procDataFileID = procDataFileIDs(aa,:);
+    disp(['Analyzing file ' num2str(aa) ' of ' num2str(size(procDataFileIDs,1)) '...']); disp(' ')
     CategorizeData_IOS(procDataFileID,stimulationType)
 end
 % create RestData data structure
-[RestData] = ExtractRestingData_IOS(procDataFileIDs,dataTypes,imagingType);
+[RestData] = ExtractRestingData_IOS(procDataFileIDs,dataTypes,imagingType,1);
 % analyze the spectrogram for each session.
 CreateTrialSpectrograms_IOS(rawDataFileIDs,neuralDataTypes);
 % create Baselines data structure
@@ -73,8 +73,8 @@ UpdateTotalHemoglobin_IOS(procDataFileIDs,RestingBaselines,updatedBaselineType,i
 if strcmpi(imagingType,'GCaMP') == true
     CorrectGCaMPattenuation_IOS(procDataFileIDs,RestingBaselines)
 end
-% re-create the RestData structure now that HbT is available
-[RestData] = ExtractRestingData_IOS(procDataFileIDs,updatedDataTypes,imagingType);
+% re-create the RestData structure now that HbT (and/or corrected GCaMP) is available
+[RestData] = ExtractRestingData_IOS(procDataFileIDs,updatedDataTypes,imagingType,2);
 % create the EventData structure for CBV and neural data
 [EventData] = ExtractEventTriggeredData_IOS(procDataFileIDs,updatedDataTypes,imagingType);
 % normalize RestData and EventData structures by the resting baseline

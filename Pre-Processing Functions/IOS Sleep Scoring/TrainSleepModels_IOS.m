@@ -9,8 +9,6 @@ function [animalID] = TrainSleepModels_IOS()
 
 %% load in all the data to create a table of values
 startingDirectory = cd;
-trainingDirectory = [startingDirectory '\Training Data\'];
-cd(trainingDirectory)
 % character list of all training files
 trainingDataFileStruct = dir('*_TrainingData.mat');
 trainingDataFiles = {trainingDataFileStruct.name}';
@@ -42,7 +40,8 @@ Yeven = joinedTableEven(:,end);
 % pull animal ID
 [animalID,~,~] = GetFileInfo_IOS(trainingTableFileID);
 % directory path for saving data
-dirpath = [startingDirectory '\Figures\Sleep Models\'];
+[pathstr,~,~] = fileparts(cd);
+dirpath = [pathstr '/Figures/Sleep Models/'];
 if ~exist(dirpath,'dir')
     mkdir(dirpath);
 end
@@ -51,7 +50,7 @@ t = templateSVM('Standardize',true,'KernelFunction','gaussian');
 disp('Training Support Vector Machine...'); disp(' ')
 SVM_MDL = fitcecoc(Xodd,Yodd,'Learners',t,'FitPosterior',true,'ClassNames',{'Not Sleep','NREM Sleep','REM Sleep'},'Verbose',2);
 % save model in desired location
-save([dirpath animalID '_IOS_SVM_SleepScoringModel.mat'],'SVM_MDL')
+save([animalID '_IOS_SVM_SleepScoringModel.mat'],'SVM_MDL')
 % determine k-fold loss of the model
 disp('Cross-validating (3-fold) the support vector machine classifier...'); disp(' ')
 CV_SVM_MDL = crossval(SVM_MDL,'kfold',3);
@@ -130,7 +129,7 @@ t = templateTree('Reproducible',true);
 EC_MDL = fitcensemble(Xodd,Yodd,'OptimizeHyperparameters','auto','Learners',t,'HyperparameterOptimizationOptions',...
     struct('AcquisitionFunctionName','expected-improvement-plus'),'ClassNames',{'Not Sleep','NREM Sleep','REM Sleep'});
 % save model in desired location
-save([dirpath animalID '_IOS_EC_SleepScoringModel.mat'],'EC_MDL')
+save([animalID '_IOS_EC_SleepScoringModel.mat'],'EC_MDL')
 % determine k-fold loss of the model
 disp('Cross-validating (3-fold) the ensemble classifier...'); disp(' ')
 CV_EC_MDL = crossval(EC_MDL,'kfold',3);
@@ -207,7 +206,7 @@ close(EC_confMat)
 disp('Training Decision Tree Classifier...'); disp(' ')
 DT_MDL = fitctree(Xodd,Yodd,'ClassNames',{'Not Sleep','NREM Sleep','REM Sleep'});
 % save model in desired location
-save([dirpath animalID '_IOS_DT_SleepScoringModel.mat'],'DT_MDL')
+save([animalID '_IOS_DT_SleepScoringModel.mat'],'DT_MDL')
 % use the model to generate a set of scores for the even set of data
 [XoddLabels,~] = predict(DT_MDL,Xodd);
 [XevenLabels,~] = predict(DT_MDL,Xeven);
@@ -280,7 +279,7 @@ disp('Training Random Forest Classifier...'); disp(' ')
 numTrees = 128;
 RF_MDL = TreeBagger(numTrees,Xodd,Yodd,'Method','Classification','Surrogate','all','OOBPrediction','on','ClassNames',{'Not Sleep','NREM Sleep','REM Sleep'});
 % save model in desired location
-save([dirpath animalID '_IOS_RF_SleepScoringModel.mat'],'RF_MDL')
+save([animalID '_IOS_RF_SleepScoringModel.mat'],'RF_MDL')
 % determine the misclassification probability (for classification trees) for out-of-bag observations in the training data
 RF_OOBerror = oobError(RF_MDL,'Mode','Ensemble');
 disp(['Random Forest out-of-bag error: ' num2str(RF_OOBerror*100) '%']); disp(' ')
@@ -356,7 +355,7 @@ disp('Training k-nearest neighbor Classifier...'); disp(' ')
 t = templateKNN('NumNeighbors',5,'Standardize',1);
 KNN_MDL = fitcecoc(Xodd,Yodd,'Learners',t);
 % save model in desired location
-save([dirpath animalID '_IOS_KNN_SleepScoringModel.mat'],'KNN_MDL')
+save([animalID '_IOS_KNN_SleepScoringModel.mat'],'KNN_MDL')
 % use the model to generate a set of scores for the even set of data
 [XoddLabels,~] = predict(KNN_MDL,Xodd);
 [XevenLabels,~] = predict(KNN_MDL,Xeven);
@@ -428,7 +427,7 @@ close(KNN_confMat)
 disp('Training naive Bayes Classifier...'); disp(' ')
 NB_MDL = fitcnb(Xodd,Yodd,'ClassNames',{'Not Sleep','NREM Sleep','REM Sleep'});
 % save model in desired location
-save([dirpath animalID '_IOS_NB_SleepScoringModel.mat'],'NB_MDL')
+save([animalID '_IOS_NB_SleepScoringModel.mat'],'NB_MDL')
 % use the model to generate a set of scores for the even set of data
 [XoddLabels,~] = predict(NB_MDL,Xodd);
 [XevenLabels,~] = predict(NB_MDL,Xeven);

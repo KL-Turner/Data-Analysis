@@ -1,4 +1,4 @@
-function [] = ApplySleepLogical_IOS(startingDirectory,trainingDirectory,baselineDirectory,modelName,ScoringResults)
+function [] = ApplySleepLogical_IOS(modelName,ScoringResults)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -7,7 +7,6 @@ function [] = ApplySleepLogical_IOS(startingDirectory,trainingDirectory,baseline
 % Purpose: Apply logicals for each arousal state to files for arousal state separation
 %________________________________________________________________________________________________________________________
 
-cd(baselineDirectory)
 if strcmp(modelName,'Manual') == false
     % character list of all ProcData files
     procDataFileStruct = dir('*_ProcData.mat');
@@ -51,19 +50,27 @@ if strcmp(modelName,'Manual') == false
         ProcData.sleep.logicals.(modelName).remLogical = logical(remLogical);
         save(procDataFileID,'ProcData')
     end
-    cd(startingDirectory)
 else
-    cd(trainingDirectory)
     % character list of all ProcData files
     procDataFileStruct = dir('*_ProcData.mat');
     procDataFiles = {procDataFileStruct.name}';
     procDataFileIDs = char(procDataFiles);
+    cc = 1;
+    % reduce file list to those with the training dates
+    for aa = 1:size(procDataFileIDs,1)
+        procDataFileID = procDataFileIDs(aa,:);
+        [~,fileDate,~] = GetFileInfo_IOS(procDataFileID);
+        if strcmp(fileDate,TrainingFiles.day1) == true || strcmp(fileDate,TrainingFiles.day2) == true
+            trainingFileList(cc,:) = procDataFileID;
+            cc = cc + 1;
+        end
+    end
     % character list of all TrainingData files
     trainingDataFileStruct = dir('*_TrainingData.mat');
     trainingDataFiles = {trainingDataFileStruct.name}';
     trainingDataFileIDs = char(trainingDataFiles);
-    for e = 1:size(procDataFileIDs,1)
-        procDataFileID = procDataFileIDs(e,:);
+    for e = 1:size(trainingFileList,1)
+        procDataFileID = trainingFileList(e,:);
         load(procDataFileID)
         trainingDataFileID = trainingDataFileIDs(e,:);
         load(trainingDataFileID)
@@ -90,5 +97,4 @@ else
         ProcData.sleep.logicals.(modelName).remLogical = logical(remLogical);
         save(procDataFileID,'ProcData')
     end
-    cd(startingDirectory)
 end
