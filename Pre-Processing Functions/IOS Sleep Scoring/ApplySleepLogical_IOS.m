@@ -1,4 +1,4 @@
-function [] = ApplySleepLogical_IOS(modelName,ScoringResults)
+function [] = ApplySleepLogical_IOS(modelName,TrainingFiles,ScoringResults)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering

@@ -49,7 +49,7 @@ modelDataFileIDs = char(modelDataFiles);
 for c = 1:length(modelNames)
     modelName = modelNames{1,c};
     [ScoringResults] = PredictBehaviorEvents_IOS(animalID,modelDataFileIDs,modelName);
-    ApplySleepLogical_IOS(modelName,ScoringResults)
+    ApplySleepLogical_IOS(modelName,TrainingFiles,ScoringResults)
     NREMsleepTime = 30; % seconds
     REMsleepTime = 60; % seconds
     if strcmpi(imagingType,'GCaMP') == true
