@@ -34,8 +34,8 @@ while strcmp(isok,'y') == 0
     set(gca,'box','off')
     ylabel('Binarization')
     linkaxes([ax1,ax2,ax3],'x');
-    isok = input('Is this threshold okay? (y/n) ','s'); disp(' ')
     drawnow
+    isok = input('Is this threshold okay? (y/n) ','s'); disp(' ')
 end
 close(whiskThresh);
 

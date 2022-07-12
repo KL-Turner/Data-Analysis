@@ -30,8 +30,8 @@ while strcmp(isok,'y') == 0
     plot(binForceSensor,'k')
     axis tight
     set(gca,'box','off')
-    isok = input('Is this threshold okay? (y/n) ','s'); disp(' ')
     drawnow
+    isok = input('Is this threshold okay? (y/n) ','s'); disp(' ')
 end
 close(forceThresh);
 

@@ -30,7 +30,7 @@ for a = 2:size(alldata,1)   % Loop through all rows of the excel sheet except th
     MScanData.notes.drug = alldata{a,13};
     currentFileID = ([MScanData.notes.animalID '_' MScanData.notes.date '_' MScanData.notes.imageID '_' MScanData.notes.vesselID '_MScanData.mat']);
     if ~exist(currentFileID,'file')   % Only run analysis if the current file doesn't exist yet
-        % Vessel diameter calculation for surface vessels
+        % Vessel diameter calculation    for surface vessels
         if strcmp(MScanData.notes.movieType,'MS') == true
             [MScanData] = DiamCalcSurfaceVessel_2P(MScanData,[MScanData.notes.date '_' MScanData.notes.imageID]);
             % Vessel diameter (area) calculation for penetrating vessels
