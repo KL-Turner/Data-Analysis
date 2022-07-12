@@ -56,6 +56,7 @@ while strcmp(yString,theInput) == false
     xSize = size(image,2);
     ySize = size(image,1);
     area = impoly(gca,[1,1;1,20;20,20;20,1]); %#ok<*IMPOLY>
+    drawnow
     theInput = input('Is the diameter of the box ok? (y/n): ', 's'); disp(' ')
     getAPI = iptgetapi(area);
     MScanData.notes.vesselROI.boxPosition.xy = getAPI.getPosition();

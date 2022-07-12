@@ -35,6 +35,7 @@ while strcmp(isok,'y') == 0
     ylabel('Binarization')
     linkaxes([ax1,ax2,ax3],'x');
     isok = input('Is this threshold okay? (y/n) ','s'); disp(' ')
+    drawnow
 end
 close(whiskThresh);
 

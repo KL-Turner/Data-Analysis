@@ -69,6 +69,8 @@ if isfield(ProcData.data.Pupil,'frameCheck') == false
         axis image
         axis off
     end
+    imageCheck.WindowState = 'maximized';
+    drawnow
     % request user input for this file
     check = false;
     while check == false

@@ -59,8 +59,9 @@ if isfield(PupilData,'firstFileOfDay') == false
             colormap gray
             title(['Session ' num2str(dd)])
         end
+        drawnow
         % choose desired file
-        desiredFile = input('Which file looks best for ROI drawing: '); disp(' ')
+        desiredFile = input(['Which ' strDay ' file looks best for ROI drawing? (1,2,etc.): ']); disp(' ')
         PupilData.firstFileOfDay{1,bb} = dayFilenames.(strDay)(desiredFile,:);
         % resize image if larger than 200x200
         if ProcData.notes.pupilCamPixelHeight > 200
@@ -117,24 +118,24 @@ for bb = 1:length(firstFileOfDay)
             roiImage = imcrop(roiImage,PupilData.resizePosition{1,bb});
         end
         workingImg = imcomplement(roiImage); % grab frame from image stack
-        disp('Draw roi around eye'); disp(' ')
+        disp(['Draw ROI around eye for ' strDay]); disp(' ')
         eyeFigure = figure;
         title('Draw ROI around eye')
         [eyeROI] = roipoly(workingImg);
         % model the distribution of pixel intensities as a gaussian to estimate/isolate the population of pupil pixels
         pupilHistEdges = 1:1:256; % camera data is unsigned 8bit integers. Ignore 0 values
-        threshSet = 4.5; % StD beyond mean intensity to binarize image for pupil tracking
+        threshSet = 2; % StD beyond mean intensity to binarize image for pupil tracking
         medFiltParams = [5,5]; % [x,y] dimensions for 2d median filter of images
         filtImg = medfilt2(workingImg,medFiltParams); % median filter image
-        threshImg = uint8(double(filtImg).*eyeROI); % only look at pixel values in ROI
+        threshImg = double(filtImg).*eyeROI; % only look at pixel values in ROI
         [phat,~] = mle(reshape(threshImg(threshImg ~= 0),1,numel(threshImg(threshImg ~= 0))),'distribution','Normal');
         % figure for verifying pupil threshold
         pupilROIFig = figure;
         subplot(1,3,1)
-        pupilHist = histogram(threshImg((threshImg ~= 0)),'BinEdges',pupilHistEdges,'probability');
-        xlabel('Pixel intensities');
-        ylabel('Bin Counts');
-        title('Histogram of image pixel intensities')
+        pupilHist = histogram(threshImg(threshImg ~= 0),'BinEdges',pupilHistEdges,'Normalization','probability');
+        xlabel('Pixel intensity');
+        ylabel('Probability');
+        title('Histogram of image pixel intensity')
         normCounts = pupilHist.BinCounts./sum(pupilHist.BinCounts); % normalizes bin count to total bin counts
         theFit = pdf('normal',pupilHist.BinEdges,phat(1),phat(2)); % generate distribution from mle fit of data
         normFit = theFit./sum(theFit); % normalize fit so sum of gaussian ==1
@@ -143,11 +144,12 @@ for bb = 1:length(firstFileOfDay)
         testImg(threshImg >= intensityThresh) = 1;
         testImg(threshImg < intensityThresh) = 0;
         testThresh = labeloverlay(roiImage(:,:,1),testImg);
+        xlim([0,256]);
         axis square
         subplot(1,3,2)
         plot(pupilHist.BinEdges(2:end),normCounts,'k','LineWidth',1);
-        xlabel('Pixel intensities');
-        ylabel('Normalized bin counts');
+        xlabel('Pixel intensity');
+        ylabel('Probability');
         title('Normalized histogram and MLE fit of histogram');
         hold on;
         plot(pupilHist.BinEdges,normFit,'r','LineWidth',2);
@@ -203,10 +205,7 @@ for cc = 1:size(procDataFileIDs,1)
     end
     load(char(procDataFileID))
     disp(['Checking pupil tracking status of file (' num2str(cc) '/' num2str(size(procDataFileIDs,1)) ')']); disp(' ')
-    % if isfield(ProcData.data,'Pupil') == false
-    if isfield(ProcData.data.Pupil,'algorithmUpdate') == false
-        ProcData.data.Pupil.originalPupilArea = ProcData.data.Pupil.pupilArea;
-        ProcData.data.Pupil.originalBlinkInds = ProcData.data.Pupil.blinkInds;
+    if isfield(ProcData.data,'Pupil') == false
         [animalID,fileDate,fileID] = GetFileInfo_IOS(procDataFileID);
         strDay = ConvertDate_IOS(fileDate);
         pupilCamFileID = [fileID '_PupilCam.bin'];
@@ -599,32 +598,17 @@ for cc = 1:size(procDataFileIDs,1)
         %% original vs. updated algorithm
         trackingFig = figure;
         sgtitle(strrep(procDataFileID,'_',' '))
-        subplot(3,6,[1,7,13])
-        imagesc(ProcData.data.Pupil.firstFrame)
-        title(['Previous file choice: ' ProcData.data.Pupil.diameterCheck]);
-        colormap gray
-        axis image
-        axis off
-        subplot(3,6,2:6)
-        p1 = plot((1:length(ProcData.data.Pupil.originalPupilArea))/samplingRate,ProcData.data.Pupil.originalPupilArea,'k','LineWidth',1);
+        subplot(2,1,1)
+        p1 = plot((1:length(ProcData.data.Pupil.pupilArea))/samplingRate,ProcData.data.Pupil.pupilArea,'k','LineWidth',1);
         hold on
-        s1 = scatter(ProcData.data.Pupil.originalBlinkInds/samplingRate,ones(length(ProcData.data.Pupil.originalBlinkInds),1)*max(ProcData.data.Pupil.originalPupilArea),'MarkerEdgeColor','b');
-        title('Original pupil area')
-        xlabel('Time (sec)');
-        ylabel('Area (pixels)');
-        legend([p1,s1],'pupil area','blinks')
-        set(gca,'box','off')
-        axis tight
-        subplot(3,6,8:12)
-        plot((1:length(ProcData.data.Pupil.pupilArea))/samplingRate,ProcData.data.Pupil.pupilArea,'k','LineWidth',1);
-        hold on
-        scatter(ProcData.data.Pupil.blinkInds/samplingRate,ones(length(ProcData.data.Pupil.blinkInds),1)*max(ProcData.data.Pupil.pupilArea),'MarkerEdgeColor','b');
+        s1 = scatter(ProcData.data.Pupil.blinkInds/samplingRate,ones(length(ProcData.data.Pupil.blinkInds),1)*max(ProcData.data.Pupil.pupilArea),'MarkerEdgeColor','b');
         title('Updated pupil area');
         xlabel('Time (sec)');
         ylabel('Area (pixels)');
         set(gca,'box','off')
         axis tight
-        subplot(3,6,14:18)
+        legend([p1,s1],'pupil area','blinks')
+        subplot(2,1,2)
         [z,p,k] = butter(4,1/(samplingRate/2),'low');
         [sos,g] = zp2sos(z,p,k);
         try
@@ -641,12 +625,11 @@ for cc = 1:size(procDataFileIDs,1)
         axis tight
         % save figure
         [pathstr,~,~] = fileparts(cd);
-        dirpath = [pathstr '/Figures/Pupil Algorithm Update/'];
+        dirpath = [pathstr '/Figures/Pupil Tracking/'];
         if ~exist(dirpath,'dir')
             mkdir(dirpath);
         end
-        savefig(trackingFig,[dirpath animalID '_' fileID '_Tracking']);
+        savefig(trackingFig,[dirpath animalID '_' fileID '_PupilTracking']);
         close(trackingFig)
-        % end
     end
 end

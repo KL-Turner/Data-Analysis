@@ -31,6 +31,7 @@ while strcmp(isok,'y') == 0
     axis tight
     set(gca,'box','off')
     isok = input('Is this threshold okay? (y/n) ','s'); disp(' ')
+    drawnow
 end
 close(forceThresh);
 

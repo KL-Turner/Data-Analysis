@@ -136,6 +136,7 @@ if strcmp(ProcData.data.Pupil.frameCheck,'y') == true
                         axis image
                         axis off
                         imageCheck.WindowState = 'maximized';
+                        drawnow
                         keepBlink = input(['(' num2str(ee) '/' num2str(size(imageStackA,3)) ') Is this a Blink [t = ' num2str(nFramesToRead(ee)) ']? (y/n): '],'s'); disp(' ')
                         close(imageCheck)
                         if strcmp(keepBlink,'y') == true || strcmp(keepBlink,'n') == true
@@ -177,6 +178,7 @@ if strcmp(ProcData.data.Pupil.frameCheck,'y') == true
                     axis image
                     axis off
                     imageCheck.WindowState = 'maximized';
+                    drawnow
                     keepBlink = input(['(' num2str(ee) '/' num2str(size(imageStackA,3)) ') Is this a Blink [t = ' num2str(nFramesToRead(ee)) ']? (y/n): '],'s'); disp(' ')
                     close(imageCheck)
                     if strcmp(keepBlink,'y') == true || strcmp(keepBlink,'n') == true
