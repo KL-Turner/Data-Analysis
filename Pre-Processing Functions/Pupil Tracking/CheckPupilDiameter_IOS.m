@@ -14,22 +14,9 @@ if isfield(ProcData.data.Pupil,'diameterCheckComplete') == false
         check = false;
         samplingRate = 30;
         while check == false
-            diameterCheck = figure('units','normalized','outerposition',[0,.25,1,0.75]);
+            diameterCheck = figure;
             sgtitle(strrep(procDataFileID,'_',' '))
-            try
-                p1 = plot((1:length(ProcData.data.Pupil.originalPupilArea))/samplingRate,ProcData.data.Pupil.originalPupilArea,'k','LineWidth',1);
-                hold on
-                s1 = scatter(ProcData.data.Pupil.originalBlinkInds/samplingRate,ones(length(ProcData.data.Pupil.originalBlinkInds),1)*max(ProcData.data.Pupil.originalPupilArea),'MarkerEdgeColor','b');
-                title('Original pupil area')
-                xlabel('Time (sec)');
-                ylabel('Area (pixels)');
-                legend([p1,s1],'pupil area','blinks')
-                set(gca,'box','off')
-                axis tight
-            catch
-                % don't plot
-            end
-            subplot(3,6,8:12)
+            subplot(2,1,1)
             plot((1:length(ProcData.data.Pupil.pupilArea))/samplingRate,ProcData.data.Pupil.pupilArea,'k','LineWidth',1);
             hold on
             scatter(ProcData.data.Pupil.blinkInds/samplingRate,ones(length(ProcData.data.Pupil.blinkInds),1)*max(ProcData.data.Pupil.pupilArea),'MarkerEdgeColor','b');
@@ -38,7 +25,7 @@ if isfield(ProcData.data.Pupil,'diameterCheckComplete') == false
             ylabel('Area (pixels)');
             set(gca,'box','off')
             axis tight
-            subplot(3,6,14:18)
+            subplot(2,1,2)
             [z,p,k] = butter(4,1/(samplingRate/2),'low');
             [sos,g] = zp2sos(z,p,k);
             try
@@ -53,6 +40,7 @@ if isfield(ProcData.data.Pupil,'diameterCheckComplete') == false
             ylabel('Area (pixels)');
             set(gca,'box','off')
             axis tight
+            drawnow
             keepDiameter = input('Is this an accurate pupil tracking diameter? (y/n): ','s'); disp(' ')
             close(diameterCheck)
             if strcmp(keepDiameter,'y') == true || strcmp(keepDiameter,'n') == true
