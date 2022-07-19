@@ -15,6 +15,7 @@ dd_wwf = abs((diff(angle, 2)))*fs^2;
 whiskThresh = figure;
 while strcmp(isok,'y') == 0
     plot(dd_wwf,'k');
+    drawnow
     thresh2 = input('No Threshold for volitional whisks found. Please enter a threshold: '); disp(' ')
     thresh1 = input('No Threshold for resting behavior found. Please enter a threshold: '); disp(' ')
     bin_wwf = BinarizeWhiskers_2P(angle,fs,thresh1,thresh2);

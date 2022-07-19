@@ -16,6 +16,7 @@ forceThresh = figure;
 isok = 'n';
 while strcmp(isok,'y') == 0
     plot(force,'k');
+    drawnow
     thresh = input('No Threshold to binarize pressure sensor found. Please enter a threshold: '); disp(' ')
     binForceSensor = BinarizeForceSensor_2P(forceSensor,thresh);
     subplot(3,1,1)
