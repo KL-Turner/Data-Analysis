@@ -25,6 +25,7 @@ for a = 1:size(procDataFileIDs,1)
     [~,fileDate,~] = GetFileInfo_IOS(procDataFileID);
     strDay = ConvertDate_IOS(fileDate);
     if strcmpi(imagingType,'bilateral') == true
+        cbvFields = {'LH','RH','adjLH','adjRH'};
     elseif strcmpi(imagingType,'GCaMP') == true
         cbvFields = {'LH','RH','frontalLH','frontalRH'};
     elseif strcmpi(imagingType,'single') == true
