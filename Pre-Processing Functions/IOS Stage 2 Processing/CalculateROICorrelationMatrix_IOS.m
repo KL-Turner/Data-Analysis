@@ -26,9 +26,9 @@ axis image
 caxis([0,2^RawData.notes.CBVCamBitDepth])
 set(gca,'Ticklength',[0,0])
 % determine which ROIs to draw based on imaging type
-if strcmp(imagingType,'bilateral') == true
+if strcmpi(imagingType,'bilateral') == true
     hem = {'LH','RH'};
-elseif strcmp(imagingType,'single') == true
+elseif strcmpi(imagingType,'single') == true
     hem = {'Barrels'};
 end
 % draw ROI for the mask over the entire windows

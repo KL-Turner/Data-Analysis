@@ -697,7 +697,7 @@ for aa = 1:size(procDataFileIDs,1) % loop through the list of ProcData files
                 end
             end
             % go through each matrix counter
-            splitCounter = 1:length(LH_deltaPower);
+            splitCounter = 1:length(RH_deltaPower);
             convertedMat2Cell = mat2cell(splitCounter',holdIndex);
             for matCounter = 1:length(convertedMat2Cell)
                 % cortex

@@ -30,9 +30,9 @@ for bb = 1:size(trainingFileList,1)
         saveFigs = 'n';
         hemoType = 'HbT';
         if strcmpi(imagingType,'GCaMP') == true
-            [figHandle,~,~,ax3,~,~] = GenerateSingleFigures_GCaMP_Sleep_IOS(procDataFileID);
+            [figHandle,~,~,~,ax4,~] = GenerateSingleFigures_GCaMP_Sleep_IOS(procDataFileID);
         else
-            [figHandle,~,~,ax3,~,~,~] = GenerateSingleFigures_IOS(procDataFileID,RestingBaselines,baselineType,saveFigs,imagingType,hemoType);
+            [figHandle,~,~,~,ax4,~,~] = GenerateSingleFigures_IOS(procDataFileID,RestingBaselines,baselineType,saveFigs,imagingType,hemoType);
         end
         trialDuration = ProcData.notes.trialDuration_sec;
         numBins = trialDuration/5;
@@ -44,10 +44,10 @@ for bb = 1:size(trainingFileList,1)
             xEndVal = b*5;
             xInds = xStartVal:1:xEndVal;
             figHandle = gcf;
-            subplot(ax3)
+            subplot(ax4)
             hold on
-            leftEdge3 = xline(xInds(1),'color',colors('electric purple'),'LineWidth',2);
-            rightEdge3 = xline(xInds(5),'color',colors('electric purple'),'LineWidth',2);
+            leftEdge4 = xline(xInds(1),'color',colors('electric purple'),'LineWidth',2);
+            rightEdge4 = xline(xInds(5),'color',colors('electric purple'),'LineWidth',2);
             if b == 1 % b <= 60
                 xlim([1,300])
             elseif b == 61 % b >= 61 && b <= 120
@@ -75,8 +75,8 @@ for bb = 1:size(trainingFileList,1)
                 end
                 ...
             end
-            delete(leftEdge3)
-            delete(rightEdge3)
+            delete(leftEdge4)
+            delete(rightEdge4)
         end
         close(figHandle)
         paramsTable.behavState = behavioralState;

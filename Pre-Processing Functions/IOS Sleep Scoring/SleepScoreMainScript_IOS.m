@@ -7,7 +7,7 @@ function [] = SleepScoreMainScript_IOS()
 % Purpose: Sleep score manual training files, training classification models, and create sleep data structure
 %________________________________________________________________________________________________________________________
 
-% zap;
+zap;
 disp('Loading necessary file names...'); disp(' ')
 baselineType = 'manualSelection';
 imagingType = input('Input imaging type (bilateral, single, GCaMP): ','s'); disp(' ')
