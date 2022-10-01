@@ -1,4 +1,4 @@
-function [ROIs] = CalculateROICorrelationMatrix_IOS(animalID,strDay,fileID,ROIs,imagingType,lensMag)
+function [ROIs] = CalculateROICorrelationMatrix_IOS(animalID,strDay,fileID,ROIs,lensMag,imagingType)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -26,10 +26,12 @@ axis image
 caxis([0,2^RawData.notes.CBVCamBitDepth])
 set(gca,'Ticklength',[0,0])
 % determine which ROIs to draw based on imaging type
-if strcmpi(imagingType,'bilateral') == true
-    hem = {'LH','RH'};
-elseif strcmpi(imagingType,'single') == true
+if strcmp(imagingType,'Single ROI (SI)') == true
     hem = {'Barrels'};
+elseif strcmp(imagingType,'Bilateral ROI (SI)') == true
+    hem = {'LH','RH'};
+elseif strcmp(imagingType,'Bilateral ROI (SI,FC)') == true
+    hem = {'LH','RH','frontalLH','frontalRH'};
 end
 % draw ROI for the mask over the entire windows
 for a = 1:length(hem)
@@ -57,7 +59,7 @@ procDataFileIDs = char(procDataFiles);
 windowDataFileStruct = dir('*_WindowCam.bin');
 windowDataFiles = {windowDataFileStruct.name}';
 windowDataFileIDs = char(windowDataFiles);
-for qq = 1:size(procDataFileIDs,1)
+for qq = 1:4
     disp(['Analyzing cross correlation matrix (' num2str(qq) '/' num2str(size(procDataFileIDs,1)) ')']); disp(' ')
     load(procDataFileIDs(qq,:));
     imageHeight = ProcData.notes.CBVCamPixelHeight;
@@ -99,9 +101,9 @@ for qq = 1:size(procDataFileIDs,1)
     maxLag = lagTime*RawData.notes.CBVCamSamplingRate;
     for d = 1:length(hem)
         hemisphere = hem{1,d};
-        if strcmp(hemisphere,'LH') == true
+        if strcmp(hemisphere,'LH') == true || strcmp(hemisphere,'frontalLH') == true
             gammaBandArray = LH_gammaBandPower;
-        elseif strcmp(hemisphere,'RH') == true
+        elseif strcmp(hemisphere,'RH') == true || strcmp(hemisphere,'frontalRH') == true
             gammaBandArray = RH_gammaBandPower;
         elseif strcmp(hemisphere,'Barrels') == true
             singleHem = ProcData.notes.hemisphere;
@@ -143,6 +145,12 @@ elseif strcmp(lensMag,'2.5X') == true
 elseif strcmp(lensMag,'3.0X') == true
     circRadius = 30;
 end
+% determine the proper size of the ROI in pixels based on camera resolution and lens magnification
+if imageWidth == 128
+    circRadius = circRadius/2;
+elseif imageWidth == 512
+    circRadius = circRadius*2;
+end
 % place circle along the most correlation region of each hemisphere
 for f = 1:length(hem)
     rectMask = ROIs.([hem{1,f} '_' strDay]).rect;
@@ -163,6 +171,7 @@ for f = 1:length(hem)
         axis image
         disp(['Move the ROI over the most correlated region for the ' hem{1,f}]); disp(' ')
         circ = drawcircle('Center',[0,0],'Radius',circRadius,'Color','r');
+        drawnow
         checkCircle = input('Is the ROI okay? (y/n): ','s'); disp(' ')
         circPosition = round(circ.Center);
         if strcmp(checkCircle,'y') == true
@@ -180,11 +189,16 @@ end
 fig = figure;
 imagesc(frames{1})
 hold on;
-if strcmp(imagingType,'bilateral') == true
+if strcmp(imagingType,'Single ROI (SI)') == true
+    drawcircle('Center',ROIs.(['Barrels_' strDay]).circPosition,'Radius',ROIs.(['Barrels_' strDay]).circRadius,'Color','r');
+elseif strcmp(imagingType,'Bilateral ROI (SI)') == true
     drawcircle('Center',ROIs.(['LH_' strDay]).circPosition,'Radius',ROIs.(['LH_' strDay]).circRadius,'Color','r');
     drawcircle('Center',ROIs.(['RH_' strDay]).circPosition,'Radius',ROIs.(['RH_' strDay]).circRadius,'Color','r');
-elseif strcmp(imagingType,'single')
-    drawcircle('Center',ROIs.(['Barrels_' strDay]).circPosition,'Radius',ROIs.(['Barrels_' strDay]).circRadius,'Color','r');
+elseif strcmp(imagingType,'Bilateral ROI (SI,FC)') == true
+    drawcircle('Center',ROIs.(['LH_' strDay]).circPosition,'Radius',ROIs.(['LH_' strDay]).circRadius,'Color','r');
+    drawcircle('Center',ROIs.(['RH_' strDay]).circPosition,'Radius',ROIs.(['RH_' strDay]).circRadius,'Color','r');
+    drawcircle('Center',ROIs.(['frontalLH_' strDay]).circPosition,'Radius',ROIs.(['frontalLH_' strDay]).circRadius,'Color','r');
+    drawcircle('Center',ROIs.(['frontalRH_' strDay]).circPosition,'Radius',ROIs.(['frontalRH_' strDay]).circRadius,'Color','r');
 end
 title([animalID ' final ROI placement'])
 xlabel('Image size (pixels)')

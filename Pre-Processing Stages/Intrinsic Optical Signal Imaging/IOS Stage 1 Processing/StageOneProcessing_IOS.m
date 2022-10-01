@@ -3,14 +3,11 @@
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %
-% Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
-%
-% Purpose: Data acquired during trials must be in a form that Matlab can work with easily. This code converts the
-%            various forms of data listed below into MATLAB structures that can be easily manipulated.
+% Purpose: - Convert analog data and notes in LabVIEW's .tdms files to MATLAB .mat structures ('RawData')                 
+%          - Track changes in whisker angle using Radon transform
 %________________________________________________________________________________________________________________________
 
-% load the script's necessary variables and data structures.
-% Clear the workspace variables and command window
+% clear the workspace, variables, and command window
 zap;
 % Asks the user to load all files with a '_WhiskerCam.bin' extension
 fileNames = uigetfile('*_WhiskerCam.bin','MultiSelect','on');   % CTL-A to select all files
@@ -25,12 +22,12 @@ for a = 1:length(fileNames)
     else
         indFile = fileNames;
     end
-    % pull out the file ID for the file - this is the numerical string after the animal name/hemisphere
+    % pull out the file ID for the file - this is the numerical string at the beginning of the file name
     [~,~,fileID] = GetFileInfo_IOS(indFile);
     % determine if a RawData file has already been created for this file. If it has, skip it
     fileExist = ls(['*' fileID '_RawData.mat']);
     if isempty(fileExist)
-        % import .tdms data (All channels).
+        % import .tdms data
         trialData = ReadInTDMSWhiskerTrials_IOS([fileID '.tdms']);
         % left, right, and hippocampal electrodes
         dataRow = strcmp(trialData.data.names,'Cortical_LH');
@@ -56,8 +53,7 @@ for a = 1:length(fileNames)
         EMG = trialData.data.vals(dataRow,:)/str2double(trialData.amplifierGain);
         % start whisker tracker.
         [whiskerAngle] = WhiskerTrackerParallel_IOS(fileID);
-        % save the notes and data.
-        % notes - all variables are descriptive
+        % save the notes
         RawData.notes.experimenter = trialData.experimenter;
         RawData.notes.animalID = trialData.animalID;
         RawData.notes.hemisphere = trialData.hemisphere;
@@ -91,7 +87,7 @@ for a = 1:length(fileNames)
         RawData.notes.LEDduration_sec = str2double(trialData.LED_Duration_sec);
         RawData.notes.interstim_sec = str2double(trialData.Interstim_sec);
         RawData.notes.stimOffset_sec = str2double(trialData.Stim_Offset_sec);
-        % data
+        % save the data
         RawData.data.cortical_LH = cortical_LH;
         RawData.data.cortical_RH = cortical_RH;
         RawData.data.hippocampus = hippocampus;

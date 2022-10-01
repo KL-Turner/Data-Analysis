@@ -28,7 +28,6 @@ switch neurType
 end
 % calculate neural power
 if ismember(neurType,[{'MUA'},{'Gam'},{'Beta'},{'Alpha'},{'Theta'},{'Delta'}])
-    disp(['ProcessNeuro.m: Processing ' neuralFieldName ' ' neurType]); disp(' ')
     neuroFs = 30;
     [z1,p1,k1] = butter(3,fpass/(analogFs/2));
     [sos1,g1] = zp2sos(z1,p1,k1);

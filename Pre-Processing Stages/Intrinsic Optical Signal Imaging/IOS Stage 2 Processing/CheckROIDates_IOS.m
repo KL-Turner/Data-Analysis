@@ -1,4 +1,4 @@
-function [ROIs] = CheckROIDates_IOS(animalID,ROIs,ROInames,imagingType,lensMag)
+function [ROIs] = CheckROIDates_IOS(animalID,ROIs,ROInames,lensMag,imagingType,imagingColors)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -37,14 +37,17 @@ for b = 1:length(firstsFileOfDay)
         ROIname = [ROInames{1,c} '_' strDay];
         if ~isfield(ROIs,(ROIname))
             if any(strcmp(ROInames{1,c},{'LH','RH','frontalLH','frontalRH','Barrels'})) == true
-                if strcmpi(imagingType,'GCaMP') == true
-                    [ROIs] = PlaceGCaMP_ROIs_IOS(animalID,fileID,ROIs,lensMag);
+                if strcmp(imagingColors,'RGB') == true
+                    [ROIs] = PlaceTriWavelengthROIs_IOS(animalID,fileID,ROIs,ROInames,lensMag,imagingType);
+                elseif strcmpi(imagingColors,'GB') == true
+                    [ROIs] = PlaceDualWavelengthROIs_IOS(animalID,fileID,ROIs,ROInames,lensMag,imagingType);
                 else
-                    [ROIs] = CalculateROICorrelationMatrix_IOS(animalID,strDay,fileID,ROIs,imagingType,lensMag);
+                    [ROIs] = CalculateROICorrelationMatrix_IOS(animalID,strDay,fileID,ROIs,lensMag,imagingType);
                 end
-            else
+            elseif strcmp(ROInames{1,c},{'Cement'}) == true || strcmp(ROInames{1,c},'SSS') == true
+                % ROIS drawn free-hand for cement and SSS
                 [frames] = ReadDalsaBinary_IOS(animalID,fileID);
-                [ROIs] = CreateFreeHandROIs_IOS(frames{3},ROIname,animalID,ROIs);
+                [ROIs] = CreateFreeHandROIs_IOS(frames{3},ROIname,animalID,ROIs);            
             end
             save([animalID '_ROIs.mat'],'ROIs');
         end

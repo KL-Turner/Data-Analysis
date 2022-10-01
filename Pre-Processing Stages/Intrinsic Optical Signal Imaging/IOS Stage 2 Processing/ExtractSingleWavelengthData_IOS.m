@@ -1,4 +1,4 @@
-function [] = ExtractCBVData_IOS(ROIs,ROInames,rawDataFileIDs)
+function [] = ExtractSingleWavelengthData_IOS(ROIs,ROInames,rawDataFileIDs)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering

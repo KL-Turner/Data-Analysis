@@ -1,17 +1,22 @@
-function [ROIs] = PlaceGCaMP_ROIs_IOS(animalID,fileID,ROIs,lensMag)
+function [ROIs] = PlaceTriWavelengthROIs_IOS(animalID,fileID,ROIs,lensMag,imagingType)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %
-% Purpose: Analyze the cross-correlation between gamma-band power and each pixel to properly place a circular 1 mm ROI
+% Purpose: Place a circular 1 mm ROI over multi-wavelength IOS images
 %________________________________________________________________________________________________________________________
 
 strDay = ConvertDate_IOS(fileID);
 fileDate = fileID(1:6);
 % determine which ROIs to draw based on imaging type
-hem = {'LH','RH','frontalLH','frontalRH'};
-% extract the pixel values from the window ROIs
+if strcmp(imagingType,'Single ROI (SI)') == true
+    ROInames = {'Barrels'};
+elseif strcmp(imagingType,'Bilateral ROI (SI)') == true
+    ROInames = {'LH','RH'};
+elseif strcmp(imagingType,'Bilateral ROI (SI,FC)') == true
+    ROInames = {'LH','RH','frontalLH','frontalRH'};
+end
 % character list of all ProcData files
 procDataFileStruct = dir('*_ProcData.mat');
 procDataFiles = {procDataFileStruct.name}';
@@ -21,6 +26,7 @@ windowDataFileStruct = dir('*_WindowCam.bin');
 windowDataFiles = {windowDataFileStruct.name}';
 windowDataFileIDs = char(windowDataFiles);
 bb = 1;
+% double check file lists
 for aa = 1:size(procDataFileIDs)
     procDataFileID = procDataFileIDs(aa,:);
     [~,procfileDate,~] = GetFileInfo_IOS(procDataFileID);
@@ -31,6 +37,7 @@ for aa = 1:size(procDataFileIDs)
         bb = bb + 1;
     end
 end
+% go through each file and check the color o
 for qq = 1:size(procDataFileList,1)
     disp(['Verifying first frame color from file (' num2str(qq) '/' num2str(size(procDataFileList,1)) ')']); disp(' ')
     load(procDataFileList(qq,:));
@@ -112,32 +119,34 @@ elseif strcmpi(lensMag,'2.5X') == true
 elseif strcmpi(lensMag,'3.0X') == true
     circRadius = 30;
 end
+% determine the proper size of the ROI in pixels based on camera resolution and lens magnification
 if imageWidth == 128
-    % determine the proper size of the ROI based on camera/lens magnification
-    circRadius = circRadius/2; % pixels to be 1 mm in diameter
+    circRadius = circRadius/2;
+elseif imageWidth == 512
+    circRadius = circRadius*2;
 end
-% place circle along the most correlation region of each hemisphere
-for f = 1:length(hem)
+% place circle along the most relevant region of each hemisphere
+for ff = 1:length(ROInames)
     % generate image
     isok = false;
     while isok == false
         windowFig = figure;
         imagesc(roiFrame)
-        title([animalID ' ' hem{1,f} ' ROI'])
+        title([animalID ' ' ROInames{1,ff} ' ROI'])
         xlabel('Image size (pixels)')
         ylabel('Image size (pixels)')
         colormap gray
         colorbar
         axis image
-        disp(['Move the ROI over the desired region for ' hem{1,f}]); disp(' ')
+        disp(['Move the ROI over the desired region for ' ROInames{1,ff}]); disp(' ')
         drawnow
         circ = drawcircle('Center',[0,0],'Radius',circRadius,'Color','r');
         checkCircle = input('Is the ROI okay? (y/n): ','s'); disp(' ')
         circPosition = round(circ.Center);
         if strcmpi(checkCircle,'y') == true
             isok = true;
-            ROIs.([hem{1,f} '_' strDay]).circPosition = circPosition;
-            ROIs.([hem{1,f} '_' strDay]).circRadius = circRadius;
+            ROIs.([ROInames{1,ff} '_' strDay]).circPosition = circPosition;
+            ROIs.([ROInames{1,ff} '_' strDay]).circRadius = circRadius;
         end
         delete(windowFig);
     end
@@ -146,10 +155,9 @@ end
 fig = figure;
 imagesc(roiFrame)
 hold on;
-drawcircle('Center',ROIs.(['LH_' strDay]).circPosition,'Radius',ROIs.(['LH_' strDay]).circRadius,'Color','r');
-drawcircle('Center',ROIs.(['RH_' strDay]).circPosition,'Radius',ROIs.(['RH_' strDay]).circRadius,'Color','r');
-drawcircle('Center',ROIs.(['frontalLH_' strDay]).circPosition,'Radius',ROIs.(['LH_' strDay]).circRadius,'Color','r');
-drawcircle('Center',ROIs.(['frontalRH_' strDay]).circPosition,'Radius',ROIs.(['RH_' strDay]).circRadius,'Color','r');
+for aa = 1:length(ROInames)
+    drawcircle('Center',ROIs.([ROInames{1,aa} '_' strDay]).circPosition,'Radius',ROIs.([ROInames{1,aa} '_' strDay]).circRadius,'Color','r');
+end
 title([animalID ' final ROI placement'])
 xlabel('Image size (pixels)')
 ylabel('Image size (pixels)')
