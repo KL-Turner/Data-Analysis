@@ -1,4 +1,4 @@
-function [RestingBaselines] = CalculateRestingBaselines_IOS(animal,targetMinutes,trialDuration_sec,RestData)
+function [RestingBaselines] = CalculateRestingBaselines_IOS(RestData,targetMinutes)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -13,9 +13,9 @@ disp(['Calculating the resting baselines for the first ' num2str(targetMinutes) 
 RestCriteria.Fieldname = {'durations'};
 RestCriteria.Comparison = {'gt'};
 RestCriteria.Value = {5};
-puffCriteria.Fieldname = {'puffDistances'};
-puffCriteria.Comparison = {'gt'};
-puffCriteria.Value = {5};
+stimCriteria.Fieldname = {'stimDistances'};
+stimCriteria.Comparison = {'gt'};
+stimCriteria.Value = {5};
 % find the fieldnames of RestData and loop through each field. Each fieldname should be a different dataType of interest.
 % these will typically be CBV, Delta, Theta, Gamma, and MUA
 dataTypes = fieldnames(RestData);
@@ -25,10 +25,12 @@ for a = 1:length(dataTypes)
     % loop through each hemisphere dataType (LH, RH) because they are subfields and will have unique baselines
     for b = 1:length(subDataTypes)
         subDataType = char(subDataTypes(b)); % load each loop iteration's hemisphere fieldname as a character string
+        trialDuration_sec = RestData.(dataType).(subDataType).trialDuration_sec;
+        animalID = RestData.(dataType).(subDataType).animalID;
         % use the RestCriteria we specified earlier to find all resting events that are greater than the criteria
         [restLogical] = FilterEvents_IOS(RestData.(dataType).(subDataType),RestCriteria); % output is a logical
-        [puffLogical] = FilterEvents_IOS(RestData.(dataType).(subDataType),puffCriteria); % output is a logical
-        combRestLogical = logical(restLogical.*puffLogical);
+        [stimLogical] = FilterEvents_IOS(RestData.(dataType).(subDataType),stimCriteria); % output is a logical
+        combRestLogical = logical(restLogical.*stimLogical);
         allRestFiles = RestData.(dataType).(subDataType).fileIDs(combRestLogical,:); % overall logical for all resting file names that meet criteria
         allRestDurations = RestData.(dataType).(subDataType).durations(combRestLogical,:);
         allRestEventTimes = RestData.(dataType).(subDataType).eventTimes(combRestLogical,:);
@@ -90,14 +92,16 @@ for a = 1:length(dataTypes)
         end
         % save the means into the Baseline struct under the current loop iteration with the associated dates
         for h = 1:length(uniqueDays)
-            RestingBaselines.setDuration.(dataType).(subDataType).(date{h,1}) = mean(tempData_means{h,1}); % date-specific means
+            RestingBaselines.setDuration.(dataType).(subDataType).(date{h,1}).mean = mean(tempData_means{h,1}); % date-specific means
         end
     end
 end
+RestingBaselines.setDuration.baselineFileInfo.animalID = animalID;
+RestingBaselines.setDuration.baselineFileInfo.trialDuration_sec = trialDuration_sec;
 RestingBaselines.setDuration.baselineFileInfo.fileIDs = finalFileIDs;
 RestingBaselines.setDuration.baselineFileInfo.eventTimes = finalFileEventTimes;
 RestingBaselines.setDuration.baselineFileInfo.durations = finalFileDurations;
 RestingBaselines.setDuration.targetMinutes = targetMinutes;
-save([animal '_RestingBaselines.mat'],'RestingBaselines');
+save([animalID '_RestingBaselines.mat'],'RestingBaselines');
 
 end

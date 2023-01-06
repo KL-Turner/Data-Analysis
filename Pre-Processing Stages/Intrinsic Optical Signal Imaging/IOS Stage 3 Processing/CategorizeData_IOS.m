@@ -1,4 +1,4 @@
-function [] = CategorizeData_IOS(procDataFileID,stimulationType)
+function [] = CategorizeData_IOS(procDataFileIDs)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -9,15 +9,16 @@ function [] = CategorizeData_IOS(procDataFileID,stimulationType)
 % Purpose: Catagorizes data based on behavioral flags from whisking/movement events
 %________________________________________________________________________________________________________________________
 
-% load and Setup
-disp(['Categorizing data for: ' procDataFileID]); disp(' ')
-load(procDataFileID)
-% condense pulsed stimulations
-if strcmp(stimulationType,'pulse') == true
+for aa = 1:size(procDataFileIDs,1)
+    procDataFileID = procDataFileIDs(aa,:);
+    % load and Setup
+    disp(['Categorizing data for: ' procDataFileID]); disp(' ')
+    load(procDataFileID)
+    % condense pulsed stimulations
     stimulationFields = fieldnames(ProcData.data.stimulations);
-    for aa = 1:length(stimulationFields)
-        stimulationTimes = ProcData.data.stimulations.(stimulationFields{aa,1});
-        ProcData.data.stimulationsOriginal.(stimulationFields{aa,1}) = stimulationTimes;
+    for vv = 1:length(stimulationFields)
+        stimulationTimes = ProcData.data.stimulations.(stimulationFields{vv,1});
+        ProcData.data.stimulationsOriginal.(stimulationFields{vv,1}) = stimulationTimes;
         condensedStimulationTimes = [];
         cc = 1;
         if isempty(stimulationTimes) == false
@@ -33,113 +34,90 @@ if strcmp(stimulationType,'pulse') == true
                     end
                 end
             end
-            ProcData.data.stimulations.(stimulationFields{aa,1}) = condensedStimulationTimes;
+            ProcData.data.stimulations.(stimulationFields{vv,1}) = condensedStimulationTimes;
         end
     end
-end
-whiskerSamplingRate = ProcData.notes.dsFs;
-% process binary whisking waveform to detect whisking events
-% setup parameters for link_binary_events
-linkThresh = 0.5; % seconds, Link events < 0.5 seconds apart
-breakThresh = 0; % seconds changed by atw on 2/6/18 from 0.07
-% assume that whisks at the beginning/end of trial continue outside of the
-% trial time. This will link any event occurring within "link_thresh"
-% seconds to the beginning/end of the trial rather than assuming that it is
-% a new/isolated event.
-modBinWhiskers = ProcData.data.binWhiskerAngle;
-% modBinWhiskers([1,end]) = 1;
-% link the binarized whisking for use in GetWhiskingdata function
-binWhiskers = LinkBinaryEvents_IOS(gt(modBinWhiskers,0),[linkThresh breakThresh]*whiskerSamplingRate);
-% added 2/6/18 with atw. Code throws errors if binWhiskers(1)=1 and binWhiskers(2) = 0, or if
-% binWhiskers(1) = 0 and binWhiskers(2) = 1. This happens in GetWhiskingdata because starts of
-% whisks are detected by taking the derivative of binWhiskers. Purpose of following lines is to
-% handle trials where the above conditions occur and avoid difficult dimension errors.
-if binWhiskers(1) == 0 && binWhiskers(2) == 1
-    binWhiskers(1) = 1;
-elseif binWhiskers(1) == 1 && binWhiskers(2) == 0
-    binWhiskers(1) = 0;
-end
-if binWhiskers(end) == 0 && binWhiskers(end - 1) == 1
-    binWhiskers(end) = 1;
-elseif binWhiskers(end) == 1 && binWhiskers(end - 1) == 0
-    binWhiskers(end) = 0;
-end
-% categorize data by behavior
-% retrieve details on whisking events
-[ProcData.flags.whisk] = GetWhiskingdata_IOS(ProcData,binWhiskers);
-% retrieve details on puffing events
-[ProcData.flags.stim] = GetStimdata_IOS(ProcData);
-% identify and separate resting data
-[ProcData.flags.rest] = GetRestdata(ProcData);
-% Save ProcData structure
-save(procDataFileID,'ProcData');
+    whiskerSamplingRate = ProcData.notes.dsFs;
+    linkThresh = 0.5; % link events < 0.5 seconds apart
+    breakThresh = 0;
+    modBinWhiskers = ProcData.data.binWhiskerAngle;
+    % link the binarized whisking
+    binWhiskers = LinkBinaryEvents_IOS(gt(modBinWhiskers,0),[linkThresh breakThresh]*whiskerSamplingRate);
+    % handle edge conditions
+    if binWhiskers(1) == 0 && binWhiskers(2) == 1
+        binWhiskers(1) = 1;
+    elseif binWhiskers(1) == 1 && binWhiskers(2) == 0
+        binWhiskers(1) = 0;
+    end
+    % handle edge conditions
+    if binWhiskers(end) == 0 && binWhiskers(end - 1) == 1
+        binWhiskers(end) = 1;
+    elseif binWhiskers(end) == 1 && binWhiskers(end - 1) == 0
+        binWhiskers(end) = 0;
+    end
+    % retrieve details on whisking events
+    [ProcData.flags.whisk] = GetWhiskingdata_IOS(ProcData,binWhiskers);
+    % retrieve details on stiming events
+    [ProcData.flags.stim] = GetStimdata_IOS(ProcData);
+    % identify and separate resting data
+    [ProcData.flags.rest] = GetRestdata(ProcData);
+    % Save ProcData structure
+    save(procDataFileID,'ProcData');
 end
 
-function [puffTimes] = GetPuffTimes_IOS(ProcData)
-try
-    solNames = fieldnames(ProcData.data.stimulations);
-catch
-    solNames = fieldnames(ProcData.data.solenoids);
 end
-puffList = cell(1,length(solNames));
-for sN = 1:length(solNames)
-    try
-        puffList{sN} = ProcData.data.stimulations.(solNames{sN});
-    catch
-        puffList{sN} = ProcData.data.solenoids.(solNames{sN});
-    end
+
+function [stimTimes] = GetStimTimes_IOS(ProcData)
+% get solenoid times
+stimNames = fieldnames(ProcData.data.stimulations);
+stimList = cell(1,length(stimNames));
+for sN = 1:length(stimNames)
+    stimList{sN} = ProcData.data.stimulations.(stimNames{sN});
 end
-puffTimes = cell2mat(puffList);
+stimTimes = cell2mat(stimList);
+
 end
 
 function [Stim] = GetStimdata_IOS(ProcData)
-% setup
+% get stimulation times
 whiskerSamplingRate = ProcData.notes.dsFs;
 forceSensorSamplingRate = ProcData.notes.dsFs;
-puffTimes = GetPuffTimes_IOS(ProcData);
+stimTimes = GetStimTimes_IOS(ProcData);
 trialDuration = ProcData.notes.trialDuration_sec;
 % set time intervals for calculation of the whisk scores
 preTime = 1;
 postTime = 1;
-% get puffer IDs
-try
-    solNames = fieldnames(ProcData.data.stimulations);
-catch
-    solNames = fieldnames(ProcData.data.solenoids);
-end
-Stim.solenoidName = cell(length(puffTimes),1);
-Stim.eventTime = zeros(length(puffTimes),1);
-Stim.whiskScore_Pre = zeros(length(puffTimes),1);
-Stim.whiskScore_Post = zeros(length(puffTimes),1);
-Stim.movementScore_Pre = zeros(length(puffTimes),1);
-Stim.movementScore_Post = zeros(length(puffTimes),1);
+% get stimer IDs
+stimNames = fieldnames(ProcData.data.stimulations);
+Stim.solenoidName = cell(length(stimTimes),1);
+Stim.eventTime = zeros(length(stimTimes),1);
+Stim.whiskScore_Pre = zeros(length(stimTimes),1);
+Stim.whiskScore_Post = zeros(length(stimTimes),1);
+Stim.movementScore_Pre = zeros(length(stimTimes),1);
+Stim.movementScore_Post = zeros(length(stimTimes),1);
 j = 1;
-for sN = 1:length(solNames)
-    try
-        solPuffTimes = ProcData.data.stimulations.(solNames{sN});
-    catch
-        solPuffTimes = ProcData.data.solenoids.(solNames{sN});
-    end
-    for spT = 1:length(solPuffTimes)
-        if trialDuration - solPuffTimes(spT) <= postTime
-            disp(['Puff at time: ' solPuffTimes(spT) ' is too close to trial end'])
+for sN = 1:length(stimNames)
+    solStimTimes = ProcData.data.stimulations.(stimNames{sN});
+    for spT = 1:length(solStimTimes)
+        if trialDuration - solStimTimes(spT) <= postTime
+            disp(['Stim at time: ' solStimTimes(spT) ' is too close to trial end'])
             continue;
         end
         % set indexes for pre and post periods
-        wPuffInd = round(solPuffTimes(spT)*whiskerSamplingRate);
-        mPuffInd = round(solPuffTimes(spT)*forceSensorSamplingRate);
-        wPreStart = max(round((solPuffTimes(spT) - preTime)*whiskerSamplingRate),1);
-        mPreStart = max(round((solPuffTimes(spT) - preTime)*forceSensorSamplingRate),1);
-        wPostEnd = round((solPuffTimes(spT) + postTime)*whiskerSamplingRate);
-        mPostEnd = round((solPuffTimes(spT) + postTime)*forceSensorSamplingRate);
+        wStimInd = round(solStimTimes(spT)*whiskerSamplingRate);
+        mStimInd = round(solStimTimes(spT)*forceSensorSamplingRate);
+        wPreStart = max(round((solStimTimes(spT) - preTime)*whiskerSamplingRate),1);
+        mPreStart = max(round((solStimTimes(spT) - preTime)*forceSensorSamplingRate),1);
+        wPostEnd = round((solStimTimes(spT) + postTime)*whiskerSamplingRate);
+        mPostEnd = round((solStimTimes(spT) + postTime)*forceSensorSamplingRate);
         % calculate the percent of the pre-stim time that the animal moved or whisked
-        whiskScorePre = sum(ProcData.data.binWhiskerAngle(wPreStart:wPuffInd))/(preTime*whiskerSamplingRate);
-        whiskScorePost = sum(ProcData.data.binWhiskerAngle(wPuffInd:wPostEnd))/(postTime*whiskerSamplingRate);
-        moveScorePre = sum(ProcData.data.binForceSensor(mPreStart:mPuffInd))/(preTime*forceSensorSamplingRate);
-        moveScorePost = sum(ProcData.data.binForceSensor(mPuffInd:mPostEnd))/(postTime*forceSensorSamplingRate);
+        whiskScorePre = sum(ProcData.data.binWhiskerAngle(wPreStart:wStimInd))/(preTime*whiskerSamplingRate);
+        whiskScorePost = sum(ProcData.data.binWhiskerAngle(wStimInd:wPostEnd))/(postTime*whiskerSamplingRate);
+        moveScorePre = sum(ProcData.data.binForceSensor(mPreStart:mStimInd))/(preTime*forceSensorSamplingRate);
+        moveScorePost = sum(ProcData.data.binForceSensor(mStimInd:mPostEnd))/(postTime*forceSensorSamplingRate);
         % add to Stim structure
-        Stim.solenoidName{j} = solNames{sN};
-        Stim.eventTime(j) = solPuffTimes(spT)';
+        Stim.solenoidName{j} = stimNames{sN};
+        Stim.eventTime(j) = solStimTimes(spT)';
         Stim.whiskScore_Pre(j) = whiskScorePre';
         Stim.whiskScore_Post(j) = whiskScorePost';
         Stim.movementScore_Pre(j) = moveScorePre';
@@ -147,29 +125,28 @@ for sN = 1:length(solNames)
         j = j + 1;
     end
 end
-% calculate the time to the closest puff, omit comparison of puff to itself
-% (see nonzeros)
-puffMat = ones(length(puffTimes),1)*puffTimes;
-timeElapsed = abs(nonzeros(puffMat - puffMat'));
-% if no other puff occurred during the trial, store 0 as a place holder.
+% calculate the time to the closest stim, omit comparison of stim to itself
+stimMat = ones(length(stimTimes),1)*stimTimes;
+timeElapsed = abs(nonzeros(stimMat - stimMat'));
+% if no other stim occurred during the trial, store 0 as a place holder.
 if isempty(timeElapsed)
-    puffTimeElapsed = 0;
+    stimTimeElapsed = 0;
 else
     % if not empty, Reshape the array to compensate for nonzeros command
-    puffTimeElapsed = reshape(timeElapsed,numel(puffTimes) - 1,numel(puffTimes));
+    stimTimeElapsed = reshape(timeElapsed,numel(stimTimes) - 1,numel(stimTimes));
 end
-% convert to cell and add to struct, if length of Puff_Times = 0, coerce to
+% convert to cell and add to struct, if length of Stim_Times = 0, coerce to
 % 1 to accommodate the NaN entry.
-puffTimeCell = mat2cell(puffTimeElapsed',ones(max(length(puffTimes),1),1));
-Stim.PuffDistance = puffTimeCell;
+stimTimeCell = mat2cell(stimTimeElapsed',ones(max(length(stimTimes),1),1));
+Stim.StimDistance = stimTimeCell;
 end
 
 function [Whisk] = GetWhiskingdata_IOS(ProcData,binWhiskerAngle)
 % setup
 whiskerSamplingRate = ProcData.notes.dsFs;
 forceSensorSamplingRate = ProcData.notes.dsFs;
-% get Puff Times
-[puffTimes] = GetPuffTimes_IOS(ProcData);
+% get Stim Times
+[stimTimes] = GetStimTimes_IOS(ProcData);
 % find the starts of whisking
 whiskEdge = diff(binWhiskerAngle);
 whiskSamples = find(whiskEdge > 0);
@@ -212,16 +189,16 @@ for wS = 1:length(whiskSamples)
     movementInds = max(movementStart,1):min(movementStart + movementDur,length(ProcData.data.binForceSensor));
     movementInt(wS) = sum(ProcData.data.binForceSensor(movementInds))/numel(movementInds);
 end
-% calculate the time to the closest puff
-% if no puff occurred during the trial, store 0 as a place holder.
-if isempty(puffTimes)
-    puffTimes = 0;
+% calculate the time to the closest stim
+% if no stim occurred during the trial, store 0 as a place holder.
+if isempty(stimTimes)
+    stimTimes = 0;
 end
-puffMat = ones(length(whiskSamples),1)*puffTimes;
-whiskMat = whiskSamples'*ones(1,length(puffTimes))/whiskerSamplingRate;
-puffTimeElapsed = abs(whiskMat - puffMat);
+stimMat = ones(length(whiskSamples),1)*stimTimes;
+whiskMat = whiskSamples'*ones(1,length(stimTimes))/whiskerSamplingRate;
+stimTimeElapsed = abs(whiskMat - stimMat);
 % convert to cell
-puffTimeCell = mat2cell(puffTimeElapsed,ones(length(whiskStarts),1));
+stimTimeCell = mat2cell(stimTimeElapsed,ones(length(whiskStarts),1));
 % error handle
 if length(restDur) ~= length(whiskDur)
     disp('Error in GetWhiskdata! The number of whisks does not equal the number of rests...'); disp(' ')
@@ -233,7 +210,7 @@ Whisk.duration = whiskDur';
 Whisk.restTime = restDur';
 Whisk.whiskScore = whiskInt';
 Whisk.movementScore = movementInt';
-Whisk.puffDistance = puffTimeCell;
+Whisk.stimDistance = stimTimeCell;
 end
 
 function [Rest] = GetRestdata(ProcData)
@@ -241,13 +218,8 @@ function [Rest] = GetRestdata(ProcData)
 whiskerSamplingRate = ProcData.notes.dsFs;
 forceSensorSamplingRate = ProcData.notes.dsFs;
 % get stimulation times
-[puffTimes] = GetPuffTimes_IOS(ProcData);
-% recalculate linked binarized wwf without omitting any possible whisks,
-% this avoids inclusion of brief whisker movements in periods of rest.
-% assume that whisks at the beginning/end of trial continue outside of the
-% trial time. This will link any event occurring within "link_thresh"
-% seconds to the beginning/end of the trial rather than assuming that it is
-% a new/isolated event.
+[stimTimes] = GetStimTimes_IOS(ProcData);
+% recalculate linked binarized wwf without omitting any possible whisks
 modBinarizedWhiskers = ProcData.data.binWhiskerAngle;
 modBinarizedWhiskers([1,end]) = 1;
 modBinarizedForceSensor = ProcData.data.binForceSensor;
@@ -256,8 +228,7 @@ linkThresh = 0.5; % seconds
 breakThresh = 0; % seconds
 binWhiskerAngle = LinkBinaryEvents_IOS(gt(modBinarizedWhiskers,0),[linkThresh breakThresh]*whiskerSamplingRate);
 binForceSensor = LinkBinaryEvents_IOS(modBinarizedForceSensor,[linkThresh breakThresh]*forceSensorSamplingRate);
-% combine binWhiskerAngle, binForceSensor, and puffTimes, to find periods of rest.
-% downsample bin_wwf to match length of bin_pswf
+% combine binWhiskerAngle, binForceSensor, and stimTimes, to find periods of rest
 sampleVec = 1:length(binWhiskerAngle);
 whiskHigh = sampleVec(binWhiskerAngle)/whiskerSamplingRate;
 dsBinarizedWhiskers = zeros(size(binForceSensor));
@@ -267,14 +238,14 @@ dsInds = min(max(round(whiskHigh*forceSensorSamplingRate),1),length(binForceSens
 dsBinarizedWhiskers(unique(dsInds)) = 1;
 % combine binarized whisking and body movement
 wfBin = logical(min(dsBinarizedWhiskers + binForceSensor,1));
-Fs = forceSensorSamplingRate;
-% add puff times into the Bin_wf
-puffInds = round(puffTimes*Fs);
-wfBin(puffInds) = 1;
+samplingRate = forceSensorSamplingRate;
+% add stim times into the Bin_wf
+stimInds = round(stimTimes*samplingRate);
+wfBin(stimInds) = 1;
 % find index for end of whisking event
 edge = diff(wfBin);
 samples = find([not(wfBin(1)),edge < 0]);
-stops = samples/Fs;
+stops = samples/samplingRate;
 % identify periods of whisking/resting, include beginning and end of trial
 % if needed (hence unique command) for correct interval calculation
 sampleVec = 1:length(logical(wfBin));
@@ -286,32 +257,30 @@ dLow = diff(lowSamples);
 % identify skips in sample numbers which correspond to rests/whisks,
 % convert from samples to seconds.
 restLength = dHigh(dHigh > 1);
-restDur = restLength/Fs;
+restDur = restLength/samplingRate;
 whiskLength = dLow(dLow > 1);
-whiskDur = whiskLength/Fs;
+whiskDur = whiskLength/samplingRate;
 % control for the beginning/end of the trial to correctly map rests/whisks
-% onto the whisk_starts. Use index 2 and end-1 since it is assumed that the
-% first and last indexes of a trial are the end/beginning of a volitional movement.
 if not(wfBin(2))
     whiskDur = [NaN,whiskDur];
 end
+% control for the beginning/end of the trial to correctly map rests/whisks
 if wfBin(end - 1)
     whiskDur(end) = [];
 end
-% calculate the time to the closest puff
-% if no puff occurred during the trial, store 0 as a place holder.
-if isempty(puffTimes)
-    puffTimes = 0;
+% calculate the time to the closest stim
+if isempty(stimTimes)
+    stimTimes = 0;
 end
-puffMat = ones(length(samples),1)*puffTimes;
-restMat = samples'*ones(1,length(puffTimes))/Fs;
-puffTimeElapsed = abs(restMat - puffMat);
+stimMat = ones(length(samples),1)*stimTimes;
+restMat = samples'*ones(1,length(stimTimes))/samplingRate;
+stimTimeElapsed = abs(restMat - stimMat);
 % convert to cell
-puffTimeCell = mat2cell(puffTimeElapsed,ones(length(samples),1));
+stimTimeCell = mat2cell(stimTimeElapsed,ones(length(samples),1));
 % compile into a structure
 Rest.eventTime = stops';
 Rest.duration = restDur';
-Rest.puffDistance = puffTimeCell;
+Rest.stimDistance = stimTimeCell;
 Rest.whiskDuration = whiskDur';
 
 end

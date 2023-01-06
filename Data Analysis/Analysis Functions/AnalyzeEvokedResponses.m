@@ -3,21 +3,13 @@ function [Results_Evoked] = AnalyzeEvokedResponses(animalID,group,rootFolder,del
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
-%   Purpose: Analyze the stimulus-evoked and whisking-evoked neural/hemodynamic responses (IOS)
+% Purpose: Analyze the stimulus-evoked and whisking-evoked neural/hemodynamic responses (IOS)
 %________________________________________________________________________________________________________________________
 
-%% function parameters
-extInd = strfind(group,delim);
-setName = group(extInd + 1:end);
-if strcmp(setName,'IOS Set A') == true
-    dataLocation = [rootFolder delim group delim animalID delim 'Bilateral Imaging'];
-elseif strcmp(setName,'IOS Set B') == true
-    dataLocation = [rootFolder delim group delim animalID delim 'Combined Imaging'];
-end
-dataTypes = {'adjLH','adjRH'};
-%% only run analysis for valid animal IDs
+dataTypes = {'LH','RH'};
+% only run analysis for valid animal IDs
+dataLocation = [rootFolder delim group delim animalID delim 'Bilateral Imaging'];
 cd(dataLocation)
 % find and load EventData.mat struct
 eventDataFileStruct = dir('*_EventData.mat');
@@ -64,10 +56,7 @@ stimCriteriaNames = {'stimCriteriaA','stimCriteriaB','stimCriteriaC'};
 %% analyze whisking-evoked responses
 for aa = 1:length(dataTypes)
     dataType = dataTypes{1,aa};
-    neuralDataType = ['cortical_' dataType(4:end)];
-    if strcmp(setName,'IOS Set B') == true
-        dataType = 'adjBarrels';
-    end
+    neuralDataType = ['cortical_' dataType];
     % pull a few necessary numbers from the EventData.mat struct such as trial duration and sampling rate
     samplingRate = EventData.CBV_HbT.(dataType).whisk.samplingRate;
     specSamplingRate = 10;

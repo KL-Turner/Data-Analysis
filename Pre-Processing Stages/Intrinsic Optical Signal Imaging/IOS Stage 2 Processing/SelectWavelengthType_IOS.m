@@ -18,15 +18,6 @@ while tf == 0
     end
 end
 wavelengthType = wavelengthOptions{1,indx};
-% use wavelength type to determine color of imaging/spectroscopy 
-if strcmpi(wavelengthType,'1 wavelength (G/L)') == true
-    imagingColors = 'G';
-elseif strcmpi(wavelengthType,'1 wavelength (B)') == true
-    imagingColors = 'B';
-elseif strcmpi(wavelengthType,'2 wavelenths (G/L & B)') == true
-    imagingColors = 'GB';
-elseif strcmpi(wavelengthType,'3 wavelengths (R, G/L, & B)') == true
-    imagingColors = 'RGB';
-end
+
 
 end

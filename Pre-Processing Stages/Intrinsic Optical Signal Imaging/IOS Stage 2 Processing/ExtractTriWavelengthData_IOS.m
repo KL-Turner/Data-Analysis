@@ -48,7 +48,7 @@ for a = 1:size(rawDataFileIDs,1)
             RawData.data.CBV.(ROIname) = cbvMeanIntensity;
             RawData.data.GCaMP7s.(ROIname) = gcampMeanIntensity;
             RawData.data.Deoxy.(ROIname) = deoxyMeanIntensity;
-        elseif strcmp(ROIshortName,'Cement') == true
+        else
             mask = roipoly(frames{1},ROIs.(ROIname).xi,ROIs.(ROIname).yi);
             close(maskFig)
             cbvCementMeanIntensity = BinToIntensity_IOS(mask,cbvFrames);

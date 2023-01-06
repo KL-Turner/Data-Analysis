@@ -1,4 +1,4 @@
-function [ROIs] = CheckROIDates_IOS(animalID,ROIs,ROInames,lensMag,imagingType,imagingColors)
+function [ROIs] = CheckROIDates_IOS(animalID,ROIs,ROInames,lensMag,imagingType,imagingWavelengths)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -35,19 +35,23 @@ for b = 1:length(firstsFileOfDay)
     strDay = ConvertDate_IOS(fileID);
     for c = 1:length(ROInames)
         ROIname = [ROInames{1,c} '_' strDay];
-        if ~isfield(ROIs,(ROIname))
+        if ~isfield(ROIs,(ROIname)) == true
             if any(strcmp(ROInames{1,c},{'LH','RH','frontalLH','frontalRH','Barrels'})) == true
-                if strcmp(imagingColors,'RGB') == true
+                if any(strcmp(imagingWavelengths,{'Red, Green, & Blue','Red, Lime, & Blue'})) == true
                     [ROIs] = PlaceTriWavelengthROIs_IOS(animalID,fileID,ROIs,ROInames,lensMag,imagingType);
-                elseif strcmpi(imagingColors,'GB') == true
+                elseif any(strcmp(imagingWavelengths,{'Green & Blue','Lime & Blue'})) == true
                     [ROIs] = PlaceDualWavelengthROIs_IOS(animalID,fileID,ROIs,ROInames,lensMag,imagingType);
                 else
                     [ROIs] = CalculateROICorrelationMatrix_IOS(animalID,strDay,fileID,ROIs,lensMag,imagingType);
                 end
-            elseif strcmp(ROInames{1,c},{'Cement'}) == true || strcmp(ROInames{1,c},'SSS') == true
+            elseif strcmp(ROInames{1,c},{'SSS'}) == true
                 % ROIS drawn free-hand for cement and SSS
                 [frames] = ReadDalsaBinary_IOS(animalID,fileID);
-                [ROIs] = CreateFreeHandROIs_IOS(frames{3},ROIname,animalID,ROIs);            
+                [ROIs] = DrawSagSinusROIs_IOS(frames{3},strDay,ROIs);
+            else
+                % ROIS drawn free-hand for cement and SSS
+                [frames] = ReadDalsaBinary_IOS(animalID,fileID);
+                [ROIs] = CreateFreeHandROIs_IOS(frames{3},ROIname,animalID,ROIs);
             end
             save([animalID '_ROIs.mat'],'ROIs');
         end

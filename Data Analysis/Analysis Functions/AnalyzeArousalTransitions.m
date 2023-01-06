@@ -3,14 +3,13 @@ function [Results_Transitions] = AnalyzeArousalTransitions(animalID,group,rootFo
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
-%   Purpose: Analyze the transitions between different arousal-states (IOS)
+% Purpose: Analyze the transitions between different arousal-states (IOS)
 %________________________________________________________________________________________________________________________
 
-%% function parameters
+% function parameters
 transitions = {'AWAKEtoNREM','NREMtoAWAKE','NREMtoREM','REMtoAWAKE'};
-%% only run analysis for valid animal IDs
+% only run analysis for valid animal IDs
 % load model
 modelDirectory = [rootFolder delim group delim animalID delim 'Figures' delim 'Sleep Models'];
 cd(modelDirectory)
@@ -28,7 +27,7 @@ baselineFileID = char(baselineFile);
 load(baselineFileID)
 samplingRate = 30;
 specSamplingRate = 10;
-fileDates = fieldnames(RestingBaselines.manualSelection.CBV.adjLH);
+fileDates = fieldnames(RestingBaselines.manualSelection.CBV.LH);
 % go through each file and sleep score the data
 for a = 1:size(modelDataFileIDs,1)
     modelDataFileID = modelDataFileIDs(a,:);
@@ -56,7 +55,7 @@ patchedREMindex = [];
 % patch missing REM indeces due to theta band falling off
 for b = 1:size(reshapedREMindex,2)
     remArray = reshapedREMindex(:,b);
-    patchedREMarray = LinkBinaryEvents_IOS_eLife2020(remArray',[5,0]);
+    patchedREMarray = LinkBinaryEvents_IOS(remArray',[5,0]);
     patchedREMindex = vertcat(patchedREMindex,patchedREMarray'); %#ok<*AGROW>
 end
 % change labels for each event
@@ -138,8 +137,8 @@ for h = 1:length(transitions)
         file = data.(transition).files{i,1};
         startBin = data.(transition).startInd(i,1);
         if startBin > 1 && startBin < (180 - 12)
-            [animalID,fileDate,fileID] = GetFileInfo_IOS_eLife2020(file);
-            strDay = ConvertDate_IOS_eLife2020(fileDate);
+            [animalID,fileDate,fileID] = GetFileInfo_IOS(file);
+            strDay = ConvertDate_IOS(fileDate);
             procDataFileID = [animalID '_' fileID '_ProcData.mat'];
             load(procDataFileID)
             specDataFileID = [animalID '_' fileID '_SpecDataB.mat'];
@@ -171,8 +170,8 @@ for h = 1:length(transitions)
             % HbT data
             [z2,p2,k2] = butter(4,1/(samplingRate/2),'low');
             [sos2,g2] = zp2sos(z2,p2,k2);
-            LH_HbT = ProcData.data.CBV_HbT.adjLH;
-            RH_HbT = ProcData.data.CBV_HbT.adjRH;
+            LH_HbT = ProcData.data.CBV_HbT.LH;
+            RH_HbT = ProcData.data.CBV_HbT.RH;
             filtLH_HbT = filtfilt(sos2,g2,LH_HbT(startTime*samplingRate + 1:endTime*samplingRate));
             filtRH_HbT = filtfilt(sos2,g2,RH_HbT(startTime*samplingRate + 1:endTime*samplingRate));
             data.(transition).fileDate{iqx,1} = strDay;

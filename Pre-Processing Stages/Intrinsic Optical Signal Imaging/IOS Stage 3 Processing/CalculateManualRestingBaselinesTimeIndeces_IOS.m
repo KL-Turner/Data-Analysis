@@ -1,4 +1,4 @@
-function [RestingBaselines] = CalculateManualRestingBaselinesTimeIndeces_IOS(imagingType,hemoType)
+function [RestingBaselines] = CalculateManualRestingBaselinesTimeIndeces_IOS(procDataFileIDs,RestData,RestingBaselines,hemoType)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -8,32 +8,16 @@ function [RestingBaselines] = CalculateManualRestingBaselinesTimeIndeces_IOS(ima
 %________________________________________________________________________________________________________________________
 
 disp('Calculating the resting baselines using manually selected files each unique day...'); disp(' ')
-% character list of all ProcData files
-procDataFileStruct = dir('*_ProcData.mat');
-procDataFiles = {procDataFileStruct.name}';
-procDataFileIDs = char(procDataFiles);
-% find and load RestingBaselines.mat struct
-baselineDataFileStruct = dir('*_RestingBaselines.mat');
-baselineDataFiles = {baselineDataFileStruct.name}';
-baselineDataFileID = char(baselineDataFiles);
-load(baselineDataFileID)
-RestingBaselines.manualSelection = [];
-% find and load RestData.mat struct
-restDataFileStruct = dir('*_RestData.mat');
-restDataFiles = {restDataFileStruct.name}';
-restDataFileID = char(restDataFiles);
-load(restDataFileID)
 % determine the animal's ID use the RestData.mat file's name for the current folder
-fileBreaks = strfind(restDataFileID,'_');
-animalID = restDataFileID(1:fileBreaks(1)-1);
+animalID = RestingBaselines.setDuration.baselineFileInfo.animalID;
 % the RestData.mat struct has all resting events, regardless of duration. We want to set the threshold for rest as anything
 % that is greater than a certain amount of time
 RestCriteria.Fieldname = {'durations'};
 RestCriteria.Comparison = {'gt'};
 RestCriteria.Value = {5};
-PuffCriteria.Fieldname = {'puffDistances'};
-PuffCriteria.Comparison = {'gt'};
-PuffCriteria.Value = {5};
+StimCriteria.Fieldname = {'stimDistances'};
+StimCriteria.Comparison = {'gt'};
+StimCriteria.Value = {5};
 % loop through each file and manually designate which files have appropriate amounts of rest
 % if this is already completed, load the struct and skip
 for a = 1:size(procDataFileIDs,1)
@@ -42,13 +26,11 @@ for a = 1:size(procDataFileIDs,1)
     load(procDataFileID,'-mat')
     ManualDecisions.fileIDs{a,1} = procDataFileIDs(a,:);
     if isfield(ProcData,'manualBaselineInfo') == false
-        saveFigs = 'n';
-        baselineType = 'setDuration';
         b = false;
         while b == false
             % load a figure with the data to visualize which periods are rest. Note that this data is, by default, normalized
             % by the first 30 minutes of data which may or may not reflect accurate normalizations
-            [singleTrialFig] = GenerateSingleFigures_IOS(procDataFileID,RestingBaselines,baselineType,saveFigs,imagingType,hemoType);
+            [singleTrialFig] = GenerateSingleFigures_IOS(procDataFileID,RestingBaselines,'setDuration',hemoType);
             fileDecision = input(['Use data from ' procDataFileID ' for resting baseline calculation? (y/n): '],'s'); disp(' ')
             if strcmp(fileDecision,'y') || strcmp(fileDecision,'n')
                 b = true;
@@ -110,8 +92,8 @@ for e = 1:length(dataTypes)
             subDataType = char(subDataTypes(f));
             % use the criteria we specified earlier to find all resting events that are greater than the criteria
             [restLogical] = FilterEvents_IOS(RestData.(dataType).(subDataType),RestCriteria);
-            [puffLogical] = FilterEvents_IOS(RestData.(dataType).(subDataType),PuffCriteria);
-            combRestLogical = logical(restLogical.*puffLogical);
+            [stimLogical] = FilterEvents_IOS(RestData.(dataType).(subDataType),StimCriteria);
+            combRestLogical = logical(restLogical.*stimLogical);
             allRestFileIDs = RestData.(dataType).(subDataType).fileIDs(combRestLogical,:);
             allRestDurations = RestData.(dataType).(subDataType).durations(combRestLogical,:);
             allRestEventTimes = RestData.(dataType).(subDataType).eventTimes(combRestLogical,:);
@@ -216,6 +198,6 @@ RestingBaselines.manualSelection.baselineFileInfo.eventTimes = finalEventTimes;
 RestingBaselines.manualSelection.baselineFileInfo.durations = finalEventDurations;
 RestingBaselines.manualSelection.baselineFileInfo.selections = ManualDecisions.validFiles;
 RestingBaselines.manualSelection.baselineFileInfo.selectionFiles = ManualDecisions.fileIDs;
-save(baselineDataFileID,'RestingBaselines')
+save([animalID '_RestingBaselines.mat'],'RestingBaselines');
 
 end

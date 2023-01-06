@@ -3,13 +3,18 @@
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %
-% Purpose: - Convert analog data and notes in LabVIEW's .tdms files to MATLAB .mat structures ('RawData')                 
+% Purpose: - Convert analog data and notes in LabVIEW's .tdms files to MATLAB .mat structures ('RawData')
 %          - Track changes in whisker angle using Radon transform
 %________________________________________________________________________________________________________________________
 
-% clear the workspace, variables, and command window
 zap;
-% Asks the user to load all files with a '_WhiskerCam.bin' extension
+% select imaging type
+imagingOptions = {'Single ROI (SI)','Single ROI (SSS)','Bilateral ROI (SI)','Bilateral ROI (SI,FC)'};
+imagingType = SelectImagingType_IOS(imagingOptions);
+% select imaging type
+wavelengthOptions = {'Green','Lime','Blue','Green & Blue','Lime & Blue','Red, Green, & Blue','Red, Lime, & Blue'};
+imagingWavelengths = SelectImagingType_IOS(wavelengthOptions);
+% asks the user to load all files with a '_WhiskerCam.bin' extension
 fileNames = uigetfile('*_WhiskerCam.bin','MultiSelect','on');   % CTL-A to select all files
 % preparing to create RawData files.
 % load in each file one at a time, looping through the list
@@ -54,6 +59,8 @@ for a = 1:length(fileNames)
         % start whisker tracker.
         [whiskerAngle] = WhiskerTrackerParallel_IOS(fileID);
         % save the notes
+        RawData.notes.imagingType = imagingType;
+        RawData.notes.imagingWavelengths = imagingWavelengths;
         RawData.notes.experimenter = trialData.experimenter;
         RawData.notes.animalID = trialData.animalID;
         RawData.notes.hemisphere = trialData.hemisphere;

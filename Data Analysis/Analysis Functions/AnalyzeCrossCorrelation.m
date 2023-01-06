@@ -3,18 +3,17 @@ function [Results_CrossCorr] = AnalyzeCrossCorrelation(animalID,group,rootFolder
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
-%   Purpose: Analyze the cross-correlation between neural activity and hemodynamics [HbT] (IOS)
+% Purpose: Analyze the cross-correlation between neural activity and hemodynamics [HbT]
 %________________________________________________________________________________________________________________________
 
-%% function parameters
-dataTypes = {'adjLH','adjRH'};
+% function parameters
+dataTypes = {'LH','RH'};
 modelType = 'Forest';
 params.minTime.Rest = 10;
 params.minTime.NREM = 30;
 params.minTime.REM = 60;
-%% only run analysis for valid animal IDs
+% only run analysis for valid animal IDs
 dataLocation = [rootFolder delim group delim animalID delim 'Bilateral Imaging'];
 cd(dataLocation)
 % find and load RestData.mat struct
@@ -56,11 +55,11 @@ RestPuffCriteria.Value = {5};
 % go through each valid data type for arousal-based cross-correlation analysis
 for aa = 1:length(dataTypes)
     dataType = dataTypes{1,aa};
-    neuralDataType = ['cortical_' dataType(4:end)];
+    neuralDataType = ['cortical_' dataType];
     % pull a few necessary numbers from the RestData.mat struct such as trial duration and sampling rate
     trialDuration_sec = RestData.CBV_HbT.LH.trialDuration_sec;
-    sleepBinWidth = 5;   % sec
-    oneSecSpecFs = 30;   % Hz
+    sleepBinWidth = 5; % sec
+    oneSecSpecFs = 30; % Hz
     %% cross-correlation analysis for resting data
     % pull data from RestData.mat structure
     [restLogical] = FilterEvents_IOS(RestData.CBV_HbT.(dataType),RestCriteria);
@@ -158,7 +157,7 @@ for aa = 1:length(dataTypes)
     Results_CrossCorr.(animalID).Rest.(dataType).HbTvMUAxcVals_std = restStdHbTvMUAxcVals;
     %% cross-correlation analysis for NREM
     NREM_sleepTime = params.minTime.NREM;   % seconds
-    [NREM_finalHbT,NREM_allSleepFileIDs,NREM_finalBinTimes] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.CBV_HbT.(dataType(4:end)),SleepData.(modelType).NREM.FileIDs,SleepData.(modelType).NREM.BinTimes);
+    [NREM_finalHbT,NREM_allSleepFileIDs,NREM_finalBinTimes] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.CBV_HbT.(dataType),SleepData.(modelType).NREM.FileIDs,SleepData.(modelType).NREM.BinTimes);
     [NREM_finalMUA,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.(neuralDataType).muaPower,SleepData.(modelType).NREM.FileIDs,SleepData.(modelType).NREM.BinTimes);
     NREM_uniqueSleepFileIDs = unique(NREM_allSleepFileIDs);
     jj = 1;
@@ -281,7 +280,7 @@ for aa = 1:length(dataTypes)
     Results_CrossCorr.(animalID).NREM.(dataType).HbTvMUAxcVals_std = NREM_stdHbTvMUAxcVals;
     %% cross-correlation analysis for REM
     REM_sleepTime = params.minTime.REM;   % seconds
-    [REM_finalHbT,REM_allSleepFileIDs,REM_finalBinTimes] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.CBV_HbT.(dataType(4:end)),SleepData.(modelType).REM.FileIDs,SleepData.(modelType).REM.BinTimes);
+    [REM_finalHbT,REM_allSleepFileIDs,REM_finalBinTimes] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.CBV_HbT.(dataType),SleepData.(modelType).REM.FileIDs,SleepData.(modelType).REM.BinTimes);
     [REM_finalMUA,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.(neuralDataType).muaPower,SleepData.(modelType).REM.FileIDs,SleepData.(modelType).REM.BinTimes);
     REM_uniqueSleepFileIDs = unique(REM_allSleepFileIDs);
     uu = 1;
@@ -348,7 +347,7 @@ for aa = 1:length(dataTypes)
             REM_dtSleepNeuralVals{vv,1} = [];
         end
     end
-    % adjust [HbT] and MUA events to match the edits made to the length of each spectrogram
+    % ust [HbT] and MUA events to match the edits made to the length of each spectrogram
     xx = 1;
     for ww = 1:length(REM_dtSleepNeuralVals)
         if isempty(REM_dtSleepNeuralVals) == false

@@ -3,19 +3,17 @@ function [Results_NeuralHemoCoher] = AnalyzeNeuralHemoCoherence(animalID,group,r
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
-%   Purpose: Analyze the spectral coherence between neural-hemodynamic [HbT] signals (IOS)
+% Purpose: Analyze the spectral coherence between neural-hemodynamic [HbT] signals (IOS)
 %________________________________________________________________________________________________________________________
 
-%% function parameters
-dataTypes = {'deltaBandPower','thetaBandPower','alphaBandPower','betaBandPower','gammaBandPower'};
-hemDataTypes = {'adjLH','adjRH'};
+% function parameters
+hemDataTypes = {'LH','RH'};
 modelType = 'Forest';
 params.minTime.Rest = 10;
 params.minTime.NREM = 30;
 params.minTime.REM = 60;
-%% only run analysis for valid animal IDs
+% only run analysis for valid animal IDs
 dataLocation = [rootFolder delim group delim animalID delim 'Bilateral Imaging'];
 cd(dataLocation)
 % character list of all ProcData file IDs
@@ -45,10 +43,6 @@ load(sleepDataFileID,'-mat')
 % find and load Forest_ScoringResults.mat struct
 forestScoringResultsFileID = [animalID '_Forest_ScoringResults.mat'];
 load(forestScoringResultsFileID,'-mat')
-% lowpass filter
-samplingRate = RestData.CBV_HbT.adjLH.CBVCamSamplingRate;
-% [z,p,k] = butter(4,1/(samplingRate/2),'low');
-% [sos,g] = zp2sos(z,p,k);
 % criteria for resting
 RestCriteria.Fieldname = {'durations'};
 RestCriteria.Comparison = {'gt'};
@@ -56,274 +50,475 @@ RestCriteria.Value = {params.minTime.Rest};
 RestPuffCriteria.Fieldname = {'puffDistances'};
 RestPuffCriteria.Comparison = {'gt'};
 RestPuffCriteria.Value = {5};
-% go through each valid data type for arousal-based coherence analysis
+% determine data types based on experimental group
+strBreaks = strfind(group,delim);
+groupName = group(strBreaks + 1:end);
+% go through each valid data type for arousal based coherence analysis
 for zzz = 1:length(hemDataTypes)
     hemDataType = hemDataTypes{1,zzz};
-    for aa = 1:length(dataTypes)
-        dataType = dataTypes{1,aa};
-        %% analyze neural-hemo coherence during periods of rest
-        % pull data from RestData.mat structure
-        [restLogical] = FilterEvents_IOS(RestData.CBV_HbT.(hemDataType),RestCriteria);
-        [puffLogical] = FilterEvents_IOS(RestData.CBV_HbT.(hemDataType),RestPuffCriteria);
-        combRestLogical = logical(restLogical.*puffLogical);
-        restFileIDs = RestData.CBV_HbT.(hemDataType).fileIDs(combRestLogical,:);
-        restEventTimes = RestData.CBV_HbT.(hemDataType).eventTimes(combRestLogical,:);
-        restDurations = RestData.CBV_HbT.(hemDataType).durations(combRestLogical,:);
-        HbT_unstimRestingData = RestData.CBV_HbT.(hemDataType).data(combRestLogical,:);
-        Gamma_unstimRestingData = RestData.(['cortical_' hemDataType(4:5)]).(dataType).NormData(combRestLogical,:);
-        % keep only the data that occurs within the manually-approved awake regions
-        [HbT_finalRestData,~,~,~] = RemoveInvalidData_IOS(HbT_unstimRestingData,restFileIDs,restDurations,restEventTimes,ManualDecisions);
-        [Gamma_finalRestData,~,~,~] = RemoveInvalidData_IOS(Gamma_unstimRestingData,restFileIDs,restDurations,restEventTimes,ManualDecisions);
-        clear HbT_ProcRestData Gamma_ProcRestData
-        % filter, detrend, and truncate data to minimum length to match events
-        for bb = 1:length(HbT_finalRestData)
-            if length(HbT_finalRestData{bb,1}) < params.minTime.Rest*samplingRate
-                restChunkSampleDiff = params.minTime.Rest*samplingRate - length(HbT_finalRestData{bb,1});
-                HbT_restPad = (ones(1,restChunkSampleDiff))*HbT_finalRestData{bb,1}(end);
-                Gamma_restPad = (ones(1,restChunkSampleDiff))*Gamma_finalRestData{bb,1}(end);
-                HbT_ProcRestData{bb,1} = horzcat(HbT_finalRestData{bb,1},HbT_restPad); %#ok<*AGROW>
-                Gamma_ProcRestData{bb,1} = horzcat(Gamma_finalRestData{bb,1},Gamma_restPad);
-                % HbT_ProcRestData{bb,1} = filtfilt(sos,g,detrend(HbT_ProcRestData{bb,1},'constant'));
-                % Gamma_ProcRestData{bb,1} = filtfilt(sos,g,detrend(Gamma_ProcRestData{bb,1},'constant'));
-                HbT_ProcRestData{bb,1} = detrend(HbT_ProcRestData{bb,1},'constant');
-                Gamma_ProcRestData{bb,1} = detrend(Gamma_ProcRestData{bb,1},'constant');
-            else
-                % HbT_ProcRestData{bb,1} = filtfilt(sos,g,detrend(HbT_finalRestData{bb,1}(1:(params.minTime.Rest*samplingRate)),'constant'));
-                % Gamma_ProcRestData{bb,1} = filtfilt(sos,g,detrend(Gamma_finalRestData{bb,1}(1:(params.minTime.Rest*samplingRate)),'constant'));
-                HbT_ProcRestData{bb,1} = detrend(HbT_finalRestData{bb,1}(1:(params.minTime.Rest*samplingRate)),'constant');
-                Gamma_ProcRestData{bb,1} = detrend(Gamma_finalRestData{bb,1}(1:(params.minTime.Rest*samplingRate)),'constant');
+    %% analyze neural-hemo coherence during periods of rest
+    % pull data from RestData.mat structure
+    samplingRate = RestData.CBV_HbT.LH.CBVCamSamplingRate;
+    [restLogical] = FilterEvents_IOS(RestData.CBV_HbT.(hemDataType),RestCriteria);
+    [puffLogical] = FilterEvents_IOS(RestData.CBV_HbT.(hemDataType),RestPuffCriteria);
+    combRestLogical = logical(restLogical.*puffLogical);
+    restFileIDs = RestData.CBV_HbT.(hemDataType).fileIDs(combRestLogical,:);
+    restEventTimes = RestData.CBV_HbT.(hemDataType).eventTimes(combRestLogical,:);
+    restDurations = RestData.CBV_HbT.(hemDataType).durations(combRestLogical,:);
+    if strcmp(groupName,'IOS_Ephys') == true
+        dataType = 'gammaBandPower';
+        HbT_RestingData = RestData.CBV_HbT.(hemDataType).data(combRestLogical,:);
+        Neural_RestingData = RestData.(['cortical_' hemDataType]).(dataType).NormData(combRestLogical,:);
+    elseif strcmp(groupName,'IOS_GCaMP7s') == true
+        dataType = 'GCaMP7s';
+        HbT_RestingData = RestData.CBV_HbT.(hemDataType).data(combRestLogical,:);
+        Neural_RestingData = RestData.GCaMP7s.(['cor' hemDataType]).NormData(combRestLogical,:);
+        fHbT_RestingData = RestData.CBV_HbT.(['frontal' hemDataType]).data(combRestLogical,:);
+        fNeural_RestingData = RestData.GCaMP7s.(['corFrontal' hemDataType]).NormData(combRestLogical,:);
+    end
+    % keep only the data that occurs within the manually-approved alert regions
+    [HbT_finalRestData,~,~,~] = RemoveInvalidData_IOS(HbT_RestingData,restFileIDs,restDurations,restEventTimes,ManualDecisions);
+    [Neural_finalRestData,~,~,~] = RemoveInvalidData_IOS(Neural_RestingData,restFileIDs,restDurations,restEventTimes,ManualDecisions);
+    if strcmp(groupName,'IOS_GCaMP7s') == true
+        [fHbT_finalRestData,~,~,~] = RemoveInvalidData_IOS(fHbT_RestingData,restFileIDs,restDurations,restEventTimes,ManualDecisions);
+        [fNeural_finalRestData,~,~,~] = RemoveInvalidData_IOS(fNeural_RestingData,restFileIDs,restDurations,restEventTimes,ManualDecisions);
+    end
+    clear HbT_ProcRestData Neural_ProcRestData
+    clear fHbT_ProcRestData fNeural_ProcRestData
+    % filter, detrend, and truncate data to minimum length to match events
+    for bb = 1:length(HbT_finalRestData)
+        if length(HbT_finalRestData{bb,1}) < params.minTime.Rest*samplingRate
+            restChunkSampleDiff = params.minTime.Rest*samplingRate - length(HbT_finalRestData{bb,1});
+            HbT_restPad = (ones(1,restChunkSampleDiff))*HbT_finalRestData{bb,1}(end);
+            Neural_restPad = (ones(1,restChunkSampleDiff))*Neural_finalRestData{bb,1}(end);
+            HbT_ProcRestData{bb,1} = horzcat(HbT_finalRestData{bb,1},HbT_restPad);
+            Neural_ProcRestData{bb,1} = horzcat(Neural_finalRestData{bb,1},Neural_restPad);
+            HbT_ProcRestData{bb,1} = detrend(HbT_ProcRestData{bb,1},'constant');
+            Neural_ProcRestData{bb,1} = detrend(Neural_ProcRestData{bb,1},'constant');
+            if strcmp(groupName,'IOS_GCaMP7s') == true
+                fHbT_restPad = (ones(1,restChunkSampleDiff))*fHbT_finalRestData{bb,1}(end);
+                fNeural_restPad = (ones(1,restChunkSampleDiff))*fNeural_finalRestData{bb,1}(end);
+                fHbT_ProcRestData{bb,1} = horzcat(fHbT_finalRestData{bb,1},fHbT_restPad);
+                fNeural_ProcRestData{bb,1} = horzcat(fNeural_finalRestData{bb,1},fNeural_restPad);
+                fHbT_ProcRestData{bb,1} = detrend(fHbT_ProcRestData{bb,1},'constant');
+                fNeural_ProcRestData{bb,1} = detrend(fNeural_ProcRestData{bb,1},'constant');
+            end
+        else
+            HbT_ProcRestData{bb,1} = detrend(HbT_finalRestData{bb,1}(1:(params.minTime.Rest*samplingRate)),'constant');
+            Neural_ProcRestData{bb,1} = detrend(Neural_finalRestData{bb,1}(1:(params.minTime.Rest*samplingRate)),'constant');
+            if strcmp(groupName,'IOS_GCaMP7s') == true
+                fHbT_ProcRestData{bb,1} = detrend(fHbT_finalRestData{bb,1}(1:(params.minTime.Rest*samplingRate)),'constant');
+                fNeural_ProcRestData{bb,1} = detrend(fNeural_finalRestData{bb,1}(1:(params.minTime.Rest*samplingRate)),'constant');
             end
         end
-        % input data as time(1st dimension, vertical) by trials (2nd dimension, horizontunstimy)
-        HbT_restData = zeros(length(HbT_ProcRestData{1,1}),length(HbT_ProcRestData));
-        Gamma_restData = zeros(length(Gamma_ProcRestData{1,1}),length(Gamma_ProcRestData));
-        for cc = 1:length(HbT_ProcRestData)
-            HbT_restData(:,cc) = HbT_ProcRestData{cc,1};
-            Gamma_restData(:,cc) = Gamma_ProcRestData{cc,1};
+    end
+    % pre-allocate coherence matrix
+    HbT_restData = zeros(length(HbT_ProcRestData{1,1}),length(HbT_ProcRestData));
+    Neural_restData = zeros(length(Neural_ProcRestData{1,1}),length(Neural_ProcRestData));
+    if strcmp(groupName,'IOS_GCaMP7s') == true
+        fHbT_restData = zeros(length(fHbT_ProcRestData{1,1}),length(fHbT_ProcRestData));
+        fNeural_restData = zeros(length(fNeural_ProcRestData{1,1}),length(fNeural_ProcRestData));
+    end
+    % input data as time (1st dimension, vertical) by trials (2nd dimension, horizontal)
+    for cc = 1:length(HbT_ProcRestData)
+        HbT_restData(:,cc) = HbT_ProcRestData{cc,1};
+        Neural_restData(:,cc) = Neural_ProcRestData{cc,1};
+        if strcmp(groupName,'IOS_GCaMP7s') == true
+            fHbT_restData(:,cc) = fHbT_ProcRestData{cc,1};
+            fNeural_restData(:,cc) = fNeural_ProcRestData{cc,1};
         end
-        % parameters for coherencyc - information available in function
-        params.tapers = [5,9];   % Tapers [n, 2n - 1]
-        params.pad = 1;
-        params.Fs = samplingRate;
-        params.fpass = [0,1];   % Pass band [0, nyquist]
-        params.trialave = 1;
-        params.err = [2,0.05];
+    end
+    % parameters for coherencyc - information available in function
+    params.tapers = [1,1]; % Tapers [n, 2n - 1]
+    params.pad = 1;
+    params.Fs = samplingRate;
+    params.fpass = [0,1]; % Pass band [0, nyquist]
+    params.trialave = 1;
+    params.err = [2,0.05];
+    % calculate the coherence between desired signals
+    [C_RestData,~,~,~,~,f_RestData,confC_RestData,~,cErr_RestData] = coherencyc(HbT_restData,Neural_restData,params);
+    % save results
+    Results_NeuralHemoCoher.(animalID).Rest.(dataType).(hemDataType).C = C_RestData;
+    Results_NeuralHemoCoher.(animalID).Rest.(dataType).(hemDataType).f = f_RestData;
+    Results_NeuralHemoCoher.(animalID).Rest.(dataType).(hemDataType).confC = confC_RestData;
+    Results_NeuralHemoCoher.(animalID).Rest.(dataType).(hemDataType).cErr = cErr_RestData;
+    if strcmp(groupName,'IOS_GCaMP7s') == true
         % calculate the coherence between desired signals
-        [C_RestData,~,~,~,~,f_RestData,confC_RestData,~,cErr_RestData] = coherencyc(HbT_restData,Gamma_restData,params);
+        [fC_RestData,~,~,~,~,ff_RestData,fconfC_RestData,~,fcErr_RestData] = coherencyc(fHbT_restData,fNeural_restData,params);
         % save results
-        Results_NeuralHemoCoher.(animalID).Rest.(dataType).(hemDataType).C = C_RestData;
-        Results_NeuralHemoCoher.(animalID).Rest.(dataType).(hemDataType).f = f_RestData;
-        Results_NeuralHemoCoher.(animalID).Rest.(dataType).(hemDataType).confC = confC_RestData;
-        Results_NeuralHemoCoher.(animalID).Rest.(dataType).(hemDataType).cErr = cErr_RestData;
-        %% analyze neural-hemo coherence during periods of alert
-        zz = 1;
-        clear HbT_AwakeData Gamma_AwakeData HbT_ProcAwakeData Gamma_ProcAwakeData
-        HbT_AwakeData = [];
-        for bb = 1:size(procDataFileIDs,1)
-            procDataFileID = procDataFileIDs(bb,:);
-            [~,allDataFileDate,allDataFileID] = GetFileInfo_IOS(procDataFileID);
-            strDay = ConvertDate_IOS(allDataFileDate);
-            scoringLabels = [];
-            for cc = 1:length(ScoringResults.fileIDs)
-                if strcmp(allDataFileID,ScoringResults.fileIDs{cc,1}) == true
-                    scoringLabels = ScoringResults.labels{cc,1};
-                end
-            end
-            % check labels to match arousal state
-            if sum(strcmp(scoringLabels,'Not Sleep')) > 144   % 36 bins (180 total) or 3 minutes of sleep
-                load(procDataFileID,'-mat')
-                puffs = ProcData.data.stimulations.LPadSol;
-                % don't include trials with stimulation
-                if isempty(puffs) == true
-                    motionArtifact = ProcData.notes.motionArtifact;
-                    if motionArtifact == false
-                        HbT_AwakeData{zz,1} = ProcData.data.CBV_HbT.(hemDataType);
-                        Gamma_AwakeData{zz,1} = (ProcData.data.(['cortical_' hemDataType(4:5)]).(dataType) - RestingBaselines.manualSelection.(['cortical_' hemDataType(4:5)]).(dataType).(strDay))./RestingBaselines.manualSelection.(['cortical_' hemDataType(4:5)]).(dataType).(strDay);
-                        zz = zz + 1;
-                    end
-                end
+        Results_NeuralHemoCoher.(animalID).Rest.(dataType).(hemDataType).fC = fC_RestData;
+        Results_NeuralHemoCoher.(animalID).Rest.(dataType).(hemDataType).ff = ff_RestData;
+        Results_NeuralHemoCoher.(animalID).Rest.(dataType).(hemDataType).fconfC = fconfC_RestData;
+        Results_NeuralHemoCoher.(animalID).Rest.(dataType).(hemDataType).fcErr = fcErr_RestData;
+    end
+    %% analyze neural-hemo coherence during periods of alert
+    zz = 1;
+    clear HbT_AlertData Neural_AlertData HbT_ProcAlertData Neural_ProcAlertData
+    clear fHbT_AlertData fNeural_AlertData fHbT_ProcAlertData fNeural_ProcAlertData
+    HbT_AlertData = [];
+    for bb = 1:size(procDataFileIDs,1)
+        procDataFileID = procDataFileIDs(bb,:);
+        [~,allDataFileDate,allDataFileID] = GetFileInfo_IOS(procDataFileID);
+        strDay = ConvertDate_IOS(allDataFileDate);
+        scoringLabels = [];
+        for cc = 1:length(ScoringResults.fileIDs)
+            if strcmp(allDataFileID,ScoringResults.fileIDs{cc,1}) == true
+                scoringLabels = ScoringResults.labels{cc,1};
             end
         end
-        % filter and detrend data
-        if isempty(HbT_AwakeData) == false
-            for bb = 1:length(HbT_AwakeData)
-                % HbT_ProcAwakeData{bb,1} = filtfilt(sos,g,detrend(HbT_AwakeData{bb,1},'constant'));
-                % Gamma_ProcAwakeData{bb,1} = filtfilt(sos,g,detrend(Gamma_AwakeData{bb,1},'constant'));
-                HbT_ProcAwakeData{bb,1} = detrend(HbT_AwakeData{bb,1},'constant');
-                Gamma_ProcAwakeData{bb,1} = detrend(Gamma_AwakeData{bb,1},'constant');
-            end
-            % input data as time (1st dimension, vertical) by trials (2nd dimension, horizontunstimy)
-            HbT_awakeData = zeros(length(HbT_ProcAwakeData{1,1}),length(HbT_ProcAwakeData));
-            Gamma_awakeData = zeros(length(Gamma_ProcAwakeData{1,1}),length(Gamma_ProcAwakeData));
-            for cc = 1:length(HbT_ProcAwakeData)
-                HbT_awakeData(:,cc) = HbT_ProcAwakeData{cc,1};
-                Gamma_awakeData(:,cc) = Gamma_ProcAwakeData{cc,1};
-            end
-            % calculate the coherence between desired signals
-            [C_AwakeData,~,~,~,~,f_AwakeData,confC_AwakeData,~,cErr_AwakeData] = coherencyc(HbT_awakeData,Gamma_awakeData,params);
-            % save results
-            Results_NeuralHemoCoher.(animalID).Awake.(dataType).(hemDataType).C = C_AwakeData;
-            Results_NeuralHemoCoher.(animalID).Awake.(dataType).(hemDataType).f = f_AwakeData;
-            Results_NeuralHemoCoher.(animalID).Awake.(dataType).(hemDataType).confC = confC_AwakeData;
-            Results_NeuralHemoCoher.(animalID).Awake.(dataType).(hemDataType).cErr = cErr_AwakeData;
-        else
-            % save results
-            Results_NeuralHemoCoher.(animalID).Awake.(dataType).(hemDataType).C = [];
-            Results_NeuralHemoCoher.(animalID).Awake.(dataType).(hemDataType).f = [];
-            Results_NeuralHemoCoher.(animalID).Awake.(dataType).(hemDataType).confC = [];
-            Results_NeuralHemoCoher.(animalID).Awake.(dataType).(hemDataType).cErr = [];
-        end
-        %% analyze neural-hemo coherence during periods of asleep
-        zz = 1;
-        clear HbT_SleepData Gamma_SleepData HbT_ProcSleepData Gamma_ProcSleepData
-        HbT_SleepData = [];
-        for bb = 1:size(procDataFileIDs,1)
-            procDataFileID = procDataFileIDs(bb,:);
-            [~,allDataFileDate,allDataFileID] = GetFileInfo_IOS(procDataFileID);
-            strDay = ConvertDate_IOS(allDataFileDate);
-            scoringLabels = [];
-            for cc = 1:length(ScoringResults.fileIDs)
-                if strcmp(allDataFileID,ScoringResults.fileIDs{cc,1}) == true
-                    scoringLabels = ScoringResults.labels{cc,1};
-                end
-            end
-            % check labels to match arousal state
-            if sum(strcmp(scoringLabels,'Not Sleep')) < 36   % 36 bins (180 total) or 3 minutes of awake
-                load(procDataFileID,'-mat')
-                puffs = ProcData.data.stimulations.LPadSol;
-                % don't include trials with stimulation
-                if isempty(puffs) == true
-                    motionArtifact = ProcData.notes.motionArtifact;
-                    if motionArtifact == false
-                        HbT_SleepData{zz,1} = ProcData.data.CBV_HbT.(hemDataType);
-                        Gamma_SleepData{zz,1} = (ProcData.data.(['cortical_' hemDataType(4:5)]).(dataType) - RestingBaselines.manualSelection.(['cortical_' hemDataType(4:5)]).(dataType).(strDay))./RestingBaselines.manualSelection.(['cortical_' hemDataType(4:5)]).(dataType).(strDay);
-                        zz = zz + 1;
-                    end
-                end
-            end
-        end
-        % filter and detrend data
-        if isempty(HbT_SleepData) == false
-            for bb = 1:length(HbT_SleepData)
-                % HbT_ProcSleepData{bb,1} = filtfilt(sos,g,detrend(HbT_SleepData{bb,1},'constant'));
-                % Gamma_ProcSleepData{bb,1} = filtfilt(sos,g,detrend(Gamma_SleepData{bb,1},'constant'));
-                HbT_ProcSleepData{bb,1} = detrend(HbT_SleepData{bb,1},'constant');
-                Gamma_ProcSleepData{bb,1} = detrend(Gamma_SleepData{bb,1},'constant');
-            end
-            % input data as time (1st dimension, vertical) by trials (2nd dimension, horizontunstimy)
-            HbT_sleepData = zeros(length(HbT_ProcSleepData{1,1}),length(HbT_ProcSleepData));
-            Gamma_sleepData = zeros(length(Gamma_ProcSleepData{1,1}),length(Gamma_ProcSleepData));
-            for cc = 1:length(HbT_ProcSleepData)
-                HbT_sleepData(:,cc) = HbT_ProcSleepData{cc,1};
-                Gamma_sleepData(:,cc) = Gamma_ProcSleepData{cc,1};
-            end
-            % calculate the coherence between desired signals
-            [C_SleepData,~,~,~,~,f_SleepData,confC_SleepData,~,cErr_SleepData] = coherencyc(HbT_sleepData,Gamma_sleepData,params);
-            % save results
-            Results_NeuralHemoCoher.(animalID).Sleep.(dataType).(hemDataType).C = C_SleepData;
-            Results_NeuralHemoCoher.(animalID).Sleep.(dataType).(hemDataType).f = f_SleepData;
-            Results_NeuralHemoCoher.(animalID).Sleep.(dataType).(hemDataType).confC = confC_SleepData;
-            Results_NeuralHemoCoher.(animalID).Sleep.(dataType).(hemDataType).cErr = cErr_SleepData;
-        else
-            % save results
-            Results_NeuralHemoCoher.(animalID).Sleep.(dataType).(hemDataType).C = [];
-            Results_NeuralHemoCoher.(animalID).Sleep.(dataType).(hemDataType).f = [];
-            Results_NeuralHemoCoher.(animalID).Sleep.(dataType).(hemDataType).confC = [];
-            Results_NeuralHemoCoher.(animalID).Sleep.(dataType).(hemDataType).cErr = [];
-        end
-        %% analyze neural-hemo coherence during periods of all data
-        zz = 1;
-        clear HbT_AllUnstimData Gamma_AllUnstimData HbT_ProcAllUnstimData Gamma_ProcAllUnstimData
-        HbT_AllUnstimData = [];
-        for bb = 1:size(procDataFileIDs,1)
-            procDataFileID = procDataFileIDs(bb,:);
-            [~,allUnstimDataFileDate,~] = GetFileInfo_IOS(procDataFileID);
-            strDay = ConvertDate_IOS(allUnstimDataFileDate);
+        % check labels to match arousal state
+        if sum(strcmp(scoringLabels,'Not Sleep')) > 144 % 36 bins (180 total) or 3 minutes of sleep
             load(procDataFileID,'-mat')
             puffs = ProcData.data.stimulations.LPadSol;
             % don't include trials with stimulation
             if isempty(puffs) == true
-                motionArtifact = ProcData.notes.motionArtifact;
-                if motionArtifact == false
-                    HbT_AllUnstimData{zz,1} = ProcData.data.CBV_HbT.(hemDataType);
-                    Gamma_AllUnstimData{zz,1} = (ProcData.data.(['cortical_' hemDataType(4:5)]).(dataType) - RestingBaselines.manualSelection.(['cortical_' hemDataType(4:5)]).(dataType).(strDay))./RestingBaselines.manualSelection.(['cortical_' hemDataType(4:5)]).(dataType).(strDay);
+                if strcmp(groupName,'IOS_Ephys') == true
+                    motionArtifact = ProcData.notes.motionArtifact;
+                    if motionArtifact == false
+                        HbT_AlertData{zz,1} = ProcData.data.CBV_HbT.(hemDataType);
+                        Neural_AlertData{zz,1} = (ProcData.data.(['cortical_' hemDataType]).(dataType) - RestingBaselines.manualSelection.(['cortical_' hemDataType]).(dataType).(strDay))./RestingBaselines.manualSelection.(['cortical_' hemDataType]).(dataType).(strDay);
+                        zz = zz + 1;
+                    end
+                elseif strcmp(groupName,'IOS_GCaMP7s') == true
+                    HbT_AlertData{zz,1} = ProcData.data.CBV_HbT.(hemDataType);
+                    Neural_AlertData{zz,1} = ProcData.data.(dataType).(['cor' hemDataType]);
+                    fHbT_AlertData{zz,1} = ProcData.data.CBV_HbT.(['frontal' hemDataType]);
+                    fNeural_AlertData{zz,1} = ProcData.data.(dataType).(['corFrontal' hemDataType]); 
                     zz = zz + 1;
                 end
             end
         end
-        % filter and detrend data
-        if isempty(HbT_AllUnstimData) == false
-            for bb = 1:length(HbT_AllUnstimData)
-                % HbT_ProcAllUnstimData{bb,1} = filtfilt(sos,g,detrend(HbT_AllUnstimData{bb,1},'constant'));
-                % Gamma_ProcAllUnstimData{bb,1} = filtfilt(sos,g,detrend(Gamma_AllUnstimData{bb,1},'constant'));
-                HbT_ProcAllUnstimData{bb,1} = detrend(HbT_AllUnstimData{bb,1},'constant');
-                Gamma_ProcAllUnstimData{bb,1} = detrend(Gamma_AllUnstimData{bb,1},'constant');
+    end
+    % filter and detrend data
+    if isempty(HbT_AlertData) == false
+        for bb = 1:length(HbT_AlertData)
+            HbT_ProcAlertData{bb,1} = detrend(HbT_AlertData{bb,1},'constant');
+            Neural_ProcAlertData{bb,1} = detrend(Neural_AlertData{bb,1},'constant');
+            if strcmp(groupName,'IOS_GCaMP7s') == true
+                fHbT_ProcAlertData{bb,1} = detrend(fHbT_AlertData{bb,1},'constant');
+                fNeural_ProcAlertData{bb,1} = detrend(fNeural_AlertData{bb,1},'constant');
             end
-            % input data as time (1st dimension, vertical) by trials (2nd dimension, horizontunstimy)
-            HbT_allUnstimData = zeros(length(HbT_ProcAllUnstimData{1,1}),length(HbT_ProcAllUnstimData));
-            Gamma_allUnstimData = zeros(length(Gamma_ProcAllUnstimData{1,1}),length(Gamma_ProcAllUnstimData));
-            for cc = 1:length(HbT_ProcAllUnstimData)
-                HbT_allUnstimData(:,cc) = HbT_ProcAllUnstimData{cc,1};
-                Gamma_allUnstimData(:,cc) = Gamma_ProcAllUnstimData{cc,1};
+        end
+        % pre-allocate coherence matrix
+        HbT_alertData = zeros(length(HbT_ProcAlertData{1,1}),length(HbT_ProcAlertData));
+        Neural_alertData = zeros(length(Neural_ProcAlertData{1,1}),length(Neural_ProcAlertData));
+        if strcmp(groupName,'IOS_GCaMP7s') == true
+            fHbT_alertData = zeros(length(fHbT_ProcAlertData{1,1}),length(fHbT_ProcAlertData));
+            fNeural_alertData = zeros(length(fNeural_ProcAlertData{1,1}),length(fNeural_ProcAlertData));
+        end
+        % input data as time (1st dimension, vertical) by trials (2nd dimension, horizontal)
+        for cc = 1:length(HbT_ProcAlertData)
+            HbT_alertData(:,cc) = HbT_ProcAlertData{cc,1};
+            Neural_alertData(:,cc) = Neural_ProcAlertData{cc,1};
+            if strcmp(groupName,'IOS_GCaMP7s') == true
+                fHbT_alertData(:,cc) = fHbT_ProcAlertData{cc,1};
+                fNeural_alertData(:,cc) = fNeural_ProcAlertData{cc,1};
             end
+        end
+        % calculate the coherence between desired signals
+        params.tapers = [10,19]; % Tapers [n, 2n - 1]
+        [C_AlertData,~,~,~,~,f_AlertData,confC_AlertData,~,cErr_AlertData] = coherencyc(HbT_alertData,Neural_alertData,params);
+        % save results
+        Results_NeuralHemoCoher.(animalID).Alert.(dataType).(hemDataType).C = C_AlertData;
+        Results_NeuralHemoCoher.(animalID).Alert.(dataType).(hemDataType).f = f_AlertData;
+        Results_NeuralHemoCoher.(animalID).Alert.(dataType).(hemDataType).confC = confC_AlertData;
+        Results_NeuralHemoCoher.(animalID).Alert.(dataType).(hemDataType).cErr = cErr_AlertData;
+        if strcmp(groupName,'IOS_GCaMP7s') == true
             % calculate the coherence between desired signals
-            [C_AllUnstimData,~,~,~,~,f_AllUnstimData,confC_AllUnstimData,~,cErr_AllUnstimData] = coherencyc(HbT_allUnstimData,Gamma_allUnstimData,params);
+            [fC_AlertData,~,~,~,~,ff_AlertData,fconfC_AlertData,~,fcErr_AlertData] = coherencyc(fHbT_alertData,fNeural_alertData,params);
             % save results
-            Results_NeuralHemoCoher.(animalID).All.(dataType).(hemDataType).C = C_AllUnstimData;
-            Results_NeuralHemoCoher.(animalID).All.(dataType).(hemDataType).f = f_AllUnstimData;
-            Results_NeuralHemoCoher.(animalID).All.(dataType).(hemDataType).confC = confC_AllUnstimData;
-            Results_NeuralHemoCoher.(animalID).All.(dataType).(hemDataType).cErr = cErr_AllUnstimData;
+            Results_NeuralHemoCoher.(animalID).Alert.(dataType).(hemDataType).fC = fC_AlertData;
+            Results_NeuralHemoCoher.(animalID).Alert.(dataType).(hemDataType).ff = ff_AlertData;
+            Results_NeuralHemoCoher.(animalID).Alert.(dataType).(hemDataType).fconfC = fconfC_AlertData;
+            Results_NeuralHemoCoher.(animalID).Alert.(dataType).(hemDataType).fcErr = fcErr_AlertData;
         end
-        %% analyze neural-hemo coherence during periods of NREM
-        % pull data from SleepData.mat structure
-        [HbT_nremData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.CBV_HbT.(hemDataType(4:5)),SleepData.(modelType).NREM.FileIDs,SleepData.(modelType).NREM.BinTimes);
-        [Gamma_nremData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.(['cortical_' hemDataType(4:5)]).(dataType),SleepData.(modelType).NREM.FileIDs,SleepData.(modelType).NREM.BinTimes);
-        % filter, detrend, and truncate data to minimum length to match events
-        for ee = 1:length(HbT_nremData)
-            % HbT_nremData{ee,1} = filtfilt(sos,g,detrend(HbT_nremData{ee,1}(1:(params.minTime.NREM*samplingRate)),'constant'));
-            % Gamma_nremData{ee,1} = filtfilt(sos,g,detrend(Gamma_nremData{ee,1}(1:(params.minTime.NREM*samplingRate)),'constant'));
-            HbT_nremData{ee,1} = detrend(HbT_nremData{ee,1}(1:(params.minTime.NREM*samplingRate)),'constant');
-            Gamma_nremData{ee,1} = detrend(Gamma_nremData{ee,1}(1:(params.minTime.NREM*samplingRate)),'constant');
+    else
+        % save results
+        Results_NeuralHemoCoher.(animalID).Alert.(dataType).(hemDataType).C = [];
+        Results_NeuralHemoCoher.(animalID).Alert.(dataType).(hemDataType).f = [];
+        Results_NeuralHemoCoher.(animalID).Alert.(dataType).(hemDataType).confC = [];
+        Results_NeuralHemoCoher.(animalID).Alert.(dataType).(hemDataType).cErr = [];
+        if strcmp(groupName,'IOS_GCaMP7s') == true
+            % save results
+            Results_NeuralHemoCoher.(animalID).Alert.(dataType).(hemDataType).fC = [];
+            Results_NeuralHemoCoher.(animalID).Alert.(dataType).(hemDataType).ff = [];
+            Results_NeuralHemoCoher.(animalID).Alert.(dataType).(hemDataType).fconfC = [];
+            Results_NeuralHemoCoher.(animalID).Alert.(dataType).(hemDataType).fcErr = [];
         end
-        % input data as time (1st dimension, vertical) by trials (2nd dimension, horizontunstimy)
-        HbT_nrem = zeros(length(HbT_nremData{1,1}),length(HbT_nremData));
-        Gamma_nrem = zeros(length(Gamma_nremData{1,1}),length(Gamma_nremData));
-        for ff = 1:length(HbT_nremData)
-            HbT_nrem(:,ff) = HbT_nremData{ff,1};
-            Gamma_nrem(:,ff) = Gamma_nremData{ff,1};
+    end
+    %% analyze neural-hemo coherence during periods of asleep
+    zz = 1;
+    clear HbT_AsleepData Neural_AsleepData HbT_ProcAsleepData Neural_ProcAsleepData
+    clear fHbT_AsleepData fNeural_AsleepData fHbT_ProcAsleepData fNeural_ProcAsleepData
+    HbT_AsleepData = [];
+    for bb = 1:size(procDataFileIDs,1)
+        procDataFileID = procDataFileIDs(bb,:);
+        [~,allDataFileDate,allDataFileID] = GetFileInfo_IOS(procDataFileID);
+        strDay = ConvertDate_IOS(allDataFileDate);
+        scoringLabels = [];
+        for cc = 1:length(ScoringResults.fileIDs)
+            if strcmp(allDataFileID,ScoringResults.fileIDs{cc,1}) == true
+                scoringLabels = ScoringResults.labels{cc,1};
+            end
+        end
+        % check labels to match arousal state
+        if sum(strcmp(scoringLabels,'Not Sleep')) < 36 % 36 bins (180 total) or 3 minutes of alert
+            load(procDataFileID,'-mat')
+            puffs = ProcData.data.stimulations.LPadSol;
+            % don't include trials with stimulation
+            if isempty(puffs) == true
+                if strcmp(groupName,'IOS_Ephys') == true
+                    motionArtifact = ProcData.notes.motionArtifact;
+                    if motionArtifact == false
+                        HbT_AsleepData{zz,1} = ProcData.data.CBV_HbT.(hemDataType);
+                        Neural_AsleepData{zz,1} = (ProcData.data.(['cortical_' hemDataType]).(dataType) - RestingBaselines.manualSelection.(['cortical_' hemDataType]).(dataType).(strDay))./RestingBaselines.manualSelection.(['cortical_' hemDataType]).(dataType).(strDay);
+                        zz = zz + 1;
+                    end
+                elseif strcmp(groupName,'IOS_GCaMP7s') == true
+                    HbT_AsleepData{zz,1} = ProcData.data.CBV_HbT.(hemDataType);
+                    Neural_AsleepData{zz,1} = ProcData.data.(dataType).(['cor' hemDataType]);
+                    fHbT_AsleepData{zz,1} = ProcData.data.CBV_HbT.(['frontal' hemDataType]);
+                    fNeural_AsleepData{zz,1} = ProcData.data.(dataType).(['corFrontal' hemDataType]);
+                    zz = zz + 1;
+                end
+            end
+        end
+    end
+    % filter and detrend data
+    if isempty(HbT_AsleepData) == false
+        for bb = 1:length(HbT_AsleepData)
+            HbT_ProcAsleepData{bb,1} = detrend(HbT_AsleepData{bb,1},'constant');
+            Neural_ProcAsleepData{bb,1} = detrend(Neural_AsleepData{bb,1},'constant');
+            if strcmp(groupName,'IOS_GCaMP7s') == true
+                fHbT_ProcAsleepData{bb,1} = detrend(fHbT_AsleepData{bb,1},'constant');
+                fNeural_ProcAsleepData{bb,1} = detrend(fNeural_AsleepData{bb,1},'constant');
+            end
+        end
+        % pre-allocate coherence matrix
+        HbT_asleepData = zeros(length(HbT_ProcAsleepData{1,1}),length(HbT_ProcAsleepData));
+        Neural_asleepData = zeros(length(Neural_ProcAsleepData{1,1}),length(Neural_ProcAsleepData));
+        if strcmp(groupName,'IOS_GCaMP7s') == true
+            fHbT_asleepData = zeros(length(fHbT_ProcAsleepData{1,1}),length(fHbT_ProcAsleepData));
+            fNeural_asleepData = zeros(length(fNeural_ProcAsleepData{1,1}),length(fNeural_ProcAsleepData));
+        end
+        % input data as time (1st dimension, vertical) by trials (2nd dimension, horizontal)
+        for cc = 1:length(HbT_ProcAsleepData)
+            HbT_asleepData(:,cc) = HbT_ProcAsleepData{cc,1};
+            Neural_asleepData(:,cc) = Neural_ProcAsleepData{cc,1};
+            if strcmp(groupName,'IOS_GCaMP7s') == true
+                fHbT_asleepData(:,cc) = fHbT_ProcAsleepData{cc,1};
+                fNeural_asleepData(:,cc) = fNeural_ProcAsleepData{cc,1};
+            end
         end
         % calculate the coherence between desired signals
-        [C_nrem,~,~,~,~,f_nrem,confC_nrem,~,cErr_nrem] = coherencyc(HbT_nrem,Gamma_nrem,params);
+        params.tapers = [10,19]; % Tapers [n, 2n - 1]
+        [C_AsleepData,~,~,~,~,f_AsleepData,confC_AsleepData,~,cErr_AsleepData] = coherencyc(HbT_asleepData,Neural_asleepData,params);
         % save results
-        Results_NeuralHemoCoher.(animalID).NREM.(dataType).(hemDataType).C = C_nrem;
-        Results_NeuralHemoCoher.(animalID).NREM.(dataType).(hemDataType).f = f_nrem;
-        Results_NeuralHemoCoher.(animalID).NREM.(dataType).(hemDataType).confC = confC_nrem;
-        Results_NeuralHemoCoher.(animalID).NREM.(dataType).(hemDataType).cErr = cErr_nrem;
-        %% analyze neural-hemo coherence during periods of REM
-        % pull data from SleepData.mat structure
-        [HbT_remData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.CBV_HbT.(hemDataType(4:5)),SleepData.(modelType).REM.FileIDs,SleepData.(modelType).REM.BinTimes);
-        [Gamma_remData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.(['cortical_' hemDataType(4:5)]).(dataType),SleepData.(modelType).REM.FileIDs,SleepData.(modelType).REM.BinTimes);
-        % filter, detrend, and truncate data to minimum length to match events
-        for gg = 1:length(HbT_remData)
-            % HbT_remData{gg,1} = filtfilt(sos,g,detrend(HbT_remData{gg,1}(1:(params.minTime.REM*samplingRate)),'constant'));
-            % Gamma_remData{gg,1} = filtfilt(sos,g,detrend(Gamma_remData{gg,1}(1:(params.minTime.REM*samplingRate)),'constant'));
-            HbT_remData{gg,1} = detrend(HbT_remData{gg,1}(1:(params.minTime.REM*samplingRate)),'constant');
-            Gamma_remData{gg,1} = detrend(Gamma_remData{gg,1}(1:(params.minTime.REM*samplingRate)),'constant');
+        Results_NeuralHemoCoher.(animalID).Asleep.(dataType).(hemDataType).C = C_AsleepData;
+        Results_NeuralHemoCoher.(animalID).Asleep.(dataType).(hemDataType).f = f_AsleepData;
+        Results_NeuralHemoCoher.(animalID).Asleep.(dataType).(hemDataType).confC = confC_AsleepData;
+        Results_NeuralHemoCoher.(animalID).Asleep.(dataType).(hemDataType).cErr = cErr_AsleepData;
+        if strcmp(groupName,'IOS_GCaMP7s') == true
+            % calculate the coherence between desired signals
+            [fC_AsleepData,~,~,~,~,ff_AsleepData,fconfC_AsleepData,~,fcErr_AsleepData] = coherencyc(fHbT_asleepData,fNeural_asleepData,params);
+            % save results
+            Results_NeuralHemoCoher.(animalID).Asleep.(dataType).(hemDataType).fC = fC_AsleepData;
+            Results_NeuralHemoCoher.(animalID).Asleep.(dataType).(hemDataType).ff = ff_AsleepData;
+            Results_NeuralHemoCoher.(animalID).Asleep.(dataType).(hemDataType).fconfC = fconfC_AsleepData;
+            Results_NeuralHemoCoher.(animalID).Asleep.(dataType).(hemDataType).fcErr = fcErr_AsleepData;
         end
-        % input data as time (1st dimension, vertical) by trials (2nd dimension, horizontunstimy)
-        HbT_rem = zeros(length(HbT_remData{1,1}),length(HbT_remData));
-        Gamma_rem = zeros(length(Gamma_remData{1,1}),length(Gamma_remData));
-        for hh = 1:length(HbT_remData)
-            HbT_rem(:,hh) = HbT_remData{hh,1};
-            Gamma_rem(:,hh) = Gamma_remData{hh,1};
+    else
+        % save results
+        Results_NeuralHemoCoher.(animalID).Asleep.(dataType).(hemDataType).C = [];
+        Results_NeuralHemoCoher.(animalID).Asleep.(dataType).(hemDataType).f = [];
+        Results_NeuralHemoCoher.(animalID).Asleep.(dataType).(hemDataType).confC = [];
+        Results_NeuralHemoCoher.(animalID).Asleep.(dataType).(hemDataType).cErr = [];
+        if strcmp(groupName,'IOS_GCaMP7s') == true
+            % save results
+            Results_NeuralHemoCoher.(animalID).Asleep.(dataType).(hemDataType).fC = [];
+            Results_NeuralHemoCoher.(animalID).Asleep.(dataType).(hemDataType).ff = [];
+            Results_NeuralHemoCoher.(animalID).Asleep.(dataType).(hemDataType).fconfC = [];
+            Results_NeuralHemoCoher.(animalID).Asleep.(dataType).(hemDataType).fcErr = [];
+        end
+    end
+    %% analyze neural-hemo coherence during periods of all data
+    zz = 1;
+    clear HbT_AllData Neural_AllData HbT_ProcAllData Neural_ProcAllData
+    clear fHbT_AllData fNeural_AllData fHbT_ProcAllData fNeural_ProcAllData
+    HbT_AllData = [];
+    for bb = 1:size(procDataFileIDs,1)
+        procDataFileID = procDataFileIDs(bb,:);
+        [~,allDataFileDate,~] = GetFileInfo_IOS(procDataFileID);
+        strDay = ConvertDate_IOS(allDataFileDate);
+        load(procDataFileID,'-mat')
+        puffs = ProcData.data.stimulations.LPadSol;
+        % don't include trials with stimulation
+        if isempty(puffs) == true
+            if strcmp(groupName,'IOS_Ephys') == true
+                motionArtifact = ProcData.notes.motionArtifact;
+                if motionArtifact == false
+                    HbT_AllData{zz,1} = ProcData.data.CBV_HbT.(hemDataType);
+                    Neural_AllData{zz,1} = (ProcData.data.(['cortical_' hemDataType]).(dataType) - RestingBaselines.manualSelection.(['cortical_' hemDataType]).(dataType).(strDay))./RestingBaselines.manualSelection.(['cortical_' hemDataType]).(dataType).(strDay);
+                    zz = zz + 1;
+                end
+            elseif strcmp(groupName,'IOS_GCaMP7s') == true
+                HbT_AllData{zz,1} = ProcData.data.CBV_HbT.(hemDataType);
+                Neural_AllData{zz,1} = ProcData.data.(dataType).(['cor' hemDataType]); 
+                fHbT_AllData{zz,1} = ProcData.data.CBV_HbT.(['frontal' hemDataType]);
+                fNeural_AllData{zz,1} = ProcData.data.(dataType).(['corFrontal' hemDataType]); 
+                zz = zz + 1;
+            end
+        end
+    end
+    % filter and detrend data
+    if isempty(HbT_AllData) == false
+        for bb = 1:length(HbT_AllData)
+            HbT_ProcAllUnstimData{bb,1} = detrend(HbT_AllData{bb,1},'constant');
+            Neural_ProcAllUnstimData{bb,1} = detrend(Neural_AllData{bb,1},'constant');
+            if strcmp(groupName,'IOS_GCaMP7s') == true
+                fHbT_ProcAllUnstimData{bb,1} = detrend(fHbT_AllData{bb,1},'constant');
+                fNeural_ProcAllUnstimData{bb,1} = detrend(fNeural_AllData{bb,1},'constant');
+            end
+        end
+        % pre-allocate coherence matrix
+        HbT_allData = zeros(length(HbT_ProcAllUnstimData{1,1}),length(HbT_ProcAllUnstimData));
+        Neural_allData = zeros(length(Neural_ProcAllUnstimData{1,1}),length(Neural_ProcAllUnstimData));
+        if strcmp(groupName,'IOS_GCaMP7s') == true
+            fHbT_allData = zeros(length(fHbT_ProcAllUnstimData{1,1}),length(fHbT_ProcAllUnstimData));
+            fNeural_allData = zeros(length(fNeural_ProcAllUnstimData{1,1}),length(fNeural_ProcAllUnstimData));
+        end
+        % input data as time (1st dimension, vertical) by trials (2nd dimension, horizontal)
+        for cc = 1:length(HbT_ProcAllUnstimData)
+            HbT_allData(:,cc) = HbT_ProcAllUnstimData{cc,1};
+            Neural_allData(:,cc) = Neural_ProcAllUnstimData{cc,1};
+            if strcmp(groupName,'IOS_GCaMP7s') == true
+                fHbT_allData(:,cc) = fHbT_ProcAllUnstimData{cc,1};
+                fNeural_allData(:,cc) = fNeural_ProcAllUnstimData{cc,1};
+            end
         end
         % calculate the coherence between desired signals
-        [C_rem,~,~,~,~,f_rem,confC_rem,~,cErr_rem] = coherencyc(HbT_rem,Gamma_rem,params);
+        params.tapers = [10,19]; % Tapers [n, 2n - 1]
+        [C_AllUnstimData,~,~,~,~,f_AllUnstimData,confC_AllUnstimData,~,cErr_AllUnstimData] = coherencyc(HbT_allData,Neural_allData,params);
         % save results
-        Results_NeuralHemoCoher.(animalID).REM.(dataType).(hemDataType).C = C_rem;
-        Results_NeuralHemoCoher.(animalID).REM.(dataType).(hemDataType).f = f_rem;
-        Results_NeuralHemoCoher.(animalID).REM.(dataType).(hemDataType).confC = confC_rem;
-        Results_NeuralHemoCoher.(animalID).REM.(dataType).(hemDataType).cErr = cErr_rem;
+        Results_NeuralHemoCoher.(animalID).All.(dataType).(hemDataType).C = C_AllUnstimData;
+        Results_NeuralHemoCoher.(animalID).All.(dataType).(hemDataType).f = f_AllUnstimData;
+        Results_NeuralHemoCoher.(animalID).All.(dataType).(hemDataType).confC = confC_AllUnstimData;
+        Results_NeuralHemoCoher.(animalID).All.(dataType).(hemDataType).cErr = cErr_AllUnstimData;
+        if strcmp(groupName,'IOS_GCaMP7s') == true
+            % calculate the coherence between desired signals
+            [fC_AllUnstimData,~,~,~,~,ff_AllUnstimData,fconfC_AllUnstimData,~,fcErr_AllUnstimData] = coherencyc(fHbT_allData,fNeural_allData,params);
+            % save results
+            Results_NeuralHemoCoher.(animalID).All.(dataType).(hemDataType).fC = fC_AllUnstimData;
+            Results_NeuralHemoCoher.(animalID).All.(dataType).(hemDataType).ff = ff_AllUnstimData;
+            Results_NeuralHemoCoher.(animalID).All.(dataType).(hemDataType).fconfC = fconfC_AllUnstimData;
+            Results_NeuralHemoCoher.(animalID).All.(dataType).(hemDataType).fcErr = fcErr_AllUnstimData;
+        end
+    end
+    %% analyze neural-hemo coherence during periods of NREM
+    % pull data from SleepData.mat structure
+    if strcmp(groupName,'IOS_Ephys') == true
+        [HbT_nremData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.CBV_HbT.(hemDataType),SleepData.(modelType).NREM.FileIDs,SleepData.(modelType).NREM.BinTimes);
+        [Neural_nremData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.(['cortical_' hemDataType]).(dataType),SleepData.(modelType).NREM.FileIDs,SleepData.(modelType).NREM.BinTimes);
+    elseif strcmp(groupName,'IOS_GCaMP7s') == true
+        [HbT_nremData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.CBV_HbT.(hemDataType),SleepData.(modelType).NREM.FileIDs,SleepData.(modelType).NREM.BinTimes);
+        [Neural_nremData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.GCaMP7s.(hemDataType),SleepData.(modelType).NREM.FileIDs,SleepData.(modelType).NREM.BinTimes);
+        [fHbT_nremData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.CBV_HbT.(['frontal' hemDataType]),SleepData.(modelType).NREM.FileIDs,SleepData.(modelType).NREM.BinTimes);
+        [fNeural_nremData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.GCaMP7s.(['frontal' hemDataType]),SleepData.(modelType).NREM.FileIDs,SleepData.(modelType).NREM.BinTimes);
+    end
+    % filter, detrend, and truncate data to minimum length to match events
+    for ee = 1:length(HbT_nremData)
+        HbT_nremData{ee,1} = detrend(HbT_nremData{ee,1}(1:(params.minTime.NREM*samplingRate)),'constant');
+        Neural_nremData{ee,1} = detrend(Neural_nremData{ee,1}(1:(params.minTime.NREM*samplingRate)),'constant');
+        if strcmp(groupName,'IOS_GCaMP7s') == true
+            fHbT_nremData{ee,1} = detrend(fHbT_nremData{ee,1}(1:(params.minTime.NREM*samplingRate)),'constant');
+            fNeural_nremData{ee,1} = detrend(fNeural_nremData{ee,1}(1:(params.minTime.NREM*samplingRate)),'constant');
+        end
+    end
+    % pre-allocate coherence matrix
+    HbT_nrem = zeros(length(HbT_nremData{1,1}),length(HbT_nremData));
+    Neural_nrem = zeros(length(Neural_nremData{1,1}),length(Neural_nremData));
+    if strcmp(groupName,'IOS_GCaMP7s') == true
+        fHbT_nrem = zeros(length(fHbT_nremData{1,1}),length(fHbT_nremData));
+        fNeural_nrem = zeros(length(fNeural_nremData{1,1}),length(fNeural_nremData));
+    end
+    % input data as time (1st dimension, vertical) by trials (2nd dimension, horizontal)
+    for ff = 1:length(HbT_nremData)
+        HbT_nrem(:,ff) = HbT_nremData{ff,1};
+        Neural_nrem(:,ff) = Neural_nremData{ff,1};
+        if strcmp(groupName,'IOS_GCaMP7s') == true
+            fHbT_nrem(:,ff) = fHbT_nremData{ff,1};
+            fNeural_nrem(:,ff) = fNeural_nremData{ff,1};
+        end
+    end
+    % calculate the coherence between desired signals
+    params.tapers = [3,5]; % Tapers [n, 2n - 1]
+    [C_nrem,~,~,~,~,f_nrem,confC_nrem,~,cErr_nrem] = coherencyc(HbT_nrem,Neural_nrem,params);
+    % save results
+    Results_NeuralHemoCoher.(animalID).NREM.(dataType).(hemDataType).C = C_nrem;
+    Results_NeuralHemoCoher.(animalID).NREM.(dataType).(hemDataType).f = f_nrem;
+    Results_NeuralHemoCoher.(animalID).NREM.(dataType).(hemDataType).confC = confC_nrem;
+    Results_NeuralHemoCoher.(animalID).NREM.(dataType).(hemDataType).cErr = cErr_nrem;
+    if strcmp(groupName,'IOS_GCaMP7s') == true
+        % calculate the coherence between desired signals
+        [fC_nrem,~,~,~,~,ff_nrem,fconfC_nrem,~,fcErr_nrem] = coherencyc(fHbT_nrem,fNeural_nrem,params);
+        % save results
+        Results_NeuralHemoCoher.(animalID).NREM.(dataType).(hemDataType).fC = fC_nrem;
+        Results_NeuralHemoCoher.(animalID).NREM.(dataType).(hemDataType).ff = ff_nrem;
+        Results_NeuralHemoCoher.(animalID).NREM.(dataType).(hemDataType).fconfC = fconfC_nrem;
+        Results_NeuralHemoCoher.(animalID).NREM.(dataType).(hemDataType).fcErr = fcErr_nrem;
+    end
+    %% analyze neural-hemo coherence during periods of REM
+    % pull data from SleepData.mat structure
+    if strcmp(groupName,'IOS_Ephys') == true
+        [HbT_remData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.CBV_HbT.(hemDataType),SleepData.(modelType).REM.FileIDs,SleepData.(modelType).REM.BinTimes);
+        [Neural_remData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.(['cortical_' hemDataType]).(dataType),SleepData.(modelType).REM.FileIDs,SleepData.(modelType).REM.BinTimes);
+    elseif strcmp(groupName,'IOS_GCaMP7s') == true
+        [HbT_remData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.CBV_HbT.(hemDataType),SleepData.(modelType).REM.FileIDs,SleepData.(modelType).REM.BinTimes);
+        [Neural_remData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.GCaMP7s.(hemDataType),SleepData.(modelType).REM.FileIDs,SleepData.(modelType).REM.BinTimes);
+        [fHbT_remData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.CBV_HbT.(['frontal' hemDataType]),SleepData.(modelType).REM.FileIDs,SleepData.(modelType).REM.BinTimes);
+        [fNeural_remData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.GCaMP7s.(['frontal' hemDataType]),SleepData.(modelType).REM.FileIDs,SleepData.(modelType).REM.BinTimes);
+    end
+    % filter, detrend, and truncate data to minimum length to match events
+    for gg = 1:length(HbT_remData)
+        HbT_remData{gg,1} = detrend(HbT_remData{gg,1}(1:(params.minTime.REM*samplingRate)),'constant');
+        Neural_remData{gg,1} = detrend(Neural_remData{gg,1}(1:(params.minTime.REM*samplingRate)),'constant');
+        if strcmp(groupName,'IOS_GCaMP7s') == true
+            fHbT_remData{gg,1} = detrend(fHbT_remData{gg,1}(1:(params.minTime.REM*samplingRate)),'constant');
+            fNeural_remData{gg,1} = detrend(fNeural_remData{gg,1}(1:(params.minTime.REM*samplingRate)),'constant');
+        end
+    end
+    % pre-allocate coherence matrix
+    HbT_rem = zeros(length(HbT_remData{1,1}),length(HbT_remData));
+    Neural_rem = zeros(length(Neural_remData{1,1}),length(Neural_remData));
+    if strcmp(groupName,'IOS_GCaMP7s') == true
+        fHbT_rem = zeros(length(fHbT_remData{1,1}),length(fHbT_remData));
+        fNeural_rem = zeros(length(fNeural_remData{1,1}),length(fNeural_remData));
+    end
+    % input data as time (1st dimension, vertical) by trials (2nd dimension, horizontal)
+    for hh = 1:length(HbT_remData)
+        HbT_rem(:,hh) = HbT_remData{hh,1};
+        Neural_rem(:,hh) = Neural_remData{hh,1};
+        if strcmp(groupName,'IOS_GCaMP7s') == true
+            fHbT_rem(:,hh) = fHbT_remData{hh,1};
+            fNeural_rem(:,hh) = fNeural_remData{hh,1};
+        end
+    end
+    % calculate the coherence between desired signals
+    params.tapers = [5,9]; % Tapers [n, 2n - 1]
+    [C_rem,~,~,~,~,f_rem,confC_rem,~,cErr_rem] = coherencyc(HbT_rem,Neural_rem,params);
+    % save results
+    Results_NeuralHemoCoher.(animalID).REM.(dataType).(hemDataType).C = C_rem;
+    Results_NeuralHemoCoher.(animalID).REM.(dataType).(hemDataType).f = f_rem;
+    Results_NeuralHemoCoher.(animalID).REM.(dataType).(hemDataType).confC = confC_rem;
+    Results_NeuralHemoCoher.(animalID).REM.(dataType).(hemDataType).cErr = cErr_rem;
+    if strcmp(groupName,'IOS_GCaMP7s') == true
+        % calculate the coherence between desired signals
+        [fC_rem,~,~,~,~,ff_rem,fconfC_rem,~,fcErr_rem] = coherencyc(fHbT_rem,fNeural_rem,params);
+        % save results
+        Results_NeuralHemoCoher.(animalID).REM.(dataType).(hemDataType).fC = fC_rem;
+        Results_NeuralHemoCoher.(animalID).REM.(dataType).(hemDataType).ff = ff_rem;
+        Results_NeuralHemoCoher.(animalID).REM.(dataType).(hemDataType).fconfC = fconfC_rem;
+        Results_NeuralHemoCoher.(animalID).REM.(dataType).(hemDataType).fcErr = fcErr_rem;
     end
 end
 % save data

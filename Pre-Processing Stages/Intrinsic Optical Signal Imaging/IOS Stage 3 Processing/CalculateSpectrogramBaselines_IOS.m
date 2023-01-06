@@ -1,4 +1,4 @@
-function [RestingBaselines] = CalculateSpectrogramBaselines_IOS(animal,neuralDataTypes,trialDuration_sec,RestingBaselines,baselineType)
+function [RestingBaselines] = CalculateSpectrogramBaselines_IOS(RestingBaselines,baselineType)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -8,6 +8,9 @@ function [RestingBaselines] = CalculateSpectrogramBaselines_IOS(animal,neuralDat
 %          rest to normalize the spectrogram data.
 %________________________________________________________________________________________________________________________
 
+neuralDataTypes = {'cortical_LH','cortical_RH','hippocampus'};
+animalID = RestingBaselines.setDuration.baselineFileInfo.animalID;
+trialDuration_sec = RestingBaselines.setDuration.baselineFileInfo.trialDuration_sec;
 for a = 1:length(neuralDataTypes)
     neuralDataType = neuralDataTypes{1,a};
     restFileList = unique(RestingBaselines.(baselineType).baselineFileInfo.fileIDs); % obtain the list of unique fileIDs
@@ -19,19 +22,19 @@ for a = 1:length(neuralDataTypes)
         fileID = restFileList{b,1};   % FileID of currently loaded file
         % load in neural data from current file
         clear SpecData
-        specDataFileIDA = [animal '_' fileID '_SpecDataA.mat'];
+        specDataFileIDA = [animalID '_' fileID '_SpecDataA.mat'];
         load(specDataFileIDA,'-mat')
         S5A = SpecData.(neuralDataType).S;
         T5A = round(SpecData.(neuralDataType).T,3);
         restS5A{b,1} = S5A;
         clear SpecData
-        specDataFileIDB = [animal '_' fileID '_SpecDataB.mat'];
+        specDataFileIDB = [animalID '_' fileID '_SpecDataB.mat'];
         load(specDataFileIDB,'-mat')
         S1B = SpecData.(neuralDataType).S;
         T1B = round(SpecData.(neuralDataType).T,1);
         restS1B{b,1} = S1B;
         clear SpecData
-        specDataFileIDC = [animal '_' fileID '_SpecDataC.mat'];
+        specDataFileIDC = [animalID '_' fileID '_SpecDataC.mat'];
         load(specDataFileIDC,'-mat')
         S1C = SpecData.(neuralDataType).S;
         T1C = round(SpecData.(neuralDataType).T,1);
@@ -122,6 +125,6 @@ for a = 1:length(neuralDataTypes)
         RestingBaselines.Spectrograms.(neuralDataType).fiveSecA.(dayFields{h}) = mean(dayVals5A,2);
     end
 end
-save([animal '_RestingBaselines.mat'],'RestingBaselines');
+save([animalID '_RestingBaselines.mat'],'RestingBaselines');
 
 end

@@ -1,4 +1,4 @@
-function [EventData] = ExtractEventTriggeredData_IOS(procdataFiles,dataTypes,imagingType)
+function [EventData] = ExtractEventTriggeredData_IOS(procdataFileIDs)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -12,61 +12,52 @@ function [EventData] = ExtractEventTriggeredData_IOS(procdataFiles,dataTypes,ima
 EventData = [];
 epoch.duration = 12;
 epoch.offset = 2;
-% control for dataTypes as string
-if not(iscell(dataTypes))
-    dataTypes = {dataTypes};
+load(procdataFileIDs(1,:));
+imagingWavelengths = ProcData.notes.imagingWavelengths;
+if any(strcmp(imagingWavelengths,{'Red, Green, & Blue','Red, Lime, & Blue'})) == true
+    dataTypes = {'CBV','CBV_HbT','GCaMP7s','Deoxy','cortical_LH','cortical_RH','hippocampus','EMG'};
+else
+    dataTypes = {'CBV','CBV_HbT','cortical_LH','cortical_RH','hippocampus','EMG'};
 end
-for a = 1:length(dataTypes)
-    dataType = char(dataTypes(a));
-    if strcmp(dataType,'CBV') == true || strcmp(dataType,'CBV_HbT') == true || strcmp(dataType,'Deoxy') == true
-        if strcmpi(imagingType,'bilateral') == true 
-            subDataTypes = {'LH','adjLH','RH','adjRH'};
-        elseif strcmpi(imagingType,'GCaMP') == true % for CBV/HbT/Deoxy datatypes within GCaMP imaging sessions
-            subDataTypes = {'LH','RH','frontalLH','frontalRH'};
-        elseif strcmpi(imagingType,'single') == true
-            subDataTypes = {'Barrels','adjBarrels','Veinous'};
-        end
-    elseif strcmp(dataType,'GCaMP7s') == true % for actual GCaMP data types
-        subDataTypes = {'LH','RH','frontalLH','frontalRH','corLH','corRH','corFrontalLH','corFrontalRH'};
-    elseif strcmp(dataType,'EMG') == true
-        subDataTypes = {'emg'};
-    elseif strcmp(dataType,'flow') == true
-        subDataTypes = {'data'};
+for aa = 1:length(dataTypes)
+    dataType = dataTypes{1,aa};
+        subDataTypes = fieldnames(ProcData.data.(dataType));
+    if any(strcmpi(dataType,{'CBV','CBV_HbT','Deoxy','GCaMP7s'})) == true
+        samplingRate = ProcData.notes.CBVCamSamplingRate;
     else
-        subDataTypes = {'deltaBandPower','thetaBandPower','alphaBandPower','betaBandPower','gammaBandPower','muaPower'};
+        samplingRate = ProcData.notes.dsFs;
     end
     temp = struct();
-    for b = 1:size(procdataFiles,1)
+    for bb = 1:size(procdataFileIDs,1)
         % load ProcData File
-        filename = procdataFiles(b,:);
+        filename = procdataFileIDs(bb,:);
         load(filename);
         % get the date and file ID to include in the EventData structure
-        [animal,fileDate,fileID] = GetFileInfo_IOS(procdataFiles(b,:));
+        [animal,fileDate,fileID] = GetFileInfo_IOS(procdataFileIDs(bb,:));
         % get the types of behaviors present in the file (stim,whisk,rest)
         holddata = fieldnames(ProcData.flags);
         behaviorFields = holddata([1,2],1);
-        for c = 1:length(subDataTypes)
-            sDT = char(subDataTypes(c));
+        for cc = 1:length(subDataTypes)
+            sDT = char(subDataTypes(cc));
             % set the sampling frequency for the dataType
-            samplingRate = ProcData.notes.dsFs;
             trialDuration_sec = ProcData.notes.trialDuration_sec;
             % loop over the behaviors present in the file
-            for d = 1:length(behaviorFields)
+            for dd = 1:length(behaviorFields)
                 % Pre-allocate space for unknown number of events using a
                 % 'temporary' structure of cells
                 if not(isfield(temp,sDT))
                     temp.(sDT) = [];
                 end
                 % create behavioral subfields for the temp structure, if needed
-                if not(isfield(temp.(sDT),behaviorFields{d}))
-                    subFields = fieldnames(ProcData.flags.(behaviorFields{d}));
-                    blankCell = cell(1,size(procdataFiles,1));
+                if not(isfield(temp.(sDT),behaviorFields{dd}))
+                    subFields = fieldnames(ProcData.flags.(behaviorFields{dd}));
+                    blankCell = cell(1,size(procdataFileIDs,1));
                     structVals = cell(size(subFields));
                     structVals(:) = {blankCell};
-                    temp.(sDT).(behaviorFields{d}) = cell2struct(structVals,subFields,1)';
-                    temp.(sDT).(behaviorFields{d}).fileIDs = blankCell;
-                    temp.(sDT).(behaviorFields{d}).fileDates = blankCell;
-                    temp.(sDT).(behaviorFields{d}).data = blankCell;
+                    temp.(sDT).(behaviorFields{dd}) = cell2struct(structVals,subFields,1)';
+                    temp.(sDT).(behaviorFields{dd}).fileIDs = blankCell;
+                    temp.(sDT).(behaviorFields{dd}).fileDates = blankCell;
+                    temp.(sDT).(behaviorFields{dd}).data = blankCell;
                 end
                 % assemble a structure to send to the sub-functions
                 fieldName2 = dataType;
@@ -78,19 +69,19 @@ for a = 1:length(dataTypes)
                 data.Flags = ProcData.flags;
                 data.notes = ProcData.notes;
                 % extract the data from the epoch surrounding the event
-                disp(['Extracting ' dataType ' ' sDT ' event-triggered ' behaviorFields{d} ' data from file ' num2str(b) ' of ' num2str(size(procdataFiles,1)) '...']); disp(' ');
+                disp(['Extracting ' dataType ' ' sDT ' event-triggered ' behaviorFields{dd} ' data from file ' num2str(bb) ' of ' num2str(size(procdataFileIDs,1)) '...']); disp(' ');
                 try
-                    [chunkdata,evFilter] = ExtractBehavioralData(data,epoch,sDT,behaviorFields{d});
+                    [chunkdata,evFilter] = ExtractBehavioralData(data,epoch,sDT,behaviorFields{dd},samplingRate);
                 catch
                     chunkdata = [];
                     evFilter = [];
                 end
                 % add epoch details to temp struct
-                [temp] = AddEpochInfo(data,sDT,behaviorFields{d},temp,fileID,fileDate,evFilter,b);
-                temp.(sDT).(behaviorFields{d}).data{b} = chunkdata;
+                [temp] = AddEpochInfo(data,sDT,behaviorFields{dd},temp,fileID,fileDate,evFilter,bb);
+                temp.(sDT).(behaviorFields{dd}).data{bb} = chunkdata;
                 % add the sampling frequency, assume all Fs are the same for given datatype
-                temp.(sDT).(behaviorFields{d}).samplingRate = {samplingRate};
-                temp.(sDT).(behaviorFields{d}).trialDuration_sec = {trialDuration_sec};
+                temp.(sDT).(behaviorFields{dd}).samplingRate = {samplingRate};
+                temp.(sDT).(behaviorFields{dd}).trialDuration_sec = {trialDuration_sec};
             end
         end
     end
@@ -101,11 +92,10 @@ save([animal '_EventData.mat'],'EventData','-v7.3');
 
 end
 
-function [chunkdata,evFilter] = ExtractBehavioralData(data,epoch,dataType,behavior)
+function [chunkdata,evFilter] = ExtractBehavioralData(data,epoch,dataType,behavior,samplingRate)
 % setup variables
 eventTime = data.Flags.(behavior).eventTime;
 trialDuration = data.notes.trialDuration_sec;
-samplingRate = data.notes.dsFs;
 % get the content from data.(dataType)
 data = getfield(data,{},dataType,{});
 % calculate start/stop times (seconds) for the events

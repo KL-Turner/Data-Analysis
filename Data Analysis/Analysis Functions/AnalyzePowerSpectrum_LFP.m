@@ -3,12 +3,11 @@ function [Results_PowerSpecLFP] = AnalyzePowerSpectrum_LFP(animalID,group,rootFo
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
-%   Purpose: Analyze the spectral power of hemodynamic [HbT] and neural signals (IOS)
+% Purpose: Analyze the spectral power of hemodynamic [HbT] and neural signals (IOS)
 %________________________________________________________________________________________________________________________
 
-%% only run analysis for valid animal IDs
+% only run analysis for valid animal IDs
 dataLocation = [rootFolder delim group delim animalID delim 'Bilateral Imaging'];
 cd(dataLocation)
 % character list of all RawData file IDs
@@ -22,16 +21,16 @@ procDataFileIDs = char(procDataFiles);
 % find and load Forest_ScoringResults.mat struct
 forestScoringResultsFileID = [animalID '_Forest_ScoringResults.mat'];
 load(forestScoringResultsFileID,'-mat')
-%% analyze power spectra during periods of alert/asleep/all
+% analyze power spectra during periods of alert/asleep/all
 behavFields = {'Alert','Asleep','All'};
 dataTypes = {'LH','RH','Hip'};
 xx = 1; yy = 1; zz = 1;
 analogFs = 20000;
 dsFs = 1000;
-params.tapers = [5,9];   % Tapers [n, 2n - 1]
+params.tapers = [5,9]; % Tapers [n, 2n - 1]
 params.pad = 1;
 params.Fs = dsFs;
-params.fpass = [1,100];   % Pass band [0, nyquist]
+params.fpass = [1,100]; % Pass band [0, nyquist]
 params.trialave = 1;
 params.err = [2,0.05];
 Data.Alert = []; Data.Asleep = []; Data.All = [];
@@ -58,14 +57,14 @@ for bb = 1:size(rawDataFileIDs,1)
             xx = xx + 1;
         end
         % check labels to match arousal state
-        if sum(strcmp(scoringLabels,'Not Sleep')) > 144   % 36 bins (180 total) or 3 minutes of sleep
+        if sum(strcmp(scoringLabels,'Not Sleep')) > 144 % 36 bins (180 total) or 3 minutes of sleep
             if motionArtifact == false
                 Data.Alert.LH{yy,1} = resample(RawData.data.cortical_LH,dsFs,analogFs);
                 Data.Alert.RH{yy,1} = resample(RawData.data.cortical_RH,dsFs,analogFs);
                 Data.Alert.Hip{yy,1} = resample(RawData.data.hippocampus,dsFs,analogFs);
                 yy = yy + 1;
             end
-        elseif sum(strcmp(scoringLabels,'Not Sleep')) < 36   % 36 bins (180 total) or 3 minutes of awake
+        elseif sum(strcmp(scoringLabels,'Not Sleep')) < 36 % 36 bins (180 total) or 3 minutes of awake
             if motionArtifact == false
                 Data.Asleep.LH{zz,1} = resample(RawData.data.cortical_LH,dsFs,analogFs);
                 Data.Asleep.RH{zz,1} = resample(RawData.data.cortical_RH,dsFs,analogFs);

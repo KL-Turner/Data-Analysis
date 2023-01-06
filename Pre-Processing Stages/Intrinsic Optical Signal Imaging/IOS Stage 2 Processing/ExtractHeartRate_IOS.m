@@ -1,4 +1,4 @@
-function [] = ExtractHeartRate_IOS(procDataFileIDs,imagingType)
+function [] = ExtractHeartRate_IOS(procDataFileIDs)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -7,13 +7,17 @@ function [] = ExtractHeartRate_IOS(procDataFileIDs,imagingType)
 % Purpose: Use the spectral properties of the CBV data to extract the heart rate.
 %________________________________________________________________________________________________________________________
 
+load(procDataFileIDs(1,:));
+imagingType = ProcData.notes.imagingType;
 for a = 1:size(procDataFileIDs,1)
     procDataFileID = procDataFileIDs(a,:);
     disp(['Extracting heart rate from ProcData file ' num2str(a) ' of ' num2str(size(procDataFileIDs,1)) '...']); disp(' ')
     load(procDataFileID)
-    if ProcData.notes.CBVCamSamplingRate >= 30 || strcmpi(imagingType,'Single ROI (SS)') == true
+    if ProcData.notes.CBVCamSamplingRate >= 30
         if strcmpi(imagingType,'Single ROI (SI)') == true
             [~,~,~,HR] = FindHeartRate_IOS(ProcData.data.CBV.Barrels,ProcData.notes.CBVCamSamplingRate);
+        elseif strcmpi(imagingType,'Single ROI (SSS)') == true
+            [~,~,~,HR] = FindHeartRate_IOS(ProcData.data.CBV.SSS,ProcData.notes.CBVCamSamplingRate);
         elseif strcmpi(imagingType,'Bilateral ROI (SI)') == true || strcmpi(imagingType,'Bilateral ROI (SI,FC)') == true
             % pull out the left and right window heart rate. they should be essentiall6 identical
             [~,~,~,LH_HR] = FindHeartRate_IOS(ProcData.data.CBV.LH,ProcData.notes.CBVCamSamplingRate);
@@ -29,7 +33,7 @@ for a = 1:size(procDataFileIDs,1)
         ProcData.data.heartRate = heartRate;
         save(procDataFileID,'ProcData');
     else
-        HR = zeros(1,ProcData.notes.trialDuration_sec);
+        ProcData.data.heartRate = zeros(1,ProcData.notes.trialDuration_sec);
         save(procDataFileID,'ProcData');
     end
 end

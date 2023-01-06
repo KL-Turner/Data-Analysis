@@ -1,4 +1,4 @@
-function [] = CreateTrialSpectrograms_IOS(rawDataFiles,neuralDataTypes)
+function [] = CreateTrialSpectrograms_IOS(rawDataFileIDs)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -7,8 +7,9 @@ function [] = CreateTrialSpectrograms_IOS(rawDataFiles,neuralDataTypes)
 % Purpose: Analyzes the raw neural data from each RawData.mat file and calculates two different spectrograms.
 %________________________________________________________________________________________________________________________
 
-for aa = 1:size(rawDataFiles,1)
-    rawDataFile = rawDataFiles(aa,:);
+neuralDataTypes = {'cortical_LH','cortical_RH','hippocampus'};
+for aa = 1:size(rawDataFileIDs,1)
+    rawDataFile = rawDataFileIDs(aa,:);
     clear RawData
     [animalID,~,fileID] = GetFileInfo_IOS(rawDataFile);
     specDataFileIDA = [animalID '_' fileID '_SpecDataA.mat'];
@@ -23,7 +24,7 @@ for aa = 1:size(rawDataFiles,1)
             analogFs = RawData.notes.analogSamplingRate;
             expectedLength = duration*analogFs;
         end
-        disp(['Creating spectrogram (A) for file ID: (' num2str(aa) '/' num2str(size(rawDataFiles,1)) ')']); disp(' ')
+        disp(['Creating spectrogram (A) for file ID: (' num2str(aa) '/' num2str(size(rawDataFileIDs,1)) ')']); disp(' ')
         for bb = 1:length(neuralDataTypes)
             neuralDataType = neuralDataTypes{1,bb};
             try
@@ -43,7 +44,7 @@ for aa = 1:size(rawDataFiles,1)
             params.fpass = [1,100];
             movingwin = [5,1/5];
             % analyze each spectrogram based on parameters
-            disp(['Creating ' neuralDataType ' spectrogram for file number ' num2str(aa) ' of ' num2str(size(rawDataFiles,1)) '...']); disp(' ')
+            disp(['Creating ' neuralDataType ' spectrogram for file number ' num2str(aa) ' of ' num2str(size(rawDataFileIDs,1)) '...']); disp(' ')
             [S,T,F] = mtspecgramc(rawNeuro,movingwin,params);
             % save data ins tructure
             SpecData.(neuralDataType).S = S';
@@ -55,7 +56,7 @@ for aa = 1:size(rawDataFiles,1)
         end
         save(specDataFileIDA,'SpecData');
     else
-        disp(['Spectrogram (A) for file ID: (' num2str(aa) '/' num2str(size(rawDataFiles,1)) ') already exists.']); disp(' ')
+        disp(['Spectrogram (A) for file ID: (' num2str(aa) '/' num2str(size(rawDataFileIDs,1)) ') already exists.']); disp(' ')
     end
     % 1 second spectrograms with 1/10 Hz step size
     if ~exist(specDataFileIDB,'file') == true
@@ -66,7 +67,7 @@ for aa = 1:size(rawDataFiles,1)
             analogFs = RawData.notes.analogSamplingRate;
             expectedLength = duration*analogFs;
         end
-        disp(['Creating spectrogram (B) for file ID: (' num2str(aa) '/' num2str(size(rawDataFiles,1)) ')']); disp(' ')
+        disp(['Creating spectrogram (B) for file ID: (' num2str(aa) '/' num2str(size(rawDataFileIDs,1)) ')']); disp(' ')
         for cc = 1:length(neuralDataTypes)
             neuralDataType = neuralDataTypes{1,cc};
             try
@@ -86,7 +87,7 @@ for aa = 1:size(rawDataFiles,1)
             params.fpass = [1,100];
             movingwin = [1,1/10];
             % analyze each spectrogram based on parameters
-            disp(['Creating ' neuralDataType ' spectrogram for file number ' num2str(aa) ' of ' num2str(size(rawDataFiles,1)) '...']); disp(' ')
+            disp(['Creating ' neuralDataType ' spectrogram for file number ' num2str(aa) ' of ' num2str(size(rawDataFileIDs,1)) '...']); disp(' ')
             [S,T,F] = mtspecgramc(rawNeuro,movingwin,params);
             % save data ins tructure
             SpecData.(neuralDataType).S = S';
@@ -97,7 +98,7 @@ for aa = 1:size(rawDataFiles,1)
         end
         save(specDataFileIDB,'SpecData');
     else
-        disp(['Spectrogram (B) for file ID: (' num2str(aa) '/' num2str(size(rawDataFiles,1)) ') already exists.']); disp(' ')
+        disp(['Spectrogram (B) for file ID: (' num2str(aa) '/' num2str(size(rawDataFileIDs,1)) ') already exists.']); disp(' ')
     end
     % 1 second spectrograms with 1/30 Hz step size
     if ~exist(specDataFileIDC,'file') == true
@@ -108,7 +109,7 @@ for aa = 1:size(rawDataFiles,1)
             analogFs = RawData.notes.analogSamplingRate;
             expectedLength = duration*analogFs;
         end
-        disp(['Creating spectrogram (C) for file ID: (' num2str(aa) '/' num2str(size(rawDataFiles,1)) ')']); disp(' ')
+        disp(['Creating spectrogram (C) for file ID: (' num2str(aa) '/' num2str(size(rawDataFileIDs,1)) ')']); disp(' ')
         for dd = 1:length(neuralDataTypes)
             neuralDataType = neuralDataTypes{1,dd};
             try
@@ -128,7 +129,7 @@ for aa = 1:size(rawDataFiles,1)
             params.fpass = [1,100];
             movingwin = [1,1/30];
             % analyze each spectrogram based on parameters
-            disp(['Creating ' neuralDataType ' spectrogram for file number ' num2str(aa) ' of ' num2str(size(rawDataFiles,1)) '...']); disp(' ')
+            disp(['Creating ' neuralDataType ' spectrogram for file number ' num2str(aa) ' of ' num2str(size(rawDataFileIDs,1)) '...']); disp(' ')
             [S,T,F] = mtspecgramc(rawNeuro,movingwin,params);
             % save data ins tructure
             SpecData.(neuralDataType).S = S';
@@ -139,7 +140,7 @@ for aa = 1:size(rawDataFiles,1)
         end
         save(specDataFileIDC,'SpecData');
     else
-        disp(['Spectrogram (C) for file ID: (' num2str(aa) '/' num2str(size(rawDataFiles,1)) ') already exists.']); disp(' ')
+        disp(['Spectrogram (C) for file ID: (' num2str(aa) '/' num2str(size(rawDataFileIDs,1)) ') already exists.']); disp(' ')
     end
 end
 

@@ -9,19 +9,30 @@ function [] = CorrectGCaMPattenuation_IOS(procDataFileIDs,RestingBaselines)
 
 for aa = 1:size(procDataFileIDs,1)
     procDataFileID = procDataFileIDs(aa,:);
+    disp(['Adding GCaMP correction to ProcData file (' num2str(aa) '/' num2str(size(procDataFileIDs,1)) ')...']); disp(' ')
     load(procDataFileID)
-    [~,fileDate,~] = GetFileInfo_IOS(procDataFileID);
-    strDay = ConvertDate_IOS(fileDate);
-    % correct attentuation of somatosensory ROIs
-    LH_scale = RestingBaselines.manualSelection.CBV.LH.(strDay).mean/RestingBaselines.manualSelection.GCaMP7s.LH.(strDay).mean;
-    RH_scale = RestingBaselines.manualSelection.CBV.RH.(strDay).mean/RestingBaselines.manualSelection.GCaMP7s.RH.(strDay).mean;
-    ProcData.data.GCaMP7s.corLH = (ProcData.data.GCaMP7s.LH./ProcData.data.CBV.LH)*LH_scale;
-    ProcData.data.GCaMP7s.corRH = (ProcData.data.GCaMP7s.RH./ProcData.data.CBV.RH)*RH_scale;
-    % correct attentuation of frontal ROIs
-    frontalLH_scale = RestingBaselines.manualSelection.CBV.frontalLH.(strDay).mean/RestingBaselines.manualSelection.GCaMP7s.frontalLH.(strDay).mean;
-    frontalRH_scale = RestingBaselines.manualSelection.CBV.frontalRH.(strDay).mean/RestingBaselines.manualSelection.GCaMP7s.frontalRH.(strDay).mean;
-    ProcData.data.GCaMP7s.corFrontalLH = (ProcData.data.GCaMP7s.frontalLH./ProcData.data.CBV.frontalLH)*frontalLH_scale;
-    ProcData.data.GCaMP7s.corFrontalRH = (ProcData.data.GCaMP7s.frontalRH./ProcData.data.CBV.frontalRH)*frontalRH_scale;
+    imagingType = ProcData.notes.imagingType;
+    imagingWavelengths = ProcData.notes.imagingWavelengths;
+    if any(strcmp(imagingWavelengths,{'Red, Green, & Blue','Lime, Green, & Blue','Green & Blue','Lime & Blue'})) == true
+        [~,fileDate,~] = GetFileInfo_IOS(procDataFileID);
+        strDay = ConvertDate_IOS(fileDate);
+        % correct attentuation of somatosensory ROIs
+        % use imaging type to determine ROI names and typical lens magnification
+        if strcmpi(imagingType,'Single ROI (SI)') == true
+            ROInames = {'Barrels'};
+        elseif strcmpi(imagingType,'Single ROI (SSS)') == true
+            ROInames = {'SSS','lSSS','rSSS'};
+        elseif strcmpi(imagingType,'Bilateral ROI (SI)') == true
+            ROInames = {'LH','RH'};
+        elseif strcmpi(imagingType,'Bilateral ROI (SI,FC)') == true
+            ROInames = {'LH','RH','frontalLH','frontalRH'};
+        end
+        for bb = 1:length(ROInames)
+            gcampField = ROInames{1,bb};
+            scale = RestingBaselines.manualSelection.CBV.(gcampField).(strDay).mean/RestingBaselines.manualSelection.GCaMP7s.(gcampField).(strDay).mean;
+            ProcData.data.GCaMP7s.(['cor' (gcampField)]) = (ProcData.data.GCaMP7s.(gcampField)./ProcData.data.CBV.(gcampField))*scale;
+        end
+    end
     % save data
     save(procDataFileID,'ProcData')
 end

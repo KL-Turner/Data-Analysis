@@ -30,26 +30,27 @@ else
     load(trainingDatesFileID,'-mat')
 end
 % add sleep parameters (each behavior we care about during sleep)
-AddSleepParameters_IOS(procDataFileIDs,RestingBaselines,baselineType,imagingType)
-% create a table of values for sleep scoring model
-CreateModelDataSet_IOS(procDataFileIDs,imagingType)
-% create manual decisions for each 5 second bin
-CreateTrainingDataSet_IOS(procDataFileIDs,RestingBaselines,baselineType,imagingType,TrainingFiles)
-% combine the existing training set decisions with any sleep parameter changes
-UpdateTrainingDataSets_IOS(procDataFileIDs,TrainingFiles)
-% train Models - cycle through each data set and update any necessary parameters
-[animalID] = TrainSleepModels_IOS();
+% AddSleepParameters_IOS(procDataFileIDs,RestingBaselines,baselineType,imagingType)
+% % create a table of values for sleep scoring model
+% CreateModelDataSet_IOS(procDataFileIDs,imagingType)
+% % create manual decisions for each 5 second bin
+% CreateTrainingDataSet_IOS(procDataFileIDs,RestingBaselines,baselineType,imagingType,TrainingFiles)
+% % combine the existing training set decisions with any sleep parameter changes
+% UpdateTrainingDataSets_IOS(procDataFileIDs,TrainingFiles)
+% % train Models - cycle through each data set and update any necessary parameters
+% [animalID] = TrainSleepModels_IOS();
 % sleep score an animal's data set and create a SleepData.mat structure for classification
 modelNames = {'SVM','Ensemble','Forest','Manual'};
 SleepData = [];
+animalID = input('animal ID: ','s');
 % character list of all ModelData files
 modelDataFileStruct = dir('*_ModelData.mat');
 modelDataFiles = {modelDataFileStruct.name}';
 modelDataFileIDs = char(modelDataFiles);
 for c = 1:length(modelNames)
     modelName = modelNames{1,c};
-    [ScoringResults] = PredictBehaviorEvents_IOS(animalID,modelDataFileIDs,modelName);
-    ApplySleepLogical_IOS(modelName,TrainingFiles,ScoringResults)
+%     [ScoringResults] = PredictBehaviorEvents_IOS(animalID,modelDataFileIDs,modelName);
+%     ApplySleepLogical_IOS(modelName,TrainingFiles,ScoringResults)
     NREMsleepTime = 30; % seconds
     REMsleepTime = 60; % seconds
     if strcmpi(imagingType,'GCaMP') == true

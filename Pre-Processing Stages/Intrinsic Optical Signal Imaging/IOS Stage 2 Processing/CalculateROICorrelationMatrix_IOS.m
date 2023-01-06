@@ -59,8 +59,15 @@ procDataFileIDs = char(procDataFiles);
 windowDataFileStruct = dir('*_WindowCam.bin');
 windowDataFiles = {windowDataFileStruct.name}';
 windowDataFileIDs = char(windowDataFiles);
-for qq = 1:4
-    disp(['Analyzing cross correlation matrix (' num2str(qq) '/' num2str(size(procDataFileIDs,1)) ')']); disp(' ')
+if iscell(procDataFileIDs) == true
+    numFiles = 1;
+elseif size(procDataFileIDs,1) < 4 
+    numFiles = size(procDataFileIDs,1);
+else
+    numFiles = 4;
+end
+for qq = 1:numFiles
+    disp(['Analyzing cross correlation matrix (' num2str(qq) '/' num2str(numFiles) ')']); disp(' ')
     load(procDataFileIDs(qq,:));
     imageHeight = ProcData.notes.CBVCamPixelHeight;
     imageWidth = ProcData.notes.CBVCamPixelWidth;

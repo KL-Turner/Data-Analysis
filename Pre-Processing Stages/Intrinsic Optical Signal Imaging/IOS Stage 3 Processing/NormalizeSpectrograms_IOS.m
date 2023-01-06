@@ -1,4 +1,4 @@
-function [SpecData] = NormalizeSpectrograms_IOS(neuralDataTypes,RestingBaselines)
+function [SpecData] = NormalizeSpectrograms_IOS(RestingBaselines)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -7,6 +7,7 @@ function [SpecData] = NormalizeSpectrograms_IOS(neuralDataTypes,RestingBaselines
 % Purpose: Normalizes each spectrogram by the resting baseline for that day.
 %________________________________________________________________________________________________________________________
 
+neuralDataTypes = {'cortical_LH','cortical_RH','hippocampus'};
 % file list A
 specDirectory = dir('*_SpecDataA.mat');
 specDataFiles = {specDirectory.name}';

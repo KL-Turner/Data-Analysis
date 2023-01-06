@@ -434,10 +434,10 @@ for aa = 1:size(procDataFileIDs,1) % loop through the list of ProcData files
                 SleepData.(modelName).NREM.data.CBV_HbT.frontalLH{cellLength,1} = cellFrontalLH_HbT{1,1};
                 SleepData.(modelName).NREM.data.CBV_HbT.frontalRH{cellLength,1} = cellFrontalRH_HbT{1,1};
                 % GCaMP
-                SleepData.(modelName).NREM.data.GCaMP.LH{cellLength,1} = cellLH_GCaMP{1,1};
-                SleepData.(modelName).NREM.data.GCaMP.RH{cellLength,1} = cellRH_GCaMP{1,1};
-                SleepData.(modelName).NREM.data.GCaMP.frontalLH{cellLength,1} = cellFrontalLH_GCaMP{1,1};
-                SleepData.(modelName).NREM.data.GCaMP.frontalRH{cellLength,1} = cellFrontalRH_GCaMP{1,1};
+                SleepData.(modelName).NREM.data.GCaMP7s.LH{cellLength,1} = cellLH_GCaMP{1,1};
+                SleepData.(modelName).NREM.data.GCaMP7s.RH{cellLength,1} = cellRH_GCaMP{1,1};
+                SleepData.(modelName).NREM.data.GCaMP7s.frontalLH{cellLength,1} = cellFrontalLH_GCaMP{1,1};
+                SleepData.(modelName).NREM.data.GCaMP7s.frontalRH{cellLength,1} = cellFrontalRH_GCaMP{1,1};
                 % Deoxy
                 SleepData.(modelName).NREM.data.Deoxy.LH{cellLength,1} = cellLH_Deoxy{1,1};
                 SleepData.(modelName).NREM.data.Deoxy.RH{cellLength,1} = cellRH_Deoxy{1,1};
@@ -476,10 +476,10 @@ for aa = 1:size(procDataFileIDs,1) % loop through the list of ProcData files
                 SleepData.(modelName).NREM.data.CBV_HbT.frontalLH{size(SleepData.(modelName).NREM.data.CBV_HbT.frontalLH,1) + 1,1} = cellFrontalLH_HbT{cellLength,1};
                 SleepData.(modelName).NREM.data.CBV_HbT.frontalRH{size(SleepData.(modelName).NREM.data.CBV_HbT.frontalRH,1) + 1,1} = cellFrontalRH_HbT{cellLength,1};
                 % GCaMP
-                SleepData.(modelName).NREM.data.GCaMP.LH{size(SleepData.(modelName).NREM.data.GCaMP.LH,1) + 1,1} = cellLH_GCaMP{cellLength,1};
-                SleepData.(modelName).NREM.data.GCaMP.RH{size(SleepData.(modelName).NREM.data.GCaMP.RH,1) + 1,1} = cellRH_GCaMP{cellLength,1};
-                SleepData.(modelName).NREM.data.GCaMP.frontalLH{size(SleepData.(modelName).NREM.data.GCaMP.frontalLH,1) + 1,1} = cellFrontalLH_GCaMP{cellLength,1};
-                SleepData.(modelName).NREM.data.GCaMP.frontalRH{size(SleepData.(modelName).NREM.data.GCaMP.frontalRH,1) + 1,1} = cellFrontalRH_GCaMP{cellLength,1};
+                SleepData.(modelName).NREM.data.GCaMP7s.LH{size(SleepData.(modelName).NREM.data.GCaMP7s.LH,1) + 1,1} = cellLH_GCaMP{cellLength,1};
+                SleepData.(modelName).NREM.data.GCaMP7s.RH{size(SleepData.(modelName).NREM.data.GCaMP7s.RH,1) + 1,1} = cellRH_GCaMP{cellLength,1};
+                SleepData.(modelName).NREM.data.GCaMP7s.frontalLH{size(SleepData.(modelName).NREM.data.GCaMP7s.frontalLH,1) + 1,1} = cellFrontalLH_GCaMP{cellLength,1};
+                SleepData.(modelName).NREM.data.GCaMP7s.frontalRH{size(SleepData.(modelName).NREM.data.GCaMP7s.frontalRH,1) + 1,1} = cellFrontalRH_GCaMP{cellLength,1};
                 % Deoxy
                 SleepData.(modelName).NREM.data.Deoxy.LH{size(SleepData.(modelName).NREM.data.Deoxy.LH,1) + 1,1} = cellLH_Deoxy{cellLength,1};
                 SleepData.(modelName).NREM.data.Deoxy.RH{size(SleepData.(modelName).NREM.data.Deoxy.RH,1) + 1,1} = cellRH_Deoxy{cellLength,1};
@@ -901,10 +901,10 @@ for aa = 1:size(procDataFileIDs,1) % loop through the list of ProcData files
                 SleepData.(modelName).REM.data.CBV_HbT.frontalLH{cellLength,1} = cellFrontalLH_HbT{1,1};
                 SleepData.(modelName).REM.data.CBV_HbT.frontalRH{cellLength,1} = cellFrontalRH_HbT{1,1};
                 % GCaMP
-                SleepData.(modelName).REM.data.GCaMP.LH{cellLength,1} = cellLH_GCaMP{1,1};
-                SleepData.(modelName).REM.data.GCaMP.RH{cellLength,1} = cellRH_GCaMP{1,1};
-                SleepData.(modelName).REM.data.GCaMP.frontalLH{cellLength,1} = cellFrontalLH_GCaMP{1,1};
-                SleepData.(modelName).REM.data.GCaMP.frontalRH{cellLength,1} = cellFrontalRH_GCaMP{1,1};
+                SleepData.(modelName).REM.data.GCaMP7s.LH{cellLength,1} = cellLH_GCaMP{1,1};
+                SleepData.(modelName).REM.data.GCaMP7s.RH{cellLength,1} = cellRH_GCaMP{1,1};
+                SleepData.(modelName).REM.data.GCaMP7s.frontalLH{cellLength,1} = cellFrontalLH_GCaMP{1,1};
+                SleepData.(modelName).REM.data.GCaMP7s.frontalRH{cellLength,1} = cellFrontalRH_GCaMP{1,1};
                 % Deoxy
                 SleepData.(modelName).REM.data.Deoxy.LH{cellLength,1} = cellLH_Deoxy{1,1};
                 SleepData.(modelName).REM.data.Deoxy.RH{cellLength,1} = cellRH_Deoxy{1,1};
@@ -943,10 +943,10 @@ for aa = 1:size(procDataFileIDs,1) % loop through the list of ProcData files
                 SleepData.(modelName).REM.data.CBV_HbT.frontalLH{size(SleepData.(modelName).REM.data.CBV_HbT.frontalLH,1) + 1,1} = cellFrontalLH_HbT{cellLength,1};
                 SleepData.(modelName).REM.data.CBV_HbT.frontalRH{size(SleepData.(modelName).REM.data.CBV_HbT.frontalRH,1) + 1,1} = cellFrontalRH_HbT{cellLength,1};
                 % GCaMP
-                SleepData.(modelName).REM.data.GCaMP.LH{size(SleepData.(modelName).REM.data.GCaMP.LH,1) + 1,1} = cellLH_GCaMP{cellLength,1};
-                SleepData.(modelName).REM.data.GCaMP.RH{size(SleepData.(modelName).REM.data.GCaMP.RH,1) + 1,1} = cellRH_GCaMP{cellLength,1};
-                SleepData.(modelName).REM.data.GCaMP.frontalLH{size(SleepData.(modelName).REM.data.GCaMP.frontalLH,1) + 1,1} = cellFrontalLH_GCaMP{cellLength,1};
-                SleepData.(modelName).REM.data.GCaMP.frontalRH{size(SleepData.(modelName).REM.data.GCaMP.frontalRH,1) + 1,1} = cellFrontalRH_GCaMP{cellLength,1};
+                SleepData.(modelName).REM.data.GCaMP7s.LH{size(SleepData.(modelName).REM.data.GCaMP7s.LH,1) + 1,1} = cellLH_GCaMP{cellLength,1};
+                SleepData.(modelName).REM.data.GCaMP7s.RH{size(SleepData.(modelName).REM.data.GCaMP7s.RH,1) + 1,1} = cellRH_GCaMP{cellLength,1};
+                SleepData.(modelName).REM.data.GCaMP7s.frontalLH{size(SleepData.(modelName).REM.data.GCaMP7s.frontalLH,1) + 1,1} = cellFrontalLH_GCaMP{cellLength,1};
+                SleepData.(modelName).REM.data.GCaMP7s.frontalRH{size(SleepData.(modelName).REM.data.GCaMP7s.frontalRH,1) + 1,1} = cellFrontalRH_GCaMP{cellLength,1};
                 % Deoxy
                 SleepData.(modelName).REM.data.Deoxy.LH{size(SleepData.(modelName).REM.data.Deoxy.LH,1) + 1,1} = cellLH_Deoxy{cellLength,1};
                 SleepData.(modelName).REM.data.Deoxy.RH{size(SleepData.(modelName).REM.data.Deoxy.RH,1) + 1,1} = cellRH_Deoxy{cellLength,1};

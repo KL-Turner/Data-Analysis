@@ -1,24 +1,22 @@
 %________________________________________________________________________________________________________________________
-% Written by Kevin L. Turner
+% Written by Kevin L. Turnery
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %
-%   Purpose: 1) Categorize behavioral (rest,whisk,stim) data using previously processed data structures, add 'flags'
-%            2) Create a temporary RestData structure that contains periods of rest - use this for initial figures
-%            3) Analyze neural data and create different spectrograms for each file's electrodes
-%            4) Uses periods when animal is not being stimulated or moving to establish an initial baseline
-%            5) Manually select awake files for a slightly different baseline not based on hard time vals
-%            6) Use the best baseline to convert reflectance changes to total hemoglobin
-%            7) Re-create the RestData structure now that we can deltaHbT
-%            8) Create an EventData structure looking at the different data types after whisking or stimulation
-%            9) Apply the resting baseline to each data type to create a percentage change
-%            10) Use the time indeces of the resting baseline file to apply a percentage change to the spectrograms
-%            11) Use the time indeces of the resting baseline file to create a reflectance pixel-based baseline
-%            12) Generate a summary figure for all of the analyzed and processed data
+% Purpose: - Categorize behavioral (rest,whisk,stim) data using previously processed data structures, add 'flags'
+%          - Create a temporary RestData structure that contains periods of rest - use this for initial figures
+%          - Analyze neural data and create different spectrograms for each file's electrodes
+%          - Uses periods when animal is not being stimulated or moving to establish an initial baseline
+%          - Manually select awake files for a slightly different baseline not based on hard time vals
+%          - Use the best baseline to convert reflectance changes to total hemoglobin
+%          - Re-create the RestData structure now that we can deltaHbT
+%          - Create an EventData structure looking at the different data types after whisking or stimulation
+%          - Apply the resting baseline to each data type to create a percentage change
+%          - Use the time indeces of the resting baseline file to apply a percentage change to the spectrograms
+%          - Use the time indeces of the resting baseline file to create a reflectance pixel-based baseline
+%          - Generate a summary figure for all of the analyzed and processed data
 %________________________________________________________________________________________________________________________
 
-% load the script's necessary variables and data structures.
-% clear the workspace variables and command windyow.
 zap;
 % character list of all RawData files
 rawDataFileStruct = dir('*_RawData.mat');
@@ -28,103 +26,37 @@ rawDataFileIDs = char(rawDataFiles);
 procDataFileStruct = dir('*_ProcData.mat');
 procDataFiles = {procDataFileStruct.name}';
 procDataFileIDs = char(procDataFiles);
-[animalID,~,~] = GetFileInfo_IOS(procDataFileIDs(1,:));
-% parameters used for various animal analysis
-curDir = cd;
-dirBreaks = strfind(curDir,'\');
-curFolder = curDir(dirBreaks(end) + 1:end);
-imagingType = input('Input imaging type (bilateral, single, GCaMP): ','s'); disp(' ')
-stimulationType = input('Input stimulation type (single or pulse): ','s'); disp(' ')
-ledColor = input('Input isosbestic LED color (green or lime): ','s'); disp(' ')
-if strcmpi(imagingType,'GCaMP') == true
-    dataTypes = {'CBV','GCaMP7s','Deoxy','cortical_LH','cortical_RH','hippocampus','EMG'};
-    updatedDataTypes = {'CBV','CBV_HbT','GCaMP7s','Deoxy','cortical_LH','cortical_RH','hippocampus','EMG'};
-else
-    dataTypes = {'CBV','cortical_LH','cortical_RH','hippocampus','EMG'};
-    updatedDataTypes = {'CBV','CBV_HbT','cortical_LH','cortical_RH','hippocampus','EMG'};
-end
-neuralDataTypes = {'cortical_LH','cortical_RH','hippocampus'};
-basefile = ([animalID '_RestingBaselines.mat']);
 % categorize data
-for aa = 1:size(procDataFileIDs,1)
-    procDataFileID = procDataFileIDs(aa,:);
-    disp(['Analyzing file ' num2str(aa) ' of ' num2str(size(procDataFileIDs,1)) '...']); disp(' ')
-    CategorizeData_IOS(procDataFileID,stimulationType)
-end
+CategorizeData_IOS(procDataFileIDs)
 % create RestData data structure
-[RestData] = ExtractRestingData_IOS(procDataFileIDs,dataTypes,imagingType,1);
+[RestData] = ExtractRestingData_IOS(procDataFileIDs,1);
 % analyze the spectrogram for each session.
-CreateTrialSpectrograms_IOS(rawDataFileIDs,neuralDataTypes);
+CreateTrialSpectrograms_IOS(rawDataFileIDs);
 % create Baselines data structure
-baselineType = 'setDuration';
-trialDuration_sec = 900;
-targetMinutes = 60;
-[RestingBaselines] = CalculateRestingBaselines_IOS(animalID,targetMinutes,trialDuration_sec,RestData);
-% Find spectrogram baselines for each day
-[RestingBaselines] = CalculateSpectrogramBaselines_IOS(animalID,neuralDataTypes,trialDuration_sec,RestingBaselines,baselineType);
-% Normalize spectrogram by baseline
-NormalizeSpectrograms_IOS(neuralDataTypes,RestingBaselines);
-% manually select files for custom baseline calculation
-hemoType = 'reflectance';
-[RestingBaselines] = CalculateManualRestingBaselinesTimeIndeces_IOS(imagingType,hemoType);
-% add delta HbT field to each processed data file
-updatedBaselineType = 'manualSelection';
-UpdateTotalHemoglobin_IOS(procDataFileIDs,RestingBaselines,updatedBaselineType,imagingType,ledColor)
-if strcmpi(imagingType,'GCaMP') == true
-    CorrectGCaMPattenuation_IOS(procDataFileIDs,RestingBaselines)
-end
-% re-create the RestData structure now that HbT (and/or corrected GCaMP) is available
-[RestData] = ExtractRestingData_IOS(procDataFileIDs,updatedDataTypes,imagingType,2);
-% create the EventData structure for CBV and neural data
-[EventData] = ExtractEventTriggeredData_IOS(procDataFileIDs,updatedDataTypes,imagingType);
-% normalize RestData and EventData structures by the resting baseline
-% character list of all ProcData files
-restDataFileStruct = dir('*_RestData.mat');
-restDataFiles = {restDataFileStruct.name}';
-restDataFileIDs = char(restDataFiles);
-load(restDataFileIDs)
-% character list of all ProcData files
-eventDataFileStruct = dir('*_EventData.mat');
-eventDataFiles = {eventDataFileStruct.name}';
-eventDataFileIDs = char(eventDataFiles);
-load(eventDataFileIDs)
-% character list of all ProcData files
-baseDataFileStruct = dir('*_RestingBaselines.mat');
-baseDataFiles = {baseDataFileStruct.name}';
-baseDataFileIDs = char(baseDataFiles);
-load(baseDataFileIDs)
-[RestData] = NormBehavioralDataStruct_IOS(RestData,RestingBaselines,updatedBaselineType);
-save([animalID '_RestData.mat'],'RestData','-v7.3')
-[EventData] = NormBehavioralDataStruct_IOS(EventData,RestingBaselines,updatedBaselineType);
-save([animalID '_EventData.mat'],'EventData','-v7.3')
-% analyze the spectrogram baseline for each session.
-% find spectrogram baselines for each day
-[RestingBaselines] = CalculateSpectrogramBaselines_IOS(animalID,neuralDataTypes,trialDuration_sec,RestingBaselines,updatedBaselineType);
+[RestingBaselines] = CalculateRestingBaselines_IOS(RestData,60);
+% create Baselines for spectrogram data
+[RestingBaselines] = CalculateSpectrogramBaselines_IOS(RestingBaselines,'setDuration');
 % normalize spectrogram by baseline
-NormalizeSpectrograms_IOS(neuralDataTypes,RestingBaselines);
+NormalizeSpectrograms_IOS(RestingBaselines);
+% manually select files for custom baseline calculation
+[RestingBaselines] = CalculateManualRestingBaselinesTimeIndeces_IOS(procDataFileIDs,RestData,RestingBaselines,'reflectance');
+% add delta HbT field to each processed data file
+UpdateTotalHemoglobin_IOS(procDataFileIDs,RestingBaselines,'manualSelection')
+% correct GCaMP attenuation
+CorrectGCaMPattenuation_IOS(procDataFileIDs,RestingBaselines)
+% re-create the RestData structure now that HbT (and/or corrected GCaMP) is available
+[RestData] = ExtractRestingData_IOS(procDataFileIDs,2);
+% create the EventData structure for CBV and neural data
+[EventData] = ExtractEventTriggeredData_IOS(procDataFileIDs);
+% normalize RestData structures by the resting baseline
+[RestData] = NormRestDataStruct_IOS(RestData,RestingBaselines,'manualSelection');
+% normalize EventData structures by the resting baseline
+[EventData] = NormEventDataStruct_IOS(EventData,RestingBaselines,'manualSelection');
+% find spectrogram baselines for each day
+[RestingBaselines] = CalculateSpectrogramBaselines_IOS(RestingBaselines,'manualSelection');
+% normalize spectrogram by baseline
+NormalizeSpectrograms_IOS(RestingBaselines);
 % create a structure with all spectrograms for convenient analysis further downstream
-CreateAllSpecDataStruct_IOS(animalID,neuralDataTypes)
+CreateAllSpecDataStruct_IOS()
 % generate single trial figures
-updatedBaselineType = 'manualSelection';
-saveFigs = 'y';
-% HbT
-hemoType = 'HbT';
-if strcmpi(imagingType,'GCaMP') == true
-    for bb = 1:size(procDataFileIDs,1)
-        procDataFileID = procDataFileIDs(bb,:);
-        [figHandle] = GenerateSingleFigures_GCaMP_IOS(procDataFileID,RestingBaselines,saveFigs,hemoType,'somatosensory');
-        close(figHandle)
-%         [figHandle] = GenerateSingleFigures_GCaMP_IOS(procDataFileID,RestingBaselines,saveFigs,hemoType,'frontal');
-%         close(figHandle)
-    end
-else
-    for bb = 1:size(procDataFileIDs,1)
-        procDataFileID = procDataFileIDs(bb,:);
-        [figHandle] = GenerateSingleFigures_IOS(procDataFileID,RestingBaselines,updatedBaselineType,saveFigs,imagingType,hemoType);
-        close(figHandle)
-    end
-end
-% isoflurane manual set
-% SetIsofluraneHbT_IOS()
-% identify motion artifacts in neural data
-% CheckNeuralMotionArtifacts_IOS(procDataFileIDs,RestingBaselines,baselineType,imagingType,hemoType)
+GenerateTrialFigures_IOS(procDataFileIDs,RestingBaselines);
