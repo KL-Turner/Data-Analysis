@@ -11,7 +11,7 @@ function [] = MainScript_nNOS()
 % Functions optained from 3rd party are located in the folder "Shared Functions"
 %________________________________________________________________________________________________________________________
 
-clear; clc; close all;
+zap;
 % verify code repository and data are in the current directory/added path
 currentFolder = pwd;
 addpath(genpath(currentFolder));
@@ -26,26 +26,29 @@ end
 % add root folder to Matlab's working directory
 addpath(genpath(rootFolder))
 % analysis subfunctions
-runAnalysis = false;
+runAnalysis = true;
 if runAnalysis == true
-    AnalyzeBehavioralHbT_Handler(rootFolder,delim,false)
-    AnalyzeBilateralCoherence_Handler(rootFolder,delim,false)
-    AnalyzeNeuralHemoCoherence_Handler(rootFolder,delim,false)
-    AnalyzePowerSpectrum_Handler(rootFolder,delim,false)
-    AnalyzePearsonCorrelation_Handler(rootFolder,delim,false)
-    AnalyzePowerSpectrum_LFP_Handler(rootFolder,delim,false)
-    AnalyzeCrossCorrelation_Handler(rootFolder,delim,false)
-    AnalyzeEvokedResponses_Handler(rootFolder,delim,false)
-    AnalyzeArousalTransitions_Handler(rootFolder,delim,false)
+%     AnalyzeBehavioralHbT_Handler(rootFolder,delim,false)
+    AnalyzeBilateralCoherence_Handler(rootFolder,delim,true)
+%     AnalyzeNeuralHemoCoherence_Handler(rootFolder,delim,false)
+%     AnalyzePowerSpectrum_Handler(rootFolder,delim,false)
+%     AnalyzePearsonCorrelation_Handler(rootFolder,delim,false)
+%     AnalyzePowerSpectrum_LFP_Handler(rootFolder,delim,false)
+%     AnalyzeCrossCorrelation_Handler(rootFolder,delim,false)
+%     AnalyzeEvokedResponses_Handler(rootFolder,delim,false)
+%     AnalyzeArousalTransitions_Handler(rootFolder,delim,false)
     multiWaitbar('close all')
 end
 %% generate figures
 disp('Loading analysis results and generating figures...'); disp(' ')
 saveFigs = true;
-DiaphoraseCellCounts_Figures(rootFolder,saveFigs,delim);
+% DiaphoraseCellCounts_Figures(rootFolder,saveFigs,delim);
+% RunningSpectroscopy_Figures(rootFolder,saveFigs,delim)
 
-% BilateralCoherence_Figures(rootFolder,saveFigs,delim);
-% DiaphoraseCellCounts_Bilateral_IOS(rootFolder,saveFigs,delim);
+% ArousalStateHemodynamics_Figures(rootFolder,saveFigs,delim);
+BilateralCoherence_Figures(rootFolder,saveFigs,delim);
+
+
 % WhiskEvoked_Bilateral_IOS(rootFolder,saveFigs,delim);
 % WhiskingBehavior_Bilateral_IOS(rootFolder,saveFigs,delim);
 % StimEvoked_Bilateral_IOS(rootFolder,saveFigs,delim);

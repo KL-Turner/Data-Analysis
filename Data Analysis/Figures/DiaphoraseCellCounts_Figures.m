@@ -7,6 +7,8 @@ function [] = DiaphoraseCellCounts_Figures(rootFolder,saveFigs,delim)
 % Purpose: 
 %________________________________________________________________________________________________________________________
 
+path = [rootFolder delim 'Results_Turner'];
+cd(path)
 %% setup and pull data from excel sheet
 msExcelFile = 'DiaphoraseCellCounts.xlsx';
 [~,~,alldata] = xlsread(msExcelFile);
@@ -142,5 +144,6 @@ if saveFigs == true
     disp('======================================================================================================================')
     disp(Stats.Comp.Stats)
 end
+cd(rootFolder)
 
 end

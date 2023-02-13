@@ -7,10 +7,12 @@ function [] = BilateralCoherence_Figures(rootFolder,saveFigs,delim)
 % Purpose:
 %________________________________________________________________________________________________________________________
 
+cd([rootFolder delim 'Results_Turner'])
 % set-up and process data
 resultsStruct = 'Results_BilatCoher';
 load(resultsStruct);
 % experimental groups and sets for analysis
+cd([rootFolder delim 'Data'])
 expGroups = {'SSP_SAP','Blank_SAP'};
 sets = {'IOS_Ephys','IOS_GCaMP7s';'IOS_Ephys','IOS_GCaMP7s'};
 behavFields = {'Rest','NREM','REM','Alert','Asleep','All'};
@@ -23,6 +25,7 @@ for aa = 1:length(expGroups)
         data.(setNames{1,bb}).(expGroups{1,aa}).animalIDs = {folderList.name};
     end
 end
+cd(rootFolder)
 % concatenate data from each data type
 for aa = 1:length(expGroups)
     expGroup = expGroups{1,aa};
@@ -78,10 +81,10 @@ for aa = 1:length(expGroups)
         end
     end
 end
-%% average HbT coherence
-summaryFigure = figure;
-sgtitle('Ephys Bilateral Coherence \DeltaHbT')
-%% coherence^2 between bilateral HbT during rest
+%% HbT Coherence (Ephys)
+summaryFigureA = figure;
+sgtitle('(IOS Ephys) Bilateral \DeltaHbT Coherence^2')
+% Rest
 subplot(2,3,1);
 p1 = semilogx(data.IOS_Ephys.Blank_SAP.CBV_HbT.Rest.meanf,data.IOS_Ephys.Blank_SAP.CBV_HbT.Rest.meanC,'color',colors('north texas green'),'LineWidth',2);
 hold on
@@ -92,12 +95,12 @@ semilogx(data.IOS_Ephys.SSP_SAP.CBV_HbT.Rest.meanf,data.IOS_Ephys.SSP_SAP.CBV_Hb
 semilogx(data.IOS_Ephys.SSP_SAP.CBV_HbT.Rest.meanf,data.IOS_Ephys.SSP_SAP.CBV_HbT.Rest.meanC - data.IOS_Ephys.SSP_SAP.CBV_HbT.Rest.stdErrC,'color',colors('electric purple'),'LineWidth',0.5);
 ylabel('Coherence^2')
 xlabel('Freq (Hz)')
-title({'[Rest] Bilateral coherence^2','\Delta[HbT] (\muM)'})
+title('Rest')
 xlim([1/10,0.5])
 ylim([0.01,1])
 set(gca,'box','off')
 legend([p1,p2],'Blank-SAP','SSP-SAP')
-%% coherence^2 between bilateral HbT during NREM
+% NREM
 subplot(2,3,2);
 semilogx(data.IOS_Ephys.Blank_SAP.CBV_HbT.NREM.meanf,data.IOS_Ephys.Blank_SAP.CBV_HbT.NREM.meanC,'color',colors('north texas green'),'LineWidth',2);
 hold on
@@ -108,11 +111,11 @@ semilogx(data.IOS_Ephys.SSP_SAP.CBV_HbT.NREM.meanf,data.IOS_Ephys.SSP_SAP.CBV_Hb
 semilogx(data.IOS_Ephys.SSP_SAP.CBV_HbT.NREM.meanf,data.IOS_Ephys.SSP_SAP.CBV_HbT.NREM.meanC - data.IOS_Ephys.SSP_SAP.CBV_HbT.NREM.stdErrC,'color',colors('electric purple'),'LineWidth',0.5);
 ylabel('Coherence^2')
 xlabel('Freq (Hz)')
-title({'[NREM] Bilateral coherence^2','\Delta[HbT] (\muM)'})
+title('NREM')
 xlim([1/30,0.5])
 ylim([0.01,1])
 set(gca,'box','off')
-%% coherence^2 between bilateral HbT during REM
+% REM
 subplot(2,3,3);
 semilogx(data.IOS_Ephys.Blank_SAP.CBV_HbT.REM.meanf,data.IOS_Ephys.Blank_SAP.CBV_HbT.REM.meanC,'color',colors('north texas green'),'LineWidth',2);
 hold on
@@ -123,11 +126,11 @@ semilogx(data.IOS_Ephys.SSP_SAP.CBV_HbT.REM.meanf,data.IOS_Ephys.SSP_SAP.CBV_HbT
 semilogx(data.IOS_Ephys.SSP_SAP.CBV_HbT.REM.meanf,data.IOS_Ephys.SSP_SAP.CBV_HbT.REM.meanC - data.IOS_Ephys.SSP_SAP.CBV_HbT.REM.stdErrC,'color',colors('electric purple'),'LineWidth',0.5);
 ylabel('Coherence^2')
 xlabel('Freq (Hz)')
-title({'[REM] Bilateral coherence^2','\Delta[HbT] (\muM)'})
+title('REM')
 xlim([1/60,0.5])
 ylim([0.01,1])
 set(gca,'box','off')
-%% coherence^2 between bilateral HbT during Awake
+% Alert
 subplot(2,3,4);
 semilogx(data.IOS_Ephys.Blank_SAP.CBV_HbT.Alert.meanf,data.IOS_Ephys.Blank_SAP.CBV_HbT.Alert.meanC,'color',colors('north texas green'),'LineWidth',2);
 hold on
@@ -138,11 +141,11 @@ semilogx(data.IOS_Ephys.SSP_SAP.CBV_HbT.Alert.meanf,data.IOS_Ephys.SSP_SAP.CBV_H
 semilogx(data.IOS_Ephys.SSP_SAP.CBV_HbT.Alert.meanf,data.IOS_Ephys.SSP_SAP.CBV_HbT.Alert.meanC - data.IOS_Ephys.SSP_SAP.CBV_HbT.Alert.stdErrC,'color',colors('electric purple'),'LineWidth',0.5);
 ylabel('Coherence^2')
 xlabel('Freq (Hz)')
-title({'[Alert] Bilateral coherence^2','\Delta[HbT] (\muM)'})
+title('Alert')
 xlim([0.003,0.5])
 ylim([0.01,1])
 set(gca,'box','off')
-%% coherence^2 between bilateral HbT during Sleep
+% Asleep
 subplot(2,3,5);
 semilogx(data.IOS_Ephys.Blank_SAP.CBV_HbT.Asleep.meanf,data.IOS_Ephys.Blank_SAP.CBV_HbT.Asleep.meanC,'color',colors('north texas green'),'LineWidth',2);
 hold on
@@ -153,11 +156,11 @@ semilogx(data.IOS_Ephys.SSP_SAP.CBV_HbT.Asleep.meanf,data.IOS_Ephys.SSP_SAP.CBV_
 semilogx(data.IOS_Ephys.SSP_SAP.CBV_HbT.Asleep.meanf,data.IOS_Ephys.SSP_SAP.CBV_HbT.Asleep.meanC - data.IOS_Ephys.SSP_SAP.CBV_HbT.Asleep.stdErrC,'color',colors('electric purple'),'LineWidth',0.5);
 ylabel('Coherence^2')
 xlabel('Freq (Hz)')
-title({'[Asleep] Bilateral coherence^2','\Delta[HbT] (\muM)'})
+title('Asleep')
 xlim([0.003,0.5])
 ylim([0.01,1])
 set(gca,'box','off')
-%% coherence^2 between bilateral HbT during All data
+% All
 subplot(2,3,6);
 semilogx(data.IOS_Ephys.Blank_SAP.CBV_HbT.All.meanf,data.IOS_Ephys.Blank_SAP.CBV_HbT.All.meanC,'color',colors('north texas green'),'LineWidth',2);
 hold on
@@ -168,17 +171,15 @@ semilogx(data.IOS_Ephys.SSP_SAP.CBV_HbT.All.meanf,data.IOS_Ephys.SSP_SAP.CBV_HbT
 semilogx(data.IOS_Ephys.SSP_SAP.CBV_HbT.All.meanf,data.IOS_Ephys.SSP_SAP.CBV_HbT.All.meanC - data.IOS_Ephys.SSP_SAP.CBV_HbT.All.stdErrC,'color',colors('electric purple'),'LineWidth',0.5);
 ylabel('Coherence^2')
 xlabel('Freq (Hz)')
-title({'[All] Bilateral coherence^2','\Delta[HbT] (\muM)'})
+title('All')
 xlim([0.003,0.5])
 ylim([0.01,1])
 set(gca,'box','off')
 
-
-%%
-%% average HbT coherence
-summaryFigure = figure;
-sgtitle('Ephys Bilateral Coherence \DeltaHbT')
-%% coherence^2 between bilateral HbT during rest
+%% Gamma Coherence (Ephys)
+summaryFigureB = figure;
+sgtitle('(IOS Ephys) Bilateral Gamma Coherence^2')
+% Rest
 subplot(2,3,1);
 p1 = semilogx(data.IOS_Ephys.Blank_SAP.gammaBandPower.Rest.meanf,data.IOS_Ephys.Blank_SAP.gammaBandPower.Rest.meanC,'color',colors('north texas green'),'LineWidth',2);
 hold on
@@ -189,12 +190,12 @@ semilogx(data.IOS_Ephys.SSP_SAP.gammaBandPower.Rest.meanf,data.IOS_Ephys.SSP_SAP
 semilogx(data.IOS_Ephys.SSP_SAP.gammaBandPower.Rest.meanf,data.IOS_Ephys.SSP_SAP.gammaBandPower.Rest.meanC - data.IOS_Ephys.SSP_SAP.gammaBandPower.Rest.stdErrC,'color',colors('electric purple'),'LineWidth',0.5);
 ylabel('Coherence^2')
 xlabel('Freq (Hz)')
-title({'[Rest] Bilateral coherence^2','\Delta[HbT] (\muM)'})
+title('Rest')
 xlim([1/10,0.5])
 ylim([0.01,1])
 set(gca,'box','off')
 legend([p1,p2],'Blank-SAP','SSP-SAP')
-%% coherence^2 between bilateral HbT during NREM
+% NREM
 subplot(2,3,2);
 semilogx(data.IOS_Ephys.Blank_SAP.gammaBandPower.NREM.meanf,data.IOS_Ephys.Blank_SAP.gammaBandPower.NREM.meanC,'color',colors('north texas green'),'LineWidth',2);
 hold on
@@ -205,11 +206,11 @@ semilogx(data.IOS_Ephys.SSP_SAP.gammaBandPower.NREM.meanf,data.IOS_Ephys.SSP_SAP
 semilogx(data.IOS_Ephys.SSP_SAP.gammaBandPower.NREM.meanf,data.IOS_Ephys.SSP_SAP.gammaBandPower.NREM.meanC - data.IOS_Ephys.SSP_SAP.gammaBandPower.NREM.stdErrC,'color',colors('electric purple'),'LineWidth',0.5);
 ylabel('Coherence^2')
 xlabel('Freq (Hz)')
-title({'[NREM] Bilateral coherence^2','\Delta[HbT] (\muM)'})
+title('NREM')
 xlim([1/30,0.5])
 ylim([0.01,1])
 set(gca,'box','off')
-%% coherence^2 between bilateral HbT during REM
+% REM
 subplot(2,3,3);
 semilogx(data.IOS_Ephys.Blank_SAP.gammaBandPower.REM.meanf,data.IOS_Ephys.Blank_SAP.gammaBandPower.REM.meanC,'color',colors('north texas green'),'LineWidth',2);
 hold on
@@ -220,11 +221,11 @@ semilogx(data.IOS_Ephys.SSP_SAP.gammaBandPower.REM.meanf,data.IOS_Ephys.SSP_SAP.
 semilogx(data.IOS_Ephys.SSP_SAP.gammaBandPower.REM.meanf,data.IOS_Ephys.SSP_SAP.gammaBandPower.REM.meanC - data.IOS_Ephys.SSP_SAP.gammaBandPower.REM.stdErrC,'color',colors('electric purple'),'LineWidth',0.5);
 ylabel('Coherence^2')
 xlabel('Freq (Hz)')
-title({'[REM] Bilateral coherence^2','\Delta[HbT] (\muM)'})
+title('REM')
 xlim([1/60,0.5])
 ylim([0.01,1])
 set(gca,'box','off')
-%% coherence^2 between bilateral HbT during Awake
+% Alert
 subplot(2,3,4);
 semilogx(data.IOS_Ephys.Blank_SAP.gammaBandPower.Alert.meanf,data.IOS_Ephys.Blank_SAP.gammaBandPower.Alert.meanC,'color',colors('north texas green'),'LineWidth',2);
 hold on
@@ -235,11 +236,11 @@ semilogx(data.IOS_Ephys.SSP_SAP.gammaBandPower.Alert.meanf,data.IOS_Ephys.SSP_SA
 semilogx(data.IOS_Ephys.SSP_SAP.gammaBandPower.Alert.meanf,data.IOS_Ephys.SSP_SAP.gammaBandPower.Alert.meanC - data.IOS_Ephys.SSP_SAP.gammaBandPower.Alert.stdErrC,'color',colors('electric purple'),'LineWidth',0.5);
 ylabel('Coherence^2')
 xlabel('Freq (Hz)')
-title({'[Alert] Bilateral coherence^2','\Delta[HbT] (\muM)'})
+title('Alert')
 xlim([0.003,0.5])
 ylim([0.01,1])
 set(gca,'box','off')
-%% coherence^2 between bilateral HbT during Sleep
+% Asleep
 subplot(2,3,5);
 semilogx(data.IOS_Ephys.Blank_SAP.gammaBandPower.Asleep.meanf,data.IOS_Ephys.Blank_SAP.gammaBandPower.Asleep.meanC,'color',colors('north texas green'),'LineWidth',2);
 hold on
@@ -250,11 +251,11 @@ semilogx(data.IOS_Ephys.SSP_SAP.gammaBandPower.Asleep.meanf,data.IOS_Ephys.SSP_S
 semilogx(data.IOS_Ephys.SSP_SAP.gammaBandPower.Asleep.meanf,data.IOS_Ephys.SSP_SAP.gammaBandPower.Asleep.meanC - data.IOS_Ephys.SSP_SAP.gammaBandPower.Asleep.stdErrC,'color',colors('electric purple'),'LineWidth',0.5);
 ylabel('Coherence^2')
 xlabel('Freq (Hz)')
-title({'[Asleep] Bilateral coherence^2','\Delta[HbT] (\muM)'})
+title('Asleep')
 xlim([0.003,0.5])
 ylim([0.01,1])
 set(gca,'box','off')
-%% coherence^2 between bilateral HbT during All data
+% All 
 subplot(2,3,6);
 semilogx(data.IOS_Ephys.Blank_SAP.gammaBandPower.All.meanf,data.IOS_Ephys.Blank_SAP.gammaBandPower.All.meanC,'color',colors('north texas green'),'LineWidth',2);
 hold on
@@ -265,16 +266,15 @@ semilogx(data.IOS_Ephys.SSP_SAP.gammaBandPower.All.meanf,data.IOS_Ephys.SSP_SAP.
 semilogx(data.IOS_Ephys.SSP_SAP.gammaBandPower.All.meanf,data.IOS_Ephys.SSP_SAP.gammaBandPower.All.meanC - data.IOS_Ephys.SSP_SAP.gammaBandPower.All.stdErrC,'color',colors('electric purple'),'LineWidth',0.5);
 ylabel('Coherence^2')
 xlabel('Freq (Hz)')
-title({'[All] Bilateral coherence^2','\Delta[HbT] (\muM)'})
+title('All')
 xlim([0.003,0.5])
 ylim([0.01,1])
 set(gca,'box','off')
 
-%%
-%% average HbT coherence
-summaryFigure = figure;
-sgtitle('Ephys Bilateral Coherence \DeltaHbT')
-%% coherence^2 between bilateral HbT during rest
+%% HbT Coherence (GCaMP)
+summaryFigureC = figure;
+sgtitle('(IOS GCaMP) Bilateral \DeltaHbT Coherence^2')
+% Rest
 subplot(2,3,1);
 p1 = semilogx(data.IOS_GCaMP7s.Blank_SAP.CBV_HbT.Rest.meanf,data.IOS_GCaMP7s.Blank_SAP.CBV_HbT.Rest.meanC,'color',colors('north texas green'),'LineWidth',2);
 hold on
@@ -285,12 +285,12 @@ semilogx(data.IOS_GCaMP7s.SSP_SAP.CBV_HbT.Rest.meanf,data.IOS_GCaMP7s.SSP_SAP.CB
 semilogx(data.IOS_GCaMP7s.SSP_SAP.CBV_HbT.Rest.meanf,data.IOS_GCaMP7s.SSP_SAP.CBV_HbT.Rest.meanC - data.IOS_GCaMP7s.SSP_SAP.CBV_HbT.Rest.stdErrC,'color',colors('electric purple'),'LineWidth',0.5);
 ylabel('Coherence^2')
 xlabel('Freq (Hz)')
-title({'[Rest] Bilateral coherence^2','\Delta[HbT] (\muM)'})
+title('Rest')
 xlim([1/10,0.5])
 ylim([0.01,1])
 set(gca,'box','off')
 legend([p1,p2],'Blank-SAP','SSP-SAP')
-%% coherence^2 between bilateral HbT during NREM
+% NREM
 subplot(2,3,2);
 semilogx(data.IOS_GCaMP7s.Blank_SAP.CBV_HbT.NREM.meanf,data.IOS_GCaMP7s.Blank_SAP.CBV_HbT.NREM.meanC,'color',colors('north texas green'),'LineWidth',2);
 hold on
@@ -301,11 +301,11 @@ semilogx(data.IOS_GCaMP7s.SSP_SAP.CBV_HbT.NREM.meanf,data.IOS_GCaMP7s.SSP_SAP.CB
 semilogx(data.IOS_GCaMP7s.SSP_SAP.CBV_HbT.NREM.meanf,data.IOS_GCaMP7s.SSP_SAP.CBV_HbT.NREM.meanC - data.IOS_GCaMP7s.SSP_SAP.CBV_HbT.NREM.stdErrC,'color',colors('electric purple'),'LineWidth',0.5);
 ylabel('Coherence^2')
 xlabel('Freq (Hz)')
-title({'[NREM] Bilateral coherence^2','\Delta[HbT] (\muM)'})
+title('NREM')
 xlim([1/30,0.5])
 ylim([0.01,1])
 set(gca,'box','off')
-%% coherence^2 between bilateral HbT during REM
+% REM
 subplot(2,3,3);
 semilogx(data.IOS_GCaMP7s.Blank_SAP.CBV_HbT.REM.meanf,data.IOS_GCaMP7s.Blank_SAP.CBV_HbT.REM.meanC,'color',colors('north texas green'),'LineWidth',2);
 hold on
@@ -316,11 +316,11 @@ semilogx(data.IOS_GCaMP7s.SSP_SAP.CBV_HbT.REM.meanf,data.IOS_GCaMP7s.SSP_SAP.CBV
 semilogx(data.IOS_GCaMP7s.SSP_SAP.CBV_HbT.REM.meanf,data.IOS_GCaMP7s.SSP_SAP.CBV_HbT.REM.meanC - data.IOS_GCaMP7s.SSP_SAP.CBV_HbT.REM.stdErrC,'color',colors('electric purple'),'LineWidth',0.5);
 ylabel('Coherence^2')
 xlabel('Freq (Hz)')
-title({'[REM] Bilateral coherence^2','\Delta[HbT] (\muM)'})
+title({'[REM'})
 xlim([1/60,0.5])
 ylim([0.01,1])
 set(gca,'box','off')
-%% coherence^2 between bilateral HbT during Awake
+% Alert
 subplot(2,3,4);
 semilogx(data.IOS_GCaMP7s.Blank_SAP.CBV_HbT.Alert.meanf,data.IOS_GCaMP7s.Blank_SAP.CBV_HbT.Alert.meanC,'color',colors('north texas green'),'LineWidth',2);
 hold on
@@ -331,11 +331,11 @@ semilogx(data.IOS_GCaMP7s.SSP_SAP.CBV_HbT.Alert.meanf,data.IOS_GCaMP7s.SSP_SAP.C
 semilogx(data.IOS_GCaMP7s.SSP_SAP.CBV_HbT.Alert.meanf,data.IOS_GCaMP7s.SSP_SAP.CBV_HbT.Alert.meanC - data.IOS_GCaMP7s.SSP_SAP.CBV_HbT.Alert.stdErrC,'color',colors('electric purple'),'LineWidth',0.5);
 ylabel('Coherence^2')
 xlabel('Freq (Hz)')
-title({'[Alert] Bilateral coherence^2','\Delta[HbT] (\muM)'})
+title('Alert')
 xlim([0.003,0.5])
 ylim([0.01,1])
 set(gca,'box','off')
-%% coherence^2 between bilateral HbT during Sleep
+% Asleep
 subplot(2,3,5);
 semilogx(data.IOS_GCaMP7s.Blank_SAP.CBV_HbT.Asleep.meanf,data.IOS_GCaMP7s.Blank_SAP.CBV_HbT.Asleep.meanC,'color',colors('north texas green'),'LineWidth',2);
 hold on
@@ -346,11 +346,11 @@ semilogx(data.IOS_GCaMP7s.SSP_SAP.CBV_HbT.Asleep.meanf,data.IOS_GCaMP7s.SSP_SAP.
 semilogx(data.IOS_GCaMP7s.SSP_SAP.CBV_HbT.Asleep.meanf,data.IOS_GCaMP7s.SSP_SAP.CBV_HbT.Asleep.meanC - data.IOS_GCaMP7s.SSP_SAP.CBV_HbT.Asleep.stdErrC,'color',colors('electric purple'),'LineWidth',0.5);
 ylabel('Coherence^2')
 xlabel('Freq (Hz)')
-title({'[Asleep] Bilateral coherence^2','\Delta[HbT] (\muM)'})
+title('Asleep')
 xlim([0.003,0.5])
 ylim([0.01,1])
 set(gca,'box','off')
-%% coherence^2 between bilateral HbT during All data
+% All 
 subplot(2,3,6);
 semilogx(data.IOS_GCaMP7s.Blank_SAP.CBV_HbT.All.meanf,data.IOS_GCaMP7s.Blank_SAP.CBV_HbT.All.meanC,'color',colors('north texas green'),'LineWidth',2);
 hold on
@@ -361,16 +361,15 @@ semilogx(data.IOS_GCaMP7s.SSP_SAP.CBV_HbT.All.meanf,data.IOS_GCaMP7s.SSP_SAP.CBV
 semilogx(data.IOS_GCaMP7s.SSP_SAP.CBV_HbT.All.meanf,data.IOS_GCaMP7s.SSP_SAP.CBV_HbT.All.meanC - data.IOS_GCaMP7s.SSP_SAP.CBV_HbT.All.stdErrC,'color',colors('electric purple'),'LineWidth',0.5);
 ylabel('Coherence^2')
 xlabel('Freq (Hz)')
-title({'[All] Bilateral coherence^2','\Delta[HbT] (\muM)'})
+title('All')
 xlim([0.003,0.5])
 ylim([0.01,1])
 set(gca,'box','off')
 
-%%
-%% average HbT coherence
-summaryFigure = figure;
-sgtitle('Ephys Bilateral Coherence \DeltaHbT')
-%% coherence^2 between bilateral HbT during rest
+%% GCaMP7s Coherence (GCaMP)
+summaryFigureD = figure;
+sgtitle('(IOS GCaMP) Bilateral GCaMP7s Coherence^2')
+% Rest
 subplot(2,3,1);
 p1 = semilogx(data.IOS_GCaMP7s.Blank_SAP.GCaMP7s.Rest.meanf,data.IOS_GCaMP7s.Blank_SAP.GCaMP7s.Rest.meanC,'color',colors('north texas green'),'LineWidth',2);
 hold on
@@ -381,12 +380,12 @@ semilogx(data.IOS_GCaMP7s.SSP_SAP.GCaMP7s.Rest.meanf,data.IOS_GCaMP7s.SSP_SAP.GC
 semilogx(data.IOS_GCaMP7s.SSP_SAP.GCaMP7s.Rest.meanf,data.IOS_GCaMP7s.SSP_SAP.GCaMP7s.Rest.meanC - data.IOS_GCaMP7s.SSP_SAP.GCaMP7s.Rest.stdErrC,'color',colors('electric purple'),'LineWidth',0.5);
 ylabel('Coherence^2')
 xlabel('Freq (Hz)')
-title({'[Rest] Bilateral coherence^2','\Delta[HbT] (\muM)'})
+title('Rest')
 xlim([1/10,0.5])
 ylim([0.01,1])
 set(gca,'box','off')
 legend([p1,p2],'Blank-SAP','SSP-SAP')
-%% coherence^2 between bilateral HbT during NREM
+% NREM
 subplot(2,3,2);
 semilogx(data.IOS_GCaMP7s.Blank_SAP.GCaMP7s.NREM.meanf,data.IOS_GCaMP7s.Blank_SAP.GCaMP7s.NREM.meanC,'color',colors('north texas green'),'LineWidth',2);
 hold on
@@ -397,11 +396,11 @@ semilogx(data.IOS_GCaMP7s.SSP_SAP.GCaMP7s.NREM.meanf,data.IOS_GCaMP7s.SSP_SAP.GC
 semilogx(data.IOS_GCaMP7s.SSP_SAP.GCaMP7s.NREM.meanf,data.IOS_GCaMP7s.SSP_SAP.GCaMP7s.NREM.meanC - data.IOS_GCaMP7s.SSP_SAP.GCaMP7s.NREM.stdErrC,'color',colors('electric purple'),'LineWidth',0.5);
 ylabel('Coherence^2')
 xlabel('Freq (Hz)')
-title({'[NREM] Bilateral coherence^2','\Delta[HbT] (\muM)'})
+title('NREM')
 xlim([1/30,0.5])
 ylim([0.01,1])
 set(gca,'box','off')
-%% coherence^2 between bilateral HbT during REM
+% REM
 subplot(2,3,3);
 semilogx(data.IOS_GCaMP7s.Blank_SAP.GCaMP7s.REM.meanf,data.IOS_GCaMP7s.Blank_SAP.GCaMP7s.REM.meanC,'color',colors('north texas green'),'LineWidth',2);
 hold on
@@ -412,11 +411,11 @@ semilogx(data.IOS_GCaMP7s.SSP_SAP.GCaMP7s.REM.meanf,data.IOS_GCaMP7s.SSP_SAP.GCa
 semilogx(data.IOS_GCaMP7s.SSP_SAP.GCaMP7s.REM.meanf,data.IOS_GCaMP7s.SSP_SAP.GCaMP7s.REM.meanC - data.IOS_GCaMP7s.SSP_SAP.GCaMP7s.REM.stdErrC,'color',colors('electric purple'),'LineWidth',0.5);
 ylabel('Coherence^2')
 xlabel('Freq (Hz)')
-title({'[REM] Bilateral coherence^2','\Delta[HbT] (\muM)'})
+title('REM')
 xlim([1/60,0.5])
 ylim([0.01,1])
 set(gca,'box','off')
-%% coherence^2 between bilateral HbT during Awake
+% Alert
 subplot(2,3,4);
 semilogx(data.IOS_GCaMP7s.Blank_SAP.GCaMP7s.Alert.meanf,data.IOS_GCaMP7s.Blank_SAP.GCaMP7s.Alert.meanC,'color',colors('north texas green'),'LineWidth',2);
 hold on
@@ -427,11 +426,11 @@ semilogx(data.IOS_GCaMP7s.SSP_SAP.GCaMP7s.Alert.meanf,data.IOS_GCaMP7s.SSP_SAP.G
 semilogx(data.IOS_GCaMP7s.SSP_SAP.GCaMP7s.Alert.meanf,data.IOS_GCaMP7s.SSP_SAP.GCaMP7s.Alert.meanC - data.IOS_GCaMP7s.SSP_SAP.GCaMP7s.Alert.stdErrC,'color',colors('electric purple'),'LineWidth',0.5);
 ylabel('Coherence^2')
 xlabel('Freq (Hz)')
-title({'[Alert] Bilateral coherence^2','\Delta[HbT] (\muM)'})
+title('Alert')
 xlim([0.003,0.5])
 ylim([0.01,1])
 set(gca,'box','off')
-%% coherence^2 between bilateral HbT during Sleep
+% Asleep
 subplot(2,3,5);
 semilogx(data.IOS_GCaMP7s.Blank_SAP.GCaMP7s.Asleep.meanf,data.IOS_GCaMP7s.Blank_SAP.GCaMP7s.Asleep.meanC,'color',colors('north texas green'),'LineWidth',2);
 hold on
@@ -442,11 +441,11 @@ semilogx(data.IOS_GCaMP7s.SSP_SAP.GCaMP7s.Asleep.meanf,data.IOS_GCaMP7s.SSP_SAP.
 semilogx(data.IOS_GCaMP7s.SSP_SAP.GCaMP7s.Asleep.meanf,data.IOS_GCaMP7s.SSP_SAP.GCaMP7s.Asleep.meanC - data.IOS_GCaMP7s.SSP_SAP.GCaMP7s.Asleep.stdErrC,'color',colors('electric purple'),'LineWidth',0.5);
 ylabel('Coherence^2')
 xlabel('Freq (Hz)')
-title({'[Asleep] Bilateral coherence^2','\Delta[HbT] (\muM)'})
+title('Asleep')
 xlim([0.003,0.5])
 ylim([0.01,1])
 set(gca,'box','off')
-%% coherence^2 between bilateral HbT during All data
+% All 
 subplot(2,3,6);
 semilogx(data.IOS_GCaMP7s.Blank_SAP.GCaMP7s.All.meanf,data.IOS_GCaMP7s.Blank_SAP.GCaMP7s.All.meanC,'color',colors('north texas green'),'LineWidth',2);
 hold on
@@ -457,16 +456,12 @@ semilogx(data.IOS_GCaMP7s.SSP_SAP.GCaMP7s.All.meanf,data.IOS_GCaMP7s.SSP_SAP.GCa
 semilogx(data.IOS_GCaMP7s.SSP_SAP.GCaMP7s.All.meanf,data.IOS_GCaMP7s.SSP_SAP.GCaMP7s.All.meanC - data.IOS_GCaMP7s.SSP_SAP.GCaMP7s.All.stdErrC,'color',colors('electric purple'),'LineWidth',0.5);
 ylabel('Coherence^2')
 xlabel('Freq (Hz)')
-title({'[All] Bilateral coherence^2','\Delta[HbT] (\muM)'})
+title('All')
 xlim([0.003,0.5])
 ylim([0.01,1])
 set(gca,'box','off')
-% 
-% 
-% 
-% 
-% 
-% %% find Hz peaks in coherence
+
+%% find Hz peaks in coherence
 % treatments2 = {'SSP_SAP','Blank_SAP'};
 % behavFields2 = {'Awake','Sleep','All'};
 % for qq = 1:length(treatments2)
@@ -531,7 +526,7 @@ set(gca,'box','off')
 % %% average HbT coherence
 % summaryFigure1 = figure;
 % sgtitle('Bilateral Coherence \DeltaHbT')
-% %% coherence^2 between bilateral HbT during rest
+% %% rest
 % subplot(2,3,1);
 % p1 = semilogx(data.Naive.CBV_HbT.Rest.meanf,data.Naive.CBV_HbT.Rest.meanC,'color',colors('sapphire'),'LineWidth',2);
 % hold on
@@ -545,12 +540,12 @@ set(gca,'box','off')
 % semilogx(data.IOS_Ephys.SSP_SAP.CBV_HbT.Rest.meanf,data.IOS_Ephys.SSP_SAP.CBV_HbT.Rest.meanC - data.IOS_Ephys.SSP_SAP.CBV_HbT.Rest.stdErrC,'color',colors('electric purple'),'LineWidth',0.5);
 % ylabel('Coherence^2')
 % xlabel('Freq (Hz)')
-% title({'[Rest] Bilateral coherence^2','\Delta[HbT] (\muM)'})
+% title({'[Rest'})
 % xlim([1/10,0.5])
 % ylim([0.01,1])
 % set(gca,'box','off')
 % legend([p1,p1,p2],'Naive','Blank-SAP','SSP-SAP')
-% %% coherence^2 between bilateral HbT during NREM
+% %% NREM
 % subplot(2,3,2);
 % semilogx(data.Naive.CBV_HbT.NREM.meanf,data.Naive.CBV_HbT.NREM.meanC,'color',colors('sapphire'),'LineWidth',2);
 % hold on
@@ -564,11 +559,11 @@ set(gca,'box','off')
 % semilogx(data.IOS_Ephys.SSP_SAP.CBV_HbT.NREM.meanf,data.IOS_Ephys.SSP_SAP.CBV_HbT.NREM.meanC - data.IOS_Ephys.SSP_SAP.CBV_HbT.NREM.stdErrC,'color',colors('electric purple'),'LineWidth',0.5);
 % ylabel('Coherence^2')
 % xlabel('Freq (Hz)')
-% title({'[NREM] Bilateral coherence^2','\Delta[HbT] (\muM)'})
+% title({'[NREM'})
 % xlim([1/30,0.5])
 % ylim([0.01,1])
 % set(gca,'box','off')
-% %% coherence^2 between bilateral HbT during REM
+% %% REM
 % subplot(2,3,3);
 % semilogx(data.Naive.CBV_HbT.REM.meanf,data.Naive.CBV_HbT.REM.meanC,'color',colors('sapphire'),'LineWidth',2);
 % hold on
@@ -582,11 +577,11 @@ set(gca,'box','off')
 % semilogx(data.IOS_Ephys.SSP_SAP.CBV_HbT.REM.meanf,data.IOS_Ephys.SSP_SAP.CBV_HbT.REM.meanC - data.IOS_Ephys.SSP_SAP.CBV_HbT.REM.stdErrC,'color',colors('electric purple'),'LineWidth',0.5);
 % ylabel('Coherence^2')
 % xlabel('Freq (Hz)')
-% title({'[REM] Bilateral coherence^2','\Delta[HbT] (\muM)'})
+% title({'[REM'})
 % xlim([1/60,0.5])
 % ylim([0.01,1])
 % set(gca,'box','off')
-% %% coherence^2 between bilateral HbT during Awake
+% %% Awake
 % subplot(2,3,4);
 % semilogx(data.Naive.CBV_HbT.Alert.meanf,data.Naive.CBV_HbT.Alert.meanC,'color',colors('sapphire'),'LineWidth',2);
 % hold on
@@ -600,11 +595,11 @@ set(gca,'box','off')
 % semilogx(data.IOS_Ephys.SSP_SAP.CBV_HbT.Alert.meanf,data.IOS_Ephys.SSP_SAP.CBV_HbT.Alert.meanC - data.IOS_Ephys.SSP_SAP.CBV_HbT.Alert.stdErrC,'color',colors('electric purple'),'LineWidth',0.5);
 % ylabel('Coherence^2')
 % xlabel('Freq (Hz)')
-% title({'[Alert] Bilateral coherence^2','\Delta[HbT] (\muM)'})
+% title({'[Alert'})
 % xlim([0.003,0.5])
 % ylim([0.01,1])
 % set(gca,'box','off')
-% %% coherence^2 between bilateral HbT during Sleep
+% %% Sleep
 % subplot(2,3,5);
 % semilogx(data.Naive.CBV_HbT.Asleep.meanf,data.Naive.CBV_HbT.Asleep.meanC,'color',colors('sapphire'),'LineWidth',2);
 % hold on
@@ -618,11 +613,11 @@ set(gca,'box','off')
 % semilogx(data.IOS_Ephys.SSP_SAP.CBV_HbT.Asleep.meanf,data.IOS_Ephys.SSP_SAP.CBV_HbT.Asleep.meanC - data.IOS_Ephys.SSP_SAP.CBV_HbT.Asleep.stdErrC,'color',colors('electric purple'),'LineWidth',0.5);
 % ylabel('Coherence^2')
 % xlabel('Freq (Hz)')
-% title({'[Asleep] Bilateral coherence^2','\Delta[HbT] (\muM)'})
+% title({'[Asleep'})
 % xlim([0.003,0.5])
 % ylim([0.01,1])
 % set(gca,'box','off')
-% %% coherence^2 between bilateral HbT during All data
+% %% All data
 % subplot(2,3,6);
 % semilogx(data.Naive.CBV_HbT.All.meanf,data.Naive.CBV_HbT.All.meanC,'color',colors('sapphire'),'LineWidth',2);
 % hold on
@@ -636,7 +631,7 @@ set(gca,'box','off')
 % semilogx(data.IOS_Ephys.SSP_SAP.CBV_HbT.All.meanf,data.IOS_Ephys.SSP_SAP.CBV_HbT.All.meanC - data.IOS_Ephys.SSP_SAP.CBV_HbT.All.stdErrC,'color',colors('electric purple'),'LineWidth',0.5);
 % ylabel('Coherence^2')
 % xlabel('Freq (Hz)')
-% title({'[All] Bilateral coherence^2','\Delta[HbT] (\muM)'})
+% title({'[All'})
 % xlim([0.003,0.5])
 % ylim([0.01,1])
 % set(gca,'box','off')
@@ -653,7 +648,7 @@ set(gca,'box','off')
 % %% individual HbT coherence
 % summaryFigure2 = figure;
 % sgtitle('Bilateral Coherence \DeltaHbT - individual animals')
-% %% coherence^2 between bilateral HbT during rest
+% %% rest
 % subplot(2,3,1);
 % % Naive
 % for aa = 1:size(data.Naive.CBV_HbT.Rest.C,2)
@@ -672,11 +667,11 @@ set(gca,'box','off')
 % end
 % ylabel('Coherence^2')
 % xlabel('Freq (Hz)')
-% title({'[Rest] Bilateral coherence^2','\Delta[HbT] (\muM)'})
+% title({'[Rest'})
 % xlim([1/10,0.5])
 % ylim([0.01,1])
 % set(gca,'box','off')
-% %% coherence^2 between bilateral HbT during NREM
+% %% NREM
 % subplot(2,3,2);
 % % Naive
 % for aa = 1:size(data.Naive.CBV_HbT.NREM.C,2)
@@ -695,11 +690,11 @@ set(gca,'box','off')
 % end
 % ylabel('Coherence^2')
 % xlabel('Freq (Hz)')
-% title({'[NREM] Bilateral coherence^2','\Delta[HbT] (\muM)'})
+% title({'[NREM'})
 % xlim([1/30,0.5])
 % ylim([0.01,1])
 % set(gca,'box','off')
-% %% coherence^2 between bilateral HbT during REM
+% %% REM
 % subplot(2,3,3);
 % % Naive
 % for aa = 1:size(data.Naive.CBV_HbT.REM.C,2)
@@ -718,11 +713,11 @@ set(gca,'box','off')
 % end
 % ylabel('Coherence^2')
 % xlabel('Freq (Hz)')
-% title({'[REM] Bilateral coherence^2','\Delta[HbT] (\muM)'})
+% title({'[REM'})
 % xlim([0.01,0.5])
 % ylim([0.01,1])
 % set(gca,'box','off')
-% %% coherence^2 between bilateral HbT during Awake
+% %% Awake
 % subplot(2,3,4);
 % % Naive
 % for aa = 1:size(data.Naive.CBV_HbT.Alert.C,2)
@@ -741,11 +736,11 @@ set(gca,'box','off')
 % end
 % ylabel('Coherence^2')
 % xlabel('Freq (Hz)')
-% title({'[Alert] Bilateral coherence^2','\Delta[HbT] (\muM)'})
+% title({'[Alert'})
 % xlim([0.003,0.5])
 % ylim([0.01,1])
 % set(gca,'box','off')
-% %% coherence^2 between bilateral HbT during Sleep
+% %% Sleep
 % subplot(2,3,5);
 % % Naive
 % for aa = 1:size(data.Naive.CBV_HbT.Asleep.C,2)
@@ -764,11 +759,11 @@ set(gca,'box','off')
 % end
 % ylabel('Coherence^2')
 % xlabel('Freq (Hz)')
-% title({'[Asleep] Bilateral coherence^2','\Delta[HbT] (\muM)'})
+% title({'[Asleep'})
 % xlim([0.003,0.5])
 % ylim([0.01,1])
 % set(gca,'box','off')
-% %% coherence^2 between bilateral HbT during All data
+% %% All data
 % subplot(2,3,6);
 % % Naive
 % for aa = 1:size(data.Naive.CBV_HbT.All.C,2)
@@ -787,7 +782,7 @@ set(gca,'box','off')
 % end
 % ylabel('Coherence^2')
 % xlabel('Freq (Hz)')
-% title({'[All] Bilateral coherence^2','\Delta[HbT] (\muM)'})
+% title({'[All'})
 % xlim([0.003,0.5])
 % ylim([0.01,1])
 % set(gca,'box','off')

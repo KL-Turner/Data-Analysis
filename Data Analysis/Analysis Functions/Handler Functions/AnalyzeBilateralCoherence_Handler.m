@@ -18,8 +18,9 @@ elseif runFromStart == false
         Results_BilatCoher = [];
     end
 end
-expGroups = {'SSP_SAP','Blank_SAP','NPY_Gi_DREADDs','NPY_Gq_DREADDs'};
-sets = {'IOS_Ephys','IOS_GCaMP7s';'IOS_Ephys','IOS_GCaMP7s';'CNO','DMSO';'CNO','DMSO'};
+cd([rootFolder delim 'Data']);
+expGroups = {'SSP_SAP','Blank_SAP'};
+sets = {'IOS_Ephys','IOS_GCaMP7s';'IOS_Ephys','IOS_GCaMP7s'};
 % determine waitbar length
 waitBarLength = 0;
 for aa = 1:length(expGroups)
