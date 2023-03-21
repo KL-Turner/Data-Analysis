@@ -16,7 +16,7 @@ params.minTime.Stim = params.Offset + 2;
 params.minTime.NREM = 30;
 params.minTime.REM = 60;
 % only run analysis for valid animal IDs
-dataLocation = [rootFolder delim group delim animalID delim 'Bilateral Imaging'];
+dataLocation = [rootFolder delim 'Data' delim group delim animalID delim 'Bilateral Imaging'];
 cd(dataLocation)
 % find and load RestData.mat struct
 restDataFileStruct = dir('*_RestData.mat');
@@ -312,8 +312,37 @@ if strcmp(groupName,'IOS GCaMP7s') == true
     Results_BehavHbT.(animalID).REM.IndfLH = fLH_remData;
     Results_BehavHbT.(animalID).REM.IndfRH = fRH_remData;
 end
+
+
+
+%% analyze [HbT] during periods of isolfurane
+dataLocation = [rootFolder delim group delim animalID delim 'Isoflurane Trials'];
+cd(dataLocation)
+try
+    % pull ProcData.mat file associated with isoflurane administration
+    procDataFileStruct = dir('*_ProcData.mat');
+    procDataFile = {procDataFileStruct.name}';
+    procDataFileID = char(procDataFile);
+    load(procDataFileID,'-mat')
+    % extract left and right [HbT] changes during the last 100 seconds of data
+    isoLH_HbT = ProcData.data.CBV_HbT.adjLH((end - samplingRate*100):end);
+    filtIsoLH_HbT = filtfilt(sos,g,isoLH_HbT);
+    isoRH_HbT = ProcData.data.CBV_HbT.adjRH((end - samplingRate*100):end);
+    filtIsoRH_HbT = filtfilt(sos,g,isoRH_HbT);
+    % save results
+    Results_BehavHbT.(animalID).Iso.adjLH = mean(filtIsoLH_HbT);
+    Results_BehavHbT.(animalID).Iso.adjRH = mean(filtIsoRH_HbT);
+    Results_BehavHbT.(animalID).Iso.FileIDs = procDataFileID;
+catch
+    % save results
+    Results_BehavHbT.(animalID).Iso.adjLH = [];
+    Results_BehavHbT.(animalID).Iso.adjRH = [];
+    Results_BehavHbT.(animalID).Iso.FileIDs = [];
+end
+
 %% save data
-cd(rootFolder)
+cd([rootFolder delim 'Results_Turner'])
 save('Results_BehavHbT.mat','Results_BehavHbT')
+cd([rootFolder delim 'Data'])
 
 end

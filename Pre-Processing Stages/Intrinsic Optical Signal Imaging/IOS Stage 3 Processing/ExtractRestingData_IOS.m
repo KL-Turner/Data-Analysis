@@ -13,22 +13,22 @@ load(procdataFiles(1,:));
 imagingWavelengths = ProcData.notes.imagingWavelengths;
 if any(strcmp(imagingWavelengths,{'Red, Green, & Blue','Red, Lime, & Blue'})) == true
     if iteration == 1
-        dataTypes = {'CBV','GCaMP7s','Deoxy','cortical_LH','cortical_RH','hippocampus','EMG'};
+        dataTypes = {'CBV','GCaMP7s','cortical_LH','cortical_RH','hippocampus','EMG'};
     else
-        dataTypes = {'CBV','CBV_HbT','GCaMP7s','Deoxy','cortical_LH','cortical_RH','hippocampus','EMG'};
+        dataTypes = {'CBV','HbT','HbO','HbR','GCaMP7s','Deoxy','cortical_LH','cortical_RH','hippocampus','EMG'};
     end
 else
     if iteration == 1
         dataTypes = {'CBV','cortical_LH','cortical_RH','hippocampus','EMG'};
     else
-        dataTypes = {'CBV','CBV_HbT','cortical_LH','cortical_RH','hippocampus','EMG'};
+        dataTypes = {'CBV','HbT','cortical_LH','cortical_RH','hippocampus','EMG'};
     end
 end
 % go through each datatype and extract the corresponding data
 for aa = 1:length(dataTypes)
     dataType = dataTypes{1,aa};
     subDataTypes = fieldnames(ProcData.data.(dataType));
-    if any(strcmpi(dataType,{'CBV','CBV_HbT','Deoxy','GCaMP7s'})) == true
+    if any(strcmpi(dataType,{'CBV','HbT','HbO','HbR','GCaMP7s'})) == true
         samplingRate = ProcData.notes.CBVCamSamplingRate;
     else
         samplingRate = ProcData.notes.dsFs;

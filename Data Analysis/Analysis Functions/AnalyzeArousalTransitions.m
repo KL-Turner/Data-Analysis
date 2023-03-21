@@ -209,7 +209,8 @@ for d = 1:length(transitions)
     Results_Transitions.(animalID).(transition).RH_HbT = data.(transition).RH_HbT;
 end
 % save data
-cd(rootFolder)
+cd([rootFolder delim 'Results_Turner'])
 save('Results_Transitions.mat','Results_Transitions')
+cd([rootFolder delim 'Data'])
 
 end

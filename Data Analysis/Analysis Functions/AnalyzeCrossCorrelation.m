@@ -1,4 +1,4 @@
-function [Results_CrossCorr] = AnalyzeCrossCorrelation(animalID,group,rootFolder,delim,Results_CrossCorr)
+function [Results_CrossCorrEphys] = AnalyzeCrossCorrelation(animalID,group,rootFolder,delim,Results_CrossCorrEphys)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -14,7 +14,7 @@ params.minTime.Rest = 10;
 params.minTime.NREM = 30;
 params.minTime.REM = 60;
 % only run analysis for valid animal IDs
-dataLocation = [rootFolder delim group delim animalID delim 'Bilateral Imaging'];
+dataLocation = [rootFolder delim 'Data' delim group delim animalID delim 'Bilateral Imaging'];
 cd(dataLocation)
 % find and load RestData.mat struct
 restDataFileStruct = dir('*_RestData.mat');
@@ -149,12 +149,12 @@ for aa = 1:length(dataTypes)
         restStdHbTvMUAxcVals = std(restHbTvMUAxcVals,0,1);
     end
     % save results
-    Results_CrossCorr.(animalID).Rest.(dataType).LFP_lags = restLFP_lags;
-    Results_CrossCorr.(animalID).Rest.(dataType).MUA_lags = restMUA_lags;
-    Results_CrossCorr.(animalID).Rest.(dataType).F = rest_F;
-    Results_CrossCorr.(animalID).Rest.(dataType).HbTvLFPxcVals = restMeanHbTvLFPxcVals;
-    Results_CrossCorr.(animalID).Rest.(dataType).HbTvMUAxcVals = restMeanHbTvMUAxcVals;
-    Results_CrossCorr.(animalID).Rest.(dataType).HbTvMUAxcVals_std = restStdHbTvMUAxcVals;
+    Results_CrossCorrEphys.(animalID).Rest.(dataType).LFP_lags = restLFP_lags;
+    Results_CrossCorrEphys.(animalID).Rest.(dataType).MUA_lags = restMUA_lags;
+    Results_CrossCorrEphys.(animalID).Rest.(dataType).F = rest_F;
+    Results_CrossCorrEphys.(animalID).Rest.(dataType).HbTvLFPxcVals = restMeanHbTvLFPxcVals;
+    Results_CrossCorrEphys.(animalID).Rest.(dataType).HbTvMUAxcVals = restMeanHbTvMUAxcVals;
+    Results_CrossCorrEphys.(animalID).Rest.(dataType).HbTvMUAxcVals_std = restStdHbTvMUAxcVals;
     %% cross-correlation analysis for NREM
     NREM_sleepTime = params.minTime.NREM;   % seconds
     [NREM_finalHbT,NREM_allSleepFileIDs,NREM_finalBinTimes] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.CBV_HbT.(dataType),SleepData.(modelType).NREM.FileIDs,SleepData.(modelType).NREM.BinTimes);
@@ -272,12 +272,12 @@ for aa = 1:length(dataTypes)
     NREM_meanHbTvMUAxcVals = mean(NREM_HbTvMUAxcVals,1);
     NREM_stdHbTvMUAxcVals = std(NREM_HbTvMUAxcVals,0,1);
     % save results
-    Results_CrossCorr.(animalID).NREM.(dataType).LFP_lags = NREM_LFP_lags;
-    Results_CrossCorr.(animalID).NREM.(dataType).MUA_lags = NREM_MUA_lags;
-    Results_CrossCorr.(animalID).NREM.(dataType).F = NREM_F;
-    Results_CrossCorr.(animalID).NREM.(dataType).HbTvLFPxcVals = NREM_meanHbTvLFPxcVals;
-    Results_CrossCorr.(animalID).NREM.(dataType).HbTvMUAxcVals = NREM_meanHbTvMUAxcVals;
-    Results_CrossCorr.(animalID).NREM.(dataType).HbTvMUAxcVals_std = NREM_stdHbTvMUAxcVals;
+    Results_CrossCorrEphys.(animalID).NREM.(dataType).LFP_lags = NREM_LFP_lags;
+    Results_CrossCorrEphys.(animalID).NREM.(dataType).MUA_lags = NREM_MUA_lags;
+    Results_CrossCorrEphys.(animalID).NREM.(dataType).F = NREM_F;
+    Results_CrossCorrEphys.(animalID).NREM.(dataType).HbTvLFPxcVals = NREM_meanHbTvLFPxcVals;
+    Results_CrossCorrEphys.(animalID).NREM.(dataType).HbTvMUAxcVals = NREM_meanHbTvMUAxcVals;
+    Results_CrossCorrEphys.(animalID).NREM.(dataType).HbTvMUAxcVals_std = NREM_stdHbTvMUAxcVals;
     %% cross-correlation analysis for REM
     REM_sleepTime = params.minTime.REM;   % seconds
     [REM_finalHbT,REM_allSleepFileIDs,REM_finalBinTimes] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.CBV_HbT.(dataType),SleepData.(modelType).REM.FileIDs,SleepData.(modelType).REM.BinTimes);
@@ -396,15 +396,15 @@ for aa = 1:length(dataTypes)
     REM_meanHbTvMUAxcVals = mean(REM_HbTvMUAxcVals,1);
     REM_stdHbTvMUAxcVals = std(REM_HbTvMUAxcVals,0,1);
     % save results
-    Results_CrossCorr.(animalID).REM.(dataType).LFP_lags = REM_LFP_lags;
-    Results_CrossCorr.(animalID).REM.(dataType).MUA_lags = REM_MUA_lags;
-    Results_CrossCorr.(animalID).REM.(dataType).F = REM_F;
-    Results_CrossCorr.(animalID).REM.(dataType).HbTvLFPxcVals = REM_meanHbTvLFPxcVals;
-    Results_CrossCorr.(animalID).REM.(dataType).HbTvMUAxcVals = REM_meanHbTvMUAxcVals;
-    Results_CrossCorr.(animalID).REM.(dataType).HbTvMUAxcVals_std = REM_stdHbTvMUAxcVals;
+    Results_CrossCorrEphys.(animalID).REM.(dataType).LFP_lags = REM_LFP_lags;
+    Results_CrossCorrEphys.(animalID).REM.(dataType).MUA_lags = REM_MUA_lags;
+    Results_CrossCorrEphys.(animalID).REM.(dataType).F = REM_F;
+    Results_CrossCorrEphys.(animalID).REM.(dataType).HbTvLFPxcVals = REM_meanHbTvLFPxcVals;
+    Results_CrossCorrEphys.(animalID).REM.(dataType).HbTvMUAxcVals = REM_meanHbTvMUAxcVals;
+    Results_CrossCorrEphys.(animalID).REM.(dataType).HbTvMUAxcVals_std = REM_stdHbTvMUAxcVals;
 end
 % save data
 cd(rootFolder)
-save('Results_CrossCorr.mat','Results_CrossCorr')
+save('Results_CrossCorrEphys.mat','Results_CrossCorrEphys')
 
 end

@@ -58,5 +58,6 @@ CorrectGCaMPattenuation_IOS(procDataFileIDs,RestingBaselines)
 NormalizeSpectrograms_IOS(RestingBaselines);
 % create a structure with all spectrograms for convenient analysis further downstream
 CreateAllSpecDataStruct_IOS()
+%
 % generate single trial figures
 GenerateTrialFigures_IOS(procDataFileIDs,RestingBaselines);

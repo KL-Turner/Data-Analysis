@@ -4,7 +4,7 @@ function [] = BilateralCoherence_Figures(rootFolder,saveFigs,delim)
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %
-% Purpose:
+% Purpose: generate bilateral coherence figures
 %________________________________________________________________________________________________________________________
 
 cd([rootFolder delim 'Results_Turner'])

@@ -7,48 +7,37 @@ function [] = StimEvoked_PulseTrain_2PLSM(rootFolder,saveFigs,delim)
 % Purpose:
 %________________________________________________________________________________________________________________________
 
-%% set-up
-resultsStruct = 'Results_VesselEvoked';
+resultsStruct = 'Results_Evoked2P';
 load(resultsStruct);
-expGroups = {'SSP-SAP','Blank-SAP'};
-setName = '2PLSM Set B';
-animalIDs.all = {};
-for aa = 1:length(expGroups)
-    folderList = dir([expGroups{1,aa} delim setName]);
-    folderList = folderList(~startsWith({folderList.name},'.'));
-    animalIDs.all = horzcat(animalIDs.all,{folderList.name});
-    animalIDs.(strrep(expGroups{1,aa},'-','_')) = {folderList.name};
-end
+% loop variables
+expGroups = {'SSP_SAP','Blank_SAP'};
 solenoidNames = {'LPadSol','RPadSol','AudSol'};
-compDataTypes = {'Ipsi','Contra','Auditory'};
-treatments = {'SSP_SAP','Blank_SAP'};
-data = [];
-cortVariables = {'diameter','baseline','timeVector','count'};
+dataTypes = {'diameter','baseline','timeVector','count'};
 %% cd through each animal's directory and extract the appropriate analysis results
-for aa = 1:length(animalIDs.all)
-    % recognize treatment based on animal group
-    if ismember(animalIDs.all{1,aa},animalIDs.SSP_SAP) == true
-        treatment = 'SSP_SAP';
-    elseif ismember(animalIDs.all{1,aa},animalIDs.Blank_SAP) == true
-        treatment = 'Blank_SAP';
-    end
-    for bb = 1:length(solenoidNames)
-        % left, right hemishpere hemo & neural data
-        vesselIDs = fieldnames(Results_VesselEvoked.(animalIDs.all{1,aa}).Stim.(solenoidNames{1,bb}));
+for aa = 1:length(expGroups)
+    expGroup = expGroups{1,aa};
+    animalIDs = fieldnames(Results_Evoked2P.(expGroup));
+    for bb = 1:length(animalIDs)
+        animalID = animalIDs{bb,1};
+        vesselIDs = fieldnames(Results_Evoked2P.(expGroup).(animalID).Stim.(solenoidNames{1,bb}));
         for cc = 1:length(vesselIDs)
-            % pre-allocate necessary variable fields
-            data.(treatment).(solenoidNames{1,bb}).dummCheck = 1;
-            for dd = 1:length(cortVariables)
-                if isfield(data.(treatment).(solenoidNames{1,bb}),(cortVariables{1,dd})) == false
-                    data.(treatment).(solenoidNames{1,bb}).(cortVariables{1,dd}) = [];
+            vesselID = vesselIDs{cc,1};
+            for dd = 1:length(solenoidNames)
+                % left, right hemishpere hemo & neural data
+                vesselIDs = fieldnames(Results_VesselEvoked.(animalIDs.all{1,aa}).Stim.(solenoidNames{1,bb}));
+                for ee = 1:length(cortVariables)
+                    if isfield(data.(treatment).(solenoidNames{1,bb}),(cortVariables{1,ee})) == false
+                        data.(treatment).(solenoidNames{1,bb}).(cortVariables{1,ee}) = [];
+                    end
                 end
+                data.(treatment).(solenoidNames{1,bb}).diameter = cat(1,data.(treatment).(solenoidNames{1,bb}).diameter,Results_VesselEvoked.(animalIDs.all{1,aa}).Stim.(solenoidNames{1,bb}).(vesselIDs{cc,1}).mean);
+                data.(treatment).(solenoidNames{1,bb}).timeVector = cat(1,data.(treatment).(solenoidNames{1,bb}).timeVector,Results_VesselEvoked.(animalIDs.all{1,aa}).Stim.(solenoidNames{1,bb}).(vesselIDs{cc,1}).timeVector);
+                data.(treatment).(solenoidNames{1,bb}).count = cat(1,data.(treatment).(solenoidNames{1,bb}).count,Results_VesselEvoked.(animalIDs.all{1,aa}).Stim.(solenoidNames{1,bb}).(vesselIDs{cc,1}).count);
+                data.(treatment).(solenoidNames{1,bb}).baseline = cat(1,data.(treatment).(solenoidNames{1,bb}).baseline,Results_VesselEvoked.(animalIDs.all{1,aa}).Stim.(solenoidNames{1,bb}).(vesselIDs{cc,1}).baseline);
             end
-            data.(treatment).(solenoidNames{1,bb}).diameter = cat(1,data.(treatment).(solenoidNames{1,bb}).diameter,Results_VesselEvoked.(animalIDs.all{1,aa}).Stim.(solenoidNames{1,bb}).(vesselIDs{cc,1}).mean);
-            data.(treatment).(solenoidNames{1,bb}).timeVector = cat(1,data.(treatment).(solenoidNames{1,bb}).timeVector,Results_VesselEvoked.(animalIDs.all{1,aa}).Stim.(solenoidNames{1,bb}).(vesselIDs{cc,1}).timeVector);
-            data.(treatment).(solenoidNames{1,bb}).count = cat(1,data.(treatment).(solenoidNames{1,bb}).count,Results_VesselEvoked.(animalIDs.all{1,aa}).Stim.(solenoidNames{1,bb}).(vesselIDs{cc,1}).count);
-            data.(treatment).(solenoidNames{1,bb}).baseline = cat(1,data.(treatment).(solenoidNames{1,bb}).baseline,Results_VesselEvoked.(animalIDs.all{1,aa}).Stim.(solenoidNames{1,bb}).(vesselIDs{cc,1}).baseline);
         end
     end
+end
 end
 %% concatenate the data from the contra and ipsi data
 % contra

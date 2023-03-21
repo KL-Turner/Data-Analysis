@@ -1,14 +1,12 @@
-function [] = ArousalStateHemodynamics_Figures(rootFolder,saveFigs,delim)
+function [] = ArousalStateHemodynamics_Bilateral_IOS(rootFolder,saveFigs,delim)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %
-% Purpose:
+% Purpose: 
 %________________________________________________________________________________________________________________________
 
-cd([rootFolder delim 'Results_Turner'])
-% set-up and process data
 % colorBlack = [(0/256),(0/256),(0/256)];
 % colorGrey = [(209/256),(211/256),(212/256)];
 % colorRfcAwake = [(0/256),(64/256),(64/256)];
@@ -25,66 +23,82 @@ colorIso = [(0/256),(256/256),(256/256)];
 %% set-up and process data
 resultsStruct = 'Results_BehavHbT';
 load(resultsStruct);
-% experimental groups and sets for analysis
-cd([rootFolder delim 'Data'])
-expGroups = {'SSP_SAP','Blank_SAP'};
-sets = {'IOS_Ephys','IOS_GCaMP7s';'IOS_Ephys','IOS_GCaMP7s'};
+expGroups = {'Naive','SSP-SAP','Blank-SAP'};
+setName = 'IOS Set A';
+animalIDs.all = {};
+for aa = 1:length(expGroups)
+    folderList = dir([expGroups{1,aa} delim setName]);
+    folderList = folderList(~startsWith({folderList.name},'.'));
+    animalIDs.all = horzcat(animalIDs.all,{folderList.name});
+    animalIDs.(strrep(expGroups{1,aa},'-','_')) = {folderList.name};
+end
+treatments = {'Naive','SSP_SAP','Blank_SAP'};
 behavFields = {'Rest','Whisk','Stim','NREM','REM'};
-% extract animal IDs for each group
-for aa = 1:length(expGroups)
-    setNames = sets(aa,:);
-    for bb = 1:length(setNames)
-        folderList = dir([expGroups{1,aa} delim setNames{1,bb}]);
-        folderList = folderList(~startsWith({folderList.name}, '.'));
-        data.(setNames{1,bb}).(expGroups{1,aa}).animalIDs = {folderList.name};
-    end
-end
-cd(rootFolder)
 %% mean HbT comparison between behaviors
-% concatenate data from each data type
-for aa = 1:length(expGroups)
-    expGroup = expGroups{1,aa};
-    setNames = sets(aa,:);
-    for bb = 1:length(setNames)
-        setName = setNames{1,bb};
-        dataTypes = {'CBV_HbT'};
-        for dd = 1:length(behavFields)
-            behavField = behavFields{1,dd};
-            % pre-allocate necessary variable fields
-            data.(setName).(expGroup).dummCheck = 1;
-            if isfield(data.(setName).(expGroup),behavField) == false
-                data.(setName).(expGroup).(behavField).LH = [];
-                data.(setName).(expGroup).(behavField).RH = [];
-            end
-            % go through each animal and concatenate data
-            for ee = 1:length(data.(setName).(expGroup).animalIDs)
-                animalID = data.(setName).(expGroup).animalIDs{1,ee};
-                if isempty(Results_BehavHbT.(animalID).(behavField).MeanLH) == false
-                    data.(setName).(expGroup).(behavField).LH = cat(2,data.(setName).(expGroup).(behavField).LH,mean(Results_BehavHbT.(animalID).(behavField).MeanLH));
-                    data.(setName).(expGroup).(behavField).RH = cat(2,data.(setName).(expGroup).(behavField).RH,mean(Results_BehavHbT.(animalID).(behavField).MeanRH));
-                end
-            end
+% pre-allocate the date for each day
+for aa = 1:length(animalIDs.all)
+    animalID = animalIDs.all{1,aa};
+    whiskFileIDs = unique(Results_BehavHbT.(animalID).Whisk.FileIDs);
+    whiskFileDates = [];
+    % identify the unique days present for each animal using the whisking field.
+    for bb = 1:length(whiskFileIDs)
+        whiskFileDates{bb,1} = ConvertDate_IOS(whiskFileIDs{bb,1}); %#ok<*AGROW>
+    end
+    uniqueWhiskFileDates = unique(whiskFileDates);
+    % put pre-allocate each date
+    for dd = 1:length(behavFields)
+        behavField = behavFields{1,dd};
+        for ee = 1:length(uniqueWhiskFileDates)
+            fileDate = uniqueWhiskFileDates{ee,1};
+            data.(animalID).(behavField).(fileDate).MeanLH = [];
+            data.(animalID).(behavField).(fileDate).MeanRH = [];
+            data.(animalID).(behavField).(fileDate).IndLH = {};
+            data.(animalID).(behavField).(fileDate).IndRH = {};
         end
+        procData.(behavField).animalID{aa,1} = animalID;
+        procData.(behavField).behavior{aa,1} = behavField;
+        procData.(behavField).LH{aa,1} = 'LH';
+        procData.(behavField).RH{aa,1} = 'RH';
     end
 end
-% average data from each data type
-for aa = 1:length(expGroups)
-    expGroup = expGroups{1,aa};
-    setNames = sets(aa,:);
-    for bb = 1:length(setNames)
-        setName = setNames{1,bb};
-        if strcmp(setName,'IOS_GCaMP7s') == true
-            dataTypes = {'CBV_HbT','GCaMP7s','Deoxy'};
-        elseif strcmp(setName,'IOS_Ephys') == true
-            dataTypes = {'CBV_HbT','gammaBandPower'};
-        end
-        for cc = 1:length(dataTypes)
-            dataType = dataTypes{1,cc};
-            for dd = 1:length(behavFields)
-                behavField = behavFields{1,dd};
-                data.(setName).(expGroup).(behavField).meanC = mean(data.(setName).(expGroup).(behavField).C,2);
-                data.(setName).(expGroup).(behavField).stdErrC = std(data.(setName).(expGroup).(behavField).C,0,2)./sqrt(size(data.(setName).(expGroup).(behavField).C,2));
-                data.(setName).(expGroup).(behavField).meanf = mean(data.(setName).(expGroup).(behavField).f,1);
+% put data into cell for each unique date
+for ff = 1:length(animalIDs.all)
+    animalID = animalIDs.all{1,ff};
+    for gg = 1:length(behavFields)
+        behavField = behavFields{1,gg};
+        % data is structured slightly differently depending on class
+        if strcmp(behavField,'Rest') == true || strcmp(behavField,'Whisk') == true
+            fileIDs = Results_BehavHbT.(animalID).(behavField).FileIDs;
+            for hh = 1:length(fileIDs)
+                fileDate = ConvertDate_IOS(fileIDs{hh,1});
+                data.(animalID).(behavField).(fileDate).MeanLH = cat(1,data.(animalID).(behavField).(fileDate).MeanLH,Results_BehavHbT.(animalID).(behavField).MeanAdjLH(hh,1));
+                data.(animalID).(behavField).(fileDate).MeanRH = cat(1,data.(animalID).(behavField).(fileDate).MeanRH,Results_BehavHbT.(animalID).(behavField).MeanAdjRH(hh,1));
+                data.(animalID).(behavField).(fileDate).IndLH = cat(1,data.(animalID).(behavField).(fileDate).IndLH,Results_BehavHbT.(animalID).(behavField).IndAdjLH{hh,1});
+                data.(animalID).(behavField).(fileDate).IndRH = cat(1,data.(animalID).(behavField).(fileDate).IndRH,Results_BehavHbT.(animalID).(behavField).IndAdjRH{hh,1});
+            end
+        elseif strcmp(behavField,'Stim') == true
+            % left hem stims
+            fileIDs = Results_BehavHbT.(animalID).(behavField).LH_FileIDs;
+            for hh = 1:length(fileIDs)
+                fileDate = ConvertDate_IOS(fileIDs{hh,1});
+                data.(animalID).(behavField).(fileDate).MeanLH = cat(1,data.(animalID).(behavField).(fileDate).MeanLH,Results_BehavHbT.(animalID).(behavField).MeanAdjLH(hh,1));
+                data.(animalID).(behavField).(fileDate).IndLH = cat(1,data.(animalID).(behavField).(fileDate).IndLH,Results_BehavHbT.(animalID).(behavField).IndAdjLH{hh,1});
+            end
+            % right hem stims
+            fileIDs = Results_BehavHbT.(animalID).(behavField).RH_FileIDs;
+            for hh = 1:length(fileIDs)
+                fileDate = ConvertDate_IOS(fileIDs{hh,1});
+                data.(animalID).(behavField).(fileDate).MeanRH = cat(1,data.(animalID).(behavField).(fileDate).MeanRH,Results_BehavHbT.(animalID).(behavField).MeanAdjRH(hh,1));
+                data.(animalID).(behavField).(fileDate).IndRH = cat(1,data.(animalID).(behavField).(fileDate).IndRH,Results_BehavHbT.(animalID).(behavField).IndAdjRH{hh,1});
+            end
+        else
+            fileIDs = Results_BehavHbT.(animalID).(behavField).FileIDs;
+            for ii = 1:length(fileIDs)
+                fileDate = ConvertDate_IOS(fileIDs{ii,1});
+                data.(animalID).(behavField).(fileDate).MeanLH = cat(1,data.(animalID).(behavField).(fileDate).MeanLH,Results_BehavHbT.(animalID).(behavField).MeanAdjLH(ii,1));
+                data.(animalID).(behavField).(fileDate).MeanRH = cat(1,data.(animalID).(behavField).(fileDate).MeanRH,Results_BehavHbT.(animalID).(behavField).MeanAdjRH(ii,1));
+                data.(animalID).(behavField).(fileDate).IndLH = cat(1,data.(animalID).(behavField).(fileDate).IndLH,Results_BehavHbT.(animalID).(behavField).IndAdjLH{ii,1});
+                data.(animalID).(behavField).(fileDate).IndRH = cat(1,data.(animalID).(behavField).(fileDate).IndRH,Results_BehavHbT.(animalID).(behavField).IndAdjRH{ii,1});
             end
         end
     end

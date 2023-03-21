@@ -454,5 +454,6 @@ if saveFigs == true
     set(summaryFigure,'PaperPositionMode','auto');
     print('-painters','-dpdf','-bestfit',[dirpath 'Arousal_HbT'])
 end
+cd(rootFolder)
 
 end

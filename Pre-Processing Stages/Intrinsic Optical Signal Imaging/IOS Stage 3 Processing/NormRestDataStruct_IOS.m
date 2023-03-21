@@ -13,7 +13,7 @@ animalID = RestingBaselines.setDuration.baselineFileInfo.animalID;
 dataTypes = fieldnames(RestData);
 for dT = 1:length(dataTypes)
     dataType = char(dataTypes(dT));
-    if strcmp(dataType,'CBV_HbT') == false
+    if any(strcmp(dataType,{'HbT','HbO','HbR'})) == true
         hemisphereDataTypes = fieldnames(RestData.(dataType));
         if strcmp(dataType,'LH_HbT') == false && strcmp(dataType,'RH_HbT') == false
             for hDT = 1:length(hemisphereDataTypes)
@@ -112,6 +112,7 @@ for dT = 1:length(dataTypes)
                 end
             end
         end
+        RestData.(dataType).(hemDataType).NormData = NormData;
     end
 end
 save([animalID '_RestData.mat'],'RestData','-v7.3')

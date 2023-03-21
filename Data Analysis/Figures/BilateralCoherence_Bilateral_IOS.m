@@ -1115,5 +1115,6 @@ if saveFigs == true
     disp(Stats.CBV_HbT.All.C05.Stats)
     diary off
 end
+cd(rootFolder)
 
 end

@@ -11,6 +11,7 @@ function [] = AnalyzePowerSpectrum_LFP_Handler(rootFolder,delim,runFromStart)
 if runFromStart == true
     Results_PowerSpecLFP = [];
 elseif runFromStart == false
+    cd([rootFolder delim 'Results_Turner']);
     % load existing results structure, if it exists
     if exist('Results_PowerSpecLFP.mat','file') == 2
         load('Results_PowerSpecLFP.mat','-mat')
@@ -18,34 +19,29 @@ elseif runFromStart == false
         Results_PowerSpecLFP = [];
     end
 end
-expGroups = {'SSP_SAP','Blank_SAP'};
-sets = {'IOS_Ephys';'IOS_Ephys'};
+cd([rootFolder delim 'Data']);
+expGroups = {'Naive','SSP_SAP','Blank_SAP'};
+setName = 'IOS_Ephys';
 % determine waitbar length
 waitBarLength = 0;
 for aa = 1:length(expGroups)
-    setNames = sets(aa,:);
-    for bb = 1:length(setNames)
-        folderList = dir([expGroups{1,aa} delim setNames{1,bb}]);
-        folderList = folderList(~startsWith({folderList.name}, '.'));
-        folderAnimalIDs = {folderList.name};
-        waitBarLength = waitBarLength + length(folderAnimalIDs);
-    end
+    folderList = dir([expGroups{1,aa} delim setName]);
+    folderList = folderList(~startsWith({folderList.name}, '.'));
+    folderAnimalIDs = {folderList.name};
+    waitBarLength = waitBarLength + length(folderAnimalIDs);
 end
 % run analysis for each animal in the group
-dd = 1;
-multiWaitbar('Analyzing LFP power spectrum',0,'Color','P');
+cc = 1;
+multiWaitbar('Analyzing LFP power spectrum for IOS_Ephys',0,'Color','Y');
 for aa = 1:length(expGroups)
-    setNames = sets(aa,:);
-    for bb = 1:length(setNames)
-        folderList = dir([expGroups{1,aa} delim setNames{1,bb}]);
-        folderList = folderList(~startsWith({folderList.name},'.'));
-        animalIDs = {folderList.name};
-        for cc = 1:length(animalIDs)
-            if isfield(Results_PowerSpecLFP,(animalIDs{1,cc})) == false
-                [Results_PowerSpecLFP] = AnalyzePowerSpectrum_LFP(animalIDs{1,cc},[expGroups{1,aa} delim setNames{1,bb}],rootFolder,delim,Results_PowerSpecLFP);
-            end
-            multiWaitbar('Analyzing LFP power spectrum','Value',dd/waitBarLength); pause(0.5);
-            dd = dd + 1;
+    folderList = dir([expGroups{1,aa} delim setName]);
+    folderList = folderList(~startsWith({folderList.name},'.'));
+    animalIDs = {folderList.name};
+    for bb = 1:length(animalIDs)
+        if isfield(Results_PowerSpecLFP,(animalIDs{1,bb})) == false
+            [Results_PowerSpecLFP] = AnalyzePowerSpectrum_LFP(animalIDs{1,bb},[expGroups{1,aa} delim setName],rootFolder,delim,Results_PowerSpecLFP);
         end
+        multiWaitbar('Analyzing LFP power spectrum for IOS_Ephys','Value',cc/waitBarLength); pause(0.5);
+        cc = cc + 1;
     end
 end

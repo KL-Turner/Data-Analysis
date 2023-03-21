@@ -9,7 +9,7 @@ function [] = DiaphoraseCellCounts_Figures(rootFolder,saveFigs,delim)
 
 path = [rootFolder delim 'Results_Turner'];
 cd(path)
-%% setup and pull data from excel sheet
+% setup and pull data from excel sheet
 msExcelFile = 'DiaphoraseCellCounts.xlsx';
 [~,~,alldata] = xlsread(msExcelFile);
 treatments = {'Naive','SSP_SAP','Blank_SAP'};
@@ -46,7 +46,7 @@ for cc = 1:length(treatments)
     data.(treatment).RH_Mean = mean(data.(treatment).RH,1);
     data.(treatment).RH_StD = std(data.(treatment).RH,0,1);
 end
-%% statistics - generalized linear mixed effects model
+% statistics - generalized linear mixed effects model
 for qq = 1:length(treatments)
     treatment = treatments{1,qq};
     Stats.(treatment).tableSize = cat(1,data.(treatment).LH,data.(treatment).RH);
@@ -70,7 +70,7 @@ SSP_LH_inds = ones(length(data.SSP_SAP.LH),1)*3;
 SSP_RH_inds = ones(length(data.SSP_SAP.RH),1)*4;
 Blank_LH_inds = ones(length(data.Blank_SAP.LH),1)*5;
 Blank_RH_inds = ones(length(data.Blank_SAP.RH),1)*6;
-%% cell counting figure
+% cell counting figure
 summaryFigure = figure;
 b1 = bar(1,data.Naive.LH_Mean,'FaceColor',colors('sapphire'));
 hold on
@@ -102,7 +102,7 @@ for aa = 1:length(data.Blank_SAP.LH)
     scatter(x(1),y(1),150,'MarkerEdgeColor','k','MarkerFaceColor',colors('north texas green'),'jitter','off', 'jitterAmount',0.25)
     scatter(x(2),y(2),150,'MarkerEdgeColor','k','MarkerFaceColor',colors('north texas green'),'jitter','off', 'jitterAmount',0.25)
 end
-%% figure characteristics
+% figure characteristics
 ylabel('Cell density (per cubic mm of somatosensory cortical tissue)')
 legend([b1,b2,b3],'Naive','SSP-SAP','Blank-SAP')
 set(gca,'xtick',[1,2,3,4,5,6])
@@ -111,7 +111,7 @@ xtickangle(45)
 axis square
 xlim([0,7])
 set(gca,'box','off')
-%% save figure(s)
+% save figure(s)
 if saveFigs == true
     dirpath = [rootFolder delim 'Summary Figures and Structures' delim];
     if ~exist(dirpath,'dir')

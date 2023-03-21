@@ -8,10 +8,27 @@ function c = colors(colorname)
 % Code unchanged with the exception of this block for record keeping. All rights belong to original author
 %________________________________________________________________________________________________________________________
 
-%% colors('amber')
+% colors('amber')
 % returns RGB tuples adapted from
 % http://en.wikipedia.org/wiki/List_of_colors
 color_database = containers.Map();
+%% KLTurner Drew Lab Colors 
+% Turner et al. eLife 2020
+% Turner et al. J Neurosci 2022
+color_database('colorBlack') = [(0/256),(0/256),(0/256)];
+color_database('colorGrey') = [(209/256),(211/256),(212/256)];
+color_database('colorRfcAwake') = [(0/256),(64/256),(64/256)];
+color_database('colorRfcNREM') = [(0/256),(174/256),(239/256)];
+color_database('colorRfcREM') = [(190/256),(30/256),(45/256)];
+color_database('colorWhisk') = [(31/256),(120/256),(179/256)];
+color_database('colorStim')= [(255/256),(28/256),(206/256)];
+color_database('colorNREM') = [(191/256),(0/256),(255/256)];
+color_database('colorREM') = [(254/256),(139/256),(0/256)];
+color_database('colorAlert') = [(255/256),(191/256),(0/256)];
+color_database('colorAsleep') = [(0/256),(128/256),(255/256)];
+color_database('colorAll') = [(183/256),(115/256),(51/256)];
+color_database('colorIso') = [(0/256),(256/256),(256/256)];
+%% original colors
 color_database('air force blue')=[0.360000 0.540000 0.660000];
 color_database('alice blue')=[0.940000 0.970000 1.000000];
 color_database('alizarin crimson')=[0.890000 0.150000 0.210000];

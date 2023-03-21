@@ -7,7 +7,7 @@ function [Results_BilatCoher] = AnalyzeBilateralCoherence(animalID,group,rootFol
 % Purpose: Analyze the spectral coherence between bilateral hemodynamic [HbT] and neural signals (IOS)
 %________________________________________________________________________________________________________________________
 
-modelType = 'Manual';
+modelType = 'Forest';
 params.minTime.Rest = 10;
 params.minTime.NREM = 30;
 params.minTime.REM = 60;
@@ -576,5 +576,6 @@ end
 % save data
 cd([rootFolder delim 'Results_Turner'])
 save('Results_BilatCoher.mat','Results_BilatCoher')
+cd([rootFolder delim 'Data'])
 
 end
