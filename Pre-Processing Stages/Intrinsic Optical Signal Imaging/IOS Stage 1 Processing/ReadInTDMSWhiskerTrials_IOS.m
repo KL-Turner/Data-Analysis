@@ -19,9 +19,9 @@ TDMSFile.solenoidPSI = tempStruct.Data.Root.Solenoid_PSI;
 TDMSFile.isofluraneTime = tempStruct.Data.Root.Isoflurane_time;
 TDMSFile.sessionID = tempStruct.Data.Root.Session_ID;
 TDMSFile.amplifierGain = tempStruct.Data.Root.Amplifier_Gain;
-TDMSFile.LEDpower_mW = tempStruct.Data.Root.LED_power_mW;
+TDMSFile.Opto_LED_mW = tempStruct.Data.Root.Opto_LED_mW;
 TDMSFile.CBVCamSamplingRate = tempStruct.Data.Root.CBV_Cam_Fs;
-if isfield(tempStruct.Data.Root,'CBVcamID') == true
+if isfield(tempStruct.Data.Root,'CBV_CameraID') == true
     % double check cam is PCO
     if strcmp(tempStruct.Data.Root.CBV_CameraID,'PCO') == true
         TDMSFile.CBVCameraID = tempStruct.Data.Root.CBV_CameraID;
@@ -39,7 +39,7 @@ if isfield(tempStruct.Data.Root,'CBVcamID') == true
     end
 else
     % assume Dalsa
-    TDMSFile.CBVCameraID = 'Dalsa';
+    TDMSFile.CBV_CameraID = 'Dalsa';
     TDMSFile.CBVCamPixelWidth = tempStruct.Data.Root.CBVCam_Width_pix;
     TDMSFile.CBVCamPixelHeight = tempStruct.Data.Root.CBVCam_Height_pix;
     TDMSFile.CBVCamBitDepth = tempStruct.Data.Root.CBVCam_Bit_Depth;

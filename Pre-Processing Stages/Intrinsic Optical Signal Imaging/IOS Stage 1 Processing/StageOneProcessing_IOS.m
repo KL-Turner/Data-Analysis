@@ -67,16 +67,16 @@ for a = 1:length(fileNames)
         RawData.notes.isofluraneTime = str2double(trialData.isofluraneTime);
         RawData.notes.sessionID = trialData.sessionID;
         RawData.notes.amplifierGain = str2double(trialData.amplifierGain);
-        RawData.notes.LEDpower_mW = trialData.LEDpower_mW;
+        RawData.notes.Opto_LED_mW = trialData.Opto_LED_mW;
         RawData.notes.CBVCamSamplingRate = str2double(trialData.CBVCamSamplingRate);
         RawData.notes.whiskCamSamplingRate = str2double(trialData.whiskCamSamplingRate);
         RawData.notes.webCamSamplingRate = str2double(trialData.webCamSamplingRate);
         RawData.notes.pupilCamSamplingRate = str2double(trialData.pupilCamSamplingRate);
         RawData.notes.analogSamplingRate = str2double(trialData.analogSamplingRate);
         RawData.notes.trialDuration_sec = str2double(trialData.trialDuration_sec);
-        if strcmp(tempStruct.Data.Root.CBV_CameraID,'PCO') == true
+        if strcmp(trialData.CBVCameraID,'PCO') == true
             RawData.notes.CBVCameraID = trialData.CBVCameraID;
-            RawData.notes.CBVCamTriggerMode = str2double(trialData.CBVCamTriggerMode);
+            RawData.notes.CBVCamTriggerMode = trialData.CBVCamTriggerMode;
             RawData.notes.CBVCamExposureTime_microsec = str2double(trialData.CBVCamExposureTime_microsec);
             RawData.notes.CBVCamTimeStampMode = trialData.CBVCamTimeStampMode;
             RawData.notes.CBVCamBitDepth = str2double(trialData.CBVCamBitDepth);
@@ -87,7 +87,7 @@ for a = 1:length(fileNames)
             RawData.notes.CBVCamBinning = trialData.CBVCamBinning;
             RawData.notes.CBVCamBinningHorz = trialData.CBVCamBinningHorz;
             RawData.notes.CBVCamBinningVert = trialData.CBVCamBinningVert;
-        elseif strcmp(trialDataCBVCameraID,'Dalsa')
+        elseif strcmp(trialData.CBVCameraID,'Dalsa')
             RawData.notes.CBVCameraID = trialData.CBVCameraID;
             RawData.notes.CBVCamPixelWidth = str2double(trialData.CBVCamPixelWidth);
             RawData.notes.CBVCamPixelHeight = str2double(trialData.CBVCamPixelHeight);
