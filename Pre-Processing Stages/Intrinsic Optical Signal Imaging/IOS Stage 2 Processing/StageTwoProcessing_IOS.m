@@ -1,4 +1,4 @@
-%________________________________________________________________________________________________________________________
+%----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
@@ -7,8 +7,7 @@
 %          - Downsample and filter many of the data types in 'RawData' creating new 'ProcData' structures
 %          - Place ROIs for IOS reflectance and/or fluorescence changes depending on wavelength(s)
 %          - Extract the animal's heart rate if green or lime reflectance data is at least 30 Hz
-%________________________________________________________________________________________________________________________
-
+%----------------------------------------------------------------------------------------------------------
 zap; 
 % character list of all RawData files in the directory from StageOneProcessing_IOS.m
 rawDataFileStruct = dir('*_RawData.mat');

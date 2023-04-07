@@ -43,19 +43,19 @@ if runAnalysis == true
 % % % % % % % %     AnalyzeEvokedResponses_GCaMP_Handler(rootFolder,delim,false)
 % % % % % % % %     AnalyzeEvokedResponses_2P_Handler(rootFolder,delim,false)
 % % % % % % % %     AnalyzeEvokedResponses_Pulse_Handler(rootFolder,delim,false)
-    % IOS signal analysis (HbT, GCaMP, Deoxy)
-    AnalyzeIntrinsicSignals_Ephys_Handler(rootFolder,delim,false)
-    AnalyzeIntrinsicSignals_GCaMP_Handler(rootFolder,delim,false)
-    % power spectral density of IOS and second spectra for neural signals
-    AnalyzePowerSpectrum_Ephys_Handler(rootFolder,delim,false)
-    AnalyzePowerSpectrum_GCaMP_Handler(rootFolder,delim,false)
-    AnalyzePowerSpectrum_LFP_Handler(rootFolder,delim,false)
-    % coherence between hemipheres
-    AnalyzeBilateralCoherence_Ephys_Handler(rootFolder,delim,false)
-    AnalyzeBilateralCoherence_GCaMP_Handler(rootFolder,delim,false)
-    % Pearson's correlation between hemispheres
-    AnalyzePearsonCorrelation_Ephys_Handler(rootFolder,delim,false)
-    AnalyzePearsonCorrelation_GCaMP_Handler(rootFolder,delim,false)
+% % % % % % % %     % IOS signal analysis (HbT, GCaMP, Deoxy)
+% % % % % % % %     AnalyzeIntrinsicSignals_Ephys_Handler(rootFolder,delim,false)
+% % % % % % % %     AnalyzeIntrinsicSignals_GCaMP_Handler(rootFolder,delim,false)
+% % % % % % % %     % power spectral density of IOS and second spectra for neural signals
+% % % % % % % %     AnalyzePowerSpectrum_Ephys_Handler(rootFolder,delim,false)
+% % % % % % % %     AnalyzePowerSpectrum_GCaMP_Handler(rootFolder,delim,false)
+% % % % % % % %     AnalyzePowerSpectrum_LFP_Handler(rootFolder,delim,false)
+% % % % % % % %     % coherence between hemipheres
+% % % % % % % %     AnalyzeBilateralCoherence_Ephys_Handler(rootFolder,delim,false)
+% % % % % % % %     AnalyzeBilateralCoherence_GCaMP_Handler(rootFolder,delim,false)
+% % % % % % % %     % Pearson's correlation between hemispheres
+% % % % % % % %     AnalyzePearsonCorrelation_Ephys_Handler(rootFolder,delim,false)
+% % % % % % % %     AnalyzePearsonCorrelation_GCaMP_Handler(rootFolder,delim,false)
     % neural-hemo coherence within hemispheres
     AnalyzeNeuralHemoCoherence_Ephys_Handler(rootFolder,delim,false)
     AnalyzeNeuralHemoCoherence_GCaMP_Handler(rootFolder,delim,false)
@@ -63,10 +63,10 @@ if runAnalysis == true
     AnalyzeCrossCorrelation_Ephys_Handler(rootFolder,delim,false)
     AnalyzeCrossCorrelation_GCaMP_Handler(rootFolder,delim,false)
     % pupil analysis
-    AnalyzeBehavioralArea_Ephys_Handler(rootFolder,delim,false)
-    AnalyzeEvokedResponses_Ephys_Handler(rootFolder,delim,false)
-    AnalyzeCoherence_EPhys_Handler(rootFolder,delim,false)
-    AnalyzeCrossCorrelation_EPhys_Handler(rootFolder,delim,false)
+    AnalyzePupilArea_Ephys_Handler(rootFolder,delim,false)
+    AnalyzePupilEvokedResponses_Ephys_Handler(rootFolder,delim,false)
+    AnalyzePupilCoherence_EPhys_Handler(rootFolder,delim,false)
+    AnalyzePupilCrossCorrelation_EPhys_Handler(rootFolder,delim,false)
     % close wait bars
     multiWaitbar('close all')
 end

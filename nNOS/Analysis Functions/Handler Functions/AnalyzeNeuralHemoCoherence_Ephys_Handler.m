@@ -1,47 +1,45 @@
 function [] = AnalyzeNeuralHemoCoherence_Ephys_Handler(rootFolder,delim,runFromStart)
-%________________________________________________________________________________________________________________________
+%----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%
-% Purpose: Analyze the spectral coherence between neural-hemodynamic [HbT] signals (IOS)
-%________________________________________________________________________________________________________________________
-
-% create or load results structure
+%----------------------------------------------------------------------------------------------------------
 if runFromStart == true
-    Results_NeuralHemoCoherEphys = [];
+    Results_NeuralHemoCoher_Ephys = [];
 elseif runFromStart == false
     cd([rootFolder delim 'Results_Turner']);
     % load existing results structure, if it exists
-    if exist('Results_NeuralHemoCoherEphys.mat','file') == 2
-        load('Results_NeuralHemoCoherEphys.mat','-mat')
+    if exist('Results_NeuralHemoCoher_Ephys.mat','file') == 2
+        load('Results_NeuralHemoCoher_Ephys.mat','-mat')
     else
-        Results_NeuralHemoCoherEphys = [];
+        Results_NeuralHemoCoher_Ephys.Naive = [];
+        Results_NeuralHemoCoher_Ephys.Blank_SAP = [];
+        Results_NeuralHemoCoher_Ephys.SSP_SAP = [];
     end
 end
 cd([rootFolder delim 'Data']);
-expGroups = {'Naive','SSP_SAP','Blank_SAP'};
-setName = 'IOS_Ephys';
+groups = {'Naive','Blank_SAP','SSP_SAP'};
+set = 'Ephys';
 % determine waitbar length
 waitBarLength = 0;
-for aa = 1:length(expGroups)
-    folderList = dir([expGroups{1,aa} delim setName]);
+for aa = 1:length(groups)
+    folderList = dir([groups{1,aa} delim set]);
     folderList = folderList(~startsWith({folderList.name}, '.'));
     folderAnimalIDs = {folderList.name};
     waitBarLength = waitBarLength + length(folderAnimalIDs);
 end
 % run analysis for each animal in the group
 cc = 1;
-multiWaitbar('Analyzing neural-hemo coherence for IOS_Ephys',0,'Color','G');
-for aa = 1:length(expGroups)
-    folderList = dir([expGroups{1,aa} delim setName]);
+multiWaitbar('Analyzing neural-hemo coherence for Ephys',0,'Color','G');
+for aa = 1:length(groups)
+    folderList = dir([groups{1,aa} delim set]);
     folderList = folderList(~startsWith({folderList.name},'.'));
     animalIDs = {folderList.name};
     for bb = 1:length(animalIDs)
-        if isfield(Results_NeuralHemoCoherEphys,(animalIDs{1,bb})) == false
-            [Results_NeuralHemoCoherEphys] = AnalyzeNeuralHemoCoherence_Ephys(animalIDs{1,bb},[expGroups{1,aa} delim setName],rootFolder,delim,Results_NeuralHemoCoherEphys);
+        if isfield(Results_NeuralHemoCoher_Ephys.(groups{1,aa}),(animalIDs{1,bb})) == false
+            [Results_NeuralHemoCoher_Ephys] = AnalyzeNeuralHemoCoherence_Ephys(animalIDs{1,bb},groups{1,aa},set,rootFolder,delim,Results_NeuralHemoCoher_Ephys);
         end
-        multiWaitbar('Analyzing neural-hemo coherence for IOS_Ephys','Value',cc/waitBarLength); pause(0.5);
+        multiWaitbar('Analyzing neural-hemo coherence for Ephys','Value',cc/waitBarLength); pause(0.5);
         cc = cc + 1;
     end
 end

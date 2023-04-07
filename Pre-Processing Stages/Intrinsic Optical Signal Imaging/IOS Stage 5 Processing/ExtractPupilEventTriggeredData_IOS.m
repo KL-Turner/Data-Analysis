@@ -1,4 +1,4 @@
-function [EventData] = ExtractPupilEventTriggeredData_IOS(procDataFileIDs)
+function [EventData] = ExtractPupilEventTriggeredData_IOS(procDataFileIDs,subDataTypes)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -19,7 +19,6 @@ epoch.offset = 2;
 dataTypes = {'Pupil'};
 for a = 1:length(dataTypes)
     dataType = char(dataTypes(a));
-    subDataTypes = {'pupilArea','diameter','mmArea','mmDiameter','zArea','zDiameter','LH_HbT','RH_HbT','LH_gammaBandPower','RH_gammaBandPower'};
     temp = struct();
     for b = 1:size(procDataFileIDs,1)
         % load ProcData File
@@ -45,8 +44,8 @@ for a = 1:length(dataTypes)
                     end
                     % assemble a structure to send to the sub-functions
                     if strcmp(sDT,'LH_HbT') == true || strcmp(sDT,'RH_HbT') == true
-                        fieldName2 = 'CBV_HbT';
-                        data = ProcData.data.(fieldName2);
+                        fieldname2 = 'HbT';
+                        data = ProcData.data.(fieldname2);
                     elseif strcmp(sDT,'LH_gammaBandPower') == true
                         fieldName2 = 'cortical_LH';
                         data = ProcData.data.(fieldName2);
@@ -91,9 +90,9 @@ trialDuration = data.notes.trialDuration_sec;
 samplingRate = data.notes.dsFs;
 % get the content from data.(dataType)
 if strcmp(dataType,'LH_HbT') == true
-    dataType = 'adjLH';
+    dataType = 'LH';
 elseif strcmp(dataType,'RH_HbT') == true
-    dataType = 'adjRH';
+    dataType = 'RH';
 elseif strcmp(dataType,'LH_gammaBandPower') == true || strcmp(dataType,'RH_gammaBandPower') == true
     dataType = 'gammaBandPower';
 end

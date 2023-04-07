@@ -1,12 +1,11 @@
-%________________________________________________________________________________________________________________________
+%----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %
 % Purpose: - Convert analog data and notes in LabVIEW's .tdms files to MATLAB .mat structures ('RawData')
 %          - Track changes in whisker angle using Radon transform
-%________________________________________________________________________________________________________________________
-
+%----------------------------------------------------------------------------------------------------------
 zap;
 % select imaging type
 imagingOptions = {'Single ROI (SI)','Single ROI (SSS)','Bilateral ROI (SI)','Bilateral ROI (SI,FC)'};
@@ -75,15 +74,31 @@ for a = 1:length(fileNames)
         RawData.notes.pupilCamSamplingRate = str2double(trialData.pupilCamSamplingRate);
         RawData.notes.analogSamplingRate = str2double(trialData.analogSamplingRate);
         RawData.notes.trialDuration_sec = str2double(trialData.trialDuration_sec);
-        RawData.notes.CBVCamPixelWidth = str2double(trialData.CBVCamPixelWidth);
-        RawData.notes.CBVCamPixelHeight = str2double(trialData.CBVCamPixelHeight);
-        RawData.notes.CBVCamBitDepth = str2double(trialData.CBVCamBitDepth);
+        if strcmp(tempStruct.Data.Root.CBV_CameraID,'PCO') == true
+            RawData.notes.CBVCameraID = trialData.CBVCameraID;
+            RawData.notes.CBVCamTriggerMode = str2double(trialData.CBVCamTriggerMode);
+            RawData.notes.CBVCamExposureTime_microsec = str2double(trialData.CBVCamExposureTime_microsec);
+            RawData.notes.CBVCamTimeStampMode = trialData.CBVCamTimeStampMode;
+            RawData.notes.CBVCamBitDepth = str2double(trialData.CBVCamBitDepth);
+            RawData.notes.CBVCamPixelWidthx0 = trialData.CBVCamPixelWidthx0;
+            RawData.notes.CBVCamPixelHeighty0 = trialData.CBVCamPixelHeighty0;
+            RawData.notes.CBVCamPixelWidth = str2double(trialData.CBVCamPixelWidth);
+            RawData.notes.CBVCamPixelHeight = str2double(trialData.CBVCamPixelHeight);
+            RawData.notes.CBVCamBinning = trialData.CBVCamBinning;
+            RawData.notes.CBVCamBinningHorz = trialData.CBVCamBinningHorz;
+            RawData.notes.CBVCamBinningVert = trialData.CBVCamBinningVert;
+        elseif strcmp(trialDataCBVCameraID,'Dalsa')
+            RawData.notes.CBVCameraID = trialData.CBVCameraID;
+            RawData.notes.CBVCamPixelWidth = str2double(trialData.CBVCamPixelWidth);
+            RawData.notes.CBVCamPixelHeight = str2double(trialData.CBVCamPixelHeight);
+            RawData.notes.CBVCamBitDepth = str2double(trialData.CBVCamBitDepth);
+            RawData.notes.CBVCamExposureTime_microsec = str2double(trialData.CBVCamExposureTime_microsec);
+            RawData.notes.CBVCamBinning = trialData.CBVCamBinning;
+        end
         RawData.notes.pupilCamPixelWidth = str2double(trialData.pupilCamPixelWidth);
         RawData.notes.pupilCamPixelHeight = str2double(trialData.pupilCamPixelHeight);
         RawData.notes.whiskCamPixelHeight = str2double(trialData.whiskCamPixelHeight);
         RawData.notes.whiskCamPixelWidth = str2double(trialData.whiskCamPixelWidth);
-        RawData.notes.CBVCamExposureTime_microsec = str2double(trialData.CBVCamExposureTime_microsec);
-        RawData.notes.CBVCamBinning = trialData.CBVCamBinning;
         RawData.notes.droppedPupilCamFrameIndex = trialData.droppedPupilCamFrameIndex;
         RawData.notes.droppedWhiskCamFrameIndex = trialData.droppedWhiskCamFrameIndex;
         RawData.notes.solenoidDutyCycle = str2double(trialData.Sol_DutyCycle);

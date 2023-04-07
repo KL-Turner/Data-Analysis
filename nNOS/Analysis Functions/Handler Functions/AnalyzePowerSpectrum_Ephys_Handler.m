@@ -4,8 +4,6 @@ function [] = AnalyzePowerSpectrum_Ephys_Handler(rootFolder,delim,runFromStart)
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %----------------------------------------------------------------------------------------------------------
-
-% create or load results structure
 if runFromStart == true
     Results_PowerSpec_Ephys = [];
 elseif runFromStart == false
@@ -15,36 +13,33 @@ elseif runFromStart == false
         load('Results_PowerSpec_Ephys.mat','-mat')
     else
         Results_PowerSpec_Ephys.Naive = [];
-        Results_PowerSpec_Ephys.SSP_SAP = [];
         Results_PowerSpec_Ephys.Blank_SAP = [];
+        Results_PowerSpec_Ephys.SSP_SAP = [];
     end
 end
 cd([rootFolder delim 'Data']);
-groups = {'Naive','SSP_SAP','Blank_SAP'};
+groups = {'Naive','Blank_SAP','SSP_SAP'};
 set = 'Ephys';
 % determine waitbar length
 waitBarLength = 0;
 for aa = 1:length(groups)
-    group = groups{1,aa};
-    folderList = dir([group delim set]);
+    folderList = dir([groups{1,aa} delim set]);
     folderList = folderList(~startsWith({folderList.name}, '.'));
     folderAnimalIDs = {folderList.name};
     waitBarLength = waitBarLength + length(folderAnimalIDs);
 end
 % run analysis for each animal in the group
 cc = 1;
-multiWaitbar('Analyzing power spectrum for IOS_Ephys',0,'Color','P');
+multiWaitbar('Analyzing power spectrum for Ephys',0,'Color','O');
 for aa = 1:length(groups)
-    group = groups{1,aa};
-    folderList = dir([expGroup delim set]);
+    folderList = dir([groups{1,aa} delim set]);
     folderList = folderList(~startsWith({folderList.name},'.'));
     animalIDs = {folderList.name};
     for bb = 1:length(animalIDs)
-        animalID = animalIDs{1,bb};
-        if isfield(Results_PowerSpec_Ephys.(group),animalID) == false
-            [Results_PowerSpec_Ephys] = AnalyzePowerSpectrum_Ephys(animalID,group,set,rootFolder,delim,Results_PowerSpec_Ephys);
+        if isfield(Results_PowerSpec_Ephys.(groups{1,aa}),animalIDs{1,bb}) == false
+            [Results_PowerSpec_Ephys] = AnalyzePowerSpectrum_Ephys(animalIDs{1,bb},groups{1,aa},set,rootFolder,delim,Results_PowerSpec_Ephys);
         end
-        multiWaitbar('Analyzing power spectrum for IOS_Ephys','Value',cc/waitBarLength); pause(0.5);
+        multiWaitbar('Analyzing power spectrum for Ephys','Value',cc/waitBarLength); pause(0.5);
         cc = cc + 1;
     end
 end

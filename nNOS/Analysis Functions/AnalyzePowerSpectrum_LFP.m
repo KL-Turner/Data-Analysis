@@ -1,12 +1,9 @@
 function [Results_PowerSpec_LFP] = AnalyzePowerSpectrum_LFP(animalID,group,set,rootFolder,delim,Results_PowerSpec_LFP)
-%________________________________________________________________________________________________________________________
+%----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%
-% Purpose: Analyze the spectral power of hemodynamic [HbT] and neural signals (IOS)
-%________________________________________________________________________________________________________________________
-
+%----------------------------------------------------------------------------------------------------------
 dataLocation = [rootFolder delim 'Data' delim group delim set delim animalID delim 'Bilateral Imaging'];
 cd(dataLocation)
 % character list of all RawData file IDs
@@ -85,14 +82,14 @@ for aa = 1:length(hemispheres)
             % calculate the power spectra of the desired signals
             [S,f,sErr] = mtspectrumc(procData,params);
             % save results
-            Results_PowerSpec_LFP.(animalID).(hemisphere).(behavior).S = S;
-            Results_PowerSpec_LFP.(animalID).(hemisphere).(behavior).f = f;
-            Results_PowerSpec_LFP.(animalID).(hemisphere).(behavior).sErr = sErr;
+            Results_PowerSpec_LFP.(group).(animalID).(hemisphere).(behavior).S = S;
+            Results_PowerSpec_LFP.(group).(animalID).(hemisphere).(behavior).f = f;
+            Results_PowerSpec_LFP.(group).(animalID).(hemisphere).(behavior).sErr = sErr;
         else
             % save results
-            Results_PowerSpec_LFP.(animalID).(hemisphere).(behavior).S = [];
-            Results_PowerSpec_LFP.(animalID).(hemisphere).(behavior).f = [];
-            Results_PowerSpec_LFP.(animalID).(hemisphere).(behavior).sErr = [];
+            Results_PowerSpec_LFP.(group).(animalID).(hemisphere).(behavior).S = [];
+            Results_PowerSpec_LFP.(group).(animalID).(hemisphere).(behavior).f = [];
+            Results_PowerSpec_LFP.(group).(animalID).(hemisphere).(behavior).sErr = [];
         end
     end
 end

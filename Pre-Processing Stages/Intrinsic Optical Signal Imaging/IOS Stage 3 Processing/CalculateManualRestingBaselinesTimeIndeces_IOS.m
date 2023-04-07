@@ -193,6 +193,7 @@ for e = 1:length(dataTypes)
     end
 end
 % save results
+RestingBaselines.manualSelection.baselineFileInfo.animalID = animalID;
 RestingBaselines.manualSelection.baselineFileInfo.fileIDs = finalEventFileIDs;
 RestingBaselines.manualSelection.baselineFileInfo.eventTimes = finalEventTimes;
 RestingBaselines.manualSelection.baselineFileInfo.durations = finalEventDurations;

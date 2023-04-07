@@ -15,7 +15,7 @@ if strcmp(imagingType,'Single ROI (SI)') == true
 elseif strcmp(imagingType,'Bilateral ROI (SI)') == true
     ROInames = {'LH','RH'};
 elseif strcmp(imagingType,'Bilateral ROI (SI,FC)') == true
-    ROInames = {'LH','RH','frontalLH','frontalRH'};
+    ROInames = {'LH','RH','fLH','fRH'};
 end
 % character list of all ProcData files
 procDataFileStruct = dir('*_ProcData.mat');

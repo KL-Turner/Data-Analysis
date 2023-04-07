@@ -4,8 +4,6 @@ function [] = AnalyzePowerSpectrum_GCaMP_Handler(rootFolder,delim,runFromStart)
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %----------------------------------------------------------------------------------------------------------
-
-% create or load results structure
 if runFromStart == true
     Results_PowerSpec_GCaMP = [];
 elseif runFromStart == false
@@ -19,12 +17,12 @@ elseif runFromStart == false
     end
 end
 cd([rootFolder delim 'Data']);
-expGroups = {'Blank_SAP','SSP_SAP'};
-setName = 'GCaMP';
+groups = {'Blank_SAP','SSP_SAP'};
+set = 'GCaMP';
 % determine waitbar length
 waitBarLength = 0;
-for aa = 1:length(expGroups)
-    folderList = dir([expGroups{1,aa} delim setName]);
+for aa = 1:length(groups)
+    folderList = dir([groups{1,aa} delim set]);
     folderList = folderList(~startsWith({folderList.name}, '.'));
     folderAnimalIDs = {folderList.name};
     waitBarLength = waitBarLength + length(folderAnimalIDs);
@@ -32,13 +30,13 @@ end
 % run analysis for each animal in the group
 cc = 1;
 multiWaitbar('Analyzing power spectrum for IOS_GCaMP',0,'Color','B');
-for aa = 1:length(expGroups)
-    folderList = dir([expGroups{1,aa} delim setName]);
+for aa = 1:length(groups)
+    folderList = dir([groups{1,aa} delim set]);
     folderList = folderList(~startsWith({folderList.name},'.'));
     animalIDs = {folderList.name};
     for bb = 1:length(animalIDs)
-        if isfield(Results_PowerSpec_GCaMP,(animalIDs{1,bb})) == false
-            [Results_PowerSpec_GCaMP] = AnalyzePowerSpectrum_GCaMP(animalIDs{1,bb},[expGroups{1,aa} delim setName],rootFolder,delim,Results_PowerSpec_GCaMP);
+        if isfield(Results_PowerSpec_GCaMP.(groups{1,aa}),(animalIDs{1,bb})) == false
+            [Results_PowerSpec_GCaMP] = AnalyzePowerSpectrum_GCaMP(animalIDs{1,bb},groups{1,aa},set,rootFolder,delim,Results_PowerSpec_GCaMP);
         end
         multiWaitbar('Analyzing power spectrum for IOS_GCaMP','Value',cc/waitBarLength); pause(0.5);
         cc = cc + 1;

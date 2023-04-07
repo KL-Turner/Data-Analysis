@@ -13,15 +13,16 @@ EventData = [];
 epoch.duration = 12;
 epoch.offset = 2;
 load(procdataFileIDs(1,:));
-imagingWavelengths = ProcData.notes.imagingWavelengths;
+imagingWavelengths = 'Lime';
+% imagingWavelengths = ProcData.notes.imagingWavelengths;
 if any(strcmp(imagingWavelengths,{'Red, Green, & Blue','Red, Lime, & Blue'})) == true
-    dataTypes = {'CBV','CBV_HbT','GCaMP7s','Deoxy','cortical_LH','cortical_RH','hippocampus','EMG'};
+    dataTypes = {'CBV','HbT','HbO','HbR','GCaMP7s','cortical_LH','cortical_RH','hippocampus','EMG'};
 else
-    dataTypes = {'CBV','CBV_HbT','cortical_LH','cortical_RH','hippocampus','EMG'};
+    dataTypes = {'CBV','HbT','cortical_LH','cortical_RH','hippocampus','EMG'};
 end
 for aa = 1:length(dataTypes)
     dataType = dataTypes{1,aa};
-        subDataTypes = fieldnames(ProcData.data.(dataType));
+    subDataTypes = fieldnames(ProcData.data.(dataType));
     if any(strcmpi(dataType,{'CBV','CBV_HbT','Deoxy','GCaMP7s'})) == true
         samplingRate = ProcData.notes.CBVCamSamplingRate;
     else
@@ -34,7 +35,7 @@ for aa = 1:length(dataTypes)
         load(filename);
         % get the date and file ID to include in the EventData structure
         [animal,fileDate,fileID] = GetFileInfo_IOS(procdataFileIDs(bb,:));
-        % get the types of behaviors present in the file (stim,whisk,rest)
+        % get the types of behaviors present in the file (stim, whisk, rest)
         holddata = fieldnames(ProcData.flags);
         behaviorFields = holddata([1,2],1);
         for cc = 1:length(subDataTypes)

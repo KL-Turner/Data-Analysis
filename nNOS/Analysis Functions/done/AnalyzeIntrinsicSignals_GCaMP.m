@@ -84,7 +84,7 @@ for aa = 1:length(hemispheres)
         % filter
         for gg = 1:length(finalRestData)
             procRestData{gg,1} = filtfilt(sos,g,finalRestData{gg,1});
-            restMean(nn,1) = mean(procRestData{nn,1}(1:end));
+            restMean(gg,1) = mean(procRestData{gg,1}(1:end));
         end
         % save results
         Results_IntSig_GCaMP.(group).(animalID).(hemisphere).(dataType).Rest.mean = restMean;
@@ -102,17 +102,17 @@ for aa = 1:length(hemispheres)
         for gg = 1:size(finalWhiskData,1)
             procWhiskData_temp = filtfilt(sos,g,finalWhiskData(gg,:));
             procWhiskData(gg,:) = procWhiskData_temp - mean(procWhiskData_temp(1:params.Offset*samplingRate));
-            whiskCBVMean{nn,1} = mean(procWhiskData(nn,params.Offset*samplingRate:params.minTime.Whisk*samplingRate),2);
+            whiskCBVMean{gg,1} = mean(procWhiskData(gg,params.Offset*samplingRate:params.minTime.Whisk*samplingRate),2);
         end
         % save results
         Results_IntSig_GCaMP.(group).(animalID).(dataType).Whisk.mean = cell2mat(whiskCBVMean);
         %% stimulation
         if any(strcmp(hemisphere,{'LH','frontalLH'})) == true
-            stimCriteria = StimCriteriaA;
+            StimCriteria = StimCriteriaA;
         elseif any(strcmp(hemisphere,{'RH','frontalRH'})) == true
-            stimCriteria = StimCriteriaB;
+            StimCriteria = StimCriteriaB;
         end
-        stimFilter = FilterEvents_IOS(EventData.(dataType).(hemisphere).stim,stimCriteria);
+        stimFilter = FilterEvents_IOS(EventData.(dataType).(hemisphere).stim,StimCriteria);
         [stimFileIDs] = EventData.(dataType).LH.stim.fileIDs(stimFilter,:);
         [stimEventTimes] = EventData.(dataType).LH.stim.eventTime(stimFilter,:);
         stimDurations = zeros(length(stimEventTimes),1);
@@ -123,7 +123,7 @@ for aa = 1:length(hemispheres)
         for gg = 1:size(finalStimData,1)
             procStimData_temp = filtfilt(sos,g,finalStimData(gg,:));
             procStimData(gg,:) = procStimData_temp - mean(procStimData_temp(1:params.Offset*samplingRate));
-            stimMean{nn,1} = mean(procStimData(nn,(params.Offset + 1)*samplingRate:params.minTime.Stim*samplingRate),2);
+            stimMean{gg,1} = mean(procStimData(gg,(params.Offset + 1)*samplingRate:params.minTime.Stim*samplingRate),2);
         end
         % save results
         Results_IntSig_GCaMP.(group).(animalID).(hemisphere).(dataType).Stim.mean = stimMean;

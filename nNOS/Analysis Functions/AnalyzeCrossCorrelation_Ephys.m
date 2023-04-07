@@ -1,13 +1,9 @@
 function [Results_CrossCorr_Ephys] = AnalyzeCrossCorrelation_Ephys(animalID,group,set,rootFolder,delim,Results_CrossCorr_Ephys)
-%________________________________________________________________________________________________________________________
+%----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%
-% Purpose: Analyze the cross-correlation between neural activity and hemodynamics [HbT]
-%________________________________________________________________________________________________________________________
-
-% function parameters
+%----------------------------------------------------------------------------------------------------------
 dataTypes = {'LH','RH'};
 modelType = 'Forest';
 params.minTime.Rest = 10;

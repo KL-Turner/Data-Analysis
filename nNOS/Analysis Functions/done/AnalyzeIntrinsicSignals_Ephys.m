@@ -60,167 +60,105 @@ StimCriteriaA.Comparison = {'equal'};
 StimCriteriaB.Value = {'LPadSol'};
 StimCriteriaB.Fieldname = {'solenoidName'};
 StimCriteriaB.Comparison = {'equal'};
-% lowpass filter
-samplingRate = RestData.CBV_HbT.LH.CBVCamSamplingRate;
-[z,p,k] = butter(4,1/(samplingRate/2),'low');
-[sos,g] = zp2sos(z,p,k);
-% analyze [HbT] during periods of rest
-% pull data from RestData.mat structure
-[restLogical] = FilterEvents_IOS(RestData.CBV_HbT.LH,RestCriteria);
-[puffLogical] = FilterEvents_IOS(RestData.CBV_HbT.LH,RestPuffCriteria);
-combRestLogical = logical(restLogical.*puffLogical);
-restFileIDs = RestData.CBV_HbT.LH.fileIDs(combRestLogical,:);
-restEventTimes = RestData.CBV_HbT.LH.eventTimes(combRestLogical,:);
-restDurations = RestData.CBV_HbT.LH.durations(combRestLogical,:);
-LH_RestingData = RestData.CBV_HbT.LH.data(combRestLogical,:);
-RH_RestingData = RestData.CBV_HbT.RH.data(combRestLogical,:);
-% keep only the data that occurs within the manually-approved awake regions
-[LH_finalRestData,finalRestFileIDs,~,~] = RemoveInvalidData_IOS(LH_RestingData,restFileIDs,restDurations,restEventTimes,ManualDecisions);
-[RH_finalRestData,~,~,~] = RemoveInvalidData_IOS(RH_RestingData,restFileIDs,restDurations,restEventTimes,ManualDecisions);
-% filter [HbT]
-for gg = 1:length(LH_finalRestData)
-    LH_ProcRestData{gg,1} = filtfilt(sos,g,LH_finalRestData{gg,1});
-    RH_ProcRestData{gg,1} = filtfilt(sos,g,RH_finalRestData{gg,1});
-end
-% take mean [HbT] during resting epochs
-for nn = 1:length(LH_ProcRestData)
-    LH_restCBVMean(nn,1) = mean(LH_ProcRestData{nn,1}(1:end));
-    RH_restCBVMean(nn,1) = mean(RH_ProcRestData{nn,1}(1:end));
-end
-% save results
-Results_IntSig_Ephys.(group).(animalID).Rest.FileIDs = finalRestFileIDs;
-Results_IntSig_Ephys.(group).(animalID).Rest.MeanLH = LH_restCBVMean;
-Results_IntSig_Ephys.(group).(animalID).Rest.MeanRH = RH_restCBVMean;
-Results_IntSig_Ephys.(group).(animalID).Rest.IndLH = LH_ProcRestData;
-Results_IntSig_Ephys.(group).(animalID).Rest.IndRH = RH_ProcRestData;
-% analyze [HbT] during periods of moderate whisking (2-5 seconds)
-% pull data from EventData.mat structure
-[whiskLogical] = FilterEvents_IOS(EventData.CBV_HbT.LH.whisk,WhiskCriteria);
-[puffLogical] = FilterEvents_IOS(EventData.CBV_HbT.LH.whisk,WhiskPuffCriteria);
-combWhiskLogical = logical(whiskLogical.*puffLogical);
-whiskFileIDs = EventData.CBV_HbT.LH.whisk.fileIDs(combWhiskLogical,:);
-whiskEventTimes = EventData.CBV_HbT.LH.whisk.eventTime(combWhiskLogical,:);
-whiskDurations = EventData.CBV_HbT.LH.whisk.duration(combWhiskLogical,:);
-LH_whiskData = EventData.CBV_HbT.LH.whisk.data(combWhiskLogical,:);
-RH_whiskData = EventData.CBV_HbT.RH.whisk.data(combWhiskLogical,:);
-% keep only the data that occurs within the manually-approved awake regions
-[LH_finalWhiskData,finalWhiskFileIDs,~,~] = RemoveInvalidData_IOS(LH_whiskData,whiskFileIDs,whiskDurations,whiskEventTimes,ManualDecisions);
-[RH_finalWhiskData,~,~,~] = RemoveInvalidData_IOS(RH_whiskData,whiskFileIDs,whiskDurations,whiskEventTimes,ManualDecisions);
-% filter [HbT] and mean-subtract 2 seconds prior to whisk
-for gg = 1:size(LH_finalWhiskData,1)
-    LH_ProcWhiskData_temp = filtfilt(sos,g,LH_finalWhiskData(gg,:));
-    LH_ProcWhiskData(gg,:) = LH_ProcWhiskData_temp - mean(LH_ProcWhiskData_temp(1:params.Offset*samplingRate));
-    RH_ProcWhiskData_temp = filtfilt(sos,g,RH_finalWhiskData(gg,:));
-    RH_ProcWhiskData(gg,:) = RH_ProcWhiskData_temp - mean(RH_ProcWhiskData_temp(1:params.Offset*samplingRate));
-end
-% take mean [HbT] during whisking epochs from onset through 5 seconds
-for nn = 1:size(LH_ProcWhiskData,1)
-    LH_whiskCBVMean{nn,1} = mean(LH_ProcWhiskData(nn,params.Offset*samplingRate:params.minTime.Whisk*samplingRate),2);
-    RH_whiskCBVMean{nn,1} = mean(RH_ProcWhiskData(nn,params.Offset*samplingRate:params.minTime.Whisk*samplingRate),2);
-    LH_whiskCBV{nn,1} = LH_ProcWhiskData(nn,params.Offset*samplingRate:params.minTime.Whisk*samplingRate);
-    RH_whiskCBV{nn,1} = RH_ProcWhiskData(nn,params.Offset*samplingRate:params.minTime.Whisk*samplingRate);
-end
-% save results
-Results_IntSig_Ephys.(group).(animalID).Whisk.FileIDs = finalWhiskFileIDs;
-Results_IntSig_Ephys.(group).(animalID).Whisk.MeanLH = cell2mat(LH_whiskCBVMean);
-Results_IntSig_Ephys.(group).(animalID).Whisk.MeanRH = cell2mat(RH_whiskCBVMean);
-Results_IntSig_Ephys.(group).(animalID).Whisk.IndLH = LH_whiskCBV;
-Results_IntSig_Ephys.(group).(animalID).Whisk.IndRH = RH_whiskCBV;
-% analyze [HbT] during periods of stimulation
-% pull data from EventData.mat structure
-LH_stimFilter = FilterEvents_IOS(EventData.CBV_HbT.LH.stim,StimCriteriaA);
-RH_stimFilter = FilterEvents_IOS(EventData.CBV_HbT.RH.stim,StimCriteriaB);
-[LH_stimFileIDs] = EventData.CBV_HbT.LH.stim.fileIDs(LH_stimFilter,:);
-[RH_stimFileIDs] = EventData.CBV_HbT.RH.stim.fileIDs(RH_stimFilter,:);
-[LH_stimEventTimes] = EventData.CBV_HbT.LH.stim.eventTime(LH_stimFilter,:);
-[RH_stimEventTimes] = EventData.CBV_HbT.RH.stim.eventTime(RH_stimFilter,:);
-LH_stimDurations = zeros(length(LH_stimEventTimes),1);
-RH_stimDurations = zeros(length(RH_stimEventTimes),1);
-[LH_stimHbTData] = EventData.CBV_HbT.LH.stim.data(LH_stimFilter,:);
-[RH_stimHbTData] = EventData.CBV_HbT.RH.stim.data(RH_stimFilter,:);
-% keep only the data that occurs within the manually-approved awake regions
-[LH_finalStimData,LH_finalStimFileIDs,~,~] = RemoveInvalidData_IOS(LH_stimHbTData,LH_stimFileIDs,LH_stimDurations,LH_stimEventTimes,ManualDecisions);
-[RH_finalStimData,RH_finalStimFileIDs,~,~] = RemoveInvalidData_IOS(RH_stimHbTData,RH_stimFileIDs,RH_stimDurations,RH_stimEventTimes,ManualDecisions);
-% filter [HbT] and mean-subtract 2 seconds prior to stimulus (left hem)
-for gg = 1:size(LH_finalStimData,1)
-    LH_ProcStimData_temp = filtfilt(sos,g,LH_finalStimData(gg,:));
-    LH_ProcStimData(gg,:) = LH_ProcStimData_temp - mean(LH_ProcStimData_temp(1:params.Offset*samplingRate));
-end
-% filter [HbT] and mean-subtract 2 seconds prior to stimulus (right hem)
-for gg = 1:size(RH_finalStimData,1)
-    RH_ProcStimData_temp = filtfilt(sos,g,RH_finalStimData(gg,:));
-    RH_ProcStimData(gg,:) = RH_ProcStimData_temp - mean(RH_ProcStimData_temp(1:params.Offset*samplingRate));
-end
-% take mean [HbT] 1-2 seconds after stimulation (left hem)
-for nn = 1:size(LH_ProcStimData,1)
-    LH_stimCBVMean{nn,1} = mean(LH_ProcStimData(nn,(params.Offset + 1)*samplingRate:params.minTime.Stim*samplingRate),2);
-    LH_stimCBV{nn,1} = LH_ProcStimData(nn,(params.Offset + 1)*samplingRate:params.minTime.Stim*samplingRate);
-end
-% take mean [HbT] 1-2 seconds after stimulation (right hem)
-for nn = 1:size(RH_ProcStimData,1)
-    RH_stimCBVMean{nn,1} = mean(RH_ProcStimData(nn,(params.Offset + 1)*samplingRate:params.minTime.Stim*samplingRate),2);
-    RH_stimCBV{nn,1} = RH_ProcStimData(nn,(params.Offset + 1)*samplingRate:params.minTime.Stim*samplingRate);
-end
-% save results
-Results_IntSig_Ephys.(group).(animalID).Stim.LH_FileIDs = LH_finalStimFileIDs;
-Results_IntSig_Ephys.(group).(animalID).Stim.RH_FileIDs = RH_finalStimFileIDs;
-Results_IntSig_Ephys.(group).(animalID).Stim.MeanLH = cell2mat(LH_stimCBVMean);
-Results_IntSig_Ephys.(group).(animalID).Stim.MeanRH = cell2mat(RH_stimCBVMean);
-Results_IntSig_Ephys.(group).(animalID).Stim.IndLH = LH_stimCBV;
-Results_IntSig_Ephys.(group).(animalID).Stim.IndRH = RH_stimCBV;
-% analyze [HbT] during periods of NREM sleep
-% pull data from SleepData.mat structure
-[LH_nremData,nremFileIDs,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.CBV_HbT.LH,SleepData.(modelType).NREM.FileIDs,SleepData.(modelType).NREM.BinTimes);
-[RH_nremData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.CBV_HbT.RH,SleepData.(modelType).NREM.FileIDs,SleepData.(modelType).NREM.BinTimes);
-% filter and take mean [HbT] during NREM epochs
-for nn = 1:length(LH_nremData)
-    LH_nremCBVMean(nn,1) = mean(filtfilt(sos,g,LH_nremData{nn,1}(1:end)));
-    RH_nremCBVMean(nn,1) = mean(filtfilt(sos,g,RH_nremData{nn,1}(1:end)));
-end
-% save results
-Results_IntSig_Ephys.(group).(animalID).NREM.FileIDs = nremFileIDs;
-Results_IntSig_Ephys.(group).(animalID).NREM.MeanLH = LH_nremCBVMean;
-Results_IntSig_Ephys.(group).(animalID).NREM.MeanRH = RH_nremCBVMean;
-Results_IntSig_Ephys.(group).(animalID).NREM.IndLH = LH_nremData;
-Results_IntSig_Ephys.(group).(animalID).NREM.IndRH = RH_nremData;
-% analyze [HbT] during periods of REM sleep
-% pull data from SleepData.mat structure
-[LH_remData,remFileIDs,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.CBV_HbT.LH,SleepData.(modelType).REM.FileIDs,SleepData.(modelType).REM.BinTimes);
-[RH_remData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.CBV_HbT.RH,SleepData.(modelType).REM.FileIDs,SleepData.(modelType).REM.BinTimes);
-% filter and take mean [HbT] during REM epochs
-for nn = 1:length(LH_remData)
-    LH_remCBVMean(nn,1) = mean(filtfilt(sos,g,LH_remData{nn,1}(1:end)));
-    RH_remCBVMean(nn,1) = mean(filtfilt(sos,g,RH_remData{nn,1}(1:end)));
-end
-% save results
-Results_IntSig_Ephys.(group).(animalID).REM.FileIDs = remFileIDs;
-Results_IntSig_Ephys.(group).(animalID).REM.MeanLH = LH_remCBVMean;
-Results_IntSig_Ephys.(group).(animalID).REM.MeanRH = RH_remCBVMean;
-Results_IntSig_Ephys.(group).(animalID).REM.IndLH = LH_remData;
-Results_IntSig_Ephys.(group).(animalID).REM.IndRH = RH_remData;
-% analyze [HbT] during periods of isolfurane
-dataLocation = [rootFolder delim 'Data' delim group delim set delim animalID delim 'Isoflurane Trials'];
-cd(dataLocation)
-try
-    % pull ProcData.mat file associated with isoflurane administration
-    procDataFileStruct = dir('*_ProcData.mat');
-    procDataFile = {procDataFileStruct.name}';
-    procDataFileID = char(procDataFile);
-    load(procDataFileID,'-mat')
-    % extract left and right [HbT] changes during the last 100 seconds of data
-    isoLH_HbT = ProcData.data.CBV_HbT.adjLH((end - samplingRate*100):end);
-    filtIsoLH_HbT = filtfilt(sos,g,isoLH_HbT);
-    isoRH_HbT = ProcData.data.CBV_HbT.adjRH((end - samplingRate*100):end);
-    filtIsoRH_HbT = filtfilt(sos,g,isoRH_HbT);
+% loop variables
+hemispheres = {'LH','RH'};
+for aa = 1:length(hemispheres)
+    hemisphere = hemispheres{1,aa};
+    % lowpass filter
+    samplingRate = RestData.HbT.(hemisphere).CBVCamSamplingRate;
+    [z,p,k] = butter(4,1/(samplingRate/2),'low');
+    [sos,g] = zp2sos(z,p,k);
+    %% rest
+    [restLogical] = FilterEvents_IOS(RestData.HbT.(hemisphere),RestCriteria);
+    [puffLogical] = FilterEvents_IOS(RestData.HbT.(hemisphere),RestPuffCriteria);
+    combRestLogical = logical(restLogical.*puffLogical);
+    restFileIDs = RestData.HbT.(hemisphere).fileIDs(combRestLogical,:);
+    restEventTimes = RestData.HbT.(hemisphere).eventTimes(combRestLogical,:);
+    restDurations = RestData.HbT.(hemisphere).durations(combRestLogical,:);
+    restData = RestData.HbT.(hemisphere).data(combRestLogical,:);
+    % keep only the data that occurs within the manually-approved awake regions
+    [finalRestData,~,~,~] = RemoveInvalidData_IOS(restData,restFileIDs,restDurations,restEventTimes,ManualDecisions);
+    % filter and average
+    for gg = 1:length(finalRestData)
+        procRestData{gg,1} = filtfilt(sos,g,finalRestData{gg,1});
+        restMean(gg,1) = mean(procRestData{gg,1}(1:end));
+    end
     % save results
-    Results_IntSig_Ephys.(group).(animalID).Iso.MeanLH = mean(filtIsoLH_HbT);
-    Results_IntSig_Ephys.(group).(animalID).Iso.MeanRH = mean(filtIsoRH_HbT);
-    Results_IntSig_Ephys.(group).(animalID).Iso.FileIDs = procDataFileID;
-catch
+    Results_IntSig_Ephys.(group).(animalID).(hemisphere).Rest.HbT = restMean;
+    %% whisk
+    [whiskLogical] = FilterEvents_IOS(EventData.HbT.(hemisphere).whisk,WhiskCriteria);
+    [puffLogical] = FilterEvents_IOS(EventData.HbT.(hemisphere).whisk,WhiskPuffCriteria);
+    combWhiskLogical = logical(whiskLogical.*puffLogical);
+    whiskFileIDs = EventData.HbT.(hemisphere).whisk.fileIDs(combWhiskLogical,:);
+    whiskEventTimes = EventData.HbT.(hemisphere).whisk.eventTime(combWhiskLogical,:);
+    whiskDurations = EventData.HbT.(hemisphere).whisk.duration(combWhiskLogical,:);
+    whiskData = EventData.HbT.(hemisphere).whisk.data(combWhiskLogical,:);
+    % keep only the data that occurs within the manually-approved awake regions
+    [finalWhiskData,~,~,~] = RemoveInvalidData_IOS(whiskData,whiskFileIDs,whiskDurations,whiskEventTimes,ManualDecisions);
+    % filter and average
+    for gg = 1:size(finalWhiskData,1)
+        procWhiskData_temp = filtfilt(sos,g,finalWhiskData(gg,:));
+        procWhiskData(gg,:) = procWhiskData_temp - mean(procWhiskData_temp(1:params.Offset*samplingRate));
+        whiskMean{gg,1} = mean(procWhiskData(gg,params.Offset*samplingRate:params.minTime.Whisk*samplingRate),2);
+    end
     % save results
-    Results_IntSig_Ephys.(group).(animalID).Iso.MeanLH = [];
-    Results_IntSig_Ephys.(group).(animalID).Iso.MeanRH = [];
-    Results_IntSig_Ephys.(group).(animalID).Iso.FileIDs = [];
+    Results_IntSig_Ephys.(group).(animalID).(hemisphere).Whisk.HbT = cell2mat(whiskMean);
+    %% stim
+    if any(strcmp(hemisphere,{'LH'})) == true
+        StimCriteria = StimCriteriaA;
+    elseif any(strcmp(hemisphere,{'RH'})) == true
+        StimCriteria = StimCriteriaB;
+    end
+    stimFilter = FilterEvents_IOS(EventData.HbT.(hemisphere).stim,StimCriteria);
+    [stimFileIDs] = EventData.HbT.(hemisphere).stim.fileIDs(stimFilter,:);
+    [stimEventTimes] = EventData.HbT.(hemisphere).stim.eventTime(stimFilter,:);
+    stimDurations = zeros(length(stimEventTimes),1);
+    [stimData] = EventData.HbT.(hemisphere).stim.data(stimFilter,:);
+    % keep only the data that occurs within the manually-approved awake regions
+    [finalStimData,~,~,~] = RemoveInvalidData_IOS(stimData,stimFileIDs,stimDurations,stimEventTimes,ManualDecisions);
+    % filter and average
+    for gg = 1:size(finalStimData,1)
+        procStimData_temp = filtfilt(sos,g,finalStimData(gg,:));
+        procStimData(gg,:) = procStimData_temp - mean(procStimData_temp(1:params.Offset*samplingRate));
+        stimMean{gg,1} = mean(procStimData(gg,(params.Offset + 1)*samplingRate:params.minTime.Stim*samplingRate),2);
+    end
+    % save results
+    Results_IntSig_Ephys.(group).(animalID).(hemisphere).Stim.HbT = cell2mat(stimMean);
+    %% NREM
+    [nremData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.HbT.(hemisphere),SleepData.(modelType).NREM.FileIDs,SleepData.(modelType).NREM.BinTimes);
+    % filter and average
+    for nn = 1:length(nremData)
+        nremMean(nn,1) = mean(filtfilt(sos,g,nremData{nn,1}(1:end)));
+    end
+    % save results
+    Results_IntSig_Ephys.(group).(animalID).(hemisphere).NREM.HbT = nremMean;
+    %% REM
+    [remData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.HbT.(hemisphere),SleepData.(modelType).REM.FileIDs,SleepData.(modelType).REM.BinTimes);
+    % filter and average
+    for nn = 1:length(remData)
+        remMean(nn,1) = mean(filtfilt(sos,g,remData{nn,1}(1:end)));
+    end
+    % save results
+    Results_IntSig_Ephys.(group).(animalID).(hemisphere).REM.HbT = remMean;
+    %% isolfurane
+    isoDataLocation = [rootFolder delim 'Data' delim group delim set delim animalID delim 'Isoflurane Trials'];
+    cd(isoDataLocation)
+    try
+        % pull ProcData.mat file associated with isoflurane administration
+        procDataFileStruct = dir('*_ProcData.mat');
+        procDataFile = {procDataFileStruct.name}';
+        procDataFileID = char(procDataFile);
+        load(procDataFileID,'-mat')
+        % filter and average
+        isoData = ProcData.data.CBV_HbT.(hemisphere)((end - samplingRate*100):end);
+        filtIsoData = filtfilt(sos,g,isoData);
+        % save results
+        Results_IntSig_Ephys.(group).(animalID).(hemisphere).Iso.HbT = mean(filtIsoData);
+    catch
+        % save results
+        Results_IntSig_Ephys.(group).(animalID).(hemisphere).Iso.HbT = [];
+    end
+    cd(dataLocation)
 end
 % save data
 cd([rootFolder delim 'Results_Turner'])

@@ -17,19 +17,19 @@ else
 end
 if isfield(PupilData,'firstFileOfDay') == false
     % establish the number of unique days based on file IDs
-    [~,fileDates,~] = GetFileInfo_JNeurosci2022(procDataFileIDs);
-    [uniqueDays,~,DayID] = GetUniqueDays_JNeurosci2022(fileDates);
+    [~,fileDates,~] = GetFileInfo_IOS(procDataFileIDs);
+    [uniqueDays,~,DayID] = GetUniqueDays_IOS(fileDates);
     for aa = 1:length(uniqueDays)
-        strDay = ConvertDate_JNeurosci2022(uniqueDays{aa,1});
+        strDay = ConvertDate_IOS(uniqueDays{aa,1});
         FileInd = DayID == aa;
         dayFilenames.(strDay) = procDataFileIDs(FileInd,:);
     end
     for bb = 1:length(uniqueDays)
-        strDay = ConvertDate_JNeurosci2022(uniqueDays{bb,1});
+        strDay = ConvertDate_IOS(uniqueDays{bb,1});
         for cc = 1:size(dayFilenames.(strDay),1)
             procDataFileID = dayFilenames.(strDay)(cc,:);
             load(procDataFileID)
-            [animalID,~,fileID] = GetFileInfo_JNeurosci2022(procDataFileID);
+            [animalID,~,fileID] = GetFileInfo_IOS(procDataFileID);
             pupilCamFileID = [fileID '_PupilCam.bin'];
             fid = fopen(pupilCamFileID); % reads the binary file in to the work space
             fseek(fid,0,'eof'); % find the end of the video frame
@@ -96,8 +96,8 @@ end
 for bb = 1:length(firstFileOfDay)
     firstFile = firstFileOfDay{1,bb};
     load(firstFile)
-    [animalID,fileDate,fileID] = GetFileInfo_JNeurosci2022(firstFile);
-    strDay = ConvertDate_JNeurosci2022(fileDate);
+    [animalID,fileDate,fileID] = GetFileInfo_IOS(firstFile);
+    strDay = ConvertDate_IOS(fileDate);
     if ~isfield(PupilData.EyeROI,(strDay))
         pupilCamFileID = [fileID '_PupilCam.bin'];
         fid = fopen(pupilCamFileID); % reads the binary file in to the work space
@@ -122,7 +122,7 @@ for bb = 1:length(firstFileOfDay)
         [eyeROI] = roipoly(workingImg);
         % model the distribution of pixel intensities as a gaussian to estimate/isolate the population of pupil pixels
         pupilHistEdges = 1:1:256; % camera data is unsigned 8bit integers. Ignore 0 values
-        threshSet = 2; % StD beyond mean intensity to binarize image for pupil tracking
+        threshSet = 1.5; % StD beyond mean intensity to binarize image for pupil tracking
         medFiltParams = [5,5]; % [x,y] dimensions for 2d median filter of images
         filtImg = medfilt2(workingImg,medFiltParams); % median filter image
         threshImg = double(filtImg).*eyeROI; % only look at pixel values in ROI
@@ -203,8 +203,8 @@ for cc = 1:size(procDataFileIDs,1)
     load(char(procDataFileID))
     disp(['Checking pupil tracking status of file (' num2str(cc) '/' num2str(size(procDataFileIDs,1)) ')']); disp(' ')
     if isfield(ProcData.data,'Pupil') == false
-        [~,fileDate,fileID] = GetFileInfo_JNeurosci2022(procDataFileID);
-        strDay = ConvertDate_JNeurosci2022(fileDate);
+        [~,fileDate,fileID] = GetFileInfo_IOS(procDataFileID);
+        strDay = ConvertDate_IOS(fileDate);
         pupilCamFileID = [fileID '_PupilCam.bin'];
         idx = 0;
         for qq = 1:size(PupilData.firstFileOfDay,2)
@@ -509,7 +509,7 @@ for cc = 1:size(procDataFileIDs,1)
         ProcData.data.Pupil.blinkInds = blinks;
         % patch NaNs due to blinking
         blinkNaNs = isnan(pupilArea);
-        [linkedBlinkIndex] = LinkBinaryEvents_JNeurosci2022(gt(blinkNaNs,0),[samplingRate,0]); % link greater than 1 second
+        [linkedBlinkIndex] = LinkBinaryEvents_IOS(gt(blinkNaNs,0),[samplingRate,0]); % link greater than 1 second
         % identify edges for interpolation
         xx = 1;
         edgeFoundA = false;
@@ -554,7 +554,7 @@ for cc = 1:size(procDataFileIDs,1)
         % threshold for interpolation
         threshold = 250;
         diffIndex = diffArea > threshold;
-        [linkedDiffIndex] = LinkBinaryEvents_JNeurosci2022(gt(diffIndex,0),[samplingRate*2,0]);
+        [linkedDiffIndex] = LinkBinaryEvents_IOS(gt(diffIndex,0),[samplingRate*2,0]);
         % identify edges for interpolation
         edgeFoundB = false;
         xx = 1;

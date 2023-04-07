@@ -1,16 +1,12 @@
 function [RestData] = ExtractRestingData_IOS(procdataFiles,iteration)
-%________________________________________________________________________________________________________________________
+%----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%
-% Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
-%
-% Purpose: Extracts all resting data periods from the data using behavioral flags
-%________________________________________________________________________________________________________________________
-
+%----------------------------------------------------------------------------------------------------------
 load(procdataFiles(1,:));
-imagingWavelengths = ProcData.notes.imagingWavelengths;
+imagingWavelengths = 'Lime';
+% imagingWavelengths = ProcData.notes.imagingWavelengths;
 if any(strcmp(imagingWavelengths,{'Red, Green, & Blue','Red, Lime, & Blue'})) == true
     if iteration == 1
         dataTypes = {'CBV','GCaMP7s','cortical_LH','cortical_RH','hippocampus','EMG'};
@@ -53,7 +49,11 @@ for aa = 1:length(dataTypes)
             expectedLength = trialDuration_sec*samplingRate;
             % get information about periods of rest from the loaded file
             trialEventTimes = ProcData.flags.rest.eventTime';
-            trialStimDistances = ProcData.flags.rest.stimDistance;
+            try
+                trialStimDistances = ProcData.flags.rest.stimDistance;
+            catch
+                trialStimDistances = ProcData.flags.rest.puffDistance;
+            end
             trialDurations = ProcData.flags.rest.duration';
             % initialize cell array for all periods of rest from the loaded file
             trialRestVals = cell(size(trialEventTimes'));
@@ -95,5 +95,3 @@ for aa = 1:length(dataTypes)
     end
 end
 save([animalID '_RestData.mat'],'RestData','-v7.3');
-
-end

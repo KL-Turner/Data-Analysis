@@ -69,8 +69,8 @@ for aa = 1:size(procDataFileIDs,1) % loop through the list of ProcData files
             LH_CBV{indexCount,1} = ProcData.sleep.parameters.CBV.LH{fixedSleepIndex(indexCount),1};
             RH_CBV{indexCount,1} = ProcData.sleep.parameters.CBV.RH{fixedSleepIndex(indexCount),1};
             % HbT
-            LH_hbtCBV{indexCount,1} = ProcData.sleep.parameters.CBV_HbT.hbtLH{fixedSleepIndex(indexCount),1};
-            RH_hbtCBV{indexCount,1} = ProcData.sleep.parameters.CBV_HbT.hbtRH{fixedSleepIndex(indexCount),1};
+            LH_hbtCBV{indexCount,1} = ProcData.sleep.parameters.HbT.LH{fixedSleepIndex(indexCount),1};
+            RH_hbtCBV{indexCount,1} = ProcData.sleep.parameters.HbT.RH{fixedSleepIndex(indexCount),1};
             % whiskers, heart rate, LDF
             WhiskerAcceleration{indexCount,1} = ProcData.sleep.parameters.whiskerAcceleration{fixedSleepIndex(indexCount),1};
             HeartRate{indexCount,1} = ProcData.sleep.parameters.heartRate{fixedSleepIndex(indexCount),1};
@@ -408,8 +408,8 @@ for aa = 1:size(procDataFileIDs,1) % loop through the list of ProcData files
                 SleepData.(modelName).NREM.data.CBV.LH{cellLength,1} = cellLH_CBV{1,1};
                 SleepData.(modelName).NREM.data.CBV.RH{cellLength,1} = cellRH_CBV{1,1};
                 % HbT
-                SleepData.(modelName).NREM.data.CBV_HbT.LH{cellLength,1} = cellLH_hbtCBV{1,1};
-                SleepData.(modelName).NREM.data.CBV_HbT.RH{cellLength,1} = cellRH_hbtCBV{1,1};
+                SleepData.(modelName).NREM.data.HbT.LH{cellLength,1} = cellLH_hbtCBV{1,1};
+                SleepData.(modelName).NREM.data.HbT.RH{cellLength,1} = cellRH_hbtCBV{1,1};
                 % whiskers, heart rate, LDF
                 SleepData.(modelName).NREM.data.WhiskerAcceleration{cellLength,1} = cellWhiskerAcceleration{1,1};
                 SleepData.(modelName).NREM.data.HeartRate{cellLength,1} = cellHeartRate{1,1};
@@ -443,8 +443,8 @@ for aa = 1:size(procDataFileIDs,1) % loop through the list of ProcData files
                 SleepData.(modelName).NREM.data.CBV.LH{size(SleepData.(modelName).NREM.data.CBV.LH,1) + 1,1} = cellLH_CBV{cellLength,1};
                 SleepData.(modelName).NREM.data.CBV.RH{size(SleepData.(modelName).NREM.data.CBV.RH,1) + 1,1} = cellRH_CBV{cellLength,1};
                 % HbT
-                SleepData.(modelName).NREM.data.CBV_HbT.LH{size(SleepData.(modelName).NREM.data.CBV_HbT.LH,1) + 1,1} = cellLH_hbtCBV{cellLength,1};
-                SleepData.(modelName).NREM.data.CBV_HbT.RH{size(SleepData.(modelName).NREM.data.CBV_HbT.RH,1) + 1,1} = cellRH_hbtCBV{cellLength,1};
+                SleepData.(modelName).NREM.data.HbT.LH{size(SleepData.(modelName).NREM.data.HbT.LH,1) + 1,1} = cellLH_hbtCBV{cellLength,1};
+                SleepData.(modelName).NREM.data.HbT.RH{size(SleepData.(modelName).NREM.data.HbT.RH,1) + 1,1} = cellRH_hbtCBV{cellLength,1};
                 % whiskers, heart rate, LDF
                 SleepData.(modelName).NREM.data.WhiskerAcceleration{size(SleepData.(modelName).NREM.data.WhiskerAcceleration,1) + 1,1} = cellWhiskerAcceleration{cellLength,1};
                 SleepData.(modelName).NREM.data.HeartRate{size(SleepData.(modelName).NREM.data.HeartRate,1) + 1,1} = cellHeartRate{cellLength,1};
@@ -497,8 +497,8 @@ for aa = 1:size(procDataFileIDs,1) % loop through the list of ProcData files
             LH_CBV{indexCount,1} = ProcData.sleep.parameters.CBV.LH{fixedSleepIndex(indexCount),1};
             RH_CBV{indexCount,1} = ProcData.sleep.parameters.CBV.RH{fixedSleepIndex(indexCount),1};
             % HbT
-            LH_hbtCBV{indexCount,1} = ProcData.sleep.parameters.CBV.hbtLH{fixedSleepIndex(indexCount),1};
-            RH_hbtCBV{indexCount,1} = ProcData.sleep.parameters.CBV.hbtRH{fixedSleepIndex(indexCount),1};
+            LH_hbtCBV{indexCount,1} = ProcData.sleep.parameters.HbT.LH{fixedSleepIndex(indexCount),1};
+            RH_hbtCBV{indexCount,1} = ProcData.sleep.parameters.HbT.RH{fixedSleepIndex(indexCount),1};
             % whiskers, heart rate, LDF
             WhiskerAcceleration{indexCount,1} = ProcData.sleep.parameters.whiskerAcceleration{fixedSleepIndex(indexCount),1};
             HeartRate{indexCount,1} = ProcData.sleep.parameters.heartRate{fixedSleepIndex(indexCount),1};
@@ -836,8 +836,8 @@ for aa = 1:size(procDataFileIDs,1) % loop through the list of ProcData files
                 SleepData.(modelName).REM.data.CBV.LH{cellLength,1} = cellLH_CBV{1,1};
                 SleepData.(modelName).REM.data.CBV.RH{cellLength,1} = cellRH_CBV{1,1};
                 % HbT
-                SleepData.(modelName).REM.data.CBV_HbT.LH{cellLength,1} = cellLH_hbtCBV{1,1};
-                SleepData.(modelName).REM.data.CBV_HbT.RH{cellLength,1} = cellRH_hbtCBV{1,1};
+                SleepData.(modelName).REM.data.HbT.LH{cellLength,1} = cellLH_hbtCBV{1,1};
+                SleepData.(modelName).REM.data.HbT.RH{cellLength,1} = cellRH_hbtCBV{1,1};
                 % whiskers, heart rate, LDF
                 SleepData.(modelName).REM.data.WhiskerAcceleration{cellLength,1} = cellWhiskerAcceleration{1,1};
                 SleepData.(modelName).REM.data.HeartRate{cellLength,1} = cellHeartRate{1,1};
@@ -871,8 +871,8 @@ for aa = 1:size(procDataFileIDs,1) % loop through the list of ProcData files
                 SleepData.(modelName).REM.data.CBV.LH{size(SleepData.(modelName).REM.data.CBV.LH,1) + 1,1} = cellLH_CBV{cellLength,1};
                 SleepData.(modelName).REM.data.CBV.RH{size(SleepData.(modelName).REM.data.CBV.RH,1) + 1,1} = cellRH_CBV{cellLength,1};
                 % HbT
-                SleepData.(modelName).REM.data.CBV_HbT.LH{size(SleepData.(modelName).REM.data.CBV_HbT.LH,1) + 1,1} = cellLH_hbtCBV{cellLength,1};
-                SleepData.(modelName).REM.data.CBV_HbT.RH{size(SleepData.(modelName).REM.data.CBV_HbT.RH,1) + 1,1} = cellRH_hbtCBV{cellLength,1};
+                SleepData.(modelName).REM.data.HbT.LH{size(SleepData.(modelName).REM.data.HbT.LH,1) + 1,1} = cellLH_hbtCBV{cellLength,1};
+                SleepData.(modelName).REM.data.HbT.RH{size(SleepData.(modelName).REM.data.HbT.RH,1) + 1,1} = cellRH_hbtCBV{cellLength,1};
                 % whiskers, heart rate, LDF
                 SleepData.(modelName).REM.data.WhiskerAcceleration{size(SleepData.(modelName).REM.data.WhiskerAcceleration,1) + 1,1} = cellWhiskerAcceleration{cellLength,1};
                 SleepData.(modelName).REM.data.HeartRate{size(SleepData.(modelName).REM.data.HeartRate,1) + 1,1} = cellHeartRate{cellLength,1};
@@ -886,6 +886,3 @@ for aa = 1:size(procDataFileIDs,1) % loop through the list of ProcData files
 end
 % save structure
 disp([modelName ' model data added to SleepData structure.']); disp(' ')
-cd(startingDirectory)
-
-end

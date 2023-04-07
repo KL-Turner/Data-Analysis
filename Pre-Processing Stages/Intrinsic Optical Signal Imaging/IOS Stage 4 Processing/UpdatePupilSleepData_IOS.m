@@ -42,9 +42,9 @@ for a = 1:size(procDataFileIDs,1) % Loop through the list of ProcData files
                 for aa = 1:length(dataTypes)
                     dataType = dataTypes{1,aa};
                     if strcmp(dataType,'LH_HbT') == true
-                        data.(dataType).data{pp,1} = ProcData.sleep.parameters.CBV.hbtLH{fixedSleepIndex(pp),1};
+                        data.(dataType).data{pp,1} = ProcData.sleep.parameters.HbT.LH{fixedSleepIndex(pp),1};
                     elseif strcmp(dataType,'RH_HbT') == true
-                        data.(dataType).data{pp,1} = ProcData.sleep.parameters.CBV.hbtRH{fixedSleepIndex(pp),1};
+                        data.(dataType).data{pp,1} = ProcData.sleep.parameters.HbT.RH{fixedSleepIndex(pp),1};
                     elseif strcmp(dataType,'LH_gammaBandPower') == true
                         data.(dataType).data{pp,1} = ProcData.sleep.parameters.cortical_LH.gammaBandPower{fixedSleepIndex(pp),1};
                     elseif strcmp(dataType,'RH_gammaBandPower') == true
@@ -144,9 +144,9 @@ for a = 1:size(procDataFileIDs,1) % loop through the list of ProcData files
                 for aa = 1:length(dataTypes)
                     dataType = dataTypes{1,aa};
                     if strcmp(dataType,'LH_HbT') == true
-                        data.(dataType).data{pp,1} = ProcData.sleep.parameters.CBV.hbtLH{fixedSleepIndex(pp),1};
+                        data.(dataType).data{pp,1} = ProcData.sleep.parameters.HbT.LH{fixedSleepIndex(pp),1};
                     elseif strcmp(dataType,'RH_HbT') == true
-                        data.(dataType).data{pp,1} = ProcData.sleep.parameters.CBV.hbtRH{fixedSleepIndex(pp),1};
+                        data.(dataType).data{pp,1} = ProcData.sleep.parameters.HbT.RH{fixedSleepIndex(pp),1};
                     elseif strcmp(dataType,'LH_gammaBandPower') == true
                         data.(dataType).data{pp,1} = ProcData.sleep.parameters.cortical_LH.gammaBandPower{fixedSleepIndex(pp),1};
                     elseif strcmp(dataType,'RH_gammaBandPower') == true

@@ -64,10 +64,8 @@ dataTypes = {'pupilArea','diameter','mmArea','mmDiameter','zArea','zDiameter','p
 % add pupil area to EventData.mat
 [EventData] = ExtractPupilEventTriggeredData_IOS(procDataFileIDs);
 % normalize Rest/Event data structures
-[RestData] = NormBehavioralDataStruct_IOS(RestData,RestingBaselines,'manualSelection');
-save([animalID '_RestData.mat'],'RestData','-v7.3')
-[EventData] = NormBehavioralDataStruct_IOS(EventData,RestingBaselines,'manualSelection');
-save([animalID '_EventData.mat'],'EventData','-v7.3')
+[RestData] = NormRestDataStruct_IOS(RestData,RestingBaselines,'manualSelection');
+[EventData] = NormEventDataStruct_IOS(EventData,RestingBaselines,'manualSelection');
 % add pupil data to SleepData.mat
-AddPupilSleepParameters_IOS(procDataFileIDs,RestingBaselines)
+AddPupilSleepParameters_IOS(procDataFileIDs)
 UpdatePupilSleepData_IOS(procDataFileIDs)

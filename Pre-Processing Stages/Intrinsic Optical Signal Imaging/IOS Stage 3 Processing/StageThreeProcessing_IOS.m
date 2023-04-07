@@ -1,5 +1,5 @@
-%________________________________________________________________________________________________________________________
-% Written by Kevin L. Turnery
+%----------------------------------------------------------------------------------------------------------
+% Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %
@@ -15,8 +15,7 @@
 %          - Use the time indeces of the resting baseline file to apply a percentage change to the spectrograms
 %          - Use the time indeces of the resting baseline file to create a reflectance pixel-based baseline
 %          - Generate a summary figure for all of the analyzed and processed data
-%________________________________________________________________________________________________________________________
-
+%----------------------------------------------------------------------------------------------------------
 zap;
 % character list of all RawData files
 rawDataFileStruct = dir('*_RawData.mat');
@@ -39,11 +38,15 @@ CreateTrialSpectrograms_IOS(rawDataFileIDs);
 % normalize spectrogram by baseline
 NormalizeSpectrograms_IOS(RestingBaselines);
 % manually select files for custom baseline calculation
-[RestingBaselines] = CalculateManualRestingBaselinesTimeIndeces_IOS(procDataFileIDs,RestData,RestingBaselines,'reflectance');
+[RestingBaselines,ManualDecisions] = CalculateManualRestingBaselinesTimeIndeces_IOS(procDataFileIDs,RestData,RestingBaselines,'reflectance');
+% pixel-wise resting baselines
+[RestingBaselines] = CalculatePixelWiselRestingBaselines_IOS(procDataFileIDs,RestingBaselines,'y');
 % add delta HbT field to each processed data file
-UpdateTotalHemoglobin_IOS(procDataFileIDs,RestingBaselines,'manualSelection')
+UpdateTotalHemoglobin_IOS(procDataFileIDs,RestingBaselines,'manualSelection','y')
 % correct GCaMP attenuation
 CorrectGCaMPattenuation_IOS(procDataFileIDs,RestingBaselines)
+% calculate HbO HbR
+CalculateHbOHbR_IOS(procDataFileIDs,RestingBaselines)
 % re-create the RestData structure now that HbT (and/or corrected GCaMP) is available
 [RestData] = ExtractRestingData_IOS(procDataFileIDs,2);
 % create the EventData structure for CBV and neural data
@@ -58,6 +61,5 @@ CorrectGCaMPattenuation_IOS(procDataFileIDs,RestingBaselines)
 NormalizeSpectrograms_IOS(RestingBaselines);
 % create a structure with all spectrograms for convenient analysis further downstream
 CreateAllSpecDataStruct_IOS()
-%
 % generate single trial figures
 GenerateTrialFigures_IOS(procDataFileIDs,RestingBaselines);

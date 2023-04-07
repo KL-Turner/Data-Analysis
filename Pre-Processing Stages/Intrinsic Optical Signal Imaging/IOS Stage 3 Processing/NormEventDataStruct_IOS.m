@@ -1,119 +1,49 @@
 function [EventData] = NormEventDataStruct_IOS(EventData,RestingBaselines,baselineType)
-%________________________________________________________________________________________________________________________
+%----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%
-% Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
-%
-% Purpose: Normalizes data structures based on resting values
-%________________________________________________________________________________________________________________________
-
+%----------------------------------------------------------------------------------------------------------
 animalID = RestingBaselines.setDuration.baselineFileInfo.animalID;
 dataTypes = fieldnames(EventData);
 for dT = 1:length(dataTypes)
     dataType = char(dataTypes(dT));
-    if strcmp(dataType,'CBV_HbT') == false
-        hemisphereDataTypes = fieldnames(EventData.(dataType));
-        if strcmp(dataType,'LH_HbT') == false && strcmp(dataType,'RH_HbT') == false
-            for hDT = 1:length(hemisphereDataTypes)
-                hemDataType = char(hemisphereDataTypes(hDT));
-                if isfield(EventData.(dataType).(hemDataType),'whisk')
-                    behaviorFields = fieldnames(EventData.(dataType).(hemDataType));
-                    for bF = 1:length(behaviorFields)
-                        behField = char(behaviorFields(bF));
-                        if ~isempty(EventData.(dataType).(hemDataType).(behField).data)
-                            NormData = EventData.(dataType).(hemDataType).(behField).data;
-                            [uniqueDays,~,~] = GetUniqueDays_IOS(EventData.(dataType).(hemDataType).(behField).fileDates);
-                            for uD = 1:length(uniqueDays)
-                                date = uniqueDays{uD};
-                                strDay = ConvertDate_IOS(date);
-                                [~,dayInds] = GetDayInds_IOS(EventData.(dataType).(hemDataType).(behField).fileDates,date);
-                                disp(['Normalizing ' (hemDataType) ' ' (dataType) ' ' (behField) ' for ' (strDay) '...']); disp(' ')
-                                % calculate the baseline differently depending on data type
-                                if iscell(EventData.(dataType).(hemDataType).(behField).data)
-                                    dayData = EventData.(dataType).(hemDataType).(behField).data(dayInds);
-                                    normDayData = cell(size(dayData));
-                                    dayBaseline = RestingBaselines.(baselineType).(dataType).(hemDataType).(strDay);
-                                    for dD = 1:size(dayData,1)
-                                        cellBase = dayBaseline*ones(1,size(dayData{dD},2));
-                                        normDayData{dD} = dayData{dD}./cellBase - 1;
-                                    end
-                                    NormData(dayInds) = normDayData;
-                                else
-                                    try
-                                        dayBaseline = RestingBaselines.(baselineType).(dataType).(hemDataType).(strDay).mean;
-                                    catch
-                                        if strcmp(hemDataType,'LH_gammaBandPower') == true
-                                            dayBaseline = RestingBaselines.(baselineType).cortical_LH.gammaBandPower.(strDay).mean;
-                                        elseif strcmp(hemDataType,'RH_gammaBandPower') == true
-                                            dayBaseline = RestingBaselines.(baselineType).cortical_RH.gammaBandPower.(strDay).mean;
-                                        else
-                                            dayBaseline = NaN;
-                                        end
-                                    end
-                                    % pre-allocate array and use for permutation
-                                    normDayData = EventData.(dataType).(hemDataType).(behField).data(dayInds,:,:);
-                                    % permute norm_session_data to handle both matrix and array (squeeze
-                                    % causes a matrix dimension error if not permuted)
-                                    dayData = permute(normDayData,unique([2,1,ndims(normDayData)],'stable'));
-                                    for dD = 1:size(dayData,2)
-                                        normDayData(dD,:,:) = squeeze(dayData(:,dD,:))./(ones(size(dayData,1),1)*dayBaseline) - 1;
-                                    end
-                                    NormData(dayInds,:,:) = normDayData;
-                                end
-                                EventData.(dataType).(hemDataType).(behField).NormData = NormData;
-                            end
-                        end
-                    end
+    hemisphereDataTypes = fieldnames(EventData.(dataType));
+    for hDT = 1:length(hemisphereDataTypes)
+        hemDataType = char(hemisphereDataTypes(hDT));
+        behaviorFields = fieldnames(EventData.(dataType).(hemDataType));
+        for bF = 1:length(behaviorFields)
+            behavField = char(behaviorFields(bF));
+            if isempty(EventData.(dataType).(hemDataType).(behavField).data) == false
+                if any(strcmp(dataType,{'HbT','HbO','HbR'})) == true % don't normalize, but keep field name for convenience
+                    EventData.(dataType).(hemDataType).(behavField).NormData = EventData.(dataType).(hemDataType).(behavField).data;
                 else
-                    NormData = EventData.(dataType).(hemDataType).data;
-                    [uniqueDays,~,~] = GetUniqueDays_IOS(EventData.(dataType).(hemDataType).fileDates);
+                    [uniqueDays,~,~] = GetUniqueDays_IOS(EventData.(dataType).(hemDataType).(behavField).fileDates);
                     for uD = 1:length(uniqueDays)
                         date = uniqueDays{uD};
                         strDay = ConvertDate_IOS(date);
-                        [~,dayInds] = GetDayInds_IOS(EventData.(dataType).(hemDataType).fileDates,date);
-                        disp(['Normalizing ' (hemDataType) ' ' (dataType) ' for ' (strDay) '...']); disp(' ')
+                        [~,dayInds] = GetDayInds_IOS(EventData.(dataType).(hemDataType).(behavField).fileDates,date);
+                        disp(['Normalizing ' (hemDataType) ' ' (dataType) ' ' (behavField) ' for ' (strDay) '...']); disp(' ')
                         % calculate the baseline differently depending on data type
-                        if iscell(EventData.(dataType).(hemDataType).data)
-                            dayData = EventData.(dataType).(hemDataType).data(dayInds);
-                            normDayData = cell(size(dayData));
-                            try
-                                dayBaseline = RestingBaselines.(baselineType).(dataType).(hemDataType).(strDay).mean;
-                            catch
-                                if strcmp(hemDataType,'LH_gammaBandPower') == true
-                                    dayBaseline = RestingBaselines.(baselineType).cortical_LH.gammaBandPower.(strDay).mean;
-                                elseif strcmp(hemDataType,'RH_gammaBandPower') == true
-                                    dayBaseline = RestingBaselines.(baselineType).cortical_RH.gammaBandPower.(strDay).mean;
-                                else
-                                    dayBaseline = NaN;
-                                end
-                            end
-                            for dD = 1:size(dayData,1)
-                                cellBase = dayBaseline*ones(1,size(dayData{dD},2));
-                                normDayData{dD} = dayData{dD}./cellBase - 1;
-                            end
-                            NormData(dayInds) = normDayData;
-                        else
-                            dayBaseline = RestingBaselines.(dataType).(hemDataType).(strDay);
-                            % pre-allocate array and use for permutation
-                            normDayData = EventData.(dataType).(hemDataType).data(dayInds,:,:);
-                            % permute norm_session_data to handle both matrix and array (squeeze
-                            % causes a matrix dimension error if not permuted)
-                            dayData = permute(normDayData,unique([2,1,ndims(normDayData)],'stable'));
-
-                            for dD = 1:size(dayData,2)
-                                normDayData(dD,:,:) = squeeze(dayData(:,dD,:))./(ones(size(dayData,1),1)*dayBaseline) - 1;
-                            end
-                            NormData(dayInds,:,:) = normDayData;
+                        try
+                            dayBaseline = RestingBaselines.(baselineType).(dataType).(hemDataType).(strDay).mean;
+                        catch
+                            dayBaseline = 0;
                         end
-                        EventData.(dataType).(hemDataType).NormData = NormData;
+                        % pre-allocate array and use for permutation
+                        normDayData = EventData.(dataType).(hemDataType).(behavField).data(dayInds,:,:);
+                        % permute norm_session_data to handle both matrix and array (squeeze
+                        % causes a matrix dimension error if not permuted)
+                        dayData = permute(normDayData,unique([2,1,ndims(normDayData)],'stable'));
+                        for dD = 1:size(dayData,2)
+                            normDayData(dD,:,:) = squeeze(dayData(:,dD,:))./(ones(size(dayData,1),1)*dayBaseline) - 1;
+                        end
+                        normData(dayInds,:,:) = normDayData;
                     end
+                    EventData.(dataType).(hemDataType).(behavField).NormData = normData;
                 end
             end
         end
     end
 end
 save([animalID '_EventData.mat'],'EventData','-v7.3')
-
-end

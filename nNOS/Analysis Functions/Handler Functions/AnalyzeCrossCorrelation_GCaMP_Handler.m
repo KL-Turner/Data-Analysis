@@ -1,13 +1,9 @@
 function [] = AnalyzeCrossCorrelation_GCaMP_Handler(rootFolder,delim,runFromStart)
-%________________________________________________________________________________________________________________________
+%----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%
-% Purpose: Analyze the cross-correlation between neural activity and hemodynamics [HbT] (IOS)
-%________________________________________________________________________________________________________________________
-
-% create or load results structure
+%----------------------------------------------------------------------------------------------------------
 if runFromStart == true
     Results_CrossCorr_GCaMP = [];
 elseif runFromStart == false
@@ -16,32 +12,33 @@ elseif runFromStart == false
     if exist('Results_CrossCorr_GCaMP.mat','file') == 2
         load('Results_CrossCorr_GCaMP.mat','-mat')
     else
-        Results_CrossCorr_GCaMP = [];
+        Results_CrossCorr_GCaMP.Blank_SAP = [];
+        Results_CrossCorr_GCaMP.SSP_SAP = [];
     end
 end
 cd([rootFolder delim 'Data']);
-expGroups = {'SSP_SAP','Blank_SAP'};
-setName = 'IOS_GCaMP7s';
+groups = {'SSP_SAP','Blank_SAP'};
+set = 'GCaMP';
 % determine waitbar length
 waitBarLength = 0;
-for aa = 1:length(expGroups)
-    folderList = dir([expGroups{1,aa} delim setName]);
+for aa = 1:length(groups)
+    folderList = dir([groups{1,aa} delim set]);
     folderList = folderList(~startsWith({folderList.name}, '.'));
     folderAnimalIDs = {folderList.name};
     waitBarLength = waitBarLength + length(folderAnimalIDs);
 end
 % run analysis for each animal in the group
 cc = 1;
-multiWaitbar('Analyzing cross correlation for IOS_GCaMP',0,'Color','B');
-for aa = 1:length(expGroups)
-    folderList = dir([expGroups{1,aa} delim setName]);
+multiWaitbar('Analyzing cross correlation for GCaMP',0,'Color','B');
+for aa = 1:length(groups)
+    folderList = dir([groups{1,aa} delim set]);
     folderList = folderList(~startsWith({folderList.name},'.'));
     animalIDs = {folderList.name};
     for bb = 1:length(animalIDs)
-        if isfield(Results_CrossCorr_GCaMP,(animalIDs{1,bb})) == false
-            [Results_CrossCorr_GCaMP] = AnalyzeCrossCorrelation_GCaMP(animalIDs{1,bb},[expGroups{1,aa} delim setName],rootFolder,delim,Results_CrossCorr_GCaMP);
+        if isfield(Results_CrossCorr_GCaMP.(groups{1,aa}),(animalIDs{1,bb})) == false
+            [Results_CrossCorr_GCaMP] = AnalyzeCrossCorrelation_GCaMP(animalIDs{1,bb},groups{1,aa},set,rootFolder,delim,Results_CrossCorr_GCaMP);
         end
-        multiWaitbar('Analyzing cross correlation for IOS_GCaMP','Value',cc/waitBarLength); pause(0.5);
+        multiWaitbar('Analyzing cross correlation for GCaMP','Value',cc/waitBarLength); pause(0.5);
         cc = cc + 1;
     end
 end

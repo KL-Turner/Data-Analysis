@@ -25,7 +25,7 @@ for a = 1:size(rawDataFileIDs,1)
         imagesc(frames{1});
         axis image;
         colormap gray
-        if any(strcmp(ROIshortName,{'LH','RH','frontalLH','frontalRH','Barrels'})) == true
+        if any(strcmp(ROIshortName,{'LH','RH','fLH','fRH','barrels'})) == true
             circROI = drawcircle('Center',ROIs.(ROIname).circPosition,'Radius',ROIs.(ROIname).circRadius);
             mask = createMask(circROI,frames{1});
             close(maskFig)

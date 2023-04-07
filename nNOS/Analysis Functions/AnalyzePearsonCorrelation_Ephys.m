@@ -1,20 +1,16 @@
-function [Results_PearsonCorrEphys] = AnalyzePearsonCorrelation_Ephys(animalID,group,rootFolder,delim,Results_PearsonCorrEphys)
-%________________________________________________________________________________________________________________________
+function [Results_PearsonCorr_Ephys] = AnalyzePearsonCorrelation_Ephys(animalID,group,set,rootFolder,delim,Results_PearsonCorr_Ephys)
+%----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%
-% Purpose: Analyze Pearson's correlation coefficient between bilateral hemodynamic [HbT] and neural signals (IOS)
-%________________________________________________________________________________________________________________________
-
-% function parameters
+%----------------------------------------------------------------------------------------------------------
 modelType = 'Forest';
 params.minTime.Rest = 10;
 params.minTime.Whisk = 7;
 params.minTime.NREM = 30;
 params.minTime.REM = 60;
 % only run analysis for valid animal IDs
-dataLocation = [rootFolder delim 'Data' delim group delim animalID delim 'Bilateral Imaging'];
+dataLocation = [rootFolder delim 'Data' delim group delim set delim animalID delim 'Bilateral Imaging'];
 cd(dataLocation)
 % character list of all ProcData file IDs
 procDataFileStruct = dir('*_ProcData.mat');
@@ -62,13 +58,13 @@ RestCriteria.Value = {params.minTime.Rest};
 RestPuffCriteria.Fieldname = {'puffDistances'};
 RestPuffCriteria.Comparison = {'gt'};
 RestPuffCriteria.Value = {5};
-% determine data types based on experimental group
-dataTypes = {'CBV_HbT','gammaBandPower'};
-% go through each valid data type for arousal-based correlation analysis
+% loop variables
+dataTypes = {'HbT','gammaBandPower'};
 for a = 1:length(dataTypes)
     dataType = dataTypes{1,a};
-    %% analyze Pearson's correlation coefficient during periods of rest
-    if strcmp(dataType,'CBV_HbT') == true
+    %% Rest
+    clear LH_finalRestData RH_finalRestData LH_ProcRestData RH_ProcRestData rest_R
+    if strcmp(dataType,'HbT') == true
         samplingRate = RestData.(dataType).LH.CBVCamSamplingRate;
         [restLogical] = FilterEvents_IOS(RestData.(dataType).LH,RestCriteria);
         [puffLogical] = FilterEvents_IOS(RestData.(dataType).LH,RestPuffCriteria);
@@ -95,7 +91,6 @@ for a = 1:length(dataTypes)
         [LH_finalRestData,~,~,~] = RemoveInvalidData_IOS(LH_RestingData,restFileIDs,restDurations,restEventTimes,ManualDecisions);
         [RH_finalRestData,~,~,~] = RemoveInvalidData_IOS(RH_RestingData,restFileIDs,restDurations,restEventTimes,ManualDecisions);
     end
-    clear LH_ProcRestData RH_ProcRestData
     % lowpass filter
     [z,p,k] = butter(4,1/(samplingRate/2),'low');
     [sos,g] = zp2sos(z,p,k);
@@ -109,14 +104,11 @@ for a = 1:length(dataTypes)
         rest_CC = corrcoef(LH_ProcRestData{n,1},RH_ProcRestData{n,1});
         rest_R(n,1) = rest_CC(2,1);
     end
-    meanRest_R = mean(rest_R);
-    stdRest_R = std(rest_R,0,1);
     % save results
-    Results_PearsonCorrEphys.(animalID).Rest.(dataType).R = rest_R;
-    Results_PearsonCorrEphys.(animalID).Rest.(dataType).meanR = meanRest_R;
-    Results_PearsonCorrEphys.(animalID).Rest.(dataType).stdR = stdRest_R;
-    %% analyze Pearson's correlation coefficient during periods of moderate whisking (2-5 seconds)
-    if strcmp(dataType,'CBV_HbT') == true
+    Results_PearsonCorr_Ephys.(group).(animalID).(dataType).Rest.R = rest_R;
+    %% Whisk
+    clear LH_finalWhiskData RH_finalWhiskData LH_ProcWhiskData RH_ProcWhiskData whisk_R
+    if strcmp(dataType,'HbT') == true
         [whiskLogical] = FilterEvents_IOS(EventData.(dataType).LH.whisk,WhiskCriteria);
         [puffLogical] = FilterEvents_IOS(EventData.(dataType).LH.whisk,WhiskPuffCriteria);
         combWhiskLogical = logical(whiskLogical.*puffLogical);
@@ -141,7 +133,6 @@ for a = 1:length(dataTypes)
         [LH_finalWhiskData,~,~,~] = RemoveInvalidData_IOS(LH_whiskData,whiskFileIDs,whiskDurations,whiskEventTimes,ManualDecisions);
         [RH_finalWhiskData,~,~,~] = RemoveInvalidData_IOS(RH_whiskData,whiskFileIDs,whiskDurations,whiskEventTimes,ManualDecisions);
     end
-    clear LH_ProcWhiskData RH_ProcWhiskData
     % filter, detrend, and take data from whisk onset through 5 seconds
     for gg = 1:size(LH_finalWhiskData,1)
         LH_ProcWhiskData(gg,:) = detrend(filtfilt(sos,g,LH_finalWhiskData(gg,2*samplingRate:params.minTime.Whisk*samplingRate)),'constant');
@@ -152,21 +143,15 @@ for a = 1:length(dataTypes)
         whisk_CC = corrcoef(LH_ProcWhiskData(n,:),RH_ProcWhiskData(n,:));
         whisk_R(n,1) = whisk_CC(2,1);
     end
-    meanWhisk_R = mean(whisk_R);
-    stdWhisk_R = std(whisk_R,0,1);
     % save results
-    Results_PearsonCorrEphys.(animalID).Whisk.(dataType).R = whisk_R;
-    Results_PearsonCorrEphys.(animalID).Whisk.(dataType).meanR = meanWhisk_R;
-    Results_PearsonCorrEphys.(animalID).Whisk.(dataType).stdR = stdWhisk_R;
-    %% analyze Pearson's correlation coefficient during periods of alert
+    Results_PearsonCorr_Ephys.(group).(animalID).(dataType).Whisk.R = whisk_R;
+    %% Alert
+    clear LH_AlertData RH_AlertData LH_ProcAlertData RH_ProcAlertData scoringLabels alert_R
     zz = 1;
-    clear LH_AlertData RH_AlertData LH_ProcAlertData RH_ProcAlertData
-    LH_AlertData = [];
     for bb = 1:size(procDataFileIDs,1)
         procDataFileID = procDataFileIDs(bb,:);
         [~,allDataFileDate,allDataFileID] = GetFileInfo_IOS(procDataFileID);
         strDay = ConvertDate_IOS(allDataFileDate);
-        scoringLabels = [];
         for cc = 1:length(ScoringResults.fileIDs)
             if strcmp(allDataFileID,ScoringResults.fileIDs{cc,1}) == true
                 scoringLabels = ScoringResults.labels{cc,1};
@@ -178,7 +163,7 @@ for a = 1:length(dataTypes)
             puffs = ProcData.data.stimulations.LPadSol;
             % don't include trials with stimulation
             if isempty(puffs) == true
-                if strcmp(dataType,'CBV_HbT') == true
+                if strcmp(dataType,'HbT') == true
                     LH_AlertData{zz,1} = ProcData.data.(dataType).LH;
                     RH_AlertData{zz,1} = ProcData.data.(dataType).RH;
                     zz = zz + 1;
@@ -204,27 +189,19 @@ for a = 1:length(dataTypes)
             alert_CC = corrcoef(LH_ProcAlertData{n,1},RH_ProcAlertData{n,1});
             alert_R(n,1) = alert_CC(2,1);
         end
-        meanAlert_R = mean(alert_R);
-        stdAlert_R = std(alert_R,0,1);
         % save results
-        Results_PearsonCorrEphys.(animalID).Alert.(dataType).R = alert_R;
-        Results_PearsonCorrEphys.(animalID).Alert.(dataType).meanR = meanAlert_R;
-        Results_PearsonCorrEphys.(animalID).Alert.(dataType).stdR = stdAlert_R;
+        Results_PearsonCorr_Ephys.(group).(animalID).(dataType).Alert.R = alert_R;
     else
         % save results
-        Results_PearsonCorrEphys.(animalID).Alert.(dataType).R = [];
-        Results_PearsonCorrEphys.(animalID).Alert.(dataType).meanR = [];
-        Results_PearsonCorrEphys.(animalID).Alert.(dataType).stdR = [];
+        Results_PearsonCorr_Ephys.(group).(animalID).(dataType).Alert.R = [];
     end
-    %% analyze Pearson's correlation coefficient during periods of Aasleep
-    zz = 1;
-    clear LH_AsleepData RH_AsleepData LH_ProcAsleepData RH_ProcAsleepData
-    LH_AsleepData = [];
+    %% Asleep
+    clear LH_AsleepData RH_AsleepData LH_ProcAsleepData RH_ProcAsleepData scoringLabels asleep_R
+    zz= 1;
     for bb = 1:size(procDataFileIDs,1)
         procDataFileID = procDataFileIDs(bb,:);
         [~,allDataFileDate,allDataFileID] = GetFileInfo_IOS(procDataFileID);
         strDay = ConvertDate_IOS(allDataFileDate);
-        scoringLabels = [];
         for cc = 1:length(ScoringResults.fileIDs)
             if strcmp(allDataFileID,ScoringResults.fileIDs{cc,1}) == true
                 scoringLabels = ScoringResults.labels{cc,1};
@@ -236,7 +213,7 @@ for a = 1:length(dataTypes)
             puffs = ProcData.data.stimulations.LPadSol;
             % don't include trials with stimulation
             if isempty(puffs) == true
-                if strcmp(dataType,'CBV_HbT') == true
+                if strcmp(dataType,'HbT') == true
                     LH_AsleepData{zz,1} = ProcData.data.(dataType).LH;
                     RH_AsleepData{zz,1} = ProcData.data.(dataType).RH;
                     zz = zz + 1;
@@ -259,25 +236,18 @@ for a = 1:length(dataTypes)
         end
         % analyze correlation coefficient between epochs
         for n = 1:length(LH_ProcAsleepData)
-            Asleep_CC = corrcoef(LH_ProcAsleepData{n,1},RH_ProcAsleepData{n,1});
-            Asleep_R(n,1) = Asleep_CC(2,1);
+            asleep_CC = corrcoef(LH_ProcAsleepData{n,1},RH_ProcAsleepData{n,1});
+            asleep_R(n,1) = asleep_CC(2,1);
         end
-        meanAsleep_R = mean(Asleep_R);
-        stdAsleep_R = std(Asleep_R,0,1);
         % save results
-        Results_PearsonCorrEphys.(animalID).Asleep.(dataType).R = Asleep_R;
-        Results_PearsonCorrEphys.(animalID).Asleep.(dataType).meanR = meanAsleep_R;
-        Results_PearsonCorrEphys.(animalID).Asleep.(dataType).stdR = stdAsleep_R;
+        Results_PearsonCorr_Ephys.(group).(animalID).(dataType).Asleep.R = asleep_R;
     else
         % save results
-        Results_PearsonCorrEphys.(animalID).Asleep.(dataType).R = [];
-        Results_PearsonCorrEphys.(animalID).Asleep.(dataType).meanR = [];
-        Results_PearsonCorrEphys.(animalID).Asleep.(dataType).stdR = [];
+        Results_PearsonCorr_Ephys.(group).(animalID).(dataType).Asleep.R = [];
     end
-    %% analyze Pearson's correlation coefficient during periods of all data
+    %% All
+    clear LH_AllData RH_AllData LH_ProcAllData RH_ProcAllData all_R
     zz = 1;
-    clear LH_AllData RH_AllData LH_ProcAllData RH_ProcAllData
-    LH_AllData = [];
     for bb = 1:size(procDataFileIDs,1)
         procDataFileID = procDataFileIDs(bb,:);
         [~,allDataFileDate,~] = GetFileInfo_IOS(procDataFileID);
@@ -286,7 +256,7 @@ for a = 1:length(dataTypes)
         puffs = ProcData.data.stimulations.LPadSol;
         % don't include trials with stimulation
         if isempty(puffs) == true
-            if strcmp(dataType,'CBV_HbT') == true
+            if strcmp(dataType,'HbT') == true
                 LH_AllData{zz,1} = ProcData.data.(dataType).LH;
                 RH_AllData{zz,1} = ProcData.data.(dataType).RH;
                 zz = zz + 1;
@@ -310,14 +280,11 @@ for a = 1:length(dataTypes)
         all_CC = corrcoef(LH_ProcAllData{n,1},RH_ProcAllData{n,1});
         all_R(n,1) = all_CC(2,1);
     end
-    meanAll_R = mean(all_R);
-    stdAll_R = std(all_R,0,1);
     % save results
-    Results_PearsonCorrEphys.(animalID).All.(dataType).R = all_R;
-    Results_PearsonCorrEphys.(animalID).All.(dataType).meanR = meanAll_R;
-    Results_PearsonCorrEphys.(animalID).All.(dataType).stdR = stdAll_R;
-    %% analyze Pearson's correlation coefficient during periods of NREM
-    if strcmp(dataType,'CBV_HbT') == true
+    Results_PearsonCorr_Ephys.(group).(animalID).(dataType).All.R = all_R;
+    %% NREM
+    clear LH_nremData RH_nremData nrem_R
+    if strcmp(dataType,'HbT') == true
         [LH_nremData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.(dataType).LH,SleepData.(modelType).NREM.FileIDs,SleepData.(modelType).NREM.BinTimes);
         [RH_nremData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.(dataType).RH,SleepData.(modelType).NREM.FileIDs,SleepData.(modelType).NREM.BinTimes);
     else
@@ -334,14 +301,11 @@ for a = 1:length(dataTypes)
         nrem_CC = corrcoef(LH_nremData{n,1},RH_nremData{n,1});
         nrem_R(n,1) = nrem_CC(2,1);
     end
-    meanNREM_R = mean(nrem_R);
-    stdNREM_R = std(nrem_R,0,1);
     % save results
-    Results_PearsonCorrEphys.(animalID).NREM.(dataType).R = nrem_R;
-    Results_PearsonCorrEphys.(animalID).NREM.(dataType).meanR = meanNREM_R;
-    Results_PearsonCorrEphys.(animalID).NREM.(dataType).stdR = stdNREM_R;
-    %% analyze Pearson's correlation coefficient during periods of REM
-    if strcmp(dataType,'CBV_HbT') == true
+    Results_PearsonCorr_Ephys.(group).(animalID).(dataType).NREM.R = nrem_R;
+    %% REM
+    clear LH_remData RH_remData rem_R
+    if strcmp(dataType,'HbT') == true
         [LH_remData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.(dataType).LH,SleepData.(modelType).REM.FileIDs,SleepData.(modelType).REM.BinTimes);
         [RH_remData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.(dataType).RH,SleepData.(modelType).REM.FileIDs,SleepData.(modelType).REM.BinTimes);
     else
@@ -358,16 +322,10 @@ for a = 1:length(dataTypes)
         rem_CC = corrcoef(LH_remData{n,1},RH_remData{n,1});
         rem_R(n,1) = rem_CC(2,1);
     end
-    meanREM_R = mean(rem_R);
-    stdREM_R = std(rem_R,0,1);
     % save results
-    Results_PearsonCorrEphys.(animalID).REM.(dataType).R = rem_R;
-    Results_PearsonCorrEphys.(animalID).REM.(dataType).meanR = meanREM_R;
-    Results_PearsonCorrEphys.(animalID).REM.(dataType).stdR = stdREM_R;
+    Results_PearsonCorr_Ephys.(group).(animalID).(dataType).REM.R = rem_R;
 end
 % save data
 cd([rootFolder delim 'Results_Turner'])
-save('Results_PearsonCorrEphys.mat','Results_PearsonCorrEphys')
+save('Results_PearsonCorr_Ephys.mat','Results_PearsonCorr_Ephys')
 cd([rootFolder delim 'Data'])
-
-end

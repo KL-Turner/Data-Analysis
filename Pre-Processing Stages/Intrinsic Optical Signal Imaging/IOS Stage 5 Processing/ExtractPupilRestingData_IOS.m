@@ -12,7 +12,8 @@ function [RestData] = ExtractPupilRestingData_IOS(procDataFileIDs,dataTypes)
 % load rest data file
 restDataFileID = ls('*_RestData.mat');
 load(restDataFileID)
-RestData.Pupil = [];
+RestData.Pupil = []; restVals = [];
+[animal,~,~] = GetFileInfo_IOS(procDataFileIDs(1,:));
 % analyze each proc data file
 for aa = 1:length(dataTypes)
     dataType = dataTypes{1,aa};
@@ -48,9 +49,9 @@ for aa = 1:length(dataTypes)
                 try
                     % extract data from the trial and add to the cell array for the current loaded file
                     if strcmp(dataType,'LH_HbT') == true
-                        trialRestVals{d} = ProcData.data.CBV_HbT.adjLH(:,startInd:stopInd);
+                        trialRestVals{d} = ProcData.data.HbT.LH(:,startInd:stopInd);
                     elseif strcmp(dataType,'RH_HbT') == true
-                        trialRestVals{d} = ProcData.data.CBV_HbT.adjRH(:,startInd:stopInd);
+                        trialRestVals{d} = ProcData.data.HbT.RH(:,startInd:stopInd);
                     elseif strcmp(dataType,'LH_gammaBandPower') == true
                         trialRestVals{d} = ProcData.data.cortical_LH.gammaBandPower(:,startInd:stopInd);
                     elseif strcmp(dataType,'RH_gammaBandPower') == true
@@ -74,14 +75,25 @@ for aa = 1:length(dataTypes)
         end
     end
     % combine the cells from separate files into a single cell array of all resting periods
-    RestData.Pupil.(dataType).data = [restVals{:}]';
-    RestData.Pupil.(dataType).eventTimes = cell2mat(eventTimes);
-    RestData.Pupil.(dataType).durations = cell2mat(durations);
-    RestData.Pupil.(dataType).puffDistances = [puffDistances{:}]';
-    RestData.Pupil.(dataType).fileIDs = [fileIDs{:}]';
-    RestData.Pupil.(dataType).fileDates = [fileDates{:}]';
-    RestData.Pupil.(dataType).CBVCamSamplingRate = Fs;
-    RestData.Pupil.(dataType).trialDuration_sec = trialDuration_sec;
+    if isempty(restVals) == false
+        RestData.Pupil.(dataType).data = [restVals{:}]';
+        RestData.Pupil.(dataType).eventTimes = cell2mat(eventTimes);
+        RestData.Pupil.(dataType).durations = cell2mat(durations);
+        RestData.Pupil.(dataType).puffDistances = [puffDistances{:}]';
+        RestData.Pupil.(dataType).fileIDs = [fileIDs{:}]';
+        RestData.Pupil.(dataType).fileDates = [fileDates{:}]';
+        RestData.Pupil.(dataType).CBVCamSamplingRate = Fs;
+        RestData.Pupil.(dataType).trialDuration_sec = trialDuration_sec;
+    else
+        RestData.Pupil.(dataType).data = [];
+        RestData.Pupil.(dataType).eventTimes = [];
+        RestData.Pupil.(dataType).durations = [];
+        RestData.Pupil.(dataType).puffDistances = [];
+        RestData.Pupil.(dataType).fileIDs = [];
+        RestData.Pupil.(dataType).fileDates = [];
+        RestData.Pupil.(dataType).CBVCamSamplingRate = [];
+        RestData.Pupil.(dataType).trialDuration_sec = [];
+    end
 end
 % save updated structure
 save([animal '_RestData.mat'],'RestData','-v7.3');

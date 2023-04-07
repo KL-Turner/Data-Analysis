@@ -7,30 +7,49 @@ function [] = CorrectGCaMPattenuation_IOS(procDataFileIDs,RestingBaselines)
 % Purpose: Converts reflectance values to changes in total hemoglobin using absorbance curves of hardware
 %________________________________________________________________________________________________________________________
 
+ROIFileDir = dir('*_UpdatedROIs.mat');
+ROIFileName = {ROIFileDir.name}';
+ROIFileID = char(ROIFileName);
+load(ROIFileID);
 for aa = 1:size(procDataFileIDs,1)
     procDataFileID = procDataFileIDs(aa,:);
     disp(['Adding GCaMP correction to ProcData file (' num2str(aa) '/' num2str(size(procDataFileIDs,1)) ')...']); disp(' ')
     load(procDataFileID)
-    imagingType = ProcData.notes.imagingType;
     imagingWavelengths = ProcData.notes.imagingWavelengths;
     if any(strcmp(imagingWavelengths,{'Red, Green, & Blue','Lime, Green, & Blue','Green & Blue','Lime & Blue'})) == true
-        [~,fileDate,~] = GetFileInfo_IOS(procDataFileID);
+        [animalID,fileDate,fileID] = GetFileInfo_IOS(procDataFileID);
         strDay = ConvertDate_IOS(fileDate);
-        % correct attentuation of somatosensory ROIs
-        % use imaging type to determine ROI names and typical lens magnification
-        if strcmpi(imagingType,'Single ROI (SI)') == true
-            ROInames = {'Barrels'};
-        elseif strcmpi(imagingType,'Single ROI (SSS)') == true
-            ROInames = {'SSS','lSSS','rSSS'};
-        elseif strcmpi(imagingType,'Bilateral ROI (SI)') == true
-            ROInames = {'LH','RH'};
-        elseif strcmpi(imagingType,'Bilateral ROI (SI,FC)') == true
-            ROInames = {'LH','RH','frontalLH','frontalRH'};
+        windowCamFileID = [fileID '_WindowCam.bin'];
+        [frames] = ReadDalsaBinary_IOS(animalID,windowCamFileID);
+        if ProcData.notes.greenFrames == 1
+            greenFrames = frames(1:3:end - 1);
+            blueFrames = frames(2:3:end);
+        elseif ProcData.notes.greenFrames == 2
+            greenFrames = frames(2:3:end);
+            blueFrames = frames(3:3:end);
+        elseif ProcData.notes.greenFrames == 3
+            greenFrames = frames(3:3:end);
+            blueFrames = frames(1:3:end - 1);
         end
+        greenImageStack = reshape(cell2mat(greenFrames),ProcData.notes.CBVCamPixelWidth,ProcData.notes.CBVCamPixelHeight,length(greenFrames));
+        blueImageStack = reshape(cell2mat(blueFrames),ProcData.notes.CBVCamPixelWidth,ProcData.notes.CBVCamPixelHeight,length(blueFrames));
+        scale = RestingBaselines.Pixel.green.(strDay)./RestingBaselines.Pixel.blue.(strDay);
+        correctedStack = (blueImageStack./greenImageStack).*scale;
+        % correct attentuation of somatosensory ROIs
+        ROInames = fieldnames(UpdatedROIs.(strDay));
         for bb = 1:length(ROInames)
-            gcampField = ROInames{1,bb};
-            scale = RestingBaselines.manualSelection.CBV.(gcampField).(strDay).mean/RestingBaselines.manualSelection.GCaMP7s.(gcampField).(strDay).mean;
-            ProcData.data.GCaMP7s.(['cor' (gcampField)]) = (ProcData.data.GCaMP7s.(gcampField)./ProcData.data.CBV.(gcampField))*scale;
+            roiName = ROInames{bb,1};
+            maskFig = figure;
+            imagesc(greenFrames{1});
+            axis image;
+            colormap gray
+            circROI = drawcircle('Center',UpdatedROIs.(strDay).(roiName).circPosition,'Radius',UpdatedROIs.(strDay).(roiName).circRadius);
+            mask = createMask(circROI,greenFrames{1});
+            close(maskFig)
+            for nn = 1:size(correctedStack,3)
+                roiMask = mask.*double(correctedStack(:,:,nn));
+                ProcData.data.GCaMP7s.(roiName)(1,nn) = mean(nonzeros(roiMask));
+            end
         end
     end
     % save data

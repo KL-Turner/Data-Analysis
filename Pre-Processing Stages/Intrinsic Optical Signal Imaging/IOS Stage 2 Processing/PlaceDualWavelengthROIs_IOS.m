@@ -11,11 +11,11 @@ strDay = ConvertDate_IOS(fileID);
 fileDate = fileID(1:6);
 % determine which ROIs to draw based on imaging type
 if strcmp(imagingType,'Single ROI (SI)') == true
-    ROInames = {'Barrels'};
+    ROInames = {'barrels'};
 elseif strcmp(imagingType,'Bilateral ROI (SI)') == true
     ROInames = {'LH','RH'};
 elseif strcmp(imagingType,'Bilateral ROI (SI,FC)') == true
-    ROInames = {'LH','RH','frontalLH','frontalRH'};
+    ROInames = {'LH','RH','fLH','fRH'};
 end
 % character list of all ProcData files
 procDataFileStruct = dir('*_ProcData.mat');

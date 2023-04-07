@@ -14,7 +14,7 @@ imagingWavelengths = RawData.notes.imagingWavelengths;
 % use imaging type to determine ROI names and typical lens magnification
 if strcmpi(imagingType,'Single ROI (SI)') == true
     lensMag = '2.0';
-    ROInames = {'Barrels'};
+    ROInames = {'barrels'};
 elseif strcmpi(imagingType,'Single ROI (SSS)') == true
     lensMag = '3.0X';
     ROInames = {'SSS','lSSS','rSSS'};
@@ -23,7 +23,7 @@ elseif strcmpi(imagingType,'Bilateral ROI (SI)') == true
     ROInames = {'LH','RH'};
 elseif strcmpi(imagingType,'Bilateral ROI (SI,FC)') == true
     lensMag = '1.5X';
-    ROInames = {'LH','RH','frontalLH','frontalRH'};
+    ROInames = {'LH','RH','fLH','fRH'};
 end
 % create/load pre-existing ROI file with the coordinates
 ROIFileDir = dir('*_ROIs.mat');

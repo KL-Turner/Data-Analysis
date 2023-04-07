@@ -1,18 +1,15 @@
-function [Results_BilatCoherEphys] = AnalyzeBilateralCoherence_Ephys(animalID,group,rootFolder,delim,Results_BilatCoherEphys)
-%________________________________________________________________________________________________________________________
+function [Results_BilatCoher_Ephys] = AnalyzeBilateralCoherence_Ephys(animalID,group,set,rootFolder,delim,Results_BilatCoher_Ephys)
+%----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%
-% Purpose: Analyze the spectral coherence between bilateral hemodynamic [HbT] and neural signals (IOS)
-%________________________________________________________________________________________________________________________
-
+%----------------------------------------------------------------------------------------------------------
 modelType = 'Forest';
 params.minTime.Rest = 10;
 params.minTime.NREM = 30;
 params.minTime.REM = 60;
 % only run analysis for valid animal IDs
-dataLocation = [rootFolder delim 'Data' delim group delim animalID delim 'Bilateral Imaging'];
+dataLocation = [rootFolder delim 'Data' delim group delim set delim animalID delim 'Bilateral Imaging'];
 cd(dataLocation)
 % character list of all ProcData file IDs
 procDataFileStruct = dir('*_ProcData.mat');
@@ -49,11 +46,12 @@ RestPuffCriteria.Fieldname = {'puffDistances'};
 RestPuffCriteria.Comparison = {'gt'};
 RestPuffCriteria.Value = {5};
 % go through each valid data type for arousal based coherence analysis
-dataTypes = {'CBV_HbT','gammaBandPower'};
+dataTypes = {'HbT','gammaBandPower'};
 for aa = 1:length(dataTypes)
     dataType = dataTypes{1,aa};
-    %% analyze bilateral coherence during periods of rest
-    if strcmp(dataType,'CBV_HbT') == true
+    %% Rest
+    clear LH_finalRestData RH_finalRestData LH_ProcRestData RH_ProcRestData LH_restData RH_restData
+    if strcmp(dataType,'HbT') == true
         samplingRate = RestData.(dataType).LH.CBVCamSamplingRate;
         [restLogical] = FilterEvents_IOS(RestData.(dataType).LH,RestCriteria);
         [puffLogical] = FilterEvents_IOS(RestData.(dataType).LH,RestPuffCriteria);
@@ -80,7 +78,6 @@ for aa = 1:length(dataTypes)
         [LH_finalRestData,~,~,~] = RemoveInvalidData_IOS(LH_RestingData,restFileIDs,restDurations,restEventTimes,ManualDecisions);
         [RH_finalRestData,~,~,~] = RemoveInvalidData_IOS(RH_RestingData,restFileIDs,restDurations,restEventTimes,ManualDecisions);
     end
-    clear LH_ProcRestData RH_ProcRestData fLH_ProcRestData fRH_ProcRestData
     % detrend and truncate data to minimum length to match events
     for bb = 1:length(LH_finalRestData)
         if length(LH_finalRestData{bb,1}) < params.minTime.Rest*samplingRate
@@ -114,20 +111,17 @@ for aa = 1:length(dataTypes)
     % calculate the coherence between desired signals
     [C_RestData,~,~,~,~,f_RestData,confC_RestData,~,cErr_RestData] = coherencyc(LH_restData,RH_restData,params);
     % save results
-    Results_BilatCoherEphys.(animalID).Rest.(dataType).C = C_RestData;
-    Results_BilatCoherEphys.(animalID).Rest.(dataType).f = f_RestData;
-    Results_BilatCoherEphys.(animalID).Rest.(dataType).confC = confC_RestData;
-    Results_BilatCoherEphys.(animalID).Rest.(dataType).cErr = cErr_RestData;
-    %% analyze bilateral coherence during periods of alert
+    Results_BilatCoher_Ephys.(group).(animalID).(dataType).Rest.C = C_RestData;
+    Results_BilatCoher_Ephys.(group).(animalID).(dataType).Rest.f = f_RestData;
+    Results_BilatCoher_Ephys.(group).(animalID).(dataType).Rest.confC = confC_RestData;
+    Results_BilatCoher_Ephys.(group).(animalID).(dataType).Rest.cErr = cErr_RestData;
+    %% Alert
+    clear LH_AlertData LH_ProcAlertData LH_alertData RH_AlertData RH_ProcAlertData RH_alertData scoringLabels
     zz = 1;
-    clear LH_AlertData RH_AlertData LH_ProcAlertData RH_ProcAlertData
-    clear fLH_AlertData fRH_AlertData fLH_ProcAlertData fRH_ProcAlertData
-    LH_AlertData = [];
     for bb = 1:size(procDataFileIDs,1)
         procDataFileID = procDataFileIDs(bb,:);
         [~,allDataFileDate,allDataFileID] = GetFileInfo_IOS(procDataFileID);
         strDay = ConvertDate_IOS(allDataFileDate);
-        scoringLabels = [];
         for cc = 1:length(ScoringResults.fileIDs)
             if strcmp(allDataFileID,ScoringResults.fileIDs{cc,1}) == true
                 scoringLabels = ScoringResults.labels{cc,1};
@@ -139,7 +133,7 @@ for aa = 1:length(dataTypes)
             puffs = ProcData.data.stimulations.LPadSol;
             % don't include trials with stimulation
             if isempty(puffs) == true
-                if strcmp(dataType,'CBV_HbT') == true
+                if strcmp(dataType,'HbT') == true
                     LH_AlertData{zz,1} = ProcData.data.(dataType).LH;
                     RH_AlertData{zz,1} = ProcData.data.(dataType).RH;
                     zz = zz + 1;
@@ -172,27 +166,24 @@ for aa = 1:length(dataTypes)
         params.tapers = [10,19]; % Tapers [n, 2n - 1]
         [C_AlertData,~,~,~,~,f_AlertData,confC_AlertData,~,cErr_AlertData] = coherencyc(LH_alertData,RH_alertData,params);
         % save results
-        Results_BilatCoherEphys.(animalID).Alert.(dataType).C = C_AlertData;
-        Results_BilatCoherEphys.(animalID).Alert.(dataType).f = f_AlertData;
-        Results_BilatCoherEphys.(animalID).Alert.(dataType).confC = confC_AlertData;
-        Results_BilatCoherEphys.(animalID).Alert.(dataType).cErr = cErr_AlertData;
+        Results_BilatCoher_Ephys.(group).(animalID).(dataType).Alert.C = C_AlertData;
+        Results_BilatCoher_Ephys.(group).(animalID).(dataType).Alert.f = f_AlertData;
+        Results_BilatCoher_Ephys.(group).(animalID).(dataType).Alert.confC = confC_AlertData;
+        Results_BilatCoher_Ephys.(group).(animalID).(dataType).Alert.cErr = cErr_AlertData;
     else
         % save results
-        Results_BilatCoherEphys.(animalID).Alert.(dataType).C = [];
-        Results_BilatCoherEphys.(animalID).Alert.(dataType).f = [];
-        Results_BilatCoherEphys.(animalID).Alert.(dataType).confC = [];
-        Results_BilatCoherEphys.(animalID).Alert.(dataType).cErr = [];
+        Results_BilatCoher_Ephys.(group).(animalID).(dataType).Alert.C = [];
+        Results_BilatCoher_Ephys.(group).(animalID).(dataType).Alert.f = [];
+        Results_BilatCoher_Ephys.(group).(animalID).(dataType).Alert.confC = [];
+        Results_BilatCoher_Ephys.(group).(animalID).(dataType).Alert.cErr = [];
     end
     %% analyze bilateral coherence during periods of aasleep
+    clear LH_AsleepData LH_ProcAsleepData LH_asleepData RH_AsleepData RH_ProcAsleepData RH_asleepData scoringLabels
     zz = 1;
-    clear LH_AsleepData RH_AsleepData LH_ProcAsleepData RH_ProcAsleepData
-    clear fLH_AsleepData fRH_AsleepData fLH_ProcAsleepData fRH_ProcAsleepData
-    LH_AsleepData = [];
     for bb = 1:size(procDataFileIDs,1)
         procDataFileID = procDataFileIDs(bb,:);
         [~,allDataFileDate,allDataFileID] = GetFileInfo_IOS(procDataFileID);
         strDay = ConvertDate_IOS(allDataFileDate);
-        scoringLabels = [];
         for cc = 1:length(ScoringResults.fileIDs)
             if strcmp(allDataFileID,ScoringResults.fileIDs{cc,1}) == true
                 scoringLabels = ScoringResults.labels{cc,1};
@@ -204,7 +195,7 @@ for aa = 1:length(dataTypes)
             puffs = ProcData.data.stimulations.LPadSol;
             % don't include trials with stimulation
             if isempty(puffs) == true
-                if strcmp(dataType,'CBV_HbT') == true || strcmp(dataType,'Deoxy') == true
+                if strcmp(dataType,'HbT') == true || strcmp(dataType,'Deoxy') == true
                     LH_AsleepData{zz,1} = ProcData.data.(dataType).LH;
                     RH_AsleepData{zz,1} = ProcData.data.(dataType).RH;
                     zz = zz + 1;
@@ -237,22 +228,20 @@ for aa = 1:length(dataTypes)
         params.tapers = [10,19]; % Tapers [n, 2n - 1]
         [C_AsleepData,~,~,~,~,f_AsleepData,confC_AsleepData,~,cErr_AsleepData] = coherencyc(LH_asleepData,RH_asleepData,params);
         % save results
-        Results_BilatCoherEphys.(animalID).Asleep.(dataType).C = C_AsleepData;
-        Results_BilatCoherEphys.(animalID).Asleep.(dataType).f = f_AsleepData;
-        Results_BilatCoherEphys.(animalID).Asleep.(dataType).confC = confC_AsleepData;
-        Results_BilatCoherEphys.(animalID).Asleep.(dataType).cErr = cErr_AsleepData;
+        Results_BilatCoher_Ephys.(group).(animalID).(dataType).Asleep.C = C_AsleepData;
+        Results_BilatCoher_Ephys.(group).(animalID).(dataType).Asleep.f = f_AsleepData;
+        Results_BilatCoher_Ephys.(group).(animalID).(dataType).Asleep.confC = confC_AsleepData;
+        Results_BilatCoher_Ephys.(group).(animalID).(dataType).Asleep.cErr = cErr_AsleepData;
     else
         % save results
-        Results_BilatCoherEphys.(animalID).Asleep.(dataType).C = [];
-        Results_BilatCoherEphys.(animalID).Asleep.(dataType).f = [];
-        Results_BilatCoherEphys.(animalID).Asleep.(dataType).confC = [];
-        Results_BilatCoherEphys.(animalID).Asleep.(dataType).cErr = [];
+        Results_BilatCoher_Ephys.(group).(animalID).(dataType).Asleep.C = [];
+        Results_BilatCoher_Ephys.(group).(animalID).(dataType).Asleep.f = [];
+        Results_BilatCoher_Ephys.(group).(animalID).(dataType).Asleep.confC = [];
+        Results_BilatCoher_Ephys.(group).(animalID).(dataType).Asleep.cErr = [];
     end
-    %% analyze bilateral coherence during periods of all data
+    %% All
+    clear LH_AllData LH_ProcAllData LH_allData RH_AllData RH_ProcAllData RH_allData
     zz = 1;
-    clear LH_AllData RH_AllData LH_ProcAllData RH_ProcAllData
-    clear fLH_AllData fRH_AllData fLH_ProcAllData fRH_ProcAllData
-    LH_AllData = [];
     for bb = 1:size(procDataFileIDs,1)
         procDataFileID = procDataFileIDs(bb,:);
         [~,allDataFileDate,~] = GetFileInfo_IOS(procDataFileID);
@@ -261,7 +250,7 @@ for aa = 1:length(dataTypes)
         puffs = ProcData.data.stimulations.LPadSol;
         % don't include trials with stimulation
         if isempty(puffs) == true
-            if strcmp(dataType,'CBV_HbT') == true
+            if strcmp(dataType,'HbT') == true
                 LH_AllData{zz,1} = ProcData.data.(dataType).LH;
                 RH_AllData{zz,1} = ProcData.data.(dataType).RH;
                 zz = zz + 1;
@@ -292,13 +281,13 @@ for aa = 1:length(dataTypes)
     params.tapers = [10,19]; % Tapers [n, 2n - 1]
     [C_AllData,~,~,~,~,f_AllData,confC_AllData,~,cErr_AllData] = coherencyc(LH_allData,RH_allData,params);
     % save results
-    Results_BilatCoherEphys.(animalID).All.(dataType).C = C_AllData;
-    Results_BilatCoherEphys.(animalID).All.(dataType).f = f_AllData;
-    Results_BilatCoherEphys.(animalID).All.(dataType).confC = confC_AllData;
-    Results_BilatCoherEphys.(animalID).All.(dataType).cErr = cErr_AllData;
-    %% analyze bilateral coherence during periods of NREM asleep
-    % pull data from SleepData.mat structure
-    if strcmp(dataType,'CBV_HbT') == true
+    Results_BilatCoher_Ephys.(group).(animalID).(dataType).All.C = C_AllData;
+    Results_BilatCoher_Ephys.(group).(animalID).(dataType).All.f = f_AllData;
+    Results_BilatCoher_Ephys.(group).(animalID).(dataType).All.confC = confC_AllData;
+    Results_BilatCoher_Ephys.(group).(animalID).(dataType).All.cErr = cErr_AllData;
+    %% NREM
+    clear LH_nremData LH_nrem RH_nremData RH_nrem
+    if strcmp(dataType,'HbT') == true
         [LH_nremData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.(dataType).LH,SleepData.(modelType).NREM.FileIDs,SleepData.(modelType).NREM.BinTimes);
         [RH_nremData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.(dataType).RH,SleepData.(modelType).NREM.FileIDs,SleepData.(modelType).NREM.BinTimes);
     else
@@ -322,13 +311,13 @@ for aa = 1:length(dataTypes)
     params.tapers = [3,5]; % Tapers [n, 2n - 1]
     [C_nrem,~,~,~,~,f_nrem,confC_nrem,~,cErr_nrem] = coherencyc(LH_nrem,RH_nrem,params);
     % save results
-    Results_BilatCoherEphys.(animalID).NREM.(dataType).C = C_nrem;
-    Results_BilatCoherEphys.(animalID).NREM.(dataType).f = f_nrem;
-    Results_BilatCoherEphys.(animalID).NREM.(dataType).confC = confC_nrem;
-    Results_BilatCoherEphys.(animalID).NREM.(dataType).cErr = cErr_nrem;
-    %% analyze bilateral coherence during periods of REM asleep
-    % pull data from SleepData.mat structure
-    if strcmp(dataType,'CBV_HbT') == true
+    Results_BilatCoher_Ephys.(group).(animalID).(dataType).NREM.C = C_nrem;
+    Results_BilatCoher_Ephys.(group).(animalID).(dataType).NREM.f = f_nrem;
+    Results_BilatCoher_Ephys.(group).(animalID).(dataType).NREM.confC = confC_nrem;
+    Results_BilatCoher_Ephys.(group).(animalID).(dataType).NREM.cErr = cErr_nrem;
+    %% REM
+    clear LH_remData LH_rem RH_remData RH_rem
+    if strcmp(dataType,'HbT') == true
         [LH_remData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.(dataType).LH,SleepData.(modelType).REM.FileIDs,SleepData.(modelType).REM.BinTimes);
         [RH_remData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.(dataType).RH,SleepData.(modelType).REM.FileIDs,SleepData.(modelType).REM.BinTimes);
     else
@@ -352,14 +341,12 @@ for aa = 1:length(dataTypes)
     params.tapers = [5,9]; % Tapers [n, 2n - 1]
     [C_rem,~,~,~,~,f_rem,confC_rem,~,cErr_rem] = coherencyc(LH_rem,RH_rem,params);
     % save results
-    Results_BilatCoherEphys.(animalID).REM.(dataType).C = C_rem;
-    Results_BilatCoherEphys.(animalID).REM.(dataType).f = f_rem;
-    Results_BilatCoherEphys.(animalID).REM.(dataType).confC = confC_rem;
-    Results_BilatCoherEphys.(animalID).REM.(dataType).cErr = cErr_rem;
+    Results_BilatCoher_Ephys.(group).(animalID).(dataType).REM.C = C_rem;
+    Results_BilatCoher_Ephys.(group).(animalID).(dataType).REM.f = f_rem;
+    Results_BilatCoher_Ephys.(group).(animalID).(dataType).REM.confC = confC_rem;
+    Results_BilatCoher_Ephys.(group).(animalID).(dataType).REM.cErr = cErr_rem;
 end
 % save data
 cd([rootFolder delim 'Results_Turner'])
-save('Results_BilatCoherEphys.mat','Results_BilatCoherEphys')
+save('Results_BilatCoher_Ephys.mat','Results_BilatCoher_Ephys')
 cd([rootFolder delim 'Data'])
-
-end

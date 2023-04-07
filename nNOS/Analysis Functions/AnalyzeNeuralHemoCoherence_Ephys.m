@@ -1,19 +1,16 @@
-function [Results_NeuralHemoCoherEphys] = AnalyzeNeuralHemoCoherence_Ephys(animalID,group,rootFolder,delim,Results_NeuralHemoCoherEphys)
-%________________________________________________________________________________________________________________________
+function [Results_NeuralHemoCoher_Ephys] = AnalyzeNeuralHemoCoherence_Ephys(animalID,group,set,rootFolder,delim,Results_NeuralHemoCoher_Ephys)
+%----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%
-% Purpose: Analyze the spectral coherence between neural-hemodynamic [HbT] signals (IOS)
-%________________________________________________________________________________________________________________________
-
+%----------------------------------------------------------------------------------------------------------
 hemDataTypes = {'LH','RH'};
 modelType = 'Forest';
 params.minTime.Rest = 10;
 params.minTime.NREM = 30;
 params.minTime.REM = 60;
 % only run analysis for valid animal IDs
-dataLocation = [rootFolder delim 'Data' delim group delim animalID delim 'Bilateral Imaging'];
+dataLocation = [rootFolder delim 'Data' delim group delim set delim animalID delim 'Bilateral Imaging'];
 cd(dataLocation)
 % character list of all ProcData file IDs
 procDataFileStruct = dir('*_ProcData.mat');
@@ -101,10 +98,10 @@ for zzz = 1:length(hemDataTypes)
     % calculate the coherence between desired signals
     [C_RestData,~,~,~,~,f_RestData,confC_RestData,~,cErr_RestData] = coherencyc(HbT_restData,Neural_restData,params);
     % save results
-    Results_NeuralHemoCoherEphys.(animalID).Rest.(dataType).(hemDataType).C = C_RestData;
-    Results_NeuralHemoCoherEphys.(animalID).Rest.(dataType).(hemDataType).f = f_RestData;
-    Results_NeuralHemoCoherEphys.(animalID).Rest.(dataType).(hemDataType).confC = confC_RestData;
-    Results_NeuralHemoCoherEphys.(animalID).Rest.(dataType).(hemDataType).cErr = cErr_RestData;
+    Results_NeuralHemoCoher_Ephys.(animalID).Rest.(dataType).(hemDataType).C = C_RestData;
+    Results_NeuralHemoCoher_Ephys.(animalID).Rest.(dataType).(hemDataType).f = f_RestData;
+    Results_NeuralHemoCoher_Ephys.(animalID).Rest.(dataType).(hemDataType).confC = confC_RestData;
+    Results_NeuralHemoCoher_Ephys.(animalID).Rest.(dataType).(hemDataType).cErr = cErr_RestData;
     %% analyze neural-hemo coherence during periods of alert
     zz = 1;
     clear HbT_AlertData Neural_AlertData HbT_ProcAlertData Neural_ProcAlertData
@@ -152,16 +149,16 @@ for zzz = 1:length(hemDataTypes)
         params.tapers = [10,19]; % Tapers [n, 2n - 1]
         [C_AlertData,~,~,~,~,f_AlertData,confC_AlertData,~,cErr_AlertData] = coherencyc(HbT_alertData,Neural_alertData,params);
         % save results
-        Results_NeuralHemoCoherEphys.(animalID).Alert.(dataType).(hemDataType).C = C_AlertData;
-        Results_NeuralHemoCoherEphys.(animalID).Alert.(dataType).(hemDataType).f = f_AlertData;
-        Results_NeuralHemoCoherEphys.(animalID).Alert.(dataType).(hemDataType).confC = confC_AlertData;
-        Results_NeuralHemoCoherEphys.(animalID).Alert.(dataType).(hemDataType).cErr = cErr_AlertData;
+        Results_NeuralHemoCoher_Ephys.(animalID).Alert.(dataType).(hemDataType).C = C_AlertData;
+        Results_NeuralHemoCoher_Ephys.(animalID).Alert.(dataType).(hemDataType).f = f_AlertData;
+        Results_NeuralHemoCoher_Ephys.(animalID).Alert.(dataType).(hemDataType).confC = confC_AlertData;
+        Results_NeuralHemoCoher_Ephys.(animalID).Alert.(dataType).(hemDataType).cErr = cErr_AlertData;
     else
         % save results
-        Results_NeuralHemoCoherEphys.(animalID).Alert.(dataType).(hemDataType).C = [];
-        Results_NeuralHemoCoherEphys.(animalID).Alert.(dataType).(hemDataType).f = [];
-        Results_NeuralHemoCoherEphys.(animalID).Alert.(dataType).(hemDataType).confC = [];
-        Results_NeuralHemoCoherEphys.(animalID).Alert.(dataType).(hemDataType).cErr = [];
+        Results_NeuralHemoCoher_Ephys.(animalID).Alert.(dataType).(hemDataType).C = [];
+        Results_NeuralHemoCoher_Ephys.(animalID).Alert.(dataType).(hemDataType).f = [];
+        Results_NeuralHemoCoher_Ephys.(animalID).Alert.(dataType).(hemDataType).confC = [];
+        Results_NeuralHemoCoher_Ephys.(animalID).Alert.(dataType).(hemDataType).cErr = [];
     end
     %% analyze neural-hemo coherence during periods of asleep
     zz = 1;
@@ -210,16 +207,16 @@ for zzz = 1:length(hemDataTypes)
         params.tapers = [10,19]; % Tapers [n, 2n - 1]
         [C_AsleepData,~,~,~,~,f_AsleepData,confC_AsleepData,~,cErr_AsleepData] = coherencyc(HbT_asleepData,Neural_asleepData,params);
         % save results
-        Results_NeuralHemoCoherEphys.(animalID).Asleep.(dataType).(hemDataType).C = C_AsleepData;
-        Results_NeuralHemoCoherEphys.(animalID).Asleep.(dataType).(hemDataType).f = f_AsleepData;
-        Results_NeuralHemoCoherEphys.(animalID).Asleep.(dataType).(hemDataType).confC = confC_AsleepData;
-        Results_NeuralHemoCoherEphys.(animalID).Asleep.(dataType).(hemDataType).cErr = cErr_AsleepData;
+        Results_NeuralHemoCoher_Ephys.(animalID).Asleep.(dataType).(hemDataType).C = C_AsleepData;
+        Results_NeuralHemoCoher_Ephys.(animalID).Asleep.(dataType).(hemDataType).f = f_AsleepData;
+        Results_NeuralHemoCoher_Ephys.(animalID).Asleep.(dataType).(hemDataType).confC = confC_AsleepData;
+        Results_NeuralHemoCoher_Ephys.(animalID).Asleep.(dataType).(hemDataType).cErr = cErr_AsleepData;
     else
         % save results
-        Results_NeuralHemoCoherEphys.(animalID).Asleep.(dataType).(hemDataType).C = [];
-        Results_NeuralHemoCoherEphys.(animalID).Asleep.(dataType).(hemDataType).f = [];
-        Results_NeuralHemoCoherEphys.(animalID).Asleep.(dataType).(hemDataType).confC = [];
-        Results_NeuralHemoCoherEphys.(animalID).Asleep.(dataType).(hemDataType).cErr = [];
+        Results_NeuralHemoCoher_Ephys.(animalID).Asleep.(dataType).(hemDataType).C = [];
+        Results_NeuralHemoCoher_Ephys.(animalID).Asleep.(dataType).(hemDataType).f = [];
+        Results_NeuralHemoCoher_Ephys.(animalID).Asleep.(dataType).(hemDataType).confC = [];
+        Results_NeuralHemoCoher_Ephys.(animalID).Asleep.(dataType).(hemDataType).cErr = [];
     end
     %% analyze neural-hemo coherence during periods of all data
     zz = 1;
@@ -259,10 +256,10 @@ for zzz = 1:length(hemDataTypes)
         params.tapers = [10,19]; % Tapers [n, 2n - 1]
         [C_AllUnstimData,~,~,~,~,f_AllUnstimData,confC_AllUnstimData,~,cErr_AllUnstimData] = coherencyc(HbT_allData,Neural_allData,params);
         % save results
-        Results_NeuralHemoCoherEphys.(animalID).All.(dataType).(hemDataType).C = C_AllUnstimData;
-        Results_NeuralHemoCoherEphys.(animalID).All.(dataType).(hemDataType).f = f_AllUnstimData;
-        Results_NeuralHemoCoherEphys.(animalID).All.(dataType).(hemDataType).confC = confC_AllUnstimData;
-        Results_NeuralHemoCoherEphys.(animalID).All.(dataType).(hemDataType).cErr = cErr_AllUnstimData;
+        Results_NeuralHemoCoher_Ephys.(animalID).All.(dataType).(hemDataType).C = C_AllUnstimData;
+        Results_NeuralHemoCoher_Ephys.(animalID).All.(dataType).(hemDataType).f = f_AllUnstimData;
+        Results_NeuralHemoCoher_Ephys.(animalID).All.(dataType).(hemDataType).confC = confC_AllUnstimData;
+        Results_NeuralHemoCoher_Ephys.(animalID).All.(dataType).(hemDataType).cErr = cErr_AllUnstimData;
     end
     %% analyze neural-hemo coherence during periods of NREM
     % pull data from SleepData.mat structure
@@ -285,10 +282,10 @@ for zzz = 1:length(hemDataTypes)
     params.tapers = [3,5]; % Tapers [n, 2n - 1]
     [C_nrem,~,~,~,~,f_nrem,confC_nrem,~,cErr_nrem] = coherencyc(HbT_nrem,Neural_nrem,params);
     % save results
-    Results_NeuralHemoCoherEphys.(animalID).NREM.(dataType).(hemDataType).C = C_nrem;
-    Results_NeuralHemoCoherEphys.(animalID).NREM.(dataType).(hemDataType).f = f_nrem;
-    Results_NeuralHemoCoherEphys.(animalID).NREM.(dataType).(hemDataType).confC = confC_nrem;
-    Results_NeuralHemoCoherEphys.(animalID).NREM.(dataType).(hemDataType).cErr = cErr_nrem;
+    Results_NeuralHemoCoher_Ephys.(animalID).NREM.(dataType).(hemDataType).C = C_nrem;
+    Results_NeuralHemoCoher_Ephys.(animalID).NREM.(dataType).(hemDataType).f = f_nrem;
+    Results_NeuralHemoCoher_Ephys.(animalID).NREM.(dataType).(hemDataType).confC = confC_nrem;
+    Results_NeuralHemoCoher_Ephys.(animalID).NREM.(dataType).(hemDataType).cErr = cErr_nrem;
     %% analyze neural-hemo coherence during periods of REM
     % pull data from SleepData.mat structure
     [HbT_remData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.CBV_HbT.(hemDataType),SleepData.(modelType).REM.FileIDs,SleepData.(modelType).REM.BinTimes);
@@ -311,14 +308,12 @@ for zzz = 1:length(hemDataTypes)
     params.tapers = [5,9]; % Tapers [n, 2n - 1]
     [C_rem,~,~,~,~,f_rem,confC_rem,~,cErr_rem] = coherencyc(HbT_rem,Neural_rem,params);
     % save results
-    Results_NeuralHemoCoherEphys.(animalID).REM.(dataType).(hemDataType).C = C_rem;
-    Results_NeuralHemoCoherEphys.(animalID).REM.(dataType).(hemDataType).f = f_rem;
-    Results_NeuralHemoCoherEphys.(animalID).REM.(dataType).(hemDataType).confC = confC_rem;
-    Results_NeuralHemoCoherEphys.(animalID).REM.(dataType).(hemDataType).cErr = cErr_rem;
+    Results_NeuralHemoCoher_Ephys.(animalID).REM.(dataType).(hemDataType).C = C_rem;
+    Results_NeuralHemoCoher_Ephys.(animalID).REM.(dataType).(hemDataType).f = f_rem;
+    Results_NeuralHemoCoher_Ephys.(animalID).REM.(dataType).(hemDataType).confC = confC_rem;
+    Results_NeuralHemoCoher_Ephys.(animalID).REM.(dataType).(hemDataType).cErr = cErr_rem;
 end
 % save data
 cd([rootFolder delim 'Results_Turner'])
-save('Results_NeuralHemoCoherEphys.mat','Results_NeuralHemoCoherEphys')
+save('Results_NeuralHemoCoher_Ephys.mat','Results_NeuralHemoCoher_Ephys')
 cd([rootFolder delim 'Data'])
-
-end

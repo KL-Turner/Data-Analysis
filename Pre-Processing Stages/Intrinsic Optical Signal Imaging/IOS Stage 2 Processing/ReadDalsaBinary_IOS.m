@@ -9,11 +9,19 @@ function [frames] = ReadDalsaBinary_IOS(animalID,fileID)
 % Purpose: Extract the frames from the desired WindowCam file.
 %________________________________________________________________________________________________________________________
 
-rawDataFileID = [animalID '_' fileID(1:end - 13) 'RawData.mat'];
-load(rawDataFileID)
-imageHeight = RawData.notes.CBVCamPixelHeight;
-imageWidth = RawData.notes.CBVCamPixelWidth;
-pixelsPerFrame = imageWidth*imageHeight;
+try
+    ProcDataFileID = [animalID '_' fileID(1:end - 13) 'ProcData.mat'];
+    load(ProcDataFileID)
+    imageHeight = ProcData.notes.CBVCamPixelHeight;
+    imageWidth = ProcData.notes.CBVCamPixelWidth;
+    pixelsPerFrame = imageWidth*imageHeight;
+catch
+    RawDataFileID = [animalID '_' fileID(1:end - 13) 'RawData.mat'];
+    load(RawDataFileID)
+    imageHeight = RawData.notes.CBVCamPixelHeight;
+    imageWidth = RawData.notes.CBVCamPixelWidth;
+    pixelsPerFrame = imageWidth*imageHeight;
+end
 % open the file, get file size, back to the begining
 fid = fopen(fileID);
 fseek(fid,0,'eof');

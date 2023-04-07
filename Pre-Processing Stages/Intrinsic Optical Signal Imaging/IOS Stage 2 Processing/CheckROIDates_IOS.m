@@ -36,7 +36,7 @@ for b = 1:length(firstsFileOfDay)
     for c = 1:length(ROInames)
         ROIname = [ROInames{1,c} '_' strDay];
         if ~isfield(ROIs,(ROIname)) == true
-            if any(strcmp(ROInames{1,c},{'LH','RH','frontalLH','frontalRH','Barrels'})) == true
+            if any(strcmp(ROInames{1,c},{'LH','RH','fLH','fRH','barrels'})) == true
                 if any(strcmp(imagingWavelengths,{'Red, Green, & Blue','Red, Lime, & Blue'})) == true
                     [ROIs] = PlaceTriWavelengthROIs_IOS(animalID,fileID,ROIs,ROInames,lensMag,imagingType);
                 elseif any(strcmp(imagingWavelengths,{'Green & Blue','Lime & Blue'})) == true
