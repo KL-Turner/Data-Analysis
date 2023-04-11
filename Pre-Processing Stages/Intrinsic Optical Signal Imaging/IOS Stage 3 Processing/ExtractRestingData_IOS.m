@@ -5,13 +5,12 @@ function [RestData] = ExtractRestingData_IOS(procdataFiles,iteration)
 % https://github.com/KL-Turner
 %----------------------------------------------------------------------------------------------------------
 load(procdataFiles(1,:));
-imagingWavelengths = 'Lime';
-% imagingWavelengths = ProcData.notes.imagingWavelengths;
+imagingWavelengths = ProcData.notes.imagingWavelengths;
 if any(strcmp(imagingWavelengths,{'Red, Green, & Blue','Red, Lime, & Blue'})) == true
     if iteration == 1
-        dataTypes = {'CBV','GCaMP7s','cortical_LH','cortical_RH','hippocampus','EMG'};
+        dataTypes = {'CBV','cortical_LH','cortical_RH','hippocampus','EMG'};
     else
-        dataTypes = {'CBV','HbT','HbO','HbR','GCaMP7s','Deoxy','cortical_LH','cortical_RH','hippocampus','EMG'};
+        dataTypes = {'CBV','HbT','HbO','HbR','GCaMP','cortical_LH','cortical_RH','hippocampus','EMG'};
     end
 else
     if iteration == 1
@@ -24,7 +23,7 @@ end
 for aa = 1:length(dataTypes)
     dataType = dataTypes{1,aa};
     subDataTypes = fieldnames(ProcData.data.(dataType));
-    if any(strcmpi(dataType,{'CBV','HbT','HbO','HbR','GCaMP7s'})) == true
+    if any(strcmpi(dataType,{'CBV','HbT','HbO','HbR','GCaMP'})) == true
         samplingRate = ProcData.notes.CBVCamSamplingRate;
     else
         samplingRate = ProcData.notes.dsFs;

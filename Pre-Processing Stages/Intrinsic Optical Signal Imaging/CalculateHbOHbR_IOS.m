@@ -9,12 +9,12 @@ X_Red = 0.3846483;    % 630 nm
 X_Green = 0.0371713;  % 530 nm
 X_Blue = 0.064898;    % 480 nm
 % extinction coefficients (cm^-1*M^-1)
-E_HbR_Red = 5148.8;   % 630 nm
 E_HbO_Red = 610;
-E_HbR_Green = 39500;  % 530 nm
-E_HbO_Green = 39500;
-E_HbR_Blue = 14550;   % 480 nm
-E_HbO_Blue = 26629.2;
+E_HbR_Red = 5148.8;   % 630 nm
+E_HbO_Green = 39500;  % 530 nm
+E_HbR_Green = 39500;  
+E_HbO_Blue = 14550;   % 480 nm
+E_HbR_Blue = 26629.2;
 % load structure with ROI locations
 ROIFileDir = dir('*_UpdatedROIs.mat');
 ROIFileName = {ROIFileDir.name}';
@@ -51,32 +51,32 @@ for aa = 1:size(procDataFileIDs,1)
         greenImageStack = reshape(cell2mat(greenFrames),ProcData.notes.CBVCamPixelWidth,ProcData.notes.CBVCamPixelHeight,length(greenFrames));
         blueImageStack = reshape(cell2mat(blueFrames),ProcData.notes.CBVCamPixelWidth,ProcData.notes.CBVCamPixelHeight,length(blueFrames));
         % normalize each stack by resting baseline frame
-        normRedImageStack = (redImageStack)./RestingBaselines.Pixel.red.(strDay);
-        normGreenImageStack = (greenImageStack)./RestingBaselines.Pixel.green.(strDay);
-        normBlueImageStack = (blueImageStack)./RestingBaselines.Pixel.blue.(strDay);
-        %% Calculate absorption coefficient for each pixel = -1/pathlength*ln(deltaR/R+1)
-        Mu_Blue = -1/X_Blue.*log(normBlueImageStack); % cm^-1, natural logarithm
-        Mu_Green = -1/X_Green.*log(normGreenImageStack); % cm^-1, natural logarithm
-        Mu_Red = -1/X_Red.*log(normRedImageStack); % cm^-1, natural logarithm
-        %% Calculate concentration of HbR & HbO for each pixel
+        normRedImageStack = ((redImageStack - RestingBaselines.Pixel.red.(strDay))./RestingBaselines.Pixel.red.(strDay)) + 1;
+        normGreenImageStack = ((greenImageStack - RestingBaselines.Pixel.green.(strDay))./RestingBaselines.Pixel.green.(strDay)) + 1;
+        normBlueImageStack = ((blueImageStack - RestingBaselines.Pixel.blue.(strDay))./RestingBaselines.Pixel.blue.(strDay)) + 1;
+        %% calculate absorption coefficient for each pixel = -1/pathlength*ln(deltaR/R+1)
+        Mu_Red = -1/X_Red*log(normRedImageStack); % cm^-1, natural logarithm
+        Mu_Green = -1/X_Green*log(normGreenImageStack); % cm^-1, natural logarithm
+        Mu_Blue = -1/X_Blue*log(normBlueImageStack); % cm^-1, natural logarithm
+        %% calculate concentration of HbR & HbO for each pixel
         % Calculate concentrations (uM) using blue and green light
-        C_HbR.BG = (E_HbO_Green.*Mu_Blue - E_HbO_Blue.*Mu_Green)/(E_HbO_Green.*E_HbR_Blue - E_HbO_Blue.*E_HbR_Green).*1e6; % in uM
-        C_HbO.BG = (E_HbR_Green.*Mu_Blue - E_HbR_Blue.*Mu_Green)/(E_HbR_Green.*E_HbO_Blue - E_HbR_Blue.*E_HbO_Green).*1e6; % in uM
-        D_HbO_HbR.BG = C_HbO.BG - C_HbR.BG; % difference between HbO and HbR
+        HbR.BG = (E_HbO_Green*Mu_Blue - E_HbO_Blue*Mu_Green)./(E_HbO_Green*E_HbR_Blue - E_HbO_Blue*E_HbR_Green)*1e6; % in uM
+        HbO.BG = (E_HbR_Green*Mu_Blue - E_HbR_Blue*Mu_Green)./(E_HbR_Green*E_HbO_Blue - E_HbR_Blue*E_HbO_Green)*1e6; % in uM
+        HbOHbR.BG = HbO.BG - HbR.BG; % difference between HbO and HbR
         % Calculate concentrations (uM) using green and red light
-        C_HbR.RG = (E_HbO_Green.*Mu_Red - E_HbO_Red.*Mu_Green)/(E_HbO_Green.*E_HbR_Red - E_HbO_Red.*E_HbR_Green).*1e6; % in uM
-        C_HbO.RG = (E_HbR_Green.*Mu_Red - E_HbR_Red.*Mu_Green)/(E_HbR_Green.*E_HbO_Red - E_HbR_Red.*E_HbO_Green).*1e6; % in uM
-        D_HbO_HbR.RG = C_HbO.RG - C_HbR.RG; % difference between HbO and HbR
+        HbR.RG = (E_HbO_Green*Mu_Red - E_HbO_Red*Mu_Green)./(E_HbO_Green*E_HbR_Red - E_HbO_Red*E_HbR_Green)*1e6; % in uM
+        HbO.RG = (E_HbR_Green*Mu_Red - E_HbR_Red*Mu_Green)./(E_HbR_Green*E_HbO_Red - E_HbR_Red*E_HbO_Green)*1e6; % in uM
+        HbOHbR.RG = HbO.RG - HbR.RG; % difference between HbO and HbR
         % Calculate concentrations (uM) using blue and red light
-        C_HbR.BR = (E_HbO_Blue.*Mu_Red - E_HbO_Red.*Mu_Blue)/(E_HbO_Blue.*E_HbR_Red - E_HbO_Red.*E_HbR_Blue).*1e6; % in uM
-        C_HbO.BR = (E_HbR_Blue.*Mu_Red - E_HbR_Red.*Mu_Blue)/(E_HbR_Blue.*E_HbO_Red - E_HbR_Red.*E_HbO_Blue).*1e6; % in uM
-        D_HbO_HbR.BR = C_HbO.BR - C_HbR.BR; % difference between HbO and HbR
+        HbR.BR = (E_HbO_Blue*Mu_Red - E_HbO_Red*Mu_Blue)./(E_HbO_Blue*E_HbR_Red - E_HbO_Red*E_HbR_Blue)*1e6; % in uM
+        HbO.BR = (E_HbR_Blue*Mu_Red - E_HbR_Red*Mu_Blue)./(E_HbR_Blue*E_HbO_Red - E_HbR_Red*E_HbO_Blue)*1e6; % in uM
+        HbOHbR.BR = HbO.BR - HbR.BR; % difference between HbO and HbR
         % HbO and HbR for each pixel
-        out.C_HbR = C_HbR;
-        out.C_HbO = C_HbO;
-        out.D_HbO_HbR = D_HbO_HbR;
+        out.HbR = HbR;
+        out.HbO = HbO;
+        out.HbO_HbR = HbOHbR;
         %% extract analysis from each ROI
-        hbNames = {'C_HbR','C_HbO','D_HbO_HbR'};
+        hbNames = {'HbR','HbO','HbOHbR'};
         wavelengthComps = {'BG','RG','BR'};
         roiNames = fieldnames(UpdatedROIs.(strDay));
         for bb = 1:length(roiNames)
@@ -99,6 +99,6 @@ for aa = 1:size(procDataFileIDs,1)
                 end
             end
         end
-       % save(procDataFileID,'ProcData')
+        save(procDataFileID,'ProcData')
     end
 end

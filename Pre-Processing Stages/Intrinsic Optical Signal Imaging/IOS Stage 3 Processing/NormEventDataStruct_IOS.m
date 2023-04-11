@@ -1,10 +1,9 @@
-function [EventData] = NormEventDataStruct_IOS(EventData,RestingBaselines,baselineType)
+function [EventData] = NormEventDataStruct_IOS(animalID,EventData,RestingBaselines,baselineType)
 %----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %----------------------------------------------------------------------------------------------------------
-animalID = RestingBaselines.setDuration.baselineFileInfo.animalID;
 dataTypes = fieldnames(EventData);
 for dT = 1:length(dataTypes)
     dataType = char(dataTypes(dT));
@@ -12,6 +11,7 @@ for dT = 1:length(dataTypes)
     for hDT = 1:length(hemisphereDataTypes)
         hemDataType = char(hemisphereDataTypes(hDT));
         behaviorFields = fieldnames(EventData.(dataType).(hemDataType));
+        normData = [];
         for bF = 1:length(behaviorFields)
             behavField = char(behaviorFields(bF));
             if isempty(EventData.(dataType).(hemDataType).(behavField).data) == false
@@ -40,7 +40,7 @@ for dT = 1:length(dataTypes)
                         end
                         normData(dayInds,:,:) = normDayData;
                     end
-                    EventData.(dataType).(hemDataType).(behavField).NormData = normData;
+                    EventData.(dataType).(hemDataType).(behavField).NormData = normData';
                 end
             end
         end

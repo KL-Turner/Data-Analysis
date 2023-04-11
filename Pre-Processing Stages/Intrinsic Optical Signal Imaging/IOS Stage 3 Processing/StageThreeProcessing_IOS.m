@@ -42,9 +42,9 @@ NormalizeSpectrograms_IOS(RestingBaselines);
 % pixel-wise resting baselines
 [RestingBaselines] = CalculatePixelWiselRestingBaselines_IOS(procDataFileIDs,RestingBaselines,'y');
 % add delta HbT field to each processed data file
-UpdateTotalHemoglobin_IOS(procDataFileIDs,RestingBaselines,'manualSelection','y')
+% UpdateTotalHemoglobin_IOS(procDataFileIDs,RestingBaselines,'manualSelection','y')
 % correct GCaMP attenuation
-CorrectGCaMPattenuation_IOS(procDataFileIDs,RestingBaselines)
+CalculateFullSpectroscopy_IOS(procDataFileIDs,RestingBaselines,'manualSelection','y')
 % calculate HbO HbR
 CalculateHbOHbR_IOS(procDataFileIDs,RestingBaselines)
 % re-create the RestData structure now that HbT (and/or corrected GCaMP) is available

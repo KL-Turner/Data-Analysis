@@ -22,7 +22,7 @@ procDataFileStruct = dir('*_ProcData.mat');
 procDataFiles = {procDataFileStruct.name}';
 procDataFileIDs = char(procDataFiles);
 % character list of all WindowCam files
-windowDataFileStruct = dir('*_WindowCam.bin');
+windowDataFileStruct = dir('*_PCO_Cam01.pcoraw');
 windowDataFiles = {windowDataFileStruct.name}';
 windowDataFileIDs = char(windowDataFiles);
 bb = 1;
@@ -41,21 +41,11 @@ end
 for qq = 1:size(procDataFileList,1)
     disp(['Verifying first frame color from file (' num2str(qq) '/' num2str(size(procDataFileList,1)) ')']); disp(' ')
     load(procDataFileList(qq,:));
-    imageHeight = ProcData.notes.CBVCamPixelHeight;
-    imageWidth = ProcData.notes.CBVCamPixelWidth;
-    pixelsPerFrame = imageWidth*imageHeight;
-    % open the file, get file size, back to the begining
-    fid = fopen(windowDataFileList(qq,:));
-    fseek(fid,0,'eof');
-    fseek(fid,0,'bof');
-    % identify the number of frames to read. Each frame has a previously defined width and height (as inputs), along with a grayscale "depth" of 2"
     nFramesToRead = 10;
     % pre-allocate memory
     frames = cell(1,nFramesToRead);
     for n = 1:nFramesToRead
-        z = fread(fid,pixelsPerFrame,'*int16','b');
-        img = reshape(z(1:pixelsPerFrame),imageWidth,imageHeight);
-        frames{n} = rot90(img',2);
+        frames{n} = imread(windowDataFileList(qq,:),n);
     end
     gcampCheck = figure;
     frames = frames(1:end);
@@ -119,12 +109,6 @@ elseif strcmpi(lensMag,'2.5X') == true
 elseif strcmpi(lensMag,'3.0X') == true
     circRadius = 30;
 end
-% determine the proper size of the ROI in pixels based on camera resolution and lens magnification
-if imageWidth == 128
-    circRadius = circRadius/2;
-elseif imageWidth == 512
-    circRadius = circRadius*2;
-end
 % place circle along the most relevant region of each hemisphere
 for ff = 1:length(ROInames)
     % generate image
@@ -145,8 +129,8 @@ for ff = 1:length(ROInames)
         circPosition = round(circ.Center);
         if strcmpi(checkCircle,'y') == true
             isok = true;
-            ROIs.([ROInames{1,ff} '_' strDay]).circPosition = circPosition;
-            ROIs.([ROInames{1,ff} '_' strDay]).circRadius = circRadius;
+            ROIs.(strDay).(ROInames{1,ff}).circPosition = circPosition;
+            ROIs.(strDay).(ROInames{1,ff}).circRadius = circRadius;
         end
         delete(windowFig);
     end
@@ -156,7 +140,7 @@ fig = figure;
 imagesc(roiFrame)
 hold on;
 for aa = 1:length(ROInames)
-    drawcircle('Center',ROIs.([ROInames{1,aa} '_' strDay]).circPosition,'Radius',ROIs.([ROInames{1,aa} '_' strDay]).circRadius,'Color','r');
+    drawcircle('Center',ROIs.(strDay).(ROInames{1,aa}).circPosition,'Radius',ROIs.(strDay).(ROInames{1,aa}).circRadius,'Color','r');
 end
 title([animalID ' final ROI placement'])
 xlabel('Image size (pixels)')
@@ -166,5 +150,3 @@ colorbar
 axis image
 caxis([0,2^ProcData.notes.CBVCamBitDepth])
 savefig(fig,[animalID '_' strDay '_ROIs.fig'])
-
-end

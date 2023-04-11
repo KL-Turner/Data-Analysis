@@ -62,23 +62,28 @@ for aa = 1:size(procDataFileIDs,1) % loop through the list of ProcData files
             % CBV
             LH_CBV{indexCount,1} = ProcData.sleep.parameters.CBV.LH{fixedSleepIndex(indexCount),1};
             RH_CBV{indexCount,1} = ProcData.sleep.parameters.CBV.RH{fixedSleepIndex(indexCount),1};
-            frontalLH_CBV{indexCount,1} = ProcData.sleep.parameters.CBV.frontalLH{fixedSleepIndex(indexCount),1};
-            frontalRH_CBV{indexCount,1} = ProcData.sleep.parameters.CBV.frontalRH{fixedSleepIndex(indexCount),1};
+            fLH_CBV{indexCount,1} = ProcData.sleep.parameters.CBV.fLH{fixedSleepIndex(indexCount),1};
+            fRH_CBV{indexCount,1} = ProcData.sleep.parameters.CBV.fRH{fixedSleepIndex(indexCount),1};
             % HbT
-            LH_HbT{indexCount,1} = ProcData.sleep.parameters.CBV_HbT.LH{fixedSleepIndex(indexCount),1};
-            RH_HbT{indexCount,1} = ProcData.sleep.parameters.CBV_HbT.RH{fixedSleepIndex(indexCount),1};
-            frontalLH_HbT{indexCount,1} = ProcData.sleep.parameters.CBV_HbT.frontalLH{fixedSleepIndex(indexCount),1};
-            frontalRH_HbT{indexCount,1} = ProcData.sleep.parameters.CBV_HbT.frontalRH{fixedSleepIndex(indexCount),1};
+            LH_HbT{indexCount,1} = ProcData.sleep.parameters.HbT.LH{fixedSleepIndex(indexCount),1};
+            RH_HbT{indexCount,1} = ProcData.sleep.parameters.HbT.RH{fixedSleepIndex(indexCount),1};
+            fLH_HbT{indexCount,1} = ProcData.sleep.parameters.HbT.fLH{fixedSleepIndex(indexCount),1};
+            fRH_HbT{indexCount,1} = ProcData.sleep.parameters.HbT.fRH{fixedSleepIndex(indexCount),1};
             % GCaMP
-            LH_GCaMP{indexCount,1} = ProcData.sleep.parameters.GCaMP7s.LH{fixedSleepIndex(indexCount),1};
-            RH_GCaMP{indexCount,1} = ProcData.sleep.parameters.GCaMP7s.RH{fixedSleepIndex(indexCount),1};
-            frontalLH_GCaMP{indexCount,1} = ProcData.sleep.parameters.GCaMP7s.frontalLH{fixedSleepIndex(indexCount),1};
-            frontalRH_GCaMP{indexCount,1} = ProcData.sleep.parameters.GCaMP7s.frontalRH{fixedSleepIndex(indexCount),1};
-            % deoxy
-            LH_Deoxy{indexCount,1} = ProcData.sleep.parameters.Deoxy.LH{fixedSleepIndex(indexCount),1};
-            RH_Deoxy{indexCount,1} = ProcData.sleep.parameters.Deoxy.RH{fixedSleepIndex(indexCount),1};
-            frontalLH_Deoxy{indexCount,1} = ProcData.sleep.parameters.Deoxy.frontalLH{fixedSleepIndex(indexCount),1};
-            frontalRH_Deoxy{indexCount,1} = ProcData.sleep.parameters.Deoxy.frontalRH{fixedSleepIndex(indexCount),1};
+            LH_GCaMP{indexCount,1} = ProcData.sleep.parameters.GCaMP.LH{fixedSleepIndex(indexCount),1};
+            RH_GCaMP{indexCount,1} = ProcData.sleep.parameters.GCaMP.RH{fixedSleepIndex(indexCount),1};
+            fLH_GCaMP{indexCount,1} = ProcData.sleep.parameters.GCaMP.fLH{fixedSleepIndex(indexCount),1};
+            fRH_GCaMP{indexCount,1} = ProcData.sleep.parameters.GCaMP.fRH{fixedSleepIndex(indexCount),1};
+            % HbR
+            LH_HbR{indexCount,1} = ProcData.sleep.parameters.HbR.LH{fixedSleepIndex(indexCount),1};
+            RH_HbR{indexCount,1} = ProcData.sleep.parameters.HbR.RH{fixedSleepIndex(indexCount),1};
+            fLH_HbR{indexCount,1} = ProcData.sleep.parameters.HbR.fLH{fixedSleepIndex(indexCount),1};
+            fRH_HbR{indexCount,1} = ProcData.sleep.parameters.HbR.fRH{fixedSleepIndex(indexCount),1};
+            % HbO
+            LH_HbO{indexCount,1} = ProcData.sleep.parameters.HbO.LH{fixedSleepIndex(indexCount),1};
+            RH_HbO{indexCount,1} = ProcData.sleep.parameters.HbO.RH{fixedSleepIndex(indexCount),1};
+            fLH_HbO{indexCount,1} = ProcData.sleep.parameters.HbO.fLH{fixedSleepIndex(indexCount),1};
+            fRH_HbO{indexCount,1} = ProcData.sleep.parameters.HbO.fRH{fixedSleepIndex(indexCount),1};
             % whiskers
             whiskerAcceleration{indexCount,1} = ProcData.sleep.parameters.whiskerAcceleration{fixedSleepIndex(indexCount),1};
             binTimes{indexCount,1} = 5*fixedSleepIndex(indexCount);
@@ -157,14 +162,14 @@ for aa = 1:size(procDataFileIDs,1) % loop through the list of ProcData files
             matRH_CBV = cell2mat(RH_CBV);
             arrayRH_CBV = reshape(matRH_CBV',[1,size(matRH_CBV,2)*size(matRH_CBV,1)]);
             cellRH_CBV = {arrayRH_CBV};
-            % frontal LH CBV
-            matFrontalLH_CBV = cell2mat(frontalLH_CBV);
-            arrayFrontalLH_CBV = reshape(matFrontalLH_CBV',[1,size(matFrontalLH_CBV,2)*size(matFrontalLH_CBV,1)]);
-            cellFrontalLH_CBV = {arrayFrontalLH_CBV};
-            % frontal RH CBV
-            matFrontalRH_CBV = cell2mat(frontalRH_CBV);
-            arrayFrontalRH_CBV = reshape(matFrontalRH_CBV',[1,size(matFrontalRH_CBV,2)*size(matFrontalRH_CBV,1)]);
-            cellFrontalRH_CBV = {arrayFrontalRH_CBV};
+            % f LH CBV
+            matfLH_CBV = cell2mat(fLH_CBV);
+            arrayfLH_CBV = reshape(matfLH_CBV',[1,size(matfLH_CBV,2)*size(matfLH_CBV,1)]);
+            cellfLH_CBV = {arrayfLH_CBV};
+            % f RH CBV
+            matfRH_CBV = cell2mat(fRH_CBV);
+            arrayfRH_CBV = reshape(matfRH_CBV',[1,size(matfRH_CBV,2)*size(matfRH_CBV,1)]);
+            cellfRH_CBV = {arrayfRH_CBV};
             % LH HbT
             matLH_HbT = cell2mat(LH_HbT);
             arrayLH_HbT = reshape(matLH_HbT',[1,size(matLH_HbT,2)*size(matLH_HbT,1)]);
@@ -173,14 +178,14 @@ for aa = 1:size(procDataFileIDs,1) % loop through the list of ProcData files
             matRH_HbT = cell2mat(RH_HbT);
             arrayRH_HbT = reshape(matRH_HbT',[1,size(matRH_HbT,2)*size(matRH_HbT,1)]);
             cellRH_HbT = {arrayRH_HbT};
-            % frontal LH HbT
-            matFrontalLH_HbT = cell2mat(frontalLH_HbT);
-            arrayFrontalLH_HbT = reshape(matFrontalLH_HbT',[1,size(matFrontalLH_HbT,2)*size(matFrontalLH_HbT,1)]);
-            cellFrontalLH_HbT = {arrayFrontalLH_HbT};
-            % frontal RH HbT
-            matFrontalRH_HbT = cell2mat(frontalRH_HbT);
-            arrayFrontalRH_HbT = reshape(matFrontalRH_HbT',[1,size(matFrontalRH_HbT,2)*size(matFrontalRH_HbT,1)]);
-            cellFrontalRH_HbT = {arrayFrontalRH_HbT};
+            % f LH HbT
+            matfLH_HbT = cell2mat(fLH_HbT);
+            arrayfLH_HbT = reshape(matfLH_HbT',[1,size(matfLH_HbT,2)*size(matfLH_HbT,1)]);
+            cellfLH_HbT = {arrayfLH_HbT};
+            % f RH HbT
+            matfRH_HbT = cell2mat(fRH_HbT);
+            arrayfRH_HbT = reshape(matfRH_HbT',[1,size(matfRH_HbT,2)*size(matfRH_HbT,1)]);
+            cellfRH_HbT = {arrayfRH_HbT};
             % LH GCaMP
             matLH_GCaMP = cell2mat(LH_GCaMP);
             arrayLH_GCaMP = reshape(matLH_GCaMP',[1,size(matLH_GCaMP,2)*size(matLH_GCaMP,1)]);
@@ -189,30 +194,46 @@ for aa = 1:size(procDataFileIDs,1) % loop through the list of ProcData files
             matRH_GCaMP = cell2mat(RH_GCaMP);
             arrayRH_GCaMP = reshape(matRH_GCaMP',[1,size(matRH_GCaMP,2)*size(matRH_GCaMP,1)]);
             cellRH_GCaMP = {arrayRH_GCaMP};
-            % frontal LH GCaMP
-            matFrontalLH_GCaMP = cell2mat(frontalLH_GCaMP);
-            arrayFrontalLH_GCaMP = reshape(matFrontalLH_GCaMP',[1,size(matFrontalLH_GCaMP,2)*size(matFrontalLH_GCaMP,1)]);
-            cellFrontalLH_GCaMP = {arrayFrontalLH_GCaMP};
-            % frontal RH GCaMP
-            matFrontalRH_GCaMP = cell2mat(frontalRH_GCaMP);
-            arrayFrontalRH_GCaMP = reshape(matFrontalRH_GCaMP',[1,size(matFrontalRH_GCaMP,2)*size(matFrontalRH_GCaMP,1)]);
-            cellFrontalRH_GCaMP = {arrayFrontalRH_GCaMP};
-            % LH Deoxy
-            matLH_Deoxy = cell2mat(LH_Deoxy);
-            arrayLH_Deoxy = reshape(matLH_Deoxy',[1,size(matLH_Deoxy,2)*size(matLH_Deoxy,1)]);
-            cellLH_Deoxy = {arrayLH_Deoxy};
-            % RH Deoxy
-            matRH_Deoxy = cell2mat(RH_Deoxy);
-            arrayRH_Deoxy = reshape(matRH_Deoxy',[1,size(matRH_Deoxy,2)*size(matRH_Deoxy,1)]);
-            cellRH_Deoxy = {arrayRH_Deoxy};
-            % frontal LH Deoxy
-            matFrontalLH_Deoxy = cell2mat(frontalLH_Deoxy);
-            arrayFrontalLH_Deoxy = reshape(matFrontalLH_Deoxy',[1,size(matFrontalLH_Deoxy,2)*size(matFrontalLH_Deoxy,1)]);
-            cellFrontalLH_Deoxy = {arrayFrontalLH_Deoxy};
-            % frontal RH Deoxy
-            matFrontalRH_Deoxy = cell2mat(frontalRH_Deoxy);
-            arrayFrontalRH_Deoxy = reshape(matFrontalRH_Deoxy',[1,size(matFrontalRH_Deoxy,2)*size(matFrontalRH_Deoxy,1)]);
-            cellFrontalRH_Deoxy = {arrayFrontalRH_Deoxy};
+            % f LH GCaMP
+            matfLH_GCaMP = cell2mat(fLH_GCaMP);
+            arrayfLH_GCaMP = reshape(matfLH_GCaMP',[1,size(matfLH_GCaMP,2)*size(matfLH_GCaMP,1)]);
+            cellfLH_GCaMP = {arrayfLH_GCaMP};
+            % f RH GCaMP
+            matfRH_GCaMP = cell2mat(fRH_GCaMP);
+            arrayfRH_GCaMP = reshape(matfRH_GCaMP',[1,size(matfRH_GCaMP,2)*size(matfRH_GCaMP,1)]);
+            cellfRH_GCaMP = {arrayfRH_GCaMP};
+            % LH HbR
+            matLH_HbR = cell2mat(LH_HbR);
+            arrayLH_HbR = reshape(matLH_HbR',[1,size(matLH_HbR,2)*size(matLH_HbR,1)]);
+            cellLH_HbR = {arrayLH_HbR};
+            % RH HbR
+            matRH_HbR = cell2mat(RH_HbR);
+            arrayRH_HbR = reshape(matRH_HbR',[1,size(matRH_HbR,2)*size(matRH_HbR,1)]);
+            cellRH_HbR = {arrayRH_HbR};
+            % f LH HbR
+            matfLH_HbR = cell2mat(fLH_HbR);
+            arrayfLH_HbR = reshape(matfLH_HbR',[1,size(matfLH_HbR,2)*size(matfLH_HbR,1)]);
+            cellfLH_HbR = {arrayfLH_HbR};
+            % f RH HbR
+            matfRH_HbR = cell2mat(fRH_HbR);
+            arrayfRH_HbR = reshape(matfRH_HbR',[1,size(matfRH_HbR,2)*size(matfRH_HbR,1)]);
+            cellfRH_HbR = {arrayfRH_HbR};
+            % LH HbO
+            matLH_HbO = cell2mat(LH_HbO);
+            arrayLH_HbO = reshape(matLH_HbO',[1,size(matLH_HbO,2)*size(matLH_HbO,1)]);
+            cellLH_HbO = {arrayLH_HbO};
+            % RH HbO
+            matRH_HbO = cell2mat(RH_HbO);
+            arrayRH_HbO = reshape(matRH_HbO',[1,size(matRH_HbO,2)*size(matRH_HbO,1)]);
+            cellRH_HbO = {arrayRH_HbO};
+            % f LH HbO
+            matfLH_HbO = cell2mat(fLH_HbO);
+            arrayfLH_HbO = reshape(matfLH_HbO',[1,size(matfLH_HbO,2)*size(matfLH_HbO,1)]);
+            cellfLH_HbO = {arrayfLH_HbO};
+            % f RH HbO
+            matfRH_HbO = cell2mat(fRH_HbO);
+            arrayfRH_HbO = reshape(matfRH_HbO',[1,size(matfRH_HbO,2)*size(matfRH_HbO,1)]);
+            cellfRH_HbO = {arrayfRH_HbO};
             % bin times
             matBinTimes = cell2mat(binTimes);
             arrayBinTimes = reshape(matBinTimes',[1,size(matBinTimes,2)*size(matBinTimes,1)]);
@@ -250,23 +271,28 @@ for aa = 1:size(procDataFileIDs,1) % loop through the list of ProcData files
                 % CBV
                 mat2CellLH_CBV{matCounter,1} = LH_CBV(convertedMat2Cell{matCounter,1});
                 mat2CellRH_CBV{matCounter,1} = RH_CBV(convertedMat2Cell{matCounter,1});
-                mat2CellFrontalLH_CBV{matCounter,1} = frontalLH_CBV(convertedMat2Cell{matCounter,1});
-                mat2CellFrontalRH_CBV{matCounter,1} = frontalRH_CBV(convertedMat2Cell{matCounter,1});
+                mat2CellfLH_CBV{matCounter,1} = fLH_CBV(convertedMat2Cell{matCounter,1});
+                mat2CellfRH_CBV{matCounter,1} = fRH_CBV(convertedMat2Cell{matCounter,1});
                 % HbT
                 mat2CellLH_HbT{matCounter,1} = LH_HbT(convertedMat2Cell{matCounter,1});
                 mat2CellRH_HbT{matCounter,1} = RH_HbT(convertedMat2Cell{matCounter,1});
-                mat2CellFrontalLH_HbT{matCounter,1} = frontalLH_HbT(convertedMat2Cell{matCounter,1});
-                mat2CellFrontalRH_HbT{matCounter,1} = frontalRH_HbT(convertedMat2Cell{matCounter,1});
+                mat2CellfLH_HbT{matCounter,1} = fLH_HbT(convertedMat2Cell{matCounter,1});
+                mat2CellfRH_HbT{matCounter,1} = fRH_HbT(convertedMat2Cell{matCounter,1});
                 % GCaMP
                 mat2CellLH_GCaMP{matCounter,1} = LH_GCaMP(convertedMat2Cell{matCounter,1});
                 mat2CellRH_GCaMP{matCounter,1} = RH_GCaMP(convertedMat2Cell{matCounter,1});
-                mat2CellFrontalLH_GCaMP{matCounter,1} = frontalLH_GCaMP(convertedMat2Cell{matCounter,1});
-                mat2CellFrontalRH_GCaMP{matCounter,1} = frontalRH_GCaMP(convertedMat2Cell{matCounter,1});
-                % Deoxy
-                mat2CellLH_Deoxy{matCounter,1} = LH_Deoxy(convertedMat2Cell{matCounter,1});
-                mat2CellRH_Deoxy{matCounter,1} = RH_Deoxy(convertedMat2Cell{matCounter,1});
-                mat2CellFrontalLH_Deoxy{matCounter,1} = frontalLH_Deoxy(convertedMat2Cell{matCounter,1});
-                mat2CellFrontalRH_Deoxy{matCounter,1} = frontalRH_Deoxy(convertedMat2Cell{matCounter,1});
+                mat2CellfLH_GCaMP{matCounter,1} = fLH_GCaMP(convertedMat2Cell{matCounter,1});
+                mat2CellfRH_GCaMP{matCounter,1} = fRH_GCaMP(convertedMat2Cell{matCounter,1});
+                % HbR
+                mat2CellLH_HbR{matCounter,1} = LH_HbR(convertedMat2Cell{matCounter,1});
+                mat2CellRH_HbR{matCounter,1} = RH_HbR(convertedMat2Cell{matCounter,1});
+                mat2CellfLH_HbR{matCounter,1} = fLH_HbR(convertedMat2Cell{matCounter,1});
+                mat2CellfRH_HbR{matCounter,1} = fRH_HbR(convertedMat2Cell{matCounter,1});
+                % HbO
+                mat2CellLH_HbO{matCounter,1} = LH_HbO(convertedMat2Cell{matCounter,1});
+                mat2CellRH_HbO{matCounter,1} = RH_HbO(convertedMat2Cell{matCounter,1});
+                mat2CellfLH_HbO{matCounter,1} = fLH_HbO(convertedMat2Cell{matCounter,1});
+                mat2CellfRH_HbO{matCounter,1} = fRH_HbO(convertedMat2Cell{matCounter,1});
                 % whiskers
                 mat2CellWhiskerAcceleration{matCounter,1} = whiskerAcceleration(convertedMat2Cell{matCounter,1});
                 % bin counts
@@ -330,14 +356,14 @@ for aa = 1:size(procDataFileIDs,1) % loop through the list of ProcData files
                 matRH_CBV = cell2mat(mat2CellRH_CBV{cellCounter,1});
                 arrayRH_CBV = reshape(matRH_CBV',[1,size(matRH_CBV,2)*size(matRH_CBV,1)]);
                 cellRH_CBV{cellCounter,1} = arrayRH_CBV;
-                % frontal LH CBV
-                matFrontalLH_CBV = cell2mat(mat2CellFrontalLH_CBV{cellCounter,1});
-                arrayFrontalLH_CBV = reshape(matFrontalLH_CBV',[1,size(matFrontalLH_CBV,2)*size(matFrontalLH_CBV,1)]);
-                cellFrontalLH_CBV{cellCounter,1} = arrayFrontalLH_CBV;
-                % frontal RH CBV
-                matFrontalRH_CBV = cell2mat(mat2CellFrontalRH_CBV{cellCounter,1});
-                arrayFrontalRH_CBV = reshape(matFrontalRH_CBV',[1,size(matFrontalRH_CBV,2)*size(matFrontalRH_CBV,1)]);
-                cellFrontalRH_CBV{cellCounter,1} = arrayFrontalRH_CBV;
+                % f LH CBV
+                matfLH_CBV = cell2mat(mat2CellfLH_CBV{cellCounter,1});
+                arrayfLH_CBV = reshape(matfLH_CBV',[1,size(matfLH_CBV,2)*size(matfLH_CBV,1)]);
+                cellfLH_CBV{cellCounter,1} = arrayfLH_CBV;
+                % f RH CBV
+                matfRH_CBV = cell2mat(mat2CellfRH_CBV{cellCounter,1});
+                arrayfRH_CBV = reshape(matfRH_CBV',[1,size(matfRH_CBV,2)*size(matfRH_CBV,1)]);
+                cellfRH_CBV{cellCounter,1} = arrayfRH_CBV;
                 % LH HbT
                 matLH_HbT = cell2mat(mat2CellLH_HbT{cellCounter,1});
                 arrayLH_HbT = reshape(matLH_HbT',[1,size(matLH_HbT,2)*size(matLH_HbT,1)]);
@@ -346,14 +372,14 @@ for aa = 1:size(procDataFileIDs,1) % loop through the list of ProcData files
                 matRH_HbT = cell2mat(mat2CellRH_HbT{cellCounter,1});
                 arrayRH_HbT = reshape(matRH_HbT',[1,size(matRH_HbT,2)*size(matRH_HbT,1)]);
                 cellRH_HbT{cellCounter,1} = arrayRH_HbT;
-                % frontal LH HbT
-                matFrontalLH_HbT = cell2mat(mat2CellFrontalLH_HbT{cellCounter,1});
-                arrayFrontalLH_HbT = reshape(matFrontalLH_HbT',[1,size(matFrontalLH_HbT,2)*size(matFrontalLH_HbT,1)]);
-                cellFrontalLH_HbT{cellCounter,1} = arrayFrontalLH_HbT;
-                % frontal RH HbT
-                matFrontalRH_HbT = cell2mat(mat2CellFrontalRH_HbT{cellCounter,1});
-                arrayFrontalRH_HbT = reshape(matFrontalRH_HbT',[1,size(matFrontalRH_HbT,2)*size(matFrontalRH_HbT,1)]);
-                cellFrontalRH_HbT{cellCounter,1} = arrayFrontalRH_HbT;
+                % f LH HbT
+                matfLH_HbT = cell2mat(mat2CellfLH_HbT{cellCounter,1});
+                arrayfLH_HbT = reshape(matfLH_HbT',[1,size(matfLH_HbT,2)*size(matfLH_HbT,1)]);
+                cellfLH_HbT{cellCounter,1} = arrayfLH_HbT;
+                % f RH HbT
+                matfRH_HbT = cell2mat(mat2CellfRH_HbT{cellCounter,1});
+                arrayfRH_HbT = reshape(matfRH_HbT',[1,size(matfRH_HbT,2)*size(matfRH_HbT,1)]);
+                cellfRH_HbT{cellCounter,1} = arrayfRH_HbT;
                 % LH GCaMP
                 matLH_GCaMP = cell2mat(mat2CellLH_GCaMP{cellCounter,1});
                 arrayLH_GCaMP = reshape(matLH_GCaMP',[1,size(matLH_GCaMP,2)*size(matLH_GCaMP,1)]);
@@ -362,30 +388,46 @@ for aa = 1:size(procDataFileIDs,1) % loop through the list of ProcData files
                 matRH_GCaMP = cell2mat(mat2CellRH_GCaMP{cellCounter,1});
                 arrayRH_GCaMP = reshape(matRH_GCaMP',[1,size(matRH_GCaMP,2)*size(matRH_GCaMP,1)]);
                 cellRH_GCaMP{cellCounter,1} = arrayRH_GCaMP;
-                % frontal LH GCaMP
-                matFrontalLH_GCaMP = cell2mat(mat2CellFrontalLH_GCaMP{cellCounter,1});
-                arrayFrontalLH_GCaMP = reshape(matFrontalLH_GCaMP',[1,size(matFrontalLH_GCaMP,2)*size(matFrontalLH_GCaMP,1)]);
-                cellFrontalLH_GCaMP{cellCounter,1} = arrayFrontalLH_GCaMP;
-                % frontal RH GCaMP
-                matFrontalRH_GCaMP = cell2mat(mat2CellFrontalRH_GCaMP{cellCounter,1});
-                arrayFrontalRH_GCaMP = reshape(matFrontalRH_GCaMP',[1,size(matFrontalRH_GCaMP,2)*size(matFrontalRH_GCaMP,1)]);
-                cellFrontalRH_GCaMP{cellCounter,1} = arrayFrontalRH_GCaMP;
-                % LH Deoxy
-                matLH_Deoxy = cell2mat(mat2CellLH_Deoxy{cellCounter,1});
-                arrayLH_Deoxy = reshape(matLH_Deoxy',[1,size(matLH_Deoxy,2)*size(matLH_Deoxy,1)]);
-                cellLH_Deoxy{cellCounter,1} = arrayLH_Deoxy;
-                % RH Deoxy
-                matRH_Deoxy = cell2mat(mat2CellRH_Deoxy{cellCounter,1});
-                arrayRH_Deoxy = reshape(matRH_Deoxy',[1,size(matRH_Deoxy,2)*size(matRH_Deoxy,1)]);
-                cellRH_Deoxy{cellCounter,1} = arrayRH_Deoxy;
-                % frontal LH Deoxy
-                matFrontalLH_Deoxy = cell2mat(mat2CellFrontalLH_Deoxy{cellCounter,1});
-                arrayFrontalLH_Deoxy = reshape(matFrontalLH_Deoxy',[1,size(matFrontalLH_Deoxy,2)*size(matFrontalLH_Deoxy,1)]);
-                cellFrontalLH_Deoxy{cellCounter,1} = arrayFrontalLH_Deoxy;
-                % frontal RH Deoxy
-                matFrontalRH_Deoxy = cell2mat(mat2CellFrontalRH_Deoxy{cellCounter,1});
-                arrayFrontalRH_Deoxy = reshape(matFrontalRH_Deoxy',[1,size(matFrontalRH_Deoxy,2)*size(matFrontalRH_Deoxy,1)]);
-                cellFrontalRH_Deoxy{cellCounter,1} = arrayFrontalRH_Deoxy;
+                % f LH GCaMP
+                matfLH_GCaMP = cell2mat(mat2CellfLH_GCaMP{cellCounter,1});
+                arrayfLH_GCaMP = reshape(matfLH_GCaMP',[1,size(matfLH_GCaMP,2)*size(matfLH_GCaMP,1)]);
+                cellfLH_GCaMP{cellCounter,1} = arrayfLH_GCaMP;
+                % f RH GCaMP
+                matfRH_GCaMP = cell2mat(mat2CellfRH_GCaMP{cellCounter,1});
+                arrayfRH_GCaMP = reshape(matfRH_GCaMP',[1,size(matfRH_GCaMP,2)*size(matfRH_GCaMP,1)]);
+                cellfRH_GCaMP{cellCounter,1} = arrayfRH_GCaMP;
+                % LH HbR
+                matLH_HbR = cell2mat(mat2CellLH_HbR{cellCounter,1});
+                arrayLH_HbR = reshape(matLH_HbR',[1,size(matLH_HbR,2)*size(matLH_HbR,1)]);
+                cellLH_HbR{cellCounter,1} = arrayLH_HbR;
+                % RH HbR
+                matRH_HbR = cell2mat(mat2CellRH_HbR{cellCounter,1});
+                arrayRH_HbR = reshape(matRH_HbR',[1,size(matRH_HbR,2)*size(matRH_HbR,1)]);
+                cellRH_HbR{cellCounter,1} = arrayRH_HbR;
+                % f LH HbR
+                matfLH_HbR = cell2mat(mat2CellfLH_HbR{cellCounter,1});
+                arrayfLH_HbR = reshape(matfLH_HbR',[1,size(matfLH_HbR,2)*size(matfLH_HbR,1)]);
+                cellfLH_HbR{cellCounter,1} = arrayfLH_HbR;
+                % f RH HbR
+                matfRH_HbR = cell2mat(mat2CellfRH_HbR{cellCounter,1});
+                arrayfRH_HbR = reshape(matfRH_HbR',[1,size(matfRH_HbR,2)*size(matfRH_HbR,1)]);
+                cellfRH_HbR{cellCounter,1} = arrayfRH_HbR;
+                % LH HbO
+                matLH_HbO = cell2mat(mat2CellLH_HbO{cellCounter,1});
+                arrayLH_HbO = reshape(matLH_HbO',[1,size(matLH_HbO,2)*size(matLH_HbO,1)]);
+                cellLH_HbO{cellCounter,1} = arrayLH_HbO;
+                % RH HbO
+                matRH_HbO = cell2mat(mat2CellRH_HbO{cellCounter,1});
+                arrayRH_HbO = reshape(matRH_HbO',[1,size(matRH_HbO,2)*size(matRH_HbO,1)]);
+                cellRH_HbO{cellCounter,1} = arrayRH_HbO;
+                % f LH HbO
+                matfLH_HbO = cell2mat(mat2CellfLH_HbO{cellCounter,1});
+                arrayfLH_HbO = reshape(matfLH_HbO',[1,size(matfLH_HbO,2)*size(matfLH_HbO,1)]);
+                cellfLH_HbO{cellCounter,1} = arrayfLH_HbO;
+                % f RH HbO
+                matfRH_HbO = cell2mat(mat2CellfRH_HbO{cellCounter,1});
+                arrayfRH_HbO = reshape(matfRH_HbO',[1,size(matfRH_HbO,2)*size(matfRH_HbO,1)]);
+                cellfRH_HbO{cellCounter,1} = arrayfRH_HbO;
                 % whisker acceleration
                 for x = 1:size(mat2CellWhiskerAcceleration{cellCounter,1},1)
                     targetPoints = size(mat2CellWhiskerAcceleration{cellCounter,1}{1,1},2);
@@ -426,23 +468,28 @@ for aa = 1:size(procDataFileIDs,1) % loop through the list of ProcData files
                 % CBV
                 SleepData.(modelName).NREM.data.CBV.LH{cellLength,1} = cellLH_CBV{1,1};
                 SleepData.(modelName).NREM.data.CBV.RH{cellLength,1} = cellRH_CBV{1,1};
-                SleepData.(modelName).NREM.data.CBV.frontalLH{cellLength,1} = cellFrontalLH_CBV{1,1};
-                SleepData.(modelName).NREM.data.CBV.frontalRH{cellLength,1} = cellFrontalRH_CBV{1,1};
+                SleepData.(modelName).NREM.data.CBV.fLH{cellLength,1} = cellfLH_CBV{1,1};
+                SleepData.(modelName).NREM.data.CBV.fRH{cellLength,1} = cellfRH_CBV{1,1};
                 % HbT
-                SleepData.(modelName).NREM.data.CBV_HbT.LH{cellLength,1} = cellLH_HbT{1,1};
-                SleepData.(modelName).NREM.data.CBV_HbT.RH{cellLength,1} = cellRH_HbT{1,1};
-                SleepData.(modelName).NREM.data.CBV_HbT.frontalLH{cellLength,1} = cellFrontalLH_HbT{1,1};
-                SleepData.(modelName).NREM.data.CBV_HbT.frontalRH{cellLength,1} = cellFrontalRH_HbT{1,1};
+                SleepData.(modelName).NREM.data.HbT.LH{cellLength,1} = cellLH_HbT{1,1};
+                SleepData.(modelName).NREM.data.HbT.RH{cellLength,1} = cellRH_HbT{1,1};
+                SleepData.(modelName).NREM.data.HbT.fLH{cellLength,1} = cellfLH_HbT{1,1};
+                SleepData.(modelName).NREM.data.HbT.fRH{cellLength,1} = cellfRH_HbT{1,1};
                 % GCaMP
-                SleepData.(modelName).NREM.data.GCaMP7s.LH{cellLength,1} = cellLH_GCaMP{1,1};
-                SleepData.(modelName).NREM.data.GCaMP7s.RH{cellLength,1} = cellRH_GCaMP{1,1};
-                SleepData.(modelName).NREM.data.GCaMP7s.frontalLH{cellLength,1} = cellFrontalLH_GCaMP{1,1};
-                SleepData.(modelName).NREM.data.GCaMP7s.frontalRH{cellLength,1} = cellFrontalRH_GCaMP{1,1};
-                % Deoxy
-                SleepData.(modelName).NREM.data.Deoxy.LH{cellLength,1} = cellLH_Deoxy{1,1};
-                SleepData.(modelName).NREM.data.Deoxy.RH{cellLength,1} = cellRH_Deoxy{1,1};
-                SleepData.(modelName).NREM.data.Deoxy.frontalLH{cellLength,1} = cellFrontalLH_Deoxy{1,1};
-                SleepData.(modelName).NREM.data.Deoxy.frontalRH{cellLength,1} = cellFrontalRH_Deoxy{1,1};
+                SleepData.(modelName).NREM.data.GCaMP.LH{cellLength,1} = cellLH_GCaMP{1,1};
+                SleepData.(modelName).NREM.data.GCaMP.RH{cellLength,1} = cellRH_GCaMP{1,1};
+                SleepData.(modelName).NREM.data.GCaMP.fLH{cellLength,1} = cellfLH_GCaMP{1,1};
+                SleepData.(modelName).NREM.data.GCaMP.fRH{cellLength,1} = cellfRH_GCaMP{1,1};
+                % HbR
+                SleepData.(modelName).NREM.data.HbR.LH{cellLength,1} = cellLH_HbR{1,1};
+                SleepData.(modelName).NREM.data.HbR.RH{cellLength,1} = cellRH_HbR{1,1};
+                SleepData.(modelName).NREM.data.HbR.fLH{cellLength,1} = cellfLH_HbR{1,1};
+                SleepData.(modelName).NREM.data.HbR.fRH{cellLength,1} = cellfRH_HbR{1,1};
+                % HbO
+                SleepData.(modelName).NREM.data.HbO.LH{cellLength,1} = cellLH_HbO{1,1};
+                SleepData.(modelName).NREM.data.HbO.RH{cellLength,1} = cellRH_HbO{1,1};
+                SleepData.(modelName).NREM.data.HbO.fLH{cellLength,1} = cellfLH_HbO{1,1};
+                SleepData.(modelName).NREM.data.HbO.fRH{cellLength,1} = cellfRH_HbO{1,1};
                 % whiskers
                 SleepData.(modelName).NREM.data.whiskerAcceleration{cellLength,1} = cellWhiskerAcceleration{1,1};
                 % file IDs & bin times
@@ -468,23 +515,28 @@ for aa = 1:size(procDataFileIDs,1) % loop through the list of ProcData files
                 % CBV
                 SleepData.(modelName).NREM.data.CBV.LH{size(SleepData.(modelName).NREM.data.CBV.LH,1) + 1,1} = cellLH_CBV{cellLength,1};
                 SleepData.(modelName).NREM.data.CBV.RH{size(SleepData.(modelName).NREM.data.CBV.RH,1) + 1,1} = cellRH_CBV{cellLength,1};
-                SleepData.(modelName).NREM.data.CBV.frontalLH{size(SleepData.(modelName).NREM.data.CBV.frontalLH,1) + 1,1} = cellFrontalLH_CBV{cellLength,1};
-                SleepData.(modelName).NREM.data.CBV.frontalRH{size(SleepData.(modelName).NREM.data.CBV.frontalRH,1) + 1,1} = cellFrontalRH_CBV{cellLength,1};
+                SleepData.(modelName).NREM.data.CBV.fLH{size(SleepData.(modelName).NREM.data.CBV.fLH,1) + 1,1} = cellfLH_CBV{cellLength,1};
+                SleepData.(modelName).NREM.data.CBV.fRH{size(SleepData.(modelName).NREM.data.CBV.fRH,1) + 1,1} = cellfRH_CBV{cellLength,1};
                 % HbT
-                SleepData.(modelName).NREM.data.CBV_HbT.LH{size(SleepData.(modelName).NREM.data.CBV_HbT.LH,1) + 1,1} = cellLH_HbT{cellLength,1};
-                SleepData.(modelName).NREM.data.CBV_HbT.RH{size(SleepData.(modelName).NREM.data.CBV_HbT.RH,1) + 1,1} = cellRH_HbT{cellLength,1};
-                SleepData.(modelName).NREM.data.CBV_HbT.frontalLH{size(SleepData.(modelName).NREM.data.CBV_HbT.frontalLH,1) + 1,1} = cellFrontalLH_HbT{cellLength,1};
-                SleepData.(modelName).NREM.data.CBV_HbT.frontalRH{size(SleepData.(modelName).NREM.data.CBV_HbT.frontalRH,1) + 1,1} = cellFrontalRH_HbT{cellLength,1};
+                SleepData.(modelName).NREM.data.HbT.LH{size(SleepData.(modelName).NREM.data.HbT.LH,1) + 1,1} = cellLH_HbT{cellLength,1};
+                SleepData.(modelName).NREM.data.HbT.RH{size(SleepData.(modelName).NREM.data.HbT.RH,1) + 1,1} = cellRH_HbT{cellLength,1};
+                SleepData.(modelName).NREM.data.HbT.fLH{size(SleepData.(modelName).NREM.data.HbT.fLH,1) + 1,1} = cellfLH_HbT{cellLength,1};
+                SleepData.(modelName).NREM.data.HbT.fRH{size(SleepData.(modelName).NREM.data.HbT.fRH,1) + 1,1} = cellfRH_HbT{cellLength,1};
                 % GCaMP
-                SleepData.(modelName).NREM.data.GCaMP7s.LH{size(SleepData.(modelName).NREM.data.GCaMP7s.LH,1) + 1,1} = cellLH_GCaMP{cellLength,1};
-                SleepData.(modelName).NREM.data.GCaMP7s.RH{size(SleepData.(modelName).NREM.data.GCaMP7s.RH,1) + 1,1} = cellRH_GCaMP{cellLength,1};
-                SleepData.(modelName).NREM.data.GCaMP7s.frontalLH{size(SleepData.(modelName).NREM.data.GCaMP7s.frontalLH,1) + 1,1} = cellFrontalLH_GCaMP{cellLength,1};
-                SleepData.(modelName).NREM.data.GCaMP7s.frontalRH{size(SleepData.(modelName).NREM.data.GCaMP7s.frontalRH,1) + 1,1} = cellFrontalRH_GCaMP{cellLength,1};
-                % Deoxy
-                SleepData.(modelName).NREM.data.Deoxy.LH{size(SleepData.(modelName).NREM.data.Deoxy.LH,1) + 1,1} = cellLH_Deoxy{cellLength,1};
-                SleepData.(modelName).NREM.data.Deoxy.RH{size(SleepData.(modelName).NREM.data.Deoxy.RH,1) + 1,1} = cellRH_Deoxy{cellLength,1};
-                SleepData.(modelName).NREM.data.Deoxy.frontalLH{size(SleepData.(modelName).NREM.data.Deoxy.frontalLH,1) + 1,1} = cellFrontalLH_Deoxy{cellLength,1};
-                SleepData.(modelName).NREM.data.Deoxy.frontalRH{size(SleepData.(modelName).NREM.data.Deoxy.frontalRH,1) + 1,1} = cellFrontalRH_Deoxy{cellLength,1};
+                SleepData.(modelName).NREM.data.GCaMP.LH{size(SleepData.(modelName).NREM.data.GCaMP.LH,1) + 1,1} = cellLH_GCaMP{cellLength,1};
+                SleepData.(modelName).NREM.data.GCaMP.RH{size(SleepData.(modelName).NREM.data.GCaMP.RH,1) + 1,1} = cellRH_GCaMP{cellLength,1};
+                SleepData.(modelName).NREM.data.GCaMP.fLH{size(SleepData.(modelName).NREM.data.GCaMP.fLH,1) + 1,1} = cellfLH_GCaMP{cellLength,1};
+                SleepData.(modelName).NREM.data.GCaMP.fRH{size(SleepData.(modelName).NREM.data.GCaMP.fRH,1) + 1,1} = cellfRH_GCaMP{cellLength,1};
+                % HbR
+                SleepData.(modelName).NREM.data.HbR.LH{size(SleepData.(modelName).NREM.data.HbR.LH,1) + 1,1} = cellLH_HbR{cellLength,1};
+                SleepData.(modelName).NREM.data.HbR.RH{size(SleepData.(modelName).NREM.data.HbR.RH,1) + 1,1} = cellRH_HbR{cellLength,1};
+                SleepData.(modelName).NREM.data.HbR.fLH{size(SleepData.(modelName).NREM.data.HbR.fLH,1) + 1,1} = cellfLH_HbR{cellLength,1};
+                SleepData.(modelName).NREM.data.HbR.fRH{size(SleepData.(modelName).NREM.data.HbR.fRH,1) + 1,1} = cellfRH_HbR{cellLength,1};
+                % HbO
+                SleepData.(modelName).NREM.data.HbO.LH{size(SleepData.(modelName).NREM.data.HbO.LH,1) + 1,1} = cellLH_HbO{cellLength,1};
+                SleepData.(modelName).NREM.data.HbO.RH{size(SleepData.(modelName).NREM.data.HbO.RH,1) + 1,1} = cellRH_HbO{cellLength,1};
+                SleepData.(modelName).NREM.data.HbO.fLH{size(SleepData.(modelName).NREM.data.HbO.fLH,1) + 1,1} = cellfLH_HbO{cellLength,1};
+                SleepData.(modelName).NREM.data.HbO.fRH{size(SleepData.(modelName).NREM.data.HbO.fRH,1) + 1,1} = cellfRH_HbO{cellLength,1};
                 % whiskers
                 SleepData.(modelName).NREM.data.whiskerAcceleration{size(SleepData.(modelName).NREM.data.whiskerAcceleration,1) + 1,1} = cellWhiskerAcceleration{cellLength,1};
                 % file IDs & bin times
@@ -529,23 +581,28 @@ for aa = 1:size(procDataFileIDs,1) % loop through the list of ProcData files
             % CBV
             LH_CBV{indexCount,1} = ProcData.sleep.parameters.CBV.LH{fixedSleepIndex(indexCount),1};
             RH_CBV{indexCount,1} = ProcData.sleep.parameters.CBV.RH{fixedSleepIndex(indexCount),1};
-            frontalLH_CBV{indexCount,1} = ProcData.sleep.parameters.CBV.frontalLH{fixedSleepIndex(indexCount),1};
-            frontalRH_CBV{indexCount,1} = ProcData.sleep.parameters.CBV.frontalRH{fixedSleepIndex(indexCount),1};
+            fLH_CBV{indexCount,1} = ProcData.sleep.parameters.CBV.fLH{fixedSleepIndex(indexCount),1};
+            fRH_CBV{indexCount,1} = ProcData.sleep.parameters.CBV.fRH{fixedSleepIndex(indexCount),1};
             % HbT
-            LH_HbT{indexCount,1} = ProcData.sleep.parameters.CBV_HbT.LH{fixedSleepIndex(indexCount),1};
-            RH_HbT{indexCount,1} = ProcData.sleep.parameters.CBV_HbT.RH{fixedSleepIndex(indexCount),1};
-            frontalLH_HbT{indexCount,1} = ProcData.sleep.parameters.CBV_HbT.frontalLH{fixedSleepIndex(indexCount),1};
-            frontalRH_HbT{indexCount,1} = ProcData.sleep.parameters.CBV_HbT.frontalRH{fixedSleepIndex(indexCount),1};
+            LH_HbT{indexCount,1} = ProcData.sleep.parameters.HbT.LH{fixedSleepIndex(indexCount),1};
+            RH_HbT{indexCount,1} = ProcData.sleep.parameters.HbT.RH{fixedSleepIndex(indexCount),1};
+            fLH_HbT{indexCount,1} = ProcData.sleep.parameters.HbT.fLH{fixedSleepIndex(indexCount),1};
+            fRH_HbT{indexCount,1} = ProcData.sleep.parameters.HbT.fRH{fixedSleepIndex(indexCount),1};
             % GCaMP
-            LH_GCaMP{indexCount,1} = ProcData.sleep.parameters.GCaMP7s.LH{fixedSleepIndex(indexCount),1};
-            RH_GCaMP{indexCount,1} = ProcData.sleep.parameters.GCaMP7s.RH{fixedSleepIndex(indexCount),1};
-            frontalLH_GCaMP{indexCount,1} = ProcData.sleep.parameters.GCaMP7s.frontalLH{fixedSleepIndex(indexCount),1};
-            frontalRH_GCaMP{indexCount,1} = ProcData.sleep.parameters.GCaMP7s.frontalRH{fixedSleepIndex(indexCount),1};
-            % deoxy
-            LH_Deoxy{indexCount,1} = ProcData.sleep.parameters.Deoxy.LH{fixedSleepIndex(indexCount),1};
-            RH_Deoxy{indexCount,1} = ProcData.sleep.parameters.Deoxy.RH{fixedSleepIndex(indexCount),1};
-            frontalLH_Deoxy{indexCount,1} = ProcData.sleep.parameters.Deoxy.frontalLH{fixedSleepIndex(indexCount),1};
-            frontalRH_Deoxy{indexCount,1} = ProcData.sleep.parameters.Deoxy.frontalRH{fixedSleepIndex(indexCount),1};
+            LH_GCaMP{indexCount,1} = ProcData.sleep.parameters.GCaMP.LH{fixedSleepIndex(indexCount),1};
+            RH_GCaMP{indexCount,1} = ProcData.sleep.parameters.GCaMP.RH{fixedSleepIndex(indexCount),1};
+            fLH_GCaMP{indexCount,1} = ProcData.sleep.parameters.GCaMP.fLH{fixedSleepIndex(indexCount),1};
+            fRH_GCaMP{indexCount,1} = ProcData.sleep.parameters.GCaMP.fRH{fixedSleepIndex(indexCount),1};
+            % HbR
+            LH_HbR{indexCount,1} = ProcData.sleep.parameters.HbR.LH{fixedSleepIndex(indexCount),1};
+            RH_HbR{indexCount,1} = ProcData.sleep.parameters.HbR.RH{fixedSleepIndex(indexCount),1};
+            fLH_HbR{indexCount,1} = ProcData.sleep.parameters.HbR.fLH{fixedSleepIndex(indexCount),1};
+            fRH_HbR{indexCount,1} = ProcData.sleep.parameters.HbR.fRH{fixedSleepIndex(indexCount),1};
+            % HbO
+            LH_HbO{indexCount,1} = ProcData.sleep.parameters.HbO.LH{fixedSleepIndex(indexCount),1};
+            RH_HbO{indexCount,1} = ProcData.sleep.parameters.HbO.RH{fixedSleepIndex(indexCount),1};
+            fLH_HbO{indexCount,1} = ProcData.sleep.parameters.HbO.fLH{fixedSleepIndex(indexCount),1};
+            fRH_HbO{indexCount,1} = ProcData.sleep.parameters.HbO.fRH{fixedSleepIndex(indexCount),1};
             % whiskers
             whiskerAcceleration{indexCount,1} = ProcData.sleep.parameters.whiskerAcceleration{fixedSleepIndex(indexCount),1};
             binTimes{indexCount,1} = 5*fixedSleepIndex(indexCount);
@@ -624,14 +681,14 @@ for aa = 1:size(procDataFileIDs,1) % loop through the list of ProcData files
             matRH_CBV = cell2mat(RH_CBV);
             arrayRH_CBV = reshape(matRH_CBV',[1,size(matRH_CBV,2)*size(matRH_CBV,1)]);
             cellRH_CBV = {arrayRH_CBV};
-            % frontal LH CBV
-            matFrontalLH_CBV = cell2mat(frontalLH_CBV);
-            arrayFrontalLH_CBV = reshape(matFrontalLH_CBV',[1,size(matFrontalLH_CBV,2)*size(matFrontalLH_CBV,1)]);
-            cellFrontalLH_CBV = {arrayFrontalLH_CBV};
-            % frontal RH CBV
-            matFrontalRH_CBV = cell2mat(frontalRH_CBV);
-            arrayFrontalRH_CBV = reshape(matFrontalRH_CBV',[1,size(matFrontalRH_CBV,2)*size(matFrontalRH_CBV,1)]);
-            cellFrontalRH_CBV = {arrayFrontalRH_CBV};
+            % f LH CBV
+            matfLH_CBV = cell2mat(fLH_CBV);
+            arrayfLH_CBV = reshape(matfLH_CBV',[1,size(matfLH_CBV,2)*size(matfLH_CBV,1)]);
+            cellfLH_CBV = {arrayfLH_CBV};
+            % f RH CBV
+            matfRH_CBV = cell2mat(fRH_CBV);
+            arrayfRH_CBV = reshape(matfRH_CBV',[1,size(matfRH_CBV,2)*size(matfRH_CBV,1)]);
+            cellfRH_CBV = {arrayfRH_CBV};
             % LH HbT
             matLH_HbT = cell2mat(LH_HbT);
             arrayLH_HbT = reshape(matLH_HbT',[1,size(matLH_HbT,2)*size(matLH_HbT,1)]);
@@ -640,14 +697,14 @@ for aa = 1:size(procDataFileIDs,1) % loop through the list of ProcData files
             matRH_HbT = cell2mat(RH_HbT);
             arrayRH_HbT = reshape(matRH_HbT',[1,size(matRH_HbT,2)*size(matRH_HbT,1)]);
             cellRH_HbT = {arrayRH_HbT};
-            % frontal LH HbT
-            matFrontalLH_HbT = cell2mat(frontalLH_HbT);
-            arrayFrontalLH_HbT = reshape(matFrontalLH_HbT',[1,size(matFrontalLH_HbT,2)*size(matFrontalLH_HbT,1)]);
-            cellFrontalLH_HbT = {arrayFrontalLH_HbT};
-            % frontal RH HbT
-            matFrontalRH_HbT = cell2mat(frontalRH_HbT);
-            arrayFrontalRH_HbT = reshape(matFrontalRH_HbT',[1,size(matFrontalRH_HbT,2)*size(matFrontalRH_HbT,1)]);
-            cellFrontalRH_HbT = {arrayFrontalRH_HbT};
+            % f LH HbT
+            matfLH_HbT = cell2mat(fLH_HbT);
+            arrayfLH_HbT = reshape(matfLH_HbT',[1,size(matfLH_HbT,2)*size(matfLH_HbT,1)]);
+            cellfLH_HbT = {arrayfLH_HbT};
+            % f RH HbT
+            matfRH_HbT = cell2mat(fRH_HbT);
+            arrayfRH_HbT = reshape(matfRH_HbT',[1,size(matfRH_HbT,2)*size(matfRH_HbT,1)]);
+            cellfRH_HbT = {arrayfRH_HbT};
             % LH GCaMP
             matLH_GCaMP = cell2mat(LH_GCaMP);
             arrayLH_GCaMP = reshape(matLH_GCaMP',[1,size(matLH_GCaMP,2)*size(matLH_GCaMP,1)]);
@@ -656,30 +713,46 @@ for aa = 1:size(procDataFileIDs,1) % loop through the list of ProcData files
             matRH_GCaMP = cell2mat(RH_GCaMP);
             arrayRH_GCaMP = reshape(matRH_GCaMP',[1,size(matRH_GCaMP,2)*size(matRH_GCaMP,1)]);
             cellRH_GCaMP = {arrayRH_GCaMP};
-            % frontal LH GCaMP
-            matFrontalLH_GCaMP = cell2mat(frontalLH_GCaMP);
-            arrayFrontalLH_GCaMP = reshape(matFrontalLH_GCaMP',[1,size(matFrontalLH_GCaMP,2)*size(matFrontalLH_GCaMP,1)]);
-            cellFrontalLH_GCaMP = {arrayFrontalLH_GCaMP};
-            % frontal RH GCaMP
-            matFrontalRH_GCaMP = cell2mat(frontalRH_GCaMP);
-            arrayFrontalRH_GCaMP = reshape(matFrontalRH_GCaMP',[1,size(matFrontalRH_GCaMP,2)*size(matFrontalRH_GCaMP,1)]);
-            cellFrontalRH_GCaMP = {arrayFrontalRH_GCaMP};
-            % LH Deoxy
-            matLH_Deoxy = cell2mat(LH_Deoxy);
-            arrayLH_Deoxy = reshape(matLH_Deoxy',[1,size(matLH_Deoxy,2)*size(matLH_Deoxy,1)]);
-            cellLH_Deoxy = {arrayLH_Deoxy};
-            % RH Deoxy
-            matRH_Deoxy = cell2mat(RH_Deoxy);
-            arrayRH_Deoxy = reshape(matRH_Deoxy',[1,size(matRH_Deoxy,2)*size(matRH_Deoxy,1)]);
-            cellRH_Deoxy = {arrayRH_Deoxy};
-            % frontal LH Deoxy
-            matFrontalLH_Deoxy = cell2mat(frontalLH_Deoxy);
-            arrayFrontalLH_Deoxy = reshape(matFrontalLH_Deoxy',[1,size(matFrontalLH_Deoxy,2)*size(matFrontalLH_Deoxy,1)]);
-            cellFrontalLH_Deoxy = {arrayFrontalLH_Deoxy};
-            % frontal RH Deoxy
-            matFrontalRH_Deoxy = cell2mat(frontalRH_Deoxy);
-            arrayFrontalRH_Deoxy = reshape(matFrontalRH_Deoxy',[1,size(matFrontalRH_Deoxy,2)*size(matFrontalRH_Deoxy,1)]);
-            cellFrontalRH_Deoxy = {arrayFrontalRH_Deoxy};
+            % f LH GCaMP
+            matfLH_GCaMP = cell2mat(fLH_GCaMP);
+            arrayfLH_GCaMP = reshape(matfLH_GCaMP',[1,size(matfLH_GCaMP,2)*size(matfLH_GCaMP,1)]);
+            cellfLH_GCaMP = {arrayfLH_GCaMP};
+            % f RH GCaMP
+            matfRH_GCaMP = cell2mat(fRH_GCaMP);
+            arrayfRH_GCaMP = reshape(matfRH_GCaMP',[1,size(matfRH_GCaMP,2)*size(matfRH_GCaMP,1)]);
+            cellfRH_GCaMP = {arrayfRH_GCaMP};
+            % LH HbR
+            matLH_HbR = cell2mat(LH_HbR);
+            arrayLH_HbR = reshape(matLH_HbR',[1,size(matLH_HbR,2)*size(matLH_HbR,1)]);
+            cellLH_HbR = {arrayLH_HbR};
+            % RH HbR
+            matRH_HbR = cell2mat(RH_HbR);
+            arrayRH_HbR = reshape(matRH_HbR',[1,size(matRH_HbR,2)*size(matRH_HbR,1)]);
+            cellRH_HbR = {arrayRH_HbR};
+            % f LH HbR
+            matfLH_HbR = cell2mat(fLH_HbR);
+            arrayfLH_HbR = reshape(matfLH_HbR',[1,size(matfLH_HbR,2)*size(matfLH_HbR,1)]);
+            cellfLH_HbR = {arrayfLH_HbR};
+            % f RH HbR
+            matfRH_HbR = cell2mat(fRH_HbR);
+            arrayfRH_HbR = reshape(matfRH_HbR',[1,size(matfRH_HbR,2)*size(matfRH_HbR,1)]);
+            cellfRH_HbR = {arrayfRH_HbR};
+            % LH HbO
+            matLH_HbO = cell2mat(LH_HbO);
+            arrayLH_HbO = reshape(matLH_HbO',[1,size(matLH_HbO,2)*size(matLH_HbO,1)]);
+            cellLH_HbO = {arrayLH_HbO};
+            % RH HbO
+            matRH_HbO = cell2mat(RH_HbO);
+            arrayRH_HbO = reshape(matRH_HbO',[1,size(matRH_HbO,2)*size(matRH_HbO,1)]);
+            cellRH_HbO = {arrayRH_HbO};
+            % f LH HbO
+            matfLH_HbO = cell2mat(fLH_HbO);
+            arrayfLH_HbO = reshape(matfLH_HbO',[1,size(matfLH_HbO,2)*size(matfLH_HbO,1)]);
+            cellfLH_HbO = {arrayfLH_HbO};
+            % f RH HbO
+            matfRH_HbO = cell2mat(fRH_HbO);
+            arrayfRH_HbO = reshape(matfRH_HbO',[1,size(matfRH_HbO,2)*size(matfRH_HbO,1)]);
+            cellfRH_HbO = {arrayfRH_HbO};
             % bin times
             matBinTimes = cell2mat(binTimes);
             arrayBinTimes = reshape(matBinTimes',[1,size(matBinTimes,2)*size(matBinTimes,1)]);
@@ -717,23 +790,28 @@ for aa = 1:size(procDataFileIDs,1) % loop through the list of ProcData files
                 % CBV
                 mat2CellLH_CBV{matCounter,1} = LH_CBV(convertedMat2Cell{matCounter,1});
                 mat2CellRH_CBV{matCounter,1} = RH_CBV(convertedMat2Cell{matCounter,1});
-                mat2CellFrontalLH_CBV{matCounter,1} = frontalLH_CBV(convertedMat2Cell{matCounter,1});
-                mat2CellFrontalRH_CBV{matCounter,1} = frontalRH_CBV(convertedMat2Cell{matCounter,1});
+                mat2CellfLH_CBV{matCounter,1} = fLH_CBV(convertedMat2Cell{matCounter,1});
+                mat2CellfRH_CBV{matCounter,1} = fRH_CBV(convertedMat2Cell{matCounter,1});
                 % HbT
                 mat2CellLH_HbT{matCounter,1} = LH_HbT(convertedMat2Cell{matCounter,1});
                 mat2CellRH_HbT{matCounter,1} = RH_HbT(convertedMat2Cell{matCounter,1});
-                mat2CellFrontalLH_HbT{matCounter,1} = frontalLH_HbT(convertedMat2Cell{matCounter,1});
-                mat2CellFrontalRH_HbT{matCounter,1} = frontalRH_HbT(convertedMat2Cell{matCounter,1});
+                mat2CellfLH_HbT{matCounter,1} = fLH_HbT(convertedMat2Cell{matCounter,1});
+                mat2CellfRH_HbT{matCounter,1} = fRH_HbT(convertedMat2Cell{matCounter,1});
                 % GCaMP
                 mat2CellLH_GCaMP{matCounter,1} = LH_GCaMP(convertedMat2Cell{matCounter,1});
                 mat2CellRH_GCaMP{matCounter,1} = RH_GCaMP(convertedMat2Cell{matCounter,1});
-                mat2CellFrontalLH_GCaMP{matCounter,1} = frontalLH_GCaMP(convertedMat2Cell{matCounter,1});
-                mat2CellFrontalRH_GCaMP{matCounter,1} = frontalRH_GCaMP(convertedMat2Cell{matCounter,1});
-                % Deoxy
-                mat2CellLH_Deoxy{matCounter,1} = LH_Deoxy(convertedMat2Cell{matCounter,1});
-                mat2CellRH_Deoxy{matCounter,1} = RH_Deoxy(convertedMat2Cell{matCounter,1});
-                mat2CellFrontalLH_Deoxy{matCounter,1} = frontalLH_Deoxy(convertedMat2Cell{matCounter,1});
-                mat2CellFrontalRH_Deoxy{matCounter,1} = frontalRH_Deoxy(convertedMat2Cell{matCounter,1});
+                mat2CellfLH_GCaMP{matCounter,1} = fLH_GCaMP(convertedMat2Cell{matCounter,1});
+                mat2CellfRH_GCaMP{matCounter,1} = fRH_GCaMP(convertedMat2Cell{matCounter,1});
+                % HbR
+                mat2CellLH_HbR{matCounter,1} = LH_HbR(convertedMat2Cell{matCounter,1});
+                mat2CellRH_HbR{matCounter,1} = RH_HbR(convertedMat2Cell{matCounter,1});
+                mat2CellfLH_HbR{matCounter,1} = fLH_HbR(convertedMat2Cell{matCounter,1});
+                mat2CellfRH_HbR{matCounter,1} = fRH_HbR(convertedMat2Cell{matCounter,1});
+                % HbO
+                mat2CellLH_HbO{matCounter,1} = LH_HbO(convertedMat2Cell{matCounter,1});
+                mat2CellRH_HbO{matCounter,1} = RH_HbO(convertedMat2Cell{matCounter,1});
+                mat2CellfLH_HbO{matCounter,1} = fLH_HbO(convertedMat2Cell{matCounter,1});
+                mat2CellfRH_HbO{matCounter,1} = fRH_HbO(convertedMat2Cell{matCounter,1});
                 % whiskers
                 mat2CellWhiskerAcceleration{matCounter,1} = whiskerAcceleration(convertedMat2Cell{matCounter,1});
                 % bin counts
@@ -797,14 +875,14 @@ for aa = 1:size(procDataFileIDs,1) % loop through the list of ProcData files
                 matRH_CBV = cell2mat(mat2CellRH_CBV{cellCounter,1});
                 arrayRH_CBV = reshape(matRH_CBV',[1,size(matRH_CBV,2)*size(matRH_CBV,1)]);
                 cellRH_CBV{cellCounter,1} = arrayRH_CBV;
-                % frontal LH CBV
-                matFrontalLH_CBV = cell2mat(mat2CellFrontalLH_CBV{cellCounter,1});
-                arrayFrontalLH_CBV = reshape(matFrontalLH_CBV',[1,size(matFrontalLH_CBV,2)*size(matFrontalLH_CBV,1)]);
-                cellFrontalLH_CBV{cellCounter,1} = arrayFrontalLH_CBV;
-                % frontal RH CBV
-                matFrontalRH_CBV = cell2mat(mat2CellFrontalRH_CBV{cellCounter,1});
-                arrayFrontalRH_CBV = reshape(matFrontalRH_CBV',[1,size(matFrontalRH_CBV,2)*size(matFrontalRH_CBV,1)]);
-                cellFrontalRH_CBV{cellCounter,1} = arrayFrontalRH_CBV;
+                % f LH CBV
+                matfLH_CBV = cell2mat(mat2CellfLH_CBV{cellCounter,1});
+                arrayfLH_CBV = reshape(matfLH_CBV',[1,size(matfLH_CBV,2)*size(matfLH_CBV,1)]);
+                cellfLH_CBV{cellCounter,1} = arrayfLH_CBV;
+                % f RH CBV
+                matfRH_CBV = cell2mat(mat2CellfRH_CBV{cellCounter,1});
+                arrayfRH_CBV = reshape(matfRH_CBV',[1,size(matfRH_CBV,2)*size(matfRH_CBV,1)]);
+                cellfRH_CBV{cellCounter,1} = arrayfRH_CBV;
                 % LH HbT
                 matLH_HbT = cell2mat(mat2CellLH_HbT{cellCounter,1});
                 arrayLH_HbT = reshape(matLH_HbT',[1,size(matLH_HbT,2)*size(matLH_HbT,1)]);
@@ -813,14 +891,14 @@ for aa = 1:size(procDataFileIDs,1) % loop through the list of ProcData files
                 matRH_HbT = cell2mat(mat2CellRH_HbT{cellCounter,1});
                 arrayRH_HbT = reshape(matRH_HbT',[1,size(matRH_HbT,2)*size(matRH_HbT,1)]);
                 cellRH_HbT{cellCounter,1} = arrayRH_HbT;
-                % frontal LH HbT
-                matFrontalLH_HbT = cell2mat(mat2CellFrontalLH_HbT{cellCounter,1});
-                arrayFrontalLH_HbT = reshape(matFrontalLH_HbT',[1,size(matFrontalLH_HbT,2)*size(matFrontalLH_HbT,1)]);
-                cellFrontalLH_HbT{cellCounter,1} = arrayFrontalLH_HbT;
-                % frontal RH HbT
-                matFrontalRH_HbT = cell2mat(mat2CellFrontalRH_HbT{cellCounter,1});
-                arrayFrontalRH_HbT = reshape(matFrontalRH_HbT',[1,size(matFrontalRH_HbT,2)*size(matFrontalRH_HbT,1)]);
-                cellFrontalRH_HbT{cellCounter,1} = arrayFrontalRH_HbT;
+                % f LH HbT
+                matfLH_HbT = cell2mat(mat2CellfLH_HbT{cellCounter,1});
+                arrayfLH_HbT = reshape(matfLH_HbT',[1,size(matfLH_HbT,2)*size(matfLH_HbT,1)]);
+                cellfLH_HbT{cellCounter,1} = arrayfLH_HbT;
+                % f RH HbT
+                matfRH_HbT = cell2mat(mat2CellfRH_HbT{cellCounter,1});
+                arrayfRH_HbT = reshape(matfRH_HbT',[1,size(matfRH_HbT,2)*size(matfRH_HbT,1)]);
+                cellfRH_HbT{cellCounter,1} = arrayfRH_HbT;
                 % LH GCaMP
                 matLH_GCaMP = cell2mat(mat2CellLH_GCaMP{cellCounter,1});
                 arrayLH_GCaMP = reshape(matLH_GCaMP',[1,size(matLH_GCaMP,2)*size(matLH_GCaMP,1)]);
@@ -829,30 +907,46 @@ for aa = 1:size(procDataFileIDs,1) % loop through the list of ProcData files
                 matRH_GCaMP = cell2mat(mat2CellRH_GCaMP{cellCounter,1});
                 arrayRH_GCaMP = reshape(matRH_GCaMP',[1,size(matRH_GCaMP,2)*size(matRH_GCaMP,1)]);
                 cellRH_GCaMP{cellCounter,1} = arrayRH_GCaMP;
-                % frontal LH GCaMP
-                matFrontalLH_GCaMP = cell2mat(mat2CellFrontalLH_GCaMP{cellCounter,1});
-                arrayFrontalLH_GCaMP = reshape(matFrontalLH_GCaMP',[1,size(matFrontalLH_GCaMP,2)*size(matFrontalLH_GCaMP,1)]);
-                cellFrontalLH_GCaMP{cellCounter,1} = arrayFrontalLH_GCaMP;
-                % frontal RH GCaMP
-                matFrontalRH_GCaMP = cell2mat(mat2CellFrontalRH_GCaMP{cellCounter,1});
-                arrayFrontalRH_GCaMP = reshape(matFrontalRH_GCaMP',[1,size(matFrontalRH_GCaMP,2)*size(matFrontalRH_GCaMP,1)]);
-                cellFrontalRH_GCaMP{cellCounter,1} = arrayFrontalRH_GCaMP;
-                % LH Deoxy
-                matLH_Deoxy = cell2mat(mat2CellLH_Deoxy{cellCounter,1});
-                arrayLH_Deoxy = reshape(matLH_Deoxy',[1,size(matLH_Deoxy,2)*size(matLH_Deoxy,1)]);
-                cellLH_Deoxy{cellCounter,1} = arrayLH_Deoxy;
-                % RH Deoxy
-                matRH_Deoxy = cell2mat(mat2CellRH_Deoxy{cellCounter,1});
-                arrayRH_Deoxy = reshape(matRH_Deoxy',[1,size(matRH_Deoxy,2)*size(matRH_Deoxy,1)]);
-                cellRH_Deoxy{cellCounter,1} = arrayRH_Deoxy;
-                % frontal LH Deoxy
-                matFrontalLH_Deoxy = cell2mat(mat2CellFrontalLH_Deoxy{cellCounter,1});
-                arrayFrontalLH_Deoxy = reshape(matFrontalLH_Deoxy',[1,size(matFrontalLH_Deoxy,2)*size(matFrontalLH_Deoxy,1)]);
-                cellFrontalLH_Deoxy{cellCounter,1} = arrayFrontalLH_Deoxy;
-                % frontal RH Deoxy
-                matFrontalRH_Deoxy = cell2mat(mat2CellFrontalRH_Deoxy{cellCounter,1});
-                arrayFrontalRH_Deoxy = reshape(matFrontalRH_Deoxy',[1,size(matFrontalRH_Deoxy,2)*size(matFrontalRH_Deoxy,1)]);
-                cellFrontalRH_Deoxy{cellCounter,1} = arrayFrontalRH_Deoxy;
+                % f LH GCaMP
+                matfLH_GCaMP = cell2mat(mat2CellfLH_GCaMP{cellCounter,1});
+                arrayfLH_GCaMP = reshape(matfLH_GCaMP',[1,size(matfLH_GCaMP,2)*size(matfLH_GCaMP,1)]);
+                cellfLH_GCaMP{cellCounter,1} = arrayfLH_GCaMP;
+                % f RH GCaMP
+                matfRH_GCaMP = cell2mat(mat2CellfRH_GCaMP{cellCounter,1});
+                arrayfRH_GCaMP = reshape(matfRH_GCaMP',[1,size(matfRH_GCaMP,2)*size(matfRH_GCaMP,1)]);
+                cellfRH_GCaMP{cellCounter,1} = arrayfRH_GCaMP;
+                % LH HbR
+                matLH_HbR = cell2mat(mat2CellLH_HbR{cellCounter,1});
+                arrayLH_HbR = reshape(matLH_HbR',[1,size(matLH_HbR,2)*size(matLH_HbR,1)]);
+                cellLH_HbR{cellCounter,1} = arrayLH_HbR;
+                % RH HbR
+                matRH_HbR = cell2mat(mat2CellRH_HbR{cellCounter,1});
+                arrayRH_HbR = reshape(matRH_HbR',[1,size(matRH_HbR,2)*size(matRH_HbR,1)]);
+                cellRH_HbR{cellCounter,1} = arrayRH_HbR;
+                % f LH HbR
+                matfLH_HbR = cell2mat(mat2CellfLH_HbR{cellCounter,1});
+                arrayfLH_HbR = reshape(matfLH_HbR',[1,size(matfLH_HbR,2)*size(matfLH_HbR,1)]);
+                cellfLH_HbR{cellCounter,1} = arrayfLH_HbR;
+                % f RH HbR
+                matfRH_HbR = cell2mat(mat2CellfRH_HbR{cellCounter,1});
+                arrayfRH_HbR = reshape(matfRH_HbR',[1,size(matfRH_HbR,2)*size(matfRH_HbR,1)]);
+                cellfRH_HbR{cellCounter,1} = arrayfRH_HbR;
+                % LH HbO
+                matLH_HbO = cell2mat(mat2CellLH_HbO{cellCounter,1});
+                arrayLH_HbO = reshape(matLH_HbO',[1,size(matLH_HbO,2)*size(matLH_HbO,1)]);
+                cellLH_HbO{cellCounter,1} = arrayLH_HbO;
+                % RH HbO
+                matRH_HbO = cell2mat(mat2CellRH_HbO{cellCounter,1});
+                arrayRH_HbO = reshape(matRH_HbO',[1,size(matRH_HbO,2)*size(matRH_HbO,1)]);
+                cellRH_HbO{cellCounter,1} = arrayRH_HbO;
+                % f LH HbO
+                matfLH_HbO = cell2mat(mat2CellfLH_HbO{cellCounter,1});
+                arrayfLH_HbO = reshape(matfLH_HbO',[1,size(matfLH_HbO,2)*size(matfLH_HbO,1)]);
+                cellfLH_HbO{cellCounter,1} = arrayfLH_HbO;
+                % f RH HbO
+                matfRH_HbO = cell2mat(mat2CellfRH_HbO{cellCounter,1});
+                arrayfRH_HbO = reshape(matfRH_HbO',[1,size(matfRH_HbO,2)*size(matfRH_HbO,1)]);
+                cellfRH_HbO{cellCounter,1} = arrayfRH_HbO;
                 % whisker acceleration
                 for x = 1:size(mat2CellWhiskerAcceleration{cellCounter,1},1)
                     targetPoints = size(mat2CellWhiskerAcceleration{cellCounter,1}{1,1},2);
@@ -893,23 +987,28 @@ for aa = 1:size(procDataFileIDs,1) % loop through the list of ProcData files
                 % CBV
                 SleepData.(modelName).REM.data.CBV.LH{cellLength,1} = cellLH_CBV{1,1};
                 SleepData.(modelName).REM.data.CBV.RH{cellLength,1} = cellRH_CBV{1,1};
-                SleepData.(modelName).REM.data.CBV.frontalLH{cellLength,1} = cellFrontalLH_CBV{1,1};
-                SleepData.(modelName).REM.data.CBV.frontalRH{cellLength,1} = cellFrontalRH_CBV{1,1};
+                SleepData.(modelName).REM.data.CBV.fLH{cellLength,1} = cellfLH_CBV{1,1};
+                SleepData.(modelName).REM.data.CBV.fRH{cellLength,1} = cellfRH_CBV{1,1};
                 % HbT
-                SleepData.(modelName).REM.data.CBV_HbT.LH{cellLength,1} = cellLH_HbT{1,1};
-                SleepData.(modelName).REM.data.CBV_HbT.RH{cellLength,1} = cellRH_HbT{1,1};
-                SleepData.(modelName).REM.data.CBV_HbT.frontalLH{cellLength,1} = cellFrontalLH_HbT{1,1};
-                SleepData.(modelName).REM.data.CBV_HbT.frontalRH{cellLength,1} = cellFrontalRH_HbT{1,1};
+                SleepData.(modelName).REM.data.HbT.LH{cellLength,1} = cellLH_HbT{1,1};
+                SleepData.(modelName).REM.data.HbT.RH{cellLength,1} = cellRH_HbT{1,1};
+                SleepData.(modelName).REM.data.HbT.fLH{cellLength,1} = cellfLH_HbT{1,1};
+                SleepData.(modelName).REM.data.HbT.fRH{cellLength,1} = cellfRH_HbT{1,1};
                 % GCaMP
-                SleepData.(modelName).REM.data.GCaMP7s.LH{cellLength,1} = cellLH_GCaMP{1,1};
-                SleepData.(modelName).REM.data.GCaMP7s.RH{cellLength,1} = cellRH_GCaMP{1,1};
-                SleepData.(modelName).REM.data.GCaMP7s.frontalLH{cellLength,1} = cellFrontalLH_GCaMP{1,1};
-                SleepData.(modelName).REM.data.GCaMP7s.frontalRH{cellLength,1} = cellFrontalRH_GCaMP{1,1};
-                % Deoxy
-                SleepData.(modelName).REM.data.Deoxy.LH{cellLength,1} = cellLH_Deoxy{1,1};
-                SleepData.(modelName).REM.data.Deoxy.RH{cellLength,1} = cellRH_Deoxy{1,1};
-                SleepData.(modelName).REM.data.Deoxy.frontalLH{cellLength,1} = cellFrontalLH_Deoxy{1,1};
-                SleepData.(modelName).REM.data.Deoxy.frontalRH{cellLength,1} = cellFrontalRH_Deoxy{1,1};
+                SleepData.(modelName).REM.data.GCaMP.LH{cellLength,1} = cellLH_GCaMP{1,1};
+                SleepData.(modelName).REM.data.GCaMP.RH{cellLength,1} = cellRH_GCaMP{1,1};
+                SleepData.(modelName).REM.data.GCaMP.fLH{cellLength,1} = cellfLH_GCaMP{1,1};
+                SleepData.(modelName).REM.data.GCaMP.fRH{cellLength,1} = cellfRH_GCaMP{1,1};
+                % HbR
+                SleepData.(modelName).REM.data.HbR.LH{cellLength,1} = cellLH_HbR{1,1};
+                SleepData.(modelName).REM.data.HbR.RH{cellLength,1} = cellRH_HbR{1,1};
+                SleepData.(modelName).REM.data.HbR.fLH{cellLength,1} = cellfLH_HbR{1,1};
+                SleepData.(modelName).REM.data.HbR.fRH{cellLength,1} = cellfRH_HbR{1,1};
+                % HbO
+                SleepData.(modelName).REM.data.HbO.LH{cellLength,1} = cellLH_HbO{1,1};
+                SleepData.(modelName).REM.data.HbO.RH{cellLength,1} = cellRH_HbO{1,1};
+                SleepData.(modelName).REM.data.HbO.fLH{cellLength,1} = cellfLH_HbO{1,1};
+                SleepData.(modelName).REM.data.HbO.fRH{cellLength,1} = cellfRH_HbO{1,1};
                 % whiskers
                 SleepData.(modelName).REM.data.whiskerAcceleration{cellLength,1} = cellWhiskerAcceleration{1,1};
                 % file IDs & bin times
@@ -935,23 +1034,28 @@ for aa = 1:size(procDataFileIDs,1) % loop through the list of ProcData files
                 % CBV
                 SleepData.(modelName).REM.data.CBV.LH{size(SleepData.(modelName).REM.data.CBV.LH,1) + 1,1} = cellLH_CBV{cellLength,1};
                 SleepData.(modelName).REM.data.CBV.RH{size(SleepData.(modelName).REM.data.CBV.RH,1) + 1,1} = cellRH_CBV{cellLength,1};
-                SleepData.(modelName).REM.data.CBV.frontalLH{size(SleepData.(modelName).REM.data.CBV.frontalLH,1) + 1,1} = cellFrontalLH_CBV{cellLength,1};
-                SleepData.(modelName).REM.data.CBV.frontalRH{size(SleepData.(modelName).REM.data.CBV.frontalRH,1) + 1,1} = cellFrontalRH_CBV{cellLength,1};
+                SleepData.(modelName).REM.data.CBV.fLH{size(SleepData.(modelName).REM.data.CBV.fLH,1) + 1,1} = cellfLH_CBV{cellLength,1};
+                SleepData.(modelName).REM.data.CBV.fRH{size(SleepData.(modelName).REM.data.CBV.fRH,1) + 1,1} = cellfRH_CBV{cellLength,1};
                 % HbT
-                SleepData.(modelName).REM.data.CBV_HbT.LH{size(SleepData.(modelName).REM.data.CBV_HbT.LH,1) + 1,1} = cellLH_HbT{cellLength,1};
-                SleepData.(modelName).REM.data.CBV_HbT.RH{size(SleepData.(modelName).REM.data.CBV_HbT.RH,1) + 1,1} = cellRH_HbT{cellLength,1};
-                SleepData.(modelName).REM.data.CBV_HbT.frontalLH{size(SleepData.(modelName).REM.data.CBV_HbT.frontalLH,1) + 1,1} = cellFrontalLH_HbT{cellLength,1};
-                SleepData.(modelName).REM.data.CBV_HbT.frontalRH{size(SleepData.(modelName).REM.data.CBV_HbT.frontalRH,1) + 1,1} = cellFrontalRH_HbT{cellLength,1};
+                SleepData.(modelName).REM.data.HbT.LH{size(SleepData.(modelName).REM.data.HbT.LH,1) + 1,1} = cellLH_HbT{cellLength,1};
+                SleepData.(modelName).REM.data.HbT.RH{size(SleepData.(modelName).REM.data.HbT.RH,1) + 1,1} = cellRH_HbT{cellLength,1};
+                SleepData.(modelName).REM.data.HbT.fLH{size(SleepData.(modelName).REM.data.HbT.fLH,1) + 1,1} = cellfLH_HbT{cellLength,1};
+                SleepData.(modelName).REM.data.HbT.fRH{size(SleepData.(modelName).REM.data.HbT.fRH,1) + 1,1} = cellfRH_HbT{cellLength,1};
                 % GCaMP
-                SleepData.(modelName).REM.data.GCaMP7s.LH{size(SleepData.(modelName).REM.data.GCaMP7s.LH,1) + 1,1} = cellLH_GCaMP{cellLength,1};
-                SleepData.(modelName).REM.data.GCaMP7s.RH{size(SleepData.(modelName).REM.data.GCaMP7s.RH,1) + 1,1} = cellRH_GCaMP{cellLength,1};
-                SleepData.(modelName).REM.data.GCaMP7s.frontalLH{size(SleepData.(modelName).REM.data.GCaMP7s.frontalLH,1) + 1,1} = cellFrontalLH_GCaMP{cellLength,1};
-                SleepData.(modelName).REM.data.GCaMP7s.frontalRH{size(SleepData.(modelName).REM.data.GCaMP7s.frontalRH,1) + 1,1} = cellFrontalRH_GCaMP{cellLength,1};
-                % Deoxy
-                SleepData.(modelName).REM.data.Deoxy.LH{size(SleepData.(modelName).REM.data.Deoxy.LH,1) + 1,1} = cellLH_Deoxy{cellLength,1};
-                SleepData.(modelName).REM.data.Deoxy.RH{size(SleepData.(modelName).REM.data.Deoxy.RH,1) + 1,1} = cellRH_Deoxy{cellLength,1};
-                SleepData.(modelName).REM.data.Deoxy.frontalLH{size(SleepData.(modelName).REM.data.Deoxy.frontalLH,1) + 1,1} = cellFrontalLH_Deoxy{cellLength,1};
-                SleepData.(modelName).REM.data.Deoxy.frontalRH{size(SleepData.(modelName).REM.data.Deoxy.frontalRH,1) + 1,1} = cellFrontalRH_Deoxy{cellLength,1};
+                SleepData.(modelName).REM.data.GCaMP.LH{size(SleepData.(modelName).REM.data.GCaMP.LH,1) + 1,1} = cellLH_GCaMP{cellLength,1};
+                SleepData.(modelName).REM.data.GCaMP.RH{size(SleepData.(modelName).REM.data.GCaMP.RH,1) + 1,1} = cellRH_GCaMP{cellLength,1};
+                SleepData.(modelName).REM.data.GCaMP.fLH{size(SleepData.(modelName).REM.data.GCaMP.fLH,1) + 1,1} = cellfLH_GCaMP{cellLength,1};
+                SleepData.(modelName).REM.data.GCaMP.fRH{size(SleepData.(modelName).REM.data.GCaMP.fRH,1) + 1,1} = cellfRH_GCaMP{cellLength,1};
+                % HbR
+                SleepData.(modelName).REM.data.HbR.LH{size(SleepData.(modelName).REM.data.HbR.LH,1) + 1,1} = cellLH_HbR{cellLength,1};
+                SleepData.(modelName).REM.data.HbR.RH{size(SleepData.(modelName).REM.data.HbR.RH,1) + 1,1} = cellRH_HbR{cellLength,1};
+                SleepData.(modelName).REM.data.HbR.fLH{size(SleepData.(modelName).REM.data.HbR.fLH,1) + 1,1} = cellfLH_HbR{cellLength,1};
+                SleepData.(modelName).REM.data.HbR.fRH{size(SleepData.(modelName).REM.data.HbR.fRH,1) + 1,1} = cellfRH_HbR{cellLength,1};
+                % HbO
+                SleepData.(modelName).REM.data.HbO.LH{size(SleepData.(modelName).REM.data.HbO.LH,1) + 1,1} = cellLH_HbO{cellLength,1};
+                SleepData.(modelName).REM.data.HbO.RH{size(SleepData.(modelName).REM.data.HbO.RH,1) + 1,1} = cellRH_HbO{cellLength,1};
+                SleepData.(modelName).REM.data.HbO.fLH{size(SleepData.(modelName).REM.data.HbO.fLH,1) + 1,1} = cellfLH_HbO{cellLength,1};
+                SleepData.(modelName).REM.data.HbO.fRH{size(SleepData.(modelName).REM.data.HbO.fRH,1) + 1,1} = cellfRH_HbO{cellLength,1};
                 % whiskers
                 SleepData.(modelName).REM.data.whiskerAcceleration{size(SleepData.(modelName).REM.data.whiskerAcceleration,1) + 1,1} = cellWhiskerAcceleration{cellLength,1};
                 % file IDs & bin times

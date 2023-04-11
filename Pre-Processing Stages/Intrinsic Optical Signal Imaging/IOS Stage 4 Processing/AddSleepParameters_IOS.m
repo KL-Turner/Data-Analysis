@@ -538,10 +538,10 @@ for aa = 1:size(procDataFileIDs,1)
         ProcData.sleep.parameters.HbT.fLH = hbtFrontalLH_tempCBVStruct;
         ProcData.sleep.parameters.HbT.fRH = hbtFrontalRH_tempCBVStruct;
         % GCaMP7s somatosensory and frontal ROIs
-        LH_GCaMP7s = ProcData.data.GCaMP7s.corLH;
-        RH_GCaMP7s = ProcData.data.GCaMP7s.corRH;
-        frontalLH_GCaMP7s = ProcData.data.GCaMP7s.corFrontalLH;
-        frontalRH_GCaMP7s = ProcData.data.GCaMP7s.corFrontalRH;
+        LH_GCaMP7s = ProcData.data.GCaMP.LH;
+        RH_GCaMP7s = ProcData.data.GCaMP.RH;
+        frontalLH_GCaMP7s = ProcData.data.GCaMP.fLH;
+        frontalRH_GCaMP7s = ProcData.data.GCaMP.fRH;
         GCaMP7sLH_tempCBVStruct = cell(180,1);
         GCaMP7sRH_tempCBVStruct = cell(180,1);
         GCaMP7sFrontalLH_tempCBVStruct = cell(180,1);
@@ -560,37 +560,64 @@ for aa = 1:size(procDataFileIDs,1)
             end
         end
         % save hemodynamic data under ProcData file
-        ProcData.sleep.parameters.GCaMP7s.LH = GCaMP7sLH_tempCBVStruct;
-        ProcData.sleep.parameters.GCaMP7s.RH = GCaMP7sRH_tempCBVStruct;
-        ProcData.sleep.parameters.GCaMP7s.frontalLH = GCaMP7sFrontalLH_tempCBVStruct;
-        ProcData.sleep.parameters.GCaMP7s.frontalRH = GCaMP7sFrontalRH_tempCBVStruct;
-        % Deoxy somatosensory and frontal ROIs
-        LH_Deoxy = ProcData.data.Deoxy.LH;
-        RH_Deoxy = ProcData.data.Deoxy.RH;
-        frontalLH_Deoxy = ProcData.data.Deoxy.frontalLH;
-        frontalRH_Deoxy = ProcData.data.Deoxy.frontalRH;
-        deoxyLH_tempCBVStruct = cell(180,1);
-        deoxyRH_tempCBVStruct = cell(180,1);
-        deoxyFrontalLH_tempCBVStruct = cell(180,1);
-        deoxyFrontalRH_tempCBVStruct = cell(180,1);
+        ProcData.sleep.parameters.GCaMP.LH = GCaMP7sLH_tempCBVStruct;
+        ProcData.sleep.parameters.GCaMP.RH = GCaMP7sRH_tempCBVStruct;
+        ProcData.sleep.parameters.GCaMP.fLH = GCaMP7sFrontalLH_tempCBVStruct;
+        ProcData.sleep.parameters.GCaMP.fRH = GCaMP7sFrontalRH_tempCBVStruct;
+        % HbR somatosensory and frontal ROIs
+        LH_HbR = ProcData.data.HbR.LH;
+        RH_HbR = ProcData.data.HbR.RH;
+        frontalLH_HbR = ProcData.data.HbR.frontalLH;
+        frontalRH_HbR = ProcData.data.HbR.frontalRH;
+        HbRLH_tempCBVStruct = cell(180,1);
+        HbRRH_tempCBVStruct = cell(180,1);
+        HbRFrontalLH_tempCBVStruct = cell(180,1);
+        HbRFrontalRH_tempCBVStruct = cell(180,1);
         for hh = 1:180
             if hh == 1
-                deoxyLH_tempCBVStruct(hh,1) = {LH_Deoxy(hh:CBVfs*timeBin)};
-                deoxyRH_tempCBVStruct(hh,1) = {RH_Deoxy(hh:CBVfs*timeBin)};
-                deoxyFrontalLH_tempCBVStruct(hh,1) = {frontalLH_Deoxy(hh:CBVfs*timeBin)};
-                deoxyFrontalRH_tempCBVStruct(hh,1) = {frontalRH_Deoxy(hh:CBVfs*timeBin)};
+                HbRLH_tempCBVStruct(hh,1) = {LH_HbR(hh:CBVfs*timeBin)};
+                HbRRH_tempCBVStruct(hh,1) = {RH_HbR(hh:CBVfs*timeBin)}s;
+                HbRFrontalLH_tempCBVStruct(hh,1) = {frontalLH_HbR(hh:CBVfs*timeBin)};
+                HbRFrontalRH_tempCBVStruct(hh,1) = {frontalRH_HbR(hh:CBVfs*timeBin)};
             else
-                deoxyLH_tempCBVStruct(hh,1) = {LH_Deoxy((((CBVfs*timeBin*(hh - 1)) + 1)):(CBVfs*timeBin*hh))};
-                deoxyRH_tempCBVStruct(hh,1) = {RH_Deoxy((((CBVfs*timeBin*(hh - 1)) + 1)):(CBVfs*timeBin*hh))};
-                deoxyFrontalLH_tempCBVStruct(hh,1) = {frontalLH_Deoxy((((CBVfs*timeBin*(hh - 1)) + 1)):(CBVfs*timeBin*hh))};
-                deoxyFrontalRH_tempCBVStruct(hh,1) = {frontalRH_Deoxy((((CBVfs*timeBin*(hh - 1)) + 1)):(CBVfs*timeBin*hh))};
+                HbRLH_tempCBVStruct(hh,1) = {LH_HbR((((CBVfs*timeBin*(hh - 1)) + 1)):(CBVfs*timeBin*hh))};
+                HbRRH_tempCBVStruct(hh,1) = {RH_HbR((((CBVfs*timeBin*(hh - 1)) + 1)):(CBVfs*timeBin*hh))};
+                HbRFrontalLH_tempCBVStruct(hh,1) = {frontalLH_HbR((((CBVfs*timeBin*(hh - 1)) + 1)):(CBVfs*timeBin*hh))};
+                HbRFrontalRH_tempCBVStruct(hh,1) = {frontalRH_HbR((((CBVfs*timeBin*(hh - 1)) + 1)):(CBVfs*timeBin*hh))};
             end
         end
         % save hemodynamic data under ProcData file
-        ProcData.sleep.parameters.Deoxy.LH = deoxyLH_tempCBVStruct;
-        ProcData.sleep.parameters.Deoxy.RH = deoxyRH_tempCBVStruct;
-        ProcData.sleep.parameters.Deoxy.frontalLH = deoxyFrontalLH_tempCBVStruct;
-        ProcData.sleep.parameters.Deoxy.frontalRH = deoxyFrontalRH_tempCBVStruct;
+        ProcData.sleep.parameters.HbR.LH = HbRLH_tempCBVStruct;
+        ProcData.sleep.parameters.HbR.RH = HbRRH_tempCBVStruct;
+        ProcData.sleep.parameters.HbR.frontalLH = HbRFrontalLH_tempCBVStruct;
+        ProcData.sleep.parameters.HbR.frontalRH = HbRFrontalRH_tempCBVStruct;
+        % HbO somatosensory and frontal ROIs
+        LH_HbO = ProcData.data.HbO.LH;
+        RH_HbO = ProcData.data.HbO.RH;
+        frontalLH_HbO = ProcData.data.HbO.fLH;
+        frontalRH_HbO = ProcData.data.HbO.fRH;
+        HbOLH_tempCBVStruct = cell(180,1);
+        HbORH_tempCBVStruct = cell(180,1);
+        HbOFrontalLH_tempCBVStruct = cell(180,1);
+        HbOFrontalRH_tempCBVStruct = cell(180,1);
+        for hh = 1:180
+            if hh == 1
+                HbOLH_tempCBVStruct(hh,1) = {LH_HbO(hh:CBVfs*timeBin)};
+                HbORH_tempCBVStruct(hh,1) = {RH_HbO(hh:CBVfs*timeBin)};
+                HbOFrontalLH_tempCBVStruct(hh,1) = {frontalLH_HbO(hh:CBVfs*timeBin)};
+                HbOFrontalRH_tempCBVStruct(hh,1) = {frontalRH_HbO(hh:CBVfs*timeBin)};
+            else
+                HbOLH_tempCBVStruct(hh,1) = {LH_HbO((((CBVfs*timeBin*(hh - 1)) + 1)):(CBVfs*timeBin*hh))};
+                HbORH_tempCBVStruct(hh,1) = {RH_HbO((((CBVfs*timeBin*(hh - 1)) + 1)):(CBVfs*timeBin*hh))};
+                HbOFrontalLH_tempCBVStruct(hh,1) = {frontalLH_HbO((((CBVfs*timeBin*(hh - 1)) + 1)):(CBVfs*timeBin*hh))};
+                HbOFrontalRH_tempCBVStruct(hh,1) = {frontalRH_HbO((((CBVfs*timeBin*(hh - 1)) + 1)):(CBVfs*timeBin*hh))};
+            end
+        end
+        % save hemodynamic data under ProcData file
+        ProcData.sleep.parameters.HbO.LH = HbOLH_tempCBVStruct;
+        ProcData.sleep.parameters.HbO.RH = HbORH_tempCBVStruct;
+        ProcData.sleep.parameters.HbO.fLH = HbOFrontalLH_tempCBVStruct;
+        ProcData.sleep.parameters.HbO.fRH = HbOFrontalRH_tempCBVStruct;
         % save data structure
         save(procDataFileID,'ProcData');
     end

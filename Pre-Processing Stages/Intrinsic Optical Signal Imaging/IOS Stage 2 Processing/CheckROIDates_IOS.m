@@ -8,7 +8,7 @@ function [ROIs] = CheckROIDates_IOS(animalID,ROIs,ROInames,lensMag,imagingType,i
 %________________________________________________________________________________________________________________________
 
 % character list of all WindowCam files
-windowCamFilesDir = dir('*_WindowCam.bin');
+windowCamFilesDir = dir('*_PCO_Cam01.pcoraw');
 windowCamDataFiles = {windowCamFilesDir.name}';
 windowCamDataFileIDs = char(windowCamDataFiles);
 % establish the number of unique days based on file IDs
@@ -38,9 +38,9 @@ for b = 1:length(firstsFileOfDay)
         if ~isfield(ROIs,(ROIname)) == true
             if any(strcmp(ROInames{1,c},{'LH','RH','fLH','fRH','barrels'})) == true
                 if any(strcmp(imagingWavelengths,{'Red, Green, & Blue','Red, Lime, & Blue'})) == true
-                    [ROIs] = PlaceTriWavelengthROIs_IOS(animalID,fileID,ROIs,ROInames,lensMag,imagingType);
+                    [ROIs] = PlaceTriWavelengthROIs_IOS(animalID,fileID,ROIs,lensMag,imagingType);
                 elseif any(strcmp(imagingWavelengths,{'Green & Blue','Lime & Blue'})) == true
-                    [ROIs] = PlaceDualWavelengthROIs_IOS(animalID,fileID,ROIs,ROInames,lensMag,imagingType);
+                    [ROIs] = PlaceDualWavelengthROIs_IOS(animalID,fileID,ROIs,lensMag,imagingType);
                 else
                     [ROIs] = CalculateROICorrelationMatrix_IOS(animalID,strDay,fileID,ROIs,lensMag,imagingType);
                 end

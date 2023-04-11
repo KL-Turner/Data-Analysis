@@ -1,5 +1,5 @@
 zap;
-animalIDs = {'T150','T151','T165','T166','T177','T179','T180','T195','T196'};
+animalIDs = {'T224','T228','T233','T263','T264','T265','T267'};
 curDir = cd;
 for aa = 1:length(animalIDs)
     animalID = animalIDs{1,aa};
@@ -9,37 +9,49 @@ for aa = 1:length(animalIDs)
     procDataFiles = {procDataFileStruct.name}';
     procDataFileIDs = char(procDataFiles);
     [animalID,~,~] = GetFileInfo_IOS(procDataFileIDs(1,:));
-    % track pupil area and blink detetction
-    RunPupilTracker_IOS(procDataFileIDs)
-    for bb = 1:size(procDataFileIDs,1)
-        disp([num2str(aa) '/' num2str(length(animalIDs))  ' _ ' num2str(bb) '/' num2str(size(procDataFileIDs,1))]); disp(' ')
-        PatchPupilArea_IOS(procDataFileIDs(bb,:))
-        CheckPupilVideoFrames_IOS(procDataFileIDs(bb,:))
-        CheckPupilBlinks_IOS(procDataFileIDs(bb,:))
-        CheckPupilDiameter_IOS(procDataFileIDs(bb,:))
-        ConvertPupilAreaToDiameter_IOS(procDataFileIDs(bb,:))
+
+    restFile = ls('*RestData.mat');
+    load(restFile)
+    baselineFile = ls('*RestingBaselines.mat');
+    load(baselineFile)
+    % pixel-wise resting baselines
+    [RestingBaselines] = CalculatePixelWiselRestingBaselines_IOS(procDataFileIDs,RestingBaselines,'y');
+    % correct GCaMP attenuation
+    CalculateFullSpectroscopy_IOS(procDataFileIDs,RestingBaselines)
+    % re-create the RestData structure now that HbT (and/or corrected GCaMP) is available
+    [RestData] = ExtractRestingData_IOS(procDataFileIDs,2);
+    % create the EventData structure for CBV and neural data
+    [EventData] = ExtractEventTriggeredData_IOS(procDataFileIDs);
+    % normalize RestData structures by the resting baseline
+    [RestData] = NormRestDataStruct_IOS(animalID,RestData,RestingBaselines,'manualSelection');
+    % normalize EventData structures by the resting baseline
+    [EventData] = NormEventDataStruct_IOS(animalID,EventData,RestingBaselines,'manualSelection');
+
+    % check and load TrainingFileDates
+    trainingDatesFileStruct = dir('*_TrainingFileDates.mat');
+    trainingDatesFile = {trainingDatesFileStruct.name}';
+    trainingDatesFileID = char(trainingDatesFile);
+    % sleep score an animal's data set and create a SleepData.mat structure for classification
+    modelNames = {'SVM','Ensemble','Forest','Manual'};
+    SleepData = [];
+    % character list of all ModelData files
+    modelDataFileStruct = dir('*_ModelData.mat');
+    modelDataFiles = {modelDataFileStruct.name}';
+    modelDataFileIDs = char(modelDataFiles);
+    for c = 1:length(modelNames)
+        modelName = modelNames{1,c};
+        AddSleepParameters_IOS(procDataFileIDs,RestingBaselines,'manualSelection')
+        [ScoringResults] = PredictBehaviorEvents_IOS(animalID,modelDataFileIDs,modelName);
+        ApplySleepLogical_IOS(modelName,TrainingFiles,ScoringResults)
+        NREMsleepTime = 30; % seconds
+        REMsleepTime = 60; % seconds
+        if strcmpi(imagingType,'GCaMP') == true
+            [SleepData] = CreateSleepData_GCaMP_IOS(NREMsleepTime,REMsleepTime,modelName,TrainingFiles,SleepData);
+        else
+            [SleepData] = CreateSleepData_IOS(NREMsleepTime,REMsleepTime,modelName,TrainingFiles,SleepData);
+        end
     end
-    % add pupil area to RestData.mat
-    dataTypes = {'pupilArea','diameter','mmArea','mmDiameter','patchCentroidX','patchCentroidY'};
-    ExtractPupilRestingData_IOS(procDataFileIDs,dataTypes);
-    % add pupil baseline to Restingbaselines.mat
-    [RestingBaselines] = AddPupilRestingBaseline_IOS();
-    % zScore pupil data
-    for ff = 1:size(procDataFileIDs,1)
-        disp(['Z-scoring pupil data of file ' num2str(ff) '/' num2str(size(procDataFileIDs,1))]); disp(' ')
-        procDataFileID = procDataFileIDs(ff,:);
-        zScorePupilData_IOS(procDataFileID,RestingBaselines)
-    end
-    % add pupil area to RestData.mat
-    dataTypes = {'pupilArea','diameter','mmArea','mmDiameter','zArea','zDiameter','patchCentroidX','patchCentroidY','LH_HbT','RH_HbT','LH_gammaBandPower','RH_gammaBandPower'};
-    [RestData] = ExtractPupilRestingData_IOS(procDataFileIDs,dataTypes);
-    % add pupil area to EventData.mat
-    [EventData] = ExtractPupilEventTriggeredData_IOS(procDataFileIDs,dataTypes);
-    % normalize Rest/Event data structures
-    [RestData] = NormRestDataStruct_IOS(RestData,RestingBaselines,'manualSelection');
-    [EventData] = NormEventDataStruct_IOS(EventData,RestingBaselines,'manualSelection');
-    % add pupil data to SleepData.mat
-    AddPupilSleepParameters_IOS(procDataFileIDs)
-    UpdatePupilSleepData_IOS(procDataFileIDs)
+    save([animalID '_SleepData.mat'],'SleepData')
+
     cd(curDir)
 end

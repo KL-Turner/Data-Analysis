@@ -1,16 +1,16 @@
-function [RestData] = NormRestDataStruct_IOS(RestData,RestingBaselines,baselineType)
+function [RestData] = NormRestDataStruct_IOS(animalID,RestData,RestingBaselines,baselineType)
 %----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %----------------------------------------------------------------------------------------------------------
-animalID = RestingBaselines.(baselineType).baselineFileInfo.animalID;
 dataTypes = fieldnames(RestData);
 for dT = 1:length(dataTypes)
     dataType = char(dataTypes(dT));
     hemisphereDataTypes = fieldnames(RestData.(dataType));
     for hDT = 1:length(hemisphereDataTypes)
         hemDataType = char(hemisphereDataTypes(hDT));
+        normData = [];
         if any(strcmp(dataType,{'HbT','HbO','HbR'})) == true % don't normalize, but keep field name for convenience
             RestData.(dataType).(hemDataType).NormData = RestData.(dataType).(hemDataType).data;
         else
@@ -34,7 +34,7 @@ for dT = 1:length(dataTypes)
                 end
                 normData(dayInds) = normDayData;
             end
-            RestData.(dataType).(hemDataType).NormData = normData;
+            RestData.(dataType).(hemDataType).NormData = normData';
         end
     end
 end

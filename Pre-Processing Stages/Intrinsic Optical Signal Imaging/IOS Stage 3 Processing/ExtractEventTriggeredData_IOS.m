@@ -13,17 +13,16 @@ EventData = [];
 epoch.duration = 12;
 epoch.offset = 2;
 load(procdataFileIDs(1,:));
-imagingWavelengths = 'Lime';
 % imagingWavelengths = ProcData.notes.imagingWavelengths;
 if any(strcmp(imagingWavelengths,{'Red, Green, & Blue','Red, Lime, & Blue'})) == true
-    dataTypes = {'CBV','HbT','HbO','HbR','GCaMP7s','cortical_LH','cortical_RH','hippocampus','EMG'};
+    dataTypes = {'CBV','HbT','HbO','HbR','GCaMP','cortical_LH','cortical_RH','hippocampus','EMG'};
 else
     dataTypes = {'CBV','HbT','cortical_LH','cortical_RH','hippocampus','EMG'};
 end
 for aa = 1:length(dataTypes)
     dataType = dataTypes{1,aa};
     subDataTypes = fieldnames(ProcData.data.(dataType));
-    if any(strcmpi(dataType,{'CBV','CBV_HbT','Deoxy','GCaMP7s'})) == true
+    if any(strcmpi(dataType,{'CBV','HbT','HbO','HbR','GCaMP'})) == true
         samplingRate = ProcData.notes.CBVCamSamplingRate;
     else
         samplingRate = ProcData.notes.dsFs;

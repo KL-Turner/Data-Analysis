@@ -19,33 +19,22 @@ TDMSFile.solenoidPSI = tempStruct.Data.Root.Solenoid_PSI;
 TDMSFile.isofluraneTime = tempStruct.Data.Root.Isoflurane_time;
 TDMSFile.sessionID = tempStruct.Data.Root.Session_ID;
 TDMSFile.amplifierGain = tempStruct.Data.Root.Amplifier_Gain;
-TDMSFile.LEDpower_mW = tempStruct.Data.Root.LED_power_mW;
+TDMSFile.Opto_LED_mW = tempStruct.Data.Root.Opto_LED_mW;
+TDMSFile.wavelengths = tempStruct.Data.Root.Wavelengths;
+TDMSFile.lensMag = tempStruct.Data.Root.Lens_mag;
 TDMSFile.CBVCamSamplingRate = tempStruct.Data.Root.CBV_Cam_Fs;
-if isfield(tempStruct.Data.Root,'CBVcamID') == true
-    % double check cam is PCO
-    if strcmp(tempStruct.Data.Root.CBV_CameraID,'PCO') == true
-        TDMSFile.CBVCameraID = tempStruct.Data.Root.CBV_CameraID;
-        TDMSFile.CBVCamTriggerMode = tempStruct.Data.Root.PCO_TriggerMode;
-        TDMSFile.CBVCamExposureTime_microsec = num2str(str2double(tempStruct.Data.Root.PCO_ExposureTime_Sec)*1000*1000);
-        TDMSFile.CBVCamTimeStampMode = tempStruct.Data.Root.PCO_TimeStampMode;
-        TDMSFile.CBVCamBitDepth = '16';
-        TDMSFile.CBVCamPixelWidthx0 = tempStruct.Data.Root.PCO_ROI_x0;
-        TDMSFile.CBVCamPixelHeighty0 = tempStruct.Data.Root.PCO_ROI_y0;
-        TDMSFile.CBVCamPixelWidth = tempStruct.Data.Root.PCO_ROI_x1;
-        TDMSFile.CBVCamPixelHeight = tempStruct.Data.Root.PCO_ROI_y1;
-        TDMSFile.CBVCamBinning = tempStruct.Data.Root.PCO_Binning_vert;
-        TDMSFile.CBVCamBinningHorz = tempStruct.Data.Root.PCO_Binning_horz;
-        TDMSFile.CBVCamBinningVert = tempStruct.Data.Root.PCO_Binning_vert;
-    end
-else
-    % assume Dalsa
-    TDMSFile.CBVCameraID = 'Dalsa';
-    TDMSFile.CBVCamPixelWidth = tempStruct.Data.Root.CBVCam_Width_pix;
-    TDMSFile.CBVCamPixelHeight = tempStruct.Data.Root.CBVCam_Height_pix;
-    TDMSFile.CBVCamBitDepth = tempStruct.Data.Root.CBVCam_Bit_Depth;
-    TDMSFile.CBVCamExposureTime_microsec = tempStruct.Data.Root.CBVCam_Exposure_Time_microsec;
-    TDMSFile.CBVCamBinning = tempStruct.Data.Root.CBVCam_Binning;
-end
+TDMSFile.CBVCameraID = tempStruct.Data.Root.CBV_CameraID;
+TDMSFile.CBVCamTriggerMode = tempStruct.Data.Root.PCO_TriggerMode;
+TDMSFile.CBVCamExposureTime_microsec = num2str(str2double(tempStruct.Data.Root.PCO_ExposureTime_Sec)*1000*1000);
+TDMSFile.CBVCamTimeStampMode = tempStruct.Data.Root.PCO_TimeStampMode;
+TDMSFile.CBVCamBitDepth = '16';
+TDMSFile.CBVCamPixelWidthx0 = tempStruct.Data.Root.PCO_ROI_x0;
+TDMSFile.CBVCamPixelHeighty0 = tempStruct.Data.Root.PCO_ROI_y0;
+TDMSFile.CBVCamPixelWidth = tempStruct.Data.Root.PCO_ROI_x1;
+TDMSFile.CBVCamPixelHeight = tempStruct.Data.Root.PCO_ROI_y1;
+TDMSFile.CBVCamBinning = tempStruct.Data.Root.PCO_Binning_vert;
+TDMSFile.CBVCamBinningHorz = tempStruct.Data.Root.PCO_Binning_horz;
+TDMSFile.CBVCamBinningVert = tempStruct.Data.Root.PCO_Binning_vert;
 TDMSFile.whiskCamSamplingRate = tempStruct.Data.Root.Whisk_Cam_Fs;
 TDMSFile.webCamSamplingRate = tempStruct.Data.Root.Web_Cam_Fs;
 TDMSFile.pupilCamSamplingRate = tempStruct.Data.Root.Pupil_Cam_Fs;
