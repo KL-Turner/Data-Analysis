@@ -68,14 +68,18 @@ for a = 1:length(fileNames)
         RawData.notes.sessionID = trialData.sessionID;
         RawData.notes.amplifierGain = str2double(trialData.amplifierGain);
         RawData.notes.Opto_LED_mW = trialData.Opto_LED_mW;
+<<<<<<< HEAD
         RawData.notes.wavelengths = trialData.wavelengths;
         RawData.notes.lensMag = trialData.lensMag;
+=======
+>>>>>>> 5970c4bc87ec5a90f9b88c70d8e45ce076c62749
         RawData.notes.CBVCamSamplingRate = str2double(trialData.CBVCamSamplingRate);
         RawData.notes.whiskCamSamplingRate = str2double(trialData.whiskCamSamplingRate);
         RawData.notes.webCamSamplingRate = str2double(trialData.webCamSamplingRate);
         RawData.notes.pupilCamSamplingRate = str2double(trialData.pupilCamSamplingRate);
         RawData.notes.analogSamplingRate = str2double(trialData.analogSamplingRate);
         RawData.notes.trialDuration_sec = str2double(trialData.trialDuration_sec);
+<<<<<<< HEAD
         RawData.notes.CBVCameraID = trialData.CBVCameraID;
         RawData.notes.CBVCamTriggerMode = str2double(trialData.CBVCamTriggerMode);
         RawData.notes.CBVCamExposureTime_microsec = str2double(trialData.CBVCamExposureTime_microsec);
@@ -88,6 +92,29 @@ for a = 1:length(fileNames)
         RawData.notes.CBVCamBinning = trialData.CBVCamBinning;
         RawData.notes.CBVCamBinningHorz = trialData.CBVCamBinningHorz;
         RawData.notes.CBVCamBinningVert = trialData.CBVCamBinningVert;
+=======
+        if strcmp(trialData.CBVCameraID,'PCO') == true
+            RawData.notes.CBVCameraID = trialData.CBVCameraID;
+            RawData.notes.CBVCamTriggerMode = trialData.CBVCamTriggerMode;
+            RawData.notes.CBVCamExposureTime_microsec = str2double(trialData.CBVCamExposureTime_microsec);
+            RawData.notes.CBVCamTimeStampMode = trialData.CBVCamTimeStampMode;
+            RawData.notes.CBVCamBitDepth = str2double(trialData.CBVCamBitDepth);
+            RawData.notes.CBVCamPixelWidthx0 = trialData.CBVCamPixelWidthx0;
+            RawData.notes.CBVCamPixelHeighty0 = trialData.CBVCamPixelHeighty0;
+            RawData.notes.CBVCamPixelWidth = str2double(trialData.CBVCamPixelWidth);
+            RawData.notes.CBVCamPixelHeight = str2double(trialData.CBVCamPixelHeight);
+            RawData.notes.CBVCamBinning = trialData.CBVCamBinning;
+            RawData.notes.CBVCamBinningHorz = trialData.CBVCamBinningHorz;
+            RawData.notes.CBVCamBinningVert = trialData.CBVCamBinningVert;
+        elseif strcmp(trialData.CBVCameraID,'Dalsa')
+            RawData.notes.CBVCameraID = trialData.CBVCameraID;
+            RawData.notes.CBVCamPixelWidth = str2double(trialData.CBVCamPixelWidth);
+            RawData.notes.CBVCamPixelHeight = str2double(trialData.CBVCamPixelHeight);
+            RawData.notes.CBVCamBitDepth = str2double(trialData.CBVCamBitDepth);
+            RawData.notes.CBVCamExposureTime_microsec = str2double(trialData.CBVCamExposureTime_microsec);
+            RawData.notes.CBVCamBinning = trialData.CBVCamBinning;
+        end
+>>>>>>> 5970c4bc87ec5a90f9b88c70d8e45ce076c62749
         RawData.notes.pupilCamPixelWidth = str2double(trialData.pupilCamPixelWidth);
         RawData.notes.pupilCamPixelHeight = str2double(trialData.pupilCamPixelHeight);
         RawData.notes.whiskCamPixelHeight = str2double(trialData.whiskCamPixelHeight);
