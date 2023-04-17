@@ -1,4 +1,4 @@
-function [RestingBaselines] = CalculateManualRestingBaselinesTimeIndeces_IOS(procDataFileIDs,RestData,RestingBaselines,hemoType)
+function [RestingBaselines,ManualDecisions] = CalculateManualRestingBaselinesTimeIndeces_IOS(animalID,procDataFileIDs,RestData,RestingBaselines,hemoType)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -9,7 +9,6 @@ function [RestingBaselines] = CalculateManualRestingBaselinesTimeIndeces_IOS(pro
 
 disp('Calculating the resting baselines using manually selected files each unique day...'); disp(' ')
 % determine the animal's ID use the RestData.mat file's name for the current folder
-animalID = RestingBaselines.setDuration.baselineFileInfo.animalID;
 % the RestData.mat struct has all resting events, regardless of duration. We want to set the threshold for rest as anything
 % that is greater than a certain amount of time
 RestCriteria.Fieldname = {'durations'};

@@ -1,4 +1,4 @@
-function [EventData] = ExtractEventTriggeredData_IOS(procdataFileIDs)
+function [EventData] = ExtractEventTriggeredData_IOS(procDataFileIDs)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -12,8 +12,8 @@ function [EventData] = ExtractEventTriggeredData_IOS(procdataFileIDs)
 EventData = [];
 epoch.duration = 12;
 epoch.offset = 2;
-load(procdataFileIDs(1,:));
-% imagingWavelengths = ProcData.notes.imagingWavelengths;
+load(procDataFileIDs(1,:));
+imagingWavelengths = ProcData.notes.imagingWavelengths;
 if any(strcmp(imagingWavelengths,{'Red, Green, & Blue','Red, Lime, & Blue'})) == true
     dataTypes = {'CBV','HbT','HbO','HbR','GCaMP','cortical_LH','cortical_RH','hippocampus','EMG'};
 else
@@ -28,12 +28,12 @@ for aa = 1:length(dataTypes)
         samplingRate = ProcData.notes.dsFs;
     end
     temp = struct();
-    for bb = 1:size(procdataFileIDs,1)
+    for bb = 1:size(procDataFileIDs,1)
         % load ProcData File
-        filename = procdataFileIDs(bb,:);
+        filename = procDataFileIDs(bb,:);
         load(filename);
         % get the date and file ID to include in the EventData structure
-        [animal,fileDate,fileID] = GetFileInfo_IOS(procdataFileIDs(bb,:));
+        [animal,fileDate,fileID] = GetFileInfo_IOS(procDataFileIDs(bb,:));
         % get the types of behaviors present in the file (stim, whisk, rest)
         holddata = fieldnames(ProcData.flags);
         behaviorFields = holddata([1,2],1);
@@ -51,7 +51,7 @@ for aa = 1:length(dataTypes)
                 % create behavioral subfields for the temp structure, if needed
                 if not(isfield(temp.(sDT),behaviorFields{dd}))
                     subFields = fieldnames(ProcData.flags.(behaviorFields{dd}));
-                    blankCell = cell(1,size(procdataFileIDs,1));
+                    blankCell = cell(1,size(procDataFileIDs,1));
                     structVals = cell(size(subFields));
                     structVals(:) = {blankCell};
                     temp.(sDT).(behaviorFields{dd}) = cell2struct(structVals,subFields,1)';
@@ -69,7 +69,7 @@ for aa = 1:length(dataTypes)
                 data.Flags = ProcData.flags;
                 data.notes = ProcData.notes;
                 % extract the data from the epoch surrounding the event
-                disp(['Extracting ' dataType ' ' sDT ' event-triggered ' behaviorFields{dd} ' data from file ' num2str(bb) ' of ' num2str(size(procdataFileIDs,1)) '...']); disp(' ');
+                disp(['Extracting ' dataType ' ' sDT ' event-triggered ' behaviorFields{dd} ' data from file ' num2str(bb) ' of ' num2str(size(procDataFileIDs,1)) '...']); disp(' ');
                 try
                     [chunkdata,evFilter] = ExtractBehavioralData(data,epoch,sDT,behaviorFields{dd},samplingRate);
                 catch

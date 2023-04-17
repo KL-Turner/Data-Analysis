@@ -3,17 +3,19 @@ zap
 procDataFileStruct = dir('*_ProcData.mat');
 procDataFiles = {procDataFileStruct.name}';
 procDataFileIDs = char(procDataFiles);
-imagingOptions = {'Single ROI (SI)','Single ROI (SSS)','Bilateral ROI (SI)','Bilateral ROI (SI,FC)'};
-imagingType = SelectImagingType_IOS(imagingOptions);
-% select imaging type
-wavelengthOptions = {'Green','Lime','Blue','Green & Blue','Lime & Blue','Red, Green, & Blue','Red, Lime, & Blue'};
-imagingWavelengths = SelectImagingType_IOS(wavelengthOptions);
 % edit fieldname
 for aa = 1:size(procDataFileIDs,1)
     procDataFileID = procDataFileIDs(aa,:);
     load(procDataFileID);
     disp(num2str(aa))
-    ProcData.notes.imagingType = imagingType;
-    ProcData.notes.imagingWavelengths = imagingWavelengths;
+    ProcData.data.CBV.fLH = ProcData.data.CBV.frontalLH;
+    ProcData.data.CBV.fRH = ProcData.data.CBV.frontalRH;
+    ProcData.data.CBV = rmfield(ProcData.data.CBV,'Cement');
+    ProcData.data.CBV = rmfield(ProcData.data.CBV,'frontalLH');
+    ProcData.data.CBV = rmfield(ProcData.data.CBV,'frontalRH');
+    ProcData.data = rmfield(ProcData.data,'CBV_HbT');
+    ProcData.data = rmfield(ProcData.data,'GCaMP7s');
+    ProcData.data = rmfield(ProcData.data,'Deoxy');
+    ProcData.data = rmfield(ProcData.data,'stimulationsOriginal');
     save(procDataFileID,'ProcData')
 end

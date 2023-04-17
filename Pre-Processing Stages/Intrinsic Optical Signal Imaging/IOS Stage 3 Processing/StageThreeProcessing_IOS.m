@@ -45,8 +45,6 @@ NormalizeSpectrograms_IOS(RestingBaselines);
 % UpdateTotalHemoglobin_IOS(procDataFileIDs,RestingBaselines,'manualSelection','y')
 % correct GCaMP attenuation
 CalculateFullSpectroscopy_IOS(procDataFileIDs,RestingBaselines,'manualSelection','y')
-% calculate HbO HbR
-CalculateHbOHbR_IOS(procDataFileIDs,RestingBaselines)
 % re-create the RestData structure now that HbT (and/or corrected GCaMP) is available
 [RestData] = ExtractRestingData_IOS(procDataFileIDs,2);
 % create the EventData structure for CBV and neural data

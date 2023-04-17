@@ -10,7 +10,7 @@ for dT = 1:length(dataTypes)
     hemisphereDataTypes = fieldnames(RestData.(dataType));
     for hDT = 1:length(hemisphereDataTypes)
         hemDataType = char(hemisphereDataTypes(hDT));
-        normData = [];
+        normData = {};
         if any(strcmp(dataType,{'HbT','HbO','HbR'})) == true % don't normalize, but keep field name for convenience
             RestData.(dataType).(hemDataType).NormData = RestData.(dataType).(hemDataType).data;
         else

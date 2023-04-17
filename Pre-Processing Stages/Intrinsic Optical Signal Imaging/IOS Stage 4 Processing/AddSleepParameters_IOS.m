@@ -567,8 +567,8 @@ for aa = 1:size(procDataFileIDs,1)
         % HbR somatosensory and frontal ROIs
         LH_HbR = ProcData.data.HbR.LH;
         RH_HbR = ProcData.data.HbR.RH;
-        frontalLH_HbR = ProcData.data.HbR.frontalLH;
-        frontalRH_HbR = ProcData.data.HbR.frontalRH;
+        frontalLH_HbR = ProcData.data.HbR.fLH;
+        frontalRH_HbR = ProcData.data.HbR.fRH;
         HbRLH_tempCBVStruct = cell(180,1);
         HbRRH_tempCBVStruct = cell(180,1);
         HbRFrontalLH_tempCBVStruct = cell(180,1);
@@ -576,7 +576,7 @@ for aa = 1:size(procDataFileIDs,1)
         for hh = 1:180
             if hh == 1
                 HbRLH_tempCBVStruct(hh,1) = {LH_HbR(hh:CBVfs*timeBin)};
-                HbRRH_tempCBVStruct(hh,1) = {RH_HbR(hh:CBVfs*timeBin)}s;
+                HbRRH_tempCBVStruct(hh,1) = {RH_HbR(hh:CBVfs*timeBin)};
                 HbRFrontalLH_tempCBVStruct(hh,1) = {frontalLH_HbR(hh:CBVfs*timeBin)};
                 HbRFrontalRH_tempCBVStruct(hh,1) = {frontalRH_HbR(hh:CBVfs*timeBin)};
             else
@@ -589,8 +589,8 @@ for aa = 1:size(procDataFileIDs,1)
         % save hemodynamic data under ProcData file
         ProcData.sleep.parameters.HbR.LH = HbRLH_tempCBVStruct;
         ProcData.sleep.parameters.HbR.RH = HbRRH_tempCBVStruct;
-        ProcData.sleep.parameters.HbR.frontalLH = HbRFrontalLH_tempCBVStruct;
-        ProcData.sleep.parameters.HbR.frontalRH = HbRFrontalRH_tempCBVStruct;
+        ProcData.sleep.parameters.HbR.fLH = HbRFrontalLH_tempCBVStruct;
+        ProcData.sleep.parameters.HbR.fRH = HbRFrontalRH_tempCBVStruct;
         % HbO somatosensory and frontal ROIs
         LH_HbO = ProcData.data.HbO.LH;
         RH_HbO = ProcData.data.HbO.RH;

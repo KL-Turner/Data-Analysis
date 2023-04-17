@@ -1,5 +1,6 @@
 zap;
-animalIDs = {'T224','T228','T233','T263','T264','T265','T267'};
+% animalIDs = {'T224','T228','T233','T263','T264','T265','T267'};
+animalIDs = {'T263','T264','T265','T267'};
 curDir = cd;
 for aa = 1:length(animalIDs)
     animalID = animalIDs{1,aa};
@@ -22,11 +23,21 @@ for aa = 1:length(animalIDs)
     [RestData] = ExtractRestingData_IOS(procDataFileIDs,2);
     % create the EventData structure for CBV and neural data
     [EventData] = ExtractEventTriggeredData_IOS(procDataFileIDs);
+    [RestingBaselines,ManualDecisions] = CalculateManualRestingBaselinesTimeIndeces_IOS(animalID,procDataFileIDs,RestData,RestingBaselines,'reflectance');
     % normalize RestData structures by the resting baseline
     [RestData] = NormRestDataStruct_IOS(animalID,RestData,RestingBaselines,'manualSelection');
     % normalize EventData structures by the resting baseline
     [EventData] = NormEventDataStruct_IOS(animalID,EventData,RestingBaselines,'manualSelection');
 
+    % check and load TrainingFileDates
+    trainingDatesFileStruct = dir('*_TrainingFileDates.mat');
+    trainingDatesFile = {trainingDatesFileStruct.name}';
+    trainingDatesFileID = char(trainingDatesFile);
+    if isempty(trainingDatesFileID) == true
+        [TrainingFiles] = SelectTrainingDates_IOS(procDataFileIDs);
+    else
+        load(trainingDatesFileID,'-mat')
+    end
     % check and load TrainingFileDates
     trainingDatesFileStruct = dir('*_TrainingFileDates.mat');
     trainingDatesFile = {trainingDatesFileStruct.name}';
@@ -38,18 +49,14 @@ for aa = 1:length(animalIDs)
     modelDataFileStruct = dir('*_ModelData.mat');
     modelDataFiles = {modelDataFileStruct.name}';
     modelDataFileIDs = char(modelDataFiles);
+    AddSleepParameters_IOS(procDataFileIDs,RestingBaselines,'manualSelection')
     for c = 1:length(modelNames)
         modelName = modelNames{1,c};
-        AddSleepParameters_IOS(procDataFileIDs,RestingBaselines,'manualSelection')
         [ScoringResults] = PredictBehaviorEvents_IOS(animalID,modelDataFileIDs,modelName);
         ApplySleepLogical_IOS(modelName,TrainingFiles,ScoringResults)
         NREMsleepTime = 30; % seconds
         REMsleepTime = 60; % seconds
-        if strcmpi(imagingType,'GCaMP') == true
-            [SleepData] = CreateSleepData_GCaMP_IOS(NREMsleepTime,REMsleepTime,modelName,TrainingFiles,SleepData);
-        else
-            [SleepData] = CreateSleepData_IOS(NREMsleepTime,REMsleepTime,modelName,TrainingFiles,SleepData);
-        end
+        [SleepData] = CreateSleepData_GCaMP_IOS(NREMsleepTime,REMsleepTime,modelName,TrainingFiles,SleepData);
     end
     save([animalID '_SleepData.mat'],'SleepData')
 
