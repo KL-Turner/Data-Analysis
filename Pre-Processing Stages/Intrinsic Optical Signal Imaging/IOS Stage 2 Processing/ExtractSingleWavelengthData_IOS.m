@@ -1,4 +1,4 @@
-function [] = ExtractSingleWavelengthData_IOS(ROIs,ROInames,rawDataFileIDs)
+function [] = ExtractSingleWavelengthData_IOS(ROIs,ROInames,procDataFileIDs)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -9,17 +9,17 @@ function [] = ExtractSingleWavelengthData_IOS(ROIs,ROInames,rawDataFileIDs)
 % Purpose: Determine if each desired ROI is drawn, then go through each frame and extract the mean of valid pixels.
 %________________________________________________________________________________________________________________________
 
-for a = 1:size(rawDataFileIDs,1)
-    rawDataFile = rawDataFileIDs(a,:);
-    disp(['Analyzing IOS ROIs from RawData file (' num2str(a) '/' num2str(size(rawDataFileIDs,1)) ')']); disp(' ')
-    [animalID,fileDate,fileID] = GetFileInfo_IOS(rawDataFile);
+for a = 1:size(procDataFileIDs,1)
+    procDataFileID = procDataFileIDs(a,:);
+    disp(['Analyzing IOS ROIs from ProcData file (' num2str(a) '/' num2str(size(procDataFileIDs,1)) ')']); disp(' ')
+    [animalID,fileDate,fileID] = GetFileInfo_IOS(procDataFileID);
     strDay = ConvertDate_IOS(fileDate);
-    load(rawDataFile)
+    load(procDataFileID)
     [frames] = ReadDalsaBinary_IOS(animalID,[fileID '_WindowCam.bin']);
     for b = 1:length(ROInames)
         ROIshortName = ROInames{1,b};
         ROIname = [ROInames{1,b} '_' strDay];
-        disp(['Extracting ' ROIname ' ROI CBV data from ' rawDataFile '...']); disp(' ')
+        disp(['Extracting ' ROIname ' ROI CBV data from ' procDataFileID '...']); disp(' ')
         % draw circular ROIs based on XCorr for LH/RH/Barrels, then free-hand for cement ROIs
         maskFig = figure;
         imagesc(frames{1});
@@ -34,9 +34,9 @@ for a = 1:size(rawDataFileIDs,1)
             close(maskFig)
         end
         meanIntensity = BinToIntensity_IOS(mask,frames);
-        RawData.data.CBV.(ROIname) = meanIntensity;
+        ProcData.data.CBV.(ROIname) = meanIntensity;
     end
-    save(rawDataFile,'RawData')
+    save(procDataFileID,'ProcData')
 end
 
 end

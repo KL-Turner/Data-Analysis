@@ -20,6 +20,6 @@ procDataFileStruct = dir('*_ProcData.mat');
 procDataFiles = {procDataFileStruct.name}';
 procDataFileIDs = char(procDataFiles);
 % process pixel data from each region of interest
-ProcessIntrinsicData_IOS(rawDataFileIDs,procDataFileIDs)
+ProcessIntrinsicData_IOS(procDataFileIDs)
 % add Heart Rate to the ProcData structures
 ExtractHeartRate_IOS(procDataFileIDs)

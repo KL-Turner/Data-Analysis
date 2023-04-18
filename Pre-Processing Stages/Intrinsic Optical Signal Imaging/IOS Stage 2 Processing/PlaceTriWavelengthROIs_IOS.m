@@ -10,11 +10,13 @@ function [ROIs] = PlaceTriWavelengthROIs_IOS(animalID,fileID,ROIs,lensMag,imagin
 strDay = ConvertDate_IOS(fileID);
 fileDate = fileID(1:6);
 % determine which ROIs to draw based on imaging type
-if strcmp(imagingType,'Single ROI (SI)') == true
-    ROInames = {'Barrels'};
-elseif strcmp(imagingType,'Bilateral ROI (SI)') == true
+if strcmpi(imagingType,'Single ROI (SI)') == true
+    ROInames = {'barrels'};
+elseif strcmpi(imagingType,'Single ROI (SSS)') == true
+    ROInames = {'SSS','lSSS','rSSS'};
+elseif strcmpi(imagingType,'Bilateral ROI (SI)') == true
     ROInames = {'LH','RH'};
-elseif strcmp(imagingType,'Bilateral ROI (SI,FC)') == true
+elseif strcmpi(imagingType,'Bilateral ROI (SI,FC)') == true
     ROInames = {'LH','RH','fLH','fRH'};
 end
 % character list of all ProcData files
@@ -97,17 +99,17 @@ for qq = 1:size(procDataFileList,1)
 end
 % determine the proper size of the ROI based on camera/lens magnification
 if strcmpi(lensMag,'0.75X') == true
-    circRadius = 7.5; % pixels to be 1 mm in diameter
+    circRadius = 37/2; % pixels to be 1 mm in diameter
 elseif strcmpi(lensMag,'1.0X') == true
-    circRadius = 10;
+    circRadius = 45/2;
 elseif strcmpi(lensMag,'1.5X') == true
-    circRadius = 15;
+    circRadius = 60/2;
 elseif strcmpi(lensMag,'2.0X') == true
-    circRadius = 20;
+    circRadius = 75/2;
 elseif strcmpi(lensMag,'2.5X') == true
-    circRadius = 25;
+    circRadius = 90/2;
 elseif strcmpi(lensMag,'3.0X') == true
-    circRadius = 30;
+    circRadius = 105/2;
 end
 % place circle along the most relevant region of each hemisphere
 for ff = 1:length(ROInames)

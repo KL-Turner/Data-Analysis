@@ -29,6 +29,8 @@ switch extension
             fileDate = [];
             fileID = [];
         end
-end
-
+    case 'pcoraw'
+        animalID = [];
+        fileDate = fileName(:,1:fileBreaks(1) - 1);
+        fileID = fileName(:,1:fileBreaks(4) - 1);
 end

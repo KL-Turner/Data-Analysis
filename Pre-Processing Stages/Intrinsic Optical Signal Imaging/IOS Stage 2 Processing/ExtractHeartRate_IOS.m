@@ -1,12 +1,9 @@
 function [] = ExtractHeartRate_IOS(procDataFileIDs)
-%________________________________________________________________________________________________________________________
+%----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%
-% Purpose: Use the spectral properties of the CBV data to extract the heart rate.
-%________________________________________________________________________________________________________________________
-
+%----------------------------------------------------------------------------------------------------------
 load(procDataFileIDs(1,:));
 imagingType = ProcData.notes.imagingType;
 for a = 1:size(procDataFileIDs,1)
