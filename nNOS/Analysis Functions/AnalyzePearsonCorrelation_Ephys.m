@@ -4,71 +4,71 @@ function [Results_PearsonCorr_Ephys] = AnalyzePearsonCorrelation_Ephys(animalID,
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %----------------------------------------------------------------------------------------------------------
+dataLocation = [rootFolder delim 'Data' delim group delim set delim animalID delim 'Imaging'];
+cd(dataLocation)
+% character list of ProcData file IDs
+procDataFileStruct = dir('*_ProcData.mat');
+procDataFiles = {procDataFileStruct.name}';
+procDataFileIDs = char(procDataFiles);
+% find and load RestData struct
+restDataFileStruct = dir('*_RestData.mat');
+restDataFile = {restDataFileStruct.name}';
+restDataFileID = char(restDataFile);
+load(restDataFileID,'-mat')
+% find and load ManualDecisions struct
+manualBaselineFileStruct = dir('*_ManualBaselineFileList.mat');
+manualBaselineFile = {manualBaselineFileStruct.name}';
+manualBaselineFileID = char(manualBaselineFile);
+load(manualBaselineFileID,'-mat')
+% find and load EventData struct
+eventDataFileStruct = dir('*_EventData.mat');
+eventDataFile = {eventDataFileStruct.name}';
+eventDataFileID = char(eventDataFile);
+load(eventDataFileID,'-mat')
+% find and load RestingBaselines strut
+baselineDataFileStruct = dir('*_RestingBaselines.mat');
+baselineDataFile = {baselineDataFileStruct.name}';
+baselineDataFileID = char(baselineDataFile);
+load(baselineDataFileID,'-mat')
+% find and load SleepData strut
+sleepDataFileStruct = dir('*_SleepData.mat');
+sleepDataFile = {sleepDataFileStruct.name}';
+sleepDataFileID = char(sleepDataFile);
+load(sleepDataFileID,'-mat')
+% find and load Forest_ScoringResults struct
+forestScoringResultsFileID = [animalID '_Forest_ScoringResults.mat'];
+load(forestScoringResultsFileID,'-mat')
+% parameters
 modelType = 'Forest';
 params.minTime.Rest = 10;
 params.minTime.Whisk = 7;
 params.minTime.NREM = 30;
 params.minTime.REM = 60;
-% only run analysis for valid animal IDs
-dataLocation = [rootFolder delim 'Data' delim group delim set delim animalID delim 'Bilateral Imaging'];
-cd(dataLocation)
-% character list of all ProcData file IDs
-procDataFileStruct = dir('*_ProcData.mat');
-procDataFiles = {procDataFileStruct.name}';
-procDataFileIDs = char(procDataFiles);
-% find and load RestData.mat struct
-restDataFileStruct = dir('*_RestData.mat');
-restDataFile = {restDataFileStruct.name}';
-restDataFileID = char(restDataFile);
-load(restDataFileID,'-mat')
-% find and load manual baseline event information
-manualBaselineFileStruct = dir('*_ManualBaselineFileList.mat');
-manualBaselineFile = {manualBaselineFileStruct.name}';
-manualBaselineFileID = char(manualBaselineFile);
-load(manualBaselineFileID,'-mat')
-% find and load EventData.mat struct
-eventDataFileStruct = dir('*_EventData.mat');
-eventDataFile = {eventDataFileStruct.name}';
-eventDataFileID = char(eventDataFile);
-load(eventDataFileID,'-mat')
-% find and load RestingBaselines.mat strut
-baselineDataFileStruct = dir('*_RestingBaselines.mat');
-baselineDataFile = {baselineDataFileStruct.name}';
-baselineDataFileID = char(baselineDataFile);
-load(baselineDataFileID,'-mat')
-% find and load AsleepData.mat strut
-sleepDataFileStruct = dir('*_SleepData.mat');
-sleepDataFile = {sleepDataFileStruct.name}';
-sleepDataFileID = char(sleepDataFile);
-load(sleepDataFileID,'-mat')
-% find and load Forest_ScoringResults.mat struct
-forestScoringResultsFileID = [animalID '_Forest_ScoringResults.mat'];
-load(forestScoringResultsFileID,'-mat')
 % criteria for whisking
 WhiskCriteria.Fieldname = {'duration','puffDistance'};
 WhiskCriteria.Comparison = {'gt','gt'};
 WhiskCriteria.Value = {5,5};
-WhiskPuffCriteria.Fieldname = {'puffDistance'};
-WhiskPuffCriteria.Comparison = {'gt'};
-WhiskPuffCriteria.Value = {5};
+WhiskStimCriteria.Fieldname = {'puffDistance'};
+WhiskStimCriteria.Comparison = {'gt'};
+WhiskStimCriteria.Value = {5};
 % criteria for resting
 RestCriteria.Fieldname = {'durations'};
 RestCriteria.Comparison = {'gt'};
 RestCriteria.Value = {params.minTime.Rest};
-RestPuffCriteria.Fieldname = {'puffDistances'};
-RestPuffCriteria.Comparison = {'gt'};
-RestPuffCriteria.Value = {5};
+RestStimCriteria.Fieldname = {'stimDistances'};
+RestStimCriteria.Comparison = {'gt'};
+RestStimCriteria.Value = {5};
 % loop variables
-dataTypes = {'HbT','gammaBandPower'};
+dataTypes = {'HbT','gammaBandPower','deltaBandPower'};
 for a = 1:length(dataTypes)
     dataType = dataTypes{1,a};
     %% Rest
     clear LH_finalRestData RH_finalRestData LH_ProcRestData RH_ProcRestData rest_R
     if strcmp(dataType,'HbT') == true
-        samplingRate = RestData.(dataType).LH.CBVCamSamplingRate;
+        samplingRate = RestData.(dataType).LH.samplingRate;
         [restLogical] = FilterEvents_IOS(RestData.(dataType).LH,RestCriteria);
-        [puffLogical] = FilterEvents_IOS(RestData.(dataType).LH,RestPuffCriteria);
-        combRestLogical = logical(restLogical.*puffLogical);
+        [stimLogical] = FilterEvents_IOS(RestData.(dataType).LH,RestStimCriteria);
+        combRestLogical = logical(restLogical.*stimLogical);
         restFileIDs = RestData.(dataType).LH.fileIDs(combRestLogical,:);
         restEventTimes = RestData.(dataType).LH.eventTimes(combRestLogical,:);
         restDurations = RestData.(dataType).LH.durations(combRestLogical,:);
@@ -78,10 +78,10 @@ for a = 1:length(dataTypes)
         [LH_finalRestData,~,~,~] = RemoveInvalidData_IOS(LH_RestingData,restFileIDs,restDurations,restEventTimes,ManualDecisions);
         [RH_finalRestData,~,~,~] = RemoveInvalidData_IOS(RH_RestingData,restFileIDs,restDurations,restEventTimes,ManualDecisions);
     else
-        samplingRate = RestData.cortical_LH.(dataType).CBVCamSamplingRate;
+        samplingRate = RestData.cortical_LH.(dataType).samplingRate;
         [restLogical] = FilterEvents_IOS(RestData.cortical_LH.(dataType),RestCriteria);
-        [puffLogical] = FilterEvents_IOS(RestData.cortical_LH.(dataType),RestPuffCriteria);
-        combRestLogical = logical(restLogical.*puffLogical);
+        [stimLogical] = FilterEvents_IOS(RestData.cortical_LH.(dataType),RestStimCriteria);
+        combRestLogical = logical(restLogical.*stimLogical);
         restFileIDs = RestData.cortical_LH.(dataType).fileIDs(combRestLogical,:);
         restEventTimes = RestData.cortical_LH.(dataType).eventTimes(combRestLogical,:);
         restDurations = RestData.cortical_LH.(dataType).durations(combRestLogical,:);
@@ -110,8 +110,8 @@ for a = 1:length(dataTypes)
     clear LH_finalWhiskData RH_finalWhiskData LH_ProcWhiskData RH_ProcWhiskData whisk_R
     if strcmp(dataType,'HbT') == true
         [whiskLogical] = FilterEvents_IOS(EventData.(dataType).LH.whisk,WhiskCriteria);
-        [puffLogical] = FilterEvents_IOS(EventData.(dataType).LH.whisk,WhiskPuffCriteria);
-        combWhiskLogical = logical(whiskLogical.*puffLogical);
+        [stimLogical] = FilterEvents_IOS(EventData.(dataType).LH.whisk,WhiskStimCriteria);
+        combWhiskLogical = logical(whiskLogical.*stimLogical);
         whiskFileIDs = EventData.(dataType).LH.whisk.fileIDs(combWhiskLogical,:);
         whiskEventTimes = EventData.(dataType).LH.whisk.eventTime(combWhiskLogical,:);
         whiskDurations = EventData.(dataType).LH.whisk.duration(combWhiskLogical,:);
@@ -122,8 +122,8 @@ for a = 1:length(dataTypes)
         [RH_finalWhiskData,~,~,~] = RemoveInvalidData_IOS(RH_whiskData,whiskFileIDs,whiskDurations,whiskEventTimes,ManualDecisions);
     else
         [whiskLogical] = FilterEvents_IOS(EventData.cortical_LH.(dataType).whisk,WhiskCriteria);
-        [puffLogical] = FilterEvents_IOS(EventData.cortical_LH.(dataType).whisk,WhiskPuffCriteria);
-        combWhiskLogical = logical(whiskLogical.*puffLogical);
+        [stimLogical] = FilterEvents_IOS(EventData.cortical_LH.(dataType).whisk,WhiskStimCriteria);
+        combWhiskLogical = logical(whiskLogical.*stimLogical);
         whiskFileIDs = EventData.cortical_LH.(dataType).whisk.fileIDs(combWhiskLogical,:);
         whiskEventTimes = EventData.cortical_LH.(dataType).whisk.eventTime(combWhiskLogical,:);
         whiskDurations = EventData.cortical_LH.(dataType).whisk.duration(combWhiskLogical,:);
@@ -147,6 +147,7 @@ for a = 1:length(dataTypes)
     Results_PearsonCorr_Ephys.(group).(animalID).(dataType).Whisk.R = whisk_R;
     %% Alert
     clear LH_AlertData RH_AlertData LH_ProcAlertData RH_ProcAlertData scoringLabels alert_R
+    LH_AlertData = [];
     zz = 1;
     for bb = 1:size(procDataFileIDs,1)
         procDataFileID = procDataFileIDs(bb,:);
@@ -160,9 +161,9 @@ for a = 1:length(dataTypes)
         % check labels to match arousal state
         if sum(strcmp(scoringLabels,'Not Sleep')) > 144 % 36 bins (180 total) or 3 minutes of aAasleep
             load(procDataFileID,'-mat')
-            puffs = ProcData.data.stimulations.LPadSol;
+            stims = ProcData.data.stimulations.LPadSol;
             % don't include trials with stimulation
-            if isempty(puffs) == true
+            if isempty(stims) == true
                 if strcmp(dataType,'HbT') == true
                     LH_AlertData{zz,1} = ProcData.data.(dataType).LH;
                     RH_AlertData{zz,1} = ProcData.data.(dataType).RH;
@@ -170,8 +171,8 @@ for a = 1:length(dataTypes)
                 else
                     motionArtifact = ProcData.notes.motionArtifact;
                     if motionArtifact == false
-                        LH_AlertData{zz,1} = (ProcData.data.cortical_LH.(dataType) - RestingBaselines.manualSelection.cortical_LH.(dataType).(strDay))./RestingBaselines.manualSelection.cortical_LH.(dataType).(strDay);
-                        RH_AlertData{zz,1} = (ProcData.data.cortical_RH.(dataType) - RestingBaselines.manualSelection.cortical_RH.(dataType).(strDay))./RestingBaselines.manualSelection.cortical_RH.(dataType).(strDay);
+                        LH_AlertData{zz,1} = (ProcData.data.cortical_LH.(dataType) - RestingBaselines.manualSelection.cortical_LH.(dataType).(strDay).mean)./RestingBaselines.manualSelection.cortical_LH.(dataType).(strDay).mean;
+                        RH_AlertData{zz,1} = (ProcData.data.cortical_RH.(dataType) - RestingBaselines.manualSelection.cortical_RH.(dataType).(strDay).mean)./RestingBaselines.manualSelection.cortical_RH.(dataType).(strDay).mean;
                         zz = zz + 1;
                     end
                 end
@@ -197,6 +198,7 @@ for a = 1:length(dataTypes)
     end
     %% Asleep
     clear LH_AsleepData RH_AsleepData LH_ProcAsleepData RH_ProcAsleepData scoringLabels asleep_R
+    LH_AsleepData = [];
     zz= 1;
     for bb = 1:size(procDataFileIDs,1)
         procDataFileID = procDataFileIDs(bb,:);
@@ -210,9 +212,9 @@ for a = 1:length(dataTypes)
         % check labels to match arousal state
         if sum(strcmp(scoringLabels,'Not Sleep')) < 36 % 36 bins (180 total) or 3 minutes of alert
             load(procDataFileID,'-mat')
-            puffs = ProcData.data.stimulations.LPadSol;
+            stims = ProcData.data.stimulations.LPadSol;
             % don't include trials with stimulation
-            if isempty(puffs) == true
+            if isempty(stims) == true
                 if strcmp(dataType,'HbT') == true
                     LH_AsleepData{zz,1} = ProcData.data.(dataType).LH;
                     RH_AsleepData{zz,1} = ProcData.data.(dataType).RH;
@@ -220,8 +222,8 @@ for a = 1:length(dataTypes)
                 else
                     motionArtifact = ProcData.notes.motionArtifact;
                     if motionArtifact == false
-                        LH_AsleepData{zz,1} = (ProcData.data.cortical_LH.(dataType) - RestingBaselines.manualSelection.cortical_LH.(dataType).(strDay))./RestingBaselines.manualSelection.cortical_LH.(dataType).(strDay);
-                        RH_AsleepData{zz,1} = (ProcData.data.cortical_RH.(dataType) - RestingBaselines.manualSelection.cortical_RH.(dataType).(strDay))./RestingBaselines.manualSelection.cortical_RH.(dataType).(strDay);
+                        LH_AsleepData{zz,1} = (ProcData.data.cortical_LH.(dataType) - RestingBaselines.manualSelection.cortical_LH.(dataType).(strDay).mean)./RestingBaselines.manualSelection.cortical_LH.(dataType).(strDay).mean;
+                        RH_AsleepData{zz,1} = (ProcData.data.cortical_RH.(dataType) - RestingBaselines.manualSelection.cortical_RH.(dataType).(strDay).mean)./RestingBaselines.manualSelection.cortical_RH.(dataType).(strDay).mean;
                         zz = zz + 1;
                     end
                 end
@@ -253,9 +255,9 @@ for a = 1:length(dataTypes)
         [~,allDataFileDate,~] = GetFileInfo_IOS(procDataFileID);
         strDay = ConvertDate_IOS(allDataFileDate);
         load(procDataFileID,'-mat')
-        puffs = ProcData.data.stimulations.LPadSol;
+        stims = ProcData.data.stimulations.LPadSol;
         % don't include trials with stimulation
-        if isempty(puffs) == true
+        if isempty(stims) == true
             if strcmp(dataType,'HbT') == true
                 LH_AllData{zz,1} = ProcData.data.(dataType).LH;
                 RH_AllData{zz,1} = ProcData.data.(dataType).RH;
@@ -263,8 +265,8 @@ for a = 1:length(dataTypes)
             else
                 motionArtifact = ProcData.notes.motionArtifact;
                 if motionArtifact == false
-                    LH_AllData{zz,1} = (ProcData.data.cortical_LH.(dataType) - RestingBaselines.manualSelection.cortical_LH.(dataType).(strDay))./RestingBaselines.manualSelection.cortical_LH.(dataType).(strDay);
-                    RH_AllData{zz,1} = (ProcData.data.cortical_RH.(dataType) - RestingBaselines.manualSelection.cortical_RH.(dataType).(strDay))./RestingBaselines.manualSelection.cortical_RH.(dataType).(strDay);
+                    LH_AllData{zz,1} = (ProcData.data.cortical_LH.(dataType) - RestingBaselines.manualSelection.cortical_LH.(dataType).(strDay).mean)./RestingBaselines.manualSelection.cortical_LH.(dataType).(strDay).mean;
+                    RH_AllData{zz,1} = (ProcData.data.cortical_RH.(dataType) - RestingBaselines.manualSelection.cortical_RH.(dataType).(strDay).mean)./RestingBaselines.manualSelection.cortical_RH.(dataType).(strDay).mean;
                     zz = zz + 1;
                 end
             end

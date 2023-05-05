@@ -93,4 +93,4 @@ for aa = 1:length(dataTypes)
         RestData.(dataTypes{aa}).(subDataTypes{bb}).animalID = animalID;
     end
 end
-save([animalID '_RestData.mat'],'RestData','-v7.3');
+% save([animalID '_RestData.mat'],'RestData','-v7.3');

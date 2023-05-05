@@ -1,25 +1,14 @@
 function [] = ArousalTransitions_Bilateral_IOS(rootFolder,saveFigs,delim)
-%________________________________________________________________________________________________________________________
+%----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%
-% Purpose:
-%________________________________________________________________________________________________________________________
-
-%% set-up and process data
-resultsStruct = 'Results_Transitions';
+%----------------------------------------------------------------------------------------------------------
+cd([rootFolder delim 'Results_Turner'])
+resultsStruct = 'Results_WhiskBehav_GCaMP';
 load(resultsStruct);
-expGroups = {'Naive','SSP-SAP','Blank-SAP'};
-setName = 'IOS Set A';
-animalIDs.all = {};
-for aa = 1:length(expGroups)
-    folderList = dir([expGroups{1,aa} delim setName]);
-    folderList = folderList(~startsWith({folderList.name},'.'));
-    animalIDs.all = horzcat(animalIDs.all,{folderList.name});
-    animalIDs.(strrep(expGroups{1,aa},'-','_')) = {folderList.name};
-end
-treatments = {'Naive','SSP_SAP','Blank_SAP'};
+cd(rootFolder)
+groups = {'Naive','SSP_SAP','Blank_SAP'};
 transitions = {'AWAKEtoNREM','NREMtoAWAKE','NREMtoREM','REMtoAWAKE'};
 %% IOS mean transitions between each arousal-state
 % cd through each animal's directory and extract the appropriate analysis results
@@ -54,8 +43,8 @@ for aa = 1:length(animalIDs.all)
     end
 end
 % take average for each behavioral transition
-for qq = 1:length(treatments)
-    treatment = treatments{1,qq};
+for qq = 1:length(groups)
+    treatment = groups{1,qq};
     for cc = 1:length(transitions)
         transition = transitions{1,cc};
         data.(treatment).(transition).meanEMG = mean(data.(treatment).(transition).EMG,1);
@@ -71,8 +60,8 @@ end
 T1 = -30 + (1/30):(1/30):30;
 T2 = -30 + (1/10):(1/10):30;
 %% Arousal-state
-for aa = 1:length(treatments)
-    treatment = treatments{1,aa};
+for aa = 1:length(groups)
+    treatment = groups{1,aa};
     figName = ['summaryFigure' num2str(aa)]; %#ok<NASGU>
     figName = figure;
     sgtitle([treatment ' arousal-state transitions'])

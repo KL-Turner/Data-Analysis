@@ -24,13 +24,13 @@ for c = 1:size(uniqueImages)
         fileBreaks = strfind(mscanDataFile,'_');
         if strcmp(mscanDataFile(fileBreaks(2) + 1:fileBreaks(3) - 1),imageID)
             load(mscanDataFile)
-            if ~isfield(MScanData.notes,'labviewFileID')
+%             if ~isfield(MScanData.notes,'labviewFileID')
                 disp(['Adding LabVIEW file ID for ' mscanDataFile '...']); disp(' ')
                 MScanData.notes.labviewFileID = labviewDataFile;
                 save(mscanDataFile,'MScanData')
-            else
-                disp(['LabVIEW file already added for ' mscanDataFile '. Continuing...']); disp(' ')
-            end
+%             else
+%                 disp(['LabVIEW file already added for ' mscanDataFile '. Continuing...']); disp(' ')
+%             end
         end
     end
 end

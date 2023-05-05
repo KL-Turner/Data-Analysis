@@ -4,25 +4,24 @@ function [Results_Evoked_Ephys] = AnalyzeEvokedResponses_Ephys(animalID,group,se
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %----------------------------------------------------------------------------------------------------------
-dataLocation = [rootFolder delim 'Data' delim group delim setName delim animalID delim 'Bilateral Imaging'];
-% only run analysis for valid animal IDs
+dataLocation = [rootFolder delim 'Data' delim group delim setName delim animalID delim 'Imaging'];
 cd(dataLocation)
-% find and load EventData.mat struct
+% find and load EventData struct
 eventDataFileStruct = dir('*_EventData.mat');
 eventDataFile = {eventDataFileStruct.name}';
 eventDataFileID = char(eventDataFile);
 load(eventDataFileID,'-mat')
-% find and load manual baseline event information
+% find and load ManualDecisions struct
 manualBaselineFileStruct = dir('*_ManualBaselineFileList.mat');
 manualBaselineFile = {manualBaselineFileStruct.name}';
 manualBaselineFileID = char(manualBaselineFile);
 load(manualBaselineFileID,'-mat')
-% find and load RestingBaselines.mat struct
+% find and load RestingBaselines struct
 baselineDataFileStruct = dir('*_RestingBaselines.mat');
 baselineDataFile = {baselineDataFileStruct.name}';
 baselineDataFileID = char(baselineDataFile);
 load(baselineDataFileID,'-mat')
-% find and load AllSpecStruct.mat struct
+% find and load AllSpecStruct struct
 allSpecStructFileStruct = dir('*_AllSpecStructB.mat');
 allSpecStructFile = {allSpecStructFileStruct.name}';
 allSpecStructFileID = char(allSpecStructFile);
@@ -54,7 +53,7 @@ hemispheres = {'LH','RH'};
 for aa = 1:length(hemispheres)
     hemisphere = hemispheres{1,aa};
     neuralDataType = ['cortical_' hemisphere];
-    % pull a few necessary numbers from the EventData.mat struct such as trial duration and sampling rate
+    %% whisking
     samplingRate = EventData.HbT.(hemisphere).whisk.samplingRate;
     specSamplingRate = 10;
     trialDuration_sec = EventData.HbT.(hemisphere).whisk.trialDuration_sec;
@@ -158,6 +157,7 @@ for aa = 1:length(hemispheres)
         meanWhiskHipS = mean(whiskHipZhold,3);
         T2 = -2:(1/specSamplingRate):10;
         % save results
+        Results_Evoked_Ephys.(group).(animalID).(hemisphere).Whisk.(whiskCriteriaName).indHbT = procWhiskHbTData;
         Results_Evoked_Ephys.(group).(animalID).(hemisphere).Whisk.(whiskCriteriaName).HbT = meanWhiskHbTData;
         Results_Evoked_Ephys.(group).(animalID).(hemisphere).Whisk.(whiskCriteriaName).cortMUA = meanWhiskCortMUAData;
         Results_Evoked_Ephys.(group).(animalID).(hemisphere).Whisk.(whiskCriteriaName).hipMUA = meanWhiskHipMUAData;
@@ -169,7 +169,7 @@ for aa = 1:length(hemispheres)
         Results_Evoked_Ephys.(group).(animalID).(hemisphere).Whisk.(whiskCriteriaName).F = F;
         Results_Evoked_Ephys.(group).(animalID).(hemisphere).Whisk.(whiskCriteriaName).timeVector = timeVector;
     end
-    % analyze stimulus-evoked responses
+    %% stimulation
     for gg = 1:length(stimCriteriaNames)
         stimCriteriaName = stimCriteriaNames{1,gg};
         if strcmp(stimCriteriaName,'stimCriteriaA') == true
@@ -267,6 +267,7 @@ for aa = 1:length(hemispheres)
         meanStimCortS = mean(stimCortZhold,3);
         meanStimHipS = mean(stimHipZhold,3);
         % save results
+        Results_Evoked_Ephys.(group).(animalID).(hemisphere).Stim.(solenoid).indHbT = procStimHbTData;
         Results_Evoked_Ephys.(group).(animalID).(hemisphere).Stim.(solenoid).HbT = meanStimHbTData;
         Results_Evoked_Ephys.(group).(animalID).(hemisphere).Stim.(solenoid).cortMUA = meanStimCortMUAData;
         Results_Evoked_Ephys.(group).(animalID).(hemisphere).Stim.(solenoid).hipMUA = meanStimHipMUAData;

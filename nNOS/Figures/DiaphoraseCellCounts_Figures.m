@@ -1,67 +1,66 @@
 function [] = DiaphoraseCellCounts_Figures(rootFolder,saveFigs,delim)
-%________________________________________________________________________________________________________________________
+%----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%
-% Purpose: 
-%________________________________________________________________________________________________________________________
-
+%----------------------------------------------------------------------------------------------------------
 path = [rootFolder delim 'Results_Turner'];
 cd(path)
 % setup and pull data from excel sheet
 msExcelFile = 'DiaphoraseCellCounts.xlsx';
 [~,~,alldata] = xlsread(msExcelFile);
-treatments = {'Naive','SSP_SAP','Blank_SAP'};
+groups = {'Naive','SSP_SAP','Blank_SAP'};
 % pre-allocate for concatenation
-for aa = 1:length(treatments)
-    treatment = treatments{1,aa};
-    data.(treatment).LH = [];
-    data.(treatment).RH = [];
-    data.(treatment).animalID = {};
-    data.(treatment).treatment = {};
-    data.(treatment).hemLH = {};
-    data.(treatment).hemRH = {};
+for aa = 1:length(groups)
+    group = groups{1,aa};
+    data.(group).AnimalID = {};
+    data.(group).Sex = [];
+    data.(group).Group = {};
+    data.(group).LH = [];
+    data.(group).RH = [];
+    data.(group).hemLH = {};
+    data.(group).hemRH = {};
 end
 % conversion from circular ROI to cubic mm
 height = 70/1000; % 70 micron section -> mm
 radius = 0.5; % 1 mm diameter circle counting ROI;
 sliceVolume = pi*radius^2*height;
 cubicRatio = 1/sliceVolume;
-% concatenate data for each treatment/hemishpere
-for bb = 2:size(alldata,1)
-    treatment = alldata{bb,2};
-    data.(treatment).LH = cat(1,data.(treatment).LH,alldata{bb,3}*cubicRatio);
-    data.(treatment).RH = cat(1,data.(treatment).RH,alldata{bb,4}*cubicRatio);
-    data.(treatment).animalID = cat(1,data.(treatment).animalID,alldata{bb,1});
-    data.(treatment).treatment = cat(1,data.(treatment).treatment,treatment);
-    data.(treatment).hemLH = cat(1,data.(treatment).hemLH,'LH');
-    data.(treatment).hemRH = cat(1,data.(treatment).hemRH,'RH');
+% concatenate data for each group/hemishpere
+for aa = 2:size(alldata,1)
+    group = alldata{aa,3};
+    data.(group).AnimalID = cat(1,data.(group).AnimalID,alldata{aa,1});
+    data.(group).Sex = cat(1,data.(group).Sex,alldata{aa,2});
+    data.(group).Group = cat(1,data.(group).Group,alldata{aa,3});
+    data.(group).LH = cat(1,data.(group).LH,alldata{aa,4}*cubicRatio);
+    data.(group).RH = cat(1,data.(group).RH,alldata{aa,5}*cubicRatio);
+    data.(group).hemLH = cat(1,data.(group).hemLH,'LH');
+    data.(group).hemRH = cat(1,data.(group).hemRH,'RH');
 end
 % mean/std of each hemisphere
-for cc = 1:length(treatments)
-    treatment = treatments{1,cc};
-    data.(treatment).LH_Mean = mean(data.(treatment).LH,1);
-    data.(treatment).LH_StD = std(data.(treatment).LH,0,1);
-    data.(treatment).RH_Mean = mean(data.(treatment).RH,1);
-    data.(treatment).RH_StD = std(data.(treatment).RH,0,1);
+for aa = 1:length(groups)
+    group = groups{1,aa};
+    data.(group).LH_Mean = mean(data.(group).LH,1);
+    data.(group).LH_StD = std(data.(group).LH,0,1);
+    data.(group).RH_Mean = mean(data.(group).RH,1);
+    data.(group).RH_StD = std(data.(group).RH,0,1);
 end
 % statistics - generalized linear mixed effects model
-for qq = 1:length(treatments)
-    treatment = treatments{1,qq};
-    Stats.(treatment).tableSize = cat(1,data.(treatment).LH,data.(treatment).RH);
-    Stats.(treatment).Table = table('Size',[size(Stats.(treatment).tableSize,1),3],'VariableTypes',{'string','string','double'},'VariableNames',{'Mouse','Hemisphere','Count'});
-    Stats.(treatment).Table.Mouse = cat(1,data.(treatment).animalID,data.(treatment).animalID);
-    Stats.(treatment).Table.Hemisphere = cat(1,data.(treatment).hemLH,data.(treatment).hemRH);
-    Stats.(treatment).Table.Count = cat(1,data.(treatment).LH,data.(treatment).RH);
-    Stats.(treatment).FitFormula = 'Count ~ 1 + Hemisphere + (1|Mouse)';
-    Stats.(treatment).Stats = fitglme(Stats.(treatment).Table,Stats.(treatment).FitFormula);
+for aa = 1:length(groups)
+    group = groups{1,aa};
+    Stats.(group).tableSize = cat(1,data.(group).LH,data.(group).RH);
+    Stats.(group).Table = table('Size',[size(Stats.(group).tableSize,1),3],'VariableTypes',{'string','string','double'},'VariableNames',{'Mouse','Hemisphere','Count'});
+    Stats.(group).Table.Mouse = cat(1,data.(group).AnimalID,data.(group).AnimalID);
+    Stats.(group).Table.Hemisphere = cat(1,data.(group).hemLH,data.(group).hemRH);
+    Stats.(group).Table.Count = cat(1,data.(group).LH,data.(group).RH);
+    Stats.(group).FitFormula = 'Count ~ 1 + Hemisphere + (1|Mouse)';
+    Stats.(group).Stats = fitglme(Stats.(group).Table,Stats.(group).FitFormula);
 end
 Stats.Comp.tableSize = cat(1,data.Blank_SAP.LH,data.SSP_SAP.LH);
-Stats.Comp.Table = table('Size',[size(Stats.Blank_SAP.tableSize,1),2],'VariableTypes',{'string','double'},'VariableNames',{'Treatment','Count'});
-Stats.Comp.Table.Treatment = cat(1,data.Blank_SAP.treatment,data.SSP_SAP.treatment);
+Stats.Comp.Table = table('Size',[size(Stats.Blank_SAP.tableSize,1),2],'VariableTypes',{'string','double'},'VariableNames',{'Group','Count'});
+Stats.Comp.Table.Group = cat(1,data.Blank_SAP.Group,data.SSP_SAP.Group);
 Stats.Comp.Table.Count = cat(1,data.Blank_SAP.LH,data.SSP_SAP.LH);
-Stats.Comp.FitFormula = 'Count ~ 1 + Treatment';
+Stats.Comp.FitFormula = 'Count ~ 1 + Group';
 Stats.Comp.Stats = fitglme(Stats.Comp.Table,Stats.Comp.FitFormula);
 % indeces for scatter plot
 C57_LH_inds = ones(length(data.Naive.LH),1)*1;
@@ -103,7 +102,7 @@ for aa = 1:length(data.Blank_SAP.LH)
     scatter(x(2),y(2),150,'MarkerEdgeColor','k','MarkerFaceColor',colors('north texas green'),'jitter','off', 'jitterAmount',0.25)
 end
 % figure characteristics
-ylabel('Cell density (per cubic mm of somatosensory cortical tissue)')
+ylabel('Cells/mm^3 ')
 legend([b1,b2,b3],'Naive','SSP-SAP','Blank-SAP')
 set(gca,'xtick',[1,2,3,4,5,6])
 set(gca,'xticklabel',{'LH','RH','LH','RH (Rx)','LH','RH (Rx)'})
@@ -113,15 +112,15 @@ xlim([0,7])
 set(gca,'box','off')
 % save figure(s)
 if saveFigs == true
-    dirpath = [rootFolder delim 'Summary Figures and Structures' delim];
+    dirpath = [rootFolder delim 'Summary Figures' delim 'Histology' delim];
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
-    savefig(summaryFigure,[dirpath 'NADPH_DiaphoraseCellCounts_IOS_Ephys']);
-    set(summaryFigure,'PaperPositionMode','auto');
-    print('-vector','-dpdf','-fillpage',[dirpath 'NADPH_DiaphoraseCellCounts_IOS_Ephys'])
-    %% statistical diary
-    diaryFile = [dirpath 'NADPH_DiaphoraseCellCounts_Statistics_IOS_Ephys.txt'];
+    savefig(summaryFigure,[dirpath 'NADPH_DiaphoraseCellCounts']);
+end
+% statistical diary
+if saveFigs == true
+    diaryFile = [dirpath 'NADPH_DiaphoraseCellCounts_Statistics.txt'];
     if exist(diaryFile,'file') == 2
         delete(diaryFile)
     end
@@ -143,7 +142,4 @@ if saveFigs == true
     disp('GLME statistics for R/R Blank vs. SSP cell counts')
     disp('======================================================================================================================')
     disp(Stats.Comp.Stats)
-end
-cd(rootFolder)
-
 end

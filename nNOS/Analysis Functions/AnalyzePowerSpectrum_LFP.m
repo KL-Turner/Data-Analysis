@@ -4,17 +4,17 @@ function [Results_PowerSpec_LFP] = AnalyzePowerSpectrum_LFP(animalID,group,set,r
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %----------------------------------------------------------------------------------------------------------
-dataLocation = [rootFolder delim 'Data' delim group delim set delim animalID delim 'Bilateral Imaging'];
+dataLocation = [rootFolder delim 'Data' delim group delim set delim animalID delim 'Imaging'];
 cd(dataLocation)
-% character list of all RawData file IDs
+% character list of RawData file IDs
 rawDataFileStruct = dir('*_RawData.mat');
 rawDataFiles = {rawDataFileStruct.name}';
 rawDataFileIDs = char(rawDataFiles);
-% character list of all ProcData file IDs
+% character list of ProcData file IDs
 procDataFileStruct = dir('*_ProcData.mat');
 procDataFiles = {procDataFileStruct.name}';
 procDataFileIDs = char(procDataFiles);
-% find and load Forest_ScoringResults.mat struct
+% find and load Forest_ScoringResults struct
 forestScoringResultsFileID = [animalID '_Forest_ScoringResults.mat'];
 load(forestScoringResultsFileID,'-mat')
 % analyze power spectra during periods of alert/asleep/all
@@ -73,11 +73,11 @@ for aa = 1:length(hemispheres)
     hemisphere = hemispheres{1,aa};
     for bb = 1:length(behaviors)
         behavior = behaviors{1,bb};
+        procData = [];
         if isempty(data.(hemisphere).(behavior)) == false
             % input data as time (1st dimension, vertical) by trials (2nd dimension, horizontunstimy)
-            procData = zeros(length(procData{1,1}),length(procData));
             for cc = 1:length(data.(hemisphere).(behavior))
-                procData(:,cc) = detrend(data.(behavior).(hemisphere){1,cc},'constant');
+                procData(:,cc) = detrend(data.(hemisphere).(behavior){cc,1},'constant');
             end
             % calculate the power spectra of the desired signals
             [S,f,sErr] = mtspectrumc(procData,params);

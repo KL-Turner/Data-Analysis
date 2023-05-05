@@ -4,62 +4,61 @@ function [Results_PowerSpec_Ephys] = AnalyzePowerSpectrum_Ephys(animalID,group,s
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %----------------------------------------------------------------------------------------------------------
-modelType = 'Forest';
-params.minTime.Rest = 10;
-params.minTime.NREM = 30;
-params.minTime.REM = 60;
-% only run analysis for valid animal IDs
-dataLocation = [rootFolder delim 'Data' delim group delim set delim animalID delim 'Bilateral Imaging'];
+dataLocation = [rootFolder delim 'Data' delim group delim set delim animalID delim 'Imaging'];
 cd(dataLocation)
-% character list of all ProcData file IDs
+% character list of ProcData file IDs
 procDataFileStruct = dir('*_ProcData.mat');
 procDataFiles = {procDataFileStruct.name}';
 procDataFileIDs = char(procDataFiles);
-% find and load RestData.mat struct
+% find and load RestData struct
 restDataFileStruct = dir('*_RestData.mat');
 restDataFile = {restDataFileStruct.name}';
 restDataFileID = char(restDataFile);
 load(restDataFileID,'-mat')
-% find and load manual baseline event information
+% find and load ManualDecisions struct
 manualBaselineFileStruct = dir('*_ManualBaselineFileList.mat');
 manualBaselineFile = {manualBaselineFileStruct.name}';
 manualBaselineFileID = char(manualBaselineFile);
 load(manualBaselineFileID,'-mat')
-% find and load RestingBaselines.mat struct
+% find and load RestingBaselines struct
 baselineDataFileStruct = dir('*_RestingBaselines.mat');
 baselineDataFile = {baselineDataFileStruct.name}';
 baselineDataFileID = char(baselineDataFile);
 load(baselineDataFileID,'-mat')
-% find and load SleepData.mat struct
+% find and load SleepData struct
 sleepDataFileStruct = dir('*_SleepData.mat');
 sleepDataFile = {sleepDataFileStruct.name}';
 sleepDataFileID = char(sleepDataFile);
 load(sleepDataFileID,'-mat')
-% find and load Forest_ScoringResults.mat struct
+% find and load Forest_ScoringResults struct
 forestScoringResultsFileID = [animalID '_Forest_ScoringResults.mat'];
 load(forestScoringResultsFileID,'-mat')
+% parameters
+modelType = 'Forest';
+params.minTime.Rest = 10;
+params.minTime.NREM = 30;
+params.minTime.REM = 60;
 % criteria for resting
 RestCriteria.Fieldname = {'durations'};
 RestCriteria.Comparison = {'gt'};
 RestCriteria.Value = {params.minTime.Rest};
-RestPuffCriteria.Fieldname = {'puffDistances'};
-RestPuffCriteria.Comparison = {'gt'};
-RestPuffCriteria.Value = {5};
+RestStimCriteria.Fieldname = {'stimDistances'};
+RestStimCriteria.Comparison = {'gt'};
+RestStimCriteria.Value = {5};
 % loop variables
 hemispheres = {'LH','RH'};
-dataTypes = {'HbT','gammaBandPower'};
-% go through each valid data type for arousal based coherence analysis
+dataTypes = {'HbT','gammaBandPower','deltaBandPower'};
 for aa = 1:length(hemispheres)
     hemisphere = hemispheres{1,aa};
     for bb = 1:length(dataTypes)
         dataType = dataTypes{1,bb};
-        %% rest
-        clear restingData procRestData restData
+        %% Rest
+        clear restingData procRestData restData restData
         if strcmp(dataType,'HbT') == true
-            samplingRate = RestData.(dataType).(hemisphere).CBVCamSamplingRate;
+            samplingRate = RestData.(dataType).(hemisphere).samplingRate;
             [restLogical] = FilterEvents_IOS(RestData.(dataType).(hemisphere),RestCriteria);
-            [puffLogical] = FilterEvents_IOS(RestData.(dataType).(hemisphere),RestPuffCriteria);
-            combRestLogical = logical(restLogical.*puffLogical);
+            [stimLogical] = FilterEvents_IOS(RestData.(dataType).(hemisphere),RestStimCriteria);
+            combRestLogical = logical(restLogical.*stimLogical);
             restFileIDs = RestData.(dataType).(hemisphere).fileIDs(combRestLogical,:);
             restEventTimes = RestData.(dataType).(hemisphere).eventTimes(combRestLogical,:);
             restDurations = RestData.(dataType).(hemisphere).durations(combRestLogical,:);
@@ -67,19 +66,18 @@ for aa = 1:length(hemispheres)
             % keep only the data that occurs within the manually-approved alert regions
             [restData,~,~,~] = RemoveInvalidData_IOS(restingData,restFileIDs,restDurations,restEventTimes,ManualDecisions);
         else
-            samplingRate = RestData.(['cortical_' hemisphere]).(dataType).CBVCamSamplingRate;
+            samplingRate = RestData.(['cortical_' hemisphere]).(dataType).samplingRate;
             [restLogical] = FilterEvents_IOS(RestData.(['cortical_' hemisphere]).(dataType),RestCriteria);
-            [puffLogical] = FilterEvents_IOS(RestData.(['cortical_' hemisphere]).(dataType),RestPuffCriteria);
-            combRestLogical = logical(restLogical.*puffLogical);
+            [stimLogical] = FilterEvents_IOS(RestData.(['cortical_' hemisphere]).(dataType),RestStimCriteria);
+            combRestLogical = logical(restLogical.*stimLogical);
             restFileIDs = RestData.(['cortical_' hemisphere]).(dataType).fileIDs(combRestLogical,:);
             restEventTimes = RestData.(['cortical_' hemisphere]).(dataType).eventTimes(combRestLogical,:);
             restDurations = RestData.(['cortical_' hemisphere]).(dataType).durations(combRestLogical,:);
             restingData = RestData.(['cortical_' hemisphere]).(dataType).NormData(combRestLogical,:);
-            % keep only the data that occurs within the manually-approved alert regions
+            % keep only the data that occurs within the manually-approved awake regions
             [restData,~,~,~] = RemoveInvalidData_IOS(restingData,restFileIDs,restDurations,restEventTimes,ManualDecisions);
         end
         % detrend and truncate data to minimum length to match events
-        finalRestData = zeros(length(restData{1,1}),length(restData));
         for cc = 1:length(restData)
             if length(restData{cc,1}) < params.minTime.Rest*samplingRate
                 restChunkSampleDiff = params.minTime.Rest*samplingRate - length(restData{cc,1});
@@ -92,7 +90,7 @@ for aa = 1:length(hemispheres)
                 finalRestData(:,cc) = procRestData{cc,1};
             end
         end
-        % parameters for coherencyc - information available in function
+        % parameters for mtspectrumc - information available in function
         params.tapers = [1,1]; % Tapers [n, 2n - 1]
         params.pad = 1;
         params.Fs = samplingRate;
@@ -107,6 +105,7 @@ for aa = 1:length(hemispheres)
         Results_PowerSpec_Ephys.(group).(animalID).(hemisphere).(dataType).Rest.sErr = restsErr;
         %% Alert
         clear alertData procAlertData finalAlertData scoringLabels
+        alertData = []; % for loop pre-allocation
         zz = 1;
         for cc = 1:size(procDataFileIDs,1)
             procDataFileID = procDataFileIDs(cc,:);
@@ -118,18 +117,18 @@ for aa = 1:length(hemispheres)
                 end
             end
             % check labels to match arousal state
-            if sum(strcmp(scoringLabels,'Not Sleep')) > 144 % 36 bins (180 total) or 3 minutes of asleep
+            if sum(strcmp(scoringLabels,'Not Sleep')) > 144 % less than 3 minutes of asleep
                 load(procDataFileID,'-mat')
-                puffs = ProcData.data.stimulations.LPadSol;
+                stims = ProcData.data.stimulations.LPadSol;
                 % don't include trials with stimulation
-                if isempty(puffs) == true
+                if isempty(stims) == true
                     if strcmp(dataType,'HbT') == true
                         alertData{zz,1} = ProcData.data.(dataType).(hemisphere);
                         zz = zz + 1;
                     else
                         motionArtifact = ProcData.notes.motionArtifact;
                         if motionArtifact == false
-                            alertData{zz,1} = (ProcData.data.(['cortical_' hemisphere]).(dataType) - RestingBaselines.manualSelection.(['cortical_' hemisphere]).(dataType).(strDay))./RestingBaselines.manualSelection.(['cortical_' hemisphere]).(dataType).(strDay);
+                            alertData{zz,1} = (ProcData.data.(['cortical_' hemisphere]).(dataType) - RestingBaselines.manualSelection.(['cortical_' hemisphere]).(dataType).(strDay).mean)./RestingBaselines.manualSelection.(['cortical_' hemisphere]).(dataType).(strDay).mean;
                             zz = zz + 1;
                         end
                     end
@@ -138,12 +137,12 @@ for aa = 1:length(hemispheres)
         end
         % detrend data
         if isempty(alertData) == false
-            finalAlertData = zeros(length(alertData{1,1}),length(alertData));
             for cc = 1:length(alertData)
                 procAlertData{cc,1} = detrend(alertData{cc,1},'constant');
                 finalAlertData(:,cc) = procAlertData{cc,1};
             end
             % calculate the power spectra of the desired signals
+            params.tapers = [5,9]; % Tapers [n, 2n - 1]
             [alertS,alertf,alertsErr] = mtspectrumc(finalAlertData,params);
             % save results
             Results_PowerSpec_Ephys.(group).(animalID).(hemisphere).(dataType).Alert.S = alertS;
@@ -157,6 +156,7 @@ for aa = 1:length(hemispheres)
         end
         %% Asleep
         clear asleepData procAsleepData finalAsleepData scoringLabels
+        asleepData = []; % for loop pre-allocation
         zz = 1;
         for cc = 1:size(procDataFileIDs,1)
             procDataFileID = procDataFileIDs(cc,:);
@@ -168,18 +168,18 @@ for aa = 1:length(hemispheres)
                 end
             end
             % check labels to match arousal state
-            if sum(strcmp(scoringLabels,'Not Sleep')) < 36   % 36 bins (180 total) or 3 minutes of alert
+            if sum(strcmp(scoringLabels,'Not Sleep')) < 36 % less than 3 minutes of alert
                 load(procDataFileID,'-mat')
-                puffs = ProcData.data.stimulations.LPadSol;
+                stims = ProcData.data.stimulations.LPadSol;
                 % don't include trials with stimulation
-                if isempty(puffs) == true
+                if isempty(stims) == true
                     if strcmp(dataType,'HbT') == true
                         asleepData{zz,1} = ProcData.data.(dataType).(hemisphere);
                         zz = zz + 1;
                     else
                         motionArtifact = ProcData.notes.motionArtifact;
                         if motionArtifact == false
-                            asleepData{zz,1} = (ProcData.data.(['cortical_' hemisphere]).(dataType) - RestingBaselines.manualSelection.(['cortical_' hemisphere]).(dataType).(strDay))./RestingBaselines.manualSelection.(['cortical_' hemisphere]).(dataType).(strDay);
+                            asleepData{zz,1} = (ProcData.data.(['cortical_' hemisphere]).(dataType) - RestingBaselines.manualSelection.(['cortical_' hemisphere]).(dataType).(strDay).mean)./RestingBaselines.manualSelection.(['cortical_' hemisphere]).(dataType).(strDay).mean;
                             zz = zz + 1;
                         end
                     end
@@ -188,13 +188,12 @@ for aa = 1:length(hemispheres)
         end
         % detrend data
         if isempty(asleepData) == false
-            finalAsleepData = zeros(length(asleepData{1,1}),length(asleepData));
             for cc = 1:length(asleepData)
                 procAsleepData{cc,1} = detrend(asleepData{cc,1},'constant');
                 finalAsleepData(:,cc) = procAsleepData{cc,1};
             end
             % calculate the power spectra of the desired signals
-            params.tapers = [10,19]; % Tapers [n, 2n - 1]
+            params.tapers = [5,9]; % Tapers [n, 2n - 1]
             [asleepS,asleepf,asleepsErr] = mtspectrumc(finalAsleepData,params);
             % save results
             Results_PowerSpec_Ephys.(group).(animalID).(hemisphere).(dataType).Asleep.S = asleepS;
@@ -214,29 +213,28 @@ for aa = 1:length(hemispheres)
             [~,fileDate,~] = GetFileInfo_IOS(procDataFileID);
             strDay = ConvertDate_IOS(fileDate);
             load(procDataFileID,'-mat')
-            puffs = ProcData.data.stimulations.LPadSol;
+            stims = ProcData.data.stimulations.LPadSol;
             % don't include trials with stimulation
-            if isempty(puffs) == true
+            if isempty(stims) == true
                 if strcmp(dataType,'HbT') == true
                     allData{zz,1} = ProcData.data.(dataType).(hemisphere);
                     zz = zz + 1;
                 else
                     motionArtifact = ProcData.notes.motionArtifact;
                     if motionArtifact == false
-                        allData{zz,1} = (ProcData.data.(['cortical_' hemisphere]).(dataType) - RestingBaselines.manualSelection.(['cortical_' hemisphere]).(dataType).(strDay))./RestingBaselines.manualSelection.(['cortical_' hemisphere]).(dataType).(strDay);
+                        allData{zz,1} = (ProcData.data.(['cortical_' hemisphere]).(dataType) - RestingBaselines.manualSelection.(['cortical_' hemisphere]).(dataType).(strDay).mean)./RestingBaselines.manualSelection.(['cortical_' hemisphere]).(dataType).(strDay).mean;
                         zz = zz + 1;
                     end
                 end
             end
         end
         % detrend data
-        finalAllData = zeros(length(allData{1,1}),length(allData));
         for cc = 1:length(allData)
             procAllData{cc,1} = detrend(allData{cc,1},'constant');
             finalAllData(:,cc) = procAllData{cc,1};
         end
         % calculate the power spectra of the desired signals
-        params.tapers = [10,19]; % Tapers [n, 2n - 1]
+        params.tapers = [5,9]; % Tapers [n, 2n - 1]
         [allS,allf,allsErr] = mtspectrumc(finalAllData,params);
         % save results
         Results_PowerSpec_Ephys.(group).(animalID).(hemisphere).(dataType).All.S = allS;
@@ -250,7 +248,6 @@ for aa = 1:length(hemispheres)
             [nremData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.(['cortical_' hemisphere]).(dataType),SleepData.(modelType).NREM.FileIDs,SleepData.(modelType).NREM.BinTimes);
         end
         % detrend and truncate data to minimum length to match events
-        finalNREM = zeros(length(nremData{1,1}),length(nremData));
         for ee = 1:length(nremData)
             procNREMData{ee,1} = detrend(nremData{ee,1}(1:(params.minTime.NREM*samplingRate)),'constant');
             finalNREM(:,ee) = procNREMData{ee,1};
@@ -270,13 +267,12 @@ for aa = 1:length(hemispheres)
             [remData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.(['cortical_' hemisphere]).(dataType),SleepData.(modelType).REM.FileIDs,SleepData.(modelType).REM.BinTimes);
         end
         % detrend and truncate data to minimum length to match events
-        finalREM = zeros(length(remData{1,1}),length(remData));
         for ee = 1:length(remData)
             procREMData{ee,1} = detrend(remData{ee,1}(1:(params.minTime.REM*samplingRate)),'constant');
             finalREM(:,ee) = procREMData{ee,1};
         end
         % calculate the power spectra of the desired signals
-        params.tapers = [5,9]; % Tapers [n, 2n - 1]
+        params.tapers = [3,5]; % Tapers [n, 2n - 1]
         [remS,remf,remsErr] = mtspectrumc(finalREM,params);
         % save results
         Results_PowerSpec_Ephys.(group).(animalID).(hemisphere).(dataType).REM.S = remS;

@@ -1,12 +1,9 @@
 function [] = PowerSpec_LFP_Figures(rootFolder,saveFigs,delim)
-%________________________________________________________________________________________________________________________
+%----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%
-% Purpose:
-%________________________________________________________________________________________________________________________
-
+%----------------------------------------------------------------------------------------------------------
 cd([rootFolder delim 'Results_Turner'])
 resultsStruct = 'Results_PowerSpec_LFP';
 load(resultsStruct);

@@ -1,6 +1,5 @@
 zap;
-% animalIDs = {'T224','T228','T233','T263','T264','T265','T267'};
-animalIDs = {'T263','T264','T265','T267'};
+animalIDs = {'T224','T228','T233','T263','T264','T265','T267'};
 curDir = cd;
 for aa = 1:length(animalIDs)
     animalID = animalIDs{1,aa};

@@ -1,6 +1,10 @@
 function [] = OpenFieldBehavior_Figures(rootFolder,~,delim)
+%----------------------------------------------------------------------------------------------------------
+% Written by Kevin L. Turner
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
+%----------------------------------------------------------------------------------------------------------
 path = [rootFolder delim 'Results_Hossain'];
 cd(path)
-plotStatistics() % plot the statistics
-bodyparts_heatmap_plot() % plot the heatmap
-cd(rootFolder)
+plotStatistics()
+bodyparts_heatmap_plot()

@@ -79,7 +79,7 @@ for a = 1:length(dataTypes)
     % convert the temporary stuct into a final structure
     [EventData] = ProcessTempStruct(EventData,dataType,temp,epoch);
 end
-save([animal '_EventData.mat'],'EventData','-v7.3');
+% save([animal '_EventData.mat'],'EventData','-v7.3');
 
 end
 

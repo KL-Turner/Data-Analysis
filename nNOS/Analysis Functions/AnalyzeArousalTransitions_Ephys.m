@@ -4,15 +4,11 @@ function [Results_Transitions_Ephys] = AnalyzeArousalTransitions_Ephys(animalID,
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %----------------------------------------------------------------------------------------------------------
+dataLocation = [rootFolder delim 'Data' delim group delim set delim animalID delim 'Imaging'];
+cd(dataLocation)
 transitions = {'AWAKEtoNREM','NREMtoAWAKE','NREMtoREM','REMtoAWAKE'};
-% load model
-modelDirectory = [rootFolder delim 'Data' delim group delim set delim animalID delim 'Figures' delim 'Sleep Models'];
-cd(modelDirectory)
 modelName = [animalID '_IOS_RF_SleepScoringModel.mat'];
 load(modelName)
-% go to data and load the model files
-dataLocation = [rootFolder delim 'Data' delim group delim set delim animalID delim 'Bilateral Imaging'];
-cd(dataLocation)
 modelDataFileStruct = dir('*_ModelData.mat');
 modelDataFile = {modelDataFileStruct.name}';
 modelDataFileIDs = char(modelDataFile);
@@ -21,12 +17,14 @@ baselineFile = {baselineFileStruct.name}';
 baselineFileID = char(baselineFile);
 load(baselineFileID)
 samplingRate = 30;
+iosFs = 30;
 specSamplingRate = 10;
-fileDates = fieldnames(RestingBaselines.manualSelection.CBV.LH);
+hemispheres = {'LH','RH'};
+hemoDataTypes = {'HbT'};
 % go through each file and sleep score the data
-for a = 1:size(modelDataFileIDs,1)
-    modelDataFileID = modelDataFileIDs(a,:);
-    if a == 1
+for aa = 1:size(modelDataFileIDs,1)
+    modelDataFileID = modelDataFileIDs(aa,:);
+    if aa == 1
         load(modelDataFileID)
         dataLength = size(paramsTable,1);
         joinedTable = paramsTable;
@@ -48,64 +46,64 @@ numFiles = length(labels)/dataLength;
 reshapedREMindex = reshape(REMindex,dataLength,numFiles);
 patchedREMindex = [];
 % patch missing REM indeces due to theta band falling off
-for b = 1:size(reshapedREMindex,2)
-    remArray = reshapedREMindex(:,b);
+for bb = 1:size(reshapedREMindex,2)
+    remArray = reshapedREMindex(:,bb);
     patchedREMarray = LinkBinaryEvents_IOS(remArray',[5,0]);
     patchedREMindex = vertcat(patchedREMindex,patchedREMarray');
 end
 % change labels for each event
-for c = 1:length(labels)
-    if patchedREMindex(c,1) == 1
-        labels{c,1} = 'REM Sleep';
+for cc = 1:length(labels)
+    if patchedREMindex(cc,1) == 1
+        labels{cc,1} = 'REM Sleep';
     end
 end
 % convert strings to numbers for easier comparisons
 labelNumbers = zeros(length(labels),1);
-for d = 1:length(labels)
-    if strcmp(labels{d,1},'Not Sleep') == true
-        labelNumbers(d,1) = 1;
-    elseif strcmp(labels{d,1},'NREM Sleep') == true
-        labelNumbers(d,1) = 2;
-    elseif strcmp(labels{d,1},'REM Sleep') == true
-        labelNumbers(d,1) = 3;
+for dd = 1:length(labels)
+    if strcmp(labels{dd,1},'Not Sleep') == true
+        labelNumbers(dd,1) = 1;
+    elseif strcmp(labels{dd,1},'NREM Sleep') == true
+        labelNumbers(dd,1) = 2;
+    elseif strcmp(labels{dd,1},'REM Sleep') == true
+        labelNumbers(dd,1) = 3;
     end
 end
 % reshape
 fileIDs = unique(joinedFileList);
 fileLabels = reshape(labelNumbers,dataLength,size(modelDataFileIDs,1))';
 stringArray = zeros(1,12);
-for d = 1:length(transitions)
-    transition = transitions{1,d};
+for dd = 1:length(transitions)
+    transition = transitions{1,dd};
     if strcmp(transition,'AWAKEtoNREM') == true
-        for e = 1:12
-            if e <= 6
-                stringArray(1,e) = 1;
+        for ee = 1:12
+            if ee <= 6
+                stringArray(1,ee) = 1;
             else
-                stringArray(1,e) = 2;
+                stringArray(1,ee) = 2;
             end
         end
     elseif strcmp(transition,'NREMtoAWAKE') == true
-        for e = 1:12
-            if e <= 6
-                stringArray(1,e) = 2;
+        for ee = 1:12
+            if ee <= 6
+                stringArray(1,ee) = 2;
             else
-                stringArray(1,e) = 1;
+                stringArray(1,ee) = 1;
             end
         end
     elseif strcmp(transition,'NREMtoREM') == true
-        for e = 1:12
-            if e <= 6
-                stringArray(1,e) = 2;
+        for ee = 1:12
+            if ee <= 6
+                stringArray(1,ee) = 2;
             else
-                stringArray(1,e) = 3;
+                stringArray(1,ee) = 3;
             end
         end
     elseif strcmp(transition,'REMtoAWAKE') == true
-        for e = 1:12
-            if e <= 6
-                stringArray(1,e) = 3;
+        for ee = 1:12
+            if ee <= 6
+                stringArray(1,ee) = 3;
             else
-                stringArray(1,e) = 1;
+                stringArray(1,ee) = 1;
             end
         end
     end
@@ -125,12 +123,12 @@ for d = 1:length(transitions)
     end
 end
 % extract data
-for h = 1:length(transitions)
-    transition = transitions{1,h};
+for hh = 1:length(transitions)
+    transition = transitions{1,hh};
     iqx = 1;
-    for i = 1:length(data.(transition).files)
-        file = data.(transition).files{i,1};
-        startBin = data.(transition).startInd(i,1);
+    for ii = 1:length(data.(transition).files)
+        file = data.(transition).files{ii,1};
+        startBin = data.(transition).startInd(ii,1);
         if startBin > 1 && startBin < (180 - 12)
             [animalID,fileDate,fileID] = GetFileInfo_IOS(file);
             strDay = ConvertDate_IOS(fileDate);
@@ -147,7 +145,7 @@ for h = 1:length(transitions)
             % heart rate data
             heartRate = ProcData.data.heartRate(startTime + 1:endTime);
             % EMG
-            EMG = (ProcData.data.EMG.emg(startTime*samplingRate + 1:endTime*samplingRate) - RestingBaselines.manualSelection.EMG.emg.(strDay));
+            EMG = (ProcData.data.EMG.emg(startTime*samplingRate + 1:endTime*samplingRate) - RestingBaselines.manualSelection.EMG.emg.(strDay).mean);
             % spectrogram data
             cortical_LHnormS = SpecData.cortical_LH.normS;
             cortical_RHnormS = SpecData.cortical_RH.normS;
@@ -165,10 +163,14 @@ for h = 1:length(transitions)
             % HbT data
             [z2,p2,k2] = butter(4,1/(samplingRate/2),'low');
             [sos2,g2] = zp2sos(z2,p2,k2);
-            LH_HbT = ProcData.data.CBV_HbT.LH;
-            RH_HbT = ProcData.data.CBV_HbT.RH;
-            filtLH_HbT = filtfilt(sos2,g2,LH_HbT(startTime*samplingRate + 1:endTime*samplingRate));
-            filtRH_HbT = filtfilt(sos2,g2,RH_HbT(startTime*samplingRate + 1:endTime*samplingRate));
+            for qq = 1:length(hemispheres)
+                hemisphere = hemispheres{1,qq};
+                for zz = 1:length(hemoDataTypes)
+                    hemoDataType = hemoDataTypes{1,zz};
+                    tempData = ProcData.data.(hemoDataType).(hemisphere);
+                    filtData = filtfilt(sos2,g2,tempData(startTime*iosFs + 1:endTime*iosFs));
+                end
+            end
             data.(transition).fileDate{iqx,1} = strDay;
             data.(transition).whisk(iqx,:) = filtWhiskAngle;
             data.(transition).HR(iqx,:) = heartRate;
@@ -178,30 +180,37 @@ for h = 1:length(transitions)
             data.(transition).Hip(:,:,iqx) = Hip_spec(:,1:specSamplingRate*60);
             data.(transition).T_short = T_short(1:specSamplingRate*60);
             data.(transition).F = F;
-            data.(transition).LH_HbT(iqx,:) = filtLH_HbT;
-            data.(transition).RH_HbT(iqx,:) = filtRH_HbT;
+            for qq = 1:length(hemispheres)
+                hemisphere = hemispheres{1,qq};
+                for zz = 1:length(hemoDataTypes)
+                    hemoDataType = hemoDataTypes{1,zz};
+                    data.(hemisphere).(transition).(hemoDataType)(iqx,:) = filtData;
+                end
+            end
             iqx = iqx + 1;
         end
     end
 end
 % take averages of each behavior
-for d = 1:length(transitions)
-    transition = transitions{1,d};
-    % save results
-    Results_Transitions_Ephys.(group).(animalID).(transition).whisk = mean(data.(transition).whisk,1);
-    Results_Transitions_Ephys.(group).(animalID).(transition).HR = mean(data.(transition).HR,1);
-    Results_Transitions_Ephys.(group).(animalID).(transition).EMG = mean(data.(transition).EMG,1);
-    Results_Transitions_Ephys.(group).(animalID).(transition).Hip = mean(data.(transition).Hip,3);
-    Results_Transitions_Ephys.(group).(animalID).(transition).T = data.(transition).T_short;
-    Results_Transitions_Ephys.(group).(animalID).(transition).F = data.(transition).F;
-    Results_Transitions_Ephys.(group).(animalID).(transition).indFileDate = data.(transition).fileDate;
-    Results_Transitions_Ephys.(group).(animalID).(transition).fileDates = fileDates;
-    allCort = cat(3,data.(transition).LH_cort,data.(transition).RH_cort);
-    allHbT = cat(1,data.(transition).LH_HbT,data.(transition).RH_HbT);
-    Results_Transitions_Ephys.(group).(animalID).(transition).Cort = mean(allCort,3);
-    Results_Transitions_Ephys.(group).(animalID).(transition).HbT = mean(allHbT,1);
-    Results_Transitions_Ephys.(group).(animalID).(transition).LH_HbT = data.(transition).LH_HbT;
-    Results_Transitions_Ephys.(group).(animalID).(transition).RH_HbT = data.(transition).RH_HbT;
+for qq = 1:length(hemispheres)
+    hemisphere = hemispheres{1,qq};
+    for dd = 1:length(transitions)
+        transition = transitions{1,dd};
+        % save results
+        Results_Transitions_Ephys.(group).(animalID).(hemisphere).(transition).whisk = mean(data.(transition).whisk,1);
+        Results_Transitions_Ephys.(group).(animalID).(hemisphere).(transition).HR = mean(data.(transition).HR,1);
+        Results_Transitions_Ephys.(group).(animalID).(hemisphere).(transition).EMG = mean(data.(transition).EMG,1);
+        Results_Transitions_Ephys.(group).(animalID).(hemisphere).(transition).Hip = mean(data.(transition).Hip,3);
+        Results_Transitions_Ephys.(group).(animalID).(hemisphere).(transition).T = data.(transition).T_short;
+        Results_Transitions_Ephys.(group).(animalID).(hemisphere).(transition).F = data.(transition).F;
+        Results_Transitions_Ephys.(group).(animalID).(hemisphere).(transition).indFileDate = data.(transition).fileDate;
+        Results_Transitions_Ephys.(group).(animalID).(hemisphere).(transition).LH_Cort = mean(data.(transition).LH_cort,3);
+        Results_Transitions_Ephys.(group).(animalID).(hemisphere).(transition).RH_Cort = mean(data.(transition).RH_cort,3);
+        for zz = 1:length(hemoDataTypes)
+            hemoDataType = hemoDataTypes{1,zz};
+            Results_Transitions_Ephys.(group).(animalID).(hemisphere).(transition).(hemoDataType) = mean(data.(hemisphere).(transition).(hemoDataType),1);
+        end
+    end
 end
 % save data
 cd([rootFolder delim 'Results_Turner'])

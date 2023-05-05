@@ -1,49 +1,47 @@
-function [Results_CrossCorrelation] = AnalyzePupilCrossCorrelation_Ephys(animalID,group,set,rootFolder,delim,Results_PupilCrossCorr_Ephys)
+function [Results_PupilCrossCorr_Ephys] = AnalyzePupilCrossCorrelation_Ephys(animalID,group,set,rootFolder,delim,Results_PupilCrossCorr_Ephys)
 %----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %----------------------------------------------------------------------------------------------------------
-dataTypes = {'LH_HbT','RH_HbT','LH_gammaBandPower','RH_gammaBandPower'};
-pupilDataTypes = {'zDiameter'};
-modelType = 'Forest';
-params.minTime.Rest = 10;
-params.minTime.NREM = 30;
-params.minTime.REM = 60;
-% go to animal's data location
-dataLocation = [rootFolder delim 'Data' delim animalID delim 'Bilateral Imaging'];
+dataLocation = [rootFolder delim 'Data' delim group delim set delim animalID delim 'Imaging'];
 cd(dataLocation)
+% character list of all ProcData file IDs
+procDataFileStruct = dir('*_ProcData.mat');
+procDataFiles = {procDataFileStruct.name}';
+procDataFileIDs = char(procDataFiles);
 % identify and load RestData.mat struct
 restDataFileStruct = dir('*_RestData.mat');
 restDataFile = {restDataFileStruct.name}';
 restDataFileID = char(restDataFile);
 load(restDataFileID,'-mat')
-% identify and load manual baseline event information
+% identify and load ManualDecisions struct
 manualBaselineFileStruct = dir('*_ManualBaselineFileList.mat');
 manualBaselineFile = {manualBaselineFileStruct.name}';
 manualBaselineFileID = char(manualBaselineFile);
 load(manualBaselineFileID,'-mat')
-% identify and load RestingBaselines.mat strut
+% identify and load RestingBaselines struct
 baselineDataFileStruct = dir('*_RestingBaselines.mat');
 baselineDataFile = {baselineDataFileStruct.name}';
 baselineDataFileID = char(baselineDataFile);
 load(baselineDataFileID,'-mat')
-% identify and load SleepData.mat strut
+% identify and load SleepData struct
 sleepDataFileStruct = dir('*_SleepData.mat');
 sleepDataFile = {sleepDataFileStruct.name}';
 sleepDataFileID = char(sleepDataFile);
 load(sleepDataFileID,'-mat')
-% identify and load ScoringResults.mat
+% identify and load ScoringResults struct
 scoringResultsFileStruct = dir('*Forest_ScoringResults.mat');
 scoringResultsFile = {scoringResultsFileStruct.name}';
 scoringResultsFileID = char(scoringResultsFile);
 load(scoringResultsFileID,'-mat')
-% character list of all ProcData file IDs
-procDataFileStruct = dir('*_ProcData.mat');
-procDataFiles = {procDataFileStruct.name}';
-procDataFileIDs = char(procDataFiles);
+% parameters
+modelType = 'Forest';
+params.minTime.Rest = 10;
+params.minTime.NREM = 30;
+params.minTime.REM = 60;
 % filter characteristics & resting criteria
-samplingRate = RestData.CBV_HbT.LH.CBVCamSamplingRate;
+samplingRate = RestData.HbT.LH.samplingRate;
 [z,p,k] = butter(4,1/(samplingRate/2),'low');
 [sos,g] = zp2sos(z,p,k);
 % criteria for resting
@@ -53,6 +51,8 @@ RestCriteria.Value = {params.minTime.Rest};
 RestPuffCriteria.Fieldname = {'puffDistances'};
 RestPuffCriteria.Comparison = {'gt'};
 RestPuffCriteria.Value = {5};
+dataTypes = {'LH_HbT','RH_HbT','LH_gammaBandPower','RH_gammaBandPower'};
+pupilDataTypes = {'mmArea','mmDiameter','zArea','zDiameter'};
 % go through each valid data type for arousal-dependent cross-correlation analysis
 for aa = 1:length(dataTypes)
     dataType = dataTypes{1,aa};
@@ -60,8 +60,8 @@ for aa = 1:length(dataTypes)
         pupilDataType = pupilDataTypes{1,bb};
         %% cross-correlation analysis for resting data
         % pull data from RestData.mat structure
-        [restLogical] = FilterEvents_JNeurosci2022(RestData.Pupil.(pupilDataType),RestCriteria);
-        [puffLogical] = FilterEvents_JNeurosci2022(RestData.Pupil.(pupilDataType),RestPuffCriteria);
+        [restLogical] = FilterEvents_IOS(RestData.Pupil.(pupilDataType),RestCriteria);
+        [puffLogical] = FilterEvents_IOS(RestData.Pupil.(pupilDataType),RestPuffCriteria);
         combRestLogical = logical(restLogical.*puffLogical);
         restFileIDs = RestData.Pupil.(pupilDataType).fileIDs(combRestLogical,:);
         restDurations = RestData.Pupil.(pupilDataType).durations(combRestLogical,:);
@@ -69,8 +69,8 @@ for aa = 1:length(dataTypes)
         restData = RestData.Pupil.(dataType).data(combRestLogical,:);
         pupilRestData = RestData.Pupil.(pupilDataType).data(combRestLogical,:);
         % keep only the data that occurs within the manually-approved alert regions
-        [finalRestData,~,~,~] = RemoveInvalidData_JNeurosci2022(restData,restFileIDs,restDurations,restEventTimes,ManualDecisions);
-        [finalPupilRestData,~,~,~] = RemoveInvalidData_JNeurosci2022(pupilRestData,restFileIDs,restDurations,restEventTimes,ManualDecisions);
+        [finalRestData,~,~,~] = RemoveInvalidData_IOS(restData,restFileIDs,restDurations,restEventTimes,ManualDecisions);
+        [finalPupilRestData,~,~,~] = RemoveInvalidData_IOS(pupilRestData,restFileIDs,restDurations,restEventTimes,ManualDecisions);
         % process, filter + detrend each array
         catRestData = [];
         cc = 1;
@@ -107,19 +107,19 @@ for aa = 1:length(dataTypes)
             end
             restMeanXcVals = mean(restXcVals,1);
             % save results
-            Results_CrossCorrelation.(animalID).Rest.(dataType).(pupilDataType).lags = restPupilLags;
-            Results_CrossCorrelation.(animalID).Rest.(dataType).(pupilDataType).xcVals = restMeanXcVals;
+            Results_PupilCrossCorr_Ephys.(group).(animalID).(dataType).(pupilDataType).Rest.lags = restPupilLags;
+            Results_PupilCrossCorr_Ephys.(group).(animalID).(dataType).(pupilDataType).Rest.xcVals = restMeanXcVals;
         else
             % save results
-            Results_CrossCorrelation.(animalID).Rest.(dataType).(pupilDataType).lags = [];
-            Results_CrossCorrelation.(animalID).Rest.(dataType).(pupilDataType).xcVals = [];
+            Results_PupilCrossCorr_Ephys.(group).(animalID).(dataType).(pupilDataType).Rest.lags = [];
+            Results_PupilCrossCorr_Ephys.(group).(animalID).(dataType).(pupilDataType).Rest.xcVals = [];
         end
         %% cross-correlation analysis for alert data
         zz = 1;
         alertData = []; alertPupilData = []; alertProcData = [];
         for cc = 1:size(procDataFileIDs,1)
             procDataFileID = procDataFileIDs(cc,:);
-            [~,~,alertDataFileID] = GetFileInfo_JNeurosci2022(procDataFileID);
+            [~,~,alertDataFileID] = GetFileInfo_IOS(procDataFileID);
             scoringLabels = [];
             for dd = 1:length(ScoringResults.fileIDs)
                 if strcmp(alertDataFileID,ScoringResults.fileIDs{dd,1}) == true
@@ -141,9 +141,9 @@ for aa = 1:length(dataTypes)
                         if sum(isnan(ProcData.data.Pupil.(pupilDataType))) == 0
                             % pull data based on data type
                             if strcmp(dataType,'LH_HbT') == true
-                                alertData{zz,1} = ProcData.data.CBV_HbT.adjLH;
+                                alertData{zz,1} = ProcData.data.HbT.LH;
                             elseif strcmp(dataType,'RH_HbT') == true
-                                alertData{zz,1} = ProcData.data.CBV_HbT.adjRH;
+                                alertData{zz,1} = ProcData.data.HbT.RH;
                             elseif strcmp(dataType,'LH_gammaBandPower') == true
                                 alertData{zz,1} = ProcData.data.cortical_LH.gammaBandPower;
                             elseif strcmp(dataType,'RH_gammaBandPower') == true
@@ -175,19 +175,19 @@ for aa = 1:length(dataTypes)
             end
             alertMeanXcVals = mean(alertXcVals,1);
             % save results
-            Results_CrossCorrelation.(animalID).Alert.(dataType).(pupilDataType).lags = alertPupilLags;
-            Results_CrossCorrelation.(animalID).Alert.(dataType).(pupilDataType).xcVals = alertMeanXcVals;
+            Results_PupilCrossCorr_Ephys.(group).(animalID).(dataType).(pupilDataType).Alert.lags = alertPupilLags;
+            Results_PupilCrossCorr_Ephys.(group).(animalID).(dataType).(pupilDataType).Alert.xcVals = alertMeanXcVals;
         else
             % save results
-            Results_CrossCorrelation.(animalID).Alert.(dataType).(pupilDataType).lags = [];
-            Results_CrossCorrelation.(animalID).Alert.(dataType).(pupilDataType).xcVals = [];
+            Results_PupilCrossCorr_Ephys.(group).(animalID).(dataType).(pupilDataType).Alert.lags = [];
+            Results_PupilCrossCorr_Ephys.(group).(animalID).(dataType).(pupilDataType).Alert.xcVals = [];
         end
         %% cross-correlation analysis for asleep data
         zz = 1;
         asleepData = []; asleepPupilData = []; asleepProcData = [];
         for cc = 1:size(procDataFileIDs,1)
             procDataFileID = procDataFileIDs(cc,:);
-            [~,~,asleepDataFileID] = GetFileInfo_JNeurosci2022(procDataFileID);
+            [~,~,asleepDataFileID] = GetFileInfo_IOS(procDataFileID);
             scoringLabels = [];
             for dd = 1:length(ScoringResults.fileIDs)
                 if strcmp(asleepDataFileID,ScoringResults.fileIDs{dd,1}) == true
@@ -208,9 +208,9 @@ for aa = 1:length(dataTypes)
                     if isempty(puffs) == true
                         if sum(isnan(ProcData.data.Pupil.(pupilDataType))) == 0
                             if strcmp(dataType,'LH_HbT') == true
-                                asleepData{zz,1} = ProcData.data.CBV_HbT.adjLH;
+                                asleepData{zz,1} = ProcData.data.HbT.LH;
                             elseif strcmp(dataType,'RH_HbT') == true
-                                asleepData{zz,1} = ProcData.data.CBV_HbT.adjRH;
+                                asleepData{zz,1} = ProcData.data.HbT.RH;
                             elseif strcmp(dataType,'LH_gammaBandPower') == true
                                 asleepData{zz,1} = ProcData.data.cortical_LH.gammaBandPower;
                             elseif strcmp(dataType,'RH_gammaBandPower') == true
@@ -242,19 +242,19 @@ for aa = 1:length(dataTypes)
             end
             asleepMeanXcVals = mean(asleepXcVals,1);
             % save results
-            Results_CrossCorrelation.(animalID).Asleep.(dataType).(pupilDataType).lags = asleepPupilLags;
-            Results_CrossCorrelation.(animalID).Asleep.(dataType).(pupilDataType).xcVals = asleepMeanXcVals;
+            Results_PupilCrossCorr_Ephys.(group).(animalID).(dataType).(pupilDataType).Asleep.lags = asleepPupilLags;
+            Results_PupilCrossCorr_Ephys.(group).(animalID).(dataType).(pupilDataType).Asleep.xcVals = asleepMeanXcVals;
         else
             % save results
-            Results_CrossCorrelation.(animalID).Asleep.(dataType).(pupilDataType).lags = [];
-            Results_CrossCorrelation.(animalID).Asleep.(dataType).(pupilDataType).xcVals = [];
+            Results_PupilCrossCorr_Ephys.(group).(animalID).(dataType).(pupilDataType).Asleep.lags = [];
+            Results_PupilCrossCorr_Ephys.(group).(animalID).(dataType).(pupilDataType).Asleep.xcVals = [];
         end
         %% cross-correlation analysis for all data
         zz = 1;
         allData = []; allPupilData = []; allProcData = [];
         for cc = 1:size(procDataFileIDs,1)
             procDataFileID = procDataFileIDs(cc,:);
-            [~,~,~] = GetFileInfo_JNeurosci2022(procDataFileID);
+            [~,~,~] = GetFileInfo_IOS(procDataFileID);
             load(procDataFileID,'-mat')
             % only run on files with good pupil measurement
             if strcmp(ProcData.data.Pupil.diameterCheck,'y') == true
@@ -267,15 +267,18 @@ for aa = 1:length(dataTypes)
                 if isempty(puffs) == true
                     if sum(isnan(ProcData.data.Pupil.(pupilDataType))) == 0
                         if strcmp(dataType,'LH_HbT') == true
-                            allData{zz,1} = ProcData.data.CBV_HbT.adjLH;
+                            allData{zz,1} = ProcData.data.HbT.LH;
                         elseif strcmp(dataType,'RH_HbT') == true
-                            allData{zz,1} = ProcData.data.CBV_HbT.adjRH;
+                            allData{zz,1} = ProcData.data.HbT.RH;
                         elseif strcmp(dataType,'LH_gammaBandPower') == true
                             allData{zz,1} = ProcData.data.cortical_LH.gammaBandPower;
                         elseif strcmp(dataType,'RH_gammaBandPower') == true
                             allData{zz,1} = ProcData.data.cortical_RH.gammaBandPower;
                         end
                         allPupilData{zz,1} = ProcData.data.Pupil.(pupilDataType);
+                        if sum(isinf(ProcData.data.Pupil.(pupilDataType))) > 1
+                            keyboard
+                        end
                         zz = zz + 1;
                     end
                 end
@@ -300,21 +303,21 @@ for aa = 1:length(dataTypes)
             end
             allMeanXcVals = mean(allXcVals,1);
             % save results
-            Results_CrossCorrelation.(animalID).All.(dataType).(pupilDataType).lags = allPupilLags;
-            Results_CrossCorrelation.(animalID).All.(dataType).(pupilDataType).xcVals = allMeanXcVals;
+            Results_PupilCrossCorr_Ephys.(group).(animalID).(dataType).(pupilDataType).All.lags = allPupilLags;
+            Results_PupilCrossCorr_Ephys.(group).(animalID).(dataType).(pupilDataType).All.xcVals = allMeanXcVals;
         else
             % save results
-            Results_CrossCorrelation.(animalID).All.(dataType).(pupilDataType).lags = [];
-            Results_CrossCorrelation.(animalID).All.(dataType).(pupilDataType).xcVals = [];
+            Results_PupilCrossCorr_Ephys.(group).(animalID).(dataType).(pupilDataType).All.lags = [];
+            Results_PupilCrossCorr_Ephys.(group).(animalID).(dataType).(pupilDataType).All.xcVals = [];
         end
-        %% cross-correlation analysis for NREM data
+        %% NREM
         if isempty(SleepData.(modelType).NREM.data.Pupil) == false
             NREM_sleepTime = params.minTime.NREM; % seconds
-            [NREM_finalData,~,~] = RemoveStimSleepData_JNeurosci2022(animalID,SleepData.(modelType).NREM.data.Pupil.(dataType).data,SleepData.(modelType).NREM.data.Pupil.fileIDs,SleepData.(modelType).NREM.data.Pupil.binTimes);
-            [NREM_finalPupilData,~,~] = RemoveStimSleepData_JNeurosci2022(animalID,SleepData.(modelType).NREM.data.Pupil.(pupilDataType).data,SleepData.(modelType).NREM.data.Pupil.fileIDs,SleepData.(modelType).NREM.data.Pupil.binTimes);
+            [NREM_finalData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.Pupil.(dataType).data,SleepData.(modelType).NREM.data.Pupil.fileIDs,SleepData.(modelType).NREM.data.Pupil.binTimes);
+            [NREM_finalPupilData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.Pupil.(pupilDataType).data,SleepData.(modelType).NREM.data.Pupil.fileIDs,SleepData.(modelType).NREM.data.Pupil.binTimes);
             NREM_finalVals = []; NREM_finalPupilVals = [];
             if isempty(NREM_finalData) == false
-                % adjust events to match the edits made to the length of each spectrogram
+                % ust events to match the edits made to the length of each spectrogram
                 dd = 1;
                 for cc = 1:length(NREM_finalData)
                     if sum(isnan(NREM_finalPupilData{cc,1})) == 0
@@ -339,27 +342,27 @@ for aa = 1:length(dataTypes)
                     end
                     NREM_meanXcVals = mean(NREM_xcVals,1);
                     % save results
-                    Results_CrossCorrelation.(animalID).NREM.(dataType).(pupilDataType).lags = NREM_PupilLags;
-                    Results_CrossCorrelation.(animalID).NREM.(dataType).(pupilDataType).xcVals = NREM_meanXcVals;
+                    Results_PupilCrossCorr_Ephys.(group).(animalID).(dataType).(pupilDataType).NREM.lags = NREM_PupilLags;
+                    Results_PupilCrossCorr_Ephys.(group).(animalID).(dataType).(pupilDataType).NREM.xcVals = NREM_meanXcVals;
                 else
                     % save results
-                    Results_CrossCorrelation.(animalID).NREM.(dataType).(pupilDataType).lags = [];
-                    Results_CrossCorrelation.(animalID).NREM.(dataType).(pupilDataType).xcVals = [];
+                    Results_PupilCrossCorr_Ephys.(group).(animalID).(dataType).(pupilDataType).NREM.lags = [];
+                    Results_PupilCrossCorr_Ephys.(group).(animalID).(dataType).(pupilDataType).NREM.xcVals = [];
                 end
             end
         else
             % save results
-            Results_CrossCorrelation.(animalID).NREM.(dataType).(pupilDataType).lags = [];
-            Results_CrossCorrelation.(animalID).NREM.(dataType).(pupilDataType).xcVals = [];
+            Results_PupilCrossCorr_Ephys.(group).(animalID).(dataType).(pupilDataType).NREM.lags = [];
+            Results_PupilCrossCorr_Ephys.(group).(animalID).(dataType).(pupilDataType).NREM.xcVals = [];
         end
-        %% cross-correlation analysis for REM
+        %% REM
         if isempty(SleepData.(modelType).REM.data.Pupil) == false
             REM_sleepTime = params.minTime.REM; % seconds
-            [REM_finalData,~,~] = RemoveStimSleepData_JNeurosci2022(animalID,SleepData.(modelType).REM.data.Pupil.(dataType).data,SleepData.(modelType).REM.data.Pupil.fileIDs,SleepData.(modelType).REM.data.Pupil.binTimes);
-            [REM_finalPupilData,~,~] = RemoveStimSleepData_JNeurosci2022(animalID,SleepData.(modelType).REM.data.Pupil.(pupilDataType).data,SleepData.(modelType).REM.data.Pupil.fileIDs,SleepData.(modelType).REM.data.Pupil.binTimes);
+            [REM_finalData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.Pupil.(dataType).data,SleepData.(modelType).REM.data.Pupil.fileIDs,SleepData.(modelType).REM.data.Pupil.binTimes);
+            [REM_finalPupilData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.Pupil.(pupilDataType).data,SleepData.(modelType).REM.data.Pupil.fileIDs,SleepData.(modelType).REM.data.Pupil.binTimes);
             REM_finalVals = []; REM_finalPupilVals = [];
             if isempty(REM_finalData) == false
-                % adjust events to match the edits made to the length of each spectrogram
+                % ust events to match the edits made to the length of each spectrogram
                 dd = 1;
                 for cc = 1:length(REM_finalData)
                     if sum(isnan(REM_finalPupilData{cc,1})) == 0
@@ -384,24 +387,22 @@ for aa = 1:length(dataTypes)
                     end
                     REM_meanXcVals = mean(REM_xcVals,1);
                     % save results
-                    Results_CrossCorrelation.(animalID).REM.(dataType).(pupilDataType).lags = REM_PupilLags;
-                    Results_CrossCorrelation.(animalID).REM.(dataType).(pupilDataType).xcVals = REM_meanXcVals;
+                    Results_PupilCrossCorr_Ephys.(group).(animalID).(dataType).(pupilDataType).REM.lags = REM_PupilLags;
+                    Results_PupilCrossCorr_Ephys.(group).(animalID).(dataType).(pupilDataType).REM.xcVals = REM_meanXcVals;
                 else
                     % save results
-                    Results_CrossCorrelation.(animalID).REM.(dataType).(pupilDataType).lags = [];
-                    Results_CrossCorrelation.(animalID).REM.(dataType).(pupilDataType).xcVals = [];
+                    Results_PupilCrossCorr_Ephys.(group).(animalID).(dataType).(pupilDataType).REM.lags = [];
+                    Results_PupilCrossCorr_Ephys.(group).(animalID).(dataType).(pupilDataType).REM.xcVals = [];
                 end
             end
         else
             % save results
-            Results_CrossCorrelation.(animalID).REM.(dataType).(pupilDataType).lags = [];
-            Results_CrossCorrelation.(animalID).REM.(dataType).(pupilDataType).xcVals = [];
+            Results_PupilCrossCorr_Ephys.(group).(animalID).(dataType).(pupilDataType).REM.lags = [];
+            Results_PupilCrossCorr_Ephys.(group).(animalID).(dataType).(pupilDataType).REM.xcVals = [];
         end
     end
 end
 % save data
-cd([rootFolder delim 'Analysis Structures\'])
-save('Results_CrossCorrelation.mat','Results_CrossCorrelation')
-cd([rootFolder delim])
-
-end
+cd([rootFolder delim 'Results_Turner'])
+save('Results_PupilCrossCorr_Ephys.mat','Results_PupilCrossCorr_Ephys')
+cd([rootFolder delim 'Data'])

@@ -4,24 +4,24 @@ function [Results_Evoked_Pulse] = AnalyzeEvokedResponses_Pulse(animalID,group,se
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %----------------------------------------------------------------------------------------------------------
-dataLocation = [rootFolder delim 'Data' delim group delim setName delim animalID delim 'Combined Imaging'];
+dataLocation = [rootFolder delim 'Data' delim group delim setName delim animalID delim 'Imaging'];
 cd(dataLocation)
 % find and load EventData.mat struct
 eventDataFileStruct = dir('*_EventData.mat');
 eventDataFile = {eventDataFileStruct.name}';
 eventDataFileID = char(eventDataFile);
 load(eventDataFileID,'-mat')
-% find and load manual baseline event information
+% find and load ManualDecisions struct
 manualBaselineFileStruct = dir('*_ManualBaselineFileList.mat');
 manualBaselineFile = {manualBaselineFileStruct.name}';
 manualBaselineFileID = char(manualBaselineFile);
 load(manualBaselineFileID,'-mat')
-% find and load RestingBaselines.mat struct
+% find and load RestingBaselines struct
 baselineDataFileStruct = dir('*_RestingBaselines.mat');
 baselineDataFile = {baselineDataFileStruct.name}';
 baselineDataFileID = char(baselineDataFile);
 load(baselineDataFileID,'-mat')
-% find and load AllSpecStruct.mat struct
+% find and load AllSpecStruct struct
 allSpecStructFileStruct = dir('*_AllSpecStructB.mat');
 allSpecStructFile = {allSpecStructFileStruct.name}';
 allSpecStructFileID = char(allSpecStructFile);
@@ -48,13 +48,12 @@ StimCriteriaC.Value = {'AudSol'};
 StimCriteriaC.Fieldname = {'solenoidName'};
 StimCriteriaC.Comparison = {'equal'};
 stimCriteriaNames = {'stimCriteriaA','stimCriteriaB','stimCriteriaC'};
-% pull a few necessary numbers from the EventData.mat struct such as trial duration and sampling rate
-samplingRate = EventData.CBV_HbT.adjBarrels.whisk.samplingRate;
-trialDuration_sec = EventData.CBV_HbT.adjBarrels.whisk.trialDuration_sec;
-timeVector = (0:(EventData.CBV_HbT.adjBarrels.whisk.epoch.duration*samplingRate))/samplingRate - EventData.CBV_HbT.adjBarrels.whisk.epoch.offset;
-offset = EventData.CBV_HbT.adjBarrels.whisk.epoch.offset;
 %% whisking
 for bb = 1:length(WhiskCriteriaNames)
+    samplingRate = EventData.CBV_HbT.adjBarrels.whisk.samplingRate;
+    trialDuration_sec = EventData.CBV_HbT.adjBarrels.whisk.trialDuration_sec;
+    timeVector = (0:(EventData.CBV_HbT.adjBarrels.whisk.epoch.duration*samplingRate))/samplingRate - EventData.CBV_HbT.adjBarrels.whisk.epoch.offset;
+    offset = EventData.CBV_HbT.adjBarrels.whisk.epoch.offset;
     whiskCriteriaName = WhiskCriteriaNames{1,bb};
     if strcmp(whiskCriteriaName,'ShortWhisks') == true
         WhiskCriteria = WhiskCriteriaA;
@@ -87,6 +86,7 @@ for bb = 1:length(WhiskCriteriaNames)
     end
     meanWhiskHbTData = mean(procWhiskHbTData,1);
     % save results
+    Results_Evoked_Pulse.(group).(animalID).Whisk.(whiskCriteriaName).indHbT = procWhiskHbTData;
     Results_Evoked_Pulse.(group).(animalID).Whisk.(whiskCriteriaName).HbT = meanWhiskHbTData;
     Results_Evoked_Pulse.(group).(animalID).Whisk.(whiskCriteriaName).timeVector = timeVector;
 end
@@ -126,6 +126,7 @@ for gg = 1:length(stimCriteriaNames)
     end
     meanStimHbTData = mean(procStimHbTData,1);
     % save results
+    Results_Evoked_Pulse.(group).(animalID).Stim.(solenoid).indHbT = procStimHbTData;
     Results_Evoked_Pulse.(group).(animalID).Stim.(solenoid).HbT = meanStimHbTData;
     Results_Evoked_Pulse.(group).(animalID).Stim.(solenoid).timeVector = timeVector;
     Results_Evoked_Pulse.(group).(animalID).Stim.(solenoid).count = size(procStimHbTData,1);

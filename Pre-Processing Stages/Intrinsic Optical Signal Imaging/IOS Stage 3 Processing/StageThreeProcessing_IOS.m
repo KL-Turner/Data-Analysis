@@ -50,9 +50,9 @@ CalculateFullSpectroscopy_IOS(procDataFileIDs,RestingBaselines,'manualSelection'
 % create the EventData structure for CBV and neural data
 [EventData] = ExtractEventTriggeredData_IOS(procDataFileIDs);
 % normalize RestData structures by the resting baseline
-[RestData] = NormRestDataStruct_IOS(RestData,RestingBaselines,'manualSelection');
+[RestData] = NormRestDataStruct_IOS(animalID,RestData,RestingBaselines,'manualSelection');
 % normalize EventData structures by the resting baseline
-[EventData] = NormEventDataStruct_IOS(EventData,RestingBaselines,'manualSelection');
+[EventData] = NormEventDataStruct_IOS(animalID,EventData,RestingBaselines,'manualSelection');
 % find spectrogram baselines for each day
 [RestingBaselines] = CalculateSpectrogramBaselines_IOS(RestingBaselines,'manualSelection');
 % normalize spectrogram by baseline

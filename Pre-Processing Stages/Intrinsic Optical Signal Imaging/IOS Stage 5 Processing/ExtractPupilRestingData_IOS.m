@@ -1,4 +1,4 @@
-function [RestData] = ExtractPupilRestingData_IOS(procDataFileIDs,dataTypes)
+function [RestData] = ExtractPupilRestingData_IOS(procDataFileIDs,dataTypes,RestData)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -10,8 +10,8 @@ function [RestData] = ExtractPupilRestingData_IOS(procDataFileIDs,dataTypes)
 %________________________________________________________________________________________________________________________
 
 % load rest data file
-restDataFileID = ls('*_RestData.mat');
-load(restDataFileID)
+% restDataFileID = ls('*_RestData.mat');
+% load(restDataFileID)
 RestData.Pupil = []; restVals = [];
 [animal,~,~] = GetFileInfo_IOS(procDataFileIDs(1,:));
 % analyze each proc data file
@@ -19,7 +19,7 @@ for aa = 1:length(dataTypes)
     dataType = dataTypes{1,aa};
     zz = 1;
     for c = 1:size(procDataFileIDs,1)
-        disp(['Extracting resting pupil area from ProcData file ' num2str(c) '/' num2str(size(procDataFileIDs,1))]); disp(' ')
+%         disp(['Extracting resting pupil ' dataType ' from ProcData file ' num2str(c) '/' num2str(size(procDataFileIDs,1))]); disp(' ')
         procDataFileID = procDataFileIDs(c,:);
         load(procDataFileID);
         if strcmp(ProcData.data.Pupil.diameterCheck,'y') == true
@@ -96,6 +96,6 @@ for aa = 1:length(dataTypes)
     end
 end
 % save updated structure
-save([animal '_RestData.mat'],'RestData','-v7.3');
+% save([animal '_RestData.mat'],'RestData','-v7.3');
 
 end

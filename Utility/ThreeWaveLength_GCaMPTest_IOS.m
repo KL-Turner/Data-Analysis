@@ -4,7 +4,7 @@ windowCamFileID = uigetfile('*_WindowCam.bin','MultiSelect','off');
 Fs = 30;
 imageHeight = 128;                                                                                                            
 imageWidth = 128;
-trialDuration = 120;
+trialDuration = 900;
 pixelsPerFrame = imageWidth*imageHeight;
 % open the file, get file size, back to the begining
 fid = fopen(windowCamFileID);

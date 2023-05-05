@@ -62,10 +62,10 @@ end
 dataTypes = {'pupilArea','diameter','mmArea','mmDiameter','zArea','zDiameter','patchCentroidX','patchCentroidY','LH_HbT','RH_HbT','LH_gammaBandPower','RH_gammaBandPower'};
 [RestData] = ExtractPupilRestingData_IOS(procDataFileIDs,dataTypes);
 % add pupil area to EventData.mat
-[EventData] = ExtractPupilEventTriggeredData_IOS(procDataFileIDs);
+[EventData] = ExtractPupilEventTriggeredData_IOS(procDataFileIDs,dataTypes);
 % normalize Rest/Event data structures
-[RestData] = NormRestDataStruct_IOS(RestData,RestingBaselines,'manualSelection');
-[EventData] = NormEventDataStruct_IOS(EventData,RestingBaselines,'manualSelection');
+[RestData] = NormRestDataStruct_IOS(animalID,RestData,RestingBaselines,'manualSelection');
+[EventData] = NormEventDataStruct_IOS(animalID,EventData,RestingBaselines,'manualSelection');
 % add pupil data to SleepData.mat
 AddPupilSleepParameters_IOS(procDataFileIDs)
 UpdatePupilSleepData_IOS(procDataFileIDs)

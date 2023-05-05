@@ -72,30 +72,30 @@ if strcmp(genSampleFigs,'y') == true
         close(figHandle)
     end
 end
-%% BLOCK PURPOSE: [7] Manually select files for custom baseline calculation
-disp('Analyzing Block [7] Manually select files for custom baseline calculation.'); disp(' ')
-[RestingBaselines] = CalculateManualRestingBaselinesTimeIndeces_2P;
-%% BLOCK PURPOSE: [8] Analyze the spectrogram baseline for each session.
-disp('Analyzing Block [8] Analyzing the spectrogram for each file and normalizing by the resting baseline.'); disp(' ')
-updatedBaselineType = 'manualSelection';
-% Find spectrogram baselines for each day
-specDirectory = dir('*_SpecData.mat');
-specDataFiles = {specDirectory.name}';
-specDataFileIDs = char(specDataFiles);
-[RestingBaselines] = CalculateSpectrogramBaselines_2P(animalID,neuralDataTypes,trialDuration_sec,specDataFileIDs,RestingBaselines,updatedBaselineType);
-% Normalize spectrogram by baseline
-NormalizeSpectrograms_2P(specDataFileIDs,neuralDataTypes,RestingBaselines);
-% Create a structure with all spectrograms for convenient analysis further downstream
-CreateAllSpecDataStruct_2P(animalID,neuralDataTypes)
-%% BLOCK PURPOSE [9] Generate single trial figures
-disp('Analyzing Block [9] Generating single trial summary figures'); disp(' ')
-updatedBaselineType = 'manualSelection';
-saveFigs = 'y';
-for bb = 1:size(mergedDataFileIDs,1)
-    mergedDataFileID = mergedDataFileIDs(bb,:);
-    [figHandle] = GenerateSingleFigures_2P(mergedDataFileID,updatedBaselineType,saveFigs,RestingBaselines);
-    close(figHandle)
-end
-%% Set Isoflurane boundary times
-SetIsofluraneBoundary_2P(RestingBaselines)
-disp('Stage Three Processing - Complete.'); disp(' ')
+% %% BLOCK PURPOSE: [7] Manually select files for custom baseline calculation
+% disp('Analyzing Block [7] Manually select files for custom baseline calculation.'); disp(' ')
+% [RestingBaselines] = CalculateManualRestingBaselinesTimeIndeces_2P;
+% %% BLOCK PURPOSE: [8] Analyze the spectrogram baseline for each session.
+% disp('Analyzing Block [8] Analyzing the spectrogram for each file and normalizing by the resting baseline.'); disp(' ')
+% updatedBaselineType = 'manualSelection';
+% % Find spectrogram baselines for each day
+% specDirectory = dir('*_SpecData.mat');
+% specDataFiles = {specDirectory.name}';
+% specDataFileIDs = char(specDataFiles);
+% [RestingBaselines] = CalculateSpectrogramBaselines_2P(animalID,neuralDataTypes,trialDuration_sec,specDataFileIDs,RestingBaselines,updatedBaselineType);
+% % Normalize spectrogram by baseline
+% NormalizeSpectrograms_2P(specDataFileIDs,neuralDataTypes,RestingBaselines);
+% % Create a structure with all spectrograms for convenient analysis further downstream
+% CreateAllSpecDataStruct_2P(animalID,neuralDataTypes)
+% %% BLOCK PURPOSE [9] Generate single trial figures
+% disp('Analyzing Block [9] Generating single trial summary figures'); disp(' ')
+% updatedBaselineType = 'manualSelection';
+% saveFigs = 'y';
+% for bb = 1:size(mergedDataFileIDs,1)
+%     mergedDataFileID = mergedDataFileIDs(bb,:);
+%     [figHandle] = GenerateSingleFigures_2P(mergedDataFileID,updatedBaselineType,saveFigs,RestingBaselines);
+%     close(figHandle)
+% end
+% %% Set Isoflurane boundary times
+% SetIsofluraneBoundary_2P(RestingBaselines)
+% disp('Stage Three Processing - Complete.'); disp(' ')

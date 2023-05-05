@@ -1,21 +1,18 @@
 function [] = StimEvoked_Ephys_Figures(rootFolder,saveFigs,delim)
-%________________________________________________________________________________________________________________________
+%----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%
-% Purpose: 
-%________________________________________________________________________________________________________________________
-
+%----------------------------------------------------------------------------------------------------------
 cd([rootFolder delim 'Results_Turner'])
 resultsStruct = 'Results_Evoked_Ephys';
 load(resultsStruct);
 cd(rootFolder)
 % loop variables
-groups = {'Naive','SSP_SAP','Blank_SAP'};
+groups = {'Naive','Blank_SAP','SSP_SAP'};
 solenoids = {'LPadSol','RPadSol','AudSol'};
 hemispheres = {'LH','RH'};
-dataTypes = {'HbT','cortMUA','cortGam','cortS','T','F','timeVector'};
+dataTypes = {'HbT','cortMUA','cortGam','cortS','T','F','timeVector','group','animalID'};
 % extract the analysis results
 for aa = 1:length(groups)
     group = groups{1,aa};
@@ -30,16 +27,22 @@ for aa = 1:length(groups)
                 for ee = 1:length(dataTypes)
                     dataType = dataTypes{1,ee};
                     if isfield(data.(group).(hemisphere).(solenoid),dataType) == false
-                        data.(group).(hemisphere).(solenoid).(dataType) = [];
+                        if any(strcmp(dataType,{'group','animalID'})) == true
+                            data.(group).(hemisphere).(solenoid).(dataType) = {};
+                        else
+                            data.(group).(hemisphere).(solenoid).(dataType) = [];
+                        end
                     end
                 end
-                data.(group).(hemisphere).(solenoid).HbT = cat(1,data.(group).(hemisphere).(solenoid).HbT,Results_Evoked_Ephys.(group).(animalID).Stim.(hemisphere).(solenoid).HbT);
-                data.(group).(hemisphere).(solenoid).cortMUA = cat(1,data.(group).(hemisphere).(solenoid).cortMUA,Results_Evoked_Ephys.(group).(animalID).Stim.(hemisphere).(solenoid).cortMUA);
-                data.(group).(hemisphere).(solenoid).cortGam = cat(1,data.(group).(hemisphere).(solenoid).cortGam,Results_Evoked_Ephys.(group).(animalID).Stim.(hemisphere).(solenoid).cortGam);
-                data.(group).(hemisphere).(solenoid).cortS = cat(3,data.(group).(hemisphere).(solenoid).cortS,Results_Evoked_Ephys.(group).(animalID).Stim.(hemisphere).(solenoid).cortLFP);
-                data.(group).(hemisphere).(solenoid).T = cat(1,data.(group).(hemisphere).(solenoid).T,Results_Evoked_Ephys.(group).(animalID).Stim.(hemisphere).(solenoid).T);
-                data.(group).(hemisphere).(solenoid).F = cat(1,data.(group).(hemisphere).(solenoid).F,Results_Evoked_Ephys.(group).(animalID).Stim.(hemisphere).(solenoid).F);
-                data.(group).(hemisphere).(solenoid).timeVector = cat(1,data.(group).(hemisphere).(solenoid).timeVector,Results_Evoked_Ephys.(group).(animalID).Stim.(hemisphere).(solenoid).timeVector);
+                data.(group).(hemisphere).(solenoid).HbT = cat(1,data.(group).(hemisphere).(solenoid).HbT,Results_Evoked_Ephys.(group).(animalID).(hemisphere).Stim.(solenoid).HbT);
+                data.(group).(hemisphere).(solenoid).cortMUA = cat(1,data.(group).(hemisphere).(solenoid).cortMUA,Results_Evoked_Ephys.(group).(animalID).(hemisphere).Stim.(solenoid).cortMUA);
+                data.(group).(hemisphere).(solenoid).cortGam = cat(1,data.(group).(hemisphere).(solenoid).cortGam,Results_Evoked_Ephys.(group).(animalID).(hemisphere).Stim.(solenoid).cortGam);
+                data.(group).(hemisphere).(solenoid).cortS = cat(3,data.(group).(hemisphere).(solenoid).cortS,Results_Evoked_Ephys.(group).(animalID).(hemisphere).Stim.(solenoid).cortLFP);
+                data.(group).(hemisphere).(solenoid).T = cat(1,data.(group).(hemisphere).(solenoid).T,Results_Evoked_Ephys.(group).(animalID).(hemisphere).Stim.(solenoid).T);
+                data.(group).(hemisphere).(solenoid).F = cat(1,data.(group).(hemisphere).(solenoid).F,Results_Evoked_Ephys.(group).(animalID).(hemisphere).Stim.(solenoid).F);
+                data.(group).(hemisphere).(solenoid).timeVector = cat(1,data.(group).(hemisphere).(solenoid).timeVector,Results_Evoked_Ephys.(group).(animalID).(hemisphere).Stim.(solenoid).timeVector);
+                data.(group).(hemisphere).(solenoid).group = cat(1,data.(group).(hemisphere).(solenoid).group,group);
+                data.(group).(hemisphere).(solenoid).animalID = cat(1,data.(group).(hemisphere).(solenoid).animalID,animalID);
             end
         end
     end
@@ -52,139 +55,167 @@ for aa = 1:length(groups)
         for cc = 1:length(solenoids)
             solenoid = solenoids{1,cc};
             [comparison] = FindSolenoidComparison(hemisphere,solenoid);
+            data.(group).(hemisphere).(comparison).group = {};
+            data.(group).(hemisphere).(comparison).animalID = {};
             for dd = 1:length(dataTypes)
                 dataType = dataTypes{1,dd};
-                if strcmp(dataType,'cortS')
+                if any(strcmp(dataType,{'group','animalID'})) == true
                     data.(group).(hemisphere).(comparison).(dataType) = data.(group).(hemisphere).(solenoid).(dataType);
-                    data.(group).(hemisphere).(comparison).(['mean_' dataType]) = mean(data.(group).(hemisphere).(solenoid).(dataType),3);
+                elseif strcmp(dataType,'cortS')
+                    data.(group).(hemisphere).(comparison).(dataType) = data.(group).(hemisphere).(solenoid).(dataType);
+                    data.(group).(hemisphere).(comparison).(['mean_' dataType]) = mean(data.(group).(hemisphere).(solenoid).(dataType),3).*100;
                 else
                     data.(group).(hemisphere).(comparison).(dataType) = data.(group).(hemisphere).(solenoid).(dataType);
                     data.(group).(hemisphere).(comparison).(['mean_' dataType]) = mean(data.(group).(hemisphere).(solenoid).(dataType),1);
                     data.(group).(hemisphere).(comparison).(['stdErr_' dataType]) = std(data.(group).(hemisphere).(solenoid).(dataType),1)./sqrt(size(data.(group).(hemisphere).(solenoid).(dataType),1));
+                    if strcmp(dataType,'HbT') == true
+                        for ee = 1:size(data.(group).(hemisphere).(comparison).HbT,1)
+                            startIdx = find(data.(group).(hemisphere).(solenoid).timeVector(ee,:) == 2);
+                            endIdx =  find(data.(group).(hemisphere).(solenoid).timeVector(ee,:) == 4);
+                            timeSnip = data.(group).(hemisphere).(solenoid).timeVector(ee,:);
+                            hbtSnip = data.(group).(hemisphere).(comparison).HbT(ee,:);
+                            data.(group).(hemisphere).(comparison).AUC_HbT(ee,1) = trapz(timeSnip(startIdx:endIdx),hbtSnip(startIdx:endIdx));
+                            [maxHbT,maxIdx] = max(hbtSnip);
+                            data.(group).(hemisphere).(comparison).Peak_HbT(ee,1) = maxHbT;
+                            data.(group).(hemisphere).(comparison).TTP_HbT(ee,1) = timeSnip(maxIdx);
+                        end
+                    end
                 end
             end
         end
     end
 end
 % figure
-figure;
-sgtitle('Ephys contralateral whisker stimlation (HbT)')
-for aa = 1:2
-    ax(aa) = subplot(1,2,aa);
+comparisons = {'ipsi','contra','aud'};
+for aa = 1:length(hemispheres)
     hemisphere = hemispheres{1,aa};
-    dataType = 'HbT';
-    x0 = xline(0,'k');
+    for bb = 1:length(comparisons)
+        comparison = comparisons{1,bb};
+        summaryFigure = figure;
+        sgtitle([hemisphere ' ' comparison '  whisker stimlation (HbT) [Ephys]'])
+        dataType = 'HbT';
+        subplot(1,3,bb)
+        p1 = plot(data.Naive.(hemisphere).(comparison).mean_timeVector,data.Naive.(hemisphere).(comparison).(['mean_' dataType]),'color',colors('sapphire'),'LineWidth',2);
+        hold on;
+        plot(data.Naive.(hemisphere).(comparison).mean_timeVector,data.Naive.(hemisphere).(comparison).(['mean_' dataType]) + data.Naive.(hemisphere).(comparison).(['stdErr_' dataType]),'color',colors('sapphire'),'LineWidth',0.25)
+        plot(data.Naive.(hemisphere).(comparison).mean_timeVector,data.Naive.(hemisphere).(comparison).(['mean_' dataType]) - data.Naive.(hemisphere).(comparison).(['stdErr_' dataType]),'color',colors('sapphire'),'LineWidth',0.25)
+        p2 = plot(data.Blank_SAP.(hemisphere).(comparison).mean_timeVector,data.Blank_SAP.(hemisphere).(comparison).(['mean_' dataType]),'color',colors('north texas green'),'LineWidth',2);
+        plot(data.Blank_SAP.(hemisphere).(comparison).mean_timeVector,data.Blank_SAP.(hemisphere).(comparison).(['mean_' dataType]) + data.Blank_SAP.(hemisphere).(comparison).(['stdErr_' dataType]),'color',colors('north texas green'),'LineWidth',0.25)
+        plot(data.Blank_SAP.(hemisphere).(comparison).mean_timeVector,data.Blank_SAP.(hemisphere).(comparison).(['mean_' dataType]) - data.Blank_SAP.(hemisphere).(comparison).(['stdErr_' dataType]),'color',colors('north texas green'),'LineWidth',0.25)
+        p3 = plot(data.SSP_SAP.(hemisphere).(comparison).mean_timeVector,data.SSP_SAP.(hemisphere).(comparison).(['mean_' dataType]),'color',colors('electric purple'),'LineWidth',2);
+        plot(data.SSP_SAP.(hemisphere).(comparison).mean_timeVector,data.SSP_SAP.(hemisphere).(comparison).(['mean_' dataType]) + data.SSP_SAP.(hemisphere).(comparison).(['stdErr_' dataType]),'color',colors('electric purple'),'LineWidth',0.25)
+        plot(data.SSP_SAP.(hemisphere).(comparison).mean_timeVector,data.SSP_SAP.(hemisphere).(comparison).(['mean_' dataType]) - data.SSP_SAP.(hemisphere).(comparison).(['stdErr_' dataType]),'color',colors('electric purple'),'LineWidth',0.25)
+        title([hemisphere ' ' dataType])
+        label = '\DeltaHbT (\muM)';
+        ylabel(label)
+        xlabel('Peri-stimulus time (s)')
+        if aa == 1
+            legend([p1,p2,p3],'Naive','Blank-SAP','SSP-SAP')
+        end
+        set(gca,'box','off')
+        xlim([-2,10])
+        axis square
+    end
+    % save figure(s)
+    if saveFigs == true
+        dirpath = [rootFolder delim 'Summary Figures' delim 'Stimulus Evoked' delim];
+        if ~exist(dirpath,'dir')
+            mkdir(dirpath);
+        end
+        savefig(summaryFigure,[dirpath 'StimEvoked_Ephys_' comparison]);
+    end
+end
+% figure
+statsVariables = {'AUC_HbT','Peak_HbT','TTP_HbT'};
+summaryFigure = figure;
+sgtitle('HbT stats [Ephys]')
+for aa = 1:length(statsVariables)
+    statsVariable = statsVariables{1,aa};
+    subplot(1,3,aa);
+    xInds = ones(1,length(data.Blank_SAP.RH.contra.(statsVariable)));
+    s1 = scatter(xInds*1,data.Blank_SAP.RH.contra.(statsVariable),75,'MarkerEdgeColor','k','MarkerFaceColor',colors('north texas green'),'jitter','off','jitterAmount',0.25);
     hold on
-    x1 = xline(5,'r');
-    % Blank-SAP
-    p1 = plot(data.Blank_SAP.(hemisphere).contra.mean_timeVector,data.Blank_SAP.(hemisphere).contra.(['mean_' dataType]),'color',colors('north texas green'),'LineWidth',2);
-    plot(data.Blank_SAP.(hemisphere).contra.mean_timeVector,data.Blank_SAP.(hemisphere).contra.(['mean_' dataType]) + data.Blank_SAP.(hemisphere).contra.(['stdErr_' dataType]),'color',colors('north texas green'),'LineWidth',0.5)
-    plot(data.Blank_SAP.(hemisphere).contra.mean_timeVector,data.Blank_SAP.(hemisphere).contra.(['mean_' dataType]) - data.Blank_SAP.(hemisphere).contra.(['stdErr_' dataType]),'color',colors('north texas green'),'LineWidth',0.5)
-    % SSP-SAP
-    p2 = plot(data.SSP_SAP.(hemisphere).contra.mean_timeVector,data.SSP_SAP.(hemisphere).contra.(['mean_' dataType]),'color',colors('electric purple'),'LineWidth',2);
-    plot(data.SSP_SAP.(hemisphere).contra.mean_timeVector,data.SSP_SAP.(hemisphere).contra.(['mean_' dataType]) + data.SSP_SAP.(hemisphere).contra.(['stdErr_' dataType]),'color',colors('electric purple'),'LineWidth',0.5)
-    plot(data.SSP_SAP.(hemisphere).contra.mean_timeVector,data.SSP_SAP.(hemisphere).contra.(['mean_' dataType]) - data.SSP_SAP.(hemisphere).contra.(['stdErr_' dataType]),'color',colors('electric purple'),'LineWidth',0.5)
-    % Naive
-    p3 = plot(data.Naive.(hemisphere).contra.mean_timeVector,data.Naive.(hemisphere).contra.(['mean_' dataType]),'color',colors('sapphire'),'LineWidth',2);
-    plot(data.Naive.(hemisphere).contra.mean_timeVector,data.Naive.(hemisphere).contra.(['mean_' dataType]) + data.Naive.(hemisphere).contra.(['stdErr_' dataType]),'color',colors('sapphire'),'LineWidth',0.5)
-    plot(data.Naive.(hemisphere).contra.mean_timeVector,data.Naive.(hemisphere).contra.(['mean_' dataType]) - data.Naive.(hemisphere).contra.(['stdErr_' dataType]),'color',colors('sapphire'),'LineWidth',0.5)
-    title([hemisphere ' ' dataType])
-    label = '\DeltaHbT (\muM)';
-    ylabel(label)
-    xlabel('Peri-stimulus time (s)')
+    e1 = errorbar(1,mean(data.Blank_SAP.RH.contra.(statsVariable)),std(data.Blank_SAP.RH.contra.(statsVariable)),'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+    e1.Color = 'black';
+    e1.MarkerSize = 10;
+    e1.CapSize = 10;
+    xInds = ones(1,length(data.SSP_SAP.RH.contra.(statsVariable)));
+    s2 = scatter(xInds*2,data.SSP_SAP.RH.contra.(statsVariable),75,'MarkerEdgeColor','k','MarkerFaceColor',colors('electric purple'),'jitter','off','jitterAmount',0.25);
+    hold on
+    e2 = errorbar(2,mean(data.SSP_SAP.RH.contra.(statsVariable)),std(data.SSP_SAP.RH.contra.(statsVariable)),'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+    e2.Color = 'black';
+    e2.MarkerSize = 10;
+    e2.CapSize = 10;
+    ylabel(strrep(statsVariable,'_',' '))
+    title(strrep(statsVariable,'_',' '))
+    xlim([0,3])
     if aa == 1
-        legend([p1,p2,p3,x0,x1],'Blank-SAP','SSP-SAP','Naive','stimOn','stimOff')
+        legend([s1,s2],'Blank-SAP','SSP-SAP')
     end
     set(gca,'box','off')
-    xlim([-2,10])
+    set(gca,'xtick',[])
     axis square
 end
-linkaxes(ax)
+% save figure(s)
+if saveFigs == true
+    savefig(summaryFigure,[dirpath 'StimEvoked_Ephys_HbT_StatsFigure']);
+end
 % figure
-figure;
-sgtitle('Ephys contralateral whisker stimlation (gamma)')
-for aa = 1:2
-    bx(aa) = subplot(1,2,aa);
-    hemisphere = hemispheres{1,aa};
-    dataType = 'cortGam';
-    x0 = xline(0,'k');
-    hold on
-    x1 = xline(5,'r');
-    % Blank-SAP
-    p1 = plot(data.Blank_SAP.(hemisphere).contra.mean_timeVector,data.Blank_SAP.(hemisphere).contra.(['mean_' dataType]),'color',colors('north texas green'),'LineWidth',2);
-    plot(data.Blank_SAP.(hemisphere).contra.mean_timeVector,data.Blank_SAP.(hemisphere).contra.(['mean_' dataType]) + data.Blank_SAP.(hemisphere).contra.(['stdErr_' dataType]),'color',colors('north texas green'),'LineWidth',0.5)
-    plot(data.Blank_SAP.(hemisphere).contra.mean_timeVector,data.Blank_SAP.(hemisphere).contra.(['mean_' dataType]) - data.Blank_SAP.(hemisphere).contra.(['stdErr_' dataType]),'color',colors('north texas green'),'LineWidth',0.5)
-    % SSP-SAP
-    p2 = plot(data.SSP_SAP.(hemisphere).contra.mean_timeVector,data.SSP_SAP.(hemisphere).contra.(['mean_' dataType]),'color',colors('electric purple'),'LineWidth',2);
-    plot(data.SSP_SAP.(hemisphere).contra.mean_timeVector,data.SSP_SAP.(hemisphere).contra.(['mean_' dataType]) + data.SSP_SAP.(hemisphere).contra.(['stdErr_' dataType]),'color',colors('electric purple'),'LineWidth',0.5)
-    plot(data.SSP_SAP.(hemisphere).contra.mean_timeVector,data.SSP_SAP.(hemisphere).contra.(['mean_' dataType]) - data.SSP_SAP.(hemisphere).contra.(['stdErr_' dataType]),'color',colors('electric purple'),'LineWidth',0.5)
-    % Naive
-    p3 = plot(data.Naive.(hemisphere).contra.mean_timeVector,data.Naive.(hemisphere).contra.(['mean_' dataType]),'color',colors('sapphire'),'LineWidth',2);
-    plot(data.Naive.(hemisphere).contra.mean_timeVector,data.Naive.(hemisphere).contra.(['mean_' dataType]) + data.Naive.(hemisphere).contra.(['stdErr_' dataType]),'color',colors('sapphire'),'LineWidth',0.5)
-    plot(data.Naive.(hemisphere).contra.mean_timeVector,data.Naive.(hemisphere).contra.(['mean_' dataType]) - data.Naive.(hemisphere).contra.(['stdErr_' dataType]),'color',colors('sapphire'),'LineWidth',0.5)
-    title([hemisphere ' ' dataType])
-    label = '\DeltaP/P (%)';
-    ylabel(label)
-    xlabel('Peri-stimulus time (s)')
-    if aa == 1
-        legend([p1,p2,p3,x0,x1],'Blank-SAP','SSP-SAP','Naive','stimOn','stimOff')
+for aa = 1:length(groups)
+    group = groups{1,aa};
+    for bb = 1:length(hemispheres)
+        hemisphere = hemispheres{1,bb};
+        for cc = 1:length(comparisons)
+            comparison = comparisons{1,cc};
+            summaryFigure = figure;
+            sgtitle([group ' ' hemisphere ' ' comparison ' whisker stimlation (LFP) [Ephys]'])
+            subplot(1,3,cc);
+            imagesc(data.(group).(hemisphere).(comparison).mean_T,data.(group).(hemisphere).(comparison).mean_F,data.(group).(hemisphere).(comparison).mean_cortS)
+            title(comparison)
+            ylabel('Freq (Hz)')
+            xlabel('Peri-stimulus time (s)')
+            c1 = colorbar;
+            ylabel(c1,'\DeltaP/P (%)','rotation',-90,'VerticalAlignment','bottom')
+            caxis([-100,500])
+            set(gca,'Ticklength',[0,0])
+            axis xy
+            set(gca,'box','off')
+            axis square
+        end
+        % save figure(s)
+        if saveFigs == true
+            savefig(summaryFigure,[dirpath 'StimEvoked_Ephys_LFP_' group '_' hemisphere '_' comparison]);
+        end
     end
-    set(gca,'box','off')
-    xlim([-2,10])
-    axis square
 end
-linkaxes(bx)
-% figure
-figure;
-sgtitle('Ephys contralateral whisker stimlation (MUA)')
-for aa = 1:2
-    cx(aa) = subplot(1,2,aa);
-    hemisphere = hemispheres{1,aa};
-    dataType = 'cortMUA';
-    x0 = xline(0,'k');
-    hold on
-    x1 = xline(5,'r');
-    % Blank-SAP
-    p1 = plot(data.Blank_SAP.(hemisphere).contra.mean_timeVector,data.Blank_SAP.(hemisphere).contra.(['mean_' dataType]),'color',colors('north texas green'),'LineWidth',2);
-    plot(data.Blank_SAP.(hemisphere).contra.mean_timeVector,data.Blank_SAP.(hemisphere).contra.(['mean_' dataType]) + data.Blank_SAP.(hemisphere).contra.(['stdErr_' dataType]),'color',colors('north texas green'),'LineWidth',0.5)
-    plot(data.Blank_SAP.(hemisphere).contra.mean_timeVector,data.Blank_SAP.(hemisphere).contra.(['mean_' dataType]) - data.Blank_SAP.(hemisphere).contra.(['stdErr_' dataType]),'color',colors('north texas green'),'LineWidth',0.5)
-    % SSP-SAP
-    p2 = plot(data.SSP_SAP.(hemisphere).contra.mean_timeVector,data.SSP_SAP.(hemisphere).contra.(['mean_' dataType]),'color',colors('electric purple'),'LineWidth',2);
-    plot(data.SSP_SAP.(hemisphere).contra.mean_timeVector,data.SSP_SAP.(hemisphere).contra.(['mean_' dataType]) + data.SSP_SAP.(hemisphere).contra.(['stdErr_' dataType]),'color',colors('electric purple'),'LineWidth',0.5)
-    plot(data.SSP_SAP.(hemisphere).contra.mean_timeVector,data.SSP_SAP.(hemisphere).contra.(['mean_' dataType]) - data.SSP_SAP.(hemisphere).contra.(['stdErr_' dataType]),'color',colors('electric purple'),'LineWidth',0.5)
-    % Naive
-    p3 = plot(data.Naive.(hemisphere).contra.mean_timeVector,data.Naive.(hemisphere).contra.(['mean_' dataType]),'color',colors('sapphire'),'LineWidth',2);
-    plot(data.Naive.(hemisphere).contra.mean_timeVector,data.Naive.(hemisphere).contra.(['mean_' dataType]) + data.Naive.(hemisphere).contra.(['stdErr_' dataType]),'color',colors('sapphire'),'LineWidth',0.5)
-    plot(data.Naive.(hemisphere).contra.mean_timeVector,data.Naive.(hemisphere).contra.(['mean_' dataType]) - data.Naive.(hemisphere).contra.(['stdErr_' dataType]),'color',colors('sapphire'),'LineWidth',0.5)
-    title([hemisphere ' ' dataType])
-    label = '\DeltaP/P (%)';
-    ylabel(label)
-    xlabel('Peri-stimulus time (s)')
-    if aa == 1
-        legend([p1,p2,p3,x0,x1],'Blank-SAP','SSP-SAP','Naive','stimOn','stimOff')
+% statistics - generalized linear mixed effects model
+for aa = 1:length(statsVariables)
+    statsVariable = statsVariables{1,aa};
+    % statistics - generalized linear mixed effects model
+    Stats.(statsVariable).tableSize = cat(1,data.Blank_SAP.RH.contra.(statsVariable),data.SSP_SAP.RH.contra.(statsVariable));
+    Stats.(statsVariable).Table = table('Size',[size(Stats.(statsVariable).tableSize,1),3],'VariableTypes',{'string','string','double'},'VariableNames',{'AnimalID','Group','Coherence'});
+    Stats.(statsVariable).Table.AnimalID = cat(1,data.Blank_SAP.RH.contra.animalID,data.SSP_SAP.RH.contra.animalID);
+    Stats.(statsVariable).Table.Group = cat(1,data.Blank_SAP.RH.contra.group,data.SSP_SAP.RH.contra.group);
+    Stats.(statsVariable).Table.Data = cat(1,data.Blank_SAP.RH.contra.(statsVariable),data.SSP_SAP.RH.contra.(statsVariable));
+    Stats.(statsVariable).FitFormula = 'Data ~ 1 + Group + (1|AnimalID)';
+    Stats.(statsVariable).Stats = fitglme(Stats.(statsVariable).Table,Stats.(statsVariable).FitFormula);
+end
+% statistical diary
+if saveFigs == true
+    % statistical diary
+    diaryFile = [dirpath 'StimEvoked_Ephys_Statistics.txt'];
+    if exist(diaryFile,'file') == 2
+        delete(diaryFile)
     end
-    set(gca,'box','off')
-    xlim([-2,10])
-    axis square
-end
-linkaxes(cx)
-% figure
-groupNames = {'Naive','Blank_SAP','SSP_SAP','Naive','Blank_SAP','SSP_SAP'};
-hemNames = {'LH','LH','LH','RH','RH','RH'};
-figure;
-sgtitle('Ephys contralateral whisker stimlation (LFP)')
-for aa = 1:6
-    subplot(2,3,aa);
-    hemisphere = hemNames{1,aa};
-    groupName = groupNames{1,aa};
-    imagesc(data.(groupName).(hemisphere).contra.mean_T,data.(groupName).(hemisphere).contra.mean_F,data.(groupName).(hemisphere).contra.mean_cortS)
-    title([groupName ' ' hemisphere])
-    ylabel('Freq (Hz)')
-    xlabel('Peri-stimulus time (s)')
-    colorbar
-    caxis([-1,5])
-    set(gca,'Ticklength',[0,0])
-    axis xy
-    set(gca,'box','off')
-    axis square
+    diary(diaryFile)
+    diary on
+    for aa = 1:length(statsVariables)
+        statsVariable = statsVariables{1,aa};
+        disp('======================================================================================================================')
+        disp(['GLME statistics: ' statsVariable])
+        disp('======================================================================================================================')
+        disp(Stats.(statsVariable).Stats)
+        disp('----------------------------------------------------------------------------------------------------------------------')
+    end
+    diary off
 end

@@ -4,15 +4,9 @@ function [Results_PearsonCorr_GCaMP] = AnalyzePearsonCorrelation_GCaMP(animalID,
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %----------------------------------------------------------------------------------------------------------
-modelType = 'Forest';
-params.minTime.Rest = 10;
-params.minTime.Whisk = 7;
-params.minTime.NREM = 30;
-params.minTime.REM = 60;
-% only run analysis for valid animal IDs
-dataLocation = [rootFolder delim 'Data' delim group delim set delim animalID delim 'Bilateral Imaging'];
+dataLocation = [rootFolder delim 'Data' delim group delim set delim animalID delim 'Imaging'];
 cd(dataLocation)
-% character list of all ProcData file IDs
+% character list of ProcData file IDs
 procDataFileStruct = dir('*_ProcData.mat');
 procDataFiles = {procDataFileStruct.name}';
 procDataFileIDs = char(procDataFiles);
@@ -21,53 +15,59 @@ restDataFileStruct = dir('*_RestData.mat');
 restDataFile = {restDataFileStruct.name}';
 restDataFileID = char(restDataFile);
 load(restDataFileID,'-mat')
-% find and load manual baseline event information
+% find and load ManualDecisions struct
 manualBaselineFileStruct = dir('*_ManualBaselineFileList.mat');
 manualBaselineFile = {manualBaselineFileStruct.name}';
 manualBaselineFileID = char(manualBaselineFile);
 load(manualBaselineFileID,'-mat')
-% find and load EventData.mat struct
+% find and load EventData struct
 eventDataFileStruct = dir('*_EventData.mat');
 eventDataFile = {eventDataFileStruct.name}';
 eventDataFileID = char(eventDataFile);
 load(eventDataFileID,'-mat')
-% find and load RestingBaselines.mat strut
+% find and load RestingBaselines strut
 baselineDataFileStruct = dir('*_RestingBaselines.mat');
 baselineDataFile = {baselineDataFileStruct.name}';
 baselineDataFileID = char(baselineDataFile);
 load(baselineDataFileID,'-mat')
-% find and load AsleepData.mat strut
+% find and load SleepData strut
 sleepDataFileStruct = dir('*_SleepData.mat');
 sleepDataFile = {sleepDataFileStruct.name}';
 sleepDataFileID = char(sleepDataFile);
 load(sleepDataFileID,'-mat')
-% find and load Forest_ScoringResults.mat struct
+% find and load Forest_ScoringResults struct
 forestScoringResultsFileID = [animalID '_Forest_ScoringResults.mat'];
 load(forestScoringResultsFileID,'-mat')
+% parameters
+modelType = 'Forest';
+params.minTime.Rest = 10;
+params.minTime.Whisk = 7;
+params.minTime.NREM = 30;
+params.minTime.REM = 60;
 % criteria for whisking
 WhiskCriteria.Fieldname = {'duration','puffDistance'};
 WhiskCriteria.Comparison = {'gt','gt'};
 WhiskCriteria.Value = {5,5};
-WhiskPuffCriteria.Fieldname = {'puffDistance'};
-WhiskPuffCriteria.Comparison = {'gt'};
-WhiskPuffCriteria.Value = {5};
+WhiskStimCriteria.Fieldname = {'puffDistance'};
+WhiskStimCriteria.Comparison = {'gt'};
+WhiskStimCriteria.Value = {5};
 % criteria for resting
 RestCriteria.Fieldname = {'durations'};
 RestCriteria.Comparison = {'gt'};
 RestCriteria.Value = {params.minTime.Rest};
-RestPuffCriteria.Fieldname = {'puffDistances'};
-RestPuffCriteria.Comparison = {'gt'};
-RestPuffCriteria.Value = {5};
+RestStimCriteria.Fieldname = {'stimDistances'};
+RestStimCriteria.Comparison = {'gt'};
+RestStimCriteria.Value = {5};
 % loop variables
-dataTypes = {'HbT','HbO','HbR','GCaMP7s'};
+dataTypes = {'HbT','HbO','HbR','GCaMP'};
 for aa = 1:length(dataTypes)
     dataType = dataTypes{1,aa};
     %% Rest
     clear LH_finalRestData RH_finalRestData fLH_finalRestData fRH_finalRestData LH_ProcRestData RH_ProcRestData fLH_ProcRestData fRH_ProcRestData rest_R rest_fR
-    samplingRate = RestData.(dataType).LH.CBVCamSamplingRate;
+    samplingRate = RestData.(dataType).LH.samplingRate;
     [restLogical] = FilterEvents_IOS(RestData.(dataType).LH,RestCriteria);
-    [puffLogical] = FilterEvents_IOS(RestData.(dataType).LH,RestPuffCriteria);
-    combRestLogical = logical(restLogical.*puffLogical);
+    [stimLogical] = FilterEvents_IOS(RestData.(dataType).LH,RestStimCriteria);
+    combRestLogical = logical(restLogical.*stimLogical);
     restFileIDs = RestData.(dataType).LH.fileIDs(combRestLogical,:);
     restEventTimes = RestData.(dataType).LH.eventTimes(combRestLogical,:);
     restDurations = RestData.(dataType).LH.durations(combRestLogical,:);
@@ -76,8 +76,8 @@ for aa = 1:length(dataTypes)
     % keep only the data that occurs within the manually-approved alert regions
     [LH_finalRestData,~,~,~] = RemoveInvalidData_IOS(LH_RestingData,restFileIDs,restDurations,restEventTimes,ManualDecisions);
     [RH_finalRestData,~,~,~] = RemoveInvalidData_IOS(RH_RestingData,restFileIDs,restDurations,restEventTimes,ManualDecisions);
-    fLH_RestingData = RestData.(dataType).frontalLH.data(combRestLogical,:);
-    fRH_RestingData = RestData.(dataType).frontalRH.data(combRestLogical,:);
+    fLH_RestingData = RestData.(dataType).fLH.data(combRestLogical,:);
+    fRH_RestingData = RestData.(dataType).fRH.data(combRestLogical,:);
     % keep only the data that occurs within the manually-approved alert regions
     [fLH_finalRestData,~,~,~] = RemoveInvalidData_IOS(fLH_RestingData,restFileIDs,restDurations,restEventTimes,ManualDecisions);
     [fRH_finalRestData,~,~,~] = RemoveInvalidData_IOS(fRH_RestingData,restFileIDs,restDurations,restEventTimes,ManualDecisions);
@@ -99,13 +99,13 @@ for aa = 1:length(dataTypes)
         rest_fR(bb,1) = rest_fCC(2,1);
     end
     % save results
-    Results_PearsonCorr_GCaMP.(animalID).(dataType).Rest.R = rest_R;
-    Results_PearsonCorr_GCaMP.(animalID).(dataType).Rest.fR = rest_fR;
+    Results_PearsonCorr_GCaMP.(group).(animalID).(dataType).Rest.R = rest_R;
+    Results_PearsonCorr_GCaMP.(group).(animalID).(dataType).Rest.fR = rest_fR;
     %% Whisk
     clear LH_finalWhiskData RH_finalWhiskData fLH_finalWhiskData fRH_finalWhiskData LH_ProcWhiskData RH_ProcWhiskData fLH_ProcWhiskData fRH_ProcWhiskData whisk_R whisk_fR
     [whiskLogical] = FilterEvents_IOS(EventData.(dataType).LH.whisk,WhiskCriteria);
-    [puffLogical] = FilterEvents_IOS(EventData.(dataType).LH.whisk,WhiskPuffCriteria);
-    combWhiskLogical = logical(whiskLogical.*puffLogical);
+    [stimLogical] = FilterEvents_IOS(EventData.(dataType).LH.whisk,WhiskStimCriteria);
+    combWhiskLogical = logical(whiskLogical.*stimLogical);
     whiskFileIDs = EventData.(dataType).LH.whisk.fileIDs(combWhiskLogical,:);
     whiskEventTimes = EventData.(dataType).LH.whisk.eventTime(combWhiskLogical,:);
     whiskDurations = EventData.(dataType).LH.whisk.duration(combWhiskLogical,:);
@@ -114,8 +114,8 @@ for aa = 1:length(dataTypes)
     % keep only the data that occurs within the manually-approved alert regions
     [LH_finalWhiskData,~,~,~] = RemoveInvalidData_IOS(LH_whiskData,whiskFileIDs,whiskDurations,whiskEventTimes,ManualDecisions);
     [RH_finalWhiskData,~,~,~] = RemoveInvalidData_IOS(RH_whiskData,whiskFileIDs,whiskDurations,whiskEventTimes,ManualDecisions);
-    fLH_whiskData = EventData.(dataType).frontalLH.whisk.data(combWhiskLogical,:);
-    fRH_whiskData = EventData.(dataType).frontalRH.whisk.data(combWhiskLogical,:);
+    fLH_whiskData = EventData.(dataType).fLH.whisk.data(combWhiskLogical,:);
+    fRH_whiskData = EventData.(dataType).fRH.whisk.data(combWhiskLogical,:);
     % keep only the data that occurs within the manually-approved alert regions
     [fLH_finalWhiskData,~,~,~] = RemoveInvalidData_IOS(fLH_whiskData,whiskFileIDs,whiskDurations,whiskEventTimes,ManualDecisions);
     [fRH_finalWhiskData,~,~,~] = RemoveInvalidData_IOS(fRH_whiskData,whiskFileIDs,whiskDurations,whiskEventTimes,ManualDecisions);
@@ -134,28 +134,30 @@ for aa = 1:length(dataTypes)
         whisk_fR(bb,1) = whisk_fCC(2,1);
     end
     % save results
-    Results_PearsonCorr_GCaMP.(animalID).(dataType).Whisk.R = whisk_R;
-    Results_PearsonCorr_GCaMP.(animalID).(dataType).Whisk.fR = whisk_fR;
+    Results_PearsonCorr_GCaMP.(group).(animalID).(dataType).Whisk.R = whisk_R;
+    Results_PearsonCorr_GCaMP.(group).(animalID).(dataType).Whisk.fR = whisk_fR;
     %% Alert
     clear LH_AlertData RH_AlertData LH_ProcAlertData RH_ProcAlertData fLH_AlertData fRH_AlertData fLH_ProcAlertData fRH_ProcAlertData alert_R alert_fR scoringLabels
+    LH_AlertData = [];
     zz = 1;
     for bb = 1:size(procDataFileIDs,1)
         procDataFileID = procDataFileIDs(bb,:);
+        [~,~,fileID] = GetFileInfo_IOS(procDataFileID);
         for cc = 1:length(ScoringResults.fileIDs)
-            if strcmp(procDataFileID,ScoringResults.fileIDs{cc,1}) == true
+            if strcmp(fileID,ScoringResults.fileIDs{cc,1}) == true
                 scoringLabels = ScoringResults.labels{cc,1};
             end
         end
         % check labels to match arousal state
         if sum(strcmp(scoringLabels,'Not Sleep')) > 144 % 36 bins (180 total) or 3 minutes of aAasleep
             load(procDataFileID,'-mat')
-            puffs = ProcData.data.stimulations.LPadSol;
+            stims = ProcData.data.stimulations.LPadSol;
             % don't include trials with stimulation
-            if isempty(puffs) == true
+            if isempty(stims) == true
                 LH_AlertData{zz,1} = ProcData.data.(dataType).LH;
                 RH_AlertData{zz,1} = ProcData.data.(dataType).RH;
-                fLH_AlertData{zz,1} = ProcData.data.(dataType).frontalLH;
-                fRH_AlertData{zz,1} = ProcData.data.(dataType).frontalRH;
+                fLH_AlertData{zz,1} = ProcData.data.(dataType).fLH;
+                fRH_AlertData{zz,1} = ProcData.data.(dataType).fRH;
                 zz = zz + 1;
             end
         end
@@ -176,33 +178,35 @@ for aa = 1:length(dataTypes)
             alert_fR(bb,1) = alert_fCC(2,1);
         end
         % save results
-        Results_PearsonCorr_GCaMP.(animalID).(dataType).Alert.R = alert_R;
-        Results_PearsonCorr_GCaMP.(animalID).(dataType).Alert.fR = alert_fR;
+        Results_PearsonCorr_GCaMP.(group).(animalID).(dataType).Alert.R = alert_R;
+        Results_PearsonCorr_GCaMP.(group).(animalID).(dataType).Alert.fR = alert_fR;
     else
         % save results
-        Results_PearsonCorr_GCaMP.(animalID).(dataType).Alert.R = [];
-        Results_PearsonCorr_GCaMP.(animalID).(dataType).Alert.fR = [];
+        Results_PearsonCorr_GCaMP.(group).(animalID).(dataType).Alert.R = [];
+        Results_PearsonCorr_GCaMP.(group).(animalID).(dataType).Alert.fR = [];
     end
     %% Asleep
     clear LH_AsleepData RH_AsleepData LH_ProcAsleepData RH_ProcAsleepData fLH_AsleepData fRH_AsleepData fLH_ProcAsleepData fRH_ProcAsleepData asleep_R asleep_fR scoringLabels
+    LH_AsleepData = [];
     zz = 1;
     for bb = 1:size(procDataFileIDs,1)
         procDataFileID = procDataFileIDs(bb,:);
+        [~,~,fileID] = GetFileInfo_IOS(procDataFileID);
         for cc = 1:length(ScoringResults.fileIDs)
-            if strcmp(procDataFileID,ScoringResults.fileIDs{cc,1}) == true
+            if strcmp(fileID,ScoringResults.fileIDs{cc,1}) == true
                 scoringLabels = ScoringResults.labels{cc,1};
             end
         end
         % check labels to match arousal state
         if sum(strcmp(scoringLabels,'Not Sleep')) < 36 % 36 bins (180 total) or 3 minutes of alert
             load(procDataFileID,'-mat')
-            puffs = ProcData.data.stimulations.LPadSol;
+            stims = ProcData.data.stimulations.LPadSol;
             % don't include trials with stimulation
-            if isempty(puffs) == true
+            if isempty(stims) == true
                 LH_AsleepData{zz,1} = ProcData.data.(dataType).LH;
                 RH_AsleepData{zz,1} = ProcData.data.(dataType).RH;
-                fLH_AsleepData{zz,1} = ProcData.data.(dataType).frontalLH;
-                fRH_AsleepData{zz,1} = ProcData.data.(dataType).frontalRH;
+                fLH_AsleepData{zz,1} = ProcData.data.(dataType).fLH;
+                fRH_AsleepData{zz,1} = ProcData.data.(dataType).fRH;
                 zz = zz + 1;
             end
         end
@@ -223,12 +227,12 @@ for aa = 1:length(dataTypes)
             asleep_fR(bb,1) = asleep_fCC(2,1);
         end
         % save results
-        Results_PearsonCorr_GCaMP.(animalID).(dataType).Asleep.R = asleep_R;
-        Results_PearsonCorr_GCaMP.(animalID).(dataType).Asleep.fR = asleep_fR;
+        Results_PearsonCorr_GCaMP.(group).(animalID).(dataType).Asleep.R = asleep_R;
+        Results_PearsonCorr_GCaMP.(group).(animalID).(dataType).Asleep.fR = asleep_fR;
     else
         % save results
-        Results_PearsonCorr_GCaMP.(animalID).(dataType).Asleep.R = [];
-        Results_PearsonCorr_GCaMP.(animalID).(dataType).Asleep.fR = [];
+        Results_PearsonCorr_GCaMP.(group).(animalID).(dataType).Asleep.R = [];
+        Results_PearsonCorr_GCaMP.(group).(animalID).(dataType).Asleep.fR = [];
     end
     %% All
     clear LH_AllData RH_AllData LH_ProcAllData RH_ProcAllData fLH_AllData fRH_AllData fLH_ProcAllData fRH_ProcAllData all_R all_fR
@@ -236,13 +240,13 @@ for aa = 1:length(dataTypes)
     for bb = 1:size(procDataFileIDs,1)
         procDataFileID = procDataFileIDs(bb,:);
         load(procDataFileID,'-mat')
-        puffs = ProcData.data.stimulations.LPadSol;
+        stims = ProcData.data.stimulations.LPadSol;
         % don't include trials with stimulation
-        if isempty(puffs) == true
+        if isempty(stims) == true
             LH_AllData{zz,1} = ProcData.data.(dataType).LH;
             RH_AllData{zz,1} = ProcData.data.(dataType).RH;
-            fLH_AllData{zz,1} = ProcData.data.(dataType).frontalLH;
-            fRH_AllData{zz,1} = ProcData.data.(dataType).frontalRH;
+            fLH_AllData{zz,1} = ProcData.data.(dataType).fLH;
+            fRH_AllData{zz,1} = ProcData.data.(dataType).fRH;
             zz = zz + 1;
         end
     end
@@ -261,14 +265,14 @@ for aa = 1:length(dataTypes)
         all_fR(bb,1) = all_fCC(2,1);
     end
     % save results
-    Results_PearsonCorr_GCaMP.(animalID).(dataType).All.R = all_R;
-    Results_PearsonCorr_GCaMP.(animalID).(dataType).All.fR = all_fR;
+    Results_PearsonCorr_GCaMP.(group).(animalID).(dataType).All.R = all_R;
+    Results_PearsonCorr_GCaMP.(group).(animalID).(dataType).All.fR = all_fR;
     %% NREM
     clear LH_nremData RH_nremData fLH_nremData fRH_nremData nrem_R nrem_fR
     [LH_nremData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.(dataType).LH,SleepData.(modelType).NREM.FileIDs,SleepData.(modelType).NREM.BinTimes);
     [RH_nremData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.(dataType).RH,SleepData.(modelType).NREM.FileIDs,SleepData.(modelType).NREM.BinTimes);
-    [fLH_nremData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.(dataType).frontalLH,SleepData.(modelType).NREM.FileIDs,SleepData.(modelType).NREM.BinTimes);
-    [fRH_nremData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.(dataType).frontalRH,SleepData.(modelType).NREM.FileIDs,SleepData.(modelType).NREM.BinTimes);
+    [fLH_nremData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.(dataType).fLH,SleepData.(modelType).NREM.FileIDs,SleepData.(modelType).NREM.BinTimes);
+    [fRH_nremData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.(dataType).fRH,SleepData.(modelType).NREM.FileIDs,SleepData.(modelType).NREM.BinTimes);
     % filter, detrend, and truncate data to data to minimum length to match events
     for j = 1:length(LH_nremData)
         LH_nremData{j,1} = detrend(filtfilt(sos,g,LH_nremData{j,1}(1:params.minTime.NREM*samplingRate)),'constant');
@@ -284,14 +288,14 @@ for aa = 1:length(dataTypes)
         nrem_fR(bb,1) = nrem_fCC(2,1);
     end
     % save results
-    Results_PearsonCorr_GCaMP.(animalID).(dataType).NREM.R = nrem_R;
-    Results_PearsonCorr_GCaMP.(animalID).(dataType).NREM.fR = nrem_fR;
+    Results_PearsonCorr_GCaMP.(group).(animalID).(dataType).NREM.R = nrem_R;
+    Results_PearsonCorr_GCaMP.(group).(animalID).(dataType).NREM.fR = nrem_fR;
     %% REM
     clear LH_remData RH_remData fLH_remData fRH_remData rem_R rem_fR
     [LH_remData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.(dataType).LH,SleepData.(modelType).REM.FileIDs,SleepData.(modelType).REM.BinTimes);
     [RH_remData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.(dataType).RH,SleepData.(modelType).REM.FileIDs,SleepData.(modelType).REM.BinTimes);
-    [fLH_remData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.(dataType).frontalLH,SleepData.(modelType).REM.FileIDs,SleepData.(modelType).REM.BinTimes);
-    [fRH_remData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.(dataType).frontalRH,SleepData.(modelType).REM.FileIDs,SleepData.(modelType).REM.BinTimes);
+    [fLH_remData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.(dataType).fLH,SleepData.(modelType).REM.FileIDs,SleepData.(modelType).REM.BinTimes);
+    [fRH_remData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.(dataType).fRH,SleepData.(modelType).REM.FileIDs,SleepData.(modelType).REM.BinTimes);
     % filter, detrend, and truncate data to data to minimum length to match events
     for m = 1:length(LH_remData)
         LH_remData{m,1} = detrend(filtfilt(sos,g,LH_remData{m,1}(1:params.minTime.REM*samplingRate)),'constant');
@@ -307,8 +311,8 @@ for aa = 1:length(dataTypes)
         rem_fR(bb,1) = rem_fCC(2,1);
     end
     % save results
-    Results_PearsonCorr_GCaMP.(animalID).(dataType).REM.R = rem_R;
-    Results_PearsonCorr_GCaMP.(animalID).(dataType).REM.fR = rem_fR;
+    Results_PearsonCorr_GCaMP.(group).(animalID).(dataType).REM.R = rem_R;
+    Results_PearsonCorr_GCaMP.(group).(animalID).(dataType).REM.fR = rem_fR;
 end
 % save data
 cd([rootFolder delim 'Results_Turner'])

@@ -13,7 +13,7 @@ disp(['Calculating the resting baselines for the first ' num2str(targetMinutes) 
 % that is greater than 10 seconds.
 RestCriteria.Fieldname = {'durations'};
 RestCriteria.Comparison = {'gt'};
-RestCriteria.Value = {5};
+RestCriteria.Value = {2.5};
 PuffCriteria.Fieldname = {'puffDistances'};
 PuffCriteria.Comparison = {'gt'};
 PuffCriteria.Value = {5};

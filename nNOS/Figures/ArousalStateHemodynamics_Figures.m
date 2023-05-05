@@ -1,4 +1,4 @@
-function [] = ArousalStateHemodynamics_Bilateral_IOS(rootFolder,saveFigs,delim)
+function [] = ArousalStateHemodynamics_Figures(rootFolder,saveFigs,delim)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering

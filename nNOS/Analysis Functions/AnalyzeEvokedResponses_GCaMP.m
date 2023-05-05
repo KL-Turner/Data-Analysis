@@ -4,24 +4,24 @@ function [Results_Evoked_GCaMP] = AnalyzeEvokedResponses_GCaMP(animalID,group,se
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %----------------------------------------------------------------------------------------------------------
-dataLocation = [rootFolder delim 'Data' delim group delim set delim animalID delim 'Bilateral Imaging'];
+dataLocation = [rootFolder delim 'Data' delim group delim set delim animalID delim 'Imaging'];
 cd(dataLocation)
-% find and load EventData.mat struct
+% find and load EventData struct
 eventDataFileStruct = dir('*_EventData.mat');
 eventDataFile = {eventDataFileStruct.name}';
 eventDataFileID = char(eventDataFile);
 load(eventDataFileID,'-mat')
-% find and load manual baseline event information
+% find and load ManualDecisions struct
 manualBaselineFileStruct = dir('*_ManualBaselineFileList.mat');
 manualBaselineFile = {manualBaselineFileStruct.name}';
 manualBaselineFileID = char(manualBaselineFile);
 load(manualBaselineFileID,'-mat')
-% find and load RestingBaselines.mat struct
+% find and load RestingBaselines struct
 baselineDataFileStruct = dir('*_RestingBaselines.mat');
 baselineDataFile = {baselineDataFileStruct.name}';
 baselineDataFileID = char(baselineDataFile);
 load(baselineDataFileID,'-mat')
-% find and load AllSpecStruct.mat struct
+% find and load AllSpecStruct struct
 allSpecStructFileStruct = dir('*_AllSpecStructB.mat');
 allSpecStructFile = {allSpecStructFileStruct.name}';
 allSpecStructFileID = char(allSpecStructFile);
@@ -50,7 +50,7 @@ StimCriteriaC.Comparison = {'equal'};
 stimCriteriaNames = {'stimCriteriaA','stimCriteriaB','stimCriteriaC'};
 % loop variables
 hemispheres = {'LH','RH','fLH','fRH'};
-dataTypes = {'HbT','HbO','HbR','GCaMP7s'};
+dataTypes = {'HbT','HbO','HbR','GCaMP'};
 for aa = 1:length(hemispheres)
     hemisphere = hemispheres{1,aa};
     for bb = 1:length(dataTypes)
@@ -93,8 +93,9 @@ for aa = 1:length(hemispheres)
             end
             meanWhiskData = mean(procWhiskData,1);
             % save results
-            Results_Evoked_GCaMP.(group).(animalID).(hemisphere).Whisk.(whiskCriteriaName).(dataType) = meanWhiskData;
-            Results_Evoked_GCaMP.(group).(animalID).(hemisphere).Whisk.(whiskCriteriaName).timeVector = timeVector;
+            Results_Evoked_GCaMP.(group).(animalID).(hemisphere).Whisk.(whiskCriteriaName).(dataType).indData = procWhiskData;
+            Results_Evoked_GCaMP.(group).(animalID).(hemisphere).Whisk.(whiskCriteriaName).(dataType).mean = meanWhiskData;
+            Results_Evoked_GCaMP.(group).(animalID).(hemisphere).Whisk.(whiskCriteriaName).(dataType).timeVector = timeVector;
         end
         %% stimulation
         for gg = 1:length(stimCriteriaNames)
@@ -132,9 +133,10 @@ for aa = 1:length(hemispheres)
             end
             meanStimData = mean(procStimData,1);
             % save results
-            Results_Evoked_GCaMP.(group).(animalID).(hemisphere).Stim.(solenoid).(dataType) = meanStimData;
-            Results_Evoked_GCaMP.(group).(animalID).(hemisphere).Stim.(solenoid).timeVector = timeVector;
-            Results_Evoked_GCaMP.(group).(animalID).(hemisphere).Stim.(solenoid).count = size(procStimData,1);
+            Results_Evoked_GCaMP.(group).(animalID).(hemisphere).Stim.(solenoid).(dataType).indData = procStimData;
+            Results_Evoked_GCaMP.(group).(animalID).(hemisphere).Stim.(solenoid).(dataType).mean = meanStimData;
+            Results_Evoked_GCaMP.(group).(animalID).(hemisphere).Stim.(solenoid).(dataType).timeVector = timeVector;
+            Results_Evoked_GCaMP.(group).(animalID).(hemisphere).Stim.(solenoid).(dataType).count = size(procStimData,1);
         end
     end
 end

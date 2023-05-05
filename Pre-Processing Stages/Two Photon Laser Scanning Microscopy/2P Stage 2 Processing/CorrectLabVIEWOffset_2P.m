@@ -17,7 +17,7 @@ for a = 1:size(mscanDataFiles,1)
     load(mscanDataFile);
     labviewDataFile = MScanData.notes.labviewFileID;
     load(labviewDataFile)
-    if MScanData.notes.checklist.offsetCorrect == false
+%     if MScanData.notes.checklist.offsetCorrect == false
         disp(['Correcting offset in file number ' num2str(a) ' of ' num2str(size(mscanDataFiles, 1)) '...']); disp(' ');
         [animalID,hem,fileDate,fileID] = GetFileInfo_2P(labviewDataFile);
         imageID = MScanData.notes.imageID;
@@ -208,9 +208,9 @@ for a = 1:size(mscanDataFiles,1)
             savefig(dsVelocity,[dirpath animalID '_' fileID '_' imageID '_' vesselID '_dsVelocityShift']);
             close(dsVelocity)
         end
-    else
-        disp(['Offset in ' mscanDataFile ' and ' labviewDataFile ' has already been corrected. Continuing...']); disp(' ');
-    end
+%     else
+%         disp(['Offset in ' mscanDataFile ' and ' labviewDataFile ' has already been corrected. Continuing...']); disp(' ');
+%     end
 end
 
 end

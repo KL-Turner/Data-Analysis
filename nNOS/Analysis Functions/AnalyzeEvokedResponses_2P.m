@@ -4,19 +4,19 @@ function [Results_Evoked_2P] = AnalyzeEvokedResponses_2P(animalID,group,setName,
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %----------------------------------------------------------------------------------------------------------
-dataLocation = [rootFolder delim 'Data' delim group delim setName delim animalID delim 'Combined Imaging'];
+dataLocation = [rootFolder delim 'Data' delim group delim setName delim animalID delim 'Imaging'];
 cd(dataLocation)
 % find and load EventData.mat struct
 eventDataFileStruct = dir('*_EventData.mat');
 eventDataFile = {eventDataFileStruct.name}';
 eventDataFileID = char(eventDataFile);
 load(eventDataFileID)
-% find and load manual baseline event information
+% find and load ManualDecisions struct
 manualBaselineFileStruct = dir('*_ManualBaselineFileList.mat');
 manualBaselineFile = {manualBaselineFileStruct.name}';
 manualBaselineFileID = char(manualBaselineFile);
 load(manualBaselineFileID)
-% find and load RestingBaselines.mat strut
+% find and load RestingBaselines strut
 baselineDataFileStruct = dir('*_RestingBaselines.mat');
 baselineDataFile = {baselineDataFileStruct.name}';
 baselineDataFileID = char(baselineDataFile);
@@ -45,7 +45,6 @@ StimCriteriaC.Comparison = {'equal'};
 stimCriteriaNames = {'stimCriteriaA','stimCriteriaB','stimCriteriaC'};
 %% whisking
 for qq = 1:length(whiskCriteriaNames)
-    % pull a few necessary numbers from the EventData.mat struct such as trial duration and sampling rate
     samplingRate = 5;
     offset = EventData.vesselDiameter.data.whisk.epoch.offset;
     timeVector = (0:(EventData.vesselDiameter.data.whisk.epoch.duration*samplingRate))/samplingRate - EventData.vesselDiameter.data.whisk.epoch.offset;
@@ -105,13 +104,14 @@ for qq = 1:length(whiskCriteriaNames)
     % take mean/std of each arteriole's whisk-evoked response
     for aa = 1:length(whiskArterioleIDs)
         vID = whiskArterioleIDs{aa,1};
-        meanWhiskEvokedDiam.(vID) = mean(whiskArterioleEvoked.(vID),1)*100;
+        meanWhiskEvokedDiam.(vID) = mean(whiskArterioleEvoked.(vID),1);
         baselineDates = fieldnames(RestingBaselines.manualSelection.vesselDiameter.data.(vID));
         baselineDiameters = [];
         for bb = 1:length(baselineDates)
             baselineDiameters = cat(1,baselineDiameters,RestingBaselines.manualSelection.vesselDiameter.data.(vID).(baselineDates{bb,1}));
         end
         % save results
+        Results_Evoked_2P.(group).(animalID).(vID).Whisk.(whiskCriteriaName).indDiameter = whiskArterioleEvoked.(vID);
         Results_Evoked_2P.(group).(animalID).(vID).Whisk.(whiskCriteriaName).diameter = meanWhiskEvokedDiam.(vID);
         Results_Evoked_2P.(group).(animalID).(vID).Whisk.(whiskCriteriaName).baseline = mean(baselineDiameters);
         Results_Evoked_2P.(group).(animalID).(vID).Whisk.(whiskCriteriaName).timeVector = timeVector;
@@ -178,13 +178,14 @@ for zz = 1:length(stimCriteriaNames)
     % take mean/std of each arteriole's Stim-evoked response
     for aa = 1:length(StimArterioleIDs)
         vID = StimArterioleIDs{aa,1};
-        meanStimEvokedDiam.(vID) = mean(StimArterioleEvoked.(vID),1)*100;
+        meanStimEvokedDiam.(vID) = mean(StimArterioleEvoked.(vID),1);
         baselineDates = fieldnames(RestingBaselines.manualSelection.vesselDiameter.data.(vID));
         baselineDiameters = [];
         for bb = 1:length(baselineDates)
             baselineDiameters = cat(1,baselineDiameters,RestingBaselines.manualSelection.vesselDiameter.data.(vID).(baselineDates{bb,1}));
         end
         % save results
+        Results_Evoked_2P.(group).(animalID).(vID).Stim.(solenoid).indDiameter = StimArterioleEvoked.(vID);
         Results_Evoked_2P.(group).(animalID).(vID).Stim.(solenoid).diameter = meanStimEvokedDiam.(vID);
         Results_Evoked_2P.(group).(animalID).(vID).Stim.(solenoid).baseline = mean(baselineDiameters);
         Results_Evoked_2P.(group).(animalID).(vID).Stim.(solenoid).timeVector = timeVector;

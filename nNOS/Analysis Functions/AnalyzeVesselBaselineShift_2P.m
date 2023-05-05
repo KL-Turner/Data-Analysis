@@ -4,15 +4,15 @@ function [Results_Baseline_2P] = AnalyzeVesselBaselineShift_2P(animalID,group,se
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %----------------------------------------------------------------------------------------------------------
-baseLocation = [rootFolder delim 'Data' delim group delim set delim animalID delim 'Combined Imaging'];
+baseLocation = [rootFolder delim 'Data' delim group delim set delim animalID delim 'Imaging'];
 cd(baseLocation)
-% find and load RestingBaselines.mat strut
+% find and load RestingBaselines strut
 baselineDataFileStruct = dir('*_RestingBaselines.mat');
 baselineDataFile = {baselineDataFileStruct.name}';
 baselineDataFileID = char(baselineDataFile);
 load(baselineDataFileID)
 % cd to data location
-dataLocation = [rootFolder delim 'Data' delim group delim set delim animalID delim 'Isoflurane Trials'];
+dataLocation = [rootFolder delim 'Data' delim group delim set delim animalID delim 'Isoflurane'];
 cd(dataLocation)
 % character list of all MergedData files
 mergedDirectory = dir('*_MergedData.mat');
