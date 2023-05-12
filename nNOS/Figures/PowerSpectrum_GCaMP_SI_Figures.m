@@ -98,7 +98,7 @@ for aa = 1:length(hemispheres)
     for bb = 1:length(dataTypes)
         dataType = dataTypes{1,bb};
         summaryFigure = figure;
-        sgtitle([dataType ' power spectrum [GCaMP SI]'])
+        sgtitle([hemisphere ' ' dataType ' power spectrum [GCaMP SI]'])
         for cc = 1:length(behaviors)
             behavior = behaviors{1,cc};
             subplot(2,3,cc);
@@ -119,7 +119,6 @@ for aa = 1:length(hemispheres)
             set(gca,'box','off')
             axis square
         end
-        linkaxes
         % save figure(s)
         if saveFigs == true
             dirpath = [rootFolder delim 'Summary Figures' delim 'Power Spectrum' delim];

@@ -34,11 +34,11 @@ for aa = 1:length(groups)
                         end
                     end
                 end
-                data.(group).(hemisphere).(whiskType).HbT = cat(1,data.(group).(hemisphere).(whiskType).HbT,Results_Evoked_GCaMP.(group).(animalID).(hemisphere).Whisk.(whiskType).HbT);
-                data.(group).(hemisphere).(whiskType).HbO = cat(1,data.(group).(hemisphere).(whiskType).HbO,Results_Evoked_GCaMP.(group).(animalID).(hemisphere).Whisk.(whiskType).HbO);
-                data.(group).(hemisphere).(whiskType).HbR = cat(1,data.(group).(hemisphere).(whiskType).HbR,Results_Evoked_GCaMP.(group).(animalID).(hemisphere).Whisk.(whiskType).HbR);
-                data.(group).(hemisphere).(whiskType).GCaMP = cat(1,data.(group).(hemisphere).(whiskType).GCaMP,Results_Evoked_GCaMP.(group).(animalID).(hemisphere).Whisk.(whiskType).GCaMP*100);
-                data.(group).(hemisphere).(whiskType).timeVector = cat(1,data.(group).(hemisphere).(whiskType).timeVector,Results_Evoked_GCaMP.(group).(animalID).(hemisphere).Whisk.(whiskType).timeVector);
+                data.(group).(hemisphere).(whiskType).HbT = cat(1,data.(group).(hemisphere).(whiskType).HbT,Results_Evoked_GCaMP.(group).(animalID).(hemisphere).Whisk.(whiskType).HbT.mean);
+                data.(group).(hemisphere).(whiskType).HbO = cat(1,data.(group).(hemisphere).(whiskType).HbO,Results_Evoked_GCaMP.(group).(animalID).(hemisphere).Whisk.(whiskType).HbO.mean);
+                data.(group).(hemisphere).(whiskType).HbR = cat(1,data.(group).(hemisphere).(whiskType).HbR,Results_Evoked_GCaMP.(group).(animalID).(hemisphere).Whisk.(whiskType).HbR.mean);
+                data.(group).(hemisphere).(whiskType).GCaMP = cat(1,data.(group).(hemisphere).(whiskType).GCaMP,Results_Evoked_GCaMP.(group).(animalID).(hemisphere).Whisk.(whiskType).GCaMP.mean*100);
+                data.(group).(hemisphere).(whiskType).timeVector = cat(1,data.(group).(hemisphere).(whiskType).timeVector,Results_Evoked_GCaMP.(group).(animalID).(hemisphere).Whisk.(whiskType).HbT.timeVector);
                 data.(group).(hemisphere).(whiskType).group = cat(1,data.(group).(hemisphere).(whiskType).group,group);
                 data.(group).(hemisphere).(whiskType).animalID = cat(1,data.(group).(hemisphere).(whiskType).animalID,animalID);
             end
@@ -52,7 +52,6 @@ for aa = 1:length(groups)
         hemisphere = hemispheres{1,bb};
         for cc = 1:length(whiskTypes)
             whiskType = whiskTypes{1,cc};
-            [whiskType] = FindSolenoidComparison(hemisphere,whiskType);
             data.(group).(hemisphere).(whiskType).group = {};
             data.(group).(hemisphere).(whiskType).animalID = {};
             for dd = 1:length(dataTypes)
@@ -98,7 +97,7 @@ for aa = 1:length(hemispheres)
             p2 = plot(data.SSP_SAP.(hemisphere).(whiskType).mean_timeVector,data.SSP_SAP.(hemisphere).(whiskType).(['mean_' dataType]),'color',colors('electric purple'),'LineWidth',2);
             plot(data.SSP_SAP.(hemisphere).(whiskType).mean_timeVector,data.SSP_SAP.(hemisphere).(whiskType).(['mean_' dataType]) + data.SSP_SAP.(hemisphere).(whiskType).(['stdErr_' dataType]),'color',colors('electric purple'),'LineWidth',0.25)
             plot(data.SSP_SAP.(hemisphere).(whiskType).mean_timeVector,data.SSP_SAP.(hemisphere).(whiskType).(['mean_' dataType]) - data.SSP_SAP.(hemisphere).(whiskType).(['stdErr_' dataType]),'color',colors('electric purple'),'LineWidth',0.25)
-            title([hemisphere ' ' dataType])
+            title(whiskType)
             if strcmp(dataType,'GCaMP') == true
                 label = '\DeltaF/F (%)';
             else

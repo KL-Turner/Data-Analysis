@@ -117,12 +117,11 @@ for aa = 1:length(hemispheres)
             title(behavior)
             xlim(xlimits{1,cc})
             if cc == 1
-                legend([p1,p2,p3],'Naive','Blank-SAP''SSP-SAP')
+                legend([p1,p2,p3],'Naive','Blank-SAP','SSP-SAP')
             end
             set(gca,'box','off')
             axis square
         end
-        linkaxes
         % save figure(s)
         if saveFigs == true
             dirpath = [rootFolder delim 'Summary Figures' delim 'Power Spectrum' delim];

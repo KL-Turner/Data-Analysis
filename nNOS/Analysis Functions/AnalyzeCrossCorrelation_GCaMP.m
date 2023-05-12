@@ -54,8 +54,8 @@ for aa = 1:length(hemispheres)
         dataType = dataTypes{1,qq};
         % lowpass filter
         samplingRate = RestData.(dataType).(hemisphere).samplingRate;
-        % [z,p,k] = butter(4,1/(samplingRate/2),'low');
-        % [sos,g] = zp2sos(z,p,k);
+        [z,p,k] = butter(4,1/(samplingRate/2),'low');
+        [sos,g] = zp2sos(z,p,k);
         lagTime = 5;
         maxLag = lagTime*samplingRate;
         %% Rest
@@ -72,8 +72,8 @@ for aa = 1:length(hemispheres)
         [restFinalRestNeuralData,~,~,~] = RemoveInvalidData_IOS(restingNeuralData,restFileIDs,restDurations,restEventTimes,ManualDecisions);
         % check whether the event occurs in the appropriate time frame
         for mm =  1:length(restFinalRestNeuralData)
-            restFiltHbT{mm,1} = detrend(restFinalRestHbTData{mm,1},'constant');
-            restFiltNeural{mm,1} = detrend(restFinalRestNeuralData{mm,1},'constant');
+            restFiltHbT{mm,1} = filtfilt(sos,g,detrend(restFinalRestHbTData{mm,1},'constant'));
+            restFiltNeural{mm,1} = filtfilt(sos,g,detrend(restFinalRestNeuralData{mm,1},'constant'));
         end
         % only take the first 10 seconds of the epoch. occassionally a sample gets lost from rounding during the
         % original epoch create so we can add a sample of two back to the end for those just under 10 seconds
@@ -110,10 +110,8 @@ for aa = 1:length(hemispheres)
                 end
                 % don't include trials with stimulation
                 if isempty(puffs) == true
-                    % alertHbT{zz,1} = filtfilt(sos,g,detrend(ProcData.data.(dataType).(hemisphere){bb,1}),'constant');
-                    % alertNeural{zz,1} = filtfilt(sos,g,detrend(ProcData.data.cortical_LH.(dataType){bb,1}),'constant');
-                    alertHbT{zz,1} = detrend(ProcData.data.(dataType).(hemisphere),'constant');
-                    alertNeural{zz,1} = detrend(ProcData.data.GCaMP.(hemisphere),'constant');
+                    alertHbT{zz,1} = filtfilt(sos,g,detrend(ProcData.data.(dataType).(hemisphere),'constant'));
+                    alertNeural{zz,1} = filtfilt(sos,g,detrend(ProcData.data.GCaMP.(hemisphere),'constant'));
                     zz = zz + 1;
                 end
             end
@@ -158,10 +156,8 @@ for aa = 1:length(hemispheres)
                 % don't include trials with stimulation
                 if isempty(puffs) == true
                     % load in HbT from asleep period
-                    % asleepHbT{zz,1} = filtfilt(sos,g,detrend(ProcData.data.(dataType).(hemisphere){bb,1)},'constant');
-                    % asleepNeural{zz,1} = filtfilt(sos,g,detrend(ProcData.data.cortical_LH.(dataType){bb,1}),'constant');
-                    asleepHbT{zz,1} = detrend(ProcData.data.(dataType).(hemisphere),'constant');
-                    asleepNeural{zz,1} = detrend(ProcData.data.GCaMP.(hemisphere),'constant');
+                    asleepHbT{zz,1} = filtfilt(sos,g,detrend(ProcData.data.(dataType).(hemisphere),'constant'));
+                    asleepNeural{zz,1} = filtfilt(sos,g,detrend(ProcData.data.GCaMP.(hemisphere),'constant'));
                     zz = zz + 1;
                 end
             end
@@ -195,10 +191,8 @@ for aa = 1:length(hemispheres)
             end
             % don't include trials with stimulation
             if isempty(puffs) == true
-                % allHbT{zz,1} = filtfilt(sos,g,detrend(ProcData.data.(dataType).(hemisphere){bb,1}),'constant');
-                % allNeural{zz,1} = filtfilt(sos,gdetrend(ProcData.data.cortical_LH.(dataType){bb,1}),'constant');
-                allHbT{zz,1} = detrend(ProcData.data.(dataType).(hemisphere),'constant');
-                allNeural{zz,1} = detrend(ProcData.data.GCaMP.(hemisphere),'constant');
+                allHbT{zz,1} = filtfilt(sos,g,detrend(ProcData.data.(dataType).(hemisphere),'constant'));
+                allNeural{zz,1} = filtfilt(sos,g,detrend(ProcData.data.GCaMP.(hemisphere),'constant'));
                 zz = zz + 1;
             end
         end
@@ -223,10 +217,8 @@ for aa = 1:length(hemispheres)
         [NREM_finalNeural,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.GCaMP.(hemisphere),SleepData.(modelType).NREM.FileIDs,SleepData.(modelType).NREM.BinTimes);
         % adjust[HbT] and Neural events to match the edits made to the length of each spectrogram
         for mm = 1:length(NREM_finalHbT)
-            % NREM_finalHbTVals{mm,1} = filtfilt(sos,g,detrend(NREM_finalHbT,'constant'));
-            % NREM_finalNeuralVals{mm,1} = filtfilt(sos,g,detrend(NREM_finalNeural,'constant'));
-            NREM_finalHbTVals{mm,1} = detrend(NREM_finalHbT{mm,1},'constant');
-            NREM_finalNeuralVals{mm,1} = detrend(NREM_finalNeural{mm,1},'constant');
+            NREM_finalHbTVals{mm,1} = filtfilt(sos,g,detrend(NREM_finalHbT{mm,1},'constant'));
+            NREM_finalNeuralVals{mm,1} = filtfilt(sos,g,detrend(NREM_finalNeural{mm,1},'constant'));
         end
         % run cross-correlation analysis - average through time
         for nn = 1:length(NREM_finalHbTVals)
@@ -243,10 +235,8 @@ for aa = 1:length(hemispheres)
         [REM_finalNeural,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.GCaMP.(hemisphere),SleepData.(modelType).REM.FileIDs,SleepData.(modelType).REM.BinTimes);
         % adjust[HbT] and Neural events to match the edits made to the length of each spectrogram
         for mm = 1:length(REM_finalHbT)
-            % REM_finalHbTVals{mm,1} = filtfilt(sos,g,detrend(REM_finalHbT,'constant'));
-            % REM_finalNeuralVals{mm,1} = filtfilt(sos,g,detrend(REM_finalNeural,'constant'));
-            REM_finalHbTVals{mm,1} = detrend(REM_finalHbT{mm,1},'constant');
-            REM_finalNeuralVals{mm,1} = detrend(REM_finalNeural{mm,1},'constant');
+            REM_finalHbTVals{mm,1} = filtfilt(sos,g,detrend(REM_finalHbT{mm,1},'constant'));
+            REM_finalNeuralVals{mm,1} = filtfilt(sos,g,detrend(REM_finalNeural{mm,1},'constant'));
         end
         % run cross-correlation analysis - average through time
         for nn = 1:length(REM_finalHbTVals)

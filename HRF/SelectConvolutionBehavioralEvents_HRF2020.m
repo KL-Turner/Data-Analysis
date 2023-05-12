@@ -40,7 +40,7 @@ elseif length(FName)~=length(Val)
 end
 
 if strcmp(behavior,'Contra')
-    if strcmp(hemisphere,'cortLH') == true || strcmp(hemisphere,'hippLH') == true
+    if strcmp(hemisphere,'LH') == true
         for a = 1:length(DataStruct.solenoidName)
             if strcmp(DataStruct.solenoidName{a,1},'LPadSol')
                 DataStruct.Name{a,1} = 'Ipsi';
@@ -50,7 +50,7 @@ if strcmp(behavior,'Contra')
                 DataStruct.Name{a,1} = 'Control';
             end
         end
-    elseif strcmp(hemisphere,'cortRH')
+    elseif strcmp(hemisphere,'RH')
         for a = 1:length(DataStruct.solenoidName)
             if strcmp(DataStruct.solenoidName{a,1},'RPadSol')
                 DataStruct.Name{a,1} = 'Ipsi';

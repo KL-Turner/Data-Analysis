@@ -65,10 +65,10 @@ Stats.Comp.Stats = fitglme(Stats.Comp.Table,Stats.Comp.FitFormula);
 % indeces for scatter plot
 C57_LH_inds = ones(length(data.Naive.LH),1)*1;
 C57_RH_inds = ones(length(data.Naive.RH),1)*2;
-SSP_LH_inds = ones(length(data.SSP_SAP.LH),1)*3;
-SSP_RH_inds = ones(length(data.SSP_SAP.RH),1)*4;
-Blank_LH_inds = ones(length(data.Blank_SAP.LH),1)*5;
-Blank_RH_inds = ones(length(data.Blank_SAP.RH),1)*6;
+Blank_LH_inds = ones(length(data.Blank_SAP.LH),1)*3;
+Blank_RH_inds = ones(length(data.Blank_SAP.RH),1)*4;
+SSP_LH_inds = ones(length(data.SSP_SAP.LH),1)*5;
+SSP_RH_inds = ones(length(data.SSP_SAP.RH),1)*6;
 % cell counting figure
 summaryFigure = figure;
 b1 = bar(1,data.Naive.LH_Mean,'FaceColor',colors('sapphire'));
@@ -81,19 +81,9 @@ for aa = 1:length(data.Naive.LH)
     scatter(x(1),y(1),150,'MarkerEdgeColor','k','MarkerFaceColor',colors('sapphire'),'jitter','off', 'jitterAmount',0.25)
     scatter(x(2),y(2),150,'MarkerEdgeColor','k','MarkerFaceColor',colors('sapphire'),'jitter','off', 'jitterAmount',0.25)
 end
-% SSP-SAP - plot each data point, connect L/R hemispheres
-b2 = bar(3,data.SSP_SAP.LH_Mean,'FaceColor',colors('electric purple'));
-bar(4,data.SSP_SAP.RH_Mean,'FaceColor',colors('electric purple'))
-for aa = 1:length(data.SSP_SAP.LH)
-    x = [SSP_LH_inds(aa,1),SSP_RH_inds(aa,1)];
-    y = [data.SSP_SAP.LH(aa,1),data.SSP_SAP.RH(aa,1)];
-    plot(x,y,'-k')
-    scatter(x(1),y(1),150,'MarkerEdgeColor','k','MarkerFaceColor',colors('electric purple'),'jitter','off', 'jitterAmount',0.25)
-    scatter(x(2),y(2),150,'MarkerEdgeColor','k','MarkerFaceColor',colors('electric purple'),'jitter','off', 'jitterAmount',0.25)
-end
 % Blank-SAP - plot each data point, connect L/R hemispheres
-b3 = bar(5,data.Blank_SAP.LH_Mean,'FaceColor',colors('north texas green'));
-bar(6,data.Blank_SAP.LH_Mean,'FaceColor',colors('north texas green'))
+b2 = bar(3,data.Blank_SAP.LH_Mean,'FaceColor',colors('north texas green'));
+bar(4,data.Blank_SAP.LH_Mean,'FaceColor',colors('north texas green'))
 for aa = 1:length(data.Blank_SAP.LH)
     x = [Blank_LH_inds(aa,1),Blank_RH_inds(aa,1)];
     y = [data.Blank_SAP.LH(aa,1),data.Blank_SAP.RH(aa,1)];
@@ -101,9 +91,19 @@ for aa = 1:length(data.Blank_SAP.LH)
     scatter(x(1),y(1),150,'MarkerEdgeColor','k','MarkerFaceColor',colors('north texas green'),'jitter','off', 'jitterAmount',0.25)
     scatter(x(2),y(2),150,'MarkerEdgeColor','k','MarkerFaceColor',colors('north texas green'),'jitter','off', 'jitterAmount',0.25)
 end
+% SSP-SAP - plot each data point, connect L/R hemispheres
+b3 = bar(5,data.SSP_SAP.LH_Mean,'FaceColor',colors('electric purple'));
+bar(6,data.SSP_SAP.RH_Mean,'FaceColor',colors('electric purple'))
+for aa = 1:length(data.SSP_SAP.LH)
+    x = [SSP_LH_inds(aa,1),SSP_RH_inds(aa,1)];
+    y = [data.SSP_SAP.LH(aa,1),data.SSP_SAP.RH(aa,1)];
+    plot(x,y,'-k')
+    scatter(x(1),y(1),150,'MarkerEdgeColor','k','MarkerFaceColor',colors('electric purple'),'jitter','off', 'jitterAmount',0.25)
+    scatter(x(2),y(2),150,'MarkerEdgeColor','k','MarkerFaceColor',colors('electric purple'),'jitter','off', 'jitterAmount',0.25)
+end
 % figure characteristics
 ylabel('Cells/mm^3 ')
-legend([b1,b2,b3],'Naive','SSP-SAP','Blank-SAP')
+legend([b1,b2,b3],'Naive','Blank-SAP','SSP-SAP')
 set(gca,'xtick',[1,2,3,4,5,6])
 set(gca,'xticklabel',{'LH','RH','LH','RH (Rx)','LH','RH (Rx)'})
 xtickangle(45)

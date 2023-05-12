@@ -100,7 +100,7 @@ for aa = 1:length(hemispheres)
     for gg = 1:size(finalWhiskData,1)
         procWhiskData_temp = filtfilt(sos,g,finalWhiskData(gg,:));
         procWhiskData(gg,:) = procWhiskData_temp - mean(procWhiskData_temp(1:params.Offset*samplingRate));
-        indWhisk{gg,1} = procWhiskData(gg,1);
+        indWhisk{gg,1} = procWhiskData(gg,:);
         whiskMean{gg,1} = mean(procWhiskData(gg,params.Offset*samplingRate:params.minTime.Whisk*samplingRate),2);
     end
     % save results
@@ -123,7 +123,7 @@ for aa = 1:length(hemispheres)
     for gg = 1:size(finalStimData,1)
         procStimData_temp = filtfilt(sos,g,finalStimData(gg,:));
         procStimData(gg,:) = procStimData_temp - mean(procStimData_temp(1:params.Offset*samplingRate));
-        indStim{gg,1} = procStimData(gg,1);
+        indStim{gg,1} = procStimData(gg,:);
         stimMean{gg,1} = mean(procStimData(gg,(params.Offset + 1)*samplingRate:params.minTime.Stim*samplingRate),2);
     end
     % save results
@@ -162,11 +162,11 @@ for aa = 1:length(hemispheres)
         isoData = ProcData.data.CBV_HbT.(hemisphere)((end - samplingRate*100):end);
         filtIsoData = filtfilt(sos,g,isoData);
         % save results
-        Results_IntSig_Ephys.(group).(animalID).(hemisphere).Iso.indHbT = filtIsoData;
+        Results_IntSig_Ephys.(group).(animalID).(hemisphere).Iso.indHbT{1,1} = filtIsoData;
         Results_IntSig_Ephys.(group).(animalID).(hemisphere).Iso.HbT = mean(filtIsoData);
     catch
         % save results
-        Results_IntSig_Ephys.(group).(animalID).(hemisphere).Iso.indHbT = [];
+        Results_IntSig_Ephys.(group).(animalID).(hemisphere).Iso.indHbT = {};
         Results_IntSig_Ephys.(group).(animalID).(hemisphere).Iso.HbT = [];
     end
     cd(dataLocation)

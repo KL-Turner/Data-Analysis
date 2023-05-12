@@ -89,10 +89,10 @@ end
 comparisons = {'ipsi','contra','aud'};
 for aa = 1:length(hemispheres)
     hemisphere = hemispheres{1,aa};
+    summaryFigure = figure;
+    sgtitle([hemisphere '  whisker stimlation (HbT) [Ephys]'])
     for bb = 1:length(comparisons)
         comparison = comparisons{1,bb};
-        summaryFigure = figure;
-        sgtitle([hemisphere ' ' comparison '  whisker stimlation (HbT) [Ephys]'])
         dataType = 'HbT';
         subplot(1,3,bb)
         p1 = plot(data.Naive.(hemisphere).(comparison).mean_timeVector,data.Naive.(hemisphere).(comparison).(['mean_' dataType]),'color',colors('sapphire'),'LineWidth',2);
@@ -105,24 +105,25 @@ for aa = 1:length(hemispheres)
         p3 = plot(data.SSP_SAP.(hemisphere).(comparison).mean_timeVector,data.SSP_SAP.(hemisphere).(comparison).(['mean_' dataType]),'color',colors('electric purple'),'LineWidth',2);
         plot(data.SSP_SAP.(hemisphere).(comparison).mean_timeVector,data.SSP_SAP.(hemisphere).(comparison).(['mean_' dataType]) + data.SSP_SAP.(hemisphere).(comparison).(['stdErr_' dataType]),'color',colors('electric purple'),'LineWidth',0.25)
         plot(data.SSP_SAP.(hemisphere).(comparison).mean_timeVector,data.SSP_SAP.(hemisphere).(comparison).(['mean_' dataType]) - data.SSP_SAP.(hemisphere).(comparison).(['stdErr_' dataType]),'color',colors('electric purple'),'LineWidth',0.25)
-        title([hemisphere ' ' dataType])
+        title(comparison)
         label = '\DeltaHbT (\muM)';
         ylabel(label)
         xlabel('Peri-stimulus time (s)')
-        if aa == 1
+        if bb == 1
             legend([p1,p2,p3],'Naive','Blank-SAP','SSP-SAP')
         end
         set(gca,'box','off')
         xlim([-2,10])
         axis square
     end
+    linkaxes
     % save figure(s)
     if saveFigs == true
         dirpath = [rootFolder delim 'Summary Figures' delim 'Stimulus Evoked' delim];
         if ~exist(dirpath,'dir')
             mkdir(dirpath);
         end
-        savefig(summaryFigure,[dirpath 'StimEvoked_Ephys_' comparison]);
+        savefig(summaryFigure,[dirpath 'StimEvoked_Ephys_' hemisphere]);
     end
 end
 % figure
@@ -165,10 +166,10 @@ for aa = 1:length(groups)
     group = groups{1,aa};
     for bb = 1:length(hemispheres)
         hemisphere = hemispheres{1,bb};
+        summaryFigure = figure;
+        sgtitle([strrep(group,'_',' ') ' ' hemisphere ' whisker stimlation (LFP) [Ephys]'])
         for cc = 1:length(comparisons)
             comparison = comparisons{1,cc};
-            summaryFigure = figure;
-            sgtitle([group ' ' hemisphere ' ' comparison ' whisker stimlation (LFP) [Ephys]'])
             subplot(1,3,cc);
             imagesc(data.(group).(hemisphere).(comparison).mean_T,data.(group).(hemisphere).(comparison).mean_F,data.(group).(hemisphere).(comparison).mean_cortS)
             title(comparison)
@@ -184,7 +185,7 @@ for aa = 1:length(groups)
         end
         % save figure(s)
         if saveFigs == true
-            savefig(summaryFigure,[dirpath 'StimEvoked_Ephys_LFP_' group '_' hemisphere '_' comparison]);
+            savefig(summaryFigure,[dirpath 'StimEvoked_Ephys_LFP_' group '_' hemisphere]);
         end
     end
 end

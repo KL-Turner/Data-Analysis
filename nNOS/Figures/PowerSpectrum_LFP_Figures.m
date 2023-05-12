@@ -89,7 +89,7 @@ for aa = 1:length(hemispheres)
         L3 = loglog(data.SSP_SAP.(hemisphere).(behavior).mean_f,data.SSP_SAP.(hemisphere).(behavior).mean_S,'color',colors('electric purple'),'LineWidth',2);
         loglog(data.SSP_SAP.(hemisphere).(behavior).mean_f,data.SSP_SAP.(hemisphere).(behavior).mean_S + data.SSP_SAP.(hemisphere).(behavior).stdErr_S,'color',colors('electric purple'),'LineWidth',0.25);
         loglog(data.SSP_SAP.(hemisphere).(behavior).mean_f,data.SSP_SAP.(hemisphere).(behavior).mean_S - data.SSP_SAP.(hemisphere).(behavior).stdErr_S,'color',colors('electric purple'),'LineWidth',0.25);
-        title([hemisphere ' ' behavior])
+        title(behavior)
         ylabel('Power (a.u.)')
         xlabel('Freq (Hz)')
         xlim([1,100])
@@ -106,7 +106,7 @@ for aa = 1:length(hemispheres)
         if ~exist(dirpath,'dir')
             mkdir(dirpath);
         end
-        savefig(summaryFigure,[dirpath 'PowerSpectrum_LFP_Ephys_' hemisphere]);
+        savefig(summaryFigure,[dirpath 'PowerSpectrumLFP_Ephys_' hemisphere]);
     end
 end
 % figure
@@ -146,10 +146,6 @@ for aa = 1:length(hemispheres)
     end
     % save figure(s)
     if saveFigs == true
-        dirpath = [rootFolder delim 'Summary Figures' delim 'Power Spectrum LFP Ephys' delim];
-        if ~exist(dirpath,'dir')
-            mkdir(dirpath);
-        end
         savefig(summaryFigure,[dirpath 'PowerSpectrumLFP_Ephys_' hemisphere '_deltaPower']);
     end
 end

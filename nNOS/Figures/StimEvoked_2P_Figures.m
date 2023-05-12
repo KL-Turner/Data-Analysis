@@ -59,13 +59,13 @@ sgtitle('Whisker stimulation [2P]')
 for aa = 1:length(comparisons)
     comparison = comparisons{1,aa};
     subplot(1,3,aa)
-    p1 = plot(data.Blank_SAP.(comparison).mean_timeVector,data.Blank_SAP.contra.mean_diameter,'color',colors('north texas green'),'LineWidth',2);
+    p1 = plot(data.Blank_SAP.(comparison).mean_timeVector,data.Blank_SAP.(comparison).mean_diameter,'color',colors('north texas green'),'LineWidth',2);
     hold on;
-    plot(data.Blank_SAP.(comparison).mean_timeVector,data.Blank_SAP.(comparison).mean_diameter + data.Blank_SAP.contra.stdErr_diameter,'color',colors('north texas green'),'LineWidth',0.25)
-    plot(data.Blank_SAP.(comparison).mean_timeVector,data.Blank_SAP.(comparison).mean_diameter - data.Blank_SAP.contra.stdErr_diameter,'color',colors('north texas green'),'LineWidth',0.25)
+    plot(data.Blank_SAP.(comparison).mean_timeVector,data.Blank_SAP.(comparison).mean_diameter + data.Blank_SAP.(comparison).stdErr_diameter,'color',colors('north texas green'),'LineWidth',0.25)
+    plot(data.Blank_SAP.(comparison).mean_timeVector,data.Blank_SAP.(comparison).mean_diameter - data.Blank_SAP.(comparison).stdErr_diameter,'color',colors('north texas green'),'LineWidth',0.25)
     p2 = plot(data.SSP_SAP.(comparison).mean_timeVector,data.SSP_SAP.(comparison).mean_diameter,'color',colors('electric purple'),'LineWidth',2);
-    plot(data.SSP_SAP.(comparison).mean_timeVector,data.SSP_SAP.(comparison).mean_diameter + data.SSP_SAP.contra.stdErr_diameter,'color',colors('electric purple'),'LineWidth',0.25)
-    plot(data.SSP_SAP.(comparison).mean_timeVector,data.SSP_SAP.(comparison).mean_diameter - data.SSP_SAP.contra.stdErr_diameter,'color',colors('electric purple'),'LineWidth',0.25)
+    plot(data.SSP_SAP.(comparison).mean_timeVector,data.SSP_SAP.(comparison).mean_diameter + data.SSP_SAP.(comparison).stdErr_diameter,'color',colors('electric purple'),'LineWidth',0.25)
+    plot(data.SSP_SAP.(comparison).mean_timeVector,data.SSP_SAP.(comparison).mean_diameter - data.SSP_SAP.(comparison).stdErr_diameter,'color',colors('electric purple'),'LineWidth',0.25)
     title(comparison)
     ylabel('\DeltaD/D (%)')
     xlabel('Peri-stimulus time (s)')
@@ -73,12 +73,12 @@ for aa = 1:length(comparisons)
     set(gca,'box','off')
     xlim([-2,10])
     axis square
-    % save figure(s)
-    if saveFigs == true
-        dirpath = [rootFolder delim 'Summary Figures' delim 'Stimulus Evoked' delim];
-        if ~exist(dirpath,'dir')
-            mkdir(dirpath);
-        end
-        savefig(summaryFigure,[dirpath 'StimEvoked_2P_Diameter_' comparison]);
+end
+% save figure(s)
+if saveFigs == true
+    dirpath = [rootFolder delim 'Summary Figures' delim 'Stimulus Evoked' delim];
+    if ~exist(dirpath,'dir')
+        mkdir(dirpath);
     end
+    savefig(summaryFigure,[dirpath 'StimEvoked_2P']);
 end

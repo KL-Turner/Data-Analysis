@@ -54,13 +54,13 @@ for zzz = 1:length(hemispheres)
         dataType = dataTypes{1,bbb};
         %% Rest
         samplingRate = RestData.(dataType).LH.samplingRate;
-        [restLogical] = FilterEvents_IOS(RestData.(hemisphere).(dataType),RestCriteria);
-        [puffLogical] = FilterEvents_IOS(RestData.(hemisphere).(dataType),RestPuffCriteria);
+        [restLogical] = FilterEvents_IOS(RestData.(dataType).(hemisphere),RestCriteria);
+        [puffLogical] = FilterEvents_IOS(RestData.(dataType).(hemisphere),RestPuffCriteria);
         combRestLogical = logical(restLogical.*puffLogical);
-        restFileIDs = RestData.(hemisphere).(dataType).fileIDs(combRestLogical,:);
-        restEventTimes = RestData.(hemisphere).(dataType).eventTimes(combRestLogical,:);
-        restDurations = RestData.(hemisphere).(dataType).durations(combRestLogical,:);
-        HbT_RestingData = RestData.(hemisphere).(dataType).data(combRestLogical,:);
+        restFileIDs = RestData.(dataType).(hemisphere).fileIDs(combRestLogical,:);
+        restEventTimes = RestData.(dataType).(hemisphere).eventTimes(combRestLogical,:);
+        restDurations = RestData.(dataType).(hemisphere).durations(combRestLogical,:);
+        HbT_RestingData = RestData.(dataType).(hemisphere).data(combRestLogical,:);
         Neural_RestingData = RestData.GCaMP.(hemisphere).data(combRestLogical,:);
         % keep only the data that occurs within the manually-approved alert regions
         [HbT_finalRestData,~,~,~] = RemoveInvalidData_IOS(HbT_RestingData,restFileIDs,restDurations,restEventTimes,ManualDecisions);
@@ -109,9 +109,10 @@ for zzz = 1:length(hemispheres)
         HbT_AlertData = [];
         for bb = 1:size(procDataFileIDs,1)
             procDataFileID = procDataFileIDs(bb,:);
+            [~,~,fileID] = GetFileInfo_IOS(procDataFileID);
             scoringLabels = [];
             for cc = 1:length(ScoringResults.fileIDs)
-                if strcmp(procDataFileID,ScoringResults.fileIDs{cc,1}) == true
+                if strcmp(fileID,ScoringResults.fileIDs{cc,1}) == true
                     scoringLabels = ScoringResults.labels{cc,1};
                 end
             end
@@ -121,7 +122,7 @@ for zzz = 1:length(hemispheres)
                 puffs = ProcData.data.stimulations.LPadSol;
                 % don't include trials with stimulation
                 if isempty(puffs) == true
-                    HbT_AlertData{zz,1} = ProcData.data.(hemisphere).(dataType);
+                    HbT_AlertData{zz,1} = ProcData.data.(dataType).(hemisphere);
                     Neural_AlertData{zz,1} = ProcData.data.GCaMP.(hemisphere);
                     zz = zz + 1;
                 end
@@ -162,9 +163,10 @@ for zzz = 1:length(hemispheres)
         HbT_AsleepData = [];
         for bb = 1:size(procDataFileIDs,1)
             procDataFileID = procDataFileIDs(bb,:);
+            [~,~,fileID] = GetFileInfo_IOS(procDataFileID);
             scoringLabels = [];
             for cc = 1:length(ScoringResults.fileIDs)
-                if strcmp(procDataFileID,ScoringResults.fileIDs{cc,1}) == true
+                if strcmp(fileID,ScoringResults.fileIDs{cc,1}) == true
                     scoringLabels = ScoringResults.labels{cc,1};
                 end
             end
@@ -174,9 +176,8 @@ for zzz = 1:length(hemispheres)
                 puffs = ProcData.data.stimulations.LPadSol;
                 % don't include trials with stimulation
                 if isempty(puffs) == true
-                    HbT_AsleepData{zz,1} = ProcData.data.(hemisphere).(dataType);
+                    HbT_AsleepData{zz,1} = ProcData.data.(dataType).(hemisphere);
                     Neural_AsleepData{zz,1} = ProcData.data.GCaMP.(hemisphere);
-
                     zz = zz + 1;
                 end
             end
@@ -220,7 +221,7 @@ for zzz = 1:length(hemispheres)
             puffs = ProcData.data.stimulations.LPadSol;
             % don't include trials with stimulation
             if isempty(puffs) == true
-                HbT_AllData{zz,1} = ProcData.data.(hemisphere).(dataType);
+                HbT_AllData{zz,1} = ProcData.data.(dataType).(hemisphere);
                 Neural_AllData{zz,1} = ProcData.data.GCaMP.(hemisphere);
                 zz = zz + 1;
             end
@@ -249,7 +250,7 @@ for zzz = 1:length(hemispheres)
             Results_NeuralHemoCoher_GCaMP.(group).(animalID).(hemisphere).(dataType).All.cErr = cErr_AllUnstimData;
         end
         %% NREM
-        [HbT_nremData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.(hemisphere).(dataType),SleepData.(modelType).NREM.FileIDs,SleepData.(modelType).NREM.BinTimes);
+        [HbT_nremData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.(dataType).(hemisphere),SleepData.(modelType).NREM.FileIDs,SleepData.(modelType).NREM.BinTimes);
         [Neural_nremData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.GCaMP.(hemisphere),SleepData.(modelType).NREM.FileIDs,SleepData.(modelType).NREM.BinTimes);
         % filter, detrend, and truncate data to minimum length to match events
         for ee = 1:length(HbT_nremData)
@@ -273,7 +274,7 @@ for zzz = 1:length(hemispheres)
         Results_NeuralHemoCoher_GCaMP.(group).(animalID).(hemisphere).(dataType).NREM.confC = confC_nrem;
         Results_NeuralHemoCoher_GCaMP.(group).(animalID).(hemisphere).(dataType).NREM.cErr = cErr_nrem;
         %% REM
-        [HbT_remData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.(hemisphere).(dataType),SleepData.(modelType).REM.FileIDs,SleepData.(modelType).REM.BinTimes);
+        [HbT_remData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.(dataType).(hemisphere),SleepData.(modelType).REM.FileIDs,SleepData.(modelType).REM.BinTimes);
         [Neural_remData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.GCaMP.(hemisphere),SleepData.(modelType).REM.FileIDs,SleepData.(modelType).REM.BinTimes);
         % filter, detrend, and truncate data to minimum length to match events
         for gg = 1:length(HbT_remData)

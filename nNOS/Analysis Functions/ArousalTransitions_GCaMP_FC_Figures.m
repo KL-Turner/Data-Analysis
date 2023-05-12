@@ -55,7 +55,7 @@ for aa = 1:length(hemispheres)
                     data.(group).(hemisphere).(transition).(['mean_' dataType]) = mean(data.(group).(hemisphere).(transition).(dataType),3);
                 else
                     data.(group).(hemisphere).(transition).(['mean_' dataType]) = mean(data.(group).(hemisphere).(transition).(dataType),1);
-                    data.(group).(hemisphere).(transition).(['stdErr_' dataType]) = std(data.(group).(hemisphere).(transition).(dataType),1)./sqrt(size(data.(group).(hemisphere).(transition).(dataType),1));
+                    data.(group).(hemisphere).(transition).(['stdErr_' dataType]) = std(data.(group).(hemisphere).(transition).(dataType),0,1)./sqrt(size(data.(group).(hemisphere).(transition).(dataType),1));
                 end
             end
         end

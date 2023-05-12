@@ -12,7 +12,7 @@ cd(rootFolder)
 groups = {'Naive','Blank_SAP','SSP_SAP'};
 hemispheres = {'LH','RH'};
 transitions = {'AWAKEtoNREM','NREMtoAWAKE','NREMtoREM','REMtoAWAKE'};
-dataTypes = {'HbT','EMG','T','F','LH_Cort','RH_Cort','Hip'};
+dataTypes = {'HbT','HbTdiff','EMG','T','F','LH_Cort','RH_Cort','Hip'};
 % extract the analysis results
 for aa = 1:length(groups)
     group = groups{1,aa};
@@ -30,12 +30,14 @@ for aa = 1:length(groups)
                         data.(group).(hemisphere).(transition).(dataType) = [];
                     end
                     % concatenate data across animals
-                    if isempty(Results_Transitions_Ephys.(group).(animalID).(hemisphere).(transition).(dataType)) == false
-                        if any(strcmp(dataType,{'LH_Cort','RH_Cort','Hip'})) == true
-                            data.(group).(hemisphere).(transition).(dataType) = cat(3,data.(group).(hemisphere).(transition).(dataType),Results_Transitions_Ephys.(group).(animalID).(hemisphere).(transition).(dataType)*100);
-                        else
-                            data.(group).(hemisphere).(transition).(dataType) = cat(1,data.(group).(hemisphere).(transition).(dataType),Results_Transitions_Ephys.(group).(animalID).(hemisphere).(transition).(dataType));
-                        end
+                    if any(strcmp(dataType,{'LH_Cort','RH_Cort','Hip'})) == true
+                        data.(group).(hemisphere).(transition).(dataType) = cat(3,data.(group).(hemisphere).(transition).(dataType),Results_Transitions_Ephys.(group).(animalID).(hemisphere).(transition).(dataType)*100);
+                    elseif strcmp(dataType,'HbTdiff') == true
+                        leadHbT = mean(Results_Transitions_Ephys.(group).(animalID).(hemisphere).(transition).HbT(1:750));
+                        lagHbT = mean(Results_Transitions_Ephys.(group).(animalID).(hemisphere).(transition).HbT(1050:end));
+                        data.(group).(hemisphere).(transition).HbTdiff = cat(1,data.(group).(hemisphere).(transition).HbTdiff,leadHbT - lagHbT);
+                    else
+                        data.(group).(hemisphere).(transition).(dataType) = cat(1,data.(group).(hemisphere).(transition).(dataType),Results_Transitions_Ephys.(group).(animalID).(hemisphere).(transition).(dataType));
                     end
                 end
             end
@@ -55,7 +57,8 @@ for aa = 1:length(groups)
                     data.(group).(hemisphere).(transition).(['mean_' dataType]) = mean(data.(group).(hemisphere).(transition).(dataType),3);
                 else
                     data.(group).(hemisphere).(transition).(['mean_' dataType]) = mean(data.(group).(hemisphere).(transition).(dataType),1);
-                    data.(group).(hemisphere).(transition).(['stdErr_' dataType]) = std(data.(group).(hemisphere).(transition).(dataType),1)./sqrt(size(data.(group).(hemisphere).(transition).(dataType),1));
+                    data.(group).(hemisphere).(transition).(['std_' dataType]) = std(data.(group).(hemisphere).(transition).(dataType),0,1);
+                    data.(group).(hemisphere).(transition).(['stdErr_' dataType]) = std(data.(group).(hemisphere).(transition).(dataType),0,1)./sqrt(size(data.(group).(hemisphere).(transition).(dataType),1));
                 end
             end
         end
@@ -290,9 +293,9 @@ for aa = 1:length(groups)
     end
 end
 % figure
-summaryFigure = figure;
 for aa = 1:length(hemispheres)
     hemisphere = hemispheres{1,aa};
+    summaryFigure = figure;
     sgtitle([hemisphere ' arousal-state transitions [Ephys]'])
     %% Awake to NREM
     subplot(2,2,1);
@@ -366,5 +369,58 @@ for aa = 1:length(hemispheres)
     % save figure(s)
     if saveFigs == true
         savefig(summaryFigure,[dirpath 'ArousalTransitions_Ephys_' hemisphere]);
+    end
+end
+% figures
+for aa = 1:length(hemispheres)
+    hemisphere = hemispheres{1,aa};
+    summaryFigure = figure;
+    sgtitle([hemisphere ' HbT difference between each transition']); disp(' ')
+    for bb = 1:length(transitions)
+        transition = transitions{1,bb};
+        subplot(1,4,bb)
+        xInds = ones(1,length(data.Naive.(hemisphere).(transition).HbTdiff));
+        s1 = scatter(xInds*1,data.Naive.(hemisphere).(transition).HbTdiff,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('sapphire'),'jitter','off','jitterAmount',0.25);
+        hold on;
+        e1 = errorbar(1,data.Naive.(hemisphere).(transition).mean_HbTdiff,data.Naive.(hemisphere).(transition).stdErr_HbTdiff,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+        e1.Color = 'black';
+        e1.MarkerSize = 10;
+        e1.CapSize = 10;
+        xInds = ones(1,length(data.Blank_SAP.(hemisphere).(transition).HbTdiff));
+        s2 = scatter(xInds*2,data.Blank_SAP.(hemisphere).(transition).HbTdiff,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('north texas green'),'jitter','off','jitterAmount',0.25);
+        hold on;
+        e2 = errorbar(2,data.Blank_SAP.(hemisphere).(transition).mean_HbTdiff,data.Blank_SAP.(hemisphere).(transition).stdErr_HbTdiff,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+        e2.Color = 'black';
+        e2.MarkerSize = 10;
+        e2.CapSize = 10;
+        xInds = ones(1,length(data.SSP_SAP.(hemisphere).(transition).HbTdiff));
+        s3 = scatter(xInds*3,data.SSP_SAP.(hemisphere).(transition).HbTdiff,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('electric purple'),'jitter','off','jitterAmount',0.25);
+        hold on;
+        e3 = errorbar(3,data.SSP_SAP.(hemisphere).(transition).mean_HbTdiff,data.SSP_SAP.(hemisphere).(transition).stdErr_HbTdiff,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+        e3.Color = 'black';
+        e3.MarkerSize = 10;
+        e3.CapSize = 10;
+        title(transition)
+        ylabel('\Delta[HbT] (\muM)')
+        xlim([0,4])
+        if bb == 1
+            legend([s1,s2,s3],'Naive','Blank-SAP','SSP-SAP')
+        end
+        set(gca,'box','off')
+        set(gca,'xtick',[])
+        axis square
+    end
+    % save figure(s)
+    if saveFigs == true
+        savefig(summaryFigure,[dirpath 'HbTTransition_Ephys_' hemisphere]);
+    end
+end
+% statistics - unpaired ttest
+for aa = 1:length(hemispheres)
+    hemisphere = hemispheres{1,aa};
+    for bb = 1:length(transitions)
+        transition = transitions{1,bb};
+        [stats.(hemisphere).(transition).h,stats.(hemisphere).(transition).p,stats.(hemisphere).(transition).ci,stats.(hemisphere).(transition).stats] = ttest2(data.Blank_SAP.(hemisphere).(transition).HbTdiff,data.SSP_SAP.(hemisphere).(transition).HbTdiff);
+        disp([hemisphere '_' transition ': ' num2str(stats.(hemisphere).(transition).p)])
     end
 end

@@ -1,4 +1,4 @@
-function [] = OpenFieldBehavior_Figures(rootFolder,~,delim)
+function [] = OpenFieldBehavior_Figures(rootFolder,saveFigs,delim)
 %----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -6,5 +6,5 @@ function [] = OpenFieldBehavior_Figures(rootFolder,~,delim)
 %----------------------------------------------------------------------------------------------------------
 path = [rootFolder delim 'Results_Hossain'];
 cd(path)
-plotStatistics()
-bodyparts_heatmap_plot()
+plotStatistics_first5min(rootFolder,saveFigs,delim); % plot the stats for the first 5 minutes
+vectormap_plot(rootFolder,saveFigs,delim) % plot the vector map

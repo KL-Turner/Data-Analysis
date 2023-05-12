@@ -33,9 +33,9 @@ for aa = 1:length(groups)
                         data.(group).(hemisphere).(dataType).(behavior).group = {};
                         data.(group).(hemisphere).(dataType).(behavior).animalID = {};
                     end
-                    if isempty(Results_NeuralHemoCoher_GCaMP.(group).(animalID).(dataType).(hemisphere).(behavior).C) == false
-                        data.(group).(hemisphere).(dataType).(behavior).C = cat(1,data.(group).(hemisphere).(dataType).(behavior).C,Results_NeuralHemoCoher_GCaMP.(group).(animalID).(dataType).(hemisphere).(behavior).C.^2');
-                        data.(group).(hemisphere).(dataType).(behavior).f = cat(1,data.(group).(hemisphere).(dataType).(behavior).f,Results_NeuralHemoCoher_GCaMP.(group).(animalID).(dataType).(hemisphere).(behavior).f);
+                    if isempty(Results_NeuralHemoCoher_GCaMP.(group).(animalID).(hemisphere).(dataType).(behavior).C) == false
+                        data.(group).(hemisphere).(dataType).(behavior).C = cat(1,data.(group).(hemisphere).(dataType).(behavior).C,Results_NeuralHemoCoher_GCaMP.(group).(animalID).(hemisphere).(dataType).(behavior).C.^2');
+                        data.(group).(hemisphere).(dataType).(behavior).f = cat(1,data.(group).(hemisphere).(dataType).(behavior).f,Results_NeuralHemoCoher_GCaMP.(group).(animalID).(hemisphere).(dataType).(behavior).f);
                         data.(group).(hemisphere).(dataType).(behavior).group = cat(1,data.(group).(hemisphere).(dataType).(behavior).group,group);
                         data.(group).(hemisphere).(dataType).(behavior).animalID = cat(1,data.(group).(hemisphere).(dataType).(behavior).animalID,animalID);
                     end

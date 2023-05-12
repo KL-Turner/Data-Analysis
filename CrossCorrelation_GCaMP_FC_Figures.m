@@ -9,7 +9,7 @@ resultsStruct = 'Results_CrossCorr_GCaMP';
 load(resultsStruct);
 cd(rootFolder)
 % loop variables
-groups = {'SSP_SAP','Blank_SAP'};
+groups = {'Blank_SAP','SSP_SAP'};
 hemispheres = {'fLH','fRH'};
 dataTypes = {'HbT','HbO','HbR'};
 behaviors = {'Rest','NREM','REM','Alert','Asleep','All'};
@@ -57,7 +57,6 @@ for aa = 1:length(groups)
     end
 end
 % figure
-xlimits = ({[-5,5],[-10,10],[-10,10],[-30,30],[-30,30],[-30,30]});
 for aa = 1:length(hemispheres)
     hemisphere = hemispheres{1,aa};
     for bb = 1:length(dataTypes)
@@ -76,7 +75,7 @@ for aa = 1:length(hemispheres)
             plot(data.SSP_SAP.(hemisphere).(dataType).(behavior).mean_lags,data.SSP_SAP.(hemisphere).(dataType).(behavior).mean_xcVals - data.SSP_SAP.(hemisphere).(dataType).(behavior).stdErr_xcVals,'color',colors('electric purple'),'LineWidth',0.25);
             ylabel('Corr Coef')
             xlabel('Lags (s)')
-            xlim(xlimits{1,cc})
+            xlim([-5,5])
             title(behavior)
             if cc == 1
                 legend([p1,p2],'Blank-SAP','SSP-SAP')
@@ -84,7 +83,6 @@ for aa = 1:length(hemispheres)
             set(gca,'box','off')
             axis square
         end
-        linkaxes
         % save figure(s)
         if saveFigs == true
             dirpath = [rootFolder delim 'Summary Figures' delim 'Cross Correlation' delim];

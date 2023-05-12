@@ -29,66 +29,70 @@ end
 addpath(genpath(rootFolder))
 runAnalysis = false;
 if runAnalysis == true
-    %     %% evoked responses
-    %     AnalyzeEvokedResponses_Ephys_Handler(rootFolder,delim,false)
-    %     AnalyzeEvokedResponses_GCaMP_Handler(rootFolder,delim,false)
-    %     AnalyzeEvokedResponses_2P_Handler(rootFolder,delim,false)
-    %     AnalyzeEvokedResponses_Pulse_Handler(rootFolder,delim,false)
-    %
-    %     %% HbT, HbO, HbR, GCaMP
-    %     AnalyzeIntrinsicSignals_Ephys_Handler(rootFolder,delim,false)
-    %     AnalyzeIntrinsicSignals_GCaMP_Handler(rootFolder,delim,false)
-    %     AnalyzeHemoGFPRelationship_EGFP_Handler(rootFolder,delim,false)
-    %
-    %     %% arteriole diameter and baseline shift
-    %     AnalyzeArterioleBaseline_2P_Handler(rootFolder,delim,false)
-    %     AnalyzeArterioleDiameter_2P_Handler(rootFolder,delim,false)
-    %
-    %     %% power spectral density
-    %     AnalyzePowerSpectrum_Ephys_Handler(rootFolder,delim,false)
-    %     AnalyzePowerSpectrum_GCaMP_Handler(rootFolder,delim,false)
-    %     AnalyzePowerSpectrum_LFP_Handler(rootFolder,delim,false)
-    %     AnalyzePowerSpectrum_2P_Handler(rootFolder,delim,false)
-    %
-    %     %% coherence between hemipheres
-    %     AnalyzeBilateralCoherence_Ephys_Handler(rootFolder,delim,false)
-    %     AnalyzeBilateralCoherence_GCaMP_Handler(rootFolder,delim,false)
-    %
-    %     %% coherence between neural-hemo
-    AnalyzeNeuralHemoCoherence_Ephys_Handler(rootFolder,delim,true)
-    %     AnalyzeNeuralHemoCoherence_GCaMP_Handler(rootFolder,delim,false)
-    %
-    %     %% Pearson's correlation between hemispheres
-    %     AnalyzePearsonCorrelation_Ephys_Handler(rootFolder,delim,false)
-    %     AnalyzePearsonCorrelation_GCaMP_Handler(rootFolder,delim,false)
-    %
-    %     %% cross correlation between neural-hemo
-    %     % AnalyzeCrossCorrelation_Ephys_Handler(rootFolder,delim,true)
-    %     AnalyzeCrossCorrelation_GCaMP_Handler(rootFolder,delim,false)
-    %
-    %     %% pupil analysis
-    %     AnalyzePupilArea_Ephys_Handler(rootFolder,delim,false)
-    %     AnalyzePupilEvokedResponses_Ephys_Handler(rootFolder,delim,false)
-    %     AnalyzePupilCoherence_Ephys_Handler(rootFolder,delim,false)
-    %     AnalyzePupilCrossCorrelation_Ephys_Handler(rootFolder,delim,false)
-    %     AnalyzePupilInterBlinkInterval_Ephys_Handler(rootFolder,delim,false)
-    %
-    %     %% state probability
-    %     AnalyzeArousalStateProbability_Ephys_Handler(rootFolder,delim,false)
-    %     AnalyzeArousalStateProbability_GCaMP_Handler(rootFolder,delim,false)
-    %
-    %     %% sleep model accuracy
-    %     AnalyzeModelAccuracy_Ephys_Handler(rootFolder,delim,false)
-    %     AnalyzeModelAccuracy_GCaMP_Handler(rootFolder,delim,false)
-    %
-    %     %% quanitification of whisking
-    %     AnalyzeWhiskingBehavior_Ephys_Handler(rootFolder,delim,false)
-    %     AnalyzeWhiskingBehavior_GCaMP_Handler(rootFolder,delim,false)
-    %
-    %     %% arousal state transitions
-    %     AnalyzeArousalTransitions_Ephys_Handler(rootFolder,delim,false)
-    %     AnalyzeArousalTransitions_GCaMP_Handler(rootFolder,delim,false)
+    %% evoked responses
+    AnalyzeEvokedResponses_Ephys_Handler(rootFolder,delim,false)
+    AnalyzeEvokedResponses_GCaMP_Handler(rootFolder,delim,false)
+    AnalyzeEvokedResponses_2P_Handler(rootFolder,delim,false)
+    AnalyzeEvokedResponses_Pulse_Handler(rootFolder,delim,false)
 
+    %% HbT, HbO, HbR, GCaMP
+    AnalyzeIntrinsicSignals_Ephys_Handler(rootFolder,delim,false)
+    AnalyzeIntrinsicSignals_GCaMP_Handler(rootFolder,delim,false)
+    AnalyzeHemoGFPRelationship_EGFP_Handler(rootFolder,delim,false)
+    AnalyzeArousalDerivative_Ephys_Handler(rootFolder,delim,false)
+
+    %% arteriole diameter and baseline shift
+    AnalyzeArterioleBaseline_2P_Handler(rootFolder,delim,false)
+    AnalyzeArterioleDiameter_2P_Handler(rootFolder,delim,false)
+
+    %% power spectral density
+    AnalyzePowerSpectrum_Ephys_Handler(rootFolder,delim,false)
+    AnalyzePowerSpectrum_GCaMP_Handler(rootFolder,delim,false)
+    AnalyzePowerSpectrum_LFP_Handler(rootFolder,delim,false)
+    AnalyzePowerSpectrum_2P_Handler(rootFolder,delim,false)
+
+    %% coherence between hemipheres
+    AnalyzeBilateralCoherence_Ephys_Handler(rootFolder,delim,false)
+    AnalyzeBilateralCoherence_GCaMP_Handler(rootFolder,delim,false)
+
+    %% coherence between neural-hemo
+    AnalyzeNeuralHemoCoherence_Ephys_Handler(rootFolder,delim,false)
+    AnalyzeNeuralHemoCoherence_GCaMP_Handler(rootFolder,delim,false)
+
+    %% hemodynamic response function
+    % AnalyzeHRF_Ephys_Handler(rootFolder,delim,false)
+    % AnalyzeHRF_GCaMP_Handler(rootFolder,delim,false)
+
+    %% Pearson's correlation between hemispheres
+    AnalyzePearsonCorrelation_Ephys_Handler(rootFolder,delim,false)
+    AnalyzePearsonCorrelation_GCaMP_Handler(rootFolder,delim,false)
+
+    %% cross correlation between neural-hemo
+    AnalyzeCrossCorrelation_Ephys_Handler(rootFolder,delim,false)
+    AnalyzeCrossCorrelation_GCaMP_Handler(rootFolder,delim,false)
+
+    %% pupil analysis
+    AnalyzePupilArea_Ephys_Handler(rootFolder,delim,false)
+    AnalyzePupilEvokedResponses_Ephys_Handler(rootFolder,delim,false)
+    AnalyzePupilCoherence_Ephys_Handler(rootFolder,delim,false)
+    AnalyzePupilCrossCorrelation_Ephys_Handler(rootFolder,delim,false)
+    AnalyzePupilInterBlinkInterval_Ephys_Handler(rootFolder,delim,false)
+
+    %% state probability
+    AnalyzeArousalStateProbability_Ephys_Handler(rootFolder,delim,false)
+    AnalyzeArousalStateProbability_GCaMP_Handler(rootFolder,delim,false)
+
+    %% sleep model accuracy
+    AnalyzeModelAccuracy_Ephys_Handler(rootFolder,delim,false)
+    AnalyzeModelAccuracy_GCaMP_Handler(rootFolder,delim,false)
+
+    %% quanitification of whisking
+    AnalyzeWhiskingBehavior_Ephys_Handler(rootFolder,delim,false)
+    AnalyzeWhiskingBehavior_GCaMP_Handler(rootFolder,delim,false)
+
+    %% arousal state transitions
+    AnalyzeArousalTransitions_Ephys_Handler(rootFolder,delim,false)
+    AnalyzeArousalTransitions_GCaMP_Handler(rootFolder,delim,false)
 end
 %{
 Ephys exp are bilateral windows/stereotrodes SIBF @ 568 nm, sleep included
@@ -98,76 +102,81 @@ Open field and fMRI are awake only
 %}
 disp('Loading analysis results and generating figures...'); disp(' ')
 %% Single trial examples - DONE
-SingleTrialExample_Awake_GCaMP_Figures(rootFolder,saveFigs,delim);
-SingleTrialExample_Asleep_GCaMP_Figures(rootFolder,saveFigs,delim);
-
-%% histology, behavior, controls - DONE
+SingleTrialExample_Awake_Ephys_Figures(rootFolder,saveFigs,delim);
+SingleTrialExample_Asleep_Ephys_Figures(rootFolder,saveFigs,delim);
+% SingleTrialExample_Awake_GCaMP_Figures(rootFolder,saveFigs,delim);
+% SingleTrialExample_Asleep_GCaMP_Figures(rootFolder,saveFigs,delim);
+% 
+% %% histology, behavior, controls - DONE
 % DiaphoraseCellCounts_Figures(rootFolder,saveFigs,delim);
 % OpenFieldBehavior_Figures(rootFolder,saveFigs,delim)
 % HemoGFPRelationship_EGFP_Figures(rootFolder,saveFigs,delim)
-
-%% arousal-state probability - DONE
+% ModelAccuracy_Ephys_Figures(rootFolder,saveFigs,delim)
+% ModelAccuracy_GCaMP_Figures(rootFolder,saveFigs,delim)
+% 
+% %% arousal-state probability - DONE
 % ArousalStateProb_Ephys_Figures(rootFolder,saveFigs,delim)
 % ArousalStateProb_GCaMP_Figures(rootFolder,saveFigs,delim)
-
-%% whisking behavior - DONE
+% 
+% %% whisking behavior - DONE
 % WhiskingBehavior_Ephys_Figures(rootFolder,saveFigs,delim);
 % WhiskingBehavior_GCaMP_Figures(rootFolder,saveFigs,delim);
-
-%% pupil size, stimulus evoked response, coherence/XC w/ HbT/gamma - DONE
+% 
+% %% pupil size, stimulus evoked response, coherence/XC w/ HbT/gamma - DONE
 % PupilArea_Ephys_Figures(rootFolder,saveFigs,delim)
 % PupilStimEvoked_Ephys_Figures(rootFolder,saveFigs,delim)
 % PupilCoherence_Ephys_Figures(rootFolder,saveFigs,delim)
 % PupilCrossCorrelation_Ephys_Figures(rootFolder,saveFigs,delim)
 % PupilInterBlinkInterval_Ephys_Figures(rootFolder,saveFigs,delim)
-
-%% arousal-state transitions - DONE
+% 
+% %% arousal-state transitions - DONE - -20:-5 compare to 5:20
 % ArousalTransitions_Ephys_Figures(rootFolder,saveFigs,delim);
 % ArousalTransitions_GCaMP_SI_Figures(rootFolder,saveFigs,delim);
 % ArousalTransitions_GCaMP_FC_Figures(rootFolder,saveFigs,delim);
-
-%% IOS signals (HbT, GCaMP, HbO/R) - DONE
+% 
+% %% IOS signals (HbT, GCaMP, HbO/R) - DONE
 % IntrinsicSignals_Ephys_Figures(rootFolder,saveFigs,delim)
 % IntrinsicSignals_GCaMP_SI_Figures(rootFolder,saveFigs,delim)
 % IntrinsicSignals_GCaMP_FC_Figures(rootFolder,saveFigs,delim)
-
-%% 2p and baseline shift - DONE
+% ArousalDerivative_Ephys_Figures(rootFolder,saveFigs,delim)
+% 
+% %% 2p and baseline shift - DONE
 % ArterioleDiameter_2P_Figures(rootFolder,saveFigs,delim);
 % BaselineShift_2P_Figures(rootFolder,saveFigs,delim);
-
-%% stimulus evoked (HbT, GCaMP, HbO/R, gamma/MUA, 2p diameter, running) - DONE
+% 
+% %% stimulus evoked (HbT, GCaMP, HbO/R, gamma/MUA, 2p diameter, running) - DONE
 % StimEvoked_Ephys_Figures(rootFolder,saveFigs,delim);
 % StimEvoked_GCaMP_SI_Figures(rootFolder,saveFigs,delim);
 % StimEvoked_GCaMP_FC_Figures(rootFolder,saveFigs,delim);
 % StimEvoked_2P_Figures(rootFolder,saveFigs,delim);
 % StimEvoked_Pulse_Figures(rootFolder,saveFigs,delim);
 % RunningSpectroscopy_Figures(rootFolder,saveFigs,delim)
-
-%% whisking evoked (HbT, GCaMP, HbO/R, gamma/MUA, 2p diameter) - DONE
+% 
+% %% whisking evoked (HbT, GCaMP, HbO/R, gamma/MUA, 2p diameter) - DONE
 % VolitionalWhisk_Ephys_Figures(rootFolder,saveFigs,delim);
 % VolitionalWhisk_GCaMP_SI_Figures(rootFolder,saveFigs,delim);
 % VolitionalWhisk_GCaMP_FC_Figures(rootFolder,saveFigs,delim);
 % VolitionalWhisk_2P_Figures(rootFolder,saveFigs,delim);
 % VolitionalWhisk_Pulse_Figures(rootFolder,saveFigs,delim);
-
-%% power spectra (LFP, HbT, GCaMP, HbO/R, gamma, 2p diameter) - DONE
+% 
+% %% power spectra (LFP, HbT, GCaMP, HbO/R, gamma, 2p diameter) - DONE
 % PowerSpectrum_LFP_Figures(rootFolder,saveFigs,delim);
 % PowerSpectrum_Ephys_Figures(rootFolder,saveFigs,delim);
 % PowerSpectrum_GCaMP_SI_Figures(rootFolder,saveFigs,delim);
 % PowerSpectrum_GCaMP_FC_Figures(rootFolder,saveFigs,delim);
 % PowerSpectrum_2P_Figures(rootFolder,saveFigs,delim);
-
-%% bilateral coherence (HbT, GCaMP, HbO/R, gamma) - DONE
+% 
+% %% bilateral coherence (HbT, GCaMP, HbO/R, gamma) - DONE
 % BilateralCoherence_Ephys_Figures(rootFolder,saveFigs,delim)
 % BilateralCoherence_GCaMP_SI_Figures(rootFolder,saveFigs,delim)
 % BilateralCoherence_GCaMP_FC_Figures(rootFolder,saveFigs,delim)
-
-%% Pearson's correlations (HbT, GCaMP, HbO/R, gamma) - DONE
+% 
+% %% Pearson's correlations (HbT, GCaMP, HbO/R, gamma) - DONE
 % PearsonsCorrelation_Ephys_Figures(rootFolder,saveFigs,delim)
 % PearsonsCorrelation_GCaMP_SI_Figures(rootFolder,saveFigs,delim)
 % PearsonsCorrelation_GCaMP_FC_Figures(rootFolder,saveFigs,delim)
-
-%% neural-hemo coherence (HbT, GCaMP, HbO/R, gamma) - DONE
+% 
+% %% neural-hemo coherence (HbT, GCaMP, HbO/R, gamma) - DONE
 % NeuralHemoCoherence_Ephys_Figures(rootFolder,saveFigs,delim)
 % NeuralHemoCoherence_GCaMP_SI_Figures(rootFolder,saveFigs,delim)
 % NeuralHemoCoherence_GCaMP_FC_Figures(rootFolder,saveFigs,delim)
@@ -178,4 +187,4 @@ SingleTrialExample_Asleep_GCaMP_Figures(rootFolder,saveFigs,delim);
 % CrossCorrelation_GCaMP_FC_Figures(rootFolder,saveFigs,delim);
 
 %% BOLD
-% Zhang data TBD
+% Zhang data TBD,

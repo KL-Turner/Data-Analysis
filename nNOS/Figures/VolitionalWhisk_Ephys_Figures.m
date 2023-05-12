@@ -34,13 +34,13 @@ for aa = 1:length(groups)
                         end
                     end
                 end
-                data.(group).(hemisphere).(whiskType).HbT = cat(1,data.(group).(hemisphere).(whiskType).HbT,Results_Evoked_Ephys.(group).(animalID).(hemisphere).Stim.(whiskType).HbT);
-                data.(group).(hemisphere).(whiskType).cortMUA = cat(1,data.(group).(hemisphere).(whiskType).cortMUA,Results_Evoked_Ephys.(group).(animalID).(hemisphere).Stim.(whiskType).cortMUA);
-                data.(group).(hemisphere).(whiskType).cortGam = cat(1,data.(group).(hemisphere).(whiskType).cortGam,Results_Evoked_Ephys.(group).(animalID).(hemisphere).Stim.(whiskType).cortGam);
-                data.(group).(hemisphere).(whiskType).cortS = cat(3,data.(group).(hemisphere).(whiskType).cortS,Results_Evoked_Ephys.(group).(animalID).(hemisphere).Stim.(whiskType).cortLFP);
-                data.(group).(hemisphere).(whiskType).T = cat(1,data.(group).(hemisphere).(whiskType).T,Results_Evoked_Ephys.(group).(animalID).(hemisphere).Stim.(whiskType).T);
-                data.(group).(hemisphere).(whiskType).F = cat(1,data.(group).(hemisphere).(whiskType).F,Results_Evoked_Ephys.(group).(animalID).(hemisphere).Stim.(whiskType).F);
-                data.(group).(hemisphere).(whiskType).timeVector = cat(1,data.(group).(hemisphere).(whiskType).timeVector,Results_Evoked_Ephys.(group).(animalID).(hemisphere).Stim.(whiskType).timeVector);
+                data.(group).(hemisphere).(whiskType).HbT = cat(1,data.(group).(hemisphere).(whiskType).HbT,Results_Evoked_Ephys.(group).(animalID).(hemisphere).Whisk.(whiskType).HbT);
+                data.(group).(hemisphere).(whiskType).cortMUA = cat(1,data.(group).(hemisphere).(whiskType).cortMUA,Results_Evoked_Ephys.(group).(animalID).(hemisphere).Whisk.(whiskType).cortMUA);
+                data.(group).(hemisphere).(whiskType).cortGam = cat(1,data.(group).(hemisphere).(whiskType).cortGam,Results_Evoked_Ephys.(group).(animalID).(hemisphere).Whisk.(whiskType).cortGam);
+                data.(group).(hemisphere).(whiskType).cortS = cat(3,data.(group).(hemisphere).(whiskType).cortS,Results_Evoked_Ephys.(group).(animalID).(hemisphere).Whisk.(whiskType).cortLFP);
+                data.(group).(hemisphere).(whiskType).T = cat(1,data.(group).(hemisphere).(whiskType).T,Results_Evoked_Ephys.(group).(animalID).(hemisphere).Whisk.(whiskType).T);
+                data.(group).(hemisphere).(whiskType).F = cat(1,data.(group).(hemisphere).(whiskType).F,Results_Evoked_Ephys.(group).(animalID).(hemisphere).Whisk.(whiskType).F);
+                data.(group).(hemisphere).(whiskType).timeVector = cat(1,data.(group).(hemisphere).(whiskType).timeVector,Results_Evoked_Ephys.(group).(animalID).(hemisphere).Whisk.(whiskType).timeVector);
                 data.(group).(hemisphere).(whiskType).group = cat(1,data.(group).(hemisphere).(whiskType).group,group);
                 data.(group).(hemisphere).(whiskType).animalID = cat(1,data.(group).(hemisphere).(whiskType).animalID,animalID);
             end
@@ -103,7 +103,7 @@ for aa = 1:length(hemispheres)
         p3 = plot(data.SSP_SAP.(hemisphere).(whiskType).mean_timeVector,data.SSP_SAP.(hemisphere).(whiskType).(['mean_' dataType]),'color',colors('electric purple'),'LineWidth',2);
         plot(data.SSP_SAP.(hemisphere).(whiskType).mean_timeVector,data.SSP_SAP.(hemisphere).(whiskType).(['mean_' dataType]) + data.SSP_SAP.(hemisphere).(whiskType).(['stdErr_' dataType]),'color',colors('electric purple'),'LineWidth',0.25)
         plot(data.SSP_SAP.(hemisphere).(whiskType).mean_timeVector,data.SSP_SAP.(hemisphere).(whiskType).(['mean_' dataType]) - data.SSP_SAP.(hemisphere).(whiskType).(['stdErr_' dataType]),'color',colors('electric purple'),'LineWidth',0.25)
-        title([hemisphere ' ' dataType])
+        title(whiskType)
         label = '\DeltaHbT (\muM)';
         ylabel(label)
         xlabel('Peri-whisk time (s)')
@@ -129,7 +129,7 @@ for aa = 1:length(groups)
     for bb = 1:length(hemispheres)
         hemisphere = hemispheres{1,bb};
         summaryFigure = figure;
-        sgtitle([group ' ' hemisphere ' whisker stimlation (LFP) [Ephys]'])
+        sgtitle([strrep(group,'_',' ') ' ' hemisphere ' whisker stimlation (LFP) [Ephys]'])
         for cc = 1:length(whiskTypes)
             whiskType = whiskTypes{1,cc};
             subplot(1,3,cc);
@@ -139,7 +139,7 @@ for aa = 1:length(groups)
             xlabel('Peri-stimulus time (s)')
             c1 = colorbar;
             ylabel(c1,'\DeltaP/P (%)','rotation',-90,'VerticalAlignment','bottom')
-            caxis([-100,100])
+            caxis([-50,50])
             set(gca,'Ticklength',[0,0])
             axis xy
             set(gca,'box','off')

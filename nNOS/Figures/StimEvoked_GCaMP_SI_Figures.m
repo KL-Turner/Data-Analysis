@@ -34,11 +34,11 @@ for aa = 1:length(groups)
                         end
                     end
                 end
-                data.(group).(hemisphere).(solenoid).HbT = cat(1,data.(group).(hemisphere).(solenoid).HbT,Results_Evoked_GCaMP.(group).(animalID).(hemisphere).Stim.(solenoid).HbT);
-                data.(group).(hemisphere).(solenoid).HbO = cat(1,data.(group).(hemisphere).(solenoid).HbO,Results_Evoked_GCaMP.(group).(animalID).(hemisphere).Stim.(solenoid).HbO);
-                data.(group).(hemisphere).(solenoid).HbR = cat(1,data.(group).(hemisphere).(solenoid).HbR,Results_Evoked_GCaMP.(group).(animalID).(hemisphere).Stim.(solenoid).HbR);
-                data.(group).(hemisphere).(solenoid).GCaMP = cat(1,data.(group).(hemisphere).(solenoid).GCaMP,Results_Evoked_GCaMP.(group).(animalID).(hemisphere).Stim.(solenoid).GCaMP*100);
-                data.(group).(hemisphere).(solenoid).timeVector = cat(1,data.(group).(hemisphere).(solenoid).timeVector,Results_Evoked_GCaMP.(group).(animalID).(hemisphere).Stim.(solenoid).timeVector);
+                data.(group).(hemisphere).(solenoid).HbT = cat(1,data.(group).(hemisphere).(solenoid).HbT,Results_Evoked_GCaMP.(group).(animalID).(hemisphere).Stim.(solenoid).HbT.mean);
+                data.(group).(hemisphere).(solenoid).HbO = cat(1,data.(group).(hemisphere).(solenoid).HbO,Results_Evoked_GCaMP.(group).(animalID).(hemisphere).Stim.(solenoid).HbO.mean);
+                data.(group).(hemisphere).(solenoid).HbR = cat(1,data.(group).(hemisphere).(solenoid).HbR,Results_Evoked_GCaMP.(group).(animalID).(hemisphere).Stim.(solenoid).HbR.mean);
+                data.(group).(hemisphere).(solenoid).GCaMP = cat(1,data.(group).(hemisphere).(solenoid).GCaMP,Results_Evoked_GCaMP.(group).(animalID).(hemisphere).Stim.(solenoid).GCaMP.mean*100);
+                data.(group).(hemisphere).(solenoid).timeVector = cat(1,data.(group).(hemisphere).(solenoid).timeVector,Results_Evoked_GCaMP.(group).(animalID).(hemisphere).Stim.(solenoid).HbT.timeVector);
                 data.(group).(hemisphere).(solenoid).group = cat(1,data.(group).(hemisphere).(solenoid).group,group);
                 data.(group).(hemisphere).(solenoid).animalID = cat(1,data.(group).(hemisphere).(solenoid).animalID,animalID);
             end
@@ -87,10 +87,10 @@ for aa = 1:length(hemispheres)
     hemisphere = hemispheres{1,aa};
     for bb = 1:length(dataTypes)
         dataType = dataTypes{1,bb};
+        summaryFigure = figure;
+        sgtitle([hemisphere ' ' dataType ' whisker stimlation [GCaMP SI]'])
         for cc = 1:length(comparisons)
             comparison = comparisons{1,cc};
-            summaryFigure = figure;
-            sgtitle([hemisphere ' ' dataType ' ' comparison ' whisker stimlation [GCaMP SI]'])
             subplot(1,3,cc);
             p1 = plot(data.Blank_SAP.(hemisphere).(comparison).mean_timeVector,data.Blank_SAP.(hemisphere).(comparison).(['mean_' dataType]),'color',colors('north texas green'),'LineWidth',2);
             hold on;
@@ -99,7 +99,7 @@ for aa = 1:length(hemispheres)
             p2 = plot(data.SSP_SAP.(hemisphere).(comparison).mean_timeVector,data.SSP_SAP.(hemisphere).(comparison).(['mean_' dataType]),'color',colors('electric purple'),'LineWidth',2);
             plot(data.SSP_SAP.(hemisphere).(comparison).mean_timeVector,data.SSP_SAP.(hemisphere).(comparison).(['mean_' dataType]) + data.SSP_SAP.(hemisphere).(comparison).(['stdErr_' dataType]),'color',colors('electric purple'),'LineWidth',0.25)
             plot(data.SSP_SAP.(hemisphere).(comparison).mean_timeVector,data.SSP_SAP.(hemisphere).(comparison).(['mean_' dataType]) - data.SSP_SAP.(hemisphere).(comparison).(['stdErr_' dataType]),'color',colors('electric purple'),'LineWidth',0.25)
-            title([hemisphere ' ' dataType])
+            title(comparison)
             if strcmp(dataType,'GCaMP') == true
                 label = '\DeltaF/F (%)';
             else
@@ -113,15 +113,15 @@ for aa = 1:length(hemispheres)
             set(gca,'box','off')
             xlim([-2,10])
             axis square
-            linkaxes
-            % save figure(s)
-            if saveFigs == true
-                dirpath = [rootFolder delim 'Summary Figures' delim 'Stimulus Evoked' delim];
-                if ~exist(dirpath,'dir')
-                    mkdir(dirpath);
-                end
-                savefig(summaryFigure,[dirpath 'StimEvoked_GCaMP_SI_' hemisphere '_' dataType '_' comparison]);
+        end
+        linkaxes
+        % save figure(s)
+        if saveFigs == true
+            dirpath = [rootFolder delim 'Summary Figures' delim 'Stimulus Evoked' delim];
+            if ~exist(dirpath,'dir')
+                mkdir(dirpath);
             end
+            savefig(summaryFigure,[dirpath 'StimEvoked_GCaMP_SI_' hemisphere '_' dataType]);
         end
     end
 end

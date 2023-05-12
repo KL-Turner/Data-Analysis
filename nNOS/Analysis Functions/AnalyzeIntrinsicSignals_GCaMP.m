@@ -103,7 +103,7 @@ for aa = 1:length(hemispheres)
         for gg = 1:size(finalWhiskData,1)
             procWhiskData_temp = filtfilt(sos,g,finalWhiskData(gg,:));
             procWhiskData(gg,:) = procWhiskData_temp - mean(procWhiskData_temp(1:params.Offset*samplingRate));
-            indWhisk{gg,1} = procWhiskData(gg,1);
+            indWhisk{gg,1} = procWhiskData(gg,:);
             whiskCBVMean{gg,1} = mean(procWhiskData(gg,params.Offset*samplingRate:params.minTime.Whisk*samplingRate),2);
         end
         % save results
@@ -126,11 +126,11 @@ for aa = 1:length(hemispheres)
         for gg = 1:size(finalStimData,1)
             procStimData_temp = filtfilt(sos,g,finalStimData(gg,:));
             procStimData(gg,:) = procStimData_temp - mean(procStimData_temp(1:params.Offset*samplingRate));
-            indStim{gg,1} = procStimData(gg,1);
-            stimMean{gg,1} = mean(procStimData(gg,(params.Offset + 1)*samplingRate:params.minTime.Stim*samplingRate),2);
+            indStim{gg,1} = procStimData(gg,:);
+            stimMean(gg,1) = mean(procStimData(gg,(params.Offset + 1)*samplingRate:params.minTime.Stim*samplingRate),2);
         end
         % save results
-        Results_IntSig_GCaMP.(group).(animalID).(hemisphere).(dataType).Stim.mean = indStim;
+        Results_IntSig_GCaMP.(group).(animalID).(hemisphere).(dataType).Stim.indData = indStim;
         Results_IntSig_GCaMP.(group).(animalID).(hemisphere).(dataType).Stim.mean = stimMean;
         %% NREM
         [nremData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.(dataType).(hemisphere),SleepData.(modelType).NREM.FileIDs,SleepData.(modelType).NREM.BinTimes);

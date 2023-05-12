@@ -30,10 +30,11 @@ for aa = 1:length(groups)
                         data.(group).(whiskType).(dataType) = [];
                     end
                 end
-                data.(group).(whiskType).diameter = cat(1,data.(group).(whiskType).diameter,Results_Evoked_2P.(group).(animalID).(vID).Whisk.(whiskType).diameter);
-                data.(group).(whiskType).baseline = cat(1,data.(group).(whiskType).baseline,Results_Evoked_2P.(group).(animalID).(vID).Whisk.(whiskType).baseline);
-                data.(group).(whiskType).count = cat(1,data.(group).(whiskType).count,Results_Evoked_2P.(group).(animalID).(vID).Whisk.(whiskType).count);
-                data.(group).(whiskType).timeVector = cat(1,data.(group).(whiskType).timeVector,Results_Evoked_2P.(group).(animalID).(vID).Whisk.(whiskType).timeVector);
+                if isfield(Results_Evoked_2P.(group).(animalID).(vID).Whisk,whiskType) == true
+                    data.(group).(whiskType).diameter = cat(1,data.(group).(whiskType).diameter,Results_Evoked_2P.(group).(animalID).(vID).Whisk.(whiskType).diameter);
+                    data.(group).(whiskType).baseline = cat(1,data.(group).(whiskType).baseline,Results_Evoked_2P.(group).(animalID).(vID).Whisk.(whiskType).baseline);
+                    data.(group).(whiskType).timeVector = cat(1,data.(group).(whiskType).timeVector,Results_Evoked_2P.(group).(animalID).(vID).Whisk.(whiskType).timeVector);
+                end
             end
         end
     end

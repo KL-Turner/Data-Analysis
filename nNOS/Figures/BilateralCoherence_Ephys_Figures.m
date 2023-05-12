@@ -64,16 +64,16 @@ for aa = 1:length(dataTypes)
     for bb = 1:length(behaviors)
         behavior = behaviors{1,bb};
         subplot(2,3,bb);
-        p1 = semilogx(data.Blank_SAP.(dataType).(behavior).mean_f,data.Blank_SAP.(dataType).(behavior).mean_C,'color',colors('sapphire'),'LineWidth',2);
+        p1 = plot(data.Naive.(dataType).(behavior).mean_f,data.Naive.(dataType).(behavior).mean_C,'color',colors('sapphire'),'LineWidth',2);
         hold on;
-        semilogx(data.Blank_SAP.(dataType).(behavior).mean_f,data.Blank_SAP.(dataType).(behavior).mean_C + data.Blank_SAP.(dataType).(behavior).stdErr_C,'color',colors('sapphire'),'LineWidth',0.25);
-        semilogx(data.Blank_SAP.(dataType).(behavior).mean_f,data.Blank_SAP.(dataType).(behavior).mean_C - data.Blank_SAP.(dataType).(behavior).stdErr_C,'color',colors('sapphire'),'LineWidth',0.25);
-        p2 = semilogx(data.Blank_SAP.(dataType).(behavior).mean_f,data.Blank_SAP.(dataType).(behavior).mean_C,'color',colors('north texas green'),'LineWidth',2);
-        semilogx(data.Blank_SAP.(dataType).(behavior).mean_f,data.Blank_SAP.(dataType).(behavior).mean_C + data.Blank_SAP.(dataType).(behavior).stdErr_C,'color',colors('north texas green'),'LineWidth',0.25);
-        semilogx(data.Blank_SAP.(dataType).(behavior).mean_f,data.Blank_SAP.(dataType).(behavior).mean_C - data.Blank_SAP.(dataType).(behavior).stdErr_C,'color',colors('north texas green'),'LineWidth',0.25);
-        p3 = semilogx(data.SSP_SAP.(dataType).(behavior).mean_f,data.SSP_SAP.(dataType).(behavior).mean_C,'color',colors('electric purple'),'LineWidth',2);
-        semilogx(data.SSP_SAP.(dataType).(behavior).mean_f,data.SSP_SAP.(dataType).(behavior).mean_C + data.SSP_SAP.(dataType).(behavior).stdErr_C,'color',colors('electric purple'),'LineWidth',0.25);
-        semilogx(data.SSP_SAP.(dataType).(behavior).mean_f,data.SSP_SAP.(dataType).(behavior).mean_C - data.SSP_SAP.(dataType).(behavior).stdErr_C,'color',colors('electric purple'),'LineWidth',0.25);
+        plot(data.Naive.(dataType).(behavior).mean_f,data.Naive.(dataType).(behavior).mean_C + data.Naive.(dataType).(behavior).stdErr_C,'color',colors('sapphire'),'LineWidth',0.25);
+        plot(data.Naive.(dataType).(behavior).mean_f,data.Naive.(dataType).(behavior).mean_C - data.Naive.(dataType).(behavior).stdErr_C,'color',colors('sapphire'),'LineWidth',0.25);
+        p2 = plot(data.Blank_SAP.(dataType).(behavior).mean_f,data.Blank_SAP.(dataType).(behavior).mean_C,'color',colors('north texas green'),'LineWidth',2);
+        plot(data.Blank_SAP.(dataType).(behavior).mean_f,data.Blank_SAP.(dataType).(behavior).mean_C + data.Blank_SAP.(dataType).(behavior).stdErr_C,'color',colors('north texas green'),'LineWidth',0.25);
+        plot(data.Blank_SAP.(dataType).(behavior).mean_f,data.Blank_SAP.(dataType).(behavior).mean_C - data.Blank_SAP.(dataType).(behavior).stdErr_C,'color',colors('north texas green'),'LineWidth',0.25);
+        p3 = plot(data.SSP_SAP.(dataType).(behavior).mean_f,data.SSP_SAP.(dataType).(behavior).mean_C,'color',colors('electric purple'),'LineWidth',2);
+        plot(data.SSP_SAP.(dataType).(behavior).mean_f,data.SSP_SAP.(dataType).(behavior).mean_C + data.SSP_SAP.(dataType).(behavior).stdErr_C,'color',colors('electric purple'),'LineWidth',0.25);
+        plot(data.SSP_SAP.(dataType).(behavior).mean_f,data.SSP_SAP.(dataType).(behavior).mean_C - data.SSP_SAP.(dataType).(behavior).stdErr_C,'color',colors('electric purple'),'LineWidth',0.25);
         ylabel('Coherence^2')
         xlabel('Freq (Hz)')
         title(behavior)
@@ -142,7 +142,7 @@ for aa = 1:length(dataTypes)
             e2.CapSize = 10;
             zz = zz + 1;
             ylabel('Coherence^2')
-            xticks([.5,3.5,5.5])
+            xticks([1.5,3.5,5.5])
             xticklabels({'0.03:0.01 Hz','0.01:0.1 Hz','0.1:0.5 Hz'})
             title(arousalState)
             xlim([0,7])

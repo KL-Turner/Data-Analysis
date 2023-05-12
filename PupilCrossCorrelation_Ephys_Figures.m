@@ -63,7 +63,7 @@ for aa = 1:length(dataTypes)
     for bb = 1:length(compDataTypes)
         compDataType = compDataTypes{1,bb};
         summaryFigure = figure;
-        sgtitle([dataType ' cross correlation with ' strrep(compDataType,'_',' ') ' [Ephys]'])
+        sgtitle([strrep(dataType,'_',' ') ' cross correlation with ' compDataType ' [Ephys]'])
         for cc = 1:length(behaviors)
             behavior = behaviors{1,cc};
             subplot(2,3,cc);
@@ -87,7 +87,6 @@ for aa = 1:length(dataTypes)
             set(gca,'box','off')
             axis square
         end
-        linkaxes
         % save figure(s)
         if saveFigs == true
             dirpath = [rootFolder delim 'Summary Figures' delim 'Behavior' delim];

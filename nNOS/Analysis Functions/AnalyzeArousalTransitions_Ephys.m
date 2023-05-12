@@ -168,7 +168,7 @@ for hh = 1:length(transitions)
                 for zz = 1:length(hemoDataTypes)
                     hemoDataType = hemoDataTypes{1,zz};
                     tempData = ProcData.data.(hemoDataType).(hemisphere);
-                    filtData = filtfilt(sos2,g2,tempData(startTime*iosFs + 1:endTime*iosFs));
+                    filtData.(hemisphere).(hemoDataType) = filtfilt(sos2,g2,tempData(startTime*iosFs + 1:endTime*iosFs));
                 end
             end
             data.(transition).fileDate{iqx,1} = strDay;
@@ -184,7 +184,7 @@ for hh = 1:length(transitions)
                 hemisphere = hemispheres{1,qq};
                 for zz = 1:length(hemoDataTypes)
                     hemoDataType = hemoDataTypes{1,zz};
-                    data.(hemisphere).(transition).(hemoDataType)(iqx,:) = filtData;
+                    data.(hemisphere).(transition).(hemoDataType)(iqx,:) = filtData.(hemisphere).(hemoDataType);
                 end
             end
             iqx = iqx + 1;

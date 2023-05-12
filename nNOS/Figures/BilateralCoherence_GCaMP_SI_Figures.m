@@ -139,7 +139,7 @@ for aa = 1:length(dataTypes)
             e2.CapSize = 10;
             zz = zz + 1;
             ylabel('Coherence^2')
-            xticks([.5,3.5,5.5])
+            xticks([1.5,3.5,5.5])
             xticklabels({'0.03:0.01 Hz','0.01:0.1 Hz','0.1:0.5 Hz'})
             title(arousalState)
             xlim([0,7])

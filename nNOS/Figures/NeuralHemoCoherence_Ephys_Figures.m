@@ -11,7 +11,7 @@ cd(rootFolder)
 % loop parameters
 groups = {'Naive','Blank_SAP','SSP_SAP'};
 hemispheres = {'LH','RH'};
-dataTypes = {'gammaBandPower'};
+dataTypes = {'gammaBandPower','deltaBandPower'};
 behaviors = {'Rest','NREM','REM','Alert','Asleep','All'};
 variables = {'C','f'};
 % extract analysis results
@@ -33,9 +33,9 @@ for aa = 1:length(groups)
                         data.(group).(hemisphere).(dataType).(behavior).group = {};
                         data.(group).(hemisphere).(dataType).(behavior).animalID = {};
                     end
-                    if isempty(Results_NeuralHemoCoher_Ephys.(group).(animalID).(dataType).(hemisphere).(behavior).C) == false
-                        data.(group).(hemisphere).(dataType).(behavior).C = cat(1,data.(group).(hemisphere).(dataType).(behavior).C,Results_NeuralHemoCoher_Ephys.(group).(animalID).(dataType).(hemisphere).(behavior).C.^2');
-                        data.(group).(hemisphere).(dataType).(behavior).f = cat(1,data.(group).(hemisphere).(dataType).(behavior).f,Results_NeuralHemoCoher_Ephys.(group).(animalID).(dataType).(hemisphere).(behavior).f);
+                    if isempty(Results_NeuralHemoCoher_Ephys.(group).(animalID).(hemisphere).(dataType).(behavior).C) == false
+                        data.(group).(hemisphere).(dataType).(behavior).C = cat(1,data.(group).(hemisphere).(dataType).(behavior).C,Results_NeuralHemoCoher_Ephys.(group).(animalID).(hemisphere).(dataType).(behavior).C.^2');
+                        data.(group).(hemisphere).(dataType).(behavior).f = cat(1,data.(group).(hemisphere).(dataType).(behavior).f,Results_NeuralHemoCoher_Ephys.(group).(animalID).(hemisphere).(dataType).(behavior).f);
                         data.(group).(hemisphere).(dataType).(behavior).group = cat(1,data.(group).(hemisphere).(dataType).(behavior).group,group);
                         data.(group).(hemisphere).(dataType).(behavior).animalID = cat(1,data.(group).(hemisphere).(dataType).(behavior).animalID,animalID);
                     end
@@ -75,8 +75,8 @@ for aa = 1:length(hemispheres)
             subplot(2,3,cc);
             p1 = semilogx(data.Naive.(hemisphere).(dataType).(behavior).mean_f,data.Naive.(hemisphere).(dataType).(behavior).mean_C,'color',colors('sapphire'),'LineWidth',2);
             hold on;
-            semilogx(data.Naive.(hemisphere).(dataType).(behavior).mean_f,data.Naive.(hemisphere).(dataType).(behavior).mean_C + data.Naive.(hemisphere).(dataType).(behavior).stdErr_C,'color',colors('north texas green'),'LineWidth',0.25);
-            semilogx(data.Naive.(hemisphere).(dataType).(behavior).mean_f,data.Naive.(hemisphere).(dataType).(behavior).mean_C - data.Naive.(hemisphere).(dataType).(behavior).stdErr_C,'color',colors('north texas green'),'LineWidth',0.25);
+            semilogx(data.Naive.(hemisphere).(dataType).(behavior).mean_f,data.Naive.(hemisphere).(dataType).(behavior).mean_C + data.Naive.(hemisphere).(dataType).(behavior).stdErr_C,'color',colors('sapphire'),'LineWidth',0.25);
+            semilogx(data.Naive.(hemisphere).(dataType).(behavior).mean_f,data.Naive.(hemisphere).(dataType).(behavior).mean_C - data.Naive.(hemisphere).(dataType).(behavior).stdErr_C,'color',colors('sapphire'),'LineWidth',0.25);
             p2 = semilogx(data.Blank_SAP.(hemisphere).(dataType).(behavior).mean_f,data.Blank_SAP.(hemisphere).(dataType).(behavior).mean_C,'color',colors('north texas green'),'LineWidth',2);
             semilogx(data.Blank_SAP.(hemisphere).(dataType).(behavior).mean_f,data.Blank_SAP.(hemisphere).(dataType).(behavior).mean_C + data.Blank_SAP.(hemisphere).(dataType).(behavior).stdErr_C,'color',colors('north texas green'),'LineWidth',0.25);
             semilogx(data.Blank_SAP.(hemisphere).(dataType).(behavior).mean_f,data.Blank_SAP.(hemisphere).(dataType).(behavior).mean_C - data.Blank_SAP.(hemisphere).(dataType).(behavior).stdErr_C,'color',colors('north texas green'),'LineWidth',0.25);

@@ -9,7 +9,7 @@ resultsStruct = 'Results_CrossCorr_Ephys';
 load(resultsStruct);
 cd(rootFolder)
 % loop variables
-groups = {'Naive','SSP_SAP','Blank_SAP'};
+groups = {'Naive','Blank_SAP','SSP_SAP'};
 hemispheres = {'LH','RH'};
 dataTypes = {'gammaBandPower','muaPower'};
 behaviors = {'Rest','NREM','REM','Alert','Asleep','All'};
@@ -57,7 +57,6 @@ for aa = 1:length(groups)
     end
 end
 % figure
-xlimits = ({[-5,5],[-10,10],[-10,10],[-30,30],[-30,30],[-30,30]});
 for aa = 1:length(hemispheres)
     hemisphere = hemispheres{1,aa};
     for bb = 1:length(dataTypes)
@@ -79,7 +78,7 @@ for aa = 1:length(hemispheres)
             plot(data.SSP_SAP.(hemisphere).(dataType).(behavior).mean_lags,data.SSP_SAP.(hemisphere).(dataType).(behavior).mean_xcVals - data.SSP_SAP.(hemisphere).(dataType).(behavior).stdErr_xcVals,'color',colors('electric purple'),'LineWidth',0.25);
             ylabel('Corr Coef')
             xlabel('Lags (s)')
-            xlim(xlimits{1,cc})
+            xlim([-5,5])
             title(behavior)
             if cc == 1
                 legend([p1,p2,p3],'Naive','Blank-SAP','SSP-SAP')
@@ -87,7 +86,6 @@ for aa = 1:length(hemispheres)
             set(gca,'box','off')
             axis square
         end
-        linkaxes
         % save figure(s)
         if saveFigs == true
             dirpath = [rootFolder delim 'Summary Figures' delim 'Cross Correlation' delim];
@@ -98,3 +96,31 @@ for aa = 1:length(hemispheres)
         end
     end
 end
+% figure
+% freq = 30;
+% lag = 5;
+% groupNames = {'Naive','Naive','Blank_SAP','Blank_SAP','SSP_SAP','SSP_SAP'};
+% hemNames = {'LH','RH','LH','RH','LH','RH'};
+% for aa = 1:length(behaviors)
+%     figure;
+%     sgtitle('LFP-[HbT] XCorr')
+%     behavior = behaviors{1,aa};
+%     for bb = 1:6
+%         subplot(3,2,bb);
+%         groupName = groupNames{1,bb};
+%         hemName = hemNames{1,bb};
+%         imagesc(data.(groupName).(hemName).(behavior).mean_LFP_lags,data.(groupName).(hemName).(behavior).mean_F,data.(groupName).(hemName).(behavior).mean_HbTvLFPxcVals)
+%         title([groupName ' ' hemName ' ' behavior])
+%         xticks([-lag*freq,-lag*freq/2,0,lag*freq/2,lag*freq])
+%         xticklabels({'-5','-2.5','0','2.5','5'})
+%         xlim([-lag*freq,lag*freq])
+%         xlabel('Lags (s)')
+%         ylabel('Freq (Hz)')
+%         ylim([1,100])
+%         c1 = colorbar;
+%         ylabel(c1,{'Corr. coefficient';'LFP vs. \Delta[HbT] (\muM)'},'rotation',-90,'VerticalAlignment','bottom')
+%         axis xy
+%         axis square
+%         set(gca,'box','off')
+%     end
+% end

@@ -14,7 +14,7 @@ hemispheres = {'fLH','fRH'};
 behaviors = {'Rest','Whisk','Stim','NREM','REM'};
 dataTypes = {'HbT','HbO','HbR','GCaMP'};
 variables = {'avg','p2p','vari'};
-fs = 30;
+fs = 10;
 % extract analysis results
 for aa = 1:length(groups)
     group = groups{1,aa};
@@ -37,18 +37,22 @@ for aa = 1:length(groups)
                     end
                     animalVar = [];
                     animalP2P = [];
-                    for ff = 1:length(Results_IntSig_GCaMP.(group).(animalID).(hemisphere).(behavior).indHbT)
+                    for ff = 1:length(Results_IntSig_GCaMP.(group).(animalID).(hemisphere).(dataType).(behavior).indData)
                         if strcmp(dataType,'Rest') == true
-                            dataArray = Results_IntSig_GCaMP.(group).(animalID).(hemisphere).(behavior).indHbT{ff,1}(2*fs:end);
+                            dataArray = Results_IntSig_GCaMP.(group).(animalID).(hemisphere).(dataType).(behavior).indData{ff,1}(2*fs:end);
                         elseif strcmp(dataType,'Stim') == true
-                            dataArray = Results_IntSig_GCaMP.(group).(animalID).(hemisphere).(behavior).indHbT{ff,1} - mean(Results_IntSig_GCaMP.(group).(animalID).(hemisphere).(behavior).HbT);
+                            dataArray = Results_IntSig_GCaMP.(group).(animalID).(hemisphere).(dataType).(behavior).indData{ff,1} - mean(Results_IntSig_GCaMP.(group).(animalID).(hemisphere).(dataType).(behavior).mean);
                         else
-                            dataArray = Results_IntSig_GCaMP.(group).(animalID).(hemisphere).(behavior).indHbT{ff,1};
+                            dataArray = Results_IntSig_GCaMP.(group).(animalID).(hemisphere).(dataType).(behavior).indData{ff,1};
                         end
                         animalVar(ff,1) = var(dataArray);
                         animalP2P(ff,1) = max(dataArray) - min(dataArray);
                     end
-                    data.(group).(hemisphere).(dataType).(behavior).avg = cat(1,data.(group).(hemisphere).(dataType).(behavior).avg,mean(Results_IntSig_GCaMP.(group).(animalID).(hemisphere).(behavior).HbT));
+                    try
+                    data.(group).(hemisphere).(dataType).(behavior).avg = cat(1,data.(group).(hemisphere).(dataType).(behavior).avg,mean(Results_IntSig_GCaMP.(group).(animalID).(hemisphere).(dataType).(behavior).mean));
+                    catch
+                    data.(group).(hemisphere).(dataType).(behavior).avg = cat(1,data.(group).(hemisphere).(dataType).(behavior).avg,mean(cell2mat(Results_IntSig_GCaMP.(group).(animalID).(hemisphere).(dataType).(behavior).mean)));
+                    end
                     data.(group).(hemisphere).(dataType).(behavior).p2p = cat(1,data.(group).(hemisphere).(dataType).(behavior).p2p,mean(animalP2P));
                     data.(group).(hemisphere).(dataType).(behavior).vari = cat(1,data.(group).(hemisphere).(dataType).(behavior).vari,mean(animalVar));
                     data.(group).(hemisphere).(dataType).(behavior).group = cat(1,data.(group).(hemisphere).(dataType).(behavior).group,group);
@@ -90,6 +94,7 @@ for aa = 1:length(dataTypes)
                 subplot(2,3,dd);
                 xInds = ones(1,length(data.Blank_SAP.(hemisphere).(dataType).(behavior).(variable)));
                 s1 = scatter(xInds*1,data.Blank_SAP.(hemisphere).(dataType).(behavior).(variable),75,'MarkerEdgeColor','k','MarkerFaceColor',colors('north texas green'),'jitter','off','jitterAmount',0.25);
+                hold on;
                 e1 = errorbar(1,data.Blank_SAP.(hemisphere).(dataType).(behavior).(['mean_' variable]),data.Blank_SAP.(hemisphere).(dataType).(behavior).(['std_' variable]),'d','MarkerEdgeColor','k','MarkerFaceColor','k');
                 e1.Color = 'black';
                 e1.MarkerSize = 10;

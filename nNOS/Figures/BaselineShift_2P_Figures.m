@@ -41,11 +41,19 @@ end
 % figure
 summaryFigure = figure;
 sgtitle('Isoflurane % Increase')
-s1 = scatter(1,data.Blank_SAP.meanDiameter,'d','MarkerFaceColor','k');
+xInds = ones(1,length(data.Blank_SAP.diameter));
+s1 = scatter(xInds*1,data.Blank_SAP.diameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('north texas green'),'jitter','on','jitterAmount',0.25);
 hold on
-scatter(ones(1,length(data.Blank_SAP.diameter))*1,data.Blank_SAP.diameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('north texas green'),'jitter','on', 'jitterAmount',0.25);
-s2 = scatter(2,data.SSP_SAP.meanDiameter,'d','MarkerFaceColor','k');
-scatter(ones(1,length(data.SSP_SAP.diameter))*2,data.SSP_SAP.diameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('electric purple'),'jitter','on', 'jitterAmount',0.25);
+e1 = errorbar(1,data.Blank_SAP.meanDiameter,data.Blank_SAP.stdDiameter,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e1.Color = 'black';
+e1.MarkerSize = 10;
+e1.CapSize = 10;
+xInds = ones(1,length(data.SSP_SAP.diameter));
+s2 = scatter(xInds*2,data.SSP_SAP.diameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('electric purple'),'jitter','on','jitterAmount',0.25);
+e2 = errorbar(2,data.SSP_SAP.meanDiameter,data.SSP_SAP.stdDiameter,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e2.Color = 'black';
+e2.MarkerSize = 10;
+e2.CapSize = 10;
 ylabel('\DeltaD/D (%)')
 set(gca,'xtick',[1,1.2,2,2.2])
 set(gca,'xticklabel',{['Avg Baseline: ' num2str(round(data.Blank_SAP.meanBaseline,1)) ' \muM'],['n = ' num2str(length(data.Blank_SAP.diameter)) ' arterioles'],['Avg Baseline: ' num2str(round(data.SSP_SAP.meanBaseline,1)) ' \muM'],['n = ' num2str(length(data.SSP_SAP.diameter)) ' arterioles']})

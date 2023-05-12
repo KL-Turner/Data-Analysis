@@ -52,6 +52,7 @@ summaryFigure = figure;
 sgtitle('Whisker stimulation [Pulse]')
 for aa = 1:length(comparisons)
     comparison = comparisons{1,aa};
+    subplot(1,3,aa)
     p1 = plot(data.Blank_SAP.(comparison).mean_timeVector,data.Blank_SAP.(comparison).mean_HbT,'color',colors('north texas green'),'LineWidth',2);
     hold on;
     plot(data.Blank_SAP.(comparison).mean_timeVector,data.Blank_SAP.(comparison).mean_HbT + data.Blank_SAP.(comparison).stdErr_HbT,'color',colors('north texas green'),'LineWidth',0.25)
@@ -66,12 +67,12 @@ for aa = 1:length(comparisons)
     set(gca,'box','off')
     xlim([-2,10])
     axis square
-    % save figure(s)
-    if saveFigs == true
-        dirpath = [rootFolder delim 'Summary Figures' delim 'Stimulus Evoked' delim];
-        if ~exist(dirpath,'dir')
-            mkdir(dirpath);
-        end
-        savefig(summaryFigure,[dirpath 'StimEvoked_Pulse_' comparison]);
+end
+% save figure(s)
+if saveFigs == true
+    dirpath = [rootFolder delim 'Summary Figures' delim 'Stimulus Evoked' delim];
+    if ~exist(dirpath,'dir')
+        mkdir(dirpath);
     end
+    savefig(summaryFigure,[dirpath 'StimEvoked_Pulse']);
 end
