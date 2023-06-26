@@ -1,12 +1,9 @@
-function [ROIs] = CheckROIDates_IOS(animalID,ROIs,ROInames,lensMag,imagingType,imagingWavelengths)
-%________________________________________________________________________________________________________________________
+function [ROIs] = CheckROIDates_IOS(animalID,ROIs,ROInames,lensMag,imagingType,imagingWavelengths,imagingCamera)
+%----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%
-% Purpose: Create/Update ROIs.mat structure to verify all ROIs are drawn
-%________________________________________________________________________________________________________________________
-
+%----------------------------------------------------------------------------------------------------------
 % character list of all WindowCam files
 windowCamFilesDir = dir('*_PCO_Cam01.pcoraw');
 windowCamDataFiles = {windowCamFilesDir.name}';
@@ -35,27 +32,18 @@ for b = 1:length(firstsFileOfDay)
     strDay = ConvertDate_IOS(fileID);
     for c = 1:length(ROInames)
         ROIname = ROInames{1,c};
-        if ~isfield(ROIs.(strDay),(ROIname)) == true
+        if ~isfield(ROIs,strDay) == true || ~isfield(ROIs.(strDay),ROIname) == true
             if any(strcmp(ROInames{1,c},{'LH','RH','fLH','fRH','barrels'})) == true
-                if any(strcmp(imagingWavelengths,{'Red, Green, & Blue','Red, Lime, & Blue'})) == true
-                    [ROIs] = PlaceTriWavelengthROIs_IOS(animalID,fileID,ROIs,lensMag,imagingType);
-                elseif any(strcmp(imagingWavelengths,{'Green & Blue','Lime & Blue'})) == true
-                    [ROIs] = PlaceDualWavelengthROIs_IOS(animalID,fileID,ROIs,lensMag,imagingType);
-                else
-                    [ROIs] = CalculateROICorrelationMatrix_IOS(animalID,strDay,fileID,ROIs,lensMag,imagingType);
-                end
+                % circular ROIs based on lens mag size and imaging type
+                [ROIs] = PlaceROIs_IOS(animalID,fileID,ROIs,lensMag,imagingType,imagingWavelengths,imagingCamera);
             elseif strcmp(ROInames{1,c},{'SSS'}) == true
-                % ROIS drawn free-hand for cement and SSS
-                [frames] = ReadDalsaBinary_IOS(animalID,fileID);
-                [ROIs] = DrawSagSinusROIs_IOS(frames{3},strDay,ROIs);
+                % ROIS specifically for SSS
+                [ROIs] = DrawSagSinusROIs_IOS(animalID,fileID,ROIs,imagingWavelengths,imagingCamera);
             else
-                % ROIS drawn free-hand for cement and SSS
-                [frames] = ReadDalsaBinary_IOS(animalID,fileID);
-                [ROIs] = CreateFreeHandROIs_IOS(frames{3},ROIname,animalID,ROIs);
+                % any additional free hand ROIs
+                [ROIs] = CreateFreeHandROIs_IOS(animalID,fileID,ROIs,imagingWavelengths,imagingCamera);
             end
             save([animalID '_ROIs.mat'],'ROIs');
         end
     end
-end
-
 end

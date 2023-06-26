@@ -1,32 +1,40 @@
-function [angle] = WhiskerTrackerParallel_IOS(fileName)
-%________________________________________________________________________________________________________________________
-% Edited by Kevin L. Turner
+function [angle] = WhiskerTrackerParallel_IOS(fileName,trialData)
+%----------------------------------------------------------------------------------------------------------
+% Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%
-% Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
-%
-% Purpose: Analyze the changes in whisker position via the radon transform.
-%________________________________________________________________________________________________________________________
-
-% variable Setup
-theta = -40:80; % angles used for radon
+%----------------------------------------------------------------------------------------------------------
+disp(['Running whisker tracker for: ' fileName]); disp(' ')
+% angles used for radon
+theta = -40:80;
 % import whisker movie
-importStart = tic;
-baslerFrames = ReadBinFileU8MatrixGradient_IOS([fileName '_WhiskerCam.bin'],350,30);
-importTime = toc(importStart);
-disp(['WhiskerTrackerParallel: Binary file import time was ' num2str(importTime) ' seconds.']); disp(' ')
+imageHeight = str2double(trialData.whiskCamPixelHeight);
+imageWidth = str2double(trialData.whiskCamPixelWidth);
+% calculate pixels per frame for fread
+pixelsPerFrame = imageWidth*imageHeight;
+% open the file, get file size, back to the begining
+fid = fopen(fileName);
+fseek(fid,0,'eof');
+fileSize = ftell(fid);
+fseek(fid,0,'bof');
+% identify the number of frames to read. Each frame has a previously defined width and height (as inputs), U8 has a depth of 1.
+nFrameToRead = floor(fileSize/(pixelsPerFrame));
+% pre-allocate
+imageGrad = int8(zeros(imageWidth,imageHeight,nFrameToRead));
+for n = 1:nFrameToRead
+    z = fread(fid,pixelsPerFrame,'*uint8',0,'l');
+    indImg = reshape(z(1:pixelsPerFrame),imageWidth,imageHeight);
+    imageGrad(:,:,n) = int8(gradient(double(indImg)));
+end
+fclose(fid);
 % transfer the images to the GPU
-gpuTrans1 = tic;
-gpuFrame = gpuArray(baslerFrames);
-gpuTransfer = toc(gpuTrans1);
-disp(['WhiskerTrackerParallel: GPU transfer time was ' num2str(gpuTransfer) ' seconds.']); disp(' ')
+gpuFrame = gpuArray(imageGrad);
 % pre-allocate array of whisker angles, use NaN as a place holder
-angle = NaN*ones(1,length(baslerFrames));
+angle = NaN*ones(1,length(imageGrad));
 radonTime1 = tic;
-for f = 1:(length(baslerFrames) - 1)
+for aa = 1:(length(imageGrad) - 1)
     % radon on individual frame
-    [R,~] = radon(gpuFrame(:,:,f),theta);
+    [R,~] = radon(gpuFrame(:,:,aa),theta);
     % get transformed image from GPU and calculate the variance
     colVar = var(gather(R));
     % sort the columns according to variance
@@ -37,11 +45,9 @@ for f = 1:(length(baslerFrames) - 1)
     % associate the columns with the corresponding whisker angle
     angles = nonzeros(theta.*sieve);
     % calculate the average of the whisker angles
-    angle(f) = mean(angles);
+    angle(aa) = mean(angles);
 end
-radonTime = toc(radonTime1);
-disp(['WhiskerTrackerParallel: Whisker Tracking time was ' num2str(radonTime) ' seconds.']); disp(' ')
 inds = isnan(angle);
 angle(inds) = [];
-
-end
+radonTime = toc(radonTime1);
+disp(['Whisker Tracking time was ' num2str(radonTime) ' seconds.']); disp(' ')

@@ -1,12 +1,9 @@
 function [thresh] = CreateForceSensorThreshold_IOS(forceSensor,fs,strDay)
-%________________________________________________________________________________________________________________________
+%----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%
-% Purpose: View the force sensor data and determine what a good value is to binarize movement.
-%________________________________________________________________________________________________________________________
-
+%----------------------------------------------------------------------------------------------------------
 isok = 'n';
 force = abs(hilbert(diff(forceSensor)));
 forceThresh = figure;
@@ -50,5 +47,3 @@ while strcmp(isok,'y') == 0
     isok = input('Is this threshold okay? (y/n): ','s'); disp(' ')
 end
 close(forceThresh);
-
-end

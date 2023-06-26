@@ -5,113 +5,221 @@ function [] = CalculateFullSpectroscopy_IOS(procDataFileIDs,RestingBaselines)
 % https://github.com/KL-Turner
 %----------------------------------------------------------------------------------------------------------
 % load structure with ROI locations
-ROIFileDir = dir('*_UpdatedROIs.mat');
+ROIFileDir = dir('*_ROIs.mat');
 ROIFileName = {ROIFileDir.name}';
 ROIFileID = char(ROIFileName);
 load(ROIFileID);
-%% go through each file and do pixel-wise hbo-hbr analysis
+% pathlengths for each wavelength (cm)
+X.red = 0.3846483;    % 630 nm
+X.green = 0.0371713;  % 530 nm
+X.lime = 0.0324347;   % 570 nm
+X.blue = 0.064898;    % 480 nm
+% extinction coefficients (cm^-1*M^-1)
+E_HbO.red = 610;      % 630 nm
+E_HbR.red = 5148.8;
+E_HbO.green = 39500;  % 530 nm
+E_HbR.green = 39500;
+E_HbO.lime = 45000;   % 570 nm
+E_HbR.lime = 45000;
+E_HbO.blue = 14550;   % 480 nm
+E_HbR.blue = 26629.2;
+%% go through each file and do pixel-wise analysis
 for aa = 1:size(procDataFileIDs,1)
     procDataFileID = procDataFileIDs(aa,:);
     load(procDataFileID)
+    imagingCamera = ProcData.notes.iosCamera;
     imagingWavelengths = ProcData.notes.imagingWavelengths;
-    if any(strcmp(imagingWavelengths,{'Red, Green, & Blue','Lime, Green, & Blue','Green & Blue','Lime & Blue'})) == true
-        disp(['Adding HbO-HbR analysis to ProcData file (' num2str(aa) '/' num2str(size(procDataFileIDs,1)) ')...']); disp(' ')
-        if isfield(ProcData.data,'HbO') == false
-            [animalID,fileDate,fileID] = GetFileInfo_IOS(procDataFileID);
-            strDay = ConvertDate_IOS(fileDate);
-            windowCamFileID = [fileID '_WindowCam.bin'];
-            conv2um = 1e6;
-            %% extract frames from window recording
-            [frames] = ReadDalsaBinary_IOS(animalID,windowCamFileID);
-            % split images R-G-B
-            if ProcData.notes.greenFrames == 1
-                greenFrames = frames(1:3:end - 1);
-                blueFrames = frames(2:3:end);
-                redFrames = frames(3:3:end);
-            elseif ProcData.notes.greenFrames == 2
-                greenFrames = frames(2:3:end);
-                blueFrames = frames(3:3:end);
-                redFrames = frames(1:3:end - 1);
-            elseif ProcData.notes.greenFrames == 3
-                greenFrames = frames(3:3:end);
-                blueFrames = frames(1:3:end - 1);
-                redFrames = frames(2:3:end);
+    % if isfield(ProcData.data,'HbT') == false
+        disp(['Adding pixel-wise spectroscopy to file (' num2str(aa) '/' num2str(size(procDataFileIDs,1)) ')...']); disp(' ')
+        [~,fileDate,fileID] = GetFileInfo_IOS(procDataFileID);
+        strDay = ConvertDate_IOS(fileDate);
+        if strcmp(imagingCamera,'PCO Edge 5.5') == true
+            info = imfinfo([fileID '_PCO_Cam01.pcoraw']);
+            numberOfPages = length(info);
+            for k = 1:numberOfPages
+                imageStack.full(:,:,k) = double(imread([fileID '_PCO_Cam01.pcoraw'],k));
             end
-            % reshape cell aray to w x h x time image stack
-            redImageStack = reshape(cell2mat(redFrames),ProcData.notes.CBVCamPixelWidth,ProcData.notes.CBVCamPixelHeight,length(redFrames));
-            greenImageStack = reshape(cell2mat(greenFrames),ProcData.notes.CBVCamPixelWidth,ProcData.notes.CBVCamPixelHeight,length(greenFrames));
-            blueImageStack = reshape(cell2mat(blueFrames),ProcData.notes.CBVCamPixelWidth,ProcData.notes.CBVCamPixelHeight,length(blueFrames));
-            % normalize each stack by resting baseline frame
-            normRedImageStack = ((redImageStack - RestingBaselines.Pixel.red.(strDay))./RestingBaselines.Pixel.red.(strDay)) + 1;
-            normGreenImageStack = ((greenImageStack - RestingBaselines.Pixel.green.(strDay))./RestingBaselines.Pixel.green.(strDay)) + 1;
-            normBlueImageStack = ((blueImageStack - RestingBaselines.Pixel.blue.(strDay))./RestingBaselines.Pixel.blue.(strDay)) + 1; %#ok<*NASGU>
-            %% calculate absorption coefficient for each pixel = -1/pathlength*ln(deltaR/R+1)
-            % pathlengths for each wavelength (cm)
-            X_Red = 0.3846483;    % 630 nm
-            X_Green = 0.0371713;  % 530 nm
-            X_Blue = 0.064898;    % 480 nm
-            % extinction coefficients (cm^-1*M^-1)
-            E_HbO_Red = 610;      % 630 nm
-            E_HbR_Red = 5148.8;
-            E_HbO_Green = 39500;  % 530 nm
-            E_HbR_Green = 39500;
-            E_HbO_Blue = 14550;   % 480 nm
-            E_HbR_Blue = 26629.2;
-            Mu_Red = -1/X_Red*log(normRedImageStack); % cm^-1, natural logarithm
-            Mu_Green = -1/X_Green*log(normGreenImageStack); % cm^-1, natural logarithm
-            Mu_Blue = -1/X_Blue*log(normBlueImageStack); % cm^-1, natural logarithm
-            %% calculate concentration of HbR & HbO for each pixel
-            % Calculate concentrations (uM) using blue and green light
-            HbR.BG = (E_HbO_Green*Mu_Blue - E_HbO_Blue*Mu_Green)./(E_HbO_Green*E_HbR_Blue - E_HbO_Blue*E_HbR_Green)*conv2um; % in uM
-            HbO.BG = (E_HbR_Green*Mu_Blue - E_HbR_Blue*Mu_Green)./(E_HbR_Green*E_HbO_Blue - E_HbR_Blue*E_HbO_Green)*conv2um; % in uM
-            % Calculate concentrations (uM) using green and red light
-            HbR_ImageStack = (E_HbO_Green*Mu_Red - E_HbO_Red*Mu_Green)./(E_HbO_Green*E_HbR_Red - E_HbO_Red*E_HbR_Green)*conv2um; % in uM
-            HbO_ImageStack = (E_HbR_Green*Mu_Red - E_HbR_Red*Mu_Green)./(E_HbR_Green*E_HbO_Red - E_HbR_Red*E_HbO_Green)*conv2um; % in uM
-            % Calculate concentrations (uM) using blue and red light
-            HbR.BR = (E_HbO_Blue*Mu_Red - E_HbO_Red*Mu_Blue)./(E_HbO_Blue*E_HbR_Red - E_HbO_Red*E_HbR_Blue)*conv2um; % in uM
-            HbO.BR = (E_HbR_Blue*Mu_Red - E_HbR_Red*Mu_Blue)./(E_HbR_Blue*E_HbO_Red - E_HbR_Red*E_HbO_Blue)*conv2um; % in uM
-            %% HbT analysis
-            if any(strcmp(imagingWavelengths,{'Green','Green & Blue','Red, Green, & Blue'})) == true
-                ledType = 'M530L3';
-                bandfilterType = 'FB530-10';
-                cutfilterType = 'MF525-39';
-                [~,~,weightedcoeffHbT] = GetHbcoeffs_IOS(ledType,bandfilterType,cutfilterType);
-            elseif any(strcmp(imagingWavelengths,{'Lime','Lime & Blue','Red, Lime, & Blue'})) == true
-                ledType = 'M565L3';
-                bandfilterType = 'FB570-10';
-                cutfilterType = 'EO65160';
-                [~,~,weightedcoeffHbT] = GetHbcoeffs_IOS(ledType,bandfilterType,cutfilterType);
-            else
-                weightedcoeffHbT = NaN;
+        elseif strcmp(imagingCamera,'Dalsa Pantera TF 1M60') == true
+            imageWidth = ProcData.notes.CBVCamPixelWidth;
+            imageHeight = ProcData.notes.CBVCamPixelHeight;
+            pixelsPerFrame = imageWidth*imageHeight;
+            % open the file, get file size, back to the begining
+            fid = fopen([fileID '_WindowCam.bin']);
+            fseek(fid,0,'eof');
+            fseek(fid,0,'bof');
+            % identify the number of frames to read. Each frame has a previously defined width and height (as inputs), along with a grayscale "depth" of 2"
+            nFramesToRead = 10;
+            % pre-allocate memory
+            for n = 1:nFramesToRead
+                z = fread(fid,pixelsPerFrame,'*int16','b');
+                img = reshape(z(1:pixelsPerFrame),imageWidth,imageHeight);
+                imageStack.full(:,:,n) = double(rot90(img',2));
             end
-            HbT_ImageStack = (log(greenImageStack./RestingBaselines.Pixel.green.(strDay))).*weightedcoeffHbT*conv2um;
-            %% correct hemodynamic attenuation of GCaMP fluorescence
-            scale = RestingBaselines.Pixel.green.(strDay)./RestingBaselines.Pixel.blue.(strDay);
-            correctedGCaMP_ImageStack = (blueImageStack./greenImageStack).*scale;
-            %% extract pixel-wise ROIs
-            ROInames = fieldnames(UpdatedROIs.(strDay));
-            for bb = 1:length(ROInames)
-                roiName = ROInames{bb,1};
-                maskFig = figure;
-                imagesc(greenFrames{1});
-                axis image;
-                colormap gray
-                circROI = drawcircle('Center',UpdatedROIs.(strDay).(roiName).circPosition,'Radius',UpdatedROIs.(strDay).(roiName).circRadius);
-                mask = createMask(circROI,greenFrames{1});
-                close(maskFig)
-                for cc = 1:size(HbT_ImageStack,3)
-                    HbT_roiMask = mask.*double(HbT_ImageStack(:,:,cc));
-                    ProcData.data.HbT.(roiName)(1,cc) = mean(nonzeros(HbT_roiMask));
-                    HbO_roiMask = mask.*double(HbO_ImageStack(:,:,cc));
-                    ProcData.data.HbO.(roiName)(1,cc) = mean(nonzeros(HbO_roiMask));
-                    HbR_roiMask = mask.*double(HbR_ImageStack(:,:,cc));
-                    ProcData.data.HbR.(roiName)(1,cc) = mean(nonzeros(HbR_roiMask));
-                    GCaMP_roiMask = mask.*double(correctedGCaMP_ImageStack(:,:,cc));
-                    ProcData.data.GCaMP.(roiName)(1,cc) = mean(nonzeros(GCaMP_roiMask));
+        end
+        conv2um = 1e6;
+        % split images R-G-B
+        % separate image stack by wavelength
+        if strcmp(imagingWavelengths,{'Red, Green, & Blue'}) == true
+            wavelengths = {'red','green','blue'};
+            imageStack.red = imageStack.full(:,:,2:3:end);
+            imageStack.green = imageStack.full(:,:,3:3:end);
+            imageStack.blue = imageStack.full(:,:,1:3:end - 1);
+        elseif strcmp(imagingWavelengths,{'Red, Lime, & Blue'}) == true
+            wavelengths = {'red','lime','blue'};
+            imageStack.red = imageStack.full(:,:,2:3:end);
+            imageStack.lime = imageStack.full(:,:,3:3:end);
+            imageStack.blue = imageStack.full(:,:,1:3:end - 1);
+        elseif strcmp(imagingWavelengths,{'Green & Blue'}) == true
+            wavelengths = {'green','blue'};
+            imageStack.green = imageStack.full(:,:,2:2:end);
+            imageStack.blue = imageStack.full(:,:,1:2:end - 1);
+        elseif strcmp(imagingWavelengths,{'Lime & Blue'}) == true
+            wavelengths = {'lime','blue'};
+            imageStack.lime = imageStack.full(:,:,2:2:end);
+            imageStack.blue = imageStack.full(:,:,1:2:end - 1);
+        elseif strcmp(imagingWavelengths,'Green') == true
+            wavelengths = {'green'};
+            imageStack.green = imageStack.full(:,:,1:end);
+        elseif strcmp(imagingWavelengths,'Lime') == true
+            wavelengths = {'lime'};
+            imageStack.lime = imageStack.full(:,:,1:end);
+        elseif strcmp(imagingWavelengths,'Blue') == true
+            wavelengths = {'blue'};
+            imageStack.blue = imageStack.full(:,:,1:end);
+        end
+        %% HbT analysis
+        if any(strcmp(imagingWavelengths,{'Green','Green & Blue','Red, Green, & Blue'})) == true
+            ledType = 'M530L3';
+            bandfilterType = 'FB530-10';
+            cutfilterType = 'MF525-39';
+            [~,~,weightedcoeffHbT] = GetHbcoeffs_IOS(ledType,bandfilterType,cutfilterType);
+            HbT_ImageStack = (log(imageStack.green./RestingBaselines.Pixel.green.(strDay))).*weightedcoeffHbT*conv2um;
+            roiImage = imageStack.green(:,:,1);
+        elseif any(strcmp(imagingWavelengths,{'Lime','Lime & Blue','Red, Lime, & Blue'})) == true
+            ledType = 'M565L3';
+            bandfilterType = 'FB570-10';
+            cutfilterType = 'EO65160';
+            [~,~,weightedcoeffHbT] = GetHbcoeffs_IOS(ledType,bandfilterType,cutfilterType);
+            HbT_ImageStack = (log(imageStack.lime./RestingBaselines.Pixel.lime.(strDay))).*weightedcoeffHbT*conv2um;
+            roiImage = imageStack.lime(:,:,1);
+        else
+            weightedcoeffHbT = NaN;
+            HbT_ImageStack = (log(imageStack.blue./RestingBaselines.Pixel.blue.(strDay))).*weightedcoeffHbT*conv2um;
+            roiImage = imageStack.blue(:,:,1);
+        end
+        % extract pixel-wise ROIs
+        ROInames = fieldnames(ROIs.(strDay));
+        for dd = 1:length(ROInames)
+            roiName = ROInames{dd,1};
+            maskFig = figure;
+            imagesc(roiImage);
+            axis image;
+            colormap gray
+            circROI = drawcircle('Center',ROIs.(strDay).(roiName).circPosition,'Radius',ROIs.(strDay).(roiName).circRadius);
+            mask = createMask(circROI,roiImage);
+            close(maskFig)
+            for cc = 1:size(HbT_ImageStack,3)
+                HbT_roiMask = mask.*double(HbT_ImageStack(:,:,cc));
+                ProcData.data.HbT.(roiName)(1,cc) = mean(nonzeros(HbT_roiMask),'omitnan');
+            end
+        end
+        %% HbO/HbR analysis
+        if any(strcmp(wavelengths,'red')) == true
+            for bb = 1:length(wavelengths)
+                wavelength = wavelengths{1,bb};
+                % normalize each stack by resting baseline frame
+                normImageStack.(wavelength) = ((imageStack.(wavelength) - RestingBaselines.Pixel.(wavelength).(strDay))./RestingBaselines.Pixel.(wavelength).(strDay)) + 1;
+                % calculate absorption coefficient for each pixel = -1/pathlength*ln(deltaR/R+1)
+                Mu.(wavelength) = -1/X.(wavelength)*log(normImageStack.(wavelength)); % cm^-1, natural logarithm
+            end
+            % Calculate concentrations (uM) using green/lime and red light
+            if any(strcmp(wavelengths,'green')) == true
+                HbR_ImageStack = (E_HbO.green*Mu.red - E_HbO.red*Mu.green)./(E_HbO.green*E_HbR.red - E_HbO.red*E_HbR.green)*conv2um; % in uM
+                HbO_ImageStack = (E_HbR.green*Mu.red - E_HbR.red*Mu.green)./(E_HbR.green*E_HbO.red - E_HbR.red*E_HbO.green)*conv2um; % in uM
+                % extract pixel-wise ROIs
+                ROInames = fieldnames(ROIs.(strDay));
+                for dd = 1:length(ROInames)
+                    roiName = ROInames{dd,1};
+                    maskFig = figure;
+                    imagesc(imageStack.green(:,:,1));
+                    axis image;
+                    colormap gray
+                    circROI = drawcircle('Center',ROIs.(strDay).(roiName).circPosition,'Radius',ROIs.(strDay).(roiName).circRadius);
+                    mask = createMask(circROI,imageStack.green(:,:,1));
+                    close(maskFig)
+                    for cc = 1:size(HbO_ImageStack,3)
+                        HbO_roiMask = mask.*double(HbO_ImageStack(:,:,cc));
+                        ProcData.data.HbO.(roiName)(1,cc) = mean(nonzeros(HbO_roiMask),'omitnan');
+                        HbR_roiMask = mask.*double(HbR_ImageStack(:,:,cc));
+                        ProcData.data.HbR.(roiName)(1,cc) = mean(nonzeros(HbR_roiMask),'omitnan');
+                    end
+                end
+            elseif any(strcmp(wavelengths,'lime')) == true
+                HbR_ImageStack = (E_HbO.lime*Mu.red - E_HbO.red*Mu.lime)./(E_HbO.lime*E_HbR.red - E_HbO.red*E_HbR.lime)*conv2um; % in uM
+                HbO_ImageStack = (E_HbR.lime*Mu.red - E_HbR.red*Mu.lime)./(E_HbR.lime*E_HbO.red - E_HbR.red*E_HbO.lime)*conv2um; % in uM
+                % extract pixel-wise ROIs
+                ROInames = fieldnames(ROIs.(strDay));
+                for dd = 1:length(ROInames)
+                    roiName = ROInames{dd,1};
+                    maskFig = figure;
+                    imagesc(imageStack.lime(:,:,1));
+                    axis image;
+                    colormap gray
+                    circROI = drawcircle('Center',ROIs.(strDay).(roiName).circPosition,'Radius',ROIs.(strDay).(roiName).circRadius);
+                    mask = createMask(circROI,imageStack.lime(:,:,1));
+                    close(maskFig)
+                    for cc = 1:size(HbO_ImageStack,3)
+                        HbO_roiMask = mask.*double(HbO_ImageStack(:,:,cc));
+                        ProcData.data.HbO.(roiName)(1,cc) = mean(nonzeros(HbO_roiMask),'omitnan');
+                        HbR_roiMask = mask.*double(HbR_ImageStack(:,:,cc));
+                        ProcData.data.HbR.(roiName)(1,cc) = mean(nonzeros(HbR_roiMask),'omitnan');
+                    end
                 end
             end
-            % save data
-            save(procDataFileID,'ProcData')
         end
-    end
+        %% correct hemodynamic attenuation of GCaMP fluorescence
+        if any(strcmp(imagingWavelengths,{'Green & Blue','Lime & Blue','Red, Green, & Blue','Red, Lime, & Blue'})) == true
+            if any(strcmp(wavelengths,'green')) == true
+                scale = RestingBaselines.Pixel.green.(strDay)./RestingBaselines.Pixel.blue.(strDay);
+                correctedGCaMP_ImageStack = (imageStack.blue./imageStack.green).*scale;
+                % extract pixel-wise ROIs
+                ROInames = fieldnames(ROIs.(strDay));
+                for dd = 1:length(ROInames)
+                    roiName = ROInames{dd,1};
+                    maskFig = figure;
+                    imagesc(imageStack.green(:,:,1));
+                    axis image;
+                    colormap gray
+                    circROI = drawcircle('Center',ROIs.(strDay).(roiName).circPosition,'Radius',ROIs.(strDay).(roiName).circRadius);
+                    mask = createMask(circROI,imageStack.green(:,:,1));
+                    close(maskFig)
+                    for cc = 1:size(correctedGCaMP_ImageStack,3)
+                        GCaMP_roiMask = mask.*double(correctedGCaMP_ImageStack(:,:,cc));
+                        ProcData.data.GCaMP.(roiName)(1,cc) = mean(nonzeros(GCaMP_roiMask),'omitnan');
+                    end
+                end
+            elseif any(strcmp(wavelengths,'lime')) == true
+                scale = RestingBaselines.Pixel.lime.(strDay)./RestingBaselines.Pixel.blue.(strDay);
+                correctedGCaMP_ImageStack = (imageStack.blue./imageStack.lime).*scale;
+                % extract pixel-wise ROIs
+                ROInames = fieldnames(ROIs.(strDay));
+                for dd = 1:length(ROInames)
+                    roiName = ROInames{dd,1};
+                    maskFig = figure;
+                    imagesc(imageStack.lime(:,:,1));
+                    axis image;
+                    colormap gray
+                    circROI = drawcircle('Center',ROIs.(strDay).(roiName).circPosition,'Radius',ROIs.(strDay).(roiName).circRadius);
+                    mask = createMask(circROI,imageStack.lime(:,:,1));
+                    close(maskFig)
+                    for cc = 1:size(correctedGCaMP_ImageStack,3)
+                        GCaMP_roiMask = mask.*double(correctedGCaMP_ImageStack(:,:,cc));
+                        ProcData.data.GCaMP.(roiName)(1,cc) = mean(nonzeros(GCaMP_roiMask),'omitnan');
+                    end
+                end
+            end
+        end
+        % save data
+        save(procDataFileID,'ProcData')
+    % end
 end

@@ -1,28 +1,19 @@
 function [EventData] = ExtractEventTriggeredData_IOS(procDataFileIDs)
-%________________________________________________________________________________________________________________________
+%----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%
-% Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
-%
-% Purpose: Extracts all event-triggered data from the data using behavioral flags
-%________________________________________________________________________________________________________________________
-
+%----------------------------------------------------------------------------------------------------------
 EventData = [];
 epoch.duration = 12;
 epoch.offset = 2;
 load(procDataFileIDs(1,:));
 imagingWavelengths = ProcData.notes.imagingWavelengths;
-if any(strcmp(imagingWavelengths,{'Red, Green, & Blue','Red, Lime, & Blue'})) == true
-    dataTypes = {'CBV','HbT','HbO','HbR','GCaMP','cortical_LH','cortical_RH','hippocampus','EMG'};
-else
-    dataTypes = {'CBV','HbT','cortical_LH','cortical_RH','hippocampus','EMG'};
-end
+[dataTypes] = DetermineWavelengthDatatypes(imagingWavelengths,2);
 for aa = 1:length(dataTypes)
     dataType = dataTypes{1,aa};
     subDataTypes = fieldnames(ProcData.data.(dataType));
-    if any(strcmpi(dataType,{'CBV','HbT','HbO','HbR','GCaMP'})) == true
+    if any(strcmpi(dataType,{'green','lime','blue','red','HbT','HbO','HbR','GCaMP'})) == true
         samplingRate = ProcData.notes.CBVCamSamplingRate;
     else
         samplingRate = ProcData.notes.dsFs;
@@ -86,7 +77,7 @@ for aa = 1:length(dataTypes)
         end
     end
     % convert the temporary stuct into a final structure
-    [EventData] = ProcessTempStruct(EventData,dataType,temp,epoch);
+    [EventData] = ProcessTempStruct_IOS(EventData,dataType,temp,epoch);
 end
 % save([animal '_EventData.mat'],'EventData','-v7.3');
 
@@ -133,7 +124,7 @@ temp.(dataType).(behavior).fileDates{f} = repmat({fileDate},1,sum(evFilter));
 
 end
 
-function [EventData] = ProcessTempStruct(EventData,dataType,temp,epoch)
+function [EventData] = ProcessTempStruct_IOS(EventData,dataType,temp,epoch)
 % get the dataTypes from temp
 dTs = fieldnames(temp);
 for a = 1:length(dTs)

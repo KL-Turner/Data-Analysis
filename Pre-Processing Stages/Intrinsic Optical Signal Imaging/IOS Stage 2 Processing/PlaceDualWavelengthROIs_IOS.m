@@ -24,7 +24,7 @@ procDataFileStruct = dir('*_ProcData.mat');
 procDataFiles = {procDataFileStruct.name}';
 procDataFileIDs = char(procDataFiles);
 % character list of all WindowCam files
-windowDataFileStruct = dir('*_WindowCam.bin');
+windowDataFileStruct = dir('*_PCO_Cam01.pcoraw');
 windowDataFiles = {windowDataFileStruct.name}';
 windowDataFileIDs = char(windowDataFiles);
 bb = 1;
@@ -43,23 +43,13 @@ end
 for qq = 1:size(procDataFileList,1)
     disp(['Verifying first frame color from file (' num2str(qq) '/' num2str(size(procDataFileList,1)) ')']); disp(' ')
     load(procDataFileList(qq,:));
-    imageHeight = ProcData.notes.CBVCamPixelHeight;
-    imageWidth = ProcData.notes.CBVCamPixelWidth;
-    pixelsPerFrame = imageWidth*imageHeight;
-    % open the file, get file size, back to the begining
-    fid = fopen(windowDataFileList(qq,:));
-    fseek(fid,0,'eof');
-    fseek(fid,0,'bof');
-    % identify the number of frames to read. Each frame has a previously defined width and height (as inputs), along with a grayscale "depth" of 2"
     nFramesToRead = 10;
     % pre-allocate memory
     frames = cell(1,nFramesToRead);
     for n = 1:nFramesToRead
-        z = fread(fid,pixelsPerFrame,'*int16','b');
-        img = reshape(z(1:pixelsPerFrame),imageWidth,imageHeight);
-        frames{n} = rot90(img',2);
+        frames{n} = imread(windowDataFileList(qq,:),n);
     end
-    gcampCheck = figure;
+    frameCheck = figure;
     frames = frames(1:end);
     for xx = 1:10
         subplot(2,5,xx)
@@ -71,11 +61,11 @@ for qq = 1:size(procDataFileList,1)
     while contCheck == false
         drawnow
         if isfield(ProcData.notes,'blueFrames') == true
-            gcampFrames = ProcData.notes.blueFrames;
+            blueFrames = ProcData.notes.blueFrames;
         else
-            gcampFrames = input('Which index are blue LED frames (1,2): '); disp(' ')
+            blueFrames = input('Which index are blue LED frames (1,2): '); disp(' ')
         end
-        if gcampFrames == 1
+        if blueFrames == 1
             if qq == 1
                 roiFrame = frames{2};
             end
@@ -83,7 +73,7 @@ for qq = 1:size(procDataFileList,1)
             ProcData.notes.greenFrames = 2;
             save(procDataFileIDs(qq,:),'ProcData')
             contCheck = true;
-        elseif gcampFrames == 2
+        elseif blueFrames == 2
             if qq == 1
                 roiFrame = frames{1};
             end
@@ -93,7 +83,7 @@ for qq = 1:size(procDataFileList,1)
             contCheck = true;
         end
     end
-    close(gcampCheck)
+    close(frameCheck)
     fclose('all');
 end
 % determine the proper size of the ROI based on camera/lens magnification
@@ -130,8 +120,8 @@ for ff = 1:length(ROInames)
         circPosition = round(circ.Center);
         if strcmpi(checkCircle,'y') == true
             isok = true;
-            ROIs.([ROInames{1,ff} '_' strDay]).circPosition = circPosition;
-            ROIs.([ROInames{1,ff} '_' strDay]).circRadius = circRadius;
+            ROIs.(strDay).(ROInames{1,ff}).circPosition = circPosition;
+            ROIs.(strDay).(ROInames{1,ff}).circRadius = circRadius;
         end
         delete(windowFig);
     end
@@ -149,7 +139,5 @@ ylabel('Image size (pixels)')
 colormap gray
 colorbar
 axis image
-caxis([0,2^ProcData.notes.CBVCamBitDepth])
+clim([0,2^ProcData.notes.CBVCamBitDepth])
 savefig(fig,[animalID '_' strDay '_ROIs.fig'])
-
-end

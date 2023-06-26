@@ -1,13 +1,9 @@
-function [ROIs] = DrawSagSinusROIs_IOS(img,strDay,ROIs)
-%________________________________________________________________________________________________________________________
+function [ROIs] = DrawSagSinusROIs_IOS(animalID,fileID,ROIs,imagingWavelengths)
+%----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%
-%
-% Purpose: Draw ROIs over the superior sagital sinus
-%________________________________________________________________________________________________________________________
-
+%----------------------------------------------------------------------------------------------------------
 % create figure of the image frame
 roiFig = figure;
 imagesc(img)
@@ -60,5 +56,3 @@ for qq = 1:size(procDataFileIDs,1)
     save(procDataFileIDs(qq,:),'ProcData')
 end
 close(roiFig)
-
-end

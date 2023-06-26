@@ -20,15 +20,15 @@ imagingWavelengths = ProcData.notes.imagingWavelengths;
 [z2,p2,k2] = butter(4,1/(ProcData.notes.CBVCamSamplingRate/2),'low');
 [sos2,g2] = zp2sos(z2,p2,k2);
 % whisker angle
-filteredWhiskerAngle = filtfilt(sos1,g1,ProcData.data.whiskerAngle);
-binWhiskers = ProcData.data.binWhiskerAngle;
+filteredWhiskerAngle = filtfilt(sos1,g1,ProcData.data.whiskerAngle.angle);
+binWhiskers = ProcData.data.whiskerAngle.binarization;
 % force sensor
-filtForceSensor = filtfilt(sos1,g1,ProcData.data.forceSensor);
-binForce = ProcData.data.binForceSensor;
+filtForceSensor = filtfilt(sos1,g1,ProcData.data.forceSensor.force);
+binForce = ProcData.data.forceSensor.binarization;
 % EMG
-EMG = ProcData.data.EMG.emg;
+EMG = ProcData.data.EMG.power;
 % heart rate
-heartRate = ProcData.data.heartRate;
+heartRate = ProcData.data.heartRate.frequency;
 % stimulations
 LPadSol = ProcData.data.stimulations.LPadSol;
 RPadSol = ProcData.data.stimulations.RPadSol;
@@ -37,15 +37,15 @@ OptoLED = ProcData.data.stimulations.OptoLED;
 % IOS data
 if any(strcmp(imagingWavelengths,{'Red, Green, & Blue','Lime, Green, & Blue'})) == true
     % HbT
-    LH_HbT = ProcData.data.CBV_HbT.LH;
+    LH_HbT = ProcData.data.HbT.LH;
     filtLH_HbT = filtfilt(sos2,g2,LH_HbT);
-    RH_HbT = ProcData.data.CBV_HbT.RH;
+    RH_HbT = ProcData.data.HbT.RH;
     filtRH_HbT = filtfilt(sos2,g2,RH_HbT);
     % GCaMP
-    LH_GCaMP7s = ProcData.data.GCaMP7s.corLH;
+    LH_GCaMP7s = ProcData.data.GCaMP7s.LH;
     normLH_GCaMP7s = (LH_GCaMP7s - 1)*100;
     filtLH_GCaMP7s = filtfilt(sos2,g2,normLH_GCaMP7s);
-    RH_GCaMP7s = ProcData.data.GCaMP7s.corRH;
+    RH_GCaMP7s = ProcData.data.GCaMP7s.RH;
     normRH_GCaMP7s = (RH_GCaMP7s - 1)*100;
     filtRH_GCaMP7s = filtfilt(sos2,g2,normRH_GCaMP7s);
     % Deoxy signal
@@ -57,22 +57,22 @@ if any(strcmp(imagingWavelengths,{'Red, Green, & Blue','Lime, Green, & Blue'})) 
     filtRH_Deoxy = filtfilt(sos2,g2,normRH_Deoxy);
 elseif any(strcmp(imagingWavelengths,{'Green & Blue','Lime & Blue'})) == true
     % HbT
-    LH_HbT = ProcData.data.CBV_HbT.LH;
+    LH_HbT = ProcData.data.HbT.LH;
     filtLH_HbT = filtfilt(sos2,g2,LH_HbT);
-    RH_HbT = ProcData.data.CBV_HbT.RH;
+    RH_HbT = ProcData.data.HbT.RH;
     filtRH_HbT = filtfilt(sos2,g2,RH_HbT);
     % GCaMP
-    LH_GCaMP7s = ProcData.data.GCaMP7s.corLH;
+    LH_GCaMP7s = ProcData.data.GCaMP7s.LH;
     normLH_GCaMP7s = (LH_GCaMP7s - 1)*100;
     filtLH_GCaMP7s = filtfilt(sos2,g2,normLH_GCaMP7s);
-    RH_GCaMP7s = ProcData.data.GCaMP7s.corRH;
+    RH_GCaMP7s = ProcData.data.GCaMP7s.RH;
     normRH_GCaMP7s = (RH_GCaMP7s - 1)*100;
     filtRH_GCaMP7s = filtfilt(sos2,g2,normRH_GCaMP7s);
 elseif any(strcmp(imagingWavelengths,{'Green','Lime'})) == true
     % HbT
-    LH_HbT = ProcData.data.CBV_HbT.LH;
+    LH_HbT = ProcData.data.HbT.LH;
     filtLH_HbT = filtfilt(sos2,g2,LH_HbT);
-    RH_HbT = ProcData.data.CBV_HbT.RH;
+    RH_HbT = ProcData.data.HbT.RH;
     filtRH_HbT = filtfilt(sos2,g2,RH_HbT);
 elseif strcmp(imagingWavelengths,'Blue') == true
     % dR/R
@@ -84,7 +84,7 @@ elseif strcmp(imagingWavelengths,'Blue') == true
     filtRH_CBV = (filtfilt(sos2,g2,normRH_CBV))*100;
 end
 % cortical and hippocampal spectrograms
-specDataFile = [animalID '_' fileID '_SpecDataA.mat'];
+specDataFile = [animalID '_' fileID '_SpecData.mat'];
 load(specDataFile,'-mat');
 cortical_LHnormS = SpecData.cortical_LH.normS.*100;
 cortical_RHnormS = SpecData.cortical_RH.normS.*100;
@@ -202,7 +202,7 @@ if any(strcmp(imagingWavelengths,{'Red, Green, & Blue','Lime, Green, & Blue'})) 
     axis xy
     c4 = colorbar;
     ylabel(c4,'\DeltaP/P (%)')
-    caxis([-100,100])
+    clim([-100,100])
     ylabel('Frequency (Hz)')
     set(gca,'Yticklabel','10^1')
     xlim([0,ProcData.notes.trialDuration_sec])
@@ -218,7 +218,7 @@ if any(strcmp(imagingWavelengths,{'Red, Green, & Blue','Lime, Green, & Blue'})) 
     axis xy
     c5 = colorbar;
     ylabel(c5,'\DeltaP/P (%)')
-    caxis([-100,100])
+    clim([-100,100])
     ylabel('Frequency (Hz)')
     set(gca,'Yticklabel','10^1')
     xlim([0,ProcData.notes.trialDuration_sec])
@@ -233,7 +233,7 @@ if any(strcmp(imagingWavelengths,{'Red, Green, & Blue','Lime, Green, & Blue'})) 
     Semilog_ImageSC(T,F,hippocampusNormS,'y')
     c6 = colorbar;
     ylabel(c6,'\DeltaP/P (%)')
-    caxis([-100,100])
+    clim([-100,100])
     xlabel('Time (sec)')
     ylabel('Frequency (Hz)')
     xlim([0,ProcData.notes.trialDuration_sec])
@@ -322,7 +322,7 @@ elseif any(strcmp(imagingWavelengths,{'Green & Blue','Lime & Blue'})) == true
     axis xy
     c4 = colorbar;
     ylabel(c4,'\DeltaP/P (%)')
-    caxis([-100,100])
+    clim([-100,100])
     ylabel('Frequency (Hz)')
     set(gca,'Yticklabel','10^1')
     xlim([0,ProcData.notes.trialDuration_sec])
@@ -338,7 +338,7 @@ elseif any(strcmp(imagingWavelengths,{'Green & Blue','Lime & Blue'})) == true
     axis xy
     c5 = colorbar;
     ylabel(c5,'\DeltaP/P (%)')
-    caxis([-100,100])
+    clim([-100,100])
     ylabel('Frequency (Hz)')
     set(gca,'Yticklabel','10^1')
     xlim([0,ProcData.notes.trialDuration_sec])
@@ -353,7 +353,7 @@ elseif any(strcmp(imagingWavelengths,{'Green & Blue','Lime & Blue'})) == true
     Semilog_ImageSC(T,F,hippocampusNormS,'y')
     c6 = colorbar;
     ylabel(c6,'\DeltaP/P (%)')
-    caxis([-100,100])
+    clim([-100,100])
     xlabel('Time (sec)')
     ylabel('Frequency (Hz)')
     xlim([0,ProcData.notes.trialDuration_sec])
@@ -363,18 +363,15 @@ elseif any(strcmp(imagingWavelengths,{'Green & Blue','Lime & Blue'})) == true
     ylabel('Hippocampal LFP')
     set(gca,'Yticklabel',[])
     % axes properties
-    linkaxes([ax1,ax2,ax3,ax4,ax5,ax6,ax7,ax8],'x')
+    linkaxes([ax1,ax2,ax3,ax4,ax5,ax6,ax7],'x')
     ax1Pos = get(ax1,'position');
     ax6Pos = get(ax6,'position');
     ax7Pos = get(ax7,'position');
-    ax8Pos = get(ax8,'position');
     ax6Pos(3:4) = ax1Pos(3:4);
     ax7Pos(3:4) = ax1Pos(3:4);
-    ax8Pos(3:4) = ax1Pos(3:4);
     set(ax6,'position',ax6Pos);
     set(ax7,'position',ax7Pos);
-    set(ax8,'position',ax8Pos);
-elseif any(strcmp(imagingWavelengths,{'Green','Lime'})) == true
+elseif any(strcmp(imagingWavelengths,{'Green','Lime','Blue'})) == true
     figHandle = figure;
     % force sensor and EMG
     ax1 = subplot(6,1,1);
@@ -430,7 +427,7 @@ elseif any(strcmp(imagingWavelengths,{'Green','Lime'})) == true
     axis xy
     c4 = colorbar;
     ylabel(c4,'\DeltaP/P (%)')
-    caxis([-100,100])
+    clim([-100,100])
     ylabel('Frequency (Hz)')
     set(gca,'Yticklabel','10^1')
     xlim([0,ProcData.notes.trialDuration_sec])
@@ -446,7 +443,7 @@ elseif any(strcmp(imagingWavelengths,{'Green','Lime'})) == true
     axis xy
     c5 = colorbar;
     ylabel(c5,'\DeltaP/P (%)')
-    caxis([-100,100])
+    clim([-100,100])
     ylabel('Frequency (Hz)')
     set(gca,'Yticklabel','10^1')
     xlim([0,ProcData.notes.trialDuration_sec])
@@ -461,7 +458,7 @@ elseif any(strcmp(imagingWavelengths,{'Green','Lime'})) == true
     Semilog_ImageSC(T,F,hippocampusNormS,'y')
     c6 = colorbar;
     ylabel(c6,'\DeltaP/P (%)')
-    caxis([-100,100])
+    clim([-100,100])
     xlabel('Time (sec)')
     ylabel('Frequency (Hz)')
     xlim([0,ProcData.notes.trialDuration_sec])
@@ -538,7 +535,7 @@ elseif strcmp(imagingWavelengths,'Blue') == true
     axis xy
     c4 = colorbar;
     ylabel(c4,'\DeltaP/P (%)')
-    caxis([-100,100])
+    clim([-100,100])
     ylabel('Frequency (Hz)')
     set(gca,'Yticklabel','10^1')
     xlim([0,ProcData.notes.trialDuration_sec])
@@ -554,7 +551,7 @@ elseif strcmp(imagingWavelengths,'Blue') == true
     axis xy
     c5 = colorbar;
     ylabel(c5,'\DeltaP/P (%)')
-    caxis([-100,100])
+    clim([-100,100])
     ylabel('Frequency (Hz)')
     set(gca,'Yticklabel','10^1')
     xlim([0,ProcData.notes.trialDuration_sec])
@@ -569,7 +566,7 @@ elseif strcmp(imagingWavelengths,'Blue') == true
     Semilog_ImageSC(T,F,hippocampusNormS,'y')
     c6 = colorbar;
     ylabel(c6,'\DeltaP/P (%)')
-    caxis([-100,100])
+    clim([-100,100])
     xlabel('Time (sec)')
     ylabel('Frequency (Hz)')
     xlim([0,ProcData.notes.trialDuration_sec])

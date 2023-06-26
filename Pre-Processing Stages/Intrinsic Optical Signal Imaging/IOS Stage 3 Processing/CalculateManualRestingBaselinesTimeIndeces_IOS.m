@@ -1,12 +1,23 @@
-function [RestingBaselines,ManualDecisions] = CalculateManualRestingBaselinesTimeIndeces_IOS(animalID,procDataFileIDs,RestData,RestingBaselines,hemoType)
-%________________________________________________________________________________________________________________________
+function [RestingBaselines,ManualDecisions,procDataFileIDs] = CalculateManualRestingBaselinesTimeIndeces_IOS(hemoType)
+%----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%
-% Purpose: Manually designate files with event times that correspond to appropriate rest
-%________________________________________________________________________________________________________________________
-
+%----------------------------------------------------------------------------------------------------------
+% character list of all ProcData files in the directory from ProcessRawDataFiles_IOS.m
+procDataFileStruct = dir('*_ProcData.mat');
+procDataFiles = {procDataFileStruct.name}';
+procDataFileIDs = char(procDataFiles);
+% character list of all ProcData files in the directory from ProcessRawDataFiles_IOS.m
+restDataFileStruct = dir('*_RestData.mat');
+restDataFiles = {restDataFileStruct.name}';
+restDataFileID = char(restDataFiles);
+load(restDataFileID)
+% character list of all ProcData files in the directory from ProcessRawDataFiles_IOS.m
+baselineDataFileStruct = dir('*_RestingBaselines.mat');
+baselineDataFiles = {baselineDataFileStruct.name}';
+baselineDataFileID = char(baselineDataFiles);
+load(baselineDataFileID)
 disp('Calculating the resting baselines using manually selected files each unique day...'); disp(' ')
 % determine the animal's ID use the RestData.mat file's name for the current folder
 % the RestData.mat struct has all resting events, regardless of duration. We want to set the threshold for rest as anything
@@ -22,6 +33,7 @@ StimCriteria.Value = {5};
 for a = 1:size(procDataFileIDs,1)
     disp(['Loading file ' num2str(a) ' of ' num2str(size(procDataFileIDs,1)) '...']); disp(' ')
     procDataFileID = procDataFileIDs(a,:);
+    [animalID,~,~] = GetFileInfo_IOS(procDataFileID);
     load(procDataFileID,'-mat')
     ManualDecisions.fileIDs{a,1} = procDataFileIDs(a,:);
     if isfield(ProcData,'manualBaselineInfo') == false
@@ -199,5 +211,3 @@ RestingBaselines.manualSelection.baselineFileInfo.durations = finalEventDuration
 RestingBaselines.manualSelection.baselineFileInfo.selections = ManualDecisions.validFiles;
 RestingBaselines.manualSelection.baselineFileInfo.selectionFiles = ManualDecisions.fileIDs;
 save([animalID '_RestingBaselines.mat'],'RestingBaselines');
-
-end

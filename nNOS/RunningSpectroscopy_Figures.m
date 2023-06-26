@@ -24,13 +24,13 @@ experiment.SSP = {
 'T219';
 };
 % set groups based on toxin injection
-group.Blank.HR = [];
-group.Blank.HbT = [];
-group.Blank.HbD = [];
-group.Blank.RestVar_HR = [];
-group.Blank.RestVar_HbT = [];
-group.Blank.RestVar_HbD = [];
-group.SSP = group.Blank;
+runningGroup.Blank.HR = [];
+runningGroup.Blank.HbT = [];
+runningGroup.Blank.HbD = [];
+runningGroup.Blank.RestVar_HR = [];
+runningGroup.Blank.RestVar_HbT = [];
+runningGroup.Blank.RestVar_HbD = [];
+runningGroup.SSP = runningGroup.Blank;
 % fieldnames
 fields = fieldnames(experiment);
 for a0 = 1:numel(fields)
@@ -42,19 +42,19 @@ for a0 = 1:numel(fields)
         if ~isempty(ind_targetFile)
             out.(animalID) = genFigure_individual_SAP(ind_targetFile);
         end
-        group.(expCondition).HR = [group.(expCondition).HR;nanmean(out.(animalID).HR.LTA,1)]; %#ok<*NANMEAN> 
-        group.(expCondition).HbT = [group.(expCondition).HbT;nanmean(out.(animalID).HbT.PC.LTA,1)];
-        group.(expCondition).HbD = [group.(expCondition).HbD;nanmean(out.(animalID).HbD.PC.LTA,1)];
+        runningGroup.(expCondition).HR = [runningGroup.(expCondition).HR;nanmean(out.(animalID).HR.LTA,1)]; %#ok<*NANMEAN> 
+        runningGroup.(expCondition).HbT = [runningGroup.(expCondition).HbT;nanmean(out.(animalID).HbT.PC.LTA,1)];
+        runningGroup.(expCondition).HbD = [runningGroup.(expCondition).HbD;nanmean(out.(animalID).HbD.PC.LTA,1)];
         
-        group.(expCondition).RestVar_HR = [group.(expCondition).RestVar_HR; nanmean(out.(animalID).RestVar.PC.HR)];
-        group.(expCondition).RestVar_HbT = [group.(expCondition).RestVar_HbT; nanmean(out.(animalID).RestVar.PC.HbT)];
-        group.(expCondition).RestVar_HbD = [group.(expCondition).RestVar_HbD; nanmean(out.(animalID).RestVar.PC.HbD)];
+        runningGroup.(expCondition).RestVar_HR = [runningGroup.(expCondition).RestVar_HR; nanmean(out.(animalID).RestVar.PC.HR)];
+        runningGroup.(expCondition).RestVar_HbT = [runningGroup.(expCondition).RestVar_HbT; nanmean(out.(animalID).RestVar.PC.HbT)];
+        runningGroup.(expCondition).RestVar_HbD = [runningGroup.(expCondition).RestVar_HbD; nanmean(out.(animalID).RestVar.PC.HbD)];
     end
 end
 % HR
-[summaryFigure] = figure_LTA(nanmean(group.Blank.HR,1),nanmean(group.SSP.HR,1),...
-           nanstd(group.Blank.HR,[],1)/sqrt(size(group.Blank.HR,1)),...
-           nanstd(group.SSP.HR,[],1)/sqrt(size(group.SSP.HR,1))); %#ok<*NANSTD> 
+[summaryFigure] = figure_LTA(nanmean(runningGroup.Blank.HR,1),nanmean(runningGroup.SSP.HR,1),...
+           nanstd(runningGroup.Blank.HR,[],1)/sqrt(size(runningGroup.Blank.HR,1)),...
+           nanstd(runningGroup.SSP.HR,[],1)/sqrt(size(runningGroup.SSP.HR,1))); %#ok<*NANSTD> 
 legend({'Blank-SAP','SSP-SAP'});
 xlabel('Time (s)')
 ylabel('Heart rate (Hz)');
@@ -67,9 +67,9 @@ if saveFigs == true
     savefig(summaryFigure,[dirpath 'RunningSpectroscopy_HeartRate']);
 end
 % oxygen       
-[summaryFigure] = figure_LTA(nanmean(group.Blank.HbD,1),nanmean(group.SSP.HbD,1),...
-           nanstd(group.Blank.HbD,[],1)/sqrt(size(group.Blank.HbD,1)),...
-           nanstd(group.SSP.HbD,[],1)/sqrt(size(group.SSP.HbD,1)));
+[summaryFigure] = figure_LTA(nanmean(runningGroup.Blank.HbD,1),nanmean(runningGroup.SSP.HbD,1),...
+           nanstd(runningGroup.Blank.HbD,[],1)/sqrt(size(runningGroup.Blank.HbD,1)),...
+           nanstd(runningGroup.SSP.HbD,[],1)/sqrt(size(runningGroup.SSP.HbD,1)));
 legend({'Blank-SAP','SSP-SAP'});
 xlabel('Time (s)')
 ylabel('Oxygen, PC (uM)')
@@ -78,9 +78,9 @@ if saveFigs == true
     savefig(summaryFigure,[dirpath 'RunningSpectroscopy_Oxygen']);
 end
 % HbT      
-[summaryFigure] = figure_LTA(nanmean(group.Blank.HbT,1),nanmean(group.SSP.HbT,1),...
-           nanstd(group.Blank.HbT,[],1)/sqrt(size(group.Blank.HbT,1)),...
-           nanstd(group.SSP.HbT,[],1)/sqrt(size(group.SSP.HbT,1)));
+[summaryFigure] = figure_LTA(nanmean(runningGroup.Blank.HbT,1),nanmean(runningGroup.SSP.HbT,1),...
+           nanstd(runningGroup.Blank.HbT,[],1)/sqrt(size(runningGroup.Blank.HbT,1)),...
+           nanstd(runningGroup.SSP.HbT,[],1)/sqrt(size(runningGroup.SSP.HbT,1)));
 legend({'Blank-SAP','SSP-SAP'});
 xlabel('Time (s)')
 ylabel('HbT, PC (uM)')

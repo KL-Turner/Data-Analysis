@@ -8,6 +8,7 @@ load(procDataFileIDs(1,:));
 [animalID,~,~] = GetFileInfo_IOS(procDataFileIDs(1,:));
 imagingType = ProcData.notes.imagingType;
 imagingWavelengths = ProcData.notes.imagingWavelengths;
+imagingCamera = ProcData.notes.iosCamera;
 % use imaging type to determine ROI names and typical lens magnification
 if strcmpi(imagingType,'Single ROI (SI)') == true
     ROInames = {'barrels'};
@@ -29,12 +30,6 @@ else
     load(ROIFileID);
 end
 % check whether or not each ROI already exists
-[ROIs] = CheckROIDates_IOS(animalID,ROIs,ROInames,lensMag,imagingType,imagingWavelengths);
+[ROIs] = CheckROIDates_IOS(animalID,ROIs,ROInames,lensMag,imagingType,imagingWavelengths,imagingCamera);
 % extract CBV data from each ROI for each RawData file in the directory that hasn't been processed yet.
-if any(strcmp(imagingWavelengths,{'Red, Green, & Blue','Red, Lime, & Blue'})) == true
-    ExtractTriWavelengthData_IOS(ROIs,ROInames,procDataFileIDs)
-elseif any(strcmp(imagingWavelengths,{'Green & Blue','Lime & Blue'})) == true
-    ExtractDualWavelengthData_IOS(ROIs,ROInames,procDataFileIDs)
-else
-    ExtractSingleWavelengthData_IOS(ROIs,ROInames,procDataFileIDs)
-end
+ExtractWavelengthReflectance_IOS(ROIs,ROInames,procDataFileIDs,imagingWavelengths,imagingCamera)

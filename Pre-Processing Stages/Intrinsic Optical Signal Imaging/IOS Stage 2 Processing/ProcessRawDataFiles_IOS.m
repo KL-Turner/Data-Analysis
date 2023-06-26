@@ -1,16 +1,19 @@
-function [] = ProcessRawDataFiles_IOS(rawDataFiles)
+function [procDataFileIDs] = ProcessRawDataFiles_IOS()
 %----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %----------------------------------------------------------------------------------------------------------
-for a = 1:size(rawDataFiles,1)
-    rawDataFile = rawDataFiles(a,:);
-    disp(['Analyzing RawData file ' num2str(a) ' of ' num2str(size(rawDataFiles,1)) '...']); disp(' ')
+rawDataFileStruct = dir('*_RawData.mat');
+rawDataFiles = {rawDataFileStruct.name}';
+rawDataFileIDs = char(rawDataFiles);
+for a = 1:size(rawDataFileIDs,1)
+    rawDataFile = rawDataFileIDs(a,:);
     [animalID,fileDate,fileID] = GetFileInfo_IOS(rawDataFile);
     strDay = ConvertDate_IOS(fileDate);
     procDataFile = ([animalID '_' fileID '_ProcData.mat']);
-    if exist(procDataFile) == 0
+    if ~exist(procDataFile,'file') == true
+        disp(['Creating ProcData file (' num2str(a) '/' num2str(size(rawDataFileIDs,1)) ')']); disp(' ')
         load(rawDataFile);
         % transfer RawData notes to ProcData structure.
         ProcData.notes = RawData.notes;
@@ -47,7 +50,6 @@ for a = 1:size(rawDataFiles,1)
         end
         % patch and binarize the whisker angle and set the resting angle to zero degrees.
         [patchedWhisk] = PatchWhiskerAngle_IOS(RawData.data.whiskerAngle,RawData.notes.whiskCamSamplingRate,RawData.notes.trialDuration_sec,RawData.notes.droppedWhiskCamFrameIndex);
-        RawData.data.patchedWhiskerAngle = patchedWhisk;
         % create filter for whisking/movement
         filtThreshold = 20;
         filtOrder = 2;
@@ -72,8 +74,8 @@ for a = 1:size(rawDataFiles,1)
         [linkedBinarizedWhiskers] = LinkBinaryEvents_IOS(gt(binWhisk,0),[round(ProcData.notes.dsFs/3),0]);
         inds = linkedBinarizedWhiskers == 0;
         restAngle = mean(resampledWhisk(inds));
-        ProcData.data.whiskerAngle = resampledWhisk - restAngle;
-        ProcData.data.binWhiskerAngle = binWhisk;
+        ProcData.data.whiskerAngle.angle = resampledWhisk - restAngle;
+        ProcData.data.whiskerAngle.binarization = [0,binWhisk,0];
         % downsample and binarize the force sensor.
         trimmedForce = RawData.data.forceSensor(1:min(analogExpectedLength,length(RawData.data.forceSensor)));
         % filter then downsample the Force Sensor waveform to desired frequency
@@ -82,7 +84,7 @@ for a = 1:size(rawDataFiles,1)
         [z,p,k] = butter(filtOrder,filtThreshold/(ProcData.notes.analogSamplingRate/2),'low');
         [sos,g] = zp2sos(z,p,k);
         filtForceSensor = filtfilt(sos,g,trimmedForce);
-        ProcData.data.forceSensor = resample(filtForceSensor,ProcData.notes.dsFs,ProcData.notes.analogSamplingRate);
+        ProcData.data.forceSensor.force = resample(filtForceSensor,ProcData.notes.dsFs,ProcData.notes.analogSamplingRate);
         % binarize the force sensor waveform
         threshfile = dir('*_Thresholds.mat');
         if ~isempty(threshfile)
@@ -90,11 +92,11 @@ for a = 1:size(rawDataFiles,1)
         end
         [ok] = CheckForThreshold_IOS(['binarizedForceSensor_' strDay],animalID);
         if ok == 0
-            [forceSensorThreshold] = CreateForceSensorThreshold_IOS(ProcData.data.forceSensor,ProcData.notes.dsFs,strDay);
+            [forceSensorThreshold] = CreateForceSensorThreshold_IOS(ProcData.data.forceSensor.force,ProcData.notes.dsFs,strDay);
             Thresholds.(['binarizedForceSensor_' strDay]) = forceSensorThreshold;
             save([animalID '_Thresholds.mat'],'Thresholds');
         end
-        ProcData.data.binForceSensor = BinarizeForceSensor_IOS(ProcData.data.forceSensor,Thresholds.(['binarizedForceSensor_' strDay]));
+        ProcData.data.forceSensor.binarization = [BinarizeForceSensor_IOS(ProcData.data.forceSensor.force,Thresholds.(['binarizedForceSensor_' strDay])),0];
         % EMG filtering and processing
         fpass = [300,3000];
         trimmedEMG = RawData.data.EMG(1:min(analogExpectedLength,length(RawData.data.EMG)));
@@ -105,9 +107,21 @@ for a = 1:size(rawDataFiles,1)
         smoothingKernel = gausswin(kernelWidth*ProcData.notes.analogSamplingRate)/sum(gausswin(kernelWidth*ProcData.notes.analogSamplingRate));
         EMGPwr = log10(conv(filtEMG.^2,smoothingKernel,'same'));
         resampEMG = resample(EMGPwr,ProcData.notes.dsFs,ProcData.notes.analogSamplingRate);
-        ProcData.data.EMG.emg = resampEMG;
+        ProcData.data.EMG.power = resampEMG;
+        % pupil data
+        [ProcData] = PatchPupilData_IOS(RawData,ProcData);
+        diameter = sqrt(ProcData.data.pupil.area./pi)*2;
+        ProcData.data.pupil.diameter = diameter;
+        ProcData.notes.pupilCam_mmPerPixel = 0.018;
+        ProcData.data.pupil.mmDiameter = diameter.*ProcData.notes.pupilCam_mmPerPixel;
+        ProcData.data.pupil.mmArea = ProcData.data.pupil.area.*(ProcData.notes.pupilCam_mmPerPixel^2);
         % save the processed data
-        save(rawDataFile,'RawData')
         save(procDataFile,'ProcData')
+    else
+        disp(['ProcData file (' num2str(a) '/' num2str(size(rawDataFileIDs,1)) ') already analyzed.']); disp(' ')
     end
 end
+% character list of all ProcData files in the directory from ProcessRawDataFiles_IOS.m
+procDataFileStruct = dir('*_ProcData.mat');
+procDataFiles = {procDataFileStruct.name}';
+procDataFileIDs = char(procDataFiles);

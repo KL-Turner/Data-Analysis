@@ -148,16 +148,45 @@ for aa = 1:length(dataTypes)
                 scoringLabels = ScoringResults.labels{cc,1};
             end
         end
+        scoringLabelsA = scoringLabels(1:60);
         % check labels to match arousal state
-        if sum(strcmp(scoringLabels,'Not Sleep')) > 144 % 36 bins (180 total) or 3 minutes of aAasleep
+        if sum(strcmp(scoringLabelsA,'Not Sleep')) >= 48
             load(procDataFileID,'-mat')
             stims = ProcData.data.stimulations.LPadSol;
             % don't include trials with stimulation
             if isempty(stims) == true
-                LH_AlertData{zz,1} = ProcData.data.(dataType).LH;
-                RH_AlertData{zz,1} = ProcData.data.(dataType).RH;
-                fLH_AlertData{zz,1} = ProcData.data.(dataType).fLH;
-                fRH_AlertData{zz,1} = ProcData.data.(dataType).fRH;
+                LH_AlertData{zz,1} = ProcData.data.(dataType).LH(1:300*samplingRate);
+                RH_AlertData{zz,1} = ProcData.data.(dataType).RH(1:300*samplingRate);
+                fLH_AlertData{zz,1} = ProcData.data.(dataType).fLH(1:300*samplingRate);
+                fRH_AlertData{zz,1} = ProcData.data.(dataType).fRH(1:300*samplingRate);
+                zz = zz + 1;
+            end
+        end
+        scoringLabelsB = scoringLabels(61:120);
+        % check labels to match arousal state
+        if sum(strcmp(scoringLabelsB,'Not Sleep')) >= 48
+            load(procDataFileID,'-mat')
+            stims = ProcData.data.stimulations.LPadSol;
+            % don't include trials with stimulation
+            if isempty(stims) == true
+                LH_AlertData{zz,1} = ProcData.data.(dataType).LH(300*samplingRate + 1:600*samplingRate);
+                RH_AlertData{zz,1} = ProcData.data.(dataType).RH(300*samplingRate + 1:600*samplingRate);
+                fLH_AlertData{zz,1} = ProcData.data.(dataType).fLH(300*samplingRate + 1:600*samplingRate);
+                fRH_AlertData{zz,1} = ProcData.data.(dataType).fRH(300*samplingRate + 1:600*samplingRate);
+                zz = zz + 1;
+            end
+        end
+        scoringLabelsC = scoringLabels(121:180);
+        % check labels to match arousal state
+        if sum(strcmp(scoringLabelsC,'Not Sleep')) >= 48
+            load(procDataFileID,'-mat')
+            stims = ProcData.data.stimulations.LPadSol;
+            % don't include trials with stimulation
+            if isempty(stims) == true
+                LH_AlertData{zz,1} = ProcData.data.(dataType).LH(600*samplingRate + 1:end);
+                RH_AlertData{zz,1} = ProcData.data.(dataType).RH(600*samplingRate + 1:end);
+                fLH_AlertData{zz,1} = ProcData.data.(dataType).fLH(600*samplingRate + 1:end);
+                fRH_AlertData{zz,1} = ProcData.data.(dataType).fRH(600*samplingRate + 1:end);
                 zz = zz + 1;
             end
         end
@@ -197,16 +226,45 @@ for aa = 1:length(dataTypes)
                 scoringLabels = ScoringResults.labels{cc,1};
             end
         end
+        scoringLabelsA = scoringLabels(1:60);
         % check labels to match arousal state
-        if sum(strcmp(scoringLabels,'Not Sleep')) < 36 % 36 bins (180 total) or 3 minutes of alert
+        if sum(strcmp(scoringLabelsA,'Not Sleep')) <= 12
             load(procDataFileID,'-mat')
             stims = ProcData.data.stimulations.LPadSol;
             % don't include trials with stimulation
             if isempty(stims) == true
-                LH_AsleepData{zz,1} = ProcData.data.(dataType).LH;
-                RH_AsleepData{zz,1} = ProcData.data.(dataType).RH;
-                fLH_AsleepData{zz,1} = ProcData.data.(dataType).fLH;
-                fRH_AsleepData{zz,1} = ProcData.data.(dataType).fRH;
+                LH_AsleepData{zz,1} = ProcData.data.(dataType).LH(1:300*samplingRate);
+                RH_AsleepData{zz,1} = ProcData.data.(dataType).RH(1:300*samplingRate);
+                fLH_AsleepData{zz,1} = ProcData.data.(dataType).fLH(1:300*samplingRate);
+                fRH_AsleepData{zz,1} = ProcData.data.(dataType).fRH(1:300*samplingRate);
+                zz = zz + 1;
+            end
+        end
+        scoringLabelsB = scoringLabels(61:120);
+        % check labels to match arousal state
+        if sum(strcmp(scoringLabelsB,'Not Sleep')) <= 12
+            load(procDataFileID,'-mat')
+            stims = ProcData.data.stimulations.LPadSol;
+            % don't include trials with stimulation
+            if isempty(stims) == true
+                LH_AsleepData{zz,1} = ProcData.data.(dataType).LH(300*samplingRate + 1:600*samplingRate);
+                RH_AsleepData{zz,1} = ProcData.data.(dataType).RH(300*samplingRate + 1:600*samplingRate);
+                fLH_AsleepData{zz,1} = ProcData.data.(dataType).fLH(300*samplingRate + 1:600*samplingRate);
+                fRH_AsleepData{zz,1} = ProcData.data.(dataType).fRH(300*samplingRate + 1:600*samplingRate);
+                zz = zz + 1;
+            end
+        end
+        scoringLabelsC = scoringLabels(121:180);
+        % check labels to match arousal state
+        if sum(strcmp(scoringLabelsC,'Not Sleep')) <= 12
+            load(procDataFileID,'-mat')
+            stims = ProcData.data.stimulations.LPadSol;
+            % don't include trials with stimulation
+            if isempty(stims) == true
+                LH_AsleepData{zz,1} = ProcData.data.(dataType).LH(600*samplingRate + 1:end);
+                RH_AsleepData{zz,1} = ProcData.data.(dataType).RH(600*samplingRate + 1:end);
+                fLH_AsleepData{zz,1} = ProcData.data.(dataType).fLH(600*samplingRate + 1:end);
+                fRH_AsleepData{zz,1} = ProcData.data.(dataType).fRH(600*samplingRate + 1:end);
                 zz = zz + 1;
             end
         end
@@ -243,10 +301,20 @@ for aa = 1:length(dataTypes)
         stims = ProcData.data.stimulations.LPadSol;
         % don't include trials with stimulation
         if isempty(stims) == true
-            LH_AllData{zz,1} = ProcData.data.(dataType).LH;
-            RH_AllData{zz,1} = ProcData.data.(dataType).RH;
-            fLH_AllData{zz,1} = ProcData.data.(dataType).fLH;
-            fRH_AllData{zz,1} = ProcData.data.(dataType).fRH;
+            LH_AllData{zz,1} = ProcData.data.(dataType).LH(1:300*samplingRate);
+            RH_AllData{zz,1} = ProcData.data.(dataType).RH(1:300*samplingRate);
+            fLH_AllData{zz,1} = ProcData.data.(dataType).fLH(1:300*samplingRate);
+            fRH_AllData{zz,1} = ProcData.data.(dataType).fRH(1:300*samplingRate);
+            zz = zz + 1;
+            LH_AllData{zz,1} = ProcData.data.(dataType).LH(300*samplingRate + 1:600*samplingRate);
+            RH_AllData{zz,1} = ProcData.data.(dataType).RH(300*samplingRate + 1:600*samplingRate);
+            fLH_AllData{zz,1} = ProcData.data.(dataType).fLH(300*samplingRate + 1:600*samplingRate);
+            fRH_AllData{zz,1} = ProcData.data.(dataType).fRH(300*samplingRate + 1:600*samplingRate);
+            zz = zz + 1;
+            LH_AllData{zz,1} = ProcData.data.(dataType).LH(600*samplingRate + 1:end);
+            RH_AllData{zz,1} = ProcData.data.(dataType).RH(600*samplingRate + 1:end);
+            fLH_AllData{zz,1} = ProcData.data.(dataType).fLH(600*samplingRate + 1:end);
+            fRH_AllData{zz,1} = ProcData.data.(dataType).fRH(600*samplingRate + 1:end);
             zz = zz + 1;
         end
     end

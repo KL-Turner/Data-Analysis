@@ -7,41 +7,30 @@ function [] = SingleTrialExample_Awake_Ephys_Figures(rootFolder,saveFigs,delim)
 path = [rootFolder delim 'Results_Turner'];
 cd(path)
 % load file and gather information
-% exampleProcFile = 'T151_210130_14_02_45_ProcData.mat';
-% exampleProcFile = 'T195_210521_11_31_42_ProcData.mat';
-exampleProcFile = 'T151_210130_14_18_16_ProcData.mat';
-load(exampleProcFile)
-% exampleSpecFile = 'T151_210130_14_02_45_SpecDataA.mat';
-% exampleSpecFile = 'T195_210521_11_31_42_SpecDataA.mat';
-exampleSpecFile = 'T151_210130_14_18_16_SpecDataA.mat';
-load(exampleSpecFile)
+exampleProcFile_AwakeEphys = 'T165_210222_12_45_38_ProcData.mat';
+load(exampleProcFile_AwakeEphys)
+exampleSpecFile_AwakeEphys = 'T165_210222_12_45_38_SpecDataA.mat';
+load(exampleSpecFile_AwakeEphys)
 % setup butterworth filter coefficients for a 1 Hz and 10 Hz lowpass based on the sampling rate
-[z,p,k] = butter(4,1/(ProcData.notes.CBVCamSamplingRate/2),'low');
-[sos,g] = zp2sos(z,p,k);
-binWhiskers = ProcData.data.binWhiskerAngle;
-% stimulations
-LPadSol = ProcData.data.stimulations.LPadSol;
-RPadSol = ProcData.data.stimulations.RPadSol;
-AudSol = ProcData.data.stimulations.AudSol;
+[z_AwakeEphys,p_AwakeEphys,k_AwakeEphys] = butter(4,1/(ProcData.notes.CBVCamSamplingRate/2),'low');
+[sos_AwakeEphys,g_AwakeEphys] = zp2sos(z_AwakeEphys,p_AwakeEphys,k_AwakeEphys);
+binWhiskers_AwakeEphys = ProcData.data.binWhiskerAngle;
 % data
-HbT = filtfilt(sos,g,ProcData.data.HbT.RH);
-% RH gamma baseline for T151 Jan 30 
-gammaBaseline = 3.13836528020820e-10;
-gamma = filtfilt(sos,g,((ProcData.data.cortical_RH.gammaBandPower - gammaBaseline)./gammaBaseline)*100);
+HbT_AwakeEphys = filtfilt(sos_AwakeEphys,g_AwakeEphys,ProcData.data.HbT.RH);
+% RH gamma baseline for T151 Jan 30
+gammaBaseline_AwakeEphys = 1.016060094087967e-10;
+gamma_AwakeEphys = filtfilt(sos_AwakeEphys,g_AwakeEphys,((ProcData.data.cortical_RH.gammaBandPower - gammaBaseline_AwakeEphys)./gammaBaseline_AwakeEphys)*100);
 % cortical and hippocampal spectrograms
-cortNormS = SpecData.cortical_RH.normS.*100;
-T = SpecData.cortical_RH.T;
-F = SpecData.cortical_RH.F;
+cortNormS_AwakeEphys = SpecData.cortical_RH.normS.*100;
+T_AwakeEphys = SpecData.cortical_RH.T;
+F_AwakeEphys = SpecData.cortical_RH.F;
 % Yvals for behavior Indices
-whisking_Yvals = 155*ones(size(binWhiskers));
-LPad_Yvals = 160*ones(size(LPadSol));
-RPad_Yvals = 160*ones(size(RPadSol));
-Aud_Yvals = 160*ones(size(AudSol));
-whiskInds = binWhiskers.*whisking_Yvals;
+whisking_Yvals_AwakeEphys = 155*ones(size(binWhiskers_AwakeEphys));
+whiskInds_AwakeEphys = binWhiskers_AwakeEphys.*whisking_Yvals_AwakeEphys;
 % set whisk indeces
-for x = 1:length(whiskInds)
-    if whiskInds(1,x) == 0
-        whiskInds(1,x) = NaN;
+for x = 1:length(whiskInds_AwakeEphys)
+    if whiskInds_AwakeEphys(1,x) == 0
+        whiskInds_AwakeEphys(1,x) = NaN;
     end
 end
 % figure
@@ -49,37 +38,34 @@ summaryFigure = figure;
 % force sensor and EMG
 ax1 = subplot(4,1,1:3);
 % hemodynamic and behavioral indeces
-s1 = scatter((1:length(binWhiskers))/ProcData.notes.dsFs,whiskInds,'.','MarkerEdgeColor',colors('black'));
+s1 = scatter((1:length(binWhiskers_AwakeEphys))/ProcData.notes.dsFs,whiskInds_AwakeEphys,'.','MarkerEdgeColor',colors('black'));
 hold on;
-s2 = scatter(LPadSol,LPad_Yvals,'v','MarkerEdgeColor','k','MarkerFaceColor','c');
-s3 = scatter(RPadSol,RPad_Yvals,'v','MarkerEdgeColor','k','MarkerFaceColor','m');
-s4 = scatter(AudSol,Aud_Yvals,'v','MarkerEdgeColor','k','MarkerFaceColor','g');
-p1 = plot((1:length(HbT))/ProcData.notes.CBVCamSamplingRate,HbT,'color',colors('black'),'LineWidth',1);
+p1 = plot((1:length(HbT_AwakeEphys))/ProcData.notes.CBVCamSamplingRate,HbT_AwakeEphys,'color',colors('black'),'LineWidth',1);
 ylabel('\Delta[Hb] (\muM)')
 ylim([-50,160])
 yyaxis right
-p2 = plot((1:length(gamma))/ProcData.notes.CBVCamSamplingRate,gamma,'color',colors('magenta'),'LineWidth',1);
-ylim([-500,1000])
-legend([p1,p2,s1,s2,s3,s4],'HbT','gamma power','whisking','LPad','RPad','Aud')
+p2 = plot((1:length(gamma_AwakeEphys))/ProcData.notes.CBVCamSamplingRate,gamma_AwakeEphys,'color',colors('magenta'),'LineWidth',1);
+ylim([-300,1300])
+legend([p1,p2,s1],'HbT','gamma power','whisking')
 set(gca,'Xticklabel',[])
 set(gca,'box','off')
-xticks([260,320,380,440])
+xticks([310,370,430,490])
 title('RH SIBF')
-xlim([260,440])
+xlim([310,490])
 ax1.YAxis(1).Color = colors('black');
 ax1.YAxis(2).Color = colors('magenta');
 % cortical electrode spectrogram
 ax2 = subplot(4,1,4);
-Semilog_ImageSC(T,F,cortNormS,'y')
+Semilog_ImageSC(T_AwakeEphys,F_AwakeEphys,cortNormS_AwakeEphys,'y')
 c1 = colorbar;
 ylabel(c1,'\DeltaP/P (%)','rotation',-90,'VerticalAlignment','bottom')
-caxis([-100,100])
+clim([-100,100])
 title('Cortical LFP')
 xlabel('Time (min)')
 ylabel('Frequency (Hz)')
-xlim([260,440])
+xlim([310,490])
 set(gca,'box','off')
-xticks([260,320,380,440])
+xticks([310,370,430,490])
 xticklabels({'0','1','2','3'});
 % axis properties
 ax1Pos = get(ax1,'position');
@@ -100,13 +86,13 @@ if saveFigs == true
     close(summaryFigure)
     % spectrogram image
     subplotImgs = figure;
-    Semilog_ImageSC(T,F,cortNormS,'y')
-    caxis([-100,100])
+    Semilog_ImageSC(T_AwakeEphys,F_AwakeEphys,cortNormS_AwakeEphys,'y')
+    clim([-100,100])
     set(gca,'box','off')
     axis xy
     axis tight
     axis off
-    xlim([260,440])
+    xlim([310,490])
     print('-vector','-dtiffn',[dirpath 'AwakeExample_Ephys_Spectrogram'])
     close(subplotImgs)
 end

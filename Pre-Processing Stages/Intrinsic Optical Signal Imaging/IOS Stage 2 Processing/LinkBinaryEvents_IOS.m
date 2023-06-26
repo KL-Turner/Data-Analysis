@@ -1,14 +1,9 @@
 function [linkedWF] = LinkBinaryEvents_IOS(binWF,dCrit)
-%________________________________________________________________________________________________________________________
-% Edited by Kevin L. Turner
+%----------------------------------------------------------------------------------------------------------
+% Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%
-% Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
-%
-% Purpose: Link binary events that occur within a certain amount of time.
-%________________________________________________________________________________________________________________________
-
+%----------------------------------------------------------------------------------------------------------
 % identify edges, control for trial start/stop
 dBinWF = diff(gt(binWF,0));
 upInd = find(dBinWF == 1);
@@ -42,5 +37,3 @@ if isempty(blips) == 0
     end
 end
 linkedWF = binWF;
-
-end

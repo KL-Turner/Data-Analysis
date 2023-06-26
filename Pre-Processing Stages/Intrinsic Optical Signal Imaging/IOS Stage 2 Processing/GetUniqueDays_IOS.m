@@ -1,15 +1,10 @@
 function [uniqueDays,dayIndex,dayID] = GetUniqueDays_IOS(dateList)
-%________________________________________________________________________________________________________________________
-% Edited by Kevin L. Turner
+%----------------------------------------------------------------------------------------------------------
+% Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%
-% Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
-%
-% Purpse: Takes a list of fileDates and determines how many unique individual days there are.
-%________________________________________________________________________________________________________________________
-
-if iscellstr(dateList) %#ok<ISCLSTR>
+%----------------------------------------------------------------------------------------------------------
+if iscellstr(dateList)
     temp = cell2mat(dateList);
     dateList = temp;
 end
@@ -26,5 +21,3 @@ else
 end
 allDays = mat2cell(allDates,ones(1,size(allDates,1)));
 [uniqueDays,dayIndex,dayID] = unique(allDays);
-
-end

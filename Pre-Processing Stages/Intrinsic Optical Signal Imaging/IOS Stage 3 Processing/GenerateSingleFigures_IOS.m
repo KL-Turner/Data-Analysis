@@ -19,25 +19,25 @@ imagingType = ProcData.notes.imagingType;
 [z2,p2,k2] = butter(4,1/(ProcData.notes.CBVCamSamplingRate/2),'low');
 [sos2,g2] = zp2sos(z2,p2,k2);
 % whisker angle
-filteredWhiskerAngle = filtfilt(sos1,g1,ProcData.data.whiskerAngle);
-binWhiskers = ProcData.data.binWhiskerAngle;
+filteredWhiskerAngle = filtfilt(sos1,g1,ProcData.data.whiskerAngle.angle);
+binWhiskers = ProcData.data.whiskerAngle.binarization;
 % force sensor
-filtForceSensor = filtfilt(sos1,g1,ProcData.data.forceSensor);
-binForce = ProcData.data.binForceSensor;
+filtForceSensor = filtfilt(sos1,g1,ProcData.data.forceSensor.force);
+binForce = ProcData.data.forceSensor.binarization;
 % EMG
-EMG = ProcData.data.EMG.emg;
+EMG = ProcData.data.EMG.power;
 % heart rate
-heartRate = ProcData.data.heartRate;
+heartRate = ProcData.data.heartRate.frequency;
 % stimulations
 LPadSol = ProcData.data.stimulations.LPadSol;
 RPadSol = ProcData.data.stimulations.RPadSol;
 AudSol = ProcData.data.stimulations.AudSol;
 OptoLED = ProcData.data.stimulations.OptoLED;
-% CBV data
+% green data
 if strcmpi(imagingType,'Single ROI (SI)') == true
     if strcmp(hemoType,'reflectance') == true
-        barrels_CBV = ProcData.data.CBV.Barrels;
-        normBarrels_CBV = (barrels_CBV - RestingBaselines.(baselineType).CBV.Barrels.(strDay).mean)./(RestingBaselines.(baselineType).CBV.Barrels.(strDay).mean);
+        barrels_CBV = ProcData.data.green.Barrels;
+        normBarrels_CBV = (barrels_CBV - RestingBaselines.(baselineType).green.Barrels.(strDay).mean)./(RestingBaselines.(baselineType).green.Barrels.(strDay).mean);
         filtBarrels_CBV = (filtfilt(sos2,g2,normBarrels_CBV))*100;
     elseif strcmp(hemoType,'HbT') == true
         barrels_HbT = ProcData.data.CBV_HbT.Barrels;
@@ -45,19 +45,19 @@ if strcmpi(imagingType,'Single ROI (SI)') == true
     end
 elseif strcmpi(imagingType,'Single ROI (SSS)') == true
     if strcmp(hemoType,'reflectance') == true
-        sss_CBV = ProcData.data.CBV.SSS;
-        normSSS_CBV = (sss_CBV - RestingBaselines.(baselineType).CBV.SSS.(strDay).mean)./(RestingBaselines.(baselineType).CBV.SSS.(strDay).mean);
+        sss_CBV = ProcData.data.green.SSS;
+        normSSS_CBV = (sss_CBV - RestingBaselines.(baselineType).green.SSS.(strDay).mean)./(RestingBaselines.(baselineType).green.SSS.(strDay).mean);
         filtSSS_CBV = (filtfilt(sos2,g2,normSSS_CBV))*100;
     elseif strcmp(hemoType,'HbT') == true
         sss_HbT = ProcData.data.CBV_HbT.SSS;
         filtSSS_HbT = filtfilt(sos2,g2,sss_HbT);
     end
 elseif strcmpi(imagingType,'Bilateral ROI (SI)') == true || strcmpi(imagingType,'Bilateral ROI (SI,FC)') == true
-    LH_CBV = ProcData.data.CBV.LH;
-    normLH_CBV = (LH_CBV - RestingBaselines.(baselineType).CBV.LH.(strDay).mean)./(RestingBaselines.(baselineType).CBV.LH.(strDay).mean);
+    LH_CBV = ProcData.data.green.LH;
+    normLH_CBV = (LH_CBV - RestingBaselines.(baselineType).green.LH.(strDay).mean)./(RestingBaselines.(baselineType).green.LH.(strDay).mean);
     filtLH_CBV = (filtfilt(sos2,g2,normLH_CBV))*100;
-    RH_CBV = ProcData.data.CBV.RH;
-    normRH_CBV = (RH_CBV - RestingBaselines.(baselineType).CBV.RH.(strDay).mean)./(RestingBaselines.(baselineType).CBV.RH.(strDay).mean);
+    RH_CBV = ProcData.data.green.RH;
+    normRH_CBV = (RH_CBV - RestingBaselines.(baselineType).green.RH.(strDay).mean)./(RestingBaselines.(baselineType).green.RH.(strDay).mean);
     filtRH_CBV = (filtfilt(sos2,g2,normRH_CBV))*100;
 elseif strcmp(hemoType,'HbT') == true
     LH_HbT = ProcData.data.CBV_HbT.LH;
@@ -66,7 +66,7 @@ elseif strcmp(hemoType,'HbT') == true
     filtRH_HbT = filtfilt(sos2,g2,RH_HbT);
 end
 % cortical and hippocampal spectrograms
-specDataFile = [animalID '_' fileID '_SpecDataA.mat'];
+specDataFile = [animalID '_' fileID '_SpecData.mat'];
 load(specDataFile,'-mat');
 cortical_LHnormS = SpecData.cortical_LH.normS.*100;
 cortical_RHnormS = SpecData.cortical_RH.normS.*100;
@@ -161,7 +161,7 @@ figHandle = figure;
 ax1 = subplot(6,1,1);
 fileID2 = strrep(fileID,'_',' ');
 p1 = plot((1:length(filtForceSensor))/ProcData.notes.dsFs,filtForceSensor,'color',colors('sapphire'),'LineWidth',1);
-title([animalID ' IOS behavioral characterization and CBV dynamics for ' fileID2])
+title([animalID ' IOS behavioral characterization and green dynamics for ' fileID2])
 ylabel('Force Sensor (Volts)')
 xlim([0,ProcData.notes.trialDuration_sec])
 yyaxis right
@@ -192,7 +192,7 @@ set(gca,'TickLength',[0,0])
 set(gca,'Xticklabel',[])
 set(gca,'box','off')
 axis tight
-% CBV and behavioral indeces
+% green and behavioral indeces
 ax3 = subplot(6,1,3);
 s1 = scatter((1:length(binForce))/ProcData.notes.dsFs,forceInds,'.','MarkerEdgeColor',colors('sapphire'));
 hold on
@@ -245,7 +245,7 @@ Semilog_ImageSC(T,F,cortical_LHnormS,'y')
 axis xy
 c4 = colorbar;
 ylabel(c4,'\DeltaP/P (%)')
-caxis([-100,100])
+clim([-100,100])
 ylabel('Frequency (Hz)')
 set(gca,'Yticklabel','10^1')
 xlim([0,ProcData.notes.trialDuration_sec])
@@ -261,7 +261,7 @@ Semilog_ImageSC(T,F,cortical_RHnormS,'y')
 axis xy
 c5 = colorbar;
 ylabel(c5,'\DeltaP/P (%)')
-caxis([-100,100])
+clim([-100,100])
 ylabel('Frequency (Hz)')
 set(gca,'Yticklabel','10^1')
 xlim([0,ProcData.notes.trialDuration_sec])
@@ -276,7 +276,7 @@ ax6 = subplot(6,1,6);
 Semilog_ImageSC(T,F,hippocampusNormS,'y')
 c6 = colorbar;
 ylabel(c6,'\DeltaP/P (%)')
-caxis([-100,100])
+clim([-100,100])
 xlabel('Time (sec)')
 ylabel('Frequency (Hz)')
 xlim([0,ProcData.notes.trialDuration_sec])
@@ -297,5 +297,3 @@ ax6Pos(3:4) = ax1Pos(3:4);
 set(ax4,'position',ax4Pos);
 set(ax5,'position',ax5Pos);
 set(ax6,'position',ax6Pos);
-
-end

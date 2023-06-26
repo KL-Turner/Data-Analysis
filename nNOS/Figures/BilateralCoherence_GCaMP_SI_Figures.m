@@ -89,6 +89,8 @@ for aa = 1:length(dataTypes)
             mkdir(dirpath);
         end
         savefig(summaryFigure,[dirpath 'BilateralCoherence_GCaMP_SI_' dataType]);
+        set(summaryFigure,'PaperPositionMode','auto');
+        print('-vector','-dpdf','-fillpage',[dirpath 'BilateralCoherence_GCaMP_SI_' dataType])
     end
 end
 % find Hz peaks in coherence
@@ -154,6 +156,8 @@ for aa = 1:length(dataTypes)
     % save figure(s)
     if saveFigs == true
         savefig(summaryFigure,[dirpath 'BilateralCoherence_GCaMP_SI_' dataType '_FreqPeaks']);
+        set(summaryFigure,'PaperPositionMode','auto');
+        print('-vector','-dpdf','-fillpage',[dirpath 'BilateralCoherence_GCaMP_SI_' dataType '_FreqPeaks'])
     end
 end
 % statistics - generalized linear mixed effects model

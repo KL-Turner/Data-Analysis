@@ -93,5 +93,7 @@ for aa = 1:length(dataTypes)
             mkdir(dirpath);
         end
         savefig(summaryFigure,[dirpath 'PearsonsCorr_Ephys_ ' dataType]);
+        set(summaryFigure,'PaperPositionMode','auto');
+        print('-vector','-dpdf','-fillpage',[dirpath 'PearsonsCorr_Ephys_ ' dataType])
     end
 end

@@ -1,14 +1,9 @@
 function [animalID,fileDate,fileID] = GetFileInfo_IOS(fileName)
-%________________________________________________________________________________________________________________________
+%----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%
-% Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
-%
-% Purpose: Identify important aspects of a file name and output each individually.
-%________________________________________________________________________________________________________________________
-
+%----------------------------------------------------------------------------------------------------------
 % identify the extension
 extInd = strfind(fileName(1,:),'.');
 extension = fileName(1,extInd + 1:end);

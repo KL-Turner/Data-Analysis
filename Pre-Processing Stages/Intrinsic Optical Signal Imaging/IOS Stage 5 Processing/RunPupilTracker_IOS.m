@@ -1,4 +1,4 @@
-function [] = RunPupilTracker(procDataFileIDs)
+function [] = RunPupilTracker_IOS(procDataFileIDs)
 %----------------------------------------------------------------------------------------------------------
 % Written by Kyle W. Gheres & Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering

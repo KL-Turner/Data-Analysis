@@ -1,14 +1,9 @@
 function [procNeuro,neuroFs] = ProcessNeuro_IOS(RawData,expectedLength,neurType,neuralFieldName)
-%________________________________________________________________________________________________________________________
+%----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%
-% Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
-%
-% Purpose: Bandpass filter the desired neural band.
-%________________________________________________________________________________________________________________________
-
+%----------------------------------------------------------------------------------------------------------
 % thresholds and neurtype switch
 trimmedNeuro = RawData.data.(neuralFieldName)(1:min(expectedLength,length(RawData.data.(neuralFieldName))));
 analogFs = RawData.notes.analogSamplingRate;
@@ -37,6 +32,3 @@ if ismember(neurType,[{'MUA'},{'Gam'},{'Beta'},{'Alpha'},{'Theta'},{'Delta'}])
     smoothPower = filtfilt(sos2,g2,filtNeuro.^2);
     procNeuro = max(resample(smoothPower,neuroFs,analogFs),0);
 end
-
-end
-

@@ -21,38 +21,40 @@ for aa = 1:length(groups)
     animalIDs = fieldnames(Results_IntSig_Ephys.(group));
     for bb = 1:length(animalIDs)
         animalID = animalIDs{bb,1};
-        for cc = 1:length(hemispheres)
-            hemisphere = hemispheres{1,cc};
-            for dd = 1:length(dataTypes)
-                dataType = dataTypes{1,dd};
-                data.(group).(hemisphere).(dataType).dummCheck = 1;
-                for ee = 1:length(behaviors)
-                    behavior = behaviors{1,ee};
-                    if isfield(data.(group).(hemisphere).(dataType),behavior) == false
-                        data.(group).(hemisphere).(dataType).(behavior).avg = [];
-                        data.(group).(hemisphere).(dataType).(behavior).p2p = [];
-                        data.(group).(hemisphere).(dataType).(behavior).vari = [];
-                        data.(group).(hemisphere).(dataType).(behavior).group = {};
-                        data.(group).(hemisphere).(dataType).(behavior).animalID = {};
-                    end
-                    animalVar = [];
-                    animalP2P = [];
-                    for ff = 1:length(Results_IntSig_Ephys.(group).(animalID).(hemisphere).(behavior).indHbT)
-                        if strcmp(dataType,'Rest') == true
-                            dataArray = Results_IntSig_Ephys.(group).(animalID).(hemisphere).(behavior).indHbT{ff,1}(2*fs:end);
-                        elseif strcmp(dataType,'Stim') == true
-                            dataArray = Results_IntSig_Ephys.(group).(animalID).(hemisphere).(behavior).indHbT{ff,1} - mean(Results_IntSig_Ephys.(group).(animalID).(hemisphere).(behavior).HbT);
-                        else
-                            dataArray = Results_IntSig_Ephys.(group).(animalID).(hemisphere).(behavior).indHbT{ff,1};
+        if any(strcmp(animalID,{'T142','T172'})) == false
+            for cc = 1:length(hemispheres)
+                hemisphere = hemispheres{1,cc};
+                for dd = 1:length(dataTypes)
+                    dataType = dataTypes{1,dd};
+                    data.(group).(hemisphere).(dataType).dummCheck = 1;
+                    for ee = 1:length(behaviors)
+                        behavior = behaviors{1,ee};
+                        if isfield(data.(group).(hemisphere).(dataType),behavior) == false
+                            data.(group).(hemisphere).(dataType).(behavior).avg = [];
+                            data.(group).(hemisphere).(dataType).(behavior).p2p = [];
+                            data.(group).(hemisphere).(dataType).(behavior).vari = [];
+                            data.(group).(hemisphere).(dataType).(behavior).group = {};
+                            data.(group).(hemisphere).(dataType).(behavior).animalID = {};
                         end
-                        animalVar(ff,1) = var(dataArray);
-                        animalP2P(ff,1) = max(dataArray) - min(dataArray);
+                        animalVar = [];
+                        animalP2P = [];
+                        for ff = 1:length(Results_IntSig_Ephys.(group).(animalID).(hemisphere).(behavior).indHbT)
+                            if strcmp(behavior,'Rest') == true
+                                dataArray = Results_IntSig_Ephys.(group).(animalID).(hemisphere).(behavior).indHbT{ff,1}(2*fs:end);
+                            elseif strcmp(behavior,'Stim') == true
+                                dataArray = Results_IntSig_Ephys.(group).(animalID).(hemisphere).(behavior).indHbT{ff,1} - mean(cell2mat(Results_IntSig_Ephys.(group).(animalID).(hemisphere).(behavior).indHbT),1);
+                            else
+                                dataArray = Results_IntSig_Ephys.(group).(animalID).(hemisphere).(behavior).indHbT{ff,1};
+                            end
+                            animalVar(ff,1) = var(dataArray);
+                            animalP2P(ff,1) = max(dataArray) - min(dataArray);
+                        end
+                        data.(group).(hemisphere).(dataType).(behavior).avg = cat(1,data.(group).(hemisphere).(dataType).(behavior).avg,mean(Results_IntSig_Ephys.(group).(animalID).(hemisphere).(behavior).HbT));
+                        data.(group).(hemisphere).(dataType).(behavior).p2p = cat(1,data.(group).(hemisphere).(dataType).(behavior).p2p,mean(animalP2P));
+                        data.(group).(hemisphere).(dataType).(behavior).vari = cat(1,data.(group).(hemisphere).(dataType).(behavior).vari,mean(animalVar));
+                        data.(group).(hemisphere).(dataType).(behavior).group = cat(1,data.(group).(hemisphere).(dataType).(behavior).group,group);
+                        data.(group).(hemisphere).(dataType).(behavior).animalID = cat(1,data.(group).(hemisphere).(dataType).(behavior).animalID,animalID);
                     end
-                    data.(group).(hemisphere).(dataType).(behavior).avg = cat(1,data.(group).(hemisphere).(dataType).(behavior).avg,mean(Results_IntSig_Ephys.(group).(animalID).(hemisphere).(behavior).HbT));
-                    data.(group).(hemisphere).(dataType).(behavior).p2p = cat(1,data.(group).(hemisphere).(dataType).(behavior).p2p,mean(animalP2P));
-                    data.(group).(hemisphere).(dataType).(behavior).vari = cat(1,data.(group).(hemisphere).(dataType).(behavior).vari,mean(animalVar));
-                    data.(group).(hemisphere).(dataType).(behavior).group = cat(1,data.(group).(hemisphere).(dataType).(behavior).group,group);
-                    data.(group).(hemisphere).(dataType).(behavior).animalID = cat(1,data.(group).(hemisphere).(dataType).(behavior).animalID,animalID);
                 end
             end
         end
@@ -123,6 +125,8 @@ for aa = 1:length(dataTypes)
                         mkdir(dirpath);
                     end
                     savefig(summaryFigure,[dirpath 'IntrinsicSignals_Ephys_ ' hemisphere '_' dataType '_' variable]);
+                    set(summaryFigure,'PaperPositionMode','auto');
+                    print('-vector','-dpdf','-fillpage',[dirpath 'IntrinsicSignals_Ephys_ ' hemisphere '_' dataType '_' variable])
                 end
             end
         end

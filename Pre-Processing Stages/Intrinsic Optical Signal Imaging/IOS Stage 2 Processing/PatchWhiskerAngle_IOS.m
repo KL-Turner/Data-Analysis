@@ -1,14 +1,9 @@
 function [patchedWhiskerAngle] = PatchWhiskerAngle_IOS(whiskerAngle,fs,expectedDuration_Sec,droppedFrameIndex)
-%________________________________________________________________________________________________________________________
+%----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%
-% Purpose: The whisker camera occasionally drops packets of frames. We can calculate the difference in the number
-%          of expected frames as well as the indeces that LabVIEW found the packets lost. This is a rough fix, as
-%          we are not sure the exact number of frames at each index, only the total number.
-%________________________________________________________________________________________________________________________
-
+%----------------------------------------------------------------------------------------------------------
 expectedFrames = expectedDuration_Sec*fs;
 droppedFrameIndex = str2double(droppedFrameIndex);
 % loop through each dropped frame and fix the missing value
@@ -29,7 +24,3 @@ end
 trailingEdge = expectedFrames - length(whiskerAngle);
 patchedWhiskerAngle = horzcat(whiskerAngle,ones(1,trailingEdge)*mean(whiskerAngle));
 patchedWhiskerAngle = patchedWhiskerAngle(1:expectedFrames);
-% due to rounding up on the number of dropped frames per index, we have a few extra frames. Snip them off.
-
-end
-

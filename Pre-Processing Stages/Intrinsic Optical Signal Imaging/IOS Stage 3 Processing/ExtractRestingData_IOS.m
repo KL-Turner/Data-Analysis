@@ -1,4 +1,4 @@
-function [RestData] = ExtractRestingData_IOS(procdataFiles,iteration)
+function [animalID,RestData] = ExtractRestingData_IOS(procdataFiles,iteration)
 %----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -6,24 +6,12 @@ function [RestData] = ExtractRestingData_IOS(procdataFiles,iteration)
 %----------------------------------------------------------------------------------------------------------
 load(procdataFiles(1,:));
 imagingWavelengths = ProcData.notes.imagingWavelengths;
-if any(strcmp(imagingWavelengths,{'Red, Green, & Blue','Red, Lime, & Blue'})) == true
-    if iteration == 1
-        dataTypes = {'CBV','cortical_LH','cortical_RH','hippocampus','EMG'};
-    else
-        dataTypes = {'CBV','HbT','HbO','HbR','GCaMP','cortical_LH','cortical_RH','hippocampus','EMG'};
-    end
-else
-    if iteration == 1
-        dataTypes = {'CBV','cortical_LH','cortical_RH','hippocampus','EMG'};
-    else
-        dataTypes = {'CBV','HbT','cortical_LH','cortical_RH','hippocampus','EMG'};
-    end
-end
+[dataTypes] = DetermineWavelengthDatatypes(imagingWavelengths,iteration);
 % go through each datatype and extract the corresponding data
 for aa = 1:length(dataTypes)
     dataType = dataTypes{1,aa};
     subDataTypes = fieldnames(ProcData.data.(dataType));
-    if any(strcmpi(dataType,{'CBV','HbT','HbO','HbR','GCaMP'})) == true
+    if any(strcmpi(dataType,{'green','lime','blue','red','HbT','HbO','HbR','GCaMP'})) == true
         samplingRate = ProcData.notes.CBVCamSamplingRate;
     else
         samplingRate = ProcData.notes.dsFs;
@@ -48,11 +36,7 @@ for aa = 1:length(dataTypes)
             expectedLength = trialDuration_sec*samplingRate;
             % get information about periods of rest from the loaded file
             trialEventTimes = ProcData.flags.rest.eventTime';
-            try
-                trialStimDistances = ProcData.flags.rest.stimDistance;
-            catch
-                trialStimDistances = ProcData.flags.rest.puffDistance;
-            end
+            trialStimDistances = ProcData.flags.rest.stimDistance;
             trialDurations = ProcData.flags.rest.duration';
             % initialize cell array for all periods of rest from the loaded file
             trialRestVals = cell(size(trialEventTimes'));
@@ -93,4 +77,4 @@ for aa = 1:length(dataTypes)
         RestData.(dataTypes{aa}).(subDataTypes{bb}).animalID = animalID;
     end
 end
-% save([animalID '_RestData.mat'],'RestData','-v7.3');
+save([animalID '_RestData.mat'],'RestData','-v7.3');

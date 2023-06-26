@@ -1,4 +1,4 @@
-function [ROIs] = PlaceTriWavelengthROIs_IOS(animalID,fileID,ROIs,lensMag,imagingType)
+function [ROIs] = PlaceTriWavelengthROIs_IOS(animalID,fileID,ROIs,lensMag,imagingType,imag)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -49,7 +49,7 @@ for qq = 1:size(procDataFileList,1)
     for n = 1:nFramesToRead
         frames{n} = imread(windowDataFileList(qq,:),n);
     end
-    gcampCheck = figure;
+    frameCheck = figure;
     frames = frames(1:end);
     for xx = 1:10
         subplot(2,5,xx)
@@ -61,11 +61,11 @@ for qq = 1:size(procDataFileList,1)
     while contCheck == false
         drawnow
         if isfield(ProcData.notes,'blueFrames') == true
-            gcampFrames = ProcData.notes.blueFrames;
+            blueFrames = ProcData.notes.blueFrames;
         else
-            gcampFrames = input('Which index are blue LED frames (1,2,3): '); disp(' ')
+            blueFrames = input('Which index are blue LED frames (1,2,3): '); disp(' ')
         end
-        if gcampFrames == 1
+        if blueFrames == 1
             if qq == 1
                 roiFrame = frames{3};
             end
@@ -74,7 +74,7 @@ for qq = 1:size(procDataFileList,1)
             ProcData.notes.greenFrames = 3;
             save(procDataFileIDs(qq,:),'ProcData')
             contCheck = true;
-        elseif gcampFrames == 2
+        elseif blueFrames == 2
             if qq == 1
                 roiFrame = frames{1};
             end
@@ -83,7 +83,7 @@ for qq = 1:size(procDataFileList,1)
             ProcData.notes.greenFrames = 1;
             save(procDataFileIDs(qq,:),'ProcData')
             contCheck = true;
-        elseif gcampFrames == 3
+        elseif blueFrames == 3
             if qq == 1
                 roiFrame = frames{2};
             end
@@ -94,7 +94,7 @@ for qq = 1:size(procDataFileList,1)
             contCheck = true;
         end
     end
-    close(gcampCheck)
+    close(frameCheck)
     fclose('all');
 end
 % determine the proper size of the ROI based on camera/lens magnification
@@ -150,5 +150,5 @@ ylabel('Image size (pixels)')
 colormap gray
 colorbar
 axis image
-caxis([0,2^ProcData.notes.CBVCamBitDepth])
+clim([0,2^ProcData.notes.CBVCamBitDepth])
 savefig(fig,[animalID '_' strDay '_ROIs.fig'])

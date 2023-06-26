@@ -87,5 +87,7 @@ for aa = 1:length(dataTypes)
             mkdir(dirpath);
         end
         savefig(summaryFigure,[dirpath 'PearsonsCorr_GCaMP_FC_ ' dataType]);
+        set(summaryFigure,'PaperPositionMode','auto');
+        print('-vector','-dpdf','-fillpage',[dirpath 'PearsonsCorr_GCaMP_FC_ ' dataType])
     end
 end

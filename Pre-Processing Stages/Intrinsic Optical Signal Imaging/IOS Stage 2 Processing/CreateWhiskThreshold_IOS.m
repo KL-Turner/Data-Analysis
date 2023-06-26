@@ -1,12 +1,9 @@
 function [thresh1,thresh2] = CreateWhiskThreshold_IOS(angl,fs,strDay)
-%________________________________________________________________________________________________________________________
+%----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%
-% Purpose: Set the threshold for whisker acceleration to be used to binarize whisker movement.
-%________________________________________________________________________________________________________________________
-
+%----------------------------------------------------------------------------------------------------------
 isok = 'n';
 dd_wwf = abs((diff(angl,2)))*fs^2;
 whiskThresh = figure;
@@ -52,5 +49,3 @@ while strcmp(isok,'y') == 0
     isok = input('Is this threshold okay? (y/n): ','s'); disp(' ')
 end
 close(whiskThresh);
-
-end

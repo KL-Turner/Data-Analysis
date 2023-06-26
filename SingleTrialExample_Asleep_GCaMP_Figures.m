@@ -7,30 +7,30 @@ function [] = SingleTrialExample_Asleep_GCaMP_Figures(rootFolder,saveFigs,delim)
 path = [rootFolder delim 'Results_Turner'];
 cd(path)
 % load file and gather information
-exampleProcFile = 'T233_220206_14_10_44_ProcData.mat';
-load(exampleProcFile)
-exampleSpecFile = 'T233_220206_14_10_44_SpecDataA.mat';
-load(exampleSpecFile)
+exampleProcFile_AsleepGCaMP = 'T233_220206_14_10_44_ProcData.mat';
+load(exampleProcFile_AsleepGCaMP)
+exampleSpecFile_AsleepGCaMP = 'T233_220206_14_10_44_SpecDataA.mat';
+load(exampleSpecFile_AsleepGCaMP)
 % setup butterworth filter coefficients for a 1 Hz and 10 Hz lowpass based on the sampling rate
-[z,p,k] = butter(4,1/(ProcData.notes.CBVCamSamplingRate/2),'low');
-[sos,g] = zp2sos(z,p,k);
-binWhiskers = ProcData.data.binWhiskerAngle;
+[z_AsleepGCaMP,p_AsleepGCaMP,k_AsleepGCaMP] = butter(4,1/(ProcData.notes.CBVCamSamplingRate/2),'low');
+[sos_AsleepGCaMP,g_AsleepGCaMP] = zp2sos(z_AsleepGCaMP,p_AsleepGCaMP,k_AsleepGCaMP);
+binWhiskers_AsleepGCaMP = ProcData.data.binWhiskerAngle;
 % data
-HbT = filtfilt(sos,g,ProcData.data.HbT.RH);
-HbO = filtfilt(sos,g,ProcData.data.HbO.RH);
-HbR = filtfilt(sos,g,ProcData.data.HbR.RH);
-GCaMP = filtfilt(sos,g,ProcData.data.GCaMP.RH);
+HbT_AsleepGCaMP = filtfilt(sos_AsleepGCaMP,g_AsleepGCaMP,ProcData.data.HbT.RH);
+HbO_AsleepGCaMP = filtfilt(sos_AsleepGCaMP,g_AsleepGCaMP,ProcData.data.HbO.RH);
+HbR_AsleepGCaMP = filtfilt(sos_AsleepGCaMP,g_AsleepGCaMP,ProcData.data.HbR.RH);
+GCaMP_AsleepGCaMP = filtfilt(sos_AsleepGCaMP,g_AsleepGCaMP,ProcData.data.GCaMP.RH);
 % cortical and hippocampal spectrograms
-hipNormS = SpecData.hippocampus.normS.*100;
-T = SpecData.cortical_LH.T;
-F = SpecData.cortical_LH.F;
+hipNormS_AsleepGCaMP = SpecData.hippocampus.normS.*100;
+T_AsleepGCaMP = SpecData.cortical_LH.T;
+F_AsleepGCaMP = SpecData.cortical_LH.F;
 % Yvals for behavior Indices
-whisking_Yvals = 155*ones(size(binWhiskers));
-whiskInds = binWhiskers.*whisking_Yvals;
+whisking_Yvals_AsleepGCaMP = 155*ones(size(binWhiskers_AsleepGCaMP));
+whiskInds_AsleepGCaMP = binWhiskers_AsleepGCaMP.*whisking_Yvals_AsleepGCaMP;
 % set whisk indeces
-for x = 1:length(whiskInds)
-    if whiskInds(1,x) == 0
-        whiskInds(1,x) = NaN;
+for x = 1:length(whiskInds_AsleepGCaMP)
+    if whiskInds_AsleepGCaMP(1,x) == 0
+        whiskInds_AsleepGCaMP(1,x) = NaN;
     end
 end
 % figure
@@ -38,15 +38,15 @@ summaryFigure = figure;
 % force sensor and EMG
 ax1 = subplot(4,1,1:3);
 % hemodynamic and behavioral indeces
-s1 = scatter((1:length(binWhiskers))/ProcData.notes.dsFs,whiskInds,'.','MarkerEdgeColor',colors('black'));
+s1 = scatter((1:length(binWhiskers_AsleepGCaMP))/ProcData.notes.dsFs,whiskInds_AsleepGCaMP,'.','MarkerEdgeColor',colors('black'));
 hold on;
-p1 = plot((1:length(HbO))/ProcData.notes.CBVCamSamplingRate,HbO,'color',colors('blue grotto'),'LineWidth',1);
-p2 = plot((1:length(HbR))/ProcData.notes.CBVCamSamplingRate,HbR,'color',colors('gold'),'LineWidth',1);
-p3 = plot((1:length(HbT))/ProcData.notes.CBVCamSamplingRate,HbT,'color',colors('black'),'LineWidth',1);
+p1 = plot((1:length(HbO_AsleepGCaMP))/ProcData.notes.CBVCamSamplingRate,HbO_AsleepGCaMP,'color',colors('blue grotto'),'LineWidth',1);
+p2 = plot((1:length(HbR_AsleepGCaMP))/ProcData.notes.CBVCamSamplingRate,HbR_AsleepGCaMP,'color',colors('gold'),'LineWidth',1);
+p3 = plot((1:length(HbT_AsleepGCaMP))/ProcData.notes.CBVCamSamplingRate,HbT_AsleepGCaMP,'color',colors('black'),'LineWidth',1);
 ylabel('\Delta[Hb] (\muM)')
 ylim([-50,160])
 yyaxis right
-p4 = plot((1:length(GCaMP))/ProcData.notes.CBVCamSamplingRate,(GCaMP - 1)*100,'color',colors('fluorescent green'),'LineWidth',1);
+p4 = plot((1:length(GCaMP_AsleepGCaMP))/ProcData.notes.CBVCamSamplingRate,(GCaMP_AsleepGCaMP - 1)*100,'color',colors('fluorescent green'),'LineWidth',1);
 ylabel('\DeltaF/F (%)','rotation',-90,'VerticalAlignment','bottom')
 ylim([-7,20])
 legend([p1,p2,p3,p4,s1],'HbO','HbR','HbT','GCaMP','whisking')
@@ -59,10 +59,10 @@ ax1.YAxis(1).Color = colors('black');
 ax1.YAxis(2).Color = colors('fluorescent green');
 % hippocampal electrode spectrogram
 ax2 = subplot(4,1,4);
-Semilog_ImageSC(T,F,hipNormS,'y')
+Semilog_ImageSC(T_AsleepGCaMP,F_AsleepGCaMP,hipNormS_AsleepGCaMP,'y')
 c2 = colorbar;
 ylabel(c2,'\DeltaP/P (%)','rotation',-90,'VerticalAlignment','bottom')
-caxis([-100,100])
+clim([-100,100])
 title('Hippocampal LFP')
 xlabel('Time (min)')
 ylabel('Frequency (Hz)')
@@ -89,8 +89,8 @@ if saveFigs == true
     close(summaryFigure)
     % spectrogram image
     subplotImgs = figure;
-    Semilog_ImageSC(T,F,hipNormS,'y')
-    caxis([-100,100])
+    Semilog_ImageSC(T_AsleepGCaMP,F_AsleepGCaMP,hipNormS_AsleepGCaMP,'y')
+    clim([-100,100])
     set(gca,'box','off')
     axis xy
     axis tight

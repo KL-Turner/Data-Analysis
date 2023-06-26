@@ -79,6 +79,7 @@ for aa = 1:length(hemispheres)
             ylabel('Corr Coef')
             xlabel('Lags (s)')
             xlim([-5,5])
+            ylim([-0.05,0.45])
             title(behavior)
             if cc == 1
                 legend([p1,p2,p3],'Naive','Blank-SAP','SSP-SAP')
@@ -93,6 +94,8 @@ for aa = 1:length(hemispheres)
                 mkdir(dirpath);
             end
             savefig(summaryFigure,[dirpath 'CrossCorr_Ephys_' hemisphere '_' dataType]);
+            set(summaryFigure,'PaperPositionMode','auto');
+            print('-vector','-dpdf','-fillpage',[dirpath 'CrossCorr_Ephys_' hemisphere '_' dataType])
         end
     end
 end

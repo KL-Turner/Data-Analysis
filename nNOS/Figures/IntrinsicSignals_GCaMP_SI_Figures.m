@@ -38,10 +38,10 @@ for aa = 1:length(groups)
                     animalVar = [];
                     animalP2P = [];
                     for ff = 1:length(Results_IntSig_GCaMP.(group).(animalID).(hemisphere).(dataType).(behavior).indData)
-                        if strcmp(dataType,'Rest') == true
+                        if strcmp(behavior,'Rest') == true
                             dataArray = Results_IntSig_GCaMP.(group).(animalID).(hemisphere).(dataType).(behavior).indData{ff,1}(2*fs:end);
-                        elseif strcmp(dataType,'Stim') == true
-                            dataArray = Results_IntSig_GCaMP.(group).(animalID).(hemisphere).(dataType).(behavior).indData{ff,1} - mean(Results_IntSig_GCaMP.(group).(animalID).(hemisphere).(dataType).(behavior).mean);
+                        elseif strcmp(behavior,'Stim') == true
+                            dataArray = Results_IntSig_GCaMP.(group).(animalID).(hemisphere).(dataType).(behavior).indData{ff,1} - mean(cell2mat(Results_IntSig_GCaMP.(group).(animalID).(hemisphere).(dataType).(behavior).indData),1);
                         else
                             dataArray = Results_IntSig_GCaMP.(group).(animalID).(hemisphere).(dataType).(behavior).indData{ff,1};
                         end
@@ -49,9 +49,9 @@ for aa = 1:length(groups)
                         animalP2P(ff,1) = max(dataArray) - min(dataArray);
                     end
                     try
-                    data.(group).(hemisphere).(dataType).(behavior).avg = cat(1,data.(group).(hemisphere).(dataType).(behavior).avg,mean(Results_IntSig_GCaMP.(group).(animalID).(hemisphere).(dataType).(behavior).mean));
+                        data.(group).(hemisphere).(dataType).(behavior).avg = cat(1,data.(group).(hemisphere).(dataType).(behavior).avg,mean(Results_IntSig_GCaMP.(group).(animalID).(hemisphere).(dataType).(behavior).mean));
                     catch
-                    data.(group).(hemisphere).(dataType).(behavior).avg = cat(1,data.(group).(hemisphere).(dataType).(behavior).avg,mean(cell2mat(Results_IntSig_GCaMP.(group).(animalID).(hemisphere).(dataType).(behavior).mean)));
+                        data.(group).(hemisphere).(dataType).(behavior).avg = cat(1,data.(group).(hemisphere).(dataType).(behavior).avg,mean(cell2mat(Results_IntSig_GCaMP.(group).(animalID).(hemisphere).(dataType).(behavior).mean)));
                     end
                     data.(group).(hemisphere).(dataType).(behavior).p2p = cat(1,data.(group).(hemisphere).(dataType).(behavior).p2p,mean(animalP2P));
                     data.(group).(hemisphere).(dataType).(behavior).vari = cat(1,data.(group).(hemisphere).(dataType).(behavior).vari,mean(animalVar));
@@ -125,6 +125,8 @@ for aa = 1:length(dataTypes)
                         mkdir(dirpath);
                     end
                     savefig(summaryFigure,[dirpath 'IntrinsicSignals_GCaMP_SI_ ' hemisphere '_' dataType '_' variable]);
+                    set(summaryFigure,'PaperPositionMode','auto');
+                    print('-vector','-dpdf','-fillpage',[dirpath 'IntrinsicSignals_GCaMP_SI_ ' hemisphere '_' dataType '_' variable])
                 end
             end
         end

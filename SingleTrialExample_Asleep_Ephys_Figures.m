@@ -7,32 +7,30 @@ function [] = SingleTrialExample_Asleep_Ephys_Figures(rootFolder,saveFigs,delim)
 path = [rootFolder delim 'Results_Turner'];
 cd(path)
 % load file and gather information
-exampleProcFile = 'T151_210118_15_17_58_ProcData.mat';
-% exampleProcFile = 'T195_210518_13_47_08_ProcData.mat';
-load(exampleProcFile)
-exampleSpecFile = 'T151_210118_15_17_58_SpecDataA.mat';
-% exampleSpecFile = 'T195_210518_13_47_08_SpecDataA.mat';
-load(exampleSpecFile)
+exampleProcFile_AsleepEphys = 'T165_210223_12_37_03_ProcData.mat';
+load(exampleProcFile_AsleepEphys)
+exampleSpecFile_AsleepEphys = 'T165_210223_12_37_03_SpecDataA.mat';
+load(exampleSpecFile_AsleepEphys)
 % setup butterworth filter coefficients for a 1 Hz and 10 Hz lowpass based on the sampling rate
-[z,p,k] = butter(4,1/(ProcData.notes.CBVCamSamplingRate/2),'low');
-[sos,g] = zp2sos(z,p,k);
-binWhiskers = ProcData.data.binWhiskerAngle;
+[z_AsleepEphys,p_AsleepEphys,k_AsleepEphys] = butter(4,1/(ProcData.notes.CBVCamSamplingRate/2),'low');
+[sos_AsleepEphys,g_AsleepEphys] = zp2sos(z_AsleepEphys,p_AsleepEphys,k_AsleepEphys);
+binWhiskers_AsleepEphys = ProcData.data.binWhiskerAngle;
 % data
-HbT = filtfilt(sos,g,ProcData.data.HbT.RH);
+HbT_AsleepEphys = filtfilt(sos_AsleepEphys,g_AsleepEphys,ProcData.data.HbT.RH);
 % RH gamma baseline for T151 Jan 18
-gammaBaseline = 3.513854434241187e-10;
-gamma = filtfilt(sos,g,((ProcData.data.cortical_RH.gammaBandPower - gammaBaseline)./gammaBaseline)*100);
+gammaBaseline_AsleepEphys = 3.513854434241187e-10;
+gamma_AsleepEphys = filtfilt(sos_AsleepEphys,g_AsleepEphys,((ProcData.data.cortical_RH.gammaBandPower - gammaBaseline_AsleepEphys)./gammaBaseline_AsleepEphys)*100);
 % cortical and hippocampal spectrograms
-hipNormS = SpecData.hippocampus.normS.*100;
-T = SpecData.cortical_LH.T;
-F = SpecData.cortical_LH.F;
+hipNormS_AsleepEphys = SpecData.hippocampus.normS.*100;
+T_AsleepEphys = SpecData.cortical_LH.T;
+F_AsleepEphys = SpecData.cortical_LH.F;
 % Yvals for behavior Indices
-whisking_Yvals = 155*ones(size(binWhiskers));
-whiskInds = binWhiskers.*whisking_Yvals;
+whisking_Yvals_AsleepEphys = 155*ones(size(binWhiskers_AsleepEphys));
+whiskInds_AsleepEphys = binWhiskers_AsleepEphys.*whisking_Yvals_AsleepEphys;
 % set whisk indeces
-for x = 1:length(whiskInds)
-    if whiskInds(1,x) == 0
-        whiskInds(1,x) = NaN;
+for x = 1:length(whiskInds_AsleepEphys)
+    if whiskInds_AsleepEphys(1,x) == 0
+        whiskInds_AsleepEphys(1,x) = NaN;
     end
 end
 % figure
@@ -40,34 +38,34 @@ summaryFigure = figure;
 % force sensor and EMG
 ax1 = subplot(4,1,1:3);
 % hemodynamic and behavioral indeces
-s1 = scatter((1:length(binWhiskers))/ProcData.notes.dsFs,whiskInds,'.','MarkerEdgeColor',colors('black'));
+s1 = scatter((1:length(binWhiskers_AsleepEphys))/ProcData.notes.dsFs,whiskInds_AsleepEphys,'.','MarkerEdgeColor',colors('black'));
 hold on;
-p1 = plot((1:length(HbT))/ProcData.notes.CBVCamSamplingRate,HbT,'color',colors('black'),'LineWidth',1);
+p1 = plot((1:length(HbT_AsleepEphys))/ProcData.notes.CBVCamSamplingRate,HbT_AsleepEphys,'color',colors('black'),'LineWidth',1);
 ylabel('\Delta[Hb] (\muM)')
 ylim([-50,160])
 yyaxis right
-p2 = plot((1:length(gamma))/ProcData.notes.CBVCamSamplingRate,gamma,'color',colors('magenta'),'LineWidth',1);
-ylim([-500,1000])
+p2 = plot((1:length(gamma_AsleepEphys))/ProcData.notes.CBVCamSamplingRate,gamma_AsleepEphys,'color',colors('magenta'),'LineWidth',1);
+ylim([-300,1300])
 legend([p1,p2,s1],'HbT','gamma power','whisking')
 set(gca,'Xticklabel',[])
 set(gca,'box','off')
-xticks([310,370,430,490,550,610,670])
+xticks([450,510,570,630,690,750,810])
 title('RH SIBF')
-xlim([310,670])
+xlim([450,810])
 ax1.YAxis(1).Color = colors('black');
 ax1.YAxis(2).Color = colors('magenta');
 % hippocampal electrode spectrogram
 ax2 = subplot(4,1,4);
-Semilog_ImageSC(T,F,hipNormS,'y')
+Semilog_ImageSC(T_AsleepEphys,F_AsleepEphys,hipNormS_AsleepEphys,'y')
 c2 = colorbar;
 ylabel(c2,'\DeltaP/P (%)','rotation',-90,'VerticalAlignment','bottom')
-caxis([-100,100])
+clim([-100,100])
 title('Hippocampal LFP')
 xlabel('Time (min)')
 ylabel('Frequency (Hz)')
-xlim([310,670])
+xlim([450,810])
 set(gca,'box','off')
-xticks([310,370,430,490,550,610,670])
+xticks([450,510,570,630,690,750,810])
 xticklabels({'0','1','2','3','4','5','6'})
 % axis properties
 ax1Pos = get(ax1,'position');
@@ -88,13 +86,13 @@ if saveFigs == true
     close(summaryFigure)
     % spectrogram image
     subplotImgs = figure;
-    Semilog_ImageSC(T,F,hipNormS,'y')
-    caxis([-100,100])
+    Semilog_ImageSC(T_AsleepEphys,F_AsleepEphys,hipNormS_AsleepEphys,'y')
+    clim([-100,100])
     set(gca,'box','off')
     axis xy
     axis tight
     axis off
-    xlim([310,670])
+    xlim([450,810])
     print('-vector','-dtiffn',[dirpath 'AsleepExample_Ephys_Spectrogram'])
     close(subplotImgs)
 end

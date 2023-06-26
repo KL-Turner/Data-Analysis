@@ -1,12 +1,9 @@
 function [imagingType] = SelectImagingType_IOS(imagingOptions)
-%________________________________________________________________________________________________________________________
+%----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%
-% Purpose: Select option from menu
-%________________________________________________________________________________________________________________________
-
+%----------------------------------------------------------------------------------------------------------
 tf = 0;
 while tf == 0
     disp('Select imaging type'); disp(' ')
@@ -18,5 +15,3 @@ while tf == 0
     end
 end
 imagingType = imagingOptions{1,indx};
-
-end

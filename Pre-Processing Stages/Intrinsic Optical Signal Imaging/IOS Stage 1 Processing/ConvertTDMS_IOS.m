@@ -1,11 +1,9 @@
 function [ConvertedData,ConvertVer] = ConvertTDMS_IOS(SaveConvertedFile,filename)
-%________________________________________________________________________________________________________________________
-% Utilized in analysis by Kevin L. Turner
+%----------------------------------------------------------------------------------------------------------
+% Utilized/Edited by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%
-% Code unchanged with the exception of this title block for record keeping
-%________________________________________________________________________________________________________________________
+%----------------------------------------------------------------------------------------------------------
 %
 %Function to load LabView TDMS data file(s) into variables in the MATLAB workspace.
 %An *.MAT file can also be created.  If called with one input, the user selects

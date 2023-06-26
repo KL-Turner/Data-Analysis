@@ -107,6 +107,8 @@ for aa = 1:length(hemispheres)
             mkdir(dirpath);
         end
         savefig(summaryFigure,[dirpath 'PowerSpectrumLFP_Ephys_' hemisphere]);
+        set(summaryFigure,'PaperPositionMode','auto');
+        print('-vector','-dpdf','-fillpage',[dirpath 'PowerSpectrumLFP_Ephys_' hemisphere])
     end
 end
 % figure
@@ -147,6 +149,8 @@ for aa = 1:length(hemispheres)
     % save figure(s)
     if saveFigs == true
         savefig(summaryFigure,[dirpath 'PowerSpectrumLFP_Ephys_' hemisphere '_deltaPower']);
+        set(summaryFigure,'PaperPositionMode','auto');
+        print('-vector','-dpdf','-fillpage',[dirpath 'PowerSpectrumLFP_Ephys_' hemisphere '_deltaPower'])
     end
 end
 % statistics - generalized linear mixed effects model

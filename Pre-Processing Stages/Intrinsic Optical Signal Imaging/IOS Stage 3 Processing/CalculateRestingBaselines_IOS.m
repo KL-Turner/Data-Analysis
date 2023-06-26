@@ -1,12 +1,9 @@
 function [RestingBaselines] = CalculateRestingBaselines_IOS(RestData,targetMinutes)
-%________________________________________________________________________________________________________________________
+%----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%
-% Purpose: This function finds the resting baseline for all fields of the RestData.mat structure, for each unique day
-%________________________________________________________________________________________________________________________
-
+%----------------------------------------------------------------------------------------------------------
 disp(['Calculating the resting baselines for the first ' num2str(targetMinutes) ' minutes of each unique day...']); disp(' ')
 % the RestData.mat struct has all resting events, regardless of duration. We want to set the threshold for rest as anything
 % that is greater than 10 seconds.
@@ -103,5 +100,3 @@ RestingBaselines.setDuration.baselineFileInfo.eventTimes = finalFileEventTimes;
 RestingBaselines.setDuration.baselineFileInfo.durations = finalFileDurations;
 RestingBaselines.setDuration.targetMinutes = targetMinutes;
 save([animalID '_RestingBaselines.mat'],'RestingBaselines');
-
-end

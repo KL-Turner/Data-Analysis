@@ -176,19 +176,44 @@ for aa = 1:length(hemispheres)
                     scoringLabels = ScoringResults.labels{dd,1};
                 end
             end
+            scoringLabelsA = scoringLabels(1:60);
             % check labels to match arousal state
-            if sum(strcmp(scoringLabels,'Not Sleep')) > 144 % 12 minutes of asleep
+            if sum(strcmp(scoringLabelsA,'Not Sleep')) >= 48
                 load(procDataFileID,'-mat')
                 % only run on files with good pupil measurement
-                try
-                    puffs = ProcData.data.stimulations.LPadSol;
-                catch
-                    puffs = ProcData.data.solenoids.LPadSol;
-                end
+                puffs = ProcData.data.stimulations.LPadSol;
                 % don't include trials with stimulation
                 if isempty(puffs) == true
-                    alertHbT{zz,1} = filtfilt(sos,g,detrend(ProcData.data.HbT.(hemisphere),'constant'));
-                    alertNeural{zz,1} = filtfilt(sos,g,detrend(ProcData.data.(neuralDataType).(dataType),'constant'));
+                    alertHbT{zz,1} = filtfilt(sos,g,detrend(ProcData.data.HbT.(hemisphere)(1:300*samplingRate),'constant'));
+                    alertNeural{zz,1} = filtfilt(sos,g,detrend(ProcData.data.(neuralDataType).(dataType)(1:300*samplingRate),'constant'));
+                    alertFileIDs{zz,1} = alertDataFileID;
+                    zz = zz + 1;
+                end
+            end
+            scoringLabelsB = scoringLabels(61:120);
+            % check labels to match arousal state
+            if sum(strcmp(scoringLabelsB,'Not Sleep')) >= 48
+                load(procDataFileID,'-mat')
+                % only run on files with good pupil measurement
+                puffs = ProcData.data.stimulations.LPadSol;
+                % don't include trials with stimulation
+                if isempty(puffs) == true
+                    alertHbT{zz,1} = filtfilt(sos,g,detrend(ProcData.data.HbT.(hemisphere)(300*samplingRate + 1:600*samplingRate),'constant'));
+                    alertNeural{zz,1} = filtfilt(sos,g,detrend(ProcData.data.(neuralDataType).(dataType)(300*samplingRate + 1:600*samplingRate),'constant'));
+                    alertFileIDs{zz,1} = alertDataFileID;
+                    zz = zz + 1;
+                end
+            end
+            scoringLabelsC = scoringLabels(121:180);
+            % check labels to match arousal state
+            if sum(strcmp(scoringLabelsC,'Not Sleep')) >= 48
+                load(procDataFileID,'-mat')
+                % only run on files with good pupil measurement
+                puffs = ProcData.data.stimulations.LPadSol;
+                % don't include trials with stimulation
+                if isempty(puffs) == true
+                    alertHbT{zz,1} = filtfilt(sos,g,detrend(ProcData.data.HbT.(hemisphere)(600*samplingRate + 1:end),'constant'));
+                    alertNeural{zz,1} = filtfilt(sos,g,detrend(ProcData.data.(neuralDataType).(dataType)(600*samplingRate + 1:end),'constant'));
                     alertFileIDs{zz,1} = alertDataFileID;
                     zz = zz + 1;
                 end
@@ -265,20 +290,44 @@ for aa = 1:length(hemispheres)
                     scoringLabels = ScoringResults.labels{dd,1};
                 end
             end
+            scoringLabelsA = scoringLabels(1:60);
             % check labels to match arousal state
-            if sum(strcmp(scoringLabels,'Not Sleep')) < 36 % 12 minutes of asleep
+            if sum(strcmp(scoringLabelsA,'Not Sleep')) <= 12
                 load(procDataFileID,'-mat')
                 % only run on files with good pupil measurement
-                try
-                    puffs = ProcData.data.stimulations.LPadSol;
-                catch
-                    puffs = ProcData.data.solenoids.LPadSol;
-                end
+                puffs = ProcData.data.stimulations.LPadSol;
                 % don't include trials with stimulation
                 if isempty(puffs) == true
-                    % load in HbT from asleep period
-                    asleepHbT{zz,1} = filtfilt(sos,g,detrend(ProcData.data.HbT.(hemisphere),'constant'));
-                    asleepNeural{zz,1} = filtfilt(sos,g,detrend(ProcData.data.(neuralDataType).(dataType),'constant'));
+                    asleepHbT{zz,1} = filtfilt(sos,g,detrend(ProcData.data.HbT.(hemisphere)(1:300*samplingRate),'constant'));
+                    asleepNeural{zz,1} = filtfilt(sos,g,detrend(ProcData.data.(neuralDataType).(dataType)(1:300*samplingRate),'constant'));
+                    asleepFileIDs{zz,1} = asleepDataFileID;
+                    zz = zz + 1;
+                end
+            end
+            scoringLabelsB = scoringLabels(61:120);
+            % check labels to match arousal state
+            if sum(strcmp(scoringLabelsB,'Not Sleep')) <= 12
+                load(procDataFileID,'-mat')
+                % only run on files with good pupil measurement
+                puffs = ProcData.data.stimulations.LPadSol;
+                % don't include trials with stimulation
+                if isempty(puffs) == true
+                    asleepHbT{zz,1} = filtfilt(sos,g,detrend(ProcData.data.HbT.(hemisphere)(300*samplingRate + 1:600*samplingRate),'constant'));
+                    asleepNeural{zz,1} = filtfilt(sos,g,detrend(ProcData.data.(neuralDataType).(dataType)(300*samplingRate + 1:600*samplingRate),'constant'));
+                    asleepFileIDs{zz,1} = asleepDataFileID;
+                    zz = zz + 1;
+                end
+            end
+            scoringLabelsC = scoringLabels(121:180);
+            % check labels to match arousal state
+            if sum(strcmp(scoringLabelsC,'Not Sleep')) <= 12
+                load(procDataFileID,'-mat')
+                % only run on files with good pupil measurement
+                puffs = ProcData.data.stimulations.LPadSol;
+                % don't include trials with stimulation
+                if isempty(puffs) == true
+                    asleepHbT{zz,1} = filtfilt(sos,g,detrend(ProcData.data.HbT.(hemisphere)(600*samplingRate + 1:end),'constant'));
+                    asleepNeural{zz,1} = filtfilt(sos,g,detrend(ProcData.data.(neuralDataType).(dataType)(600*samplingRate + 1:end),'constant'));
                     asleepFileIDs{zz,1} = asleepDataFileID;
                     zz = zz + 1;
                 end
@@ -317,7 +366,11 @@ for aa = 1:length(hemispheres)
                         end
                     end
                     % mean subtract with detrend and lowpass filter each column
-                    asleepProcData.S{bb,1} = detrend(asleep_S','constant')';
+                    try
+                        asleepProcData.S{bb,1} = detrend(asleep_S','constant')';
+                    catch
+                        keyboard
+                    end
                 end
                 % set parameters for cross-correlation analysis
                 asleepHbTvLFPzhold = [];
@@ -350,15 +403,19 @@ for aa = 1:length(hemispheres)
             procDataFileID = procDataFileIDs(cc,:);
             [~,~,allDataFileID] = GetFileInfo_IOS(procDataFileID);
             load(procDataFileID,'-mat')
-            try
-                puffs = ProcData.data.stimulations.LPadSol;
-            catch
-                puffs = ProcData.data.solenoids.LPadSol;
-            end
+            puffs = ProcData.data.stimulations.LPadSol;
             % don't include trials with stimulation
             if isempty(puffs) == true
-                allHbT{zz,1} = filtfilt(sos,g,detrend(ProcData.data.HbT.(hemisphere),'constant'));
-                allNeural{zz,1} = filtfilt(sos,g,detrend(ProcData.data.(neuralDataType).(dataType),'constant'));
+                allHbT{zz,1} = filtfilt(sos,g,detrend(ProcData.data.HbT.(hemisphere)(1:300*samplingRate),'constant'));
+                allNeural{zz,1} = filtfilt(sos,g,detrend(ProcData.data.(neuralDataType).(dataType)(1:300*samplingRate),'constant'));
+                allFileIDs{zz,1} = allDataFileID;
+                zz = zz + 1;
+                allHbT{zz,1} = filtfilt(sos,g,detrend(ProcData.data.HbT.(hemisphere)(300*samplingRate + 1:600*samplingRate),'constant'));
+                allNeural{zz,1} = filtfilt(sos,g,detrend(ProcData.data.(neuralDataType).(dataType)(300*samplingRate + 1:600*samplingRate),'constant'));
+                allFileIDs{zz,1} = allDataFileID;
+                zz = zz + 1;
+                allHbT{zz,1} = filtfilt(sos,g,detrend(ProcData.data.HbT.(hemisphere)(600*samplingRate + 1:end),'constant'));
+                allNeural{zz,1} = filtfilt(sos,g,detrend(ProcData.data.(neuralDataType).(dataType)(600*samplingRate + 1:end),'constant'));
                 allFileIDs{zz,1} = allDataFileID;
                 zz = zz + 1;
             end

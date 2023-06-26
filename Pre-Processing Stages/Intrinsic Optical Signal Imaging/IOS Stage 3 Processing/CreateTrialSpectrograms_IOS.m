@@ -1,22 +1,20 @@
-function [] = CreateTrialSpectrograms_IOS(rawDataFileIDs)
-%________________________________________________________________________________________________________________________
+function [] = CreateTrialSpectrograms_IOS()
+%----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%
-% Purpose: Analyzes the raw neural data from each RawData.mat file and calculates two different spectrograms.
-%________________________________________________________________________________________________________________________
-
+%----------------------------------------------------------------------------------------------------------
+rawDataFileStruct = dir('*_RawData.mat');
+rawDataFiles = {rawDataFileStruct.name}';
+rawDataFileIDs = char(rawDataFiles);
 neuralDataTypes = {'cortical_LH','cortical_RH','hippocampus'};
 for aa = 1:size(rawDataFileIDs,1)
     rawDataFile = rawDataFileIDs(aa,:);
     clear RawData
     [animalID,~,fileID] = GetFileInfo_IOS(rawDataFile);
-    specDataFileIDA = [animalID '_' fileID '_SpecDataA.mat'];
-    specDataFileIDB = [animalID '_' fileID '_SpecDataB.mat'];
-    specDataFileIDC = [animalID '_' fileID '_SpecDataC.mat'];
+    specDataFileID = [animalID '_' fileID '_SpecData.mat'];
     % 5 second spectrograms with 1/5 second step size
-    if ~exist(specDataFileIDA,'file') == true
+    if ~exist(specDataFileID,'file') == true
         SpecData = [];
         if exist('RawData','file') == false
             load(rawDataFile);
@@ -24,7 +22,7 @@ for aa = 1:size(rawDataFileIDs,1)
             analogFs = RawData.notes.analogSamplingRate;
             expectedLength = duration*analogFs;
         end
-        disp(['Creating spectrogram (A) for file ID: (' num2str(aa) '/' num2str(size(rawDataFileIDs,1)) ')']); disp(' ')
+        disp(['Analyzing spectrograms for file (' num2str(aa) '/' num2str(size(rawDataFileIDs,1)) ')']); disp(' ')
         for bb = 1:length(neuralDataTypes)
             neuralDataType = neuralDataTypes{1,bb};
             try
@@ -33,18 +31,12 @@ for aa = 1:size(rawDataFileIDs,1)
                 sampleDiff = expectedLength - length(RawData.data.(neuralDataType));
                 rawNeuro = detrend(horzcat(RawData.data.(neuralDataType),RawData.data.(neuralDataType)(end)*ones(1,sampleDiff)),'constant');
             end
-            % 60 Hz notch filter
-            %  w0 = 60/(analogFs/2);
-            %  bw = w0/35;
-            %  [num,den] = iirnotch(w0,bw);
-            %  rawNeuro2 = filtfilt(num,den,rawNeuro);
-            % Spectrogram parameters
+            % parameters
             params.tapers = [5,9];
             params.Fs = analogFs;
             params.fpass = [1,100];
             movingwin = [5,1/5];
             % analyze each spectrogram based on parameters
-            disp(['Creating ' neuralDataType ' spectrogram for file number ' num2str(aa) ' of ' num2str(size(rawDataFileIDs,1)) '...']); disp(' ')
             [S,T,F] = mtspecgramc(rawNeuro,movingwin,params);
             % save data ins tructure
             SpecData.(neuralDataType).S = S';
@@ -52,96 +44,10 @@ for aa = 1:size(rawDataFileIDs,1)
             SpecData.(neuralDataType).F = F;
             SpecData.(neuralDataType).params = params;
             SpecData.(neuralDataType).movingwin = movingwin;
-            save(specDataFileIDA,'SpecData');
+            save(specDataFileID,'SpecData');
         end
-        save(specDataFileIDA,'SpecData');
+        save(specDataFileID,'SpecData');
     else
-        disp(['Spectrogram (A) for file ID: (' num2str(aa) '/' num2str(size(rawDataFileIDs,1)) ') already exists.']); disp(' ')
+        disp(['Spectrograms for file (' num2str(aa) '/' num2str(size(rawDataFileIDs,1)) ') already analyzed.']); disp(' ')
     end
-    % 1 second spectrograms with 1/10 Hz step size
-    if ~exist(specDataFileIDB,'file') == true
-        SpecData = [];
-        if exist('RawData','file') == false
-            load(rawDataFile);
-            duration = RawData.notes.trialDuration_sec;
-            analogFs = RawData.notes.analogSamplingRate;
-            expectedLength = duration*analogFs;
-        end
-        disp(['Creating spectrogram (B) for file ID: (' num2str(aa) '/' num2str(size(rawDataFileIDs,1)) ')']); disp(' ')
-        for cc = 1:length(neuralDataTypes)
-            neuralDataType = neuralDataTypes{1,cc};
-            try
-                rawNeuro = detrend(RawData.data.(neuralDataType)(1:expectedLength),'constant');
-            catch
-                sampleDiff = expectedLength - length(RawData.data.(neuralDataType));
-                rawNeuro = detrend(horzcat(RawData.data.(neuralDataType),RawData.data.(neuralDataType)(end)*ones(1,sampleDiff)),'constant');
-            end
-            % 60 Hz notch filter
-            %  w0 = 60/(analogFs/2);
-            %  bw = w0/35;
-            %  [num,den] = iirnotch(w0,bw);
-            %  rawNeuro2 = filtfilt(num,den,rawNeuro);
-            % Spectrogram parameters
-            params.tapers = [1,1];
-            params.Fs = analogFs;
-            params.fpass = [1,100];
-            movingwin = [1,1/10];
-            % analyze each spectrogram based on parameters
-            disp(['Creating ' neuralDataType ' spectrogram for file number ' num2str(aa) ' of ' num2str(size(rawDataFileIDs,1)) '...']); disp(' ')
-            [S,T,F] = mtspecgramc(rawNeuro,movingwin,params);
-            % save data ins tructure
-            SpecData.(neuralDataType).S = S';
-            SpecData.(neuralDataType).T = T;
-            SpecData.(neuralDataType).F = F;
-            SpecData.(neuralDataType).params = params;
-            SpecData.(neuralDataType).movingwin = movingwin;
-        end
-        save(specDataFileIDB,'SpecData');
-    else
-        disp(['Spectrogram (B) for file ID: (' num2str(aa) '/' num2str(size(rawDataFileIDs,1)) ') already exists.']); disp(' ')
-    end
-    % 1 second spectrograms with 1/30 Hz step size
-    if ~exist(specDataFileIDC,'file') == true
-        SpecData = [];
-        if exist('RawData','file') == false
-            load(rawDataFile);
-            duration = RawData.notes.trialDuration_sec;
-            analogFs = RawData.notes.analogSamplingRate;
-            expectedLength = duration*analogFs;
-        end
-        disp(['Creating spectrogram (C) for file ID: (' num2str(aa) '/' num2str(size(rawDataFileIDs,1)) ')']); disp(' ')
-        for dd = 1:length(neuralDataTypes)
-            neuralDataType = neuralDataTypes{1,dd};
-            try
-                rawNeuro = detrend(RawData.data.(neuralDataType)(1:expectedLength),'constant');
-            catch
-                sampleDiff = expectedLength - length(RawData.data.(neuralDataType));
-                rawNeuro = detrend(horzcat(RawData.data.(neuralDataType),RawData.data.(neuralDataType)(end)*ones(1,sampleDiff)),'constant');
-            end
-            % 60 Hz notch filter
-            %  w0 = 60/(analogFs/2);
-            %  bw = w0/35;
-            %  [num,den] = iirnotch(w0,bw);
-            %  rawNeuro2 = filtfilt(num,den,rawNeuro);
-            % Spectrogram parameters
-            params.tapers = [5,9];
-            params.Fs = analogFs;
-            params.fpass = [1,100];
-            movingwin = [1,1/30];
-            % analyze each spectrogram based on parameters
-            disp(['Creating ' neuralDataType ' spectrogram for file number ' num2str(aa) ' of ' num2str(size(rawDataFileIDs,1)) '...']); disp(' ')
-            [S,T,F] = mtspecgramc(rawNeuro,movingwin,params);
-            % save data ins tructure
-            SpecData.(neuralDataType).S = S';
-            SpecData.(neuralDataType).T = T;
-            SpecData.(neuralDataType).F = F;
-            SpecData.(neuralDataType).params = params;
-            SpecData.(neuralDataType).movingwin = movingwin;
-        end
-        save(specDataFileIDC,'SpecData');
-    else
-        disp(['Spectrogram (C) for file ID: (' num2str(aa) '/' num2str(size(rawDataFileIDs,1)) ') already exists.']); disp(' ')
-    end
-end
-
 end

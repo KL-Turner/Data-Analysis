@@ -2,117 +2,23 @@
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%
-% Purpose: - Convert analog data and notes in LabVIEW's .tdms files to MATLAB .mat structures ('RawData')
-%          - Track changes in whisker angle using Radon transform
 %----------------------------------------------------------------------------------------------------------
 zap;
-% select imaging type
-imagingOptions = {'Single ROI (SI)','Single ROI (SSS)','Bilateral ROI (SI)','Bilateral ROI (SI,FC)'};
-imagingType = SelectImagingType_IOS(imagingOptions);
-% select imaging type
-wavelengthOptions = {'Green','Lime','Blue','Green & Blue','Lime & Blue','Red, Green, & Blue','Red, Lime, & Blue'};
-imagingWavelengths = SelectImagingType_IOS(wavelengthOptions);
-% asks the user to load all files with a '_WhiskerCam.bin' extension
-fileNames = uigetfile('*_WhiskerCam.bin','MultiSelect','on');   % CTL-A to select all files
-% preparing to create RawData files.
-% load in each file one at a time, looping through the list
-for a = 1:length(fileNames)
-    disp(['Analyzing WhiskerCam file (' num2str(a) ' of ' num2str(length(fileNames)) ')']); disp(' ')
-    % adapt to list or single file. The purpose of this is control the way uigetfile handles an instance of a
-    % single file input (character string) vs. multiple files, which it puts in cells
-    if iscell(fileNames) == true
-        indFile = fileNames{a};
-    else
-        indFile = fileNames;
-    end
-    % pull out the file ID for the file - this is the numerical string at the beginning of the file name
-    [~,~,fileID] = GetFileInfo_IOS(indFile);
-    % determine if a RawData file has already been created for this file. If it has, skip it
-    fileExist = ls(['*' fileID '_RawData.mat']);
-    if isempty(fileExist)
+% select wavelengths and ROI options
+[imagingParameters,animalID,fileList] = SelectImagingParameters_IOS();
+% process TDMS file and run whisker/pupil tracking
+for aa = 1:size(fileList,1)
+    disp(['Analyzing file (' num2str(aa) ' of ' num2str(size(fileList,1)) ')']); disp(' ')
+    [~,~,fileID] = GetFileInfo_IOS(fileList(aa,:));
+    % determine if file has already been processed
+    if ~exist([animalID '_' fileID '_RawData.mat'],'file') == true
         % import .tdms data
-        trialData = ReadInTDMSWhiskerTrials_IOS([fileID '.tdms']);
-        % left, right, and hippocampal electrodes
-        dataRow = strcmp(trialData.data.names,'Cortical_LH');
-        cortical_LH = trialData.data.vals(dataRow,:)/str2double(trialData.amplifierGain);
-        dataRow = strcmp(trialData.data.names,'Cortical_RH');
-        cortical_RH = trialData.data.vals(dataRow,:)/str2double(trialData.amplifierGain);
-        dataRow = strcmp(trialData.data.names,'Hippocampus');
-        hippocampus = trialData.data.vals(dataRow,:)/str2double(trialData.amplifierGain);
-        % left, right, auditory solenoids. combine the arrays together.
-        dataRow = strcmp(trialData.data.names,'LPadSol');
-        LPadSol = gt(trialData.data.vals(dataRow,:),0.5)*1; % ID amplitude is 1
-        dataRow = strcmp(trialData.data.names,'RPadSol');
-        RPadSol = gt(trialData.data.vals(dataRow,:),0.5)*2; % ID amplitude is 2
-        dataRow = strcmp(trialData.data.names,'AudSol');
-        AudSol = gt(trialData.data.vals(dataRow,:),0.5)*3;  % ID amplitude is 3
-        dataRow = strcmp(trialData.data.names,'OptoLED');
-        OptoLED = gt(trialData.data.vals(dataRow,:),0.5)*4; % ID amplitude is 4
-        stimulations = LPadSol + RPadSol + AudSol + OptoLED;
-        % force sensor and EMG
-        dataRow = strcmp(trialData.data.names,'Force_Sensor');
-        forceSensor = trialData.data.vals(dataRow,:);
-        dataRow = strcmp(trialData.data.names,'EMG');
-        EMG = trialData.data.vals(dataRow,:)/str2double(trialData.amplifierGain);
-        % start whisker tracker.
-        [whiskerAngle] = WhiskerTrackerParallel_IOS(fileID);
-        % save the notes
-        RawData.notes.imagingType = imagingType;
-        RawData.notes.imagingWavelengths = imagingWavelengths;
-        RawData.notes.experimenter = trialData.experimenter;
-        RawData.notes.animalID = trialData.animalID;
-        RawData.notes.hemisphere = trialData.hemisphere;
-        RawData.notes.solenoidPSI = str2double(trialData.solenoidPSI);
-        RawData.notes.isofluraneTime = str2double(trialData.isofluraneTime);
-        RawData.notes.sessionID = trialData.sessionID;
-        RawData.notes.amplifierGain = str2double(trialData.amplifierGain);
-        RawData.notes.Opto_LED_mW = trialData.Opto_LED_mW;
-        RawData.notes.wavelengths = trialData.wavelengths;
-        RawData.notes.lensMag = trialData.lensMag;
-        RawData.notes.CBVCamSamplingRate = str2double(trialData.CBVCamSamplingRate);
-        RawData.notes.whiskCamSamplingRate = str2double(trialData.whiskCamSamplingRate);
-        RawData.notes.webCamSamplingRate = str2double(trialData.webCamSamplingRate);
-        RawData.notes.pupilCamSamplingRate = str2double(trialData.pupilCamSamplingRate);
-        RawData.notes.analogSamplingRate = str2double(trialData.analogSamplingRate);
-        RawData.notes.trialDuration_sec = str2double(trialData.trialDuration_sec);
-        RawData.notes.CBVCameraID = trialData.CBVCameraID;
-        RawData.notes.CBVCamTriggerMode = trialData.CBVCamTriggerMode;
-        RawData.notes.CBVCamExposureTime_microsec = str2double(trialData.CBVCamExposureTime_microsec);
-        RawData.notes.CBVCamTimeStampMode = trialData.CBVCamTimeStampMode;
-        RawData.notes.CBVCamBitDepth = str2double(trialData.CBVCamBitDepth);
-        RawData.notes.CBVCamPixelWidthx0 = trialData.CBVCamPixelWidthx0;
-        RawData.notes.CBVCamPixelHeighty0 = trialData.CBVCamPixelHeighty0;
-        RawData.notes.CBVCamPixelWidth = str2double(trialData.CBVCamPixelWidth);
-        RawData.notes.CBVCamPixelHeight = str2double(trialData.CBVCamPixelHeight);
-        RawData.notes.CBVCamBinning = trialData.CBVCamBinning;
-        RawData.notes.CBVCamBinningHorz = trialData.CBVCamBinningHorz;
-        RawData.notes.CBVCamBinningVert = trialData.CBVCamBinningVert;
-        RawData.notes.pupilCamPixelWidth = str2double(trialData.pupilCamPixelWidth);
-        RawData.notes.pupilCamPixelHeight = str2double(trialData.pupilCamPixelHeight);
-        RawData.notes.whiskCamPixelHeight = str2double(trialData.whiskCamPixelHeight);
-        RawData.notes.whiskCamPixelWidth = str2double(trialData.whiskCamPixelWidth);
-        RawData.notes.droppedPupilCamFrameIndex = trialData.droppedPupilCamFrameIndex;
-        RawData.notes.droppedWhiskCamFrameIndex = trialData.droppedWhiskCamFrameIndex;
-        RawData.notes.solenoidDutyCycle = str2double(trialData.Sol_DutyCycle);
-        RawData.notes.solenoidFreq = str2double(trialData.Sol_Freq);
-        RawData.notes.solenoidDuration_sec = str2double(trialData.Sol_Duration_sec);
-        RawData.notes.LEDdutyCycle = str2double(trialData.LED_DutyCycle);
-        RawData.notes.LEDfreq = str2double(trialData.LED_Freq);
-        RawData.notes.LEDduration_sec = str2double(trialData.LED_Duration_sec);
-        RawData.notes.interstim_sec = str2double(trialData.Interstim_sec);
-        RawData.notes.stimOffset_sec = str2double(trialData.Stim_Offset_sec);
-        % save the data
-        RawData.data.cortical_LH = cortical_LH;
-        RawData.data.cortical_RH = cortical_RH;
-        RawData.data.hippocampus = hippocampus;
-        RawData.data.forceSensor = forceSensor;
-        RawData.data.EMG = EMG;
-        RawData.data.whiskerAngle = whiskerAngle;
-        RawData.data.stimulations = stimulations;
-        disp(['File Created. Saving RawData File ' num2str(a) '...']); disp(' ')
-        save([trialData.animalID '_' fileID '_RawData'],'RawData')
-    else
-        disp('File already exists. Continuing...'); disp(' ')
+        trialData = ReadTDMSData_IOS(animalID,[fileID '.tdms']);
+        % start pupil tracker
+        [PupilStruct] = TrackPupilDiameter_IOS([fileID '_PupilCam.bin'],aa,trialData);
+        % start whisker tracker
+        [whiskerAngle] = WhiskerTrackerParallel_IOS([fileID '_WhiskerCam.bin'],trialData);
+        % create RawData file
+        CreateRawDataFile_IOS(trialData,fileID,imagingParameters,whiskerAngle,PupilStruct)
     end
 end

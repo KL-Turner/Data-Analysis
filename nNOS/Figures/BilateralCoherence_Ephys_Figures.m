@@ -31,7 +31,7 @@ for aa = 1:length(groups)
                     data.(group).(dataType).(behavior).animalID = {};
                 end
                 if isempty(Results_BilatCoher_Ephys.(group).(animalID).(dataType).(behavior).C) == false
-                    data.(group).(dataType).(behavior).C = cat(1,data.(group).(dataType).(behavior).C,Results_BilatCoher_Ephys.(group).(animalID).(dataType).(behavior).C.^2');
+                    data.(group).(dataType).(behavior).C = cat(1,data.(group).(dataType).(behavior).C,Results_BilatCoher_Ephys.(group).(animalID).(dataType).(behavior).C');
                     data.(group).(dataType).(behavior).f = cat(1,data.(group).(dataType).(behavior).f,Results_BilatCoher_Ephys.(group).(animalID).(dataType).(behavior).f);
                     data.(group).(dataType).(behavior).group = cat(1,data.(group).(dataType).(behavior).group,group);
                     data.(group).(dataType).(behavior).animalID = cat(1,data.(group).(dataType).(behavior).animalID,animalID);
@@ -74,7 +74,7 @@ for aa = 1:length(dataTypes)
         p3 = plot(data.SSP_SAP.(dataType).(behavior).mean_f,data.SSP_SAP.(dataType).(behavior).mean_C,'color',colors('electric purple'),'LineWidth',2);
         plot(data.SSP_SAP.(dataType).(behavior).mean_f,data.SSP_SAP.(dataType).(behavior).mean_C + data.SSP_SAP.(dataType).(behavior).stdErr_C,'color',colors('electric purple'),'LineWidth',0.25);
         plot(data.SSP_SAP.(dataType).(behavior).mean_f,data.SSP_SAP.(dataType).(behavior).mean_C - data.SSP_SAP.(dataType).(behavior).stdErr_C,'color',colors('electric purple'),'LineWidth',0.25);
-        ylabel('Coherence^2')
+        ylabel('Coherence')
         xlabel('Freq (Hz)')
         title(behavior)
         xlim(xlimits{1,bb})
@@ -92,6 +92,8 @@ for aa = 1:length(dataTypes)
             mkdir(dirpath);
         end
         savefig(summaryFigure,[dirpath 'BilateralCoherence_Ephys_' dataType]);
+        set(summaryFigure,'PaperPositionMode','auto');
+        print('-vector','-dpdf','-fillpage',[dirpath 'BilateralCoherence_Ephys_' dataType])
     end
 end
 % find Hz peaks in coherence
@@ -141,7 +143,7 @@ for aa = 1:length(dataTypes)
             e2.MarkerSize = 10;
             e2.CapSize = 10;
             zz = zz + 1;
-            ylabel('Coherence^2')
+            ylabel('Coherence')
             xticks([1.5,3.5,5.5])
             xticklabels({'0.03:0.01 Hz','0.01:0.1 Hz','0.1:0.5 Hz'})
             title(arousalState)
@@ -157,6 +159,8 @@ for aa = 1:length(dataTypes)
     % save figure(s)
     if saveFigs == true
         savefig(summaryFigure,[dirpath 'BilateralCoherence_Ephys_' dataType '_FreqPeaks']);
+        set(summaryFigure,'PaperPositionMode','auto');
+        print('-vector','-dpdf','-fillpage',[dirpath 'BilateralCoherence_Ephys_' dataType '_FreqPeaks'])
     end
 end
 % statistics - generalized linear mixed effects model

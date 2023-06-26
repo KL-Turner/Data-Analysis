@@ -72,7 +72,7 @@ for zzz = 1:length(hemispheres)
                 restChunkSampleDiff = params.minTime.Rest*samplingRate - length(HbT_finalRestData{bb,1});
                 HbT_restPad = (ones(1,restChunkSampleDiff))*HbT_finalRestData{bb,1}(end);
                 Neural_restPad = (ones(1,restChunkSampleDiff))*Neural_finalRestData{bb,1}(end);
-                HbT_ProcRestData{bb,1} = horzcat(HbT_finalRestData{bb,1},HbT_restPad);
+                HbT_ProcRestData{bb,1} = horzcat(HbT_finalRestData{bb,1},HbT_restPad); %#ok<*AGROW>
                 Neural_ProcRestData{bb,1} = horzcat(Neural_finalRestData{bb,1},Neural_restPad);
                 HbT_ProcRestData{bb,1} = detrend(HbT_ProcRestData{bb,1},'constant');
                 Neural_ProcRestData{bb,1} = detrend(Neural_ProcRestData{bb,1},'constant');
@@ -116,14 +116,39 @@ for zzz = 1:length(hemispheres)
                     scoringLabels = ScoringResults.labels{cc,1};
                 end
             end
+            scoringLabelsA = scoringLabels(1:60);
             % check labels to match arousal state
-            if sum(strcmp(scoringLabels,'Not Sleep')) > 144 % 36 bins (180 total) or 3 minutes of sleep
+            if sum(strcmp(scoringLabelsA,'Not Sleep')) >= 48
                 load(procDataFileID,'-mat')
                 puffs = ProcData.data.stimulations.LPadSol;
                 % don't include trials with stimulation
                 if isempty(puffs) == true
-                    HbT_AlertData{zz,1} = ProcData.data.(dataType).(hemisphere);
-                    Neural_AlertData{zz,1} = ProcData.data.GCaMP.(hemisphere);
+                    HbT_AlertData{zz,1} = ProcData.data.(dataType).(hemisphere)(1:300*samplingRate);
+                    Neural_AlertData{zz,1} = ProcData.data.GCaMP.(hemisphere)(1:300*samplingRate);
+                    zz = zz + 1;
+                end
+            end
+            scoringLabelsB = scoringLabels(61:120);
+            % check labels to match arousal state
+            if sum(strcmp(scoringLabelsB,'Not Sleep')) >= 48
+                load(procDataFileID,'-mat')
+                puffs = ProcData.data.stimulations.LPadSol;
+                % don't include trials with stimulation
+                if isempty(puffs) == true
+                    HbT_AlertData{zz,1} = ProcData.data.(dataType).(hemisphere)(300*samplingRate + 1:600*samplingRate);
+                    Neural_AlertData{zz,1} = ProcData.data.GCaMP.(hemisphere)(300*samplingRate + 1:600*samplingRate);
+                    zz = zz + 1;
+                end
+            end
+            scoringLabelsC = scoringLabels(121:180);
+            % check labels to match arousal state
+            if sum(strcmp(scoringLabelsC,'Not Sleep')) >= 48
+                load(procDataFileID,'-mat')
+                puffs = ProcData.data.stimulations.LPadSol;
+                % don't include trials with stimulation
+                if isempty(puffs) == true
+                    HbT_AlertData{zz,1} = ProcData.data.(dataType).(hemisphere)(600*samplingRate + 1:end);
+                    Neural_AlertData{zz,1} = ProcData.data.GCaMP.(hemisphere)(600*samplingRate + 1:end);
                     zz = zz + 1;
                 end
             end
@@ -143,7 +168,7 @@ for zzz = 1:length(hemispheres)
                 Neural_alertData(:,cc) = Neural_ProcAlertData{cc,1};
             end
             % calculate the coherence between desired signals
-            params.tapers = [10,19]; % Tapers [n, 2n - 1]
+            params.tapers = [7,13]; % Tapers [n, 2n - 1]
             [C_AlertData,~,~,~,~,f_AlertData,confC_AlertData,~,cErr_AlertData] = coherencyc(HbT_alertData,Neural_alertData,params);
             % save results
             Results_NeuralHemoCoher_GCaMP.(group).(animalID).(hemisphere).(dataType).Alert.C = C_AlertData;
@@ -170,14 +195,39 @@ for zzz = 1:length(hemispheres)
                     scoringLabels = ScoringResults.labels{cc,1};
                 end
             end
+            scoringLabelsA = scoringLabels(1:60);
             % check labels to match arousal state
-            if sum(strcmp(scoringLabels,'Not Sleep')) < 36 % 36 bins (180 total) or 3 minutes of alert
+            if sum(strcmp(scoringLabelsA,'Not Sleep')) <= 12
                 load(procDataFileID,'-mat')
                 puffs = ProcData.data.stimulations.LPadSol;
                 % don't include trials with stimulation
                 if isempty(puffs) == true
-                    HbT_AsleepData{zz,1} = ProcData.data.(dataType).(hemisphere);
-                    Neural_AsleepData{zz,1} = ProcData.data.GCaMP.(hemisphere);
+                    HbT_AsleepData{zz,1} = ProcData.data.(dataType).(hemisphere)(1:300*samplingRate);
+                    Neural_AsleepData{zz,1} = ProcData.data.GCaMP.(hemisphere)(1:300*samplingRate);
+                    zz = zz + 1;
+                end
+            end
+            scoringLabelsB = scoringLabels(61:120);
+            % check labels to match arousal state
+            if sum(strcmp(scoringLabelsB,'Not Sleep')) <= 12
+                load(procDataFileID,'-mat')
+                puffs = ProcData.data.stimulations.LPadSol;
+                % don't include trials with stimulation
+                if isempty(puffs) == true
+                    HbT_AsleepData{zz,1} = ProcData.data.(dataType).(hemisphere)(300*samplingRate + 1:600*samplingRate);
+                    Neural_AsleepData{zz,1} = ProcData.data.GCaMP.(hemisphere)(300*samplingRate + 1:600*samplingRate);
+                    zz = zz + 1;
+                end
+            end
+            scoringLabelsC = scoringLabels(121:180);
+            % check labels to match arousal state
+            if sum(strcmp(scoringLabelsC,'Not Sleep')) <= 12
+                load(procDataFileID,'-mat')
+                puffs = ProcData.data.stimulations.LPadSol;
+                % don't include trials with stimulation
+                if isempty(puffs) == true
+                    HbT_AsleepData{zz,1} = ProcData.data.(dataType).(hemisphere)(600*samplingRate + 1:end);
+                    Neural_AsleepData{zz,1} = ProcData.data.GCaMP.(hemisphere)(600*samplingRate + 1:end);
                     zz = zz + 1;
                 end
             end
@@ -197,7 +247,7 @@ for zzz = 1:length(hemispheres)
                 Neural_asleepData(:,cc) = Neural_ProcAsleepData{cc,1};
             end
             % calculate the coherence between desired signals
-            params.tapers = [10,19]; % Tapers [n, 2n - 1]
+            params.tapers = [7,13]; % Tapers [n, 2n - 1]
             [C_AsleepData,~,~,~,~,f_AsleepData,confC_AsleepData,~,cErr_AsleepData] = coherencyc(HbT_asleepData,Neural_asleepData,params);
             % save results
             Results_NeuralHemoCoher_GCaMP.(group).(animalID).(hemisphere).(dataType).Asleep.C = C_AsleepData;
@@ -221,8 +271,14 @@ for zzz = 1:length(hemispheres)
             puffs = ProcData.data.stimulations.LPadSol;
             % don't include trials with stimulation
             if isempty(puffs) == true
-                HbT_AllData{zz,1} = ProcData.data.(dataType).(hemisphere);
-                Neural_AllData{zz,1} = ProcData.data.GCaMP.(hemisphere);
+                HbT_AllData{zz,1} = ProcData.data.(dataType).(hemisphere)(1:300*samplingRate);
+                Neural_AllData{zz,1} = ProcData.data.GCaMP.(hemisphere)(1:300*samplingRate);
+                zz = zz + 1;
+                HbT_AllData{zz,1} = ProcData.data.(dataType).(hemisphere)(300*samplingRate + 1:600*samplingRate);
+                Neural_AllData{zz,1} = ProcData.data.GCaMP.(hemisphere)(300*samplingRate + 1:600*samplingRate);
+                zz = zz + 1;
+                HbT_AllData{zz,1} = ProcData.data.(dataType).(hemisphere)(600*samplingRate + 1:end);
+                Neural_AllData{zz,1} = ProcData.data.GCaMP.(hemisphere)(600*samplingRate + 1:end);
                 zz = zz + 1;
             end
         end
@@ -241,7 +297,7 @@ for zzz = 1:length(hemispheres)
                 Neural_allData(:,cc) = Neural_ProcAllUnstimData{cc,1};
             end
             % calculate the coherence between desired signals
-            params.tapers = [10,19]; % Tapers [n, 2n - 1]
+            params.tapers = [7,13]; % Tapers [n, 2n - 1]
             [C_AllUnstimData,~,~,~,~,f_AllUnstimData,confC_AllUnstimData,~,cErr_AllUnstimData] = coherencyc(HbT_allData,Neural_allData,params);
             % save results
             Results_NeuralHemoCoher_GCaMP.(group).(animalID).(hemisphere).(dataType).All.C = C_AllUnstimData;
