@@ -1,5 +1,9 @@
 function [dataTypes] = DetermineWavelengthDatatypes_IOS(imagingWavelengths,iteration)
-
+%----------------------------------------------------------------------------------------------------------
+% Written by Kevin L. Turner
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
+%----------------------------------------------------------------------------------------------------------
 if strcmp(imagingWavelengths,'Red, Green, & Blue') == true
     if iteration == 1
         dataTypes = {'green','cortical_LH','cortical_RH','hippocampus','EMG','pupil'};

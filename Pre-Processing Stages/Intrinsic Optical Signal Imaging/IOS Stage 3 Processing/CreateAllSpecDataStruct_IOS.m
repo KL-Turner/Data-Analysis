@@ -1,12 +1,9 @@
 function [] = CreateAllSpecDataStruct_IOS()
-%________________________________________________________________________________________________________________________
+%----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%
-% Purpose: Combine spectrograms into a single file so it only has to be loaded one time in later analysis
-%________________________________________________________________________________________________________________________
-
+%----------------------------------------------------------------------------------------------------------
 neuralDataTypes = {'cortical_LH','cortical_RH','hippocampus'};
 % character list of all SpecData files
 specDataFileStruct = dir('*_SpecData.mat');

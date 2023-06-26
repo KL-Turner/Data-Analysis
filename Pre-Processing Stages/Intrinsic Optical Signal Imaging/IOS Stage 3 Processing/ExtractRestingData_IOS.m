@@ -6,7 +6,7 @@ function [animalID,RestData] = ExtractRestingData_IOS(procdataFiles,iteration)
 %----------------------------------------------------------------------------------------------------------
 load(procdataFiles(1,:));
 imagingWavelengths = ProcData.notes.imagingWavelengths;
-[dataTypes] = DetermineWavelengthDatatypes(imagingWavelengths,iteration);
+[dataTypes] = DetermineWavelengthDatatypes_IOS(imagingWavelengths,iteration);
 % go through each datatype and extract the corresponding data
 for aa = 1:length(dataTypes)
     dataType = dataTypes{1,aa};

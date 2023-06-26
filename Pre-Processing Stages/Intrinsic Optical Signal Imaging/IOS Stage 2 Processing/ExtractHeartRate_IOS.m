@@ -5,8 +5,13 @@ function [] = ExtractHeartRate_IOS(procDataFileIDs)
 % https://github.com/KL-Turner
 %----------------------------------------------------------------------------------------------------------
 load(procDataFileIDs(1,:));
-imagingType = ProcData.notes.imagingType;
+imagingType = ProcData.notes.imagingType; %#ok<NODEF>
 imagingWavelengths = ProcData.notes.imagingWavelengths;
+if any(strcmp(imagingWavelengths,{'Green','Blue','Green & Blue','Red, Green, & Blue'})) == true
+    wavelength = 'green';
+elseif any(strcmp(imagingWavelengths,{'Lime','Lime & Blue','Red, Lime, & Blue'})) == true
+    wavelength = 'lime';
+end
 for a = 1:size(procDataFileIDs,1)
     procDataFileID = procDataFileIDs(a,:);
     load(procDataFileID)
@@ -14,13 +19,13 @@ for a = 1:size(procDataFileIDs,1)
         disp(['Extracting heart rate from file (' num2str(a) '/' num2str(size(procDataFileIDs,1)) ')']); disp(' ')
         if ProcData.notes.CBVCamSamplingRate >= 30
             if strcmpi(imagingType,'Single ROI (SI)') == true
-                [~,~,~,HR] = FindHeartRate_IOS(ProcData.data.green.barrels,ProcData.notes.CBVCamSamplingRate);
+                [~,~,~,HR] = FindHeartRate_IOS(ProcData.data.(wavelength).barrels,ProcData.notes.CBVCamSamplingRate);
             elseif strcmpi(imagingType,'Single ROI (SSS)') == true
-                [~,~,~,HR] = FindHeartRate_IOS(ProcData.data.greenRefl.SSS,ProcData.notes.CBVCamSamplingRate);
+                [~,~,~,HR] = FindHeartRate_IOS(ProcData.data.(wavelength).SSS,ProcData.notes.CBVCamSamplingRate);
             elseif strcmpi(imagingType,'Bilateral ROI (SI)') == true || strcmpi(imagingType,'Bilateral ROI (SI,FC)') == true
                 % pull out the left and right window heart rate. they should be essentiall6 identical
-                [~,~,~,LH_HR] = FindHeartRate_IOS(ProcData.data.green.LH,ProcData.notes.CBVCamSamplingRate);
-                [~,~,~,RH_HR] = FindHeartRate_IOS(ProcData.data.green.RH,ProcData.notes.CBVCamSamplingRate);
+                [~,~,~,LH_HR] = FindHeartRate_IOS(ProcData.data.(wavelength).LH,ProcData.notes.CBVCamSamplingRate);
+                [~,~,~,RH_HR] = FindHeartRate_IOS(ProcData.data.(wavelength).RH,ProcData.notes.CBVCamSamplingRate);
                 % average the two signals from the left and right windows
                 HR = (LH_HR + RH_HR)/2;
             end
