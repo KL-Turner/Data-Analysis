@@ -1,12 +1,9 @@
-function [animalID] = TrainSleepModels_IOS()
-%________________________________________________________________________________________________________________________
+function [] = TrainSleepModels_IOS()
+%----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%
-% Purpose: Train several machine learning techniques on manually scored sleep data, and evaluate each model's accuracy
-%________________________________________________________________________________________________________________________
-
+%----------------------------------------------------------------------------------------------------------
 %% load in all the data to create a table of values
 startingDirectory = cd;
 % character list of all training files

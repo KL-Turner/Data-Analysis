@@ -1,12 +1,14 @@
-function [] = CreateTrainingDataSet_IOS(procDataFileIDs,RestingBaselines,baselineType,imagingType,TrainingFiles)
-%________________________________________________________________________________________________________________________
+function [] = CreateTrainingDataSet_IOS(procDataFileIDs,imagingType,TrainingFiles)
+%----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%
-% Purpose: Go through each file and train a data set for the model or for model validation
-%________________________________________________________________________________________________________________________
-
+%----------------------------------------------------------------------------------------------------------
+% load the baseline structure
+baselinesFileStruct = dir('*_RestingBaselines.mat');
+baselinesFile = {baselinesFileStruct.name}';
+baselinesFileID = char(baselinesFile);
+load(baselinesFileID)
 cc = 1;
 % reduce file list to those with the training dates
 for aa = 1:size(procDataFileIDs,1)
@@ -32,13 +34,13 @@ for bb = 1:size(trainingFileList,1)
         if strcmpi(imagingType,'GCaMP') == true
             [figHandle,~,~,~,ax4,~] = GenerateSingleFigures_GCaMP_Sleep_IOS(procDataFileID);
         else
-            [figHandle,~,~,~,ax4,~,~] = GenerateSingleFigures_IOS(procDataFileID,RestingBaselines,baselineType,saveFigs,imagingType,hemoType);
+            [figHandle,~,~,~,ax4,~,~] = GenerateSingleFigures_IOS(procDataFileID,RestingBaselines,'manualSelection',saveFigs,imagingType,hemoType);
         end
         trialDuration = ProcData.notes.trialDuration_sec;
         numBins = trialDuration/5;
         behavioralState = cell(180,1);
         for b = 1:numBins
-            global buttonState %#ok<TLEV>
+            global buttonState %#ok<GVMIS,TLEV>
             buttonState = 0;
             xStartVal = (b*5) - 4;
             xEndVal = b*5;
@@ -83,8 +85,12 @@ for bb = 1:size(trainingFileList,1)
         trainingTable = paramsTable;
         save(trainingDataFileID, 'trainingTable')
     else
+        load(modelDataSetID)
+        load(trainingDataSetID)
+        % update training data decisions with most recent predictor table
+        paramsTable.behavState = trainingTable.behavState;
+        trainingTable = paramsTable;
+        save(trainingDataFileID,'trainingTable')
         disp([trainingDataFileID ' already exists. Continuing...']); disp(' ')
     end
-end
-
 end

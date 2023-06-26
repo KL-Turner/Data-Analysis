@@ -1,15 +1,11 @@
-function [SleepData] = CreateSleepData_IOS(NREMsleepTime,REMsleepTime,modelName,TrainingFiles,SleepData)
-%________________________________________________________________________________________________________________________
+function [SleepData] = CreateSleepData_IOS(modelName,TrainingFiles,SleepData)
+%----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%
-% Purpose: This function uses the sleep logicals in each ProcData file to find periods where there are 60 seconds of
-%          consecutive ones within the sleep logical (12 or more). If a ProcData file's sleep logical contains one or
-%          more of these 60 second periods,each of those bins is gathered from the data and put into the SleepEventData.mat
-%          struct along with the file's name.
-%________________________________________________________________________________________________________________________
-
+%----------------------------------------------------------------------------------------------------------
+NREMsleepTime = 30; % seconds
+REMsleepTime = 60; % seconds
 % character list of all ProcData files
 procDataFileStruct = dir('*_ProcData.mat');
 procDataFiles = {procDataFileStruct.name}';
@@ -886,3 +882,4 @@ for aa = 1:size(procDataFileIDs,1) % loop through the list of ProcData files
 end
 % save structure
 disp([modelName ' model data added to SleepData structure.']); disp(' ')
+save([animalID '_SleepData.mat'],'SleepData')

@@ -1,12 +1,9 @@
 function [] = ApplySleepLogical_IOS(modelName,TrainingFiles,ScoringResults)
-%________________________________________________________________________________________________________________________
+%----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%
-% Purpose: Apply logicals for each arousal state to files for arousal state separation
-%________________________________________________________________________________________________________________________
-
+%----------------------------------------------------------------------------------------------------------
 if strcmp(modelName,'Manual') == false
     % character list of all ProcData files
     procDataFileStruct = dir('*_ProcData.mat');

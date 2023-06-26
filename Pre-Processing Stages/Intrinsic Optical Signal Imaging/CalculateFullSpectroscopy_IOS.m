@@ -29,7 +29,7 @@ for aa = 1:size(procDataFileIDs,1)
     load(procDataFileID)
     imagingCamera = ProcData.notes.iosCamera;
     imagingWavelengths = ProcData.notes.imagingWavelengths;
-    % if isfield(ProcData.data,'HbT') == false
+    if isfield(ProcData.data,'HbT') == false
         disp(['Adding pixel-wise spectroscopy to file (' num2str(aa) '/' num2str(size(procDataFileIDs,1)) ')...']); disp(' ')
         [~,fileDate,fileID] = GetFileInfo_IOS(procDataFileID);
         strDay = ConvertDate_IOS(fileDate);
@@ -221,5 +221,5 @@ for aa = 1:size(procDataFileIDs,1)
         end
         % save data
         save(procDataFileID,'ProcData')
-    % end
+    end
 end

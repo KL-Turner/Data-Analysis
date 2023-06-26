@@ -1,12 +1,13 @@
-function [ScoringResults] = PredictBehaviorEvents_IOS(animalID,modelDataFileIDs,modelName)
-%________________________________________________________________________________________________________________________
+function [ScoringResults] = PredictBehaviorEvents_IOS(modelName)
+%----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%
-% Purpose: Use trained model to predict arousal states on all files
-%________________________________________________________________________________________________________________________
-
+%----------------------------------------------------------------------------------------------------------
+% character list of all ModelData files
+modelDataFileStruct = dir('*_ModelData.mat');
+modelDataFiles = {modelDataFileStruct.name}';
+modelDataFileIDs = char(modelDataFiles);
 % directory path for saving data
 disp(['Predicting behavior events using ' modelName ' model']); disp(' ')
 % load appropriate model
@@ -83,5 +84,3 @@ else
     ScoringResults = [];
 end
 save([animalID '_' modelType '_ScoringResults'],'ScoringResults')
-
-end

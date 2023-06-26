@@ -1,13 +1,9 @@
 function [figHandle,ax1,ax2,ax3,ax4,ax5] = GenerateSingleFigures_GCaMP_Sleep_IOS(procDataFileID)
-%________________________________________________________________________________________________________________________
+%----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
-%
-% Purpose: Create a summary figure for a single n minute IOS trial
-%________________________________________________________________________________________________________________________
-
+%----------------------------------------------------------------------------------------------------------
 % load file and gather information
 load(procDataFileID)
 [animalID,~,fileID] = GetFileInfo_IOS(procDataFileID);

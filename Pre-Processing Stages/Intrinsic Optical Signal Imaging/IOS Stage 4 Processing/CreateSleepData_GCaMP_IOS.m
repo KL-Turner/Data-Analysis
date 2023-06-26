@@ -1,4 +1,4 @@
-function [SleepData] = CreateSleepData_GCaMP_IOS(NREMsleepTime,REMsleepTime,modelName,TrainingFiles,SleepData)
+function [SleepData] = CreateSleepData_GCaMP_IOS(modelName,TrainingFiles,SleepData)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -10,6 +10,8 @@ function [SleepData] = CreateSleepData_GCaMP_IOS(NREMsleepTime,REMsleepTime,mode
 %          struct along with the file's name.
 %________________________________________________________________________________________________________________________
 
+    NREMsleepTime = 30; % seconds
+    REMsleepTime = 60; % seconds
 % character list of all ProcData files
 procDataFileStruct = dir('*_ProcData.mat');
 procDataFiles = {procDataFileStruct.name}';
@@ -1068,5 +1070,4 @@ for aa = 1:size(procDataFileIDs,1) % loop through the list of ProcData files
 end
 % save structure
 disp([modelName ' model data added to SleepData structure.']); disp(' ')
-
-end
+save([animalID '_SleepData.mat'],'SleepData')
