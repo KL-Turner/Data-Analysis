@@ -1,4 +1,4 @@
-function [PupilStruct] = TrackPupilDiameter_IOS(fileName,iteration,trialData,PupilData,imagingParameters)
+function [PupilStruct] = TrackPupilDiameter_IOS(fileName,iteration,trialData,imagingParameters)
 %----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering

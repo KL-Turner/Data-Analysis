@@ -1,4 +1,3 @@
-function [] = SleepScoreMainScript_IOS()
 %----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -15,10 +14,6 @@ CreateTrainingDataSet_IOS(procDataFileIDs,RestingBaselines,baselineType,imagingT
 % train Models - cycle through each data set and update any necessary parameters
 TrainSleepModels_IOS();
 % sleep score data set and create structure for classification
-modelNames = {'SVM','Ensemble','Forest','Manual'}; SleepData = [];
-for aa = 1:length(modelNames)
-    modelName = modelNames{1,aa};
-    [ScoringResults] = PredictBehaviorEvents_IOS(modelName);
-    ApplySleepLogical_IOS(modelName,TrainingFiles,ScoringResults)
-    [SleepData] = CreateSleepData_IOS(modelName,TrainingFiles,SleepData);
-end
+[ScoringResults] = PredictBehaviorEvents_IOS(modelName);
+ApplySleepLogical_IOS(modelName,TrainingFiles,ScoringResults)
+CreateSleepData_IOS(TrainingFiles);
