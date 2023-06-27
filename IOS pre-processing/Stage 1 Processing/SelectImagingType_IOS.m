@@ -8,9 +8,7 @@ tf = 0;
 while tf == 0
     disp('Select imaging type'); disp(' ')
     [indx,tf] = listdlg('PromptString',{'Select an option',''},'SelectionMode','single','ListString',imagingOptions);
-    if tf == 0
-        disp('Please select an imaging option'); disp(' ');
-    else
+    if tf ~= 0
         disp(['Option selected: ' num2str(imagingOptions{1,indx}) ' selected']); disp(' ')
     end
 end
