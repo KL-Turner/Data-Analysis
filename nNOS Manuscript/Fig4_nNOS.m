@@ -21,7 +21,7 @@ for aa = 1:length(groups)
     animalIDs = fieldnames(Results_CrossCorr_Ephys.(group));
     for bb = 1:length(animalIDs)
         animalID = animalIDs{bb,1};
-        if any(strcmp(animalID,{'T142','T172'})) == false
+        if any(strcmp(animalID,{'1T142','1T172'})) == false
             for cc = 1:length(hemispheres)
                 hemisphere = hemispheres{1,cc};
                 for dd = 1:length(dataTypes)
@@ -233,7 +233,7 @@ for aa = 1:length(groups)
     end
 end
 %% figure panel 4
-figure;
+Fig4 = figure('Name','Figure 4');
 % Ephys cross correlation - Rest
 subplot(4,3,1);
 p1 = plot(ephysXCorrData.Blank_SAP.RH.gammaBandPower.Rest.mean_lags,ephysXCorrData.Blank_SAP.RH.gammaBandPower.Rest.mean_xcVals,'color',colors('north texas green'),'LineWidth',2);
@@ -417,3 +417,11 @@ xlabel('Freq (Hz)')
 xlim([0.02,0.35])
 set(gca,'box','off')
 axis square
+% save figure(s)
+if saveFigs == true
+    dirpath = [rootFolder delim 'Figure Panels' delim];
+    if ~exist(dirpath,'dir')
+        mkdir(dirpath);
+    end
+    savefig(Fig4,[dirpath 'Fig4']);
+end

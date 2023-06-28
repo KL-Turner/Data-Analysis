@@ -20,24 +20,22 @@ for aa = 1:length(groups)
     animalIDs = fieldnames(Results_BilatCoher_Ephys.(group));
     for bb = 1:length(animalIDs)
         animalID = animalIDs{bb,1};
-        if any(strcmp(animalID,{'T142','T172'})) == false
-            for cc = 1:length(dataTypes)
-                dataType = dataTypes{1,cc};
-                ephysBilatCoherData.(group).(dataType).dummCheck = 1;
-                for dd = 1:length(behaviors)
-                    behavior = behaviors{1,dd};
-                    if isfield(ephysBilatCoherData.(group).(dataType),behavior) == false
-                        ephysBilatCoherData.(group).(dataType).(behavior).C = [];
-                        ephysBilatCoherData.(group).(dataType).(behavior).f = [];
-                        ephysBilatCoherData.(group).(dataType).(behavior).group = {};
-                        ephysBilatCoherData.(group).(dataType).(behavior).animalID = {};
-                    end
-                    if isempty(Results_BilatCoher_Ephys.(group).(animalID).(dataType).(behavior).C) == false
-                        ephysBilatCoherData.(group).(dataType).(behavior).C = cat(1,ephysBilatCoherData.(group).(dataType).(behavior).C,Results_BilatCoher_Ephys.(group).(animalID).(dataType).(behavior).C');
-                        ephysBilatCoherData.(group).(dataType).(behavior).f = cat(1,ephysBilatCoherData.(group).(dataType).(behavior).f,Results_BilatCoher_Ephys.(group).(animalID).(dataType).(behavior).f);
-                        ephysBilatCoherData.(group).(dataType).(behavior).group = cat(1,ephysBilatCoherData.(group).(dataType).(behavior).group,group);
-                        ephysBilatCoherData.(group).(dataType).(behavior).animalID = cat(1,ephysBilatCoherData.(group).(dataType).(behavior).animalID,animalID);
-                    end
+        for cc = 1:length(dataTypes)
+            dataType = dataTypes{1,cc};
+            ephysBilatCoherData.(group).(dataType).dummCheck = 1;
+            for dd = 1:length(behaviors)
+                behavior = behaviors{1,dd};
+                if isfield(ephysBilatCoherData.(group).(dataType),behavior) == false
+                    ephysBilatCoherData.(group).(dataType).(behavior).C = [];
+                    ephysBilatCoherData.(group).(dataType).(behavior).f = [];
+                    ephysBilatCoherData.(group).(dataType).(behavior).group = {};
+                    ephysBilatCoherData.(group).(dataType).(behavior).animalID = {};
+                end
+                if isempty(Results_BilatCoher_Ephys.(group).(animalID).(dataType).(behavior).C) == false
+                    ephysBilatCoherData.(group).(dataType).(behavior).C = cat(1,ephysBilatCoherData.(group).(dataType).(behavior).C,Results_BilatCoher_Ephys.(group).(animalID).(dataType).(behavior).C');
+                    ephysBilatCoherData.(group).(dataType).(behavior).f = cat(1,ephysBilatCoherData.(group).(dataType).(behavior).f,Results_BilatCoher_Ephys.(group).(animalID).(dataType).(behavior).f);
+                    ephysBilatCoherData.(group).(dataType).(behavior).group = cat(1,ephysBilatCoherData.(group).(dataType).(behavior).group,group);
+                    ephysBilatCoherData.(group).(dataType).(behavior).animalID = cat(1,ephysBilatCoherData.(group).(dataType).(behavior).animalID,animalID);
                 end
             end
         end
@@ -204,7 +202,7 @@ xlim([0.02,0.35])
 set(gca,'box','off')
 axis square
 %% figure
-figure
+Fig5 = figure('Name','Figure 5');
 % GCaMP bilateral HbT - Rest
 subplot(4,3,1);
 p1 = semilogx(gcampBilatCoherData.Blank_SAP.HbT.Rest.mean_f,gcampBilatCoherData.Blank_SAP.HbT.Rest.mean_C,'color',colors('north texas green'),'LineWidth',2);
@@ -387,3 +385,11 @@ ylabel('Coherence')
 xlim([0.02,0.35])
 set(gca,'box','off')
 axis square
+% save figure(s)
+if saveFigs == true
+    dirpath = [rootFolder delim 'Figure Panels' delim];
+    if ~exist(dirpath,'dir')
+        mkdir(dirpath);
+    end
+    savefig(Fig5,[dirpath 'Fig5']);
+end

@@ -121,12 +121,10 @@ for x = 1:length(whiskInds_AsleepGCaMP)
     end
 end
 %% figure
-summaryFigure = figure;
-
+Fig2 = figure('Name','Figure 2');
 subplot(4,4,[1,5])
 imshow(Ephys_Schematic)
 axis image
-
 ax1 = subplot(4,4,2);
 % hemodynamic and behavioral indeces
 s1 = scatter((1:length(binWhiskers_AwakeEphys))/ProcData.notes.dsFs,whiskInds_AwakeEphys,'.','MarkerEdgeColor',colors('black'));
@@ -284,3 +282,11 @@ ax1Pos = get(ax1,'position');
 ax2Pos = get(ax2,'position');
 ax2Pos(3) = ax1Pos(3);
 set(ax2,'position',ax2Pos);
+% save figure(s)
+if saveFigs == true
+    dirpath = [rootFolder delim 'Figure Panels' delim];
+    if ~exist(dirpath,'dir')
+        mkdir(dirpath);
+    end
+    savefig(Fig2,[dirpath 'Fig2']);
+end

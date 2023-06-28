@@ -20,7 +20,7 @@ for aa = 1:length(groups)
     animalIDs = fieldnames(Results_Evoked_Ephys.(group));
     for bb = 1:length(animalIDs)
         animalID = animalIDs{bb,1};
-        if any(strcmp(animalID,{'T142','T172'})) == false
+        if any(strcmp(animalID,{'1T142','1T172'})) == false
             for cc = 1:length(hemispheres)
                 hemisphere = hemispheres{1,cc};
                 for dd = 1:length(solenoids)
@@ -77,10 +77,7 @@ for aa = 1:length(groups)
                             endIdx =  find(iosEphysData.(group).(hemisphere).(solenoid).timeVector(ee,:) == 4);
                             timeSnip = iosEphysData.(group).(hemisphere).(solenoid).timeVector(ee,:);
                             hbtSnip = iosEphysData.(group).(hemisphere).(comparison).HbT(ee,:);
-                            iosEphysData.(group).(hemisphere).(comparison).AUC_HbT(ee,1) = trapz(timeSnip(startIdx:endIdx),hbtSnip(startIdx:endIdx));
-                            [maxHbT,maxIdx] = max(hbtSnip);
-                            iosEphysData.(group).(hemisphere).(comparison).Peak_HbT(ee,1) = maxHbT;
-                            iosEphysData.(group).(hemisphere).(comparison).TTP_HbT(ee,1) = timeSnip(maxIdx);
+                            iosEphysData.(group).(hemisphere).(comparison).AUC(ee,1) = trapz(timeSnip(startIdx:endIdx),hbtSnip(startIdx:endIdx));
                         end
                     end
                 end
@@ -88,6 +85,7 @@ for aa = 1:length(groups)
         end
     end
 end
+[iosEphysStats.h,iosEphysStats.p] = ttest2(iosEphysData.Blank_SAP.RH.contra.AUC,iosEphysData.SSP_SAP.RH.contra.AUC);
 %% running spectroscopy
 % data analysis
 path = [rootFolder delim 'Results_Zhang'];
@@ -145,6 +143,18 @@ blankRunningMean = mean(runningGroup.Blank.HbT,1);
 sapRunningMean = mean(runningGroup.SSP.HbT,1);
 blankRunningStdErr = std(runningGroup.Blank.HbT,[],1)/sqrt(size(runningGroup.Blank.HbT,1));
 sapRunningStdErr = std(runningGroup.SSP.HbT,[],1)/sqrt(size(runningGroup.SSP.HbT,1));
+qzGroups = {'Blank','SSP'};
+for aa = 1:length(qzGroups)
+    qzGroup = qzGroups{1,aa};
+    for ee = 1:size(runningGroup.(qzGroup).HbT,1)
+        startIdx = find(time == 1);
+        endIdx =  find(time == 5);
+        timeSnip = time;
+        hbtSnip = runningGroup.(qzGroup).HbT(ee,:);
+        runningStats.(qzGroup).AUC(ee,1) = trapz(timeSnip(startIdx:endIdx),hbtSnip(startIdx:endIdx));
+    end
+end
+[runningStats.h,runningStats.p] = ttest2(runningStats.Blank.AUC,runningStats.SSP.AUC);
 %% two photon
 cd([rootFolder delim 'Results_Turner'])
 resultsStruct = 'Results_Evoked_2P';
@@ -160,22 +170,24 @@ for aa = 1:length(groups)
     animalIDs = fieldnames(Results_Evoked_2P.(group));
     for bb = 1:length(animalIDs)
         animalID = animalIDs{bb,1};
-        vIDs = fieldnames(Results_Evoked_2P.(group).(animalID));
-        for cc = 1:length(vIDs)
-            vID = vIDs{cc,1};
-            for dd = 1:length(solenoids)
-                solenoid = solenoids{1,dd};
-                twoPdata.(group).(solenoid).dummCheck = 1;
-                for ee = 1:length(dataTypes)
-                    dataType = dataTypes{1,ee};
-                    if isfield(twoPdata.(group).(solenoid),dataType) == false
-                        twoPdata.(group).(solenoid).(dataType) = [];
+        if strcmp(animalID,'T212') == false
+            vIDs = fieldnames(Results_Evoked_2P.(group).(animalID));
+            for cc = 1:length(vIDs)
+                vID = vIDs{cc,1};
+                for dd = 1:length(solenoids)
+                    solenoid = solenoids{1,dd};
+                    twoPdata.(group).(solenoid).dummCheck = 1;
+                    for ee = 1:length(dataTypes)
+                        dataType = dataTypes{1,ee};
+                        if isfield(twoPdata.(group).(solenoid),dataType) == false
+                            twoPdata.(group).(solenoid).(dataType) = [];
+                        end
                     end
+                    twoPdata.(group).(solenoid).diameter = cat(1,twoPdata.(group).(solenoid).diameter,Results_Evoked_2P.(group).(animalID).(vID).Stim.(solenoid).diameter*100);
+                    twoPdata.(group).(solenoid).baseline = cat(1,twoPdata.(group).(solenoid).baseline,Results_Evoked_2P.(group).(animalID).(vID).Stim.(solenoid).baseline);
+                    twoPdata.(group).(solenoid).count = cat(1,twoPdata.(group).(solenoid).count,Results_Evoked_2P.(group).(animalID).(vID).Stim.(solenoid).count);
+                    twoPdata.(group).(solenoid).timeVector = cat(1,twoPdata.(group).(solenoid).timeVector,Results_Evoked_2P.(group).(animalID).(vID).Stim.(solenoid).timeVector);
                 end
-                twoPdata.(group).(solenoid).diameter = cat(1,twoPdata.(group).(solenoid).diameter,Results_Evoked_2P.(group).(animalID).(vID).Stim.(solenoid).diameter*100);
-                twoPdata.(group).(solenoid).baseline = cat(1,twoPdata.(group).(solenoid).baseline,Results_Evoked_2P.(group).(animalID).(vID).Stim.(solenoid).baseline);
-                twoPdata.(group).(solenoid).count = cat(1,twoPdata.(group).(solenoid).count,Results_Evoked_2P.(group).(animalID).(vID).Stim.(solenoid).count);
-                twoPdata.(group).(solenoid).timeVector = cat(1,twoPdata.(group).(solenoid).timeVector,Results_Evoked_2P.(group).(animalID).(vID).Stim.(solenoid).timeVector);
             end
         end
     end
@@ -194,6 +206,17 @@ for aa = 1:length(groups)
         end
     end
 end
+for aa = 1:length(groups)
+    group = groups{1,aa};
+    for ee = 1:size(twoPdata.(group).contra.diameter,1)
+        startIdx = find(twoPdata.(group).contra.timeVector(ee,:) == 2);
+        endIdx =  find(twoPdata.(group).contra.timeVector(ee,:) == 7);
+        timeSnip = twoPdata.(group).contra.timeVector(ee,:);
+        diameterSnip = twoPdata.(group).contra.diameter(ee,:);
+        twoPdata.(group).contra.AUC(ee,1) = trapz(timeSnip(startIdx:endIdx),diameterSnip(startIdx:endIdx));
+    end
+end
+[twoPStats.h,twoPStats.p] = ttest2(twoPdata.Blank_SAP.contra.AUC,twoPdata.SSP_SAP.contra.AUC);
 %% IOS GCaMP
 cd([rootFolder delim 'Results_Turner'])
 resultsStruct = 'Results_Evoked_GCaMP';
@@ -257,13 +280,10 @@ for aa = 1:length(groups)
                     if strcmp(dataType,'timeVector') == false
                         for ee = 1:size(gcampdata.(group).(hemisphere).(comparison).(dataType),1)
                             startIdx = find(gcampdata.(group).(hemisphere).(solenoid).timeVector(ee,:) == 2);
-                            endIdx =  find(gcampdata.(group).(hemisphere).(solenoid).timeVector(ee,:) == 4);
+                            endIdx =  find(gcampdata.(group).(hemisphere).(solenoid).timeVector(ee,:) == 7);
                             timeSnip = gcampdata.(group).(hemisphere).(solenoid).timeVector(ee,:);
                             dataSnip = gcampdata.(group).(hemisphere).(comparison).(dataType)(ee,:);
                             gcampdata.(group).(hemisphere).(comparison).(['AUC_' dataType])(ee,1) = trapz(timeSnip(startIdx:endIdx),dataSnip(startIdx:endIdx));
-                            [maxData,maxIdx] = max(dataSnip);
-                            gcampdata.(group).(hemisphere).(comparison).(['Peak_' dataType])(ee,1) = maxData;
-                            gcampdata.(group).(hemisphere).(comparison).(['TTP_' dataType])(ee,1) = timeSnip(maxIdx);
                         end
                     end
                 end
@@ -271,6 +291,9 @@ for aa = 1:length(groups)
         end
     end
 end
+[gcampStats.HbT.h,gcampStats.HbT.p] = ttest2(gcampdata.Blank_SAP.RH.contra.AUC_HbT,gcampdata.SSP_SAP.RH.contra.AUC_HbT);
+[gcampStats.HbO.h,gcampStats.HbO.p] = ttest2(gcampdata.Blank_SAP.RH.contra.AUC_HbO,gcampdata.SSP_SAP.RH.contra.AUC_HbO);
+[gcampStats.HbR.h,gcampStats.HbR.p] = ttest2(gcampdata.Blank_SAP.RH.contra.AUC_HbR,gcampdata.SSP_SAP.RH.contra.AUC_HbR);
 %% IOS hbt signals
 cd([rootFolder delim 'Results_Turner'])
 resultsStruct = 'Results_IntSig_Ephys';
@@ -346,6 +369,8 @@ for aa = 1:length(groups)
         end
     end
 end
+[iosSigStats.Rest.h,iosSigStats.Rest.p] = ttest2(iossigdata.Blank_SAP.RH.HbT.Rest.vari,iossigdata.SSP_SAP.RH.HbT.Rest.vari);
+[iosSigStats.Stim.h,iosSigStats.Stim.p] = ttest2(iossigdata.Blank_SAP.RH.HbT.Stim.vari,iossigdata.SSP_SAP.RH.HbT.Stim.vari);
 %% GCaMP signals
 cd([rootFolder delim 'Results_Turner'])
 resultsStruct = 'Results_IntSig_GCaMP';
@@ -423,8 +448,14 @@ for aa = 1:length(groups)
         end
     end
 end
+[gcampSigStats.HbT.Rest.h,gcampSigStats.HbT.Rest.p] = ttest2(gcampSigdata.Blank_SAP.RH.HbT.Rest.vari,gcampSigdata.SSP_SAP.RH.HbT.Rest.vari);
+[gcampSigStats.HbO.Rest.h,gcampSigStats.HbO.Rest.p] = ttest2(gcampSigdata.Blank_SAP.RH.HbO.Rest.vari,gcampSigdata.SSP_SAP.RH.HbO.Rest.vari);
+[gcampSigStats.HbR.Rest.h,gcampSigStats.HbR.Rest.p] = ttest2(gcampSigdata.Blank_SAP.RH.HbR.Rest.vari,gcampSigdata.SSP_SAP.RH.HbR.Rest.vari);
+% [gcampSigStats.HbT.Stim.h,gcampSigStats.HbT.Stim.p] = ttest2(gcampSigdata.Blank_SAP.RH.HbT.Stim.vari,gcampSigdata.SSP_SAP.RH.HbT.Stim.vari);
+% [gcampSigStats.HbO.Stim.h,gcampSigStats.HbO.Stim.p] = ttest2(gcampSigdata.Blank_SAP.RH.HbO.Stim.vari,gcampSigdata.SSP_SAP.RH.HbO.Stim.vari);
+% [gcampSigStats.HbR.Stim.h,gcampSigStats.HbR.Stim.p] = ttest2(gcampSigdata.Blank_SAP.RH.HbR.Stim.vari,gcampSigdata.SSP_SAP.RH.HbR.Stim.vari);
 %% figure
-figure;
+Fig3 = figure('Name','Figure 3');
 % ephys stimulation
 subplot(3,3,1)
 p1 = plot(iosEphysData.Blank_SAP.RH.contra.mean_timeVector,iosEphysData.Blank_SAP.RH.contra.mean_HbT,'color',colors('north texas green'),'LineWidth',2);
@@ -616,3 +647,11 @@ xlim([0,3])
 set(gca,'box','off')
 set(gca,'xtick',[])
 axis square
+% save figure(s)
+if saveFigs == true
+    dirpath = [rootFolder delim 'Figure Panels' delim];
+    if ~exist(dirpath,'dir')
+        mkdir(dirpath);
+    end
+    savefig(Fig3,[dirpath 'Fig3']);
+end

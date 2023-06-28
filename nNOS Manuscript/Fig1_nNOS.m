@@ -60,12 +60,20 @@ for aa = 1:length(groups)
     Stats.(group).FitFormula = 'Count ~ 1 + Hemisphere + (1|Mouse)';
     Stats.(group).Stats = fitglme(Stats.(group).Table,Stats.(group).FitFormula);
 end
-Stats.Comp.tableSize = cat(1,data.Blank_SAP.LH,data.SSP_SAP.LH);
-Stats.Comp.Table = table('Size',[size(Stats.Blank_SAP.tableSize,1),2],'VariableTypes',{'string','double'},'VariableNames',{'Group','Count'});
-Stats.Comp.Table.Group = cat(1,data.Blank_SAP.Group,data.SSP_SAP.Group);
-Stats.Comp.Table.Count = cat(1,data.Blank_SAP.LH,data.SSP_SAP.LH);
-Stats.Comp.FitFormula = 'Count ~ 1 + Group';
-Stats.Comp.Stats = fitglme(Stats.Comp.Table,Stats.Comp.FitFormula);
+% Naive vs blank RH
+Stats.NaiveBlank.tableSize = cat(1,data.Naive.RH,data.Blank_SAP.RH);
+Stats.NaiveBlank.Table = table('Size',[size(Stats.Blank_SAP.tableSize,1),2],'VariableTypes',{'string','double'},'VariableNames',{'Group','Count'});
+Stats.NaiveBlank.Table.Group = cat(1,data.Naive.Group,data.Blank_SAP.Group);
+Stats.NaiveBlank.Table.Count = cat(1,data.Naive.RH,data.Blank_SAP.RH);
+Stats.NaiveBlank.FitFormula = 'Count ~ 1 + Group';
+Stats.NaiveBlank.Stats = fitglme(Stats.NaiveBlank.Table,Stats.NaiveBlank.FitFormula);
+% Blank vs SSP RH
+Stats.BlankSSP.tableSize = cat(1,data.Blank_SAP.RH,data.SSP_SAP.RH);
+Stats.BlankSSP.Table = table('Size',[size(Stats.Blank_SAP.tableSize,1),2],'VariableTypes',{'string','double'},'VariableNames',{'Group','Count'});
+Stats.BlankSSP.Table.Group = cat(1,data.Blank_SAP.Group,data.SSP_SAP.Group);
+Stats.BlankSSP.Table.Count = cat(1,data.Blank_SAP.RH,data.SSP_SAP.RH);
+Stats.BlankSSP.FitFormula = 'Count ~ 1 + Group';
+Stats.BlankSSP.Stats = fitglme(Stats.BlankSSP.Table,Stats.BlankSSP.FitFormula);
 % indeces for scatter plot
 C57_LH_inds = ones(length(data.Naive.LH),1)*1;
 C57_RH_inds = ones(length(data.Naive.RH),1)*2;
@@ -130,7 +138,7 @@ axis off
 title('d')
 % save figure(s)
 if saveFigs == true
-    dirpath = [rootFolder delim 'Summary Figures' delim 'Histology' delim];
+    dirpath = [rootFolder delim 'Figure Panels' delim];
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
@@ -157,7 +165,11 @@ if saveFigs == true
     disp('======================================================================================================================')
     disp(Stats.SSP_SAP.Stats)
     disp('======================================================================================================================')
+    disp('GLME statistics for R/R Naive vs. Blank cell counts')
+    disp('======================================================================================================================')
+    disp(Stats.NaiveBlank.Stats)
+    disp('======================================================================================================================')
     disp('GLME statistics for R/R Blank vs. SSP cell counts')
     disp('======================================================================================================================')
-    disp(Stats.Comp.Stats)
+    disp(Stats.BlankSSP.Stats)
 end

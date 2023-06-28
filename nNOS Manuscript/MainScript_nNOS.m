@@ -10,11 +10,10 @@ function [] = MainScript_nNOS()
 % Functions used to analyze data for figures are located in the folder "Data Analysis Functions"
 % Functions optained from 3rd party are located in the folder "Shared Functions"
 %----------------------------------------------------------------------------------------------------------
-zap;
+% zap;
 cd('F:\NO Project\')
 % save figures?
 saveFigs = true;
-generateFullFigures = true;
 % verify code repository and data are in the current directory/added path
 currentFolder = pwd;
 addpath(genpath(currentFolder));
@@ -67,6 +66,7 @@ if runAnalysis == true
     %% cross correlation between neural-hemo
     AnalyzeCrossCorrelation_Ephys_Handler(rootFolder,delim,false)
     AnalyzeCrossCorrelation_GCaMP_Handler(rootFolder,delim,false)
+    AnalyzeCrossCorrelation_EGFP_Handler(rootFolder,delim,false)
 
     %% pupil analysis
     AnalyzePupilArea_Ephys_Handler(rootFolder,delim,false)
@@ -99,89 +99,16 @@ Open field and fMRI are awake only
 %}
 disp('Loading analysis results and generating figures...'); disp(' ')
 % main figure panels
-Fig1_nNOS(rootFolder,saveFigs,delim)
-Fig2_nNOS(rootFolder,saveFigs,delim)
-Fig3_nNOS(rootFolder,saveFigs,delim)
-Fig4_nNOS(rootFolder,saveFigs,delim)
-Fig5_nNOS(rootFolder,saveFigs,delim)
-Fig6_nNOS(rootFolder,saveFigs,delim)
+% Fig1_nNOS(rootFolder,saveFigs,delim)
+% Fig2_nNOS(rootFolder,saveFigs,delim)
+% Fig3_nNOS(rootFolder,saveFigs,delim)
+% Fig4_nNOS(rootFolder,saveFigs,delim)
+% Fig5_nNOS(rootFolder,saveFigs,delim)
+% Fig6_nNOS(rootFolder,saveFigs,delim)
 % Fig7_nNOS(rootFolder,saveFigs,delim)
 % Fig8_nNOS(rootFolder,saveFigs,delim)
 % supplemental figure panels
-% FigS1_nNOS()
+FigS1_nNOS(rootFolder,saveFigs,delim)
 % FigS2_nNOS()
 % FigS3_nNOS()
 % FigS4_nNOS()
-% all comparisons and states from each analysis
-if generateFullFigures == true
-    % % Single trial examples
-    % SingleTrialExample_Awake_Ephys_Figures(rootFolder,saveFigs,delim)
-    % SingleTrialExample_Asleep_Ephys_Figures(rootFolder,saveFigs,delim)
-    % SingleTrialExample_Awake_GCaMP_Figures(rootFolder,saveFigs,delim)
-    % SingleTrialExample_Asleep_GCaMP_Figures(rootFolder,saveFigs,delim)
-    % % histology, behavior, controls
-    % DiaphoraseCellCounts_Figures(rootFolder,saveFigs,delim)
-    % OpenFieldBehavior_Figures(rootFolder,saveFigs,delim)
-    % HemoGFPRelationship_EGFP_Figures(rootFolder,saveFigs,delim)
-    % ModelAccuracy_Ephys_Figures(rootFolder,saveFigs,delim)
-    % ModelAccuracy_GCaMP_Figures(rootFolder,saveFigs,delim)
-    % % arousal-state probability
-    % ArousalStateProb_Ephys_Figures(rootFolder,saveFigs,delim)
-    % ArousalStateProb_GCaMP_Figures(rootFolder,saveFigs,delim)
-    % % whisking behavior
-    % WhiskingBehavior_Ephys_Figures(rootFolder,saveFigs,delim)
-    % WhiskingBehavior_GCaMP_Figures(rootFolder,saveFigs,delim)
-    % % pupil size, stimulus evoked response, coherence/XC w/ HbT/gamma
-    % PupilArea_Ephys_Figures(rootFolder,saveFigs,delim)
-    % PupilStimEvoked_Ephys_Figures(rootFolder,saveFigs,delim)
-    % PupilCoherence_Ephys_Figures(rootFolder,saveFigs,delim)
-    % PupilCrossCorrelation_Ephys_Figures(rootFolder,saveFigs,delim)
-    % PupilInterBlinkInterval_Ephys_Figures(rootFolder,saveFigs,delim)
-    % % arousal-state transitions
-    % ArousalTransitions_Ephys_Figures(rootFolder,saveFigs,delim)
-    % ArousalTransitions_GCaMP_SI_Figures(rootFolder,saveFigs,delim)
-    % ArousalTransitions_GCaMP_FC_Figures(rootFolder,saveFigs,delim)
-    % % IOS signals (HbT, GCaMP, HbO/R)
-    % IntrinsicSignals_Ephys_Figures(rootFolder,saveFigs,delim)
-    % IntrinsicSignals_GCaMP_SI_Figures(rootFolder,saveFigs,delim)
-    % IntrinsicSignals_GCaMP_FC_Figures(rootFolder,saveFigs,delim)
-    % ArousalDerivative_Ephys_Figures(rootFolder,saveFigs,delim)
-    % % 2p and baseline shift
-    % ArterioleDiameter_2P_Figures(rootFolder,saveFigs,delim)
-    % BaselineShift_2P_Figures(rootFolder,saveFigs,delim)
-    % % stimulus evoked (HbT, GCaMP, HbO/R, gamma/MUA, 2p diameter, running)
-    % StimEvoked_Ephys_Figures(rootFolder,saveFigs,delim)
-    % StimEvoked_GCaMP_SI_Figures(rootFolder,saveFigs,delim)
-    % StimEvoked_GCaMP_FC_Figures(rootFolder,saveFigs,delim)
-    % StimEvoked_2P_Figures(rootFolder,saveFigs,delim)
-    % StimEvoked_Pulse_Figures(rootFolder,saveFigs,delim)
-    % RunningSpectroscopy_Figures(rootFolder,saveFigs,delim)
-    % % whisking evoked (HbT, GCaMP, HbO/R, gamma/MUA, 2p diameter)
-    % VolitionalWhisk_Ephys_Figures(rootFolder,saveFigs,delim)
-    % VolitionalWhisk_GCaMP_SI_Figures(rootFolder,saveFigs,delim)
-    % VolitionalWhisk_GCaMP_FC_Figures(rootFolder,saveFigs,delim)
-    % VolitionalWhisk_2P_Figures(rootFolder,saveFigs,delim)
-    % VolitionalWhisk_Pulse_Figures(rootFolder,saveFigs,delim)
-    % % power spectra (LFP, HbT, GCaMP, HbO/R, gamma, 2p diameter)
-    % PowerSpectrum_LFP_Figures(rootFolder,saveFigs,delim)
-    % PowerSpectrum_Ephys_Figures(rootFolder,saveFigs,delim)
-    % PowerSpectrum_GCaMP_SI_Figures(rootFolder,saveFigs,delim)
-    % PowerSpectrum_GCaMP_FC_Figures(rootFolder,saveFigs,delim)
-    % PowerSpectrum_2P_Figures(rootFolder,saveFigs,delim)
-    % bilateral coherence (HbT, GCaMP, HbO/R, gamma)
-    % BilateralCoherence_Ephys_Figures(rootFolder,saveFigs,delim)
-    % BilateralCoherence_GCaMP_SI_Figures(rootFolder,saveFigs,delim)
-    % BilateralCoherence_GCaMP_FC_Figures(rootFolder,saveFigs,delim)
-    % % Pearson's correlations (HbT, GCaMP, HbO/R, gamma)
-    % PearsonsCorrelation_Ephys_Figures(rootFolder,saveFigs,delim)
-    % PearsonsCorrelation_GCaMP_SI_Figures(rootFolder,saveFigs,delim)
-    % PearsonsCorrelation_GCaMP_FC_Figures(rootFolder,saveFigs,delim)
-    % % neural-hemo coherence (HbT, GCaMP, HbO/R, gamma)
-    % NeuralHemoCoherence_Ephys_Figures(rootFolder,saveFigs,delim)
-    % NeuralHemoCoherence_GCaMP_SI_Figures(rootFolder,saveFigs,delim)
-    % NeuralHemoCoherence_GCaMP_FC_Figures(rootFolder,saveFigs,delim)
-    % cross correlation (HbT, GCaMP, HbO/R, gamma)
-    % CrossCorrelation_Ephys_Figures(rootFolder,saveFigs,delim)
-    % CrossCorrelation_GCaMP_SI_Figures(rootFolder,saveFigs,delim)
-    % CrossCorrelation_GCaMP_FC_Figures(rootFolder,saveFigs,delim)
-end
