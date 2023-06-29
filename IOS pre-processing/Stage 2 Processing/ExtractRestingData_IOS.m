@@ -1,4 +1,4 @@
-function [animalID,RestData] = ExtractRestingData_IOS(procdataFiles,iteration)
+function [RestData] = ExtractRestingData_IOS(procdataFiles,iteration)
 %----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering

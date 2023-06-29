@@ -311,14 +311,14 @@ if strcmp(imagingParameters.pupilOptions,'Yes') == true
     disp(['Whisker Tracking time was ' num2str(pupilStop) ' seconds.']); disp(' ')
 else
     % save data
-    PupilStruct.firstFrame = nan(200,200);
-    PupilStruct.pupilArea = nan(1,str2double(trialData.pupilCamSamplingRate)*str2double(trialData.trialDuration_sec));
-    PupilStruct.pupilMajor = nan(1,str2double(trialData.pupilCamSamplingRate)*str2double(trialData.trialDuration_sec));
-    PupilStruct.pupilMinor = nan(1,str2double(trialData.pupilCamSamplingRate)*str2double(trialData.trialDuration_sec));
-    PupilStruct.pupilCentroid = nan(str2double(trialData.pupilCamSamplingRate)*str2double(trialData.trialDuration_sec),2);
-    PupilStruct.eyeROI = nan(200,200);
-    PupilStruct.roiIntensity = nan(1,str2double(trialData.pupilCamSamplingRate)*str2double(trialData.trialDuration_sec));
+    PupilStruct.firstFrame = ones(200,200);
+    PupilStruct.pupilArea = ones(1,str2double(trialData.pupilCamSamplingRate)*str2double(trialData.trialDuration_sec));
+    PupilStruct.pupilMajor = ones(1,str2double(trialData.pupilCamSamplingRate)*str2double(trialData.trialDuration_sec));
+    PupilStruct.pupilMinor = ones(1,str2double(trialData.pupilCamSamplingRate)*str2double(trialData.trialDuration_sec));
+    PupilStruct.pupilCentroid = ones(str2double(trialData.pupilCamSamplingRate)*str2double(trialData.trialDuration_sec),2);
+    PupilStruct.eyeROI = ones(200,200);
+    PupilStruct.roiIntensity = ones(1,str2double(trialData.pupilCamSamplingRate)*str2double(trialData.trialDuration_sec));
     PupilStruct.inspectFile = 0;
-    PupilStruct.blinkFrames = NaN;
-    PupilStruct.blinkInds = NaN;
+    PupilStruct.blinkFrames = [];
+    PupilStruct.blinkInds = [];
 end

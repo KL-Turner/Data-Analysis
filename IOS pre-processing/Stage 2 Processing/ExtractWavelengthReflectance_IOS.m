@@ -38,29 +38,36 @@ for a = 1:size(procDataFileIDs,1)
         % separate image stack by wavelength
         if strcmp(imagingWavelengths,{'Red, Green, & Blue'}) == true
             wavelengths = {'red','green','blue'};
+            ProcData.notes.wavelengthSamplingRate = ProcData.notes.CBVCamSamplingRate/3;
             data.red = imageStack(:,:,2:3:end);
             data.green = imageStack(:,:,3:3:end);
             data.blue = imageStack(:,:,1:3:end - 1);
         elseif strcmp(imagingWavelengths,{'Red, Lime, & Blue'}) == true
             wavelengths = {'red','lime','blue'};
+            ProcData.notes.wavelengthSamplingRate = ProcData.notes.CBVCamSamplingRate/3;
             data.red = imageStack(:,:,2:3:end);
             data.lime = imageStack(:,:,3:3:end);
             data.blue = imageStack(:,:,1:3:end - 1);
         elseif strcmp(imagingWavelengths,{'Green & Blue'}) == true
+            ProcData.notes.wavelengthSamplingRate = ProcData.notes.CBVCamSamplingRate/2;
             wavelengths = {'green','blue'};
             data.green = imageStack(:,:,2:2:end);
             data.blue = imageStack(:,:,1:2:end - 1);
         elseif strcmp(imagingWavelengths,{'Lime & Blue'}) == true
+            ProcData.notes.wavelengthSamplingRate = ProcData.notes.CBVCamSamplingRate/2;
             wavelengths = {'lime','blue'};
             data.lime = imageStack(:,:,2:2:end);
             data.blue = imageStack(:,:,1:2:end - 1);
         elseif strcmp(imagingWavelengths,'Green') == true
+            ProcData.notes.wavelengthSamplingRate = ProcData.notes.CBVCamSamplingRate;
             wavelengths = {'green'};
             data.green = imageStack(:,:,1:end);
         elseif strcmp(imagingWavelengths,'Lime') == true
+            ProcData.notes.wavelengthSamplingRate = ProcData.notes.CBVCamSamplingRate;
             wavelengths = {'lime'};
             data.lime = imageStack(:,:,1:end);
         elseif strcmp(imagingWavelengths,'Blue') == true
+            ProcData.notes.wavelengthSamplingRate = ProcData.notes.CBVCamSamplingRate;
             wavelengths = {'blue'};
             data.blue = imageStack(:,:,1:end);
         end
@@ -68,7 +75,7 @@ for a = 1:size(procDataFileIDs,1)
             ROIshortName = ROInames{1,b};
             ROIname = ROInames{1,b};
             for cc = 1:length(wavelengths)
-                reflField = wavelengths{cc,1};
+                reflField = wavelengths{1,cc};
                 if any(strcmp(ROIshortName,{'LH','RH','fLH','fRH','barrels'})) == true
                     maskFig = figure;
                     imagesc(data.(reflField)(:,:,1));

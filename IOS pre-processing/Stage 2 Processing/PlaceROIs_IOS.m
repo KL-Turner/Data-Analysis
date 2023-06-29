@@ -62,7 +62,7 @@ elseif strcmp(imagingCamera,'Dalsa Pantera TF 1M60')
     imageWidth = ProcData.notes.CBVCamPixelWidth;
     pixelsPerFrame = imageWidth*imageHeight;
     % open the file, get file size, back to the begining
-    fid = fopen(windowDataFileList(qq,:));
+    fid = fopen(windowDataFileList(1,:));
     fseek(fid,0,'eof');
     fseek(fid,0,'bof');
     % identify the number of frames to read. Each frame has a previously defined width and height (as inputs), along with a grayscale "depth" of 2"
@@ -107,7 +107,6 @@ for ff = 1:length(ROInames)
         xlabel('Image size (pixels)')
         ylabel('Image size (pixels)')
         colormap gray
-        colorbar
         axis image
         disp(['Move the ROI over the desired region for ' ROInames{1,ff}]); disp(' ')
         drawnow
@@ -133,9 +132,7 @@ title([animalID ' final ROI placement'])
 xlabel('Image size (pixels)')
 ylabel('Image size (pixels)')
 colormap gray
-colorbar
 axis image
-clim([0,2^ProcData.notes.CBVCamBitDepth])
 % save the file to directory.
 [pathstr,~,~] = fileparts(cd);
 dirpath = [pathstr '/Figures/IOS ROIs/'];

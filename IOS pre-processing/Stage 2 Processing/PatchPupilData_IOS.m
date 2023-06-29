@@ -10,7 +10,7 @@ droppedFrameIndex = str2double(RawData.notes.droppedPupilCamFrameIndex);
 sampleDiff = expectedSamples - length(RawData.data.pupil.pupilMajor);
 framesPerIndex = ceil(sampleDiff/length(droppedFrameIndex));
 % patch NaN values
-pupilArea = RawData.data.pupil.rawPupilArea;
+pupilArea = RawData.data.pupil.pupilArea;
 pupilMinorAxis = RawData.data.pupil.pupilMinor;
 pupilMajorAxis = RawData.data.pupil.pupilMajor;
 pupilCentroidX = RawData.data.pupil.pupilCentroid(:,1)';
