@@ -16,7 +16,7 @@ imagingType = ProcData.notes.imagingType;
 % setup butterworth filter coefficients for a 1 Hz and 10 Hz lowpass based on the sampling rate
 [z1,p1,k1] = butter(4,10/(ProcData.notes.dsFs/2),'low');
 [sos1,g1] = zp2sos(z1,p1,k1);
-[z2,p2,k2] = butter(4,1/(ProcData.notes.CBVCamSamplingRate/2),'low');
+[z2,p2,k2] = butter(4,1/(ProcData.notes.wavelengthSamplingRate/2),'low');
 [sos2,g2] = zp2sos(z2,p2,k2);
 % whisker angle
 filteredWhiskerAngle = filtfilt(sos1,g1,ProcData.data.whiskerAngle.angle);
@@ -203,33 +203,33 @@ s5 = scatter(AudSol,Aud_Yvals,'v','MarkerEdgeColor','k','MarkerFaceColor','g');
 s6 = scatter(OptoLED,Opto_Yvals,'v','MarkerEdgeColor','k','MarkerFaceColor','b');
 if strcmp(imagingType,'Bilateral ROI (SI)') == true || strcmpi(imagingType,'Bilateral ROI (SI,FC)') == true
     if strcmp(hemoType,'reflectance') == true
-        p5 = plot((1:length(filtLH_CBV))/ProcData.notes.CBVCamSamplingRate,filtLH_CBV,'color',colors('dark candy apple red'),'LineWidth',1);
-        p6 = plot((1:length(filtRH_CBV))/ProcData.notes.CBVCamSamplingRate,filtRH_CBV,'color',colors('rich black'),'LineWidth',1);
+        p5 = plot((1:length(filtLH_CBV))/ProcData.notes.wavelengthSamplingRate,filtLH_CBV,'color',colors('dark candy apple red'),'LineWidth',1);
+        p6 = plot((1:length(filtRH_CBV))/ProcData.notes.wavelengthSamplingRate,filtRH_CBV,'color',colors('rich black'),'LineWidth',1);
         ylabel('\DeltaR/R (%)')
         legend([p5,p6,s1,s2,s3,s4,s5,s6],'LH','RH','movement','whisking',',LPad sol','RPad sol','Aud sol','Opto LED')
     elseif strcmp(hemoType,'HbT') == true
-        p5 = plot((1:length(filtLH_HbT))/ProcData.notes.CBVCamSamplingRate,filtLH_HbT,'color',colors('dark candy apple red'),'LineWidth',1);
-        p6 = plot((1:length(filtRH_HbT))/ProcData.notes.CBVCamSamplingRate,filtRH_HbT,'color',colors('rich black'),'LineWidth',1);
+        p5 = plot((1:length(filtLH_HbT))/ProcData.notes.wavelengthSamplingRate,filtLH_HbT,'color',colors('dark candy apple red'),'LineWidth',1);
+        p6 = plot((1:length(filtRH_HbT))/ProcData.notes.wavelengthSamplingRate,filtRH_HbT,'color',colors('rich black'),'LineWidth',1);
         ylabel('\DeltaHbT')
         legend([p5,p6,s1,s2,s3,s4,s5,s6],'LH','RH','movement','whisking',',LPad sol','RPad sol','Aud sol','Opto LED')
     end
 elseif strcmp(imagingType,'Single ROI (SI)') == true
     if strcmp(hemoType,'reflectance') == true
-        p5 = plot((1:length(filtBarrels_CBV))/ProcData.notes.CBVCamSamplingRate,filtBarrels_CBV,'color',colors('dark candy apple red'),'LineWidth',1);
+        p5 = plot((1:length(filtBarrels_CBV))/ProcData.notes.wavelengthSamplingRate,filtBarrels_CBV,'color',colors('dark candy apple red'),'LineWidth',1);
         ylabel('\DeltaR/R (%)')
         legend([p5,s1,s2,s3,s4,s5,s6],'Barrels','movement','whisking',',LPad sol','RPad sol','Aud sol','Opto LED')
     elseif strcmp(hemoType,'HbT') == true
-        p5 = plot((1:length(filtBarrels_HbT))/ProcData.notes.CBVCamSamplingRate,filtBarrels_HbT,'color',colors('dark candy apple red'),'LineWidth',1);
+        p5 = plot((1:length(filtBarrels_HbT))/ProcData.notes.wavelengthSamplingRate,filtBarrels_HbT,'color',colors('dark candy apple red'),'LineWidth',1);
         ylabel('\DeltaHbT')
         legend([p5,s1,s2,s3,s4,s5,s6],'Barrels','movement','whisking',',LPad sol','RPad sol','Aud sol','Opto LED')
     end
 elseif strcmp(imagingType,'Single ROI (SSS)') == true
     if strcmp(hemoType,'reflectance') == true
-        p5 = plot((1:length(filtSSS_CBV))/ProcData.notes.CBVCamSamplingRate,filtSSS_CBV,'color',colors('dark candy apple red'),'LineWidth',1);
+        p5 = plot((1:length(filtSSS_CBV))/ProcData.notes.wavelengthSamplingRate,filtSSS_CBV,'color',colors('dark candy apple red'),'LineWidth',1);
         ylabel('\DeltaR/R (%)')
         legend([p5,s1,s2,s3,s4,s5,s6],'SSS','movement','whisking',',LPad sol','RPad sol','Aud sol','Opto LED')
     elseif strcmp(hemoType,'HbT') == true
-        p5 = plot((1:length(filtSSS_HbT))/ProcData.notes.CBVCamSamplingRate,filtSSS_HbT,'color',colors('dark candy apple red'),'LineWidth',1);
+        p5 = plot((1:length(filtSSS_HbT))/ProcData.notes.wavelengthSamplingRate,filtSSS_HbT,'color',colors('dark candy apple red'),'LineWidth',1);
         ylabel('\DeltaHbT')
         legend([p5,s1,s2,s3,s4,s5,s6],'SSS','movement','whisking',',LPad sol','RPad sol','Aud sol','Opto LED')
     end

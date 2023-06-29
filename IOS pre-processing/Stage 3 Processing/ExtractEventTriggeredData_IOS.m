@@ -14,7 +14,7 @@ for aa = 1:length(dataTypes)
     dataType = dataTypes{1,aa};
     subDataTypes = fieldnames(ProcData.data.(dataType));
     if any(strcmpi(dataType,{'green','lime','blue','red','HbT','HbO','HbR','GCaMP'})) == true
-        samplingRate = ProcData.notes.CBVCamSamplingRate;
+        samplingRate = ProcData.notes.wavelengthSamplingRate;
     else
         samplingRate = ProcData.notes.dsFs;
     end
