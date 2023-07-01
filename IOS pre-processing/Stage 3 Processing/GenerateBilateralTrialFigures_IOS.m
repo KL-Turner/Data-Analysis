@@ -13,7 +13,7 @@ imagingWavelengths = ProcData.notes.imagingWavelengths;
 % setup butterworth filter coefficients for a 1 Hz and 10 Hz lowpass based on the sampling rate
 [z1,p1,k1] = butter(4,10/(ProcData.notes.dsFs/2),'low');
 [sos1,g1] = zp2sos(z1,p1,k1);
-[z2,p2,k2] = butter(4,1/(ProcData.notes.CBVCamSamplingRate/2),'low');
+[z2,p2,k2] = butter(4,1/(ProcData.notes.wavelengthSamplingRate/2),'low');
 [sos2,g2] = zp2sos(z2,p2,k2);
 % whisker angle
 filteredWhiskerAngle = filtfilt(sos1,g1,ProcData.data.whiskerAngle.angle);
@@ -38,7 +38,7 @@ if any(strcmp(imagingWavelengths,{'Red, Green, & Blue','Lime, Green, & Blue'})) 
     RH_HbT = ProcData.data.HbT.RH;
     filtRH_HbT = filtfilt(sos2,g2,RH_HbT);
     % HbO
-    LH_HbO = ProcData.data.Hbo.LH;
+    LH_HbO = ProcData.data.HbO.LH;
     filtLH_HbO = filtfilt(sos2,g2,LH_HbO);
     RH_HbO = ProcData.data.HbT.RH;
     filtRH_HbO = filtfilt(sos2,g2,RH_HbO);
@@ -48,12 +48,12 @@ if any(strcmp(imagingWavelengths,{'Red, Green, & Blue','Lime, Green, & Blue'})) 
     RH_HbR = ProcData.data.HbT.RH;
     filtRH_HbR = filtfilt(sos2,g2,RH_HbR);
     % GCaMP
-    LH_GCaMP7s = ProcData.data.GCaMP7s.LH;
-    normLH_GCaMP7s = (LH_GCaMP7s - 1)*100;
-    filtLH_GCaMP7s = filtfilt(sos2,g2,normLH_GCaMP7s);
-    RH_GCaMP7s = ProcData.data.GCaMP7s.RH;
-    normRH_GCaMP7s = (RH_GCaMP7s - 1)*100;
-    filtRH_GCaMP7s = filtfilt(sos2,g2,normRH_GCaMP7s);
+    LH_GCaMP = ProcData.data.GCaMP.LH;
+    normLH_GCaMP = (LH_GCaMP - 1)*100;
+    filtLH_GCaMP = filtfilt(sos2,g2,normLH_GCaMP);
+    RH_GCaMP = ProcData.data.GCaMP.RH;
+    normRH_GCaMP = (RH_GCaMP - 1)*100;
+    filtRH_GCaMP = filtfilt(sos2,g2,normRH_GCaMP);
 elseif any(strcmp(imagingWavelengths,{'Green & Blue','Lime & Blue'})) == true
     % HbT
     LH_HbT = ProcData.data.HbT.LH;
@@ -61,12 +61,12 @@ elseif any(strcmp(imagingWavelengths,{'Green & Blue','Lime & Blue'})) == true
     RH_HbT = ProcData.data.HbT.RH;
     filtRH_HbT = filtfilt(sos2,g2,RH_HbT);
     % GCaMP
-    LH_GCaMP7s = ProcData.data.GCaMP7s.LH;
-    normLH_GCaMP7s = (LH_GCaMP7s - 1)*100;
-    filtLH_GCaMP7s = filtfilt(sos2,g2,normLH_GCaMP7s);
-    RH_GCaMP7s = ProcData.data.GCaMP7s.RH;
-    normRH_GCaMP7s = (RH_GCaMP7s - 1)*100;
-    filtRH_GCaMP7s = filtfilt(sos2,g2,normRH_GCaMP7s);
+    LH_GCaMP = ProcData.data.GCaMP.LH;
+    normLH_GCaMP = (LH_GCaMP - 1)*100;
+    filtLH_GCaMP = filtfilt(sos2,g2,normLH_GCaMP);
+    RH_GCaMP = ProcData.data.GCaMP.RH;
+    normRH_GCaMP = (RH_GCaMP - 1)*100;
+    filtRH_GCaMP = filtfilt(sos2,g2,normRH_GCaMP);
 elseif any(strcmp(imagingWavelengths,{'Green','Lime'})) == true
     % HbT
     LH_HbT = ProcData.data.HbT.LH;
@@ -145,8 +145,8 @@ if any(strcmp(imagingWavelengths,{'Red, Green, & Blue','Lime, Green, & Blue'})) 
     s4 = scatter(RPadSol,RPad_Yvals,'v','MarkerEdgeColor','k','MarkerFaceColor','m');
     s5 = scatter(AudSol,Aud_Yvals,'v','MarkerEdgeColor','k','MarkerFaceColor','g');
     s6 = scatter(OptoLED,Opto_Yvals,'v','MarkerEdgeColor','k','MarkerFaceColor','b');
-    p5 = plot((1:length(filtLH_HbT))/ProcData.notes.CBVCamSamplingRate,filtLH_HbT,'color',colors('red'),'LineWidth',1);
-    p6 = plot((1:length(filtRH_HbT))/ProcData.notes.CBVCamSamplingRate,filtRH_HbT,'color',colors('blue'),'LineWidth',1);
+    p5 = plot((1:length(filtLH_HbT))/ProcData.notes.wavelengthSamplingRate,filtLH_HbT,'color',colors('red'),'LineWidth',1);
+    p6 = plot((1:length(filtRH_HbT))/ProcData.notes.wavelengthSamplingRate,filtRH_HbT,'color',colors('blue'),'LineWidth',1);
     legend([p5,p6,s1,s2,s3,s4,s5,s6],'LH HbT','RH HbT','movement','whisking',',LPad sol','RPad sol','Aud sol','Opto LED')
     ylabel('\DeltaHbT')
     xlim([0,ProcData.notes.trialDuration_sec])
@@ -156,11 +156,11 @@ if any(strcmp(imagingWavelengths,{'Red, Green, & Blue','Lime, Green, & Blue'})) 
     axis tight
     % GCaMP
     ax4 = subplot(8,1,4);
-    p7 = plot((1:length(filtLH_GCaMP7s))/ProcData.notes.CBVCamSamplingRate,filtLH_GCaMP7s,'color',colors('red'),'LineWidth',1);
+    p7 = plot((1:length(filtLH_GCaMP))/ProcData.notes.wavelengthSamplingRate,filtLH_GCaMP,'color',colors('red'),'LineWidth',1);
     hold on
-    p8 = plot((1:length(filtRH_GCaMP7s))/ProcData.notes.CBVCamSamplingRate,filtRH_GCaMP7s,'color',colors('blue'),'LineWidth',1);
+    p8 = plot((1:length(filtRH_GCaMP))/ProcData.notes.wavelengthSamplingRate,filtRH_GCaMP,'color',colors('blue'),'LineWidth',1);
     legend([p7,p8],'LH GCaMP','RH GCaMP')
-    ylabel('GCaMP7s /DeltaF/F')
+    ylabel('GCaMP /DeltaF/F')
     xlim([0,ProcData.notes.trialDuration_sec])
     set(gca,'TickLength',[0,0])
     set(gca,'Xticklabel',[])
@@ -168,11 +168,11 @@ if any(strcmp(imagingWavelengths,{'Red, Green, & Blue','Lime, Green, & Blue'})) 
     axis tight
     % HbO,HbR
     ax5 = subplot(8,1,5);
-    p9 = plot((1:length(filtLH_HbO))/ProcData.notes.CBVCamSamplingRate,filtLH_HbO,'color',colors('dark candy apple red'),'LineWidth',1);
+    p9 = plot((1:length(filtLH_HbO))/ProcData.notes.wavelengthSamplingRate,filtLH_HbO,'color',colors('dark candy apple red'),'LineWidth',1);
     hold on
-    p10 = plot((1:length(filtRH_HbO))/ProcData.notes.CBVCamSamplingRate,filtRH_HbO,'color',colors('dark candy apple red'),'LineWidth',1);
-    p11 = plot((1:length(filtLH_HbR))/ProcData.notes.CBVCamSamplingRate,filtLH_HbR,'color',colors('dark candy apple red'),'LineWidth',1);
-    p12 = plot((1:length(filtRH_HbR))/ProcData.notes.CBVCamSamplingRate,filtRH_HbR,'color',colors('dark candy apple red'),'LineWidth',1);
+    p10 = plot((1:length(filtRH_HbO))/ProcData.notes.wavelengthSamplingRate,filtRH_HbO,'color',colors('dark candy apple red'),'LineWidth',1);
+    p11 = plot((1:length(filtLH_HbR))/ProcData.notes.wavelengthSamplingRate,filtLH_HbR,'color',colors('dark candy apple red'),'LineWidth',1);
+    p12 = plot((1:length(filtRH_HbR))/ProcData.notes.wavelengthSamplingRate,filtRH_HbR,'color',colors('dark candy apple red'),'LineWidth',1);
     legend([p9,p10,p11,p12],'LH HbO','RH HbO','LH HbR','RH HbR')
     ylabel('Deoxy /DeltaR/R')
     xlim([0,ProcData.notes.trialDuration_sec])
@@ -279,8 +279,8 @@ elseif any(strcmp(imagingWavelengths,{'Green & Blue','Lime & Blue'})) == true
     s4 = scatter(RPadSol,RPad_Yvals,'v','MarkerEdgeColor','k','MarkerFaceColor','m');
     s5 = scatter(AudSol,Aud_Yvals,'v','MarkerEdgeColor','k','MarkerFaceColor','g');
     s6 = scatter(OptoLED,Opto_Yvals,'v','MarkerEdgeColor','k','MarkerFaceColor','b');
-    p5 = plot((1:length(filtLH_HbT))/ProcData.notes.CBVCamSamplingRate,filtLH_HbT,'color',colors('red'),'LineWidth',1);
-    p6 = plot((1:length(filtRH_HbT))/ProcData.notes.CBVCamSamplingRate,filtRH_HbT,'color',colors('blue'),'LineWidth',1);
+    p5 = plot((1:length(filtLH_HbT))/ProcData.notes.wavelengthSamplingRate,filtLH_HbT,'color',colors('red'),'LineWidth',1);
+    p6 = plot((1:length(filtRH_HbT))/ProcData.notes.wavelengthSamplingRate,filtRH_HbT,'color',colors('blue'),'LineWidth',1);
     legend([p5,p6,s1,s2,s3,s4,s5,s6],'LH HbT','RH HbT','movement','whisking',',LPad sol','RPad sol','Aud sol','Opto LED')
     ylabel('\DeltaHbT')
     xlim([0,ProcData.notes.trialDuration_sec])
@@ -290,11 +290,11 @@ elseif any(strcmp(imagingWavelengths,{'Green & Blue','Lime & Blue'})) == true
     axis tight
     % GCaMP
     ax4 = subplot(8,1,5);
-    p7 = plot((1:length(filtLH_GCaMP7s))/ProcData.notes.CBVCamSamplingRate,filtLH_GCaMP7s,'color',colors('red'),'LineWidth',1);
+    p7 = plot((1:length(filtLH_GCaMP))/ProcData.notes.wavelengthSamplingRate,filtLH_GCaMP,'color',colors('red'),'LineWidth',1);
     hold on
-    p8 = plot((1:length(filtRH_GCaMP7s))/ProcData.notes.CBVCamSamplingRate,filtRH_GCaMP7s,'color',colors('blue'),'LineWidth',1);
+    p8 = plot((1:length(filtRH_GCaMP))/ProcData.notes.wavelengthSamplingRate,filtRH_GCaMP,'color',colors('blue'),'LineWidth',1);
     legend([p7,p8],'LH GCaMP','RH GCaMP')
-    ylabel('GCaMP7s /DeltaF/F')
+    ylabel('GCaMP /DeltaF/F')
     xlim([0,ProcData.notes.trialDuration_sec])
     set(gca,'TickLength',[0,0])
     set(gca,'Xticklabel',[])
@@ -396,8 +396,8 @@ elseif any(strcmp(imagingWavelengths,{'Green','Lime'})) == true
     s4 = scatter(RPadSol,RPad_Yvals,'v','MarkerEdgeColor','k','MarkerFaceColor','m');
     s5 = scatter(AudSol,Aud_Yvals,'v','MarkerEdgeColor','k','MarkerFaceColor','g');
     s6 = scatter(OptoLED,Opto_Yvals,'v','MarkerEdgeColor','k','MarkerFaceColor','b');
-    p5 = plot((1:length(filtLH_HbT))/ProcData.notes.CBVCamSamplingRate,filtLH_HbT,'color',colors('red'),'LineWidth',1);
-    p6 = plot((1:length(filtRH_HbT))/ProcData.notes.CBVCamSamplingRate,filtRH_HbT,'color',colors('blue'),'LineWidth',1);
+    p5 = plot((1:length(filtLH_HbT))/ProcData.notes.wavelengthSamplingRate,filtLH_HbT,'color',colors('red'),'LineWidth',1);
+    p6 = plot((1:length(filtRH_HbT))/ProcData.notes.wavelengthSamplingRate,filtRH_HbT,'color',colors('blue'),'LineWidth',1);
     legend([p5,p6,s1,s2,s3,s4,s5,s6],'LH HbT','RH HbT','movement','whisking',',LPad sol','RPad sol','Aud sol','Opto LED')
     ylabel('\DeltaHbT')
     xlim([0,ProcData.notes.trialDuration_sec])

@@ -1,4 +1,4 @@
-function [RestingBaselines,ManualDecisions,procDataFileIDs] = CalculateManualRestingBaselinesTimeIndeces_IOS(hemoType)
+function [RestingBaselines,ManualDecisions,procDataFileIDs,animalID] = CalculateManualRestingBaselinesTimeIndeces_IOS(hemoType)
 %----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering

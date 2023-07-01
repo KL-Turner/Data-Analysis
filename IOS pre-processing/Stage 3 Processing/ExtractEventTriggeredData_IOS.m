@@ -9,7 +9,7 @@ epoch.duration = 12;
 epoch.offset = 2;
 load(procDataFileIDs(1,:));
 imagingWavelengths = ProcData.notes.imagingWavelengths;
-[dataTypes] = DetermineWavelengthDatatypes_IOS(imagingWavelengths,2);
+[dataTypes] = DetermineWavelengthDatatypes_IOS(imagingWavelengths,3);
 for aa = 1:length(dataTypes)
     dataType = dataTypes{1,aa};
     subDataTypes = fieldnames(ProcData.data.(dataType));
