@@ -7,7 +7,7 @@ zap;
 % manually select files for custom baseline calculation
 [RestingBaselines,ManualDecisions,procDataFileIDs] = CalculateManualRestingBaselinesTimeIndeces_IOS('reflectance');
 % pixel-wise resting baselines
-[RestingBaselines] = CalculatePixelWiselRestingBaselines_IOS(procDataFileIDs,RestingBaselines,'y');
+[RestingBaselines] = CalculatePixelWiselRestingBaselines_IOS(procDataFileIDs,RestingBaselines);
 % IOS analysis
 CalculateFullSpectroscopy_IOS(procDataFileIDs,RestingBaselines)
 % re-create the RestData structure now that HbT (and/or corrected GCaMP) is available

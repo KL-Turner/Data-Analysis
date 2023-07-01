@@ -4,6 +4,7 @@ function [] = CalculateFullSpectroscopy_IOS(procDataFileIDs,RestingBaselines)
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %----------------------------------------------------------------------------------------------------------
+warning('off','imageio:tifftagsread:nextIfdPointerOutOfRange')
 % load structure with ROI locations
 ROIFileDir = dir('*_ROIs.mat');
 ROIFileName = {ROIFileDir.name}';
