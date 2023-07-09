@@ -6,10 +6,6 @@ function [] = Fig2_nNOS(rootFolder,saveFigs,delim)
 %----------------------------------------------------------------------------------------------------------
 path = [rootFolder delim 'Results_Turner'];
 cd(path)
-% ephys schematic
-Ephys_Schematic = imread('Ephys_Schematic.tif');
-% GCaMP schematic
-GCaMP_Schematic = imread('GCaMP_Schematic.tif');
 Ephys_Fs = 30;
 GCaMP_Fs = 10;
 %% awake ephys example
@@ -121,11 +117,8 @@ for x = 1:length(whiskInds_AsleepGCaMP)
     end
 end
 %% figure
-Fig2 = figure('Name','Figure 2');
-subplot(4,4,[1,5])
-imshow(Ephys_Schematic)
-axis image
-ax1 = subplot(4,4,2);
+Fig2 = figure('Name','Figure 2','units','normalized','outerposition',[0 0 1 1]);
+ax1 = subplot(4,3,1);
 % hemodynamic and behavioral indeces
 s1 = scatter((1:length(binWhiskers_AwakeEphys))/ProcData.notes.dsFs,whiskInds_AwakeEphys,'.','MarkerEdgeColor',colors('black'));
 hold on;
@@ -144,7 +137,7 @@ xlim([310,490])
 ax1.YAxis(1).Color = colors('black');
 ax1.YAxis(2).Color = colors('magenta');
 % cortical electrode spectrogram
-ax2 = subplot(4,4,6);
+ax2 = subplot(4,3,4);
 Semilog_ImageSC(T_AwakeEphys,F_AwakeEphys,cortNormS_AwakeEphys,'y')
 c1 = colorbar;
 ylabel(c1,'\DeltaP/P (%)','rotation',-90,'VerticalAlignment','bottom')
@@ -161,8 +154,7 @@ ax1Pos = get(ax1,'position');
 ax2Pos = get(ax2,'position');
 ax2Pos(3) = ax1Pos(3);
 set(ax2,'position',ax2Pos);
-
-ax3 = subplot(4,4,[3,4]);
+ax3 = subplot(4,3,[2,3]);
 % hemodynamic and behavioral indeces
 s1 = scatter((1:length(binWhiskers_AsleepEphys))/ProcData.notes.dsFs,whiskInds_AsleepEphys,'.','MarkerEdgeColor',colors('black'));
 hold on;
@@ -181,7 +173,7 @@ xlim([450,810])
 ax3.YAxis(1).Color = colors('black');
 ax3.YAxis(2).Color = colors('magenta');
 % hippocampal electrode spectrogram
-ax4 = subplot(4,4,[7,8]);
+ax4 = subplot(4,3,[5,6]);
 Semilog_ImageSC(T_AsleepEphys,F_AsleepEphys,hipNormS_AsleepEphys,'y')
 c2 = colorbar;
 ylabel(c2,'\DeltaP/P (%)','rotation',-90,'VerticalAlignment','bottom')
@@ -198,12 +190,7 @@ ax3Pos = get(ax3,'position');
 ax4Pos = get(ax4,'position');
 ax4Pos(3) = ax3Pos(3);
 set(ax4,'position',ax4Pos);
-
-subplot(4,4,[9,13])
-imshow(GCaMP_Schematic)
-axis image
-
-ax1 = subplot(4,4,10);
+ax5 = subplot(4,3,7);
 % hemodynamic and behavioral indeces
 s1 = scatter((1:length(binWhiskers_AwakeGCaMP))/ProcData.notes.dsFs,whiskInds_AwakeGCaMP,'.','MarkerEdgeColor',colors('black'));
 hold on;
@@ -222,10 +209,10 @@ set(gca,'box','off')
 xticks([260,320,380,440])
 title('RH SIBF')
 xlim([260,440])
-ax1.YAxis(1).Color = colors('black');
-ax1.YAxis(2).Color = colors('fluorescent green');
+ax5.YAxis(1).Color = colors('black');
+ax5.YAxis(2).Color = colors('fluorescent green');
 % cortical electrode spectrogram
-ax2 = subplot(4,4,14);
+ax6 = subplot(4,3,10);
 Semilog_ImageSC(T_AwakeGCaMP,F_AwakeGCaMP,cortNormS_AwakeGCaMP,'y')
 c1 = colorbar;
 ylabel(c1,'\DeltaP/P (%)','rotation',-90,'VerticalAlignment','bottom')
@@ -238,12 +225,11 @@ set(gca,'box','off')
 xticks([260,320,380,440])
 xticklabels({'0','1','2','3'})
 % axis properties
-ax1Pos = get(ax1,'position');
-ax2Pos = get(ax2,'position');
-ax2Pos(3) = ax1Pos(3);
-set(ax2,'position',ax2Pos);
-
-ax1 = subplot(4,4,[11,12]);
+ax5Pos = get(ax5,'position');
+ax6Pos = get(ax6,'position');
+ax6Pos(3) = ax5Pos(3);
+set(ax6,'position',ax6Pos);
+ax7 = subplot(4,3,[8,9]);
 % hemodynamic and behavioral indeces
 s1 = scatter((1:length(binWhiskers_AsleepGCaMP))/ProcData.notes.dsFs,whiskInds_AsleepGCaMP,'.','MarkerEdgeColor',colors('black'));
 hold on;
@@ -262,10 +248,10 @@ set(gca,'box','off')
 xticks([215,275,335,395,455,515,575])
 title('RH SIBF')
 xlim([215,575])
-ax1.YAxis(1).Color = colors('black');
-ax1.YAxis(2).Color = colors('fluorescent green');
+ax7.YAxis(1).Color = colors('black');
+ax7.YAxis(2).Color = colors('fluorescent green');
 % hippocampal electrode spectrogram
-ax2 = subplot(4,4,[15,16]);
+ax8 = subplot(4,3,[11,12]);
 Semilog_ImageSC(T_AsleepGCaMP,F_AsleepGCaMP,hipNormS_AsleepGCaMP,'y')
 c2 = colorbar;
 ylabel(c2,'\DeltaP/P (%)','rotation',-90,'VerticalAlignment','bottom')
@@ -278,15 +264,29 @@ set(gca,'box','off')
 xticks([215,275,335,395,455,515,575])
 xticklabels({'0','1','2','3','4','5','6'})
 % axis properties
-ax1Pos = get(ax1,'position');
-ax2Pos = get(ax2,'position');
-ax2Pos(3) = ax1Pos(3);
-set(ax2,'position',ax2Pos);
+ax7Pos = get(ax7,'position');
+ax8Pos = get(ax8,'position');
+ax8Pos(3) = ax7Pos(3);
+set(ax8,'position',ax8Pos);
 % save figure(s)
 if saveFigs == true
-    dirpath = [rootFolder delim 'Figure Panels' delim];
+    dirpath = [rootFolder delim 'MATLAB Figure Panels' delim];
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
     savefig(Fig2,[dirpath 'Fig2']);
+    delete(ax2)
+    delete(ax4)
+    delete(ax6)
+    delete(ax8)
+    set(Fig2,'PaperPositionMode','auto');
+    print('-vector','-dpdf','-fillpage',[dirpath 'Fig2'])
+    diaryFile = [dirpath 'Fig2_Readout.txt'];
+    if exist(diaryFile,'file') == 2
+        delete(diaryFile)
+    end
+    diary(diaryFile)
+    diary on
+    disp('======================================================================================================================')
+    diary off
 end

@@ -39,14 +39,14 @@ for aa = 1:length(hemispheres)
             puffs = ProcData.data.stimulations.LPadSol;
             % don't include trials with stimulation
             if isempty(puffs) == true
-                allHbT{zz,1} = filtfilt(sos,g,detrend(ProcData.data.CBV.(hemisphere)(1:300*samplingRate),'constant'));
-                allNeural{zz,1} = filtfilt(sos,g,detrend(ProcData.data.GCaMP7s.(hemisphere)(1:300*samplingRate),'constant'));
+                allHbT{zz,1} = filtfilt(sos,g,detrend(ProcData.data.CBV_HbT.(hemisphere)(1:300*samplingRate),'constant'));
+                allNeural{zz,1} = filtfilt(sos,g,detrend(ProcData.data.GCaMP7s.(['cor' hemisphere])(1:300*samplingRate),'constant'));
                 zz = zz + 1;
-                allHbT{zz,1} = filtfilt(sos,g,detrend(ProcData.data.CBV.(hemisphere)(300*samplingRate + 1:600*samplingRate),'constant'));
-                allNeural{zz,1} = filtfilt(sos,g,detrend(ProcData.data.GCaMP7s.(hemisphere)(300*samplingRate + 1:600*samplingRate),'constant'));
+                allHbT{zz,1} = filtfilt(sos,g,detrend(ProcData.data.CBV_HbT.(hemisphere)(300*samplingRate + 1:600*samplingRate),'constant'));
+                allNeural{zz,1} = filtfilt(sos,g,detrend(ProcData.data.GCaMP7s.(['cor' hemisphere])(300*samplingRate + 1:600*samplingRate),'constant'));
                 zz = zz + 1;
-                allHbT{zz,1} = filtfilt(sos,g,detrend(ProcData.data.CBV.(hemisphere)(600*samplingRate + 1:end),'constant'));
-                allNeural{zz,1} = filtfilt(sos,g,detrend(ProcData.data.GCaMP7s.(hemisphere)(600*samplingRate + 1:end),'constant'));
+                allHbT{zz,1} = filtfilt(sos,g,detrend(ProcData.data.CBV_HbT.(hemisphere)(600*samplingRate + 1:end),'constant'));
+                allNeural{zz,1} = filtfilt(sos,g,detrend(ProcData.data.GCaMP7s.(['cor' hemisphere])(600*samplingRate + 1:end),'constant'));
                 zz = zz + 1;
             end
         end

@@ -88,26 +88,32 @@ if isfield(RestingBaselines,'Pixel') == false
                 end
             end
             trialRestData.([strDay '_' fileID]).(wavelength) = restFileData;
-            fields = fieldnames(trialRestData);
-            uniqueDays = GetUniqueDays_IOS(RestingBaselines.manualSelection.baselineFileInfo.fileIDs);
-            for f = 1:length(uniqueDays)
-                g = 1;
-                stringDay = ConvertDate_IOS(uniqueDays{f});
-                frameAvgs.(wavelength).(stringDay) = [];
-                for field = 1:length(fields)
-                    if strcmp(fields{field}(7:12),uniqueDays{f})
-                        frameAvgs.(wavelength).(stringDay) = cat(3,frameAvgs.(wavelength).(stringDay),trialRestData.(fields{field}).(wavelength));
-                        g = g + 1;
-                    end
+            clear restFileData restEventData
+        end
+        clear imageStack
+    end
+    fields = fieldnames(trialRestData);
+    uniqueDays = GetUniqueDays_IOS(RestingBaselines.manualSelection.baselineFileInfo.fileIDs);
+    for aa = 1:length(wavelengths)
+        wavelength = wavelengths{1,aa};
+        clear frameAvgs
+        for f = 1:length(uniqueDays)
+            g = 1;
+            stringDay = ConvertDate_IOS(uniqueDays{f});
+            frameAvgs.(wavelength).(stringDay) = [];
+            for field = 1:length(fields)
+                if strcmp(fields{field}(7:12),uniqueDays{f})
+                    frameAvgs.(wavelength).(stringDay) = cat(3,frameAvgs.(wavelength).(stringDay),trialRestData.(fields{field}).(wavelength));
+                    g = g + 1;
                 end
             end
-            dayFields = fieldnames(frameAvgs.(wavelength));
-            for h = 1:length(dayFields)
-                disp(['Adding ' wavelength ' pixel-wise baseline to baseline file for ' dayFields{h} '...']); disp(' ')
-                % for bb = 1:length(wavelengths)
-                RestingBaselines.Pixel.(wavelength).(dayFields{h}) = mean(frameAvgs.(wavelength).(dayFields{h}),3);
-            end
+        end
+        dayFields = fieldnames(frameAvgs.(wavelength));
+        for h = 1:length(dayFields)
+            disp(['Adding ' wavelength ' pixel-wise baseline to baseline file for ' dayFields{h} '...']); disp(' ')
+            % for bb = 1:length(wavelengths)
+            RestingBaselines.Pixel.(wavelength).(dayFields{h}) = mean(frameAvgs.(wavelength).(dayFields{h}),3);
         end
     end
-    save([animalID '_RestingBaselines.mat'],'RestingBaselines');
+    save([animalID '_RestingBaselines.mat'],'RestingBaselines')
 end

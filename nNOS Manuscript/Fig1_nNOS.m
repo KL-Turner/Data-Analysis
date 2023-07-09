@@ -6,10 +6,6 @@ function [] = Fig1_nNOS(rootFolder,saveFigs,delim)
 %----------------------------------------------------------------------------------------------------------
 path = [rootFolder delim 'Results_Turner'];
 cd(path)
-% injection schematic
-Injection_Schematic = imread('Injection_Schematic.tif');
-% nNOS IHC
-nNOS_IHC = imread('nNOS_IHC.tif');
 % setup and pull data from excel sheet
 msExcelFile = 'DiaphoraseCellCounts.xlsx';
 [~,~,alldata] = xlsread(msExcelFile); %#ok<XLSRD>
@@ -82,16 +78,8 @@ Blank_RH_inds = ones(length(data.Blank_SAP.RH),1)*4;
 SSP_LH_inds = ones(length(data.SSP_SAP.LH),1)*5;
 SSP_RH_inds = ones(length(data.SSP_SAP.RH),1)*6;
 % Figure 1
-Fig1 = figure('Name','Figure 1');
-subplot(3,6,1:6)
-imshow(Injection_Schematic)
-axis image
-title('a')
-subplot(3,6,7:12)
-imshow(nNOS_IHC)
-axis image
-title('b')
-subplot(3,6,15)
+Fig1 = figure('Name','Figure 1','units','normalized','outerposition',[0 0 1 1]);;
+subplot(1,2,1)
 b1 = bar(1,data.Naive.LH_Mean,'FaceColor',colors('sapphire'));
 hold on
 bar(2,data.Naive.RH_Mean,'FaceColor',colors('sapphire'))
@@ -123,7 +111,6 @@ for aa = 1:length(data.SSP_SAP.LH)
     scatter(x(2),y(2),150,'MarkerEdgeColor','k','MarkerFaceColor',colors('electric purple'),'jitter','off', 'jitterAmount',0.25)
 end
 % figure characteristics
-title('c')
 ylabel('nNOS Cells/mm^3 ')
 legend([b1,b2,b3],'Naive','Blank-SAP','SSP-SAP')
 set(gca,'xtick',[1,2,3,4,5,6])
@@ -132,21 +119,19 @@ xtickangle(45)
 axis square
 xlim([0,7])
 set(gca,'box','off')
-subplot(3,6,16)
+subplot(1,2,2)
 text(0.5,0.5,'DAPI quantification');
 axis off
-title('d')
 % save figure(s)
 if saveFigs == true
-    dirpath = [rootFolder delim 'Figure Panels' delim];
+    dirpath = [rootFolder delim 'MATLAB Figure Panels' delim];
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
     savefig(Fig1,[dirpath 'Fig1']);
-end
-% statistical diary
-if saveFigs == true
-    diaryFile = [dirpath 'Fig1_Statistics.txt'];
+    set(Fig1,'PaperPositionMode','auto');
+    print('-vector','-dpdf','-fillpage',[dirpath 'Fig1'])
+    diaryFile = [dirpath 'Fig1_Readout.txt'];
     if exist(diaryFile,'file') == 2
         delete(diaryFile)
     end
@@ -172,4 +157,5 @@ if saveFigs == true
     disp('GLME statistics for R/R Blank vs. SSP cell counts')
     disp('======================================================================================================================')
     disp(Stats.BlankSSP.Stats)
+    diary off
 end

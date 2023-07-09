@@ -77,11 +77,12 @@ for aa = 1:length(hemispheres)
     restDurations = RestData.HbT.(hemisphere).durations(combRestLogical,:);
     restData = RestData.HbT.(hemisphere).data(combRestLogical,:);
     % keep only the data that occurs within the manually-approved awake regions
-    [finalRestData,~,~,~] = RemoveInvalidData_IOS(restData,restFileIDs,restDurations,restEventTimes,ManualDecisions);
+    [finalRestData,finalRestFileIDs,finalRestDurations,finalRestEventTimes] = RemoveInvalidData_IOS(restData,restFileIDs,restDurations,restEventTimes,ManualDecisions);
     % filter and average
     for gg = 1:length(finalRestData)
         procRestData{gg,1} = filtfilt(sos,g,finalRestData{gg,1});
         restMean(gg,1) = mean(procRestData{gg,1}(1:end));
+        varMean(gg,1) = var(filtfilt(sos,g,finalRestData{gg,1}));
     end
     % save results
     Results_IntSig_Ephys.(group).(animalID).(hemisphere).Rest.indHbT = procRestData;
