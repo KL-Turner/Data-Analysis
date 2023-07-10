@@ -81,7 +81,7 @@ if isfield(RestingBaselines,'Pixel') == false
                     % conditions and indexing
                     startTimeIndex = floor(startTime*samplingRate);
                     restDurationIndex = floor(restDuration*samplingRate - 1);
-                    restEventData = imageStack.(wavelength)(:,:,(startTimeIndex:(startTimeIndex + restDurationIndex)));
+                    restEventData = mean(imageStack.(wavelength)(:,:,(startTimeIndex:(startTimeIndex + restDurationIndex))),3);
                     if sum(sum(isnan(restEventData))) == 0
                         restFileData = cat(3,restFileData,restEventData);
                     end

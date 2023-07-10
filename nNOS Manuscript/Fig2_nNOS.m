@@ -19,9 +19,12 @@ load(exampleSpecFile_AwakeEphys)
 binWhiskers_AwakeEphys = ProcData.data.binWhiskerAngle;
 % data
 HbT_AwakeEphys = filtfilt(sos_AwakeEphys,g_AwakeEphys,ProcData.data.HbT.RH);
-% RH gamma baseline for T151 Jan 30
+LHHbT_AwakeEphys = filtfilt(sos_AwakeEphys,g_AwakeEphys,ProcData.data.HbT.LH);
+% RH gamma baseline for T165 Jan 30
+LHgammaBaseline_AwakeEphys = 3.518446856943916e-10;
 gammaBaseline_AwakeEphys = 1.016060094087967e-10;
 gamma_AwakeEphys = filtfilt(sos_AwakeEphys,g_AwakeEphys,((ProcData.data.cortical_RH.gammaBandPower - gammaBaseline_AwakeEphys)./gammaBaseline_AwakeEphys)*100);
+LHgamma_AwakeEphys = filtfilt(sos_AwakeEphys,g_AwakeEphys,((ProcData.data.cortical_LH.gammaBandPower - LHgammaBaseline_AwakeEphys)./LHgammaBaseline_AwakeEphys)*100);
 % cortical and hippocampal spectrograms
 cortNormS_AwakeEphys = SpecData.cortical_RH.normS.*100;
 T_AwakeEphys = SpecData.cortical_RH.T;
@@ -76,6 +79,8 @@ HbT_AwakeGCaMP = filtfilt(sos_AwakeGCaMP,g_AwakeGCaMP,ProcData.data.HbT.RH);
 HbO_AwakeGCaMP = filtfilt(sos_AwakeGCaMP,g_AwakeGCaMP,ProcData.data.HbO.RH);
 HbR_AwakeGCaMP = filtfilt(sos_AwakeGCaMP,g_AwakeGCaMP,ProcData.data.HbR.RH);
 GCaMP_AwakeGCaMP = filtfilt(sos_AwakeGCaMP,g_AwakeGCaMP,ProcData.data.GCaMP.RH);
+LHHbT_AwakeGCaMP = filtfilt(sos_AwakeGCaMP,g_AwakeGCaMP,ProcData.data.HbT.LH);
+LHGCaMP_AwakeGCaMP = filtfilt(sos_AwakeGCaMP,g_AwakeGCaMP,ProcData.data.GCaMP.LH);
 % cortical and hippocampal spectrograms
 cortNormS_AwakeGCaMP = SpecData.cortical_RH.normS.*100;
 T_AwakeGCaMP = SpecData.cortical_LH.T;
@@ -123,10 +128,12 @@ ax1 = subplot(4,3,1);
 s1 = scatter((1:length(binWhiskers_AwakeEphys))/ProcData.notes.dsFs,whiskInds_AwakeEphys,'.','MarkerEdgeColor',colors('black'));
 hold on;
 p1 = plot((1:length(HbT_AwakeEphys))/Ephys_Fs,HbT_AwakeEphys,'color',colors('black'),'LineWidth',1);
+plot((1:length(LHHbT_AwakeEphys))/Ephys_Fs,LHHbT_AwakeEphys,'color',colors('sapphire'),'LineWidth',1);
 ylabel('\Delta[Hb] (\muM)')
 ylim([-50,160])
 yyaxis right
 p2 = plot((1:length(gamma_AwakeEphys))/Ephys_Fs,gamma_AwakeEphys,'color',colors('magenta'),'LineWidth',1);
+plot((1:length(LHgamma_AwakeEphys))/Ephys_Fs,LHgamma_AwakeEphys,'color',colors('deep carrot orange'),'LineWidth',1);
 ylim([-300,1300])
 legend([p1,p2,s1],'HbT','gamma power','whisking')
 set(gca,'Xticklabel',[])
@@ -197,10 +204,12 @@ hold on;
 p1 = plot((1:length(HbO_AwakeGCaMP))/GCaMP_Fs,HbO_AwakeGCaMP,'color',colors('blue grotto'),'LineWidth',1);
 p2 = plot((1:length(HbR_AwakeGCaMP))/GCaMP_Fs,HbR_AwakeGCaMP,'color',colors('gold'),'LineWidth',1);
 p3 = plot((1:length(HbT_AwakeGCaMP))/GCaMP_Fs,HbT_AwakeGCaMP,'color',colors('black'),'LineWidth',1);
+plot((1:length(LHHbT_AwakeGCaMP))/GCaMP_Fs,LHHbT_AwakeGCaMP,'color',colors('deep carrot orange'),'LineWidth',1);
 ylabel('\Delta[Hb] (\muM)')
 ylim([-50,160])
 yyaxis right
 p4 = plot((1:length(GCaMP_AwakeGCaMP))/GCaMP_Fs,(GCaMP_AwakeGCaMP - 1)*100,'color',colors('fluorescent green'),'LineWidth',1);
+plot((1:length(LHGCaMP_AwakeGCaMP))/GCaMP_Fs,(LHGCaMP_AwakeGCaMP - 1)*100,'color',colors('sapphire'),'LineWidth',1);
 ylabel('\DeltaF/F (%)','rotation',-90,'VerticalAlignment','bottom')
 ylim([-7,20])
 legend([p1,p2,p3,p4,s1],'HbO','HbR','HbT','GCaMP','whisking')
