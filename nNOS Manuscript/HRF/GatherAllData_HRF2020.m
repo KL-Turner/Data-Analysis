@@ -21,12 +21,8 @@ if strcmp(behavior,'All') == true
         load(procDataFileID,'-mat')
         [~,fileDate,~] = GetFileInfo_HRF2020(procDataFileID);
         strDay = ConvertDate_HRF2020(fileDate);
-        if strcmp(hemisphere(1:4),'cort') == true
-            NeuralData{aa,1} = (ProcData.data.(['cortical_' hemisphere(end - 1:end)]).(neuralBand) - RestingBaselines.manualSelection.(['cortical_' hemisphere(end - 1:end)]).(neuralBand).(strDay))./RestingBaselines.manualSelection.(['cortical_' hemisphere(end - 1:end)]).(neuralBand).(strDay); %#ok<*AGROW>
-        elseif strcmp(hemisphere(1:4),'hipp') == true
-            NeuralData{aa,1} = (ProcData.data.hippocampus.(neuralBand) - RestingBaselines.manualSelection.hippocampus.(neuralBand).(strDay))./RestingBaselines.manualSelection.hippocampus.(neuralBand).(strDay);
-        end
-        HemoData{aa,1} = ProcData.data.CBV_HbT.(['adj' hemisphere(end - 1:end)]);
+        NeuralData{aa,1} = (ProcData.data.(['cortical_' (hemisphere)]).(neuralBand) - RestingBaselines.manualSelection.(['cortical_' (hemisphere)]).(neuralBand).(strDay).mean)./RestingBaselines.manualSelection.(['cortical_' (hemisphere)]).(neuralBand).(strDay).mean;
+        HemoData{aa,1} = ProcData.data.HbT.(hemisphere);
     end
 elseif strcmp(behavior,'Alert') == true
     dd = 1;
@@ -43,17 +39,13 @@ elseif strcmp(behavior,'Alert') == true
         % check labels to match arousal state
         if sum(strcmp(scoringLabels,'Not Sleep')) > 144   % 36 bins (180 total) or 3 minutes of sleep
             load(procDataFileID)
-            % puffs = ProcData.data.solenoids.LPadSol;
-            % % don't include trials with stimulation
-            % if isempty(puffs) == true
-            if strcmp(hemisphere(1:4),'cort') == true
-                NeuralData{dd,1} = (ProcData.data.(['cortical_' hemisphere(end - 1:end)]).(neuralBand) - RestingBaselines.manualSelection.(['cortical_' hemisphere(end - 1:end)]).(neuralBand).(strDay))./RestingBaselines.manualSelection.(['cortical_' hemisphere(end - 1:end)]).(neuralBand).(strDay); %#ok<*AGROW>
-            elseif strcmp(hemisphere(1:4),'hipp') == true
-                NeuralData{dd,1} = (ProcData.data.hippocampus.(neuralBand) - RestingBaselines.manualSelection.hippocampus.(neuralBand).(strDay))./RestingBaselines.manualSelection.hippocampus.(neuralBand).(strDay);
+            puffs = ProcData.data.stimulations.LPadSol;
+            % don't include trials with stimulation
+            if isempty(puffs) == true
+                NeuralData{dd,1} = (ProcData.data.(['cortical_' (hemisphere)]).(neuralBand) - RestingBaselines.manualSelection.(['cortical_' (hemisphere)]).(neuralBand).(strDay).mean)./RestingBaselines.manualSelection.(['cortical_' (hemisphere)]).(neuralBand).(strDay).mean;
+                HemoData{dd,1} = ProcData.data.HbT.(hemisphere);
+                dd = dd + 1;
             end
-            HemoData{dd,1} = ProcData.data.CBV_HbT.(['adj' hemisphere(end - 1:end)]);
-            dd = dd + 1;
-            % end
         end
     end
 elseif strcmp(behavior,'Asleep') == true
@@ -71,17 +63,13 @@ elseif strcmp(behavior,'Asleep') == true
         % check labels to match arousal state
         if sum(strcmp(scoringLabels,'Not Sleep')) < 36   % 36 bins (180 total) or 3 minutes of awake
             load(procDataFileID)
-            % puffs = ProcData.data.solenoids.LPadSol;
-            % % don't include trials with stimulation
-            % if isempty(puffs) == true
-            if strcmp(hemisphere(1:4),'cort') == true
-                NeuralData{gg,1} = (ProcData.data.(['cortical_' hemisphere(end - 1:end)]).(neuralBand) - RestingBaselines.manualSelection.(['cortical_' hemisphere(end - 1:end)]).(neuralBand).(strDay))./RestingBaselines.manualSelection.(['cortical_' hemisphere(end - 1:end)]).(neuralBand).(strDay); %#ok<*AGROW>
-            elseif strcmp(hemisphere(1:4),'hipp') == true
-                NeuralData{gg,1} = (ProcData.data.hippocampus.(neuralBand) - RestingBaselines.manualSelection.hippocampus.(neuralBand).(strDay))./RestingBaselines.manualSelection.hippocampus.(neuralBand).(strDay);
+            puffs = ProcData.data.stimulations.LPadSol;
+            % don't include trials with stimulation
+            if isempty(puffs) == true
+                NeuralData{gg,1} = (ProcData.data.(['cortical_' (hemisphere)]).(neuralBand) - RestingBaselines.manualSelection.(['cortical_' (hemisphere)]).(neuralBand).(strDay).mean)./RestingBaselines.manualSelection.(['cortical_' (hemisphere)]).(neuralBand).(strDay).mean;
+                HemoData{gg,1} = ProcData.data.HbT.(hemisphere);
+                gg = gg + 1;
             end
-            HemoData{gg,1} = ProcData.data.CBV_HbT.(['adj' hemisphere(end - 1:end)]);
-            gg = gg + 1;
-            % end
         end
     end
 end

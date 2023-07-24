@@ -78,7 +78,7 @@ Blank_RH_inds = ones(length(data.Blank_SAP.RH),1)*4;
 SSP_LH_inds = ones(length(data.SSP_SAP.LH),1)*5;
 SSP_RH_inds = ones(length(data.SSP_SAP.RH),1)*6;
 % Figure 1
-Fig1 = figure('Name','Figure 1','units','normalized','outerposition',[0 0 1 1]);;
+Fig1 = figure('Name','Figure 1','units','normalized','outerposition',[0 0 1 1]);
 subplot(1,2,1)
 b1 = bar(1,data.Naive.LH_Mean,'FaceColor',colors('sapphire'));
 hold on

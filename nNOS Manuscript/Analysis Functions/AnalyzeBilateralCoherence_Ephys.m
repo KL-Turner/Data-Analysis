@@ -109,9 +109,10 @@ for aa = 1:length(dataTypes)
     params.trialave = 1;
     params.err = [2,0.05];
     % calculate the coherence between desired signals
-    [C_RestData,~,~,~,~,f_RestData,confC_RestData,~,cErr_RestData] = coherencyc(LH_restData,RH_restData,params);
+    [C_RestData,phi_RestData,~,~,~,f_RestData,confC_RestData,~,cErr_RestData] = coherencyc(LH_restData,RH_restData,params);
     % save results
     Results_BilatCoher_Ephys.(group).(animalID).(dataType).Rest.C = C_RestData;
+    Results_BilatCoher_Ephys.(group).(animalID).(dataType).Rest.phi = phi_RestData;
     Results_BilatCoher_Ephys.(group).(animalID).(dataType).Rest.f = f_RestData;
     Results_BilatCoher_Ephys.(group).(animalID).(dataType).Rest.confC = confC_RestData;
     Results_BilatCoher_Ephys.(group).(animalID).(dataType).Rest.cErr = cErr_RestData;
@@ -208,9 +209,10 @@ for aa = 1:length(dataTypes)
         end
         % calculate the coherence between desired signals
         params.tapers = [7,13]; % Tapers [n, 2n - 1]
-        [C_AlertData,~,~,~,~,f_AlertData,confC_AlertData,~,cErr_AlertData] = coherencyc(LH_alertData,RH_alertData,params);
+        [C_AlertData,phi_AlertData,~,~,~,f_AlertData,confC_AlertData,~,cErr_AlertData] = coherencyc(LH_alertData,RH_alertData,params);
         % save results
         Results_BilatCoher_Ephys.(group).(animalID).(dataType).Alert.C = C_AlertData;
+        Results_BilatCoher_Ephys.(group).(animalID).(dataType).Alert.phi = phi_AlertData;
         Results_BilatCoher_Ephys.(group).(animalID).(dataType).Alert.f = f_AlertData;
         Results_BilatCoher_Ephys.(group).(animalID).(dataType).Alert.confC = confC_AlertData;
         Results_BilatCoher_Ephys.(group).(animalID).(dataType).Alert.cErr = cErr_AlertData;
@@ -314,9 +316,10 @@ for aa = 1:length(dataTypes)
         end
         % calculate the coherence between desired signals
         params.tapers = [7,13]; % Tapers [n, 2n - 1]
-        [C_AsleepData,~,~,~,~,f_AsleepData,confC_AsleepData,~,cErr_AsleepData] = coherencyc(LH_asleepData,RH_asleepData,params);
+        [C_AsleepData,phi_AsleepData,~,~,~,f_AsleepData,confC_AsleepData,~,cErr_AsleepData] = coherencyc(LH_asleepData,RH_asleepData,params);
         % save results
         Results_BilatCoher_Ephys.(group).(animalID).(dataType).Asleep.C = C_AsleepData;
+        Results_BilatCoher_Ephys.(group).(animalID).(dataType).Asleep.phi = phi_AsleepData;
         Results_BilatCoher_Ephys.(group).(animalID).(dataType).Asleep.f = f_AsleepData;
         Results_BilatCoher_Ephys.(group).(animalID).(dataType).Asleep.confC = confC_AsleepData;
         Results_BilatCoher_Ephys.(group).(animalID).(dataType).Asleep.cErr = cErr_AsleepData;
@@ -379,9 +382,10 @@ for aa = 1:length(dataTypes)
     end
     % calculate the coherence between desired signals
     params.tapers = [7,13]; % Tapers [n, 2n - 1]
-    [C_AllData,~,~,~,~,f_AllData,confC_AllData,~,cErr_AllData] = coherencyc(LH_allData,RH_allData,params);
+    [C_AllData,phi_AllData,~,~,~,f_AllData,confC_AllData,~,cErr_AllData] = coherencyc(LH_allData,RH_allData,params);
     % save results
     Results_BilatCoher_Ephys.(group).(animalID).(dataType).All.C = C_AllData;
+    Results_BilatCoher_Ephys.(group).(animalID).(dataType).All.phi = phi_AllData;
     Results_BilatCoher_Ephys.(group).(animalID).(dataType).All.f = f_AllData;
     Results_BilatCoher_Ephys.(group).(animalID).(dataType).All.confC = confC_AllData;
     Results_BilatCoher_Ephys.(group).(animalID).(dataType).All.cErr = cErr_AllData;
@@ -409,9 +413,10 @@ for aa = 1:length(dataTypes)
     end
     % calculate the coherence between desired signals
     params.tapers = [3,5]; % Tapers [n, 2n - 1]
-    [C_nrem,~,~,~,~,f_nrem,confC_nrem,~,cErr_nrem] = coherencyc(LH_nrem,RH_nrem,params);
+    [C_nrem,phi_nrem,~,~,~,f_nrem,confC_nrem,~,cErr_nrem] = coherencyc(LH_nrem,RH_nrem,params);
     % save results
     Results_BilatCoher_Ephys.(group).(animalID).(dataType).NREM.C = C_nrem;
+    Results_BilatCoher_Ephys.(group).(animalID).(dataType).NREM.phi = phi_nrem;
     Results_BilatCoher_Ephys.(group).(animalID).(dataType).NREM.f = f_nrem;
     Results_BilatCoher_Ephys.(group).(animalID).(dataType).NREM.confC = confC_nrem;
     Results_BilatCoher_Ephys.(group).(animalID).(dataType).NREM.cErr = cErr_nrem;
@@ -439,9 +444,10 @@ for aa = 1:length(dataTypes)
     end
     % calculate the coherence between desired signals
     params.tapers = [5,9]; % Tapers [n, 2n - 1]
-    [C_rem,~,~,~,~,f_rem,confC_rem,~,cErr_rem] = coherencyc(LH_rem,RH_rem,params);
+    [C_rem,phi_rem,~,~,~,f_rem,confC_rem,~,cErr_rem] = coherencyc(LH_rem,RH_rem,params);
     % save results
     Results_BilatCoher_Ephys.(group).(animalID).(dataType).REM.C = C_rem;
+    Results_BilatCoher_Ephys.(group).(animalID).(dataType).REM.phi = phi_rem;
     Results_BilatCoher_Ephys.(group).(animalID).(dataType).REM.f = f_rem;
     Results_BilatCoher_Ephys.(group).(animalID).(dataType).REM.confC = confC_rem;
     Results_BilatCoher_Ephys.(group).(animalID).(dataType).REM.cErr = cErr_rem;

@@ -137,7 +137,7 @@ for aa = 1:length(qzGroups)
     qzGroup = qzGroups{1,aa};
     for ee = 1:size(runningGroup.(qzGroup).HbT,1)
         startIdx = find(time == 1.5);
-        endIdx =  find(time == 2.5);
+        endIdx =  find(time == 5);
         timeSnip = time;
         hbtSnip = runningGroup.(qzGroup).HbT(ee,:);
         runningStats.(qzGroup).AUC(ee,1) = trapz(timeSnip(startIdx:endIdx),hbtSnip(startIdx:endIdx));
@@ -458,6 +458,7 @@ for aa = 1:length(groups)
         end
     end
 end
+
 %% IOS pulse variance
 cd([rootFolder delim 'Results_Turner'])
 resultsStruct = 'Results_IntSig_Pulse';
@@ -506,6 +507,7 @@ for aa = 1:length(groups)
         pulseSigData.(group).(['std_' variable]) = std(pulseSigData.(group).(variable),1);
     end
 end
+
 %% GCaMP variance signals
 cd([rootFolder delim 'Results_Turner'])
 resultsStruct = 'Results_IntSig_GCaMP';
@@ -583,6 +585,7 @@ for aa = 1:length(groups)
         end
     end
 end
+
 %% LFP power
 cd([rootFolder delim 'Results_Turner'])
 resultsStruct = 'Results_PowerSpec_LFP';
@@ -666,6 +669,7 @@ for aa = 1:length(hemispheres)
         lfpStats.(hemisphere).(behavior).Stats = fitglme(lfpStats.(hemisphere).(behavior).Table,lfpStats.(hemisphere).(behavior).FitFormula);
     end
 end
+
 %% HbT variance statistics
 blankVarData = cat(1,iosSigData.Blank_SAP.RH.HbT.Rest.vari,gcampSigdata.Blank_SAP.RH.HbT.Rest.vari,pulseSigData.Blank_SAP.vari);
 sspVarData = cat(1,iosSigData.SSP_SAP.RH.HbT.Rest.vari,gcampSigdata.SSP_SAP.RH.HbT.Rest.vari,pulseSigData.SSP_SAP.vari);
@@ -676,9 +680,11 @@ restVarStats.Table.Group = cat(1,iosSigData.Blank_SAP.RH.HbT.Rest.group,iosSigDa
 restVarStats.Table.Variance = cat(1,iosSigData.Blank_SAP.RH.HbT.Rest.vari,iosSigData.SSP_SAP.RH.HbT.Rest.vari,gcampSigdata.Blank_SAP.RH.HbT.Rest.vari,gcampSigdata.SSP_SAP.RH.HbT.Rest.vari,pulseSigData.Blank_SAP.vari,pulseSigData.SSP_SAP.vari);
 restVarStats.FitFormula = 'Variance ~ 1 + Group + (1|Mouse)';
 restVarStats.Stats = fitglme(restVarStats.Table,restVarStats.FitFormula);
+
 %% figure
 Fig3 = figure('Name','Figure 3','units','normalized','outerposition',[0 0 1 1]);
-%% ephys stimulation
+
+% ephys stimulation
 subplot(3,3,1)
 p1 = plot(iosEphysData.Blank_SAP.RH.contra.mean_timeVector,iosEphysData.Blank_SAP.RH.contra.mean_HbT,'color',colors('north texas green'),'LineWidth',2);
 hold on
@@ -694,6 +700,7 @@ set(gca,'box','off')
 axis square
 axis tight
 xlim([-2,5]);
+
 subplot(3,3,2)
 loglog(data.Blank_SAP.RH.All.mean_f,data.Blank_SAP.RH.All.mean_S,'color',colors('north texas green'),'LineWidth',2);
 hold on
@@ -708,6 +715,7 @@ set(gca,'box','off')
 axis square
 axis tight
 xlim([1,100]);
+
 % ephys rest variance
 subplot(3,3,3)
 xInds = ones(1,length(blankVarData));
@@ -729,7 +737,8 @@ set(gca,'xtick',[])
 axis square
 axis tight
 xlim([0,3]);
-%% GCaMP HbT
+
+% GCaMP HbT
 subplot(3,3,4);
 plot(gcampdata.Blank_SAP.RH.contra.mean_timeVector,gcampdata.Blank_SAP.RH.contra.mean_HbT,'color',colors('north texas green'),'LineWidth',2);
 hold on;
@@ -744,6 +753,7 @@ set(gca,'box','off')
 axis square
 axis tight
 xlim([-2,10]);
+
 subplot(3,3,5)
 plot(gcampdata.Blank_SAP.RH.contra.mean_timeVector,gcampdata.Blank_SAP.RH.contra.mean_GCaMP,'color',colors('north texas green'),'LineWidth',2);
 hold on;
@@ -758,6 +768,7 @@ set(gca,'box','off')
 axis square
 axis tight
 xlim([-2,10]);
+
 % GCaMP HbO
 subplot(3,3,6);
 plot(gcampdata.Blank_SAP.RH.contra.mean_timeVector,gcampdata.Blank_SAP.RH.contra.mean_HbO,'color',colors('north texas green'),'LineWidth',2);
@@ -779,6 +790,7 @@ set(gca,'box','off')
 axis square
 axis tight
 xlim([-2,10]);
+
 %% pulse stimulation
 subplot(3,3,7)
 plot(pulseData.Blank_SAP.contra.mean_timeVector,pulseData.Blank_SAP.contra.mean_HbT,'color',colors('north texas green'),'LineWidth',2);

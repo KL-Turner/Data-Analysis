@@ -25,7 +25,10 @@ switch behavior
     case 'Contra'
         Criteria.Fieldname = {'Name','whiskScore_Pre', 'movementScore_Pre','PuffDistance'};
         Criteria.Comparison = {'equal','lt','lt','gt'};
-        Criteria.Value = {'Contra',0.01, 0.01, 5};
+        Criteria.Value = {'Contra',0.1, 0.1, 5};
+        % Criteria.Fieldname = {'Name'};
+        % Criteria.Comparison = {'equal'};
+        % Criteria.Value = {'Contra'};
         DataStruct = DataStruct.stim;
 end
 
@@ -65,10 +68,10 @@ if strcmp(behavior,'Contra')
 elseif strcmp(behavior,'Whisk')
     DataStruct.PuffDistance = DataStruct.puffDistance;
 elseif strcmp(behavior,'Rest')
-    DataStruct.PuffDistance = DataStruct.puffDistances;
+    DataStruct.PuffDistance = DataStruct.stimDistances;
     DataStruct.duration = DataStruct.durations;
     DataStruct.eventTime = DataStruct.eventTimes;
-    DataStruct.samplingRate = DataStruct.CBVCamSamplingRate;
+    DataStruct.samplingRate = DataStruct.samplingRate;
 end
 
 filtArray = true(size(DataStruct.data,1),1);

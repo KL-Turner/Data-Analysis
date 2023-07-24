@@ -481,7 +481,7 @@ for aa = 1:length(hemispheres)
         end
         %% NREM
         [NREM_finalHbT,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.HbT.(hemisphere),SleepData.(modelType).NREM.FileIDs,SleepData.(modelType).NREM.BinTimes);
-        [NREM_finalNeural,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.(neuralDataType).muaPower,SleepData.(modelType).NREM.FileIDs,SleepData.(modelType).NREM.BinTimes);
+        [NREM_finalNeural,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.(neuralDataType).(dataType),SleepData.(modelType).NREM.FileIDs,SleepData.(modelType).NREM.BinTimes);
         % adjust[HbT] and Neural events to match the edits made to the length of each spectrogram
         for mm = 1:length(NREM_finalHbT)
             NREM_finalHbTVals{mm,1} = filtfilt(sos,g,detrend(NREM_finalHbT{mm,1},'constant'));
@@ -607,7 +607,7 @@ for aa = 1:length(hemispheres)
         end
         %% REM
         [REM_finalHbT,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.HbT.(hemisphere),SleepData.(modelType).REM.FileIDs,SleepData.(modelType).REM.BinTimes);
-        [REM_finalNeural,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.(neuralDataType).muaPower,SleepData.(modelType).REM.FileIDs,SleepData.(modelType).REM.BinTimes);
+        [REM_finalNeural,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.(neuralDataType).(dataType),SleepData.(modelType).REM.FileIDs,SleepData.(modelType).REM.BinTimes);
         % adjust[HbT] and Neural events to match the edits made to the length of each spectrogram
         for mm = 1:length(REM_finalHbT)
             REM_finalHbTVals{mm,1} = filtfilt(sos,g,detrend(REM_finalHbT{mm,1},'constant'));

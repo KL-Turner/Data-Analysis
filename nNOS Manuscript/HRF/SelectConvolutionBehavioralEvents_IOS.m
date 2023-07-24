@@ -65,10 +65,10 @@ if strcmp(behavior,'Contra')
 elseif strcmp(behavior,'Whisk')
     DataStruct.PuffDistance = DataStruct.puffDistance;
 elseif strcmp(behavior,'Rest')
-    DataStruct.PuffDistance = DataStruct.puffDistances;
+    DataStruct.PuffDistance = DataStruct.stimDistances;
     DataStruct.duration = DataStruct.durations;
     DataStruct.eventTime = DataStruct.eventTimes;
-    DataStruct.samplingRate = DataStruct.CBVCamSamplingRate;
+    DataStruct.samplingRate = DataStruct.samplingRate;
 end
 
 filtArray = true(size(DataStruct.data,1),1);

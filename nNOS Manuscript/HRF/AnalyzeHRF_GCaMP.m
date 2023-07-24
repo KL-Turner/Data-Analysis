@@ -1,4 +1,4 @@
-function [Results_HRF_Ephys] = AnalyzeHRF_Ephys(animalID,group,set,rootFolder,delim,Results_HRF_Ephys)
+function [Results_HRF_Ephys] = AnalyzeHRF_GCaMP(animalID,group,set,rootFolder,delim,Results_HRF_Ephys)
 %----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -16,7 +16,7 @@ EventInds.fitStart = 1;
 EventInds.testStart = 2;
 EventInds.increment = 2;
 modelType = 'Forest';
-samplingRate = 30;
+samplingRate = 10;
 % find and load RestData struct
 restDataFileStruct = dir('*_RestData.mat');
 restDataFile = {restDataFileStruct.name}';
@@ -47,7 +47,7 @@ forestScoringResultsFileID = [animalID '_Forest_ScoringResults.mat'];
 load(forestScoringResultsFileID,'-mat')
 % loop variables
 hemispheres = {'LH','RH'};
-dataTypes = {'gammaBandPower','muaPower'};
+dataTypes = {'HbT','HbO','HbR'};
 behaviors = {'Contra','Whisk','Rest','NREM','REM','Alert','Asleep','All'};
 for aa = 1:length(hemispheres)
     hemisphere = hemispheres{1,aa};

@@ -347,6 +347,7 @@ for cc = 1:length(hemispheres)
         end
     end
 end
+
 %% figure panel 4
 Fig4 = figure('Name','Figure 4','units','normalized','outerposition',[0 0 1 1]);
 % Ephys cross correlation - Rest

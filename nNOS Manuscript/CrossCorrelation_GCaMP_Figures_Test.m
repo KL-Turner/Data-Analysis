@@ -11,6 +11,7 @@ cd(rootFolder)
 groups = {'EGFP'};
 hemispheres = {'LH','RH'};
 behaviors = {'All'};
+samplingRate = 10;
 % extract the analysis results
 for aa = 1:length(groups)
     group = groups{1,aa};

@@ -92,7 +92,7 @@ for a = 1:length(dataTypes)
         [RH_finalRestData,~,~,~] = RemoveInvalidData_IOS(RH_RestingData,restFileIDs,restDurations,restEventTimes,ManualDecisions);
     end
     % lowpass filter
-    [z,p,k] = butter(4,1/(samplingRate/2),'low');
+    [z,p,k] = butter(4,0.5/(samplingRate/2),'low');
     [sos,g] = zp2sos(z,p,k);
     % filter, detrend, and truncate data to minimum length to match events
     for gg = 1:length(LH_finalRestData)
