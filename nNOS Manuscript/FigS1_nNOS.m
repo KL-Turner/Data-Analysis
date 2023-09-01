@@ -4,7 +4,8 @@ function [] = FigS1_nNOS(rootFolder,saveFigs,delim)
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %----------------------------------------------------------------------------------------------------------
-%% open field behavior
+
+%% open field tracking example
 path = [rootFolder delim 'Results_Hossain'];
 cd(path)
 load('T267_Run1.mat');
@@ -22,10 +23,8 @@ OBL = OFTData.TrackData(:,23:24);
 Zodd = 1:2:9;
 Zeven = 2:2:10;
 outerpoints = [OTR,OTL,OBL,OBR,OTR];
-[GLME_STATS_distance_5min] = fitglme(AnimalTable_OFT,"total_distance_5min~1+Sex+DrugGroup");
-disp('Distance Traveled'); disp(' '); disp(GLME_STATS_distance_5min);
-[GLME_STATS_centertime_5min] = fitglme(AnimalTable_OFT,"center_percentage_5min~1+Sex+DrugGroup");
-disp('Time in Center'); disp(' '); disp(GLME_STATS_centertime_5min);
+
+%% open field distance traveled
 [G,~] = grp2idx(AnimalTable_OFT.DrugGroup);
 Cidx = find(G==2);
 Bidx = find(G==1);
@@ -33,12 +32,34 @@ Sidx = find(G==3);
 Distance_Control = AnimalTable_OFT.total_distance_5min(Cidx,:);
 Distance_Blank = AnimalTable_OFT.total_distance_5min(Bidx,:);
 Distance_SSP = AnimalTable_OFT.total_distance_5min(Sidx,:);
-mean_distance_Control = mean(Distance_Control);
-mean_distance_Blank = mean(Distance_Blank);
-mean_distance_SSP = mean(Distance_SSP);
-serr_distance_control = std(Distance_Control);
-serr_distance_blank = std(Distance_Blank);
-serr_distance_ssp = std(Distance_SSP);
+meanDistance_Control = mean(Distance_Control);
+meanDistance_Blank = mean(Distance_Blank);
+meanDistance_SSP = mean(Distance_SSP);
+stdDistance_Control = std(Distance_Control);
+stdDistance_Blank = std(Distance_Blank);
+stdDistance_SSP = std(Distance_SSP);
+naiveGroup = cell(length(Distance_Control),1);
+naiveGroup(:) = {'Naive'};
+blankGroup = cell(length(Distance_Blank),1);
+blankGroup(:) = {'Blank_SAP'};
+sspGroup = cell(length(Distance_SSP),1);
+sspGroup(:) = {'SSP_SAP'};
+% Naive vs blank RH
+DistanceStats.NaiveBlank.tableSize = cat(1,Distance_Control,Distance_Blank);
+DistanceStats.NaiveBlank.Table = table('Size',[size(DistanceStats.NaiveBlank.tableSize,1),2],'VariableTypes',{'string','double'},'VariableNames',{'Group','Distance'});
+DistanceStats.NaiveBlank.Table.Group = cat(1,naiveGroup,blankGroup);
+DistanceStats.NaiveBlank.Table.Distance = cat(1,Distance_Control,Distance_Blank);
+DistanceStats.NaiveBlank.FitFormula = 'Distance ~ 1 + Group';
+DistanceStats.NaiveBlank.Stats = fitglme(DistanceStats.NaiveBlank.Table,DistanceStats.NaiveBlank.FitFormula);
+% Blank vs SSP RH
+DistanceStats.BlankSSP.tableSize = cat(1,Distance_Blank,Distance_SSP);
+DistanceStats.BlankSSP.Table = table('Size',[size(DistanceStats.BlankSSP.tableSize,1),2],'VariableTypes',{'string','double'},'VariableNames',{'Group','Distance'});
+DistanceStats.BlankSSP.Table.Group = cat(1,blankGroup,sspGroup);
+DistanceStats.BlankSSP.Table.Distance = cat(1,Distance_Blank,Distance_SSP);
+DistanceStats.BlankSSP.FitFormula = 'Distance ~ 1 + Group';
+DistanceStats.BlankSSP.Stats = fitglme(DistanceStats.BlankSSP.Table,DistanceStats.BlankSSP.FitFormula);
+
+%% open field time spent in center
 [G,~] = grp2idx(AnimalTable_OFT.DrugGroup);
 Cidx = find(G==2);
 Bidx = find(G==1);
@@ -46,12 +67,27 @@ Sidx = find(G==3);
 CenterTime_Control = AnimalTable_OFT.center_percentage_5min(Cidx,:);
 CenterTime_Blank = AnimalTable_OFT.center_percentage_5min(Bidx,:);
 CenterTime_SSP = AnimalTable_OFT.center_percentage_5min(Sidx,:);
-mean_CenterTime_Control = mean(CenterTime_Control);
-mean_CenterTime_Blank = mean(CenterTime_Blank);
-mean_CenterTime_SSP = mean(CenterTime_SSP);
-serr_CenterTime_control = std(CenterTime_Control);
-serr_CenterTime_blank = std(CenterTime_Blank);
-serr_CenterTime_ssp = std(CenterTime_SSP);
+meanCenterTime_Control = mean(CenterTime_Control);
+meanCenterTime_Blank = mean(CenterTime_Blank);
+meanCenterTime_SSP = mean(CenterTime_SSP);
+stdCenterTime_Control = std(CenterTime_Control);
+stdCenterTime_Blank = std(CenterTime_Blank);
+stdCenterTime_SSP = std(CenterTime_SSP);
+% Naive vs blank RH
+CenterStats.NaiveBlank.tableSize = cat(1,CenterTime_Control,CenterTime_Blank);
+CenterStats.NaiveBlank.Table = table('Size',[size(CenterStats.NaiveBlank.tableSize,1),2],'VariableTypes',{'string','double'},'VariableNames',{'Group','Percent'});
+CenterStats.NaiveBlank.Table.Group = cat(1,naiveGroup,blankGroup);
+CenterStats.NaiveBlank.Table.Percent = cat(1,CenterTime_Control,CenterTime_Blank);
+CenterStats.NaiveBlank.FitFormula = 'Percent ~ 1 + Group';
+CenterStats.NaiveBlank.Stats = fitglme(CenterStats.NaiveBlank.Table,CenterStats.NaiveBlank.FitFormula);
+% Blank vs SSP RH
+CenterStats.BlankSSP.tableSize = cat(1,CenterTime_Blank,CenterTime_SSP);
+CenterStats.BlankSSP.Table = table('Size',[size(CenterStats.BlankSSP.tableSize,1),2],'VariableTypes',{'string','double'},'VariableNames',{'Group','Percent'});
+CenterStats.BlankSSP.Table.Group = cat(1,blankGroup,sspGroup);
+CenterStats.BlankSSP.Table.Percent = cat(1,CenterTime_Blank,CenterTime_SSP);
+CenterStats.BlankSSP.FitFormula = 'Percent ~ 1 + Group';
+CenterStats.BlankSSP.Stats = fitglme(CenterStats.BlankSSP.Table,CenterStats.BlankSSP.FitFormula);
+
 %% arousal state probability
 cd([rootFolder delim 'Results_Turner'])
 resultsStruct = 'Results_ArousalStateProb_Ephys';
@@ -95,8 +131,9 @@ end
 [awakeStats2.h,awakeStats2.p] = ttest2(ephysStateData.Blank_SAP.awakePercent,ephysStateData.SSP_SAP.awakePercent);
 [nremStats1.h,nremStats1.p] = ttest2(ephysStateData.Naive.nremPercent,ephysStateData.Blank_SAP.nremPercent);
 [nremStats2.h,nremStats2.p] = ttest2(ephysStateData.Blank_SAP.nremPercent,ephysStateData.SSP_SAP.nremPercent);
-[remStats1.h,remStats1.p] = ttest2(ephysStateData.Naive.nremPercent,ephysStateData.Blank_SAP.nremPercent);
+[remStats1.h,remStats1.p] = ttest2(ephysStateData.Naive.remPercent,ephysStateData.Blank_SAP.remPercent);
 [remStats2.h,remStats2.p] = ttest2(ephysStateData.Blank_SAP.remPercent,ephysStateData.SSP_SAP.remPercent);
+
 %% whisking behavior
 cd([rootFolder delim 'Results_Turner'])
 resultsStruct = 'Results_WhiskBehav_Ephys';
@@ -139,6 +176,7 @@ end
 % statistics - unpaired ttest
 [whiskPercStats1.h,whiskPercStats1.p] = ttest2(whiskingData.Naive.whiskDurationPerc,whiskingData.Blank_SAP.whiskDurationPerc);
 [whiskPercStats2.h,whiskPercStats2.p] = ttest2(whiskingData.Blank_SAP.whiskDurationPerc,whiskingData.SSP_SAP.whiskDurationPerc);
+
 %% pupil size
 cd([rootFolder delim 'Results_Turner'])
 resultsStruct = 'Results_PupilArea_Ephys';
@@ -185,12 +223,13 @@ for aa = 1:length(groups)
     end
 end
 % statistics - unpaired ttest
-[pupilSizeStats.Rest1.h,pupilSizeStats.Rest1.p] = ttest2(pupilSizeData.Naive.zDiameter.Rest.data,pupilSizeData.Naive.zDiameter.Rest.data);
+[pupilSizeStats.Rest1.h,pupilSizeStats.Rest1.p] = ttest2(pupilSizeData.Naive.zDiameter.Rest.data,pupilSizeData.Blank_SAP.zDiameter.Rest.data);
 [pupilSizeStats.Rest2.h,pupilSizeStats.Rest2.p] = ttest2(pupilSizeData.Blank_SAP.zDiameter.Rest.data,pupilSizeData.SSP_SAP.zDiameter.Rest.data);
-[pupilSizeStats.NREM1.h,pupilSizeStats.NREM1.p] = ttest2(pupilSizeData.Naive.zDiameter.NREM.data,pupilSizeData.Naive.zDiameter.NREM.data);
+[pupilSizeStats.NREM1.h,pupilSizeStats.NREM1.p] = ttest2(pupilSizeData.Naive.zDiameter.NREM.data,pupilSizeData.Blank_SAP.zDiameter.NREM.data);
 [pupilSizeStats.NREM2.h,pupilSizeStats.NREM2.p] = ttest2(pupilSizeData.Blank_SAP.zDiameter.NREM.data,pupilSizeData.SSP_SAP.zDiameter.NREM.data);
-[pupilSizeStats.REM1.h,pupilSizeStats.REM1.p] = ttest2(pupilSizeData.Naive.zDiameter.REM.data,pupilSizeData.Naive.zDiameter.REM.data);
+[pupilSizeStats.REM1.h,pupilSizeStats.REM1.p] = ttest2(pupilSizeData.Naive.zDiameter.REM.data,pupilSizeData.Blank_SAP.zDiameter.REM.data);
 [pupilSizeStats.REM2.h,pupilSizeStats.REM2.p] = ttest2(pupilSizeData.Blank_SAP.zDiameter.REM.data,pupilSizeData.SSP_SAP.zDiameter.REM.data);
+
 %% stimulus evoked pupil size
 cd([rootFolder delim 'Results_Turner'])
 resultsStruct = 'Results_PupilEvoked_Ephys';
@@ -234,14 +273,17 @@ for aa = 1:length(groups)
             solenoid = solenoids{1,cc};
             [comparison] = FindSolenoidComparison('Both',solenoid);
             pupilEvokedData.(group).(dataType).(comparison).peak = pupilEvokedData.(group).(dataType).(solenoid).peak;
+            pupilEvokedData.(group).(dataType).(comparison).meanPeak = mean(pupilEvokedData.(group).(dataType).(solenoid).peak);
+            pupilEvokedData.(group).(dataType).(comparison).stdPeak = std(pupilEvokedData.(group).(dataType).(solenoid).peak,0,1);
             pupilEvokedData.(group).(dataType).(comparison).meanData = mean(pupilEvokedData.(group).(dataType).(solenoid).data,1);
             pupilEvokedData.(group).(dataType).(comparison).stdErrData = std(pupilEvokedData.(group).(dataType).(solenoid).data,0,1)./sqrt(size(pupilEvokedData.(group).(dataType).(solenoid).data,1));
         end
     end
 end
 % statistics - unpaired ttest
-[pupilEvokedStats1.h,pupilEvokedStats1.p] = ttest2(pupilEvokedData.Naive.zDiameter.contra.peak,pupilEvokedData.Naive.zDiameter.contra.peak);
+[pupilEvokedStats1.h,pupilEvokedStats1.p] = ttest2(pupilEvokedData.Naive.zDiameter.contra.peak,pupilEvokedData.Blank_SAP.zDiameter.contra.peak);
 [pupilEvokedStats2.h,pupilEvokedStats2.p] = ttest2(pupilEvokedData.Blank_SAP.zDiameter.contra.peak,pupilEvokedData.SSP_SAP.zDiameter.contra.peak);
+
 %% blinking
 cd([rootFolder delim 'Results_Turner'])
 resultsStruct = 'Results_PupilBlinkInterval_Ephys';
@@ -265,9 +307,12 @@ for aa = 1:length(groups)
     blinkData.(group).meanData = mean(blinkData.(group).data,1);
     blinkData.(group).stdData = std(blinkData.(group).data,0,1);
 end
+% statistics - unpaired ttest
+[BlinkingStats1.h,BlinkingStats1.p] = ttest2(blinkData.Naive.data,blinkData.Blank_SAP.data);
+[BlinkingStats2.h,BlinkingStats2.p] = ttest2(blinkData.Blank_SAP.data,blinkData.SSP_SAP.data);
 
 %% figure
-summaryFigure = figure('Name','Figure S2','units','normalized','outerposition',[0 0 1 1]);
+FigS1 = figure('Name','Figure S1','units','normalized','outerposition',[0 0 1 1]);
 
 subplot(3,3,1)
 plot(outerpoints(frameX,Zodd),outerpoints(frameX,Zeven),'*-r')
@@ -299,42 +344,46 @@ yticks([])
 title([animalID 'Vector Plot'])
 
 subplot(3,3,2)
-cplot = bar(1,mean_distance_Control,0.1);
+cplot = bar(1,meanDistance_Control,0.1);
 cplot.FaceColor = colors('sapphire');
 hold on
 plot(1,Distance_Control,'ob','MarkerSize',8,'MarkerFaceColor',colors('sapphire'),'MarkerEdgeColor','k');
-errorbar(1,mean_distance_Control,serr_distance_control,'-k','CapSize',18,'LineWidth',3);
-kplot= bar(1.25,mean_distance_Blank,0.1);
+errorbar(1,meanDistance_Control,stdDistance_Control,'-k','CapSize',18,'LineWidth',3);
+kplot= bar(1.25,meanDistance_Blank,0.1);
 kplot.FaceColor = colors('north texas green');
 plot(1.25,Distance_Blank,'go','MarkerSize',8,'MarkerFaceColor',colors('north texas green'),'MarkerEdgeColor','k');
-errorbar(1.25,mean_distance_Blank,serr_distance_blank,'-k','CapSize',18,'LineWidth',3);
-nplot = bar(1.5,mean_distance_SSP,0.1);
+errorbar(1.25,meanDistance_Blank,stdDistance_Blank,'-k','CapSize',18,'LineWidth',3);
+nplot = bar(1.5,meanDistance_SSP,0.1);
 nplot.FaceColor = colors('electric purple');
 plot(1.5,Distance_SSP,'or','MarkerSize',8,'MarkerFaceColor',colors('electric purple'),'MarkerEdgeColor','k');
-errorbar(1.5,mean_distance_SSP,serr_distance_ssp,'-k','CapSize',18,'LineWidth',3);
+errorbar(1.5,meanDistance_SSP,stdDistance_SSP,'-k','CapSize',18,'LineWidth',3);
 ylabel('Distance Travelled (cm)')
 xlim([0.75 1.75])
 xticks([1 1.25 1.5]);
 xticklabels({'Naive','Blank-SAP','SSP-SAP'})
+set(gca,'box','off')
+axis square
 
 subplot(3,3,3)
-cplot = bar(1,mean_CenterTime_Control,0.1);
+cplot = bar(1,meanCenterTime_Control,0.1);
 cplot.FaceColor = colors('sapphire');
 hold on
 plot(1,CenterTime_Control,'ob','MarkerSize',8,'MarkerFaceColor',colors('sapphire'),'MarkerEdgeColor','k');
-errorbar(1,mean_CenterTime_Control,serr_CenterTime_control,'-k','CapSize',18,'LineWidth',3);
-kplot= bar(1.25,mean_CenterTime_Blank,0.1);
+errorbar(1,meanCenterTime_Control,stdCenterTime_Control,'-k','CapSize',18,'LineWidth',3);
+kplot= bar(1.25,meanCenterTime_Blank,0.1);
 kplot.FaceColor = colors('north texas green');
 plot(1.25,CenterTime_Blank,'go','MarkerSize',8,'MarkerFaceColor',colors('north texas green'),'MarkerEdgeColor','k');
-errorbar(1.25,mean_CenterTime_Blank,serr_CenterTime_blank,'-k','CapSize',18,'LineWidth',3);
-nplot = bar(1.5,mean_CenterTime_SSP,0.1);
+errorbar(1.25,meanCenterTime_Blank,stdCenterTime_Blank,'-k','CapSize',18,'LineWidth',3);
+nplot = bar(1.5,meanCenterTime_SSP,0.1);
 nplot.FaceColor = colors('electric purple');
 plot(1.5,CenterTime_SSP,'or','MarkerSize',8,'MarkerFaceColor',colors('electric purple'),'MarkerEdgeColor','k');
-errorbar(1.5,mean_CenterTime_SSP,serr_CenterTime_ssp,'-k','CapSize',18,'LineWidth',3);
+errorbar(1.5,meanCenterTime_SSP,stdCenterTime_SSP,'-k','CapSize',18,'LineWidth',3);
 ylabel('Percentage Center Time')
 xlim([0.75 1.75])
 xticks([1 1.25 1.5]);
 xticklabels({'Naive','Blank-SAP','SSP-SAP'})
+set(gca,'box','off')
+axis square
 
 subplot(3,3,4)
 p1 = pie(ephysStateData.Naive.meanPercs);
@@ -348,7 +397,7 @@ pText(3).String = combinedtxt(3);
 title('Naive')
 
 subplot(3,3,5)
-p1 = pie(ephysStateData.Naive.meanPercs);
+p1 = pie(ephysStateData.Blank_SAP.meanPercs);
 pText = findobj(p1,'Type','text');
 percentValues = get(pText,'String');
 txt = {'Awake: ';'NREM: ';'REM: '};
@@ -359,7 +408,7 @@ pText(3).String = combinedtxt(3);
 title('Blank_SAP')
 
 subplot(3,3,6)
-p1 = pie(ephysStateData.Naive.meanPercs);
+p1 = pie(ephysStateData.SSP_SAP.meanPercs);
 pText = findobj(p1,'Type','text');
 percentValues = get(pText,'String');
 txt = {'Awake: ';'NREM: ';'REM: '};
@@ -498,7 +547,7 @@ axis square
 
 %% save figure(s)
 if saveFigs == true
-  dirpath = [rootFolder delim 'MATLAB Figure Panels' delim];
+    dirpath = [rootFolder delim 'MATLAB Figure Panels' delim];
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
@@ -512,21 +561,92 @@ if saveFigs == true
     end
     diary(diaryFile)
     diary on
+
+    % open field distance traveled
     disp('======================================================================================================================')
-    disp('ttest2 statistics:')
+    disp('Total distance traveled, n = 9 mice per group, mean +/- StD'); disp(' ')
+    disp(['Naive ' num2str(meanDistance_Control) ' +/- ' num2str(stdDistance_Control)]); disp(' ')
+    disp(['Blank-SAP ' num2str(meanDistance_Blank) ' +/- ' num2str(stdDistance_Blank)]); disp(' ')
+    disp(['SSP-SAP ' num2str(meanDistance_SSP) ' +/- ' num2str(stdDistance_SSP)]); disp(' ')
+    disp('Naive vs. Blank GLME'); disp(' ')
+    disp(DistanceStats.NaiveBlank.Stats)
+    disp('Blank vs. SSP GLME'); disp(' ')
+    disp(DistanceStats.BlankSSP.Stats)
+
+    % open field % time spent in center
     disp('======================================================================================================================')
-    disp(['Naive vs. Blank (awake) p < ' num2str(awakeStats1.p)]); disp(' ')
-    disp(['Blank vs. SAP (awake) p < ' num2str(awakeStats2.p)]); disp(' ')
-    disp(['Naive vs. Blank (nrem) p < ' num2str(nremStats1.p)]); disp(' ')
-    disp(['Blank vs. SAP (nrem) p < ' num2str(nremStats2.p)]); disp(' ')
-    disp(['Naive vs. Blank (rem) p < ' num2str(remStats1.p)]); disp(' ')
-    disp(['Blank vs. SAP (rem) p < ' num2str(remStats2.p)]); disp(' ')
-    disp('----------------------------------------------------------------------------------------------------------------------')
+    disp('Center Time, n = 12-23 mice per group, mean +/- StD'); disp(' ')
+    disp(['Naive: ' num2str(meanCenterTime_Control) ' +/- ' num2str(stdCenterTime_Control)]); disp(' ')
+    disp(['Blank-SAP: ' num2str(meanCenterTime_Blank) ' +/- ' num2str(stdCenterTime_Blank)]); disp(' ')
+    disp(['SSP-SAP: ' num2str(meanCenterTime_SSP) ' +/- ' num2str(stdCenterTime_SSP)]); disp(' ')
+    disp('Naive vs. Blank GLME'); disp(' ')
+    disp(CenterStats.NaiveBlank.Stats)
+    disp('Blank vs. SSP GLME'); disp(' ')
+    disp(CenterStats.BlankSSP.Stats)
+
+    % arousal-state percentages
     disp('======================================================================================================================')
-    disp('ttest2 statistics:')
+    disp('Arousal-state %s, n = 9 mice per group, mean +/- StD'); disp(' ')
+    disp(['Naive Awake: ' num2str(ephysStateData.Naive.mean_awakePercent) ' +/- ' num2str(ephysStateData.Naive.std_awakePercent)]); disp(' ')
+    disp(['Naive NREM: ' num2str(ephysStateData.Naive.mean_nremPercent) ' +/- ' num2str(ephysStateData.Naive.std_nremPercent)]); disp(' ')
+    disp(['Naive REM: ' num2str(ephysStateData.Naive.mean_remPercent) ' +/- ' num2str(ephysStateData.Naive.std_remPercent)]); disp(' ')
+    disp(['Blank-SAP Awake: ' num2str(ephysStateData.Blank_SAP.mean_awakePercent) ' +/- ' num2str(ephysStateData.Blank_SAP.std_awakePercent)]); disp(' ')
+    disp(['Blank-SAP NREM: ' num2str(ephysStateData.Blank_SAP.mean_nremPercent) ' +/- ' num2str(ephysStateData.Blank_SAP.std_nremPercent)]); disp(' ')
+    disp(['Blank-SAP REM: ' num2str(ephysStateData.Blank_SAP.mean_remPercent) ' +/- ' num2str(ephysStateData.Blank_SAP.std_remPercent)]); disp(' ')
+    disp(['SSP-SAP Awake: ' num2str(ephysStateData.SSP_SAP.mean_awakePercent) ' +/- ' num2str(ephysStateData.SSP_SAP.std_awakePercent)]); disp(' ')
+    disp(['SSP-SAP NREM: ' num2str(ephysStateData.SSP_SAP.mean_nremPercent) ' +/- ' num2str(ephysStateData.SSP_SAP.std_nremPercent)]); disp(' ')
+    disp(['SSP-SAP REM: ' num2str(ephysStateData.SSP_SAP.mean_remPercent) ' +/- ' num2str(ephysStateData.SSP_SAP.std_remPercent)]); disp(' ')
+    disp(['Naive vs. Blank Awake ttest p = ' num2str(awakeStats1.p)]); disp(' ')
+    disp(['Blank vs. SAP Awake ttest p = ' num2str(awakeStats2.p)]); disp(' ')
+    disp(['Naive vs. Blank NREM ttest p = ' num2str(nremStats1.p)]); disp(' ')
+    disp(['Blank vs. SAP NREM ttest p = ' num2str(nremStats2.p)]); disp(' ')
+    disp(['Naive vs. Blank REM ttest p = ' num2str(remStats1.p)]); disp(' ')
+    disp(['Blank vs. SAP REM ttest p = ' num2str(remStats2.p)]); disp(' ')
+
+    % time spent whisking
     disp('======================================================================================================================')
-    disp(['Naive vs. Blank (whiskPerc) p < ' num2str(whiskPercStats1.p)]); disp(' ')
-    disp(['Blank vs. SAP (whiskPerc) p < ' num2str(whiskPercStats2.p)]); disp(' ')
-    disp('----------------------------------------------------------------------------------------------------------------------')
+    disp('Time spent whisking, n = 9 mice per group, mean +/- StD'); disp(' ')
+    disp(['Naive: ' num2str(whiskingData.Naive.mean_whiskDurationPerc) ' +/- ' num2str(whiskingData.Naive.std_whiskDurationPerc)]); disp(' ')
+    disp(['Blank-SAP: ' num2str(whiskingData.Blank_SAP.mean_whiskDurationPerc) ' +/- ' num2str(whiskingData.Blank_SAP.std_whiskDurationPerc)]); disp(' ')
+    disp(['SSP-SAP: ' num2str(whiskingData.SSP_SAP.mean_whiskDurationPerc) ' +/- ' num2str(whiskingData.SSP_SAP.std_whiskDurationPerc)]); disp(' ')
+    disp(['Naive vs. Blank ttest p = ' num2str(whiskPercStats1.p)]); disp(' ')
+    disp(['Blank vs. SAP ttest p = ' num2str(whiskPercStats2.p)]); disp(' ')
+
+    % pupil size
+    disp('======================================================================================================================')
+    disp(['Naive Awake: ' num2str(pupilSizeData.Naive.zDiameter.Rest.meanData) ' +/- ' num2str(pupilSizeData.Naive.zDiameter.Rest.stdData)]); disp(' ')
+    disp(['Naive NREM: ' num2str(pupilSizeData.Naive.zDiameter.NREM.meanData) ' +/- ' num2str(pupilSizeData.Naive.zDiameter.NREM.stdData)]); disp(' ')
+    disp(['Naive REM: ' num2str(pupilSizeData.Naive.zDiameter.REM.meanData) ' +/- ' num2str(pupilSizeData.Naive.zDiameter.REM.stdData)]); disp(' ')
+    disp(['Blank-SAP Awake: ' num2str(pupilSizeData.Blank_SAP.zDiameter.Rest.meanData) ' +/- ' num2str(pupilSizeData.Blank_SAP.zDiameter.Rest.stdData)]); disp(' ')
+    disp(['Blank-SAP NREM: ' num2str(pupilSizeData.Blank_SAP.zDiameter.NREM.meanData) ' +/- ' num2str(pupilSizeData.Blank_SAP.zDiameter.NREM.stdData)]); disp(' ')
+    disp(['Blank-SAP REM: ' num2str(pupilSizeData.Blank_SAP.zDiameter.REM.meanData) ' +/- ' num2str(pupilSizeData.Blank_SAP.zDiameter.REM.stdData)]); disp(' ')
+    disp(['SSP-SAP Awake: ' num2str(pupilSizeData.SSP_SAP.zDiameter.Rest.meanData) ' +/- ' num2str(pupilSizeData.SSP_SAP.zDiameter.Rest.stdData)]); disp(' ')
+    disp(['SSP-SAP NREM: ' num2str(pupilSizeData.SSP_SAP.zDiameter.NREM.meanData) ' +/- ' num2str(pupilSizeData.SSP_SAP.zDiameter.NREM.stdData)]); disp(' ')
+    disp(['SSP-SAP REM: ' num2str(pupilSizeData.SSP_SAP.zDiameter.REM.meanData) ' +/- ' num2str(pupilSizeData.SSP_SAP.zDiameter.REM.stdData)]); disp(' ')
+    disp(['Naive vs. Blank Awake ttest p = ' num2str(pupilSizeStats.Rest1.p)]); disp(' ')
+    disp(['Blank vs. SAP Awake ttest p = ' num2str(pupilSizeStats.Rest2.p)]); disp(' ')
+    disp(['Naive vs. Blank NREM ttest p = ' num2str(pupilSizeStats.NREM1.p)]); disp(' ')
+    disp(['Blank vs. SAP NREM ttest p = ' num2str(pupilSizeStats.NREM2.p)]); disp(' ')
+    disp(['Naive vs. Blank REM ttest p = ' num2str(pupilSizeStats.REM1.p)]); disp(' ')
+    disp(['Blank vs. SAP REM ttest p = ' num2str(pupilSizeStats.REM2.p)]); disp(' ')
+
+    % pupil evoked response
+    disp('======================================================================================================================')
+    disp('Pupil evoked response, n = 9 mice per group, mean +/- StD'); disp(' ')
+    disp(['Naive: ' num2str(pupilEvokedData.Naive.zDiameter.contra.meanPeak) ' +/- ' num2str(pupilEvokedData.Naive.zDiameter.contra.stdPeak)]); disp(' ')
+    disp(['Blank-SAP: ' num2str(pupilEvokedData.Blank_SAP.zDiameter.contra.meanPeak) ' +/- ' num2str(pupilEvokedData.Blank_SAP.zDiameter.contra.stdPeak)]); disp(' ')
+    disp(['SSP-SAP: ' num2str(pupilEvokedData.SSP_SAP.zDiameter.contra.meanPeak) ' +/- ' num2str(pupilEvokedData.SSP_SAP.zDiameter.contra.stdPeak)]); disp(' ')
+    disp(['Naive vs. Blank ttest p = ' num2str(pupilEvokedStats1.p)]); disp(' ')
+    disp(['Blank vs. SAP ttest p = ' num2str(pupilEvokedStats2.p)]); disp(' ')
+
+    % inter-blink-interval
+    disp('======================================================================================================================')
+    disp('Inter-blink-interval, n = 9 mice per group, mean +/- StD'); disp(' ')
+    disp(['Naive: ' num2str(blinkData.Naive.meanData) ' +/- ' num2str(blinkData.Naive.stdData)]); disp(' ')
+    disp(['Blank-SAP: ' num2str(blinkData.Blank_SAP.meanData) ' +/- ' num2str(blinkData.Blank_SAP.stdData)]); disp(' ')
+    disp(['SSP-SAP: ' num2str(blinkData.SSP_SAP.meanData) ' +/- ' num2str(blinkData.SSP_SAP.stdData)]); disp(' ')
+    disp(['Naive vs. Blank ttest p = ' num2str(BlinkingStats1.p)]); disp(' ')
+    disp(['Blank vs. SAP ttest p = ' num2str(BlinkingStats2.p)]); disp(' ')
+
     diary off
 end

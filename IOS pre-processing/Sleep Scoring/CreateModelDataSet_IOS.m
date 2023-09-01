@@ -42,10 +42,10 @@ for aa = 1:size(procDataFileIDs,1)
     % number of binarized whisking events
     whiskEventsColumn(bb,1) = sum(ProcData.sleep.parameters.whiskerAngle.binarization{bb,1});
     % median of the EMG power
-    EMGColumn(bb,1) = median(ProcData.sleep.parameters.EMG.power);
+    EMGColumn(bb,1) = median(ProcData.sleep.parameters.EMG.power{bb,1});
     % average heart rate
     heartRateColumn(bb,1) = round(mean(ProcData.sleep.parameters.heartRate.frequency{bb,1}),1);
+    variableNames = {'maxCortDelta','maxCortBeta','maxCortGamma','maxHippTheta','numWhiskEvents','avgEMG','avgHeartRate'};
+    paramsTable = table(cortDeltaColumn,cortBetaColumn,cortGammaColumn,hippThetaColumn,whiskEventsColumn,EMGColumn,heartRateColumn,'VariableNames',variableNames);
+    save(modelDataSetID,'paramsTable')
 end
-variableNames = {'maxCortDelta','maxCortBeta','maxCortGamma','maxHippTheta','numWhiskEvents','avgEMG','avgHeartRate'};
-paramsTable = table(cortDeltaColumn,cortBetaColumn,cortGammaColumn,hippThetaColumn,whiskEventsColumn,EMGColumn,heartRateColumn,'VariableNames',variableNames);
-save(modelDataSetID,'paramsTable')

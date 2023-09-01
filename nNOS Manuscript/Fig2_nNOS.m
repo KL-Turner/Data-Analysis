@@ -8,6 +8,7 @@ path = [rootFolder delim 'Results_Turner'];
 cd(path)
 Ephys_Fs = 30;
 GCaMP_Fs = 10;
+
 %% awake ephys example
 exampleProcFile_AwakeEphys = 'T165_210222_12_45_38_ProcData.mat';
 load(exampleProcFile_AwakeEphys)
@@ -38,6 +39,7 @@ for x = 1:length(whiskInds_AwakeEphys)
         whiskInds_AwakeEphys(1,x) = NaN;
     end
 end
+
 %% sleep ephys example
 exampleProcFile_AsleepEphys = 'T165_210223_12_37_03_ProcData.mat';
 load(exampleProcFile_AsleepEphys)
@@ -65,6 +67,7 @@ for x = 1:length(whiskInds_AsleepEphys)
         whiskInds_AsleepEphys(1,x) = NaN;
     end
 end
+
 %% awake GCaMP example
 exampleProcFile_AwakeGCaMP = 'T233_220206_13_07_08_ProcData.mat';
 load(exampleProcFile_AwakeGCaMP)
@@ -94,6 +97,7 @@ for x = 1:length(whiskInds_AwakeGCaMP)
         whiskInds_AwakeGCaMP(1,x) = NaN;
     end
 end
+
 %% sleep GCaMP example
 exampleProcFile_AsleepGCaMP = 'T233_220206_14_10_44_ProcData.mat';
 load(exampleProcFile_AsleepGCaMP)
@@ -121,6 +125,7 @@ for x = 1:length(whiskInds_AsleepGCaMP)
         whiskInds_AsleepGCaMP(1,x) = NaN;
     end
 end
+
 %% figure
 Fig2 = figure('Name','Figure 2','units','normalized','outerposition',[0 0 1 1]);
 ax1 = subplot(4,3,1);

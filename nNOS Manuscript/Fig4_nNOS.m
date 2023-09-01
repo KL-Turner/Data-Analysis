@@ -4,6 +4,7 @@ function [] = Fig4_nNOS(rootFolder,saveFigs,delim)
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %----------------------------------------------------------------------------------------------------------
+
 %% Ephys cross correlation
 cd([rootFolder delim 'Results_Turner'])
 resultsStruct = 'Results_CrossCorr_Ephys';
@@ -87,6 +88,7 @@ for cc = 1:length(hemispheres)
         end
     end
 end
+
 %% Ephys neural-hemo coherence
 cd([rootFolder delim 'Results_Turner'])
 resultsStruct = 'Results_NeuralHemoCoher_Ephys';
@@ -177,6 +179,7 @@ for cc = 1:length(hemispheres)
         end
     end
 end
+
 %% GCaMP cross correlation
 cd([rootFolder delim 'Results_Turner'])
 resultsStruct = 'Results_CrossCorr_GCaMP';
@@ -257,6 +260,7 @@ for cc = 1:length(hemispheres)
         end
     end
 end
+
 %% GCaMP neural-hemo coherence
 cd([rootFolder delim 'Results_Turner'])
 resultsStruct = 'Results_NeuralHemoCoher_GCaMP';
@@ -545,6 +549,7 @@ xlim([0.01,0.5])
 ylim([0.2,1])
 set(gca,'box','off')
 axis square
+
 %% save figure(s)
 if saveFigs == true
     dirpath = [rootFolder delim 'MATLAB Figure Panels' delim];
@@ -561,53 +566,114 @@ if saveFigs == true
     % statistical diary
     diary(diaryFile)
     diary on
+
+    % Gamma-HbT XCorr (Rest)
+    disp('gamma-HbT XCorr (Rest), n = 9 mice per group, mean +/- SEM'); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(ephysXCorrData.Blank_SAP.RH.gammaBandPower.Rest.peak)) ' +/- ' num2str(std(ephysXCorrData.Blank_SAP.RH.gammaBandPower.Rest.peak,0,1)./sqrt(size(ephysXCorrData.Blank_SAP.RH.gammaBandPower.Rest.peak,1)))]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(ephysXCorrData.SSP_SAP.RH.gammaBandPower.Rest.peak)) ' +/- ' num2str(std(ephysXCorrData.SSP_SAP.RH.gammaBandPower.Rest.peak,0,1)./sqrt(size(ephysXCorrData.SSP_SAP.RH.gammaBandPower.Rest.peak,1)))]); disp(' ')
     disp('======================================================================================================================')
     disp('GLME statistics for gamma-HbT XCorr during Rest [Ephys]')
     disp('======================================================================================================================')
     disp(ephysXCorrStats.RH.gammaBandPower.Rest.Stats)
+
+    % Gamma-HbT XCorr (Alert)
+    disp('gamma-HbT XCorr (Alert), n = 9 mice per group, mean +/- SEM'); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(ephysXCorrData.Blank_SAP.RH.gammaBandPower.Alert.peak)) ' +/- ' num2str(std(ephysXCorrData.Blank_SAP.RH.gammaBandPower.Alert.peak,0,1)./sqrt(size(ephysXCorrData.Blank_SAP.RH.gammaBandPower.Alert.peak,1)))]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(ephysXCorrData.SSP_SAP.RH.gammaBandPower.Alert.peak)) ' +/- ' num2str(std(ephysXCorrData.SSP_SAP.RH.gammaBandPower.Alert.peak,0,1)./sqrt(size(ephysXCorrData.SSP_SAP.RH.gammaBandPower.Alert.peak,1)))]); disp(' ')
     disp('======================================================================================================================')
     disp('GLME statistics for gamma-HbT XCorr during Alert [Ephys]')
     disp('======================================================================================================================')
     disp(ephysXCorrStats.RH.gammaBandPower.Alert.Stats)
+
+    % Gamma-HbT XCorr (Asleep)
+    disp('gamma-HbT XCorr (Asleep), n = 9 mice per group, mean +/- SEM'); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(ephysXCorrData.Blank_SAP.RH.gammaBandPower.Asleep.peak)) ' +/- ' num2str(std(ephysXCorrData.Blank_SAP.RH.gammaBandPower.Asleep.peak,0,1)./sqrt(size(ephysXCorrData.Blank_SAP.RH.gammaBandPower.Asleep.peak,1)))]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(ephysXCorrData.SSP_SAP.RH.gammaBandPower.Asleep.peak)) ' +/- ' num2str(std(ephysXCorrData.SSP_SAP.RH.gammaBandPower.Asleep.peak,0,1)./sqrt(size(ephysXCorrData.SSP_SAP.RH.gammaBandPower.Asleep.peak,1)))]); disp(' ')
     disp('======================================================================================================================')
     disp('GLME statistics for gamma-HbT XCorr during Asleep [Ephys]')
     disp('======================================================================================================================')
     disp(ephysXCorrStats.RH.gammaBandPower.Asleep.Stats)
+
+    % Gamma-HbT coherence(Rest)
+    disp('gamma-HbT coherence (Rest), n = 9 mice per group, mean +/- SEM'); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(ephysNHCoherData.Blank_SAP.RH.gammaBandPower.Rest.binC)) ' +/- ' num2str(std(ephysNHCoherData.Blank_SAP.RH.gammaBandPower.Rest.binC,0,1)./sqrt(size(ephysNHCoherData.Blank_SAP.RH.gammaBandPower.Rest.binC,1)))]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(ephysNHCoherData.SSP_SAP.RH.gammaBandPower.Rest.binC)) ' +/- ' num2str(std(ephysNHCoherData.SSP_SAP.RH.gammaBandPower.Rest.binC,0,1)./sqrt(size(ephysNHCoherData.SSP_SAP.RH.gammaBandPower.Rest.binC,1)))]); disp(' ')
     disp('======================================================================================================================')
     disp('GLME statistics for gamma-HbT Coherence during Rest [Ephys]')
     disp('======================================================================================================================')
     disp(ephysNHCoherStats.RH.gammaBandPower.Rest.Stats)
+
+    % Gamma-HbT coherence (Alert)
+    disp('gamma-HbT coherence (Alert), n = 9 mice per group, mean +/- SEM'); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(ephysNHCoherData.Blank_SAP.RH.gammaBandPower.Alert.binC)) ' +/- ' num2str(std(ephysNHCoherData.Blank_SAP.RH.gammaBandPower.Alert.binC,0,1)./sqrt(size(ephysNHCoherData.Blank_SAP.RH.gammaBandPower.Alert.binC,1)))]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(ephysNHCoherData.SSP_SAP.RH.gammaBandPower.Alert.binC)) ' +/- ' num2str(std(ephysNHCoherData.SSP_SAP.RH.gammaBandPower.Alert.binC,0,1)./sqrt(size(ephysNHCoherData.SSP_SAP.RH.gammaBandPower.Alert.binC,1)))]); disp(' ')
     disp('======================================================================================================================')
     disp('GLME statistics for gamma-HbT Coherence during Alert [Ephys]')
     disp('======================================================================================================================')
     disp(ephysNHCoherStats.RH.gammaBandPower.Alert.Stats)
+
+    % Gamma-HbT coherence (Asleep)
+    disp('gamma-HbT coherence (Asleep), n = 9 mice per group, mean +/- SEM'); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(ephysNHCoherData.Blank_SAP.RH.gammaBandPower.Asleep.binC)) ' +/- ' num2str(std(ephysNHCoherData.Blank_SAP.RH.gammaBandPower.Asleep.binC,0,1)./sqrt(size(ephysNHCoherData.Blank_SAP.RH.gammaBandPower.Asleep.binC,1)))]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(ephysNHCoherData.SSP_SAP.RH.gammaBandPower.Asleep.binC)) ' +/- ' num2str(std(ephysNHCoherData.SSP_SAP.RH.gammaBandPower.Asleep.binC,0,1)./sqrt(size(ephysNHCoherData.SSP_SAP.RH.gammaBandPower.Asleep.binC,1)))]); disp(' ')
     disp('======================================================================================================================')
     disp('GLME statistics for gamma-HbT Coherence during Asleep [Ephys]')
     disp('======================================================================================================================')
     disp(ephysNHCoherStats.RH.gammaBandPower.Asleep.Stats)
+
+    % GCaMP-HbT XCorr (Rest)
+    disp('GCaMP-HbT XCorr (Rest), n = 7-8 mice per group, mean +/- SEM'); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(gcampXCorrData.Blank_SAP.RH.HbT.Rest.peak)) ' +/- ' num2str(std(gcampXCorrData.Blank_SAP.RH.HbT.Rest.peak,0,1)./sqrt(size(gcampXCorrData.Blank_SAP.RH.HbT.Rest.peak,1)))]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(gcampXCorrData.SSP_SAP.RH.HbT.Rest.peak)) ' +/- ' num2str(std(gcampXCorrData.SSP_SAP.RH.HbT.Rest.peak,0,1)./sqrt(size(gcampXCorrData.SSP_SAP.RH.HbT.Rest.peak,1)))]); disp(' ')
     disp('======================================================================================================================')
     disp('GLME statistics for GCaMP-HbT XCorr during Rest [GCaMP]')
     disp('======================================================================================================================')
     disp(gcampXCorrStats.RH.HbT.Rest.Stats)
+
+    % GCaMP-HbT XCorr (Alert)
+    disp('GCaMP-HbT XCorr (Alert), n = 7-8 mice per group, mean +/- SEM'); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(gcampXCorrData.Blank_SAP.RH.HbT.Alert.peak)) ' +/- ' num2str(std(gcampXCorrData.Blank_SAP.RH.HbT.Alert.peak,0,1)./sqrt(size(gcampXCorrData.Blank_SAP.RH.HbT.Alert.peak,1)))]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(gcampXCorrData.SSP_SAP.RH.HbT.Alert.peak)) ' +/- ' num2str(std(gcampXCorrData.SSP_SAP.RH.HbT.Alert.peak,0,1)./sqrt(size(gcampXCorrData.SSP_SAP.RH.HbT.Alert.peak,1)))]); disp(' ')
     disp('======================================================================================================================')
     disp('GLME statistics for GCaMP-HbT XCorr during Alert [GCaMP]')
     disp('======================================================================================================================')
     disp(gcampXCorrStats.RH.HbT.Alert.Stats)
+
+    % GCaMP-HbT XCorr (Asleep)
+    disp('GCaMP-HbT XCorr (Asleep), n = 7-8 mice per group, mean +/- SEM'); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(gcampXCorrData.Blank_SAP.RH.HbT.Asleep.peak)) ' +/- ' num2str(std(gcampXCorrData.Blank_SAP.RH.HbT.Asleep.peak,0,1)./sqrt(size(gcampXCorrData.Blank_SAP.RH.HbT.Asleep.peak,1)))]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(gcampXCorrData.SSP_SAP.RH.HbT.Asleep.peak)) ' +/- ' num2str(std(gcampXCorrData.SSP_SAP.RH.HbT.Asleep.peak,0,1)./sqrt(size(gcampXCorrData.SSP_SAP.RH.HbT.Asleep.peak,1)))]); disp(' ')
     disp('======================================================================================================================')
     disp('GLME statistics for GCaMP-HbT XCorr during Asleep [GCaMP]')
     disp('======================================================================================================================')
     disp(gcampXCorrStats.RH.HbT.Asleep.Stats)
+
+    % GCaMP-HbT coherence (Rest)
+    disp('GCaMP-HbT coherence (Rest), n = 7-8 mice per group, mean +/- SEM'); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(gcampNHCoherData.Blank_SAP.RH.HbT.Rest.binC)) ' +/- ' num2str(std(gcampNHCoherData.Blank_SAP.RH.HbT.Rest.binC,0,1)./sqrt(size(gcampNHCoherData.Blank_SAP.RH.HbT.Rest.binC,1)))]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(gcampNHCoherData.SSP_SAP.RH.HbT.Rest.binC)) ' +/- ' num2str(std(gcampNHCoherData.SSP_SAP.RH.HbT.Rest.binC,0,1)./sqrt(size(gcampNHCoherData.SSP_SAP.RH.HbT.Rest.binC,1)))]); disp(' ')
     disp('======================================================================================================================')
     disp('GLME statistics for GCaMP-HbT Coherence during Rest [GCaMP]')
     disp('======================================================================================================================')
     disp(gcampNHCoherStats.RH.HbT.Rest.Stats)
+
+    % GCaMP-HbT coherence (Alert)
+    disp('GCaMP-HbT coherence (Alert), n = 7-8 mice per group, mean +/- SEM'); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(gcampNHCoherData.Blank_SAP.RH.HbT.Alert.binC)) ' +/- ' num2str(std(gcampNHCoherData.Blank_SAP.RH.HbT.Alert.binC,0,1)./sqrt(size(gcampNHCoherData.Blank_SAP.RH.HbT.Alert.binC,1)))]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(gcampNHCoherData.SSP_SAP.RH.HbT.Alert.binC)) ' +/- ' num2str(std(gcampNHCoherData.SSP_SAP.RH.HbT.Alert.binC,0,1)./sqrt(size(gcampNHCoherData.SSP_SAP.RH.HbT.Alert.binC,1)))]); disp(' ')
     disp('======================================================================================================================')
     disp('GLME statistics for GCaMP-HbT Coherence during Alert [GCaMP]')
     disp('======================================================================================================================')
     disp(gcampNHCoherStats.RH.HbT.Alert.Stats)
+
+    % GCaMP-HbT coherence (Asleep)
+    disp('GCaMP-HbT coherence (Asleep), n = 7-8 mice per group, mean +/- SEM'); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(gcampNHCoherData.Blank_SAP.RH.HbT.Asleep.binC)) ' +/- ' num2str(std(gcampNHCoherData.Blank_SAP.RH.HbT.Asleep.binC,0,1)./sqrt(size(gcampNHCoherData.Blank_SAP.RH.HbT.Asleep.binC,1)))]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(gcampNHCoherData.SSP_SAP.RH.HbT.Asleep.binC)) ' +/- ' num2str(std(gcampNHCoherData.SSP_SAP.RH.HbT.Asleep.binC,0,1)./sqrt(size(gcampNHCoherData.SSP_SAP.RH.HbT.Asleep.binC,1)))]); disp(' ')
     disp('======================================================================================================================')
     disp('GLME statistics for GCaMP-HbT Coherence during Asleep [GCaMP]')
     disp('======================================================================================================================')
     disp(gcampNHCoherStats.RH.HbT.Asleep.Stats)
+
     diary off
 end

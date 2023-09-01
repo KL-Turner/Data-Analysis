@@ -28,6 +28,9 @@ for aa = 1:length(groups)
     ephysData.(group).meanLoss = mean(ephysData.(group).loss,1);
     ephysData.(group).stdLoss = std(ephysData.(group).loss,0,1);
 end
+% statistics - unpaired ttest
+[EphysOOBStats1.h,EphysOOBStats1.p] = ttest2(ephysData.Naive.loss,ephysData.Blank_SAP.loss);
+[EphysOOBStats2.h,EphysOOBStats2.p] = ttest2(ephysData.Blank_SAP.loss,ephysData.SSP_SAP.loss);
 
 %% GCaMP sleep model accuracy
 cd([rootFolder delim 'Results_Turner'])
@@ -52,6 +55,8 @@ for aa = 1:length(groups)
     gcampData.(group).meanLoss = mean(gcampData.(group).loss,1);
     gcampData.(group).stdLoss = std(gcampData.(group).loss,0,1);
 end
+[GCaMPOOBStats.h,GCaMPOOBStats.p] = ttest2(gcampData.Blank_SAP.loss,gcampData.SSP_SAP.loss);
+
 %% EGFP blue-green
 cd([rootFolder delim 'Results_Turner'])
 resultsStruct = 'Results_GFP';
@@ -86,7 +91,7 @@ groups = {'EGFP'};
 hemispheres = {'LH','RH'};
 behaviors = {'All'};
 variables = {'lags','xcVals'};
-samplingRate = 30;
+samplingRate = 10;
 % extract the analysis results
 for aa = 1:length(groups)
     group = groups{1,aa};
@@ -199,7 +204,7 @@ cm.Title = ['Blank-SAP total accuracy: ' num2str(modelAccuracy) ' (%)'];
 
 % GCaMP ssp-sap confusion chart
 subplot(3,3,5)
-cm = confusionchart(ephysData.SSP_SAP.holdYlabels,ephysData.SSP_SAP.holdXlabels);
+cm = confusionchart(gcampData.SSP_SAP.holdYlabels,gcampData.SSP_SAP.holdXlabels);
 cm.ColumnSummary = 'column-normalized';
 cm.RowSummary = 'row-normalized';
 confVals = cm.NormalizedValues;
@@ -209,15 +214,15 @@ cm.Title = ['SSP-SAP total accuracy: ' num2str(modelAccuracy) ' (%)'];
 
 % sleep model OOB-error
 subplot(3,3,6);
-s1 = scatter(ones(1,length(ephysData.Blank_SAP.loss))*2,ephysData.Blank_SAP.loss,75,'MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('north texas green'),'jitter','on','jitterAmount',0);
+s1 = scatter(ones(1,length(gcampData.Blank_SAP.loss))*2,gcampData.Blank_SAP.loss,75,'MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('north texas green'),'jitter','on','jitterAmount',0);
 hold on
-e1 = errorbar(2,ephysData.Blank_SAP.meanLoss,ephysData.Blank_SAP.stdLoss,'d','MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('black'));
+e1 = errorbar(2,gcampData.Blank_SAP.meanLoss,gcampData.Blank_SAP.stdLoss,'d','MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('black'));
 e1.Color = 'black';
 e1.MarkerSize = 10;
 e1.CapSize = 10;
-s2 = scatter(ones(1,length(ephysData.SSP_SAP.loss))*3,ephysData.SSP_SAP.loss,75,'MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('electric purple'),'jitter','on','jitterAmount',0);
+s2 = scatter(ones(1,length(gcampData.SSP_SAP.loss))*3,gcampData.SSP_SAP.loss,75,'MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('electric purple'),'jitter','on','jitterAmount',0);
 hold on
-e2 = errorbar(3,ephysData.SSP_SAP.meanLoss,ephysData.SSP_SAP.stdLoss,'d','MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('black'));
+e2 = errorbar(3,gcampData.SSP_SAP.meanLoss,gcampData.SSP_SAP.stdLoss,'d','MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('black'));
 e2.Color = 'black';
 e2.MarkerSize = 10;
 e2.CapSize = 10;
@@ -253,6 +258,31 @@ if saveFigs == true
         mkdir(dirpath);
     end
     savefig(FigS2,[dirpath 'FigS2']);
-    set(Fig1,'PaperPositionMode','auto');
+    set(FigS2,'PaperPositionMode','auto');
     print('-vector','-dpdf','-fillpage',[dirpath 'FigS2'])
+    % statistical diary
+    diaryFile = [dirpath 'FigS2_Statistics.txt'];
+    if exist(diaryFile,'file') == 2
+        delete(diaryFile)
+    end
+    diary(diaryFile)
+    diary on
+
+    % Ephys OOB error
+    disp('======================================================================================================================')
+    disp('Total distance traveled, n = 9 mice per group, mean +/- StD'); disp(' ')
+    disp(['Naive: ' num2str(ephysData.Naive.meanLoss) ' +/- ' num2str(ephysData.Naive.stdLoss)]); disp(' ')
+    disp(['Blank-SAP: ' num2str(ephysData.Blank_SAP.meanLoss) ' +/- ' num2str(ephysData.Blank_SAP.stdLoss)]); disp(' ')
+    disp(['SSP-SAP: ' num2str(ephysData.SSP_SAP.meanLoss) ' +/- ' num2str(ephysData.SSP_SAP.stdLoss)]); disp(' ')
+    disp(['Naive vs. Blank ttest p = ' num2str(EphysOOBStats1.p)]); disp(' ')
+    disp(['Blank vs. SSP ttest p = ' num2str(EphysOOBStats2.p)]); disp(' ')
+
+    % GCaMP OOB error
+    disp('======================================================================================================================')
+    disp('Total distance traveled, n = 9 mice per group, mean +/- StD'); disp(' ')
+    disp(['Blank-SAP: ' num2str(gcampData.Blank_SAP.meanLoss) ' +/- ' num2str(gcampData.Blank_SAP.stdLoss)]); disp(' ')
+    disp(['SSP-SAP: ' num2str(gcampData.SSP_SAP.meanLoss) ' +/- ' num2str(gcampData.SSP_SAP.stdLoss)]); disp(' ')
+    disp(['Blank vs. SSP ttest p = ' num2str(GCaMPOOBStats.p)]); disp(' ')
+
+    diary off
 end

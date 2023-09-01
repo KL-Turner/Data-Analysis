@@ -17,22 +17,22 @@ for a = 1:size(procDataFileIDs,1)
     load(procDataFileID)
     if isfield(ProcData.data,'heartRate') == false
         disp(['Extracting heart rate from file (' num2str(a) '/' num2str(size(procDataFileIDs,1)) ')']); disp(' ')
-        if ProcData.notes.CBVCamSamplingRate >= 30
+        if ProcData.notes.wavelengthSamplingRate >= 30
             if strcmpi(imagingType,'Single ROI (SI)') == true
-                [~,~,~,HR] = FindHeartRate_IOS(ProcData.data.(wavelength).barrels,ProcData.notes.CBVCamSamplingRate);
+                [~,~,~,HR] = FindHeartRate_IOS(ProcData.data.(wavelength).barrels,ProcData.notes.SamplingRate);
             elseif strcmpi(imagingType,'Single ROI (SSS)') == true
-                [~,~,~,HR] = FindHeartRate_IOS(ProcData.data.(wavelength).SSS,ProcData.notes.CBVCamSamplingRate);
+                [~,~,~,HR] = FindHeartRate_IOS(ProcData.data.(wavelength).SSS,ProcData.notes.wavelengthSamplingRate);
             elseif strcmpi(imagingType,'Bilateral ROI (SI)') == true || strcmpi(imagingType,'Bilateral ROI (SI,FC)') == true
                 % pull out the left and right window heart rate. they should be essentiall6 identical
-                [~,~,~,LH_HR] = FindHeartRate_IOS(ProcData.data.(wavelength).LH,ProcData.notes.CBVCamSamplingRate);
-                [~,~,~,RH_HR] = FindHeartRate_IOS(ProcData.data.(wavelength).RH,ProcData.notes.CBVCamSamplingRate);
+                [~,~,~,LH_HR] = FindHeartRate_IOS(ProcData.data.(wavelength).LH,ProcData.notes.wavelengthSamplingRate);
+                [~,~,~,RH_HR] = FindHeartRate_IOS(ProcData.data.(wavelength).RH,ProcData.notes.wavelengthSamplingRate);
                 % average the two signals from the left and right windows
                 HR = (LH_HR + RH_HR)/2;
             end
             % patch the missing data at the beginning and end of the signal
             patchedHR = horzcat(HR(1),HR,HR(end),HR(end));
             % smooth the signal with a 2 Hz low pass third-order butterworth filter
-            [B,A] = butter(3,2/(ProcData.notes.CBVCamSamplingRate/2),'low');
+            [B,A] = butter(3,2/(ProcData.notes.wavelengthSamplingRate/2),'low');
             heartRate = filtfilt(B,A,patchedHR); % filtered heart rate signal
             ProcData.data.heartRate.frequency = heartRate;
             save(procDataFileID,'ProcData');

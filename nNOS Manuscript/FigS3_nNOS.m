@@ -88,11 +88,7 @@ for aa = 1:length(hemispheres)
             for dd = 1:length(variables)
                 variable = variables{1,dd};
                 % statistics - unpaired ttest
-                [stats.(hemisphere).(dataType).(behavior).(variable).h,...
-                    stats.(hemisphere).(dataType).(behavior).(variable).p,...
-                    stats.(hemisphere).(dataType).(behavior).(variable).ci,...
-                    stats.(hemisphere).(dataType).(behavior).(variable).stats] ...
-                    = ttest2(ephysData.Blank_SAP.(hemisphere).(dataType).(behavior).(variable),ephysData.SSP_SAP.(hemisphere).(dataType).(behavior).(variable));
+                [EphysStats.(hemisphere).(dataType).(behavior).(variable).h,EphysStats.(hemisphere).(dataType).(behavior).(variable).p] = ttest2(ephysData.Blank_SAP.(hemisphere).(dataType).(behavior).(variable),ephysData.SSP_SAP.(hemisphere).(dataType).(behavior).(variable));
             end
         end
     end
@@ -175,7 +171,7 @@ for aa = 1:length(groups)
         end
     end
 end
-% statistics - generalized linear mixed effects model
+% statistics - ttest
 for aa = 1:length(hemispheres)
     hemisphere = hemispheres{1,aa};
     for bb = 1:length(dataTypes)
@@ -185,11 +181,7 @@ for aa = 1:length(hemispheres)
             for dd = 1:length(variables)
                 variable = variables{1,dd};
                 % statistics - unpaired ttest
-                [stats.(hemisphere).(dataType).(behavior).(variable).h,...
-                    stats.(hemisphere).(dataType).(behavior).(variable).p,...
-                    stats.(hemisphere).(dataType).(behavior).(variable).ci,...
-                    stats.(hemisphere).(dataType).(behavior).(variable).stats] ...
-                    = ttest2(gcampData.Blank_SAP.(hemisphere).(dataType).(behavior).(variable),gcampData.SSP_SAP.(hemisphere).(dataType).(behavior).(variable));
+                [GCaMPStats.(hemisphere).(dataType).(behavior).(variable).h,GCaMPStats.(hemisphere).(dataType).(behavior).(variable).p] = ttest2(gcampData.Blank_SAP.(hemisphere).(dataType).(behavior).(variable),gcampData.SSP_SAP.(hemisphere).(dataType).(behavior).(variable));
             end
         end
     end
@@ -237,6 +229,11 @@ for aa = 1:length(groups)
         diameterData.(group).(behavior).stdData = std(diameterData.(group).(behavior).data,0,1);
     end
 end
+% statistics - ttest
+for cc = 1:length(behaviors)
+    behavior = behaviors{1,cc};
+    [DiameterStats.(behavior).h,DiameterStats.(behavior).p] = ttest2(diameterData.Blank_SAP.(behavior).data,diameterData.SSP_SAP.(behavior).data);
+end
 
 %% two photon isoflurane shift
 cd([rootFolder delim 'Results_Turner'])
@@ -273,6 +270,7 @@ for ee = 1:length(groups)
     diameterShiftData.(group).stdDiameter = std(diameterShiftData.(group).diameter,0,1);
     diameterShiftData.(group).meanBaseline = mean(diameterShiftData.(group).baseline,1);
 end
+[TwoPIsoStats.h,TwoPIsoStats.p] = ttest2(diameterShiftData.Blank_SAP.diameter,diameterShiftData.SSP_SAP.diameter);
 
 %% figure
 FigS3 = figure('Name','Figure S3','units','normalized','outerposition',[0 0 1 1]);
@@ -522,4 +520,82 @@ if saveFigs == true
     savefig(FigS3,[dirpath 'FigS3']);
     set(FigS3,'PaperPositionMode','auto');
     print('-vector','-dpdf','-fillpage',[dirpath 'FigS3'])
+    % statistical diary
+    diaryFile = [dirpath 'FigS3_Statistics.txt'];
+    if exist(diaryFile,'file') == 2
+        delete(diaryFile)
+    end
+    diary(diaryFile)
+    diary on
+
+    % [HbT] during each arousal-state
+    disp('======================================================================================================================')
+    disp('[HbT] during each arousal-state (ephys), n = 9 mice per group, mean +/- StD'); disp(' ')
+    disp(['Blank-SAP Rest: ' num2str(ephysData.Blank_SAP.RH.HbT.Rest.mean_avg) ' +/- ' num2str(ephysData.Blank_SAP.RH.HbT.Rest.std_avg)]); disp(' ')
+    disp(['SSP-SAP Rest: ' num2str(ephysData.SSP_SAP.RH.HbT.Rest.mean_avg) ' +/- ' num2str(ephysData.SSP_SAP.RH.HbT.Rest.std_avg)]); disp(' ')
+    disp(['Blank vs. SAP Rest ttest p = ' num2str(EphysStats.RH.HbT.Rest.avg.p)]); disp(' ')
+    disp(['Blank-SAP NREM: ' num2str(ephysData.Blank_SAP.RH.HbT.NREM.mean_avg) ' +/- ' num2str(ephysData.Blank_SAP.RH.HbT.NREM.std_avg)]); disp(' ')
+    disp(['SSP-SAP NREM: ' num2str(ephysData.SSP_SAP.RH.HbT.NREM.mean_avg) ' +/- ' num2str(ephysData.SSP_SAP.RH.HbT.NREM.std_avg)]); disp(' ')
+    disp(['Blank vs. SAP NREM ttest p = ' num2str(EphysStats.RH.HbT.NREM.avg.p)]); disp(' ')
+    disp(['Blank-SAP REM: ' num2str(ephysData.Blank_SAP.RH.HbT.REM.mean_avg) ' +/- ' num2str(ephysData.Blank_SAP.RH.HbT.REM.std_avg)]); disp(' ')
+    disp(['SSP-SAP REM: ' num2str(ephysData.SSP_SAP.RH.HbT.REM.mean_avg) ' +/- ' num2str(ephysData.SSP_SAP.RH.HbT.REM.std_avg)]); disp(' ')
+    disp(['Blank vs. SAP REM ttest p = ' num2str(EphysStats.RH.HbT.REM.avg.p)]); disp(' ')
+    disp(['Blank-SAP Iso: ' num2str(ephysData.Blank_SAP.RH.HbT.Iso.mean_avg) ' +/- ' num2str(ephysData.Blank_SAP.RH.HbT.Iso.std_avg)]); disp(' ')
+    disp(['SSP-SAP Iso: ' num2str(ephysData.SSP_SAP.RH.HbT.Iso.mean_avg) ' +/- ' num2str(ephysData.SSP_SAP.RH.HbT.Iso.std_avg)]); disp(' ')
+    disp(['Blank vs. SAP Iso ttest p = ' num2str(EphysStats.RH.HbT.Iso.avg.p)]); disp(' ')
+
+    % resting-state 2P diameter
+    disp('======================================================================================================================')
+    disp('Resting-state 2P diameter, n = 9 mice per group, mean +/- StD'); disp(' ')
+    disp(['Blank-SAP Rest: ' num2str(diameterData.Blank_SAP.Rest.meanData) ' +/- ' num2str(diameterData.Blank_SAP.Rest.stdData)]); disp(' ')
+    disp(['SSP-SAP Rest: ' num2str(diameterData.SSP_SAP.Rest.meanData) ' +/- ' num2str(diameterData.SSP_SAP.Rest.stdData)]); disp(' ')
+    disp(['Blank vs. SAP Rest ttest p = ' num2str(DiameterStats.Rest.p)]); disp(' ')
+
+    % isoflurane shift 2P diameter
+    disp('======================================================================================================================')
+    disp('isoflurane diameter shift, n = 9 mice per group, mean +/- StD'); disp(' ')
+    disp(['Blank-SAP Rest: ' num2str(diameterShiftData.Blank_SAP.meanDiameter) ' +/- ' num2str(diameterShiftData.Blank_SAP.stdDiameter) ' baseline diameter: ' num2str(diameterShiftData.Blank_SAP.meanBaseline) ' \muM']); disp(' ')
+    disp(['SSP-SAP Rest: ' num2str(diameterShiftData.SSP_SAP.meanDiameter) ' +/- ' num2str(diameterShiftData.SSP_SAP.stdDiameter) ' baseline diameter: ' num2str(diameterShiftData.SSP_SAP.meanBaseline) ' \muM']); disp(' ')
+    disp(['Blank vs. SAP Rest ttest p = ' num2str(TwoPIsoStats.p)]); disp(' ')
+
+    % [HbT] during each arousal-state
+    disp('======================================================================================================================')
+    disp('[HbT] during each arousal-state (GCaMP), n = 9 mice per group, mean +/- StD'); disp(' ')
+    disp(['Blank-SAP Rest: ' num2str(gcampData.Blank_SAP.RH.HbT.Rest.mean_avg) ' +/- ' num2str(gcampData.Blank_SAP.RH.HbT.Rest.std_avg)]); disp(' ')
+    disp(['SSP-SAP Rest: ' num2str(gcampData.SSP_SAP.RH.HbT.Rest.mean_avg) ' +/- ' num2str(gcampData.SSP_SAP.RH.HbT.Rest.std_avg)]); disp(' ')
+    disp(['Blank vs. SAP Rest ttest p = ' num2str(GCaMPStats.RH.HbT.Rest.avg.p)]); disp(' ')
+    disp(['Blank-SAP NREM: ' num2str(gcampData.Blank_SAP.RH.HbT.NREM.mean_avg) ' +/- ' num2str(gcampData.Blank_SAP.RH.HbT.NREM.std_avg)]); disp(' ')
+    disp(['SSP-SAP NREM: ' num2str(gcampData.SSP_SAP.RH.HbT.NREM.mean_avg) ' +/- ' num2str(gcampData.SSP_SAP.RH.HbT.NREM.std_avg)]); disp(' ')
+    disp(['Blank vs. SAP NREM ttest p = ' num2str(GCaMPStats.RH.HbT.NREM.avg.p)]); disp(' ')
+    disp(['Blank-SAP REM: ' num2str(gcampData.Blank_SAP.RH.HbT.REM.mean_avg) ' +/- ' num2str(gcampData.Blank_SAP.RH.HbT.REM.std_avg)]); disp(' ')
+    disp(['SSP-SAP REM: ' num2str(gcampData.SSP_SAP.RH.HbT.REM.mean_avg) ' +/- ' num2str(gcampData.SSP_SAP.RH.HbT.REM.std_avg)]); disp(' ')
+    disp(['Blank vs. SAP REM ttest p = ' num2str(GCaMPStats.RH.HbT.REM.avg.p)]); disp(' ')
+
+    % [HbO] during each arousal-state
+    disp('======================================================================================================================')
+    disp('[HbO] during each arousal-state (GCaMP), n = 9 mice per group, mean +/- StD'); disp(' ')
+    disp(['Blank-SAP Rest: ' num2str(gcampData.Blank_SAP.RH.HbO.Rest.mean_avg) ' +/- ' num2str(gcampData.Blank_SAP.RH.HbO.Rest.std_avg)]); disp(' ')
+    disp(['SSP-SAP Rest: ' num2str(gcampData.SSP_SAP.RH.HbO.Rest.mean_avg) ' +/- ' num2str(gcampData.SSP_SAP.RH.HbO.Rest.std_avg)]); disp(' ')
+    disp(['Blank vs. SAP Rest ttest p = ' num2str(GCaMPStats.RH.HbO.Rest.avg.p)]); disp(' ')
+    disp(['Blank-SAP NREM: ' num2str(gcampData.Blank_SAP.RH.HbO.NREM.mean_avg) ' +/- ' num2str(gcampData.Blank_SAP.RH.HbO.NREM.std_avg)]); disp(' ')
+    disp(['SSP-SAP NREM: ' num2str(gcampData.SSP_SAP.RH.HbO.NREM.mean_avg) ' +/- ' num2str(gcampData.SSP_SAP.RH.HbO.NREM.std_avg)]); disp(' ')
+    disp(['Blank vs. SAP NREM ttest p = ' num2str(GCaMPStats.RH.HbO.NREM.avg.p)]); disp(' ')
+    disp(['Blank-SAP REM: ' num2str(gcampData.Blank_SAP.RH.HbO.REM.mean_avg) ' +/- ' num2str(gcampData.Blank_SAP.RH.HbO.REM.std_avg)]); disp(' ')
+    disp(['SSP-SAP REM: ' num2str(gcampData.SSP_SAP.RH.HbO.REM.mean_avg) ' +/- ' num2str(gcampData.SSP_SAP.RH.HbO.REM.std_avg)]); disp(' ')
+    disp(['Blank vs. SAP REM ttest p = ' num2str(GCaMPStats.RH.HbO.REM.avg.p)]); disp(' ')
+
+    % [HbR] during each arousal-state
+    disp('======================================================================================================================')
+    disp('[HbR] during each arousal-state (GCaMP), n = 9 mice per group, mean +/- StD'); disp(' ')
+    disp(['Blank-SAP Rest: ' num2str(gcampData.Blank_SAP.RH.HbR.Rest.mean_avg) ' +/- ' num2str(gcampData.Blank_SAP.RH.HbR.Rest.std_avg)]); disp(' ')
+    disp(['SSP-SAP Rest: ' num2str(gcampData.SSP_SAP.RH.HbR.Rest.mean_avg) ' +/- ' num2str(gcampData.SSP_SAP.RH.HbR.Rest.std_avg)]); disp(' ')
+    disp(['Blank vs. SAP Rest ttest p = ' num2str(GCaMPStats.RH.HbR.Rest.avg.p)]); disp(' ')
+    disp(['Blank-SAP NREM: ' num2str(gcampData.Blank_SAP.RH.HbR.NREM.mean_avg) ' +/- ' num2str(gcampData.Blank_SAP.RH.HbR.NREM.std_avg)]); disp(' ')
+    disp(['SSP-SAP NREM: ' num2str(gcampData.SSP_SAP.RH.HbR.NREM.mean_avg) ' +/- ' num2str(gcampData.SSP_SAP.RH.HbR.NREM.std_avg)]); disp(' ')
+    disp(['Blank vs. SAP NREM ttest p = ' num2str(GCaMPStats.RH.HbR.NREM.avg.p)]); disp(' ')
+    disp(['Blank-SAP REM: ' num2str(gcampData.Blank_SAP.RH.HbR.REM.mean_avg) ' +/- ' num2str(gcampData.Blank_SAP.RH.HbR.REM.std_avg)]); disp(' ')
+    disp(['SSP-SAP REM: ' num2str(gcampData.SSP_SAP.RH.HbR.REM.mean_avg) ' +/- ' num2str(gcampData.SSP_SAP.RH.HbR.REM.std_avg)]); disp(' ')
+    disp(['Blank vs. SAP REM ttest p = ' num2str(GCaMPStats.RH.HbR.REM.avg.p)]); disp(' ')
+
+    diary off
 end

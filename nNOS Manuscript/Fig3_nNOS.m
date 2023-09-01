@@ -4,6 +4,7 @@ function [] = Fig3_nNOS(rootFolder,saveFigs,delim)
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %----------------------------------------------------------------------------------------------------------
+
 %% IOS ephys brief whisker stim
 cd([rootFolder delim 'Results_Turner'])
 resultsStruct = 'Results_Evoked_Ephys';
@@ -75,7 +76,8 @@ for aa = 1:length(groups)
                             endIdx =  find(iosEphysData.(group).(hemisphere).(solenoid).timeVector(ee,:) == 4);
                             timeSnip = iosEphysData.(group).(hemisphere).(solenoid).timeVector(ee,:);
                             hbtSnip = iosEphysData.(group).(hemisphere).(comparison).HbT(ee,:);
-                            iosEphysData.(group).(hemisphere).(comparison).AUC(ee,1) = trapz(timeSnip(startIdx:endIdx),hbtSnip(startIdx:endIdx));
+                            % iosEphysData.(group).(hemisphere).(comparison).AUC(ee,1) = trapz(timeSnip(startIdx:endIdx),hbtSnip(startIdx:endIdx));
+                            iosEphysData.(group).(hemisphere).(comparison).AUC(ee,1) = mean(hbtSnip(startIdx:endIdx));
                         end
                     end
                 end
@@ -91,6 +93,7 @@ iosEphysStats.Table.Group = cat(1,iosEphysData.Blank_SAP.RH.contra.group,iosEphy
 iosEphysStats.Table.AUC = cat(1,iosEphysData.Blank_SAP.RH.contra.AUC,iosEphysData.SSP_SAP.RH.contra.AUC);
 iosEphysStats.FitFormula = 'AUC ~ 1 + Group + (1|Mouse)';
 iosEphysStats.Stats = fitglme(iosEphysStats.Table,iosEphysStats.FitFormula);
+
 %% running spectroscopy
 % data analysis
 path = [rootFolder delim 'Results_Zhang'];
@@ -140,7 +143,8 @@ for aa = 1:length(qzGroups)
         endIdx =  find(time == 5);
         timeSnip = time;
         hbtSnip = runningGroup.(qzGroup).HbT(ee,:);
-        runningStats.(qzGroup).AUC(ee,1) = trapz(timeSnip(startIdx:endIdx),hbtSnip(startIdx:endIdx));
+        % runningStats.(qzGroup).AUC(ee,1) = trapz(timeSnip(startIdx:endIdx),hbtSnip(startIdx:endIdx));
+        runningStats.(qzGroup).AUC(ee,1) = mean(hbtSnip(startIdx:endIdx));
     end
 end
 % statistics - generalized linear mixed effects model
@@ -151,6 +155,7 @@ runningStats.Table.Group = cat(1,runningBlankGroup',runningSSPGroup');
 runningStats.Table.AUC = cat(1,runningStats.Blank.AUC,runningStats.SSP.AUC);
 runningStats.FitFormula = 'AUC ~ 1 + Group + (1|Mouse)';
 runningStats.Stats = fitglme(runningStats.Table,runningStats.FitFormula);
+
 %% two photon long whisker stim
 cd([rootFolder delim 'Results_Turner'])
 resultsStruct = 'Results_Evoked_2P';
@@ -215,7 +220,8 @@ for aa = 1:length(groups)
         endIdx =  find(twoPdata.(group).contra.timeVector(ee,:) == 7);
         timeSnip = twoPdata.(group).contra.timeVector(ee,:);
         diameterSnip = twoPdata.(group).contra.diameter(ee,:);
-        twoPdata.(group).contra.AUC(ee,1) = trapz(timeSnip(startIdx:endIdx),diameterSnip(startIdx:endIdx));
+        % twoPdata.(group).contra.AUC(ee,1) = trapz(timeSnip(startIdx:endIdx),diameterSnip(startIdx:endIdx));
+        twoPdata.(group).contra.AUC(ee,1) = mean(diameterSnip(startIdx:endIdx));
     end
 end
 % statistics - generalized linear mixed effects model
@@ -226,6 +232,7 @@ diameterStats.Table.Group = cat(1,twoPdata.Blank_SAP.contra.group,twoPdata.SSP_S
 diameterStats.Table.AUC = cat(1,twoPdata.Blank_SAP.contra.AUC,twoPdata.SSP_SAP.contra.AUC);
 diameterStats.FitFormula = 'AUC ~ 1 + Group + (1|Mouse)';
 diameterStats.Stats = fitglme(diameterStats.Table,diameterStats.FitFormula);
+
 %% IOS long whisker stim
 cd([rootFolder delim 'Results_Turner'])
 resultsStruct = 'Results_Evoked_Pulse';
@@ -284,7 +291,8 @@ for aa = 1:length(groups)
         endIdx =  find(pulseData.(group).contra.timeVector(ee,:) == 6.5);
         timeSnip = pulseData.(group).contra.timeVector(ee,:);
         pulseSnip = pulseData.(group).contra.HbT(ee,:);
-        pulseData.(group).contra.AUC(ee,1) = trapz(timeSnip(startIdx:endIdx),pulseSnip(startIdx:endIdx));
+        % pulseData.(group).contra.AUC(ee,1) = trapz(timeSnip(startIdx:endIdx),pulseSnip(startIdx:endIdx));
+        pulseData.(group).contra.AUC(ee,1) = mean(pulseSnip(startIdx:endIdx));
     end
 end
 % statistics - generalized linear mixed effects model
@@ -295,6 +303,7 @@ pulseStats.Table.Group = cat(1,pulseData.Blank_SAP.contra.group,pulseData.SSP_SA
 pulseStats.Table.AUC = cat(1,pulseData.Blank_SAP.contra.AUC,pulseData.SSP_SAP.contra.AUC);
 pulseStats.FitFormula = 'AUC ~ 1 + Group + (1|Mouse)';
 pulseStats.Stats = fitglme(pulseStats.Table,pulseStats.FitFormula);
+
 %% IOS GCaMP
 cd([rootFolder delim 'Results_Turner'])
 resultsStruct = 'Results_Evoked_GCaMP';
@@ -366,7 +375,8 @@ for aa = 1:length(groups)
                             end
                             timeSnip = gcampdata.(group).(hemisphere).(solenoid).timeVector(ee,:);
                             dataSnip = gcampdata.(group).(hemisphere).(comparison).(dataType)(ee,:);
-                            gcampdata.(group).(hemisphere).(comparison).(['AUC_' dataType])(ee,1) = trapz(timeSnip(startIdx:endIdx),dataSnip(startIdx:endIdx));
+                            % gcampdata.(group).(hemisphere).(comparison).(['AUC_' dataType])(ee,1) = trapz(timeSnip(startIdx:endIdx),dataSnip(startIdx:endIdx));
+                            gcampdata.(group).(hemisphere).(comparison).(['AUC_' dataType])(ee,1) = mean(dataSnip(startIdx:endIdx));
                         end
                     end
                 end
@@ -385,6 +395,7 @@ for aa = 1:length(specDT)
     gcampStats.(specDT{1,aa}).FitFormula = 'AUC ~ 1 + Group + (1|Mouse)';
     gcampStats.(specDT{1,aa}).Stats = fitglme(gcampStats.(specDT{1,aa}).Table,gcampStats.(specDT{1,aa}).FitFormula);
 end
+
 %% IOS variance signals
 cd([rootFolder delim 'Results_Turner'])
 resultsStruct = 'Results_IntSig_Ephys';
@@ -490,9 +501,9 @@ for aa = 1:length(groups)
                 animalVar(ff,1) = var(dataArray);
                 animalP2P(ff,1) = max(dataArray) - min(dataArray);
             end
-            pulseSigData.(group).avg = cat(1,pulseSigData.(group).avg,mean(Results_IntSig_Pulse.(group).(animalID).Rest.HbT));
-            pulseSigData.(group).p2p = cat(1,pulseSigData.(group).p2p,mean(animalP2P));
-            pulseSigData.(group).vari = cat(1,pulseSigData.(group).vari,mean(animalVar));
+            pulseSigData.(group).avg = cat(1,pulseSigData.(group).avg,mean(Results_IntSig_Pulse.(group).(animalID).Rest.HbT,'omitnan'));
+            pulseSigData.(group).p2p = cat(1,pulseSigData.(group).p2p,mean(animalP2P,'omitnan'));
+            pulseSigData.(group).vari = cat(1,pulseSigData.(group).vari,mean(animalVar,'omitnan'));
             pulseSigData.(group).group = cat(1,pulseSigData.(group).group,group);
             pulseSigData.(group).animalID = cat(1,pulseSigData.(group).animalID,animalID);
         end
@@ -836,6 +847,7 @@ set(gca,'box','off')
 axis square
 axis tight
 xlim([-2,5]);
+
 %% save figure(s)
 if saveFigs == true
     dirpath = [rootFolder delim 'MATLAB Figure Panels' delim];
@@ -852,45 +864,96 @@ if saveFigs == true
     % statistical diary
     diary(diaryFile)
     diary on
+   
+    % IOS brief stim AUC
+    disp('AUC 0.1 s stim, n = 9 mice per group, mean +/- SEM'); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(iosEphysData.Blank_SAP.RH.contra.AUC)) ' +/- ' num2str(std(iosEphysData.Blank_SAP.RH.contra.AUC,0,1)./sqrt(size(iosEphysData.Blank_SAP.RH.contra.AUC,1)))]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(iosEphysData.SSP_SAP.RH.contra.AUC)) ' +/- ' num2str(std(iosEphysData.SSP_SAP.RH.contra.AUC,0,1)./sqrt(size(iosEphysData.SSP_SAP.RH.contra.AUC,1)))]); disp(' ')
     disp('======================================================================================================================')
     disp('GLME statistics for IOS AUC (t = 2:4 sec)')
     disp('======================================================================================================================')
     disp(iosEphysStats.Stats)
+   
+    % LFP delta power
+    disp('LFP delta power, n = 9 mice per group, mean +/- SEM'); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(data.Blank_SAP.RH.All.deltaS)) ' +/- ' num2str(std(data.Blank_SAP.RH.All.deltaS,0,1)./sqrt(size(data.Blank_SAP.RH.All.deltaS,1)))]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(data.SSP_SAP.RH.All.deltaS)) ' +/- ' num2str(std(data.SSP_SAP.RH.All.deltaS,0,1)./sqrt(size(data.SSP_SAP.RH.All.deltaS,1)))]); disp(' ')
     disp('======================================================================================================================')
     disp('GLME statistics for LFP delta (1:4 Hz)')
     disp('======================================================================================================================')
     disp(lfpStats.RH.All.Stats)
+  
+    % IOS resting variance
+    disp('IOS resting variance, n = 24 mice per group, mean +/- SEM'); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(blankVarData)) ' +/- ' num2str(std(blankVarData,0,1)./sqrt(size(blankVarData,1)))]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(sspVarData)) ' +/- ' num2str(std(sspVarData,0,1)./sqrt(size(sspVarData,1)))]); disp(' ')
     disp('======================================================================================================================')
     disp('GLME statistics for resting HbT variance')
     disp('======================================================================================================================')
     disp(restVarStats.Stats)
-    disp('======================================================================================================================')
-    disp('GLME statistics for running AUC (t = 1.5:2.5 sec)')
-    disp('======================================================================================================================')
-    disp(runningStats.Stats)
-    disp('======================================================================================================================')
-    disp('GLME statistics for IOS pulse AUC (t = 1.5:6.5 sec)')
-    disp('======================================================================================================================')
-    disp(pulseStats.Stats)
-    disp('======================================================================================================================')
-    disp('GLME statistics for two photon AUC (t = 3:7 sec)')
-    disp('======================================================================================================================')
-    disp(diameterStats.Stats)
+   
+    % IOS long stim HbT
+    disp('IOS 5s stim HbT, n = 7-8 mice per group, mean +/- SEM'); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(gcampdata.Blank_SAP.RH.contra.AUC_HbT)) ' +/- ' num2str(std(gcampdata.Blank_SAP.RH.contra.AUC_HbT,0,1)./sqrt(size(gcampdata.Blank_SAP.RH.contra.AUC_HbT,1)))]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(gcampdata.SSP_SAP.RH.contra.AUC_HbT)) ' +/- ' num2str(std(gcampdata.SSP_SAP.RH.contra.AUC_HbT,0,1)./sqrt(size(gcampdata.SSP_SAP.RH.contra.AUC_HbT,1)))]); disp(' ')
     disp('======================================================================================================================')
     disp('GLME statistics for GCaMP (HbT) (t = 1.5:6.5 sec)')
     disp('======================================================================================================================')
     disp(gcampStats.HbT.Stats)
+   
+    % IOS long stim GCaMP
+    disp('IOS 5s stim GCaMP, n = 7-8 mice per group, mean +/- SEM'); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(gcampdata.Blank_SAP.RH.contra.AUC_GCaMP)) ' +/- ' num2str(std(gcampdata.Blank_SAP.RH.contra.AUC_GCaMP,0,1)./sqrt(size(gcampdata.Blank_SAP.RH.contra.AUC_GCaMP,1)))]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(gcampdata.SSP_SAP.RH.contra.AUC_GCaMP)) ' +/- ' num2str(std(gcampdata.SSP_SAP.RH.contra.AUC_GCaMP,0,1)./sqrt(size(gcampdata.SSP_SAP.RH.contra.AUC_GCaMP,1)))]); disp(' ')
     disp('======================================================================================================================')
     disp('GLME statistics for GCaMP (GCaMP) (t = 2:5 sec)')
     disp('======================================================================================================================')
     disp(gcampStats.GCaMP.Stats)
+  
+    % IOS long stim HbO
+    disp('IOS 5s stim HbO, n = 7-8 mice per group, mean +/- SEM'); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(gcampdata.Blank_SAP.RH.contra.AUC_HbO)) ' +/- ' num2str(std(gcampdata.Blank_SAP.RH.contra.AUC_HbO,0,1)./sqrt(size(gcampdata.Blank_SAP.RH.contra.AUC_HbO,1)))]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(gcampdata.SSP_SAP.RH.contra.AUC_HbO)) ' +/- ' num2str(std(gcampdata.SSP_SAP.RH.contra.AUC_HbO,0,1)./sqrt(size(gcampdata.SSP_SAP.RH.contra.AUC_HbO,1)))]); disp(' ')
     disp('======================================================================================================================')
     disp('GLME statistics for GCaMP (HbO) (t = 1.5:6.5 sec)')
     disp('======================================================================================================================')
     disp(gcampStats.HbO.Stats)
+    
+    % IOS long stim HbR
+    disp('IOS 5s stim HbR, n = 7-8 mice per group, mean +/- SEM'); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(gcampdata.Blank_SAP.RH.contra.AUC_HbR)) ' +/- ' num2str(std(gcampdata.Blank_SAP.RH.contra.AUC_HbR,0,1)./sqrt(size(gcampdata.Blank_SAP.RH.contra.AUC_HbR,1)))]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(gcampdata.SSP_SAP.RH.contra.AUC_HbR)) ' +/- ' num2str(std(gcampdata.SSP_SAP.RH.contra.AUC_HbR,0,1)./sqrt(size(gcampdata.SSP_SAP.RH.contra.AUC_HbR,1)))]); disp(' ')
     disp('======================================================================================================================')
     disp('GLME statistics for GCaMP (HbR) (t = 1.5:6.5 sec)')
     disp('======================================================================================================================')
     disp(gcampStats.HbR.Stats)
+    
+    % IOS long stim
+    disp('IOS 5s stim AUC, n = 7-8 mice per group, mean +/- SEM'); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(pulseData.Blank_SAP.contra.AUC)) ' +/- ' num2str(std(pulseData.Blank_SAP.contra.AUC,0,1)./sqrt(size(pulseData.Blank_SAP.contra.AUC,1)))]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(pulseData.SSP_SAP.contra.AUC)) ' +/- ' num2str(std(pulseData.SSP_SAP.contra.AUC,0,1)./sqrt(size(pulseData.SSP_SAP.contra.AUC,1)))]); disp(' ')
+    disp('======================================================================================================================')
+    disp('GLME statistics for IOS pulse AUC (t = 1.5:6.5 sec)')
+    disp('======================================================================================================================')
+    disp(pulseStats.Stats)
+   
+    % IOS running
+    disp('Running AUC, n = 7 mice per group, mean +/- SEM'); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(runningStats.Blank.AUC)) ' +/- ' num2str(std(runningStats.Blank.AUC,0,1)./sqrt(size(runningStats.Blank.AUC,1)))]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(runningStats.SSP.AUC)) ' +/- ' num2str(std(runningStats.SSP.AUC,0,1)./sqrt(size(runningStats.SSP.AUC,1)))]); disp(' ')
+    disp('======================================================================================================================')
+    disp('GLME statistics for running AUC (t = 1.5:2.5 sec)')
+    disp('======================================================================================================================')
+    disp(runningStats.Stats)
+    
+    % 2P long stim
+    disp('2P 5s stim AUC, n = 7-9 mice per group, mean +/- SEM'); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(twoPdata.Blank_SAP.contra.AUC)) ' +/- ' num2str(std(twoPdata.Blank_SAP.contra.AUC,0,1)./sqrt(size(twoPdata.Blank_SAP.contra.AUC,1)))]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(twoPdata.SSP_SAP.contra.AUC)) ' +/- ' num2str(std(twoPdata.SSP_SAP.contra.AUC,0,1)./sqrt(size(twoPdata.SSP_SAP.contra.AUC,1)))]); disp(' ')
+    disp('======================================================================================================================')
+    disp('GLME statistics for two photon AUC (t = 3:7 sec)')
+    disp('======================================================================================================================')
+    disp(diameterStats.Stats)
+    
     diary off
 end

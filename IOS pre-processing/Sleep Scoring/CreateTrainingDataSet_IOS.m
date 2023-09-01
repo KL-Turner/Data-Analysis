@@ -1,4 +1,4 @@
-function [] = CreateTrainingDataSet_IOS(procDataFileIDs,imagingType,TrainingFiles)
+function [] = CreateTrainingDataSet_IOS(procDataFileIDs,TrainingFiles)
 %----------------------------------------------------------------------------------------------------------
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -31,11 +31,7 @@ for bb = 1:size(trainingFileList,1)
         load(modelDataFileID)
         saveFigs = 'n';
         hemoType = 'HbT';
-        if strcmpi(imagingType,'GCaMP') == true
-            [figHandle,~,~,~,ax4,~] = GenerateSingleFigures_GCaMP_Sleep_IOS(procDataFileID);
-        else
-            [figHandle,~,~,~,ax4,~,~] = GenerateSingleFigures_IOS(procDataFileID,RestingBaselines,'manualSelection',saveFigs,imagingType,hemoType);
-        end
+        [figHandle,~,~,~,ax4,~,~] = GenerateSingleFigures_IOS(procDataFileID,RestingBaselines,'manualSelection',saveFigs,imagingType,hemoType);
         trialDuration = ProcData.notes.trialDuration_sec;
         numBins = trialDuration/5;
         behavioralState = cell(180,1);
