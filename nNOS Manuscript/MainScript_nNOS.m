@@ -30,6 +30,7 @@ disp('Loading analysis results and generating figures...'); disp(' ')
 % Fig1_nNOS(rootFolder,saveFigs,delim)
 % Fig2_nNOS(rootFolder,saveFigs,delim)
 % Fig3_nNOS(rootFolder,saveFigs,delim)
+Fig3_tempPower_nNOS(rootFolder,saveFigs,delim)
 % Fig4_nNOS(rootFolder,saveFigs,delim)
 % Fig5_nNOS(rootFolder,saveFigs,delim)
 % % supplemental figure panels
@@ -38,7 +39,7 @@ disp('Loading analysis results and generating figures...'); disp(' ')
 % FigS3_nNOS(rootFolder,saveFigs,delim)
 % FigS4_nNOS(rootFolder,saveFigs,delim)
 % FigS5_nNOS(rootFolder,saveFigs,delim)
-Fig_temp_nNOS(rootFolder,saveFigs,delim)
+% Fig_temp_nNOS(rootFolder,saveFigs,delim)
 
 function [] = RunAnalysis_nNOS(rootFolder,delim)
 % Ephys exp are bilateral windows/stereotrodes SIBF @ 568 nm, sleep included

@@ -6,7 +6,7 @@
 zap;
 [TrainingFiles,procDataFileIDs] = SelectTrainingDates_IOS();
 % add sleep parameters (each behavior we care about during sleep)
-% AddSleepParameters_IOS(procDataFileIDs)
+AddSleepParameters_IOS(procDataFileIDs)
 % create a table of values for sleep scoring model
 CreateModelDataSet_IOS(procDataFileIDs)
 % create manual decisions for each 5 second bin
