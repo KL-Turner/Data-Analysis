@@ -74,9 +74,7 @@ for aa = 1:length(groups)
                         for ee = 1:size(iosEphysData.(group).(hemisphere).(comparison).HbT,1)
                             startIdx = find(iosEphysData.(group).(hemisphere).(solenoid).timeVector(ee,:) == 2);
                             endIdx =  find(iosEphysData.(group).(hemisphere).(solenoid).timeVector(ee,:) == 4);
-                            timeSnip = iosEphysData.(group).(hemisphere).(solenoid).timeVector(ee,:);
                             hbtSnip = iosEphysData.(group).(hemisphere).(comparison).HbT(ee,:);
-                            % iosEphysData.(group).(hemisphere).(comparison).AUC(ee,1) = trapz(timeSnip(startIdx:endIdx),hbtSnip(startIdx:endIdx));
                             iosEphysData.(group).(hemisphere).(comparison).AUC(ee,1) = mean(hbtSnip(startIdx:endIdx));
                         end
                     end
@@ -141,9 +139,7 @@ for aa = 1:length(qzGroups)
     for ee = 1:size(runningGroup.(qzGroup).HbT,1)
         startIdx = find(time == 1.5);
         endIdx =  find(time == 5);
-        timeSnip = time;
         hbtSnip = runningGroup.(qzGroup).HbT(ee,:);
-        % runningStats.(qzGroup).AUC(ee,1) = trapz(timeSnip(startIdx:endIdx),hbtSnip(startIdx:endIdx));
         runningStats.(qzGroup).AUC(ee,1) = mean(hbtSnip(startIdx:endIdx));
     end
 end
@@ -218,9 +214,7 @@ for aa = 1:length(groups)
     for ee = 1:size(twoPdata.(group).contra.diameter,1)
         startIdx = find(twoPdata.(group).contra.timeVector(ee,:) == 3);
         endIdx =  find(twoPdata.(group).contra.timeVector(ee,:) == 7);
-        timeSnip = twoPdata.(group).contra.timeVector(ee,:);
         diameterSnip = twoPdata.(group).contra.diameter(ee,:);
-        % twoPdata.(group).contra.AUC(ee,1) = trapz(timeSnip(startIdx:endIdx),diameterSnip(startIdx:endIdx));
         twoPdata.(group).contra.AUC(ee,1) = mean(diameterSnip(startIdx:endIdx));
     end
 end
@@ -289,9 +283,7 @@ for aa = 1:length(groups)
     for ee = 1:size(pulseData.(group).contra.HbT,1)
         startIdx = find(pulseData.(group).contra.timeVector(ee,:) == 1.5);
         endIdx =  find(pulseData.(group).contra.timeVector(ee,:) == 6.5);
-        timeSnip = pulseData.(group).contra.timeVector(ee,:);
         pulseSnip = pulseData.(group).contra.HbT(ee,:);
-        % pulseData.(group).contra.AUC(ee,1) = trapz(timeSnip(startIdx:endIdx),pulseSnip(startIdx:endIdx));
         pulseData.(group).contra.AUC(ee,1) = mean(pulseSnip(startIdx:endIdx));
     end
 end
@@ -373,9 +365,7 @@ for aa = 1:length(groups)
                                 startIdx = find(gcampdata.(group).(hemisphere).(solenoid).timeVector(ee,:) == 1.5);
                                 endIdx =  find(gcampdata.(group).(hemisphere).(solenoid).timeVector(ee,:) == 6.5);
                             end
-                            timeSnip = gcampdata.(group).(hemisphere).(solenoid).timeVector(ee,:);
                             dataSnip = gcampdata.(group).(hemisphere).(comparison).(dataType)(ee,:);
-                            % gcampdata.(group).(hemisphere).(comparison).(['AUC_' dataType])(ee,1) = trapz(timeSnip(startIdx:endIdx),dataSnip(startIdx:endIdx));
                             gcampdata.(group).(hemisphere).(comparison).(['AUC_' dataType])(ee,1) = mean(dataSnip(startIdx:endIdx));
                         end
                     end
@@ -396,307 +386,11 @@ for aa = 1:length(specDT)
     gcampStats.(specDT{1,aa}).Stats = fitglme(gcampStats.(specDT{1,aa}).Table,gcampStats.(specDT{1,aa}).FitFormula);
 end
 
-%% IOS variance signals
-cd([rootFolder delim 'Results_Turner'])
-resultsStruct = 'Results_IntSig_Ephys';
-load(resultsStruct);
-cd(rootFolder)
-% loop parameters
-groups = {'Naive','Blank_SAP','SSP_SAP'};
-hemispheres = {'LH','RH'};
-behaviors = {'Rest','Whisk','Stim','NREM','REM','Iso'};
-dataTypes = {'HbT'};
-variables = {'avg','p2p','vari'};
-fs = 30;
-% extract analysis results
-for aa = 1:length(groups)
-    group = groups{1,aa};
-    animalIDs = fieldnames(Results_IntSig_Ephys.(group));
-    for bb = 1:length(animalIDs)
-        animalID = animalIDs{bb,1};
-        for cc = 1:length(hemispheres)
-            hemisphere = hemispheres{1,cc};
-            for dd = 1:length(dataTypes)
-                dataType = dataTypes{1,dd};
-                iosSigData.(group).(hemisphere).(dataType).dummCheck = 1;
-                for ee = 1:length(behaviors)
-                    behavior = behaviors{1,ee};
-                    if isfield(iosSigData.(group).(hemisphere).(dataType),behavior) == false
-                        iosSigData.(group).(hemisphere).(dataType).(behavior).avg = [];
-                        iosSigData.(group).(hemisphere).(dataType).(behavior).p2p = [];
-                        iosSigData.(group).(hemisphere).(dataType).(behavior).vari = [];
-                        iosSigData.(group).(hemisphere).(dataType).(behavior).group = {};
-                        iosSigData.(group).(hemisphere).(dataType).(behavior).animalID = {};
-                    end
-                    animalVar = [];
-                    animalP2P = [];
-                    for ff = 1:length(Results_IntSig_Ephys.(group).(animalID).(hemisphere).(behavior).indHbT)
-                        if strcmp(behavior,'Rest') == true
-                            dataArray = Results_IntSig_Ephys.(group).(animalID).(hemisphere).(behavior).indHbT{ff,1}(2*fs:end);
-                        elseif strcmp(behavior,'Stim') == true
-                            dataArray = Results_IntSig_Ephys.(group).(animalID).(hemisphere).(behavior).indHbT{ff,1} - mean(cell2mat(Results_IntSig_Ephys.(group).(animalID).(hemisphere).(behavior).indHbT),1);
-                        else
-                            dataArray = Results_IntSig_Ephys.(group).(animalID).(hemisphere).(behavior).indHbT{ff,1};
-                        end
-                        animalVar(ff,1) = var(dataArray);
-                        animalP2P(ff,1) = max(dataArray) - min(dataArray);
-                    end
-                    iosSigData.(group).(hemisphere).(dataType).(behavior).avg = cat(1,iosSigData.(group).(hemisphere).(dataType).(behavior).avg,mean(Results_IntSig_Ephys.(group).(animalID).(hemisphere).(behavior).HbT));
-                    iosSigData.(group).(hemisphere).(dataType).(behavior).p2p = cat(1,iosSigData.(group).(hemisphere).(dataType).(behavior).p2p,mean(animalP2P));
-                    iosSigData.(group).(hemisphere).(dataType).(behavior).vari = cat(1,iosSigData.(group).(hemisphere).(dataType).(behavior).vari,mean(animalVar));
-                    iosSigData.(group).(hemisphere).(dataType).(behavior).group = cat(1,iosSigData.(group).(hemisphere).(dataType).(behavior).group,group);
-                    iosSigData.(group).(hemisphere).(dataType).(behavior).animalID = cat(1,iosSigData.(group).(hemisphere).(dataType).(behavior).animalID,animalID);
-                end
-            end
-        end
-    end
-end
-% mean/std
-for aa = 1:length(groups)
-    group = groups{1,aa};
-    for bb = 1:length(hemispheres)
-        hemisphere = hemispheres{1,bb};
-        for cc = 1:length(dataTypes)
-            dataType = dataTypes{1,cc};
-            for dd = 1:length(behaviors)
-                behavior = behaviors{1,dd};
-                for ee = 1:length(variables)
-                    variable = variables{1,ee};
-                    iosSigData.(group).(hemisphere).(dataType).(behavior).(['mean_' variable]) = mean(iosSigData.(group).(hemisphere).(dataType).(behavior).(variable),1);
-                    iosSigData.(group).(hemisphere).(dataType).(behavior).(['std_' variable]) = std(iosSigData.(group).(hemisphere).(dataType).(behavior).(variable),1);
-                end
-            end
-        end
-    end
-end
-
-%% IOS pulse variance
-cd([rootFolder delim 'Results_Turner'])
-resultsStruct = 'Results_IntSig_Pulse';
-load(resultsStruct);
-cd(rootFolder)
-% loop parameters
-groups = {'Blank_SAP','SSP_SAP'};
-variables = {'avg','p2p','vari'};
-fs = 30;
-% extract analysis results
-for aa = 1:length(groups)
-    group = groups{1,aa};
-    animalIDs = fieldnames(Results_IntSig_Pulse.(group));
-    pulseSigData.(group).dummCheck = 1;
-    for bb = 1:length(animalIDs)
-        animalID = animalIDs{bb,1};
-        if isfield(pulseSigData.(group),'avg') == false
-            pulseSigData.(group).avg = [];
-            pulseSigData.(group).p2p = [];
-            pulseSigData.(group).vari = [];
-            pulseSigData.(group).group = {};
-            pulseSigData.(group).animalID = {};
-        end
-        animalVar = [];
-        animalP2P = [];
-        if isfield(Results_IntSig_Pulse.(group).(animalID),'Rest') == true
-            for ff = 1:length(Results_IntSig_Pulse.(group).(animalID).Rest.indHbT)
-                dataArray = Results_IntSig_Pulse.(group).(animalID).Rest.indHbT{ff,1}(2*fs:end);
-                animalVar(ff,1) = var(dataArray);
-                animalP2P(ff,1) = max(dataArray) - min(dataArray);
-            end
-            pulseSigData.(group).avg = cat(1,pulseSigData.(group).avg,mean(Results_IntSig_Pulse.(group).(animalID).Rest.HbT,'omitnan'));
-            pulseSigData.(group).p2p = cat(1,pulseSigData.(group).p2p,mean(animalP2P,'omitnan'));
-            pulseSigData.(group).vari = cat(1,pulseSigData.(group).vari,mean(animalVar,'omitnan'));
-            pulseSigData.(group).group = cat(1,pulseSigData.(group).group,group);
-            pulseSigData.(group).animalID = cat(1,pulseSigData.(group).animalID,animalID);
-        end
-    end
-end
-% mean/std
-for aa = 1:length(groups)
-    group = groups{1,aa};
-    for ee = 1:length(variables)
-        variable = variables{1,ee};
-        pulseSigData.(group).(['mean_' variable]) = mean(pulseSigData.(group).(variable),1);
-        pulseSigData.(group).(['std_' variable]) = std(pulseSigData.(group).(variable),1);
-    end
-end
-
-%% GCaMP variance signals
-cd([rootFolder delim 'Results_Turner'])
-resultsStruct = 'Results_IntSig_GCaMP';
-load(resultsStruct);
-cd(rootFolder)
-% loop parameters
-groups = {'Blank_SAP','SSP_SAP'};
-hemispheres = {'LH','RH'};
-behaviors = {'Rest','Whisk','Stim','NREM','REM'};
-dataTypes = {'HbT','HbO','HbR','GCaMP'};
-variables = {'avg','p2p','vari'};
-fs = 10;
-% extract analysis results
-for aa = 1:length(groups)
-    group = groups{1,aa};
-    animalIDs = fieldnames(Results_IntSig_GCaMP.(group));
-    for bb = 1:length(animalIDs)
-        animalID = animalIDs{bb,1};
-        for cc = 1:length(hemispheres)
-            hemisphere = hemispheres{1,cc};
-            for dd = 1:length(dataTypes)
-                dataType = dataTypes{1,dd};
-                gcampSigdata.(group).(hemisphere).(dataType).dummCheck = 1;
-                for ee = 1:length(behaviors)
-                    behavior = behaviors{1,ee};
-                    if isfield(gcampSigdata.(group).(hemisphere).(dataType),behavior) == false
-                        gcampSigdata.(group).(hemisphere).(dataType).(behavior).avg = [];
-                        gcampSigdata.(group).(hemisphere).(dataType).(behavior).p2p = [];
-                        gcampSigdata.(group).(hemisphere).(dataType).(behavior).vari = [];
-                        gcampSigdata.(group).(hemisphere).(dataType).(behavior).group = {};
-                        gcampSigdata.(group).(hemisphere).(dataType).(behavior).animalID = {};
-                    end
-                    animalVar = [];
-                    animalP2P = [];
-                    for ff = 1:length(Results_IntSig_GCaMP.(group).(animalID).(hemisphere).(dataType).(behavior).indData)
-                        if strcmp(behavior,'Rest') == true
-                            dataArray = Results_IntSig_GCaMP.(group).(animalID).(hemisphere).(dataType).(behavior).indData{ff,1}(2*fs:end);
-                        elseif strcmp(behavior,'Stim') == true
-                            dataArray = Results_IntSig_GCaMP.(group).(animalID).(hemisphere).(dataType).(behavior).indData{ff,1} - mean(cell2mat(Results_IntSig_GCaMP.(group).(animalID).(hemisphere).(dataType).(behavior).indData),1);
-                        else
-                            dataArray = Results_IntSig_GCaMP.(group).(animalID).(hemisphere).(dataType).(behavior).indData{ff,1};
-                        end
-                        animalVar(ff,1) = var(dataArray);
-                        animalP2P(ff,1) = max(dataArray) - min(dataArray);
-                    end
-                    try
-                        gcampSigdata.(group).(hemisphere).(dataType).(behavior).avg = cat(1,gcampSigdata.(group).(hemisphere).(dataType).(behavior).avg,mean(Results_IntSig_GCaMP.(group).(animalID).(hemisphere).(dataType).(behavior).mean));
-                    catch
-                        gcampSigdata.(group).(hemisphere).(dataType).(behavior).avg = cat(1,gcampSigdata.(group).(hemisphere).(dataType).(behavior).avg,mean(cell2mat(Results_IntSig_GCaMP.(group).(animalID).(hemisphere).(dataType).(behavior).mean)));
-                    end
-                    gcampSigdata.(group).(hemisphere).(dataType).(behavior).p2p = cat(1,gcampSigdata.(group).(hemisphere).(dataType).(behavior).p2p,mean(animalP2P));
-                    gcampSigdata.(group).(hemisphere).(dataType).(behavior).vari = cat(1,gcampSigdata.(group).(hemisphere).(dataType).(behavior).vari,mean(animalVar));
-                    gcampSigdata.(group).(hemisphere).(dataType).(behavior).group = cat(1,gcampSigdata.(group).(hemisphere).(dataType).(behavior).group,group);
-                    gcampSigdata.(group).(hemisphere).(dataType).(behavior).animalID = cat(1,gcampSigdata.(group).(hemisphere).(dataType).(behavior).animalID,animalID);
-                end
-            end
-        end
-    end
-end
-% mean/std
-for aa = 1:length(groups)
-    group = groups{1,aa};
-    for bb = 1:length(hemispheres)
-        hemisphere = hemispheres{1,bb};
-        for cc = 1:length(dataTypes)
-            dataType = dataTypes{1,cc};
-            for dd = 1:length(behaviors)
-                behavior = behaviors{1,dd};
-                for ee = 1:length(variables)
-                    variable = variables{1,ee};
-                    gcampSigdata.(group).(hemisphere).(dataType).(behavior).(['mean_' variable]) = mean(gcampSigdata.(group).(hemisphere).(dataType).(behavior).(variable),1);
-                    gcampSigdata.(group).(hemisphere).(dataType).(behavior).(['std_' variable]) = std(gcampSigdata.(group).(hemisphere).(dataType).(behavior).(variable),1);
-                end
-            end
-        end
-    end
-end
-
-%% LFP power
-cd([rootFolder delim 'Results_Turner'])
-resultsStruct = 'Results_PowerSpec_LFP';
-load(resultsStruct);
-cd(rootFolder)
-% loop parameters
-groups = {'Naive','Blank_SAP','SSP_SAP'};
-hemispheres = {'LH','RH'};
-behaviors = {'Alert','Asleep','All'};
-variables = {'S','f','deltaS'};
-dimensions = [2,1,1];
-% extract analysis results
-for aa = 1:length(groups)
-    group = groups{1,aa};
-    animalIDs = fieldnames(Results_PowerSpec_LFP.(group));
-    for bb = 1:length(animalIDs)
-        animalID = animalIDs{bb,1};
-        for cc = 1:length(hemispheres)
-            hemisphere = hemispheres{1,cc};
-            for dd = 1:length(behaviors)
-                behavior = behaviors{1,dd};
-                data.(group).(hemisphere).(behavior).dummCheck = 1;
-                for ee = 1:length(variables)
-                    variable = variables{1,ee};
-                    dimension = dimensions(ee);
-                    if isfield(data.(group).(hemisphere).(behavior),(variable)) == false
-                        data.(group).(hemisphere).(behavior).(variable) = [];
-                        data.(group).(hemisphere).(behavior).group = {};
-                        data.(group).(hemisphere).(behavior).animalID = {};
-                        data.(group).(hemisphere).(behavior).hemisphere = {};
-                        data.(group).(hemisphere).(behavior).behavior = {};
-                    end
-                    % pull data if field isn't empty
-                    if isempty(Results_PowerSpec_LFP.(group).(animalID).(hemisphere).(behavior).S) == false
-                        if strcmp(variable,'deltaS') == true
-                            index = find(round(Results_PowerSpec_LFP.(group).(animalID).(hemisphere).(behavior).f,2) == 4);
-                            deltaIndex = index(end);
-                            data.(group).(hemisphere).(behavior).(variable) = cat(dimension,data.(group).(hemisphere).(behavior).(variable),mean(Results_PowerSpec_LFP.(group).(animalID).(hemisphere).(behavior).S(1:deltaIndex)));
-                            % for stats
-                            data.(group).(hemisphere).(behavior).group = cat(1,data.(group).(hemisphere).(behavior).group,group);
-                            data.(group).(hemisphere).(behavior).animalID = cat(1,data.(group).(hemisphere).(behavior).animalID,animalID);
-                            data.(group).(hemisphere).(behavior).hemisphere = cat(1,data.(group).(hemisphere).(behavior).hemisphere,hemisphere);
-                            data.(group).(hemisphere).(behavior).behavior = cat(1,data.(group).(hemisphere).(behavior).behavior,behavior);
-                        else
-                            data.(group).(hemisphere).(behavior).(variable) = cat(dimension,data.(group).(hemisphere).(behavior).(variable),Results_PowerSpec_LFP.(group).(animalID).(hemisphere).(behavior).(variable));
-                        end
-                    end
-                end
-            end
-        end
-    end
-end
-% mean/std
-for aa = 1:length(groups)
-    group = groups{1,aa};
-    for bb = 1:length(hemispheres)
-        hemisphere = hemispheres{1,bb};
-        for cc = 1:length(behaviors)
-            behavior = behaviors{1,cc};
-            for dd = 1:length(variables)
-                variable = variables{1,dd};
-                dimension = dimensions(dd);
-                data.(group).(hemisphere).(behavior).(['mean_' variable]) = mean(data.(group).(hemisphere).(behavior).(variable),dimension);
-                data.(group).(hemisphere).(behavior).(['stdErr_' variable]) = std(data.(group).(hemisphere).(behavior).(variable),0,dimension)./sqrt(size(data.(group).(hemisphere).(behavior).(variable),dimension));
-            end
-        end
-    end
-end
-% statistics - generalized linear mixed effects model
-for aa = 1:length(hemispheres)
-    hemisphere = hemispheres{1,aa};
-    for bb = 1:length(behaviors)
-        behavior = behaviors{1,bb};
-        lfpStats.(hemisphere).(behavior).tableSize = cat(1,data.Blank_SAP.(hemisphere).(behavior).deltaS,data.SSP_SAP.(hemisphere).(behavior).deltaS,data.Naive.(hemisphere).(behavior).deltaS);
-        lfpStats.(hemisphere).(behavior).Table = table('Size',[size(lfpStats.(hemisphere).(behavior).tableSize,1),4],'VariableTypes',{'string','string','string','double'},'VariableNames',{'group','animalID','behavior','deltaS'});
-        lfpStats.(hemisphere).(behavior).Table.group = cat(1,data.Blank_SAP.(hemisphere).(behavior).group,data.SSP_SAP.(hemisphere).(behavior).group,data.Naive.(hemisphere).(behavior).group);
-        lfpStats.(hemisphere).(behavior).Table.animalID = cat(1,data.Blank_SAP.(hemisphere).(behavior).animalID,data.SSP_SAP.(hemisphere).(behavior).animalID,data.Naive.(hemisphere).(behavior).animalID);
-        lfpStats.(hemisphere).(behavior).Table.behavior = cat(1,data.Blank_SAP.(hemisphere).(behavior).behavior,data.SSP_SAP.(hemisphere).(behavior).behavior,data.Naive.(hemisphere).(behavior).behavior);
-        lfpStats.(hemisphere).(behavior).Table.deltaS = cat(1,data.Blank_SAP.(hemisphere).(behavior).deltaS,data.SSP_SAP.(hemisphere).(behavior).deltaS,data.Naive.(hemisphere).(behavior).deltaS);
-        lfpStats.(hemisphere).(behavior).FitFormula = 'deltaS ~ 1 + group + behavior + (1|animalID)';
-        lfpStats.(hemisphere).(behavior).Stats = fitglme(lfpStats.(hemisphere).(behavior).Table,lfpStats.(hemisphere).(behavior).FitFormula);
-    end
-end
-
-%% HbT variance statistics
-blankVarData = cat(1,iosSigData.Blank_SAP.RH.HbT.Rest.vari,gcampSigdata.Blank_SAP.RH.HbT.Rest.vari,pulseSigData.Blank_SAP.vari);
-sspVarData = cat(1,iosSigData.SSP_SAP.RH.HbT.Rest.vari,gcampSigdata.SSP_SAP.RH.HbT.Rest.vari,pulseSigData.SSP_SAP.vari);
-restVarStats.tableSize = cat(1,iosSigData.Blank_SAP.RH.HbT.Rest.vari,iosSigData.SSP_SAP.RH.HbT.Rest.vari,gcampSigdata.Blank_SAP.RH.HbT.Rest.vari,gcampSigdata.SSP_SAP.RH.HbT.Rest.vari,pulseSigData.Blank_SAP.vari,pulseSigData.SSP_SAP.vari);
-restVarStats.Table = table('Size',[size(restVarStats.tableSize,1),3],'VariableTypes',{'string','string','double'},'VariableNames',{'Mouse','Group','Variance'});
-restVarStats.Table.Mouse = cat(1,iosSigData.Blank_SAP.RH.HbT.Rest.animalID,iosSigData.SSP_SAP.RH.HbT.Rest.animalID,gcampSigdata.Blank_SAP.RH.HbT.Rest.animalID,gcampSigdata.SSP_SAP.RH.HbT.Rest.animalID,pulseSigData.Blank_SAP.animalID,pulseSigData.SSP_SAP.animalID);
-restVarStats.Table.Group = cat(1,iosSigData.Blank_SAP.RH.HbT.Rest.group,iosSigData.SSP_SAP.RH.HbT.Rest.group,gcampSigdata.Blank_SAP.RH.HbT.Rest.group,gcampSigdata.SSP_SAP.RH.HbT.Rest.group,pulseSigData.Blank_SAP.group,pulseSigData.SSP_SAP.group);
-restVarStats.Table.Variance = cat(1,iosSigData.Blank_SAP.RH.HbT.Rest.vari,iosSigData.SSP_SAP.RH.HbT.Rest.vari,gcampSigdata.Blank_SAP.RH.HbT.Rest.vari,gcampSigdata.SSP_SAP.RH.HbT.Rest.vari,pulseSigData.Blank_SAP.vari,pulseSigData.SSP_SAP.vari);
-restVarStats.FitFormula = 'Variance ~ 1 + Group + (1|Mouse)';
-restVarStats.Stats = fitglme(restVarStats.Table,restVarStats.FitFormula);
-
 %% figure
 Fig3 = figure('Name','Figure 3','units','normalized','outerposition',[0 0 1 1]);
 
 % ephys stimulation
-subplot(3,3,1)
+subplot(2,4,1)
 p1 = plot(iosEphysData.Blank_SAP.RH.contra.mean_timeVector,iosEphysData.Blank_SAP.RH.contra.mean_HbT,'color',colors('north texas green'),'LineWidth',2);
 hold on
 plot(iosEphysData.Blank_SAP.RH.contra.mean_timeVector,iosEphysData.Blank_SAP.RH.contra.mean_HbT + iosEphysData.Blank_SAP.RH.contra.stdErr_HbT,'color',colors('north texas green'),'LineWidth',0.25)
@@ -712,45 +406,8 @@ axis square
 axis tight
 xlim([-2,5]);
 
-subplot(3,3,2)
-loglog(data.Blank_SAP.RH.All.mean_f,data.Blank_SAP.RH.All.mean_S,'color',colors('north texas green'),'LineWidth',2);
-hold on
-loglog(data.Blank_SAP.RH.All.mean_f,data.Blank_SAP.RH.All.mean_S + data.Blank_SAP.RH.All.stdErr_S,'color',colors('north texas green'),'LineWidth',0.25);
-loglog(data.Blank_SAP.RH.All.mean_f,data.Blank_SAP.RH.All.mean_S - data.Blank_SAP.RH.All.stdErr_S,'color',colors('north texas green'),'LineWidth',0.25);
-loglog(data.SSP_SAP.RH.All.mean_f,data.SSP_SAP.RH.All.mean_S,'color',colors('electric purple'),'LineWidth',2);
-loglog(data.SSP_SAP.RH.All.mean_f,data.SSP_SAP.RH.All.mean_S + data.SSP_SAP.RH.All.stdErr_S,'color',colors('electric purple'),'LineWidth',0.25);
-loglog(data.SSP_SAP.RH.All.mean_f,data.SSP_SAP.RH.All.mean_S - data.SSP_SAP.RH.All.stdErr_S,'color',colors('electric purple'),'LineWidth',0.25);
-ylabel('Power (a.u.)')
-xlabel('Freq (Hz)')
-set(gca,'box','off')
-axis square
-axis tight
-xlim([1,100]);
-
-% ephys rest variance
-subplot(3,3,3)
-xInds = ones(1,length(blankVarData));
-scatter(xInds*1,blankVarData,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('north texas green'),'jitter','off','jitterAmount',0.25);
-hold on
-e1 = errorbar(1,mean(blankVarData,'omitnan'),std(blankVarData,0,1,'omitnan'),'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-e1.Color = 'black';
-e1.MarkerSize = 10;
-e1.CapSize = 10;
-xInds = ones(1,length(sspVarData));
-scatter(xInds*2,sspVarData,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('electric purple'),'jitter','off','jitterAmount',0.25);
-e2 = errorbar(2,mean(sspVarData,'omitnan'),std(sspVarData,0,1,'omitnan'),'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-e2.Color = 'black';
-e2.MarkerSize = 10;
-e2.CapSize = 10;
-ylabel('\Delta[HbT]^2 (\muM)')
-set(gca,'box','off')
-set(gca,'xtick',[])
-axis square
-axis tight
-xlim([0,3]);
-
 % GCaMP HbT
-subplot(3,3,4);
+subplot(2,4,2);
 plot(gcampdata.Blank_SAP.RH.contra.mean_timeVector,gcampdata.Blank_SAP.RH.contra.mean_HbT,'color',colors('north texas green'),'LineWidth',2);
 hold on;
 plot(gcampdata.Blank_SAP.RH.contra.mean_timeVector,gcampdata.Blank_SAP.RH.contra.mean_HbT + gcampdata.Blank_SAP.RH.contra.stdErr_HbT,'color',colors('north texas green'),'LineWidth',0.25)
@@ -765,7 +422,8 @@ axis square
 axis tight
 xlim([-2,10]);
 
-subplot(3,3,5)
+% GCaMP F/F
+subplot(2,4,3)
 plot(gcampdata.Blank_SAP.RH.contra.mean_timeVector,gcampdata.Blank_SAP.RH.contra.mean_GCaMP,'color',colors('north texas green'),'LineWidth',2);
 hold on;
 plot(gcampdata.Blank_SAP.RH.contra.mean_timeVector,gcampdata.Blank_SAP.RH.contra.mean_GCaMP + gcampdata.Blank_SAP.RH.contra.stdErr_GCaMP,'color',colors('north texas green'),'LineWidth',0.25)
@@ -780,8 +438,8 @@ axis square
 axis tight
 xlim([-2,10]);
 
-% GCaMP HbO
-subplot(3,3,6);
+% GCaMP HbO / HbR
+subplot(2,4,4);
 plot(gcampdata.Blank_SAP.RH.contra.mean_timeVector,gcampdata.Blank_SAP.RH.contra.mean_HbO,'color',colors('north texas green'),'LineWidth',2);
 hold on;
 plot(gcampdata.Blank_SAP.RH.contra.mean_timeVector,gcampdata.Blank_SAP.RH.contra.mean_HbO + gcampdata.Blank_SAP.RH.contra.stdErr_HbO,'color',colors('north texas green'),'LineWidth',0.25)
@@ -802,8 +460,8 @@ axis square
 axis tight
 xlim([-2,10]);
 
-%% pulse stimulation
-subplot(3,3,7)
+% HbT pulse stimulation
+subplot(2,4,5)
 plot(pulseData.Blank_SAP.contra.mean_timeVector,pulseData.Blank_SAP.contra.mean_HbT,'color',colors('north texas green'),'LineWidth',2);
 hold on;
 plot(pulseData.Blank_SAP.contra.mean_timeVector,pulseData.Blank_SAP.contra.mean_HbT + pulseData.Blank_SAP.contra.stdErr_HbT,'color',colors('north texas green'),'LineWidth',0.25)
@@ -817,23 +475,9 @@ set(gca,'box','off')
 axis square
 axis tight
 xlim([-2,10]);
-% 2p stimulation
-subplot(3,3,8)
-plot(twoPdata.Blank_SAP.contra.mean_timeVector,twoPdata.Blank_SAP.contra.mean_diameter,'color',colors('north texas green'),'LineWidth',2);
-hold on;
-plot(twoPdata.Blank_SAP.contra.mean_timeVector,twoPdata.Blank_SAP.contra.mean_diameter + twoPdata.Blank_SAP.contra.stdErr_diameter,'color',colors('north texas green'),'LineWidth',0.25)
-plot(twoPdata.Blank_SAP.contra.mean_timeVector,twoPdata.Blank_SAP.contra.mean_diameter - twoPdata.Blank_SAP.contra.stdErr_diameter,'color',colors('north texas green'),'LineWidth',0.25)
-plot(twoPdata.SSP_SAP.contra.mean_timeVector,twoPdata.SSP_SAP.contra.mean_diameter,'color',colors('electric purple'),'LineWidth',2);
-plot(twoPdata.SSP_SAP.contra.mean_timeVector,twoPdata.SSP_SAP.contra.mean_diameter + twoPdata.SSP_SAP.contra.stdErr_diameter,'color',colors('electric purple'),'LineWidth',0.25)
-plot(twoPdata.SSP_SAP.contra.mean_timeVector,twoPdata.SSP_SAP.contra.mean_diameter - twoPdata.SSP_SAP.contra.stdErr_diameter,'color',colors('electric purple'),'LineWidth',0.25)
-ylabel('\DeltaD/D (%)')
-xlabel('Peri-stimulus time (s)')
-set(gca,'box','off')
-axis square
-axis tight
-xlim([-2,10]);
+
 % running spectroscopy
-subplot(3,3,9)
+subplot(2,4,6)
 plot(time,blankRunningMean,'color',colors('north texas green'),'LineWidth',2);
 hold on
 plot(time,blankRunningMean + blankRunningStdErr,'color',colors('north texas green'),'LineWidth',0.25);
@@ -847,6 +491,22 @@ set(gca,'box','off')
 axis square
 axis tight
 xlim([-2,5]);
+
+% 2p stimulation
+subplot(2,4,7)
+plot(twoPdata.Blank_SAP.contra.mean_timeVector,twoPdata.Blank_SAP.contra.mean_diameter,'color',colors('north texas green'),'LineWidth',2);
+hold on;
+plot(twoPdata.Blank_SAP.contra.mean_timeVector,twoPdata.Blank_SAP.contra.mean_diameter + twoPdata.Blank_SAP.contra.stdErr_diameter,'color',colors('north texas green'),'LineWidth',0.25)
+plot(twoPdata.Blank_SAP.contra.mean_timeVector,twoPdata.Blank_SAP.contra.mean_diameter - twoPdata.Blank_SAP.contra.stdErr_diameter,'color',colors('north texas green'),'LineWidth',0.25)
+plot(twoPdata.SSP_SAP.contra.mean_timeVector,twoPdata.SSP_SAP.contra.mean_diameter,'color',colors('electric purple'),'LineWidth',2);
+plot(twoPdata.SSP_SAP.contra.mean_timeVector,twoPdata.SSP_SAP.contra.mean_diameter + twoPdata.SSP_SAP.contra.stdErr_diameter,'color',colors('electric purple'),'LineWidth',0.25)
+plot(twoPdata.SSP_SAP.contra.mean_timeVector,twoPdata.SSP_SAP.contra.mean_diameter - twoPdata.SSP_SAP.contra.stdErr_diameter,'color',colors('electric purple'),'LineWidth',0.25)
+ylabel('\DeltaD/D (%)')
+xlabel('Peri-stimulus time (s)')
+set(gca,'box','off')
+axis square
+axis tight
+xlim([-2,10]);
 
 %% save figure(s)
 if saveFigs == true
@@ -873,24 +533,6 @@ if saveFigs == true
     disp('GLME statistics for IOS AUC (t = 2:4 sec)')
     disp('======================================================================================================================')
     disp(iosEphysStats.Stats)
-   
-    % LFP delta power
-    disp('LFP delta power, n = 9 mice per group, mean +/- SEM'); disp(' ')
-    disp(['Blank-SAP ' num2str(mean(data.Blank_SAP.RH.All.deltaS)) ' +/- ' num2str(std(data.Blank_SAP.RH.All.deltaS,0,1)./sqrt(size(data.Blank_SAP.RH.All.deltaS,1)))]); disp(' ')
-    disp(['SSP-SAP ' num2str(mean(data.SSP_SAP.RH.All.deltaS)) ' +/- ' num2str(std(data.SSP_SAP.RH.All.deltaS,0,1)./sqrt(size(data.SSP_SAP.RH.All.deltaS,1)))]); disp(' ')
-    disp('======================================================================================================================')
-    disp('GLME statistics for LFP delta (1:4 Hz)')
-    disp('======================================================================================================================')
-    disp(lfpStats.RH.All.Stats)
-  
-    % IOS resting variance
-    disp('IOS resting variance, n = 24 mice per group, mean +/- SEM'); disp(' ')
-    disp(['Blank-SAP ' num2str(mean(blankVarData)) ' +/- ' num2str(std(blankVarData,0,1)./sqrt(size(blankVarData,1)))]); disp(' ')
-    disp(['SSP-SAP ' num2str(mean(sspVarData)) ' +/- ' num2str(std(sspVarData,0,1)./sqrt(size(sspVarData,1)))]); disp(' ')
-    disp('======================================================================================================================')
-    disp('GLME statistics for resting HbT variance')
-    disp('======================================================================================================================')
-    disp(restVarStats.Stats)
    
     % IOS long stim HbT
     disp('IOS 5s stim HbT, n = 7-8 mice per group, mean +/- SEM'); disp(' ')

@@ -5,48 +5,136 @@ function [] = Fig5_nNOS(rootFolder,saveFigs,delim)
 % https://github.com/KL-Turner
 %----------------------------------------------------------------------------------------------------------
 
-%% Ephys bilateral coherence
+%% Ephys cross correlation
 cd([rootFolder delim 'Results_Turner'])
-resultsStruct = 'Results_BilatCoher_Ephys';
+resultsStruct = 'Results_CrossCorr_Ephys';
+load(resultsStruct);
+cd(rootFolder)
+% loop variables
+groups = {'Naive','Blank_SAP','SSP_SAP'};
+hemispheres = {'LH','RH'};
+dataTypes = {'gammaBandPower','muaPower'};
+behaviors = {'Rest','NREM','REM','Alert','Asleep','All'};
+variables = {'lags','xcVals','peak','ttp','group','animalID'};
+samplingRate = 30;
+% extract the analysis results
+for aa = 1:length(groups)
+    group = groups{1,aa};
+    animalIDs = fieldnames(Results_CrossCorr_Ephys.(group));
+    for bb = 1:length(animalIDs)
+        animalID = animalIDs{bb,1};
+        for cc = 1:length(hemispheres)
+            hemisphere = hemispheres{1,cc};
+            for dd = 1:length(dataTypes)
+                dataType = dataTypes{1,dd};
+                for ee = 1:length(behaviors)
+                    behavior = behaviors{1,ee};
+                    ephysXCorrData.(group).(hemisphere).(dataType).dummyCheck = 1;
+                    if isfield(ephysXCorrData.(group).(hemisphere).(dataType),(behavior)) == false
+                        for ff = 1:length(variables)
+                            variable = variables{1,ff};
+                            if any(strcmp(variable,{'group','animalID'})) == true
+                                ephysXCorrData.(group).(hemisphere).(dataType).(behavior).(variable) = {};
+                            else
+                                ephysXCorrData.(group).(hemisphere).(dataType).(behavior).(variable) = [];
+                            end
+                        end
+                    end
+                    if isempty(Results_CrossCorr_Ephys.(group).(animalID).(hemisphere).(dataType).(behavior).xcVals) == false
+                        ephysXCorrData.(group).(hemisphere).(dataType).(behavior).lags = cat(1,ephysXCorrData.(group).(hemisphere).(dataType).(behavior).lags,Results_CrossCorr_Ephys.(group).(animalID).(hemisphere).(dataType).(behavior).lags/samplingRate);
+                        ephysXCorrData.(group).(hemisphere).(dataType).(behavior).xcVals = cat(1,ephysXCorrData.(group).(hemisphere).(dataType).(behavior).xcVals,Results_CrossCorr_Ephys.(group).(animalID).(hemisphere).(dataType).(behavior).xcVals);
+                        halfIdx = ceil(length(Results_CrossCorr_Ephys.(group).(animalID).(hemisphere).(dataType).(behavior).xcVals)/2);
+                        [peak,ttp] = max(Results_CrossCorr_Ephys.(group).(animalID).(hemisphere).(dataType).(behavior).xcVals(halfIdx:end));
+                        ephysXCorrData.(group).(hemisphere).(dataType).(behavior).peak = cat(1,ephysXCorrData.(group).(hemisphere).(dataType).(behavior).peak,peak);
+                        ephysXCorrData.(group).(hemisphere).(dataType).(behavior).ttp = cat(1,ephysXCorrData.(group).(hemisphere).(dataType).(behavior).ttp,ttp/samplingRate);
+                        ephysXCorrData.(group).(hemisphere).(dataType).(behavior).group = cat(1,ephysXCorrData.(group).(hemisphere).(dataType).(behavior).group,group);
+                        ephysXCorrData.(group).(hemisphere).(dataType).(behavior).animalID = cat(1,ephysXCorrData.(group).(hemisphere).(dataType).(behavior).animalID,animalID);
+                    end
+                end
+            end
+        end
+    end
+end
+% mean/std
+for aa = 1:length(groups)
+    group = groups{1,aa};
+    for bb = 1:length(hemispheres)
+        hemisphere = hemispheres{1,bb};
+        for cc = 1:length(dataTypes)
+            dataType = dataTypes{1,cc};
+            for dd = 1:length(behaviors)
+                behavior = behaviors{1,dd};
+                ephysXCorrData.(group).(hemisphere).(dataType).(behavior).mean_xcVals = mean(ephysXCorrData.(group).(hemisphere).(dataType).(behavior).xcVals,1);
+                ephysXCorrData.(group).(hemisphere).(dataType).(behavior).stdErr_xcVals = std(ephysXCorrData.(group).(hemisphere).(dataType).(behavior).xcVals,0,1)./sqrt(size(ephysXCorrData.(group).(hemisphere).(dataType).(behavior).xcVals,1));
+                ephysXCorrData.(group).(hemisphere).(dataType).(behavior).mean_lags = mean(ephysXCorrData.(group).(hemisphere).(dataType).(behavior).lags,1);
+            end
+        end
+    end
+end
+% GLME comparing peak correlation
+for cc = 1:length(hemispheres)
+    hemisphere = hemispheres{1,cc};
+    for aa = 1:length(dataTypes)
+        dataType = dataTypes{1,aa};
+        for bb = 1:length(behaviors)
+            behavior = behaviors{1,bb};
+            ephysXCorrStats.(hemisphere).(dataType).(behavior).tableSize = cat(1,ephysXCorrData.Blank_SAP.(hemisphere).(dataType).(behavior).peak,ephysXCorrData.SSP_SAP.(hemisphere).(dataType).(behavior).peak);
+            ephysXCorrStats.(hemisphere).(dataType).(behavior).Table = table('Size',[size(ephysXCorrStats.(hemisphere).(dataType).(behavior).tableSize,1),3],'VariableTypes',{'string','string','double'},'VariableNames',{'AnimalID','Treatment','Correlation'});
+            ephysXCorrStats.(hemisphere).(dataType).(behavior).Table.AnimalID = cat(1,ephysXCorrData.Blank_SAP.(hemisphere).(dataType).(behavior).animalID,ephysXCorrData.SSP_SAP.(hemisphere).(dataType).(behavior).animalID);
+            ephysXCorrStats.(hemisphere).(dataType).(behavior).Table.Treatment = cat(1,ephysXCorrData.Blank_SAP.(hemisphere).(dataType).(behavior).group,ephysXCorrData.SSP_SAP.(hemisphere).(dataType).(behavior).group);
+            ephysXCorrStats.(hemisphere).(dataType).(behavior).Table.Correlation = cat(1,ephysXCorrData.Blank_SAP.(hemisphere).(dataType).(behavior).peak,ephysXCorrData.SSP_SAP.(hemisphere).(dataType).(behavior).peak);
+            ephysXCorrStats.(hemisphere).(dataType).(behavior).FitFormula = 'Correlation ~ 1 + Treatment + (1|AnimalID)';
+            ephysXCorrStats.(hemisphere).(dataType).(behavior).Stats = fitglme(ephysXCorrStats.(hemisphere).(dataType).(behavior).Table,ephysXCorrStats.(hemisphere).(dataType).(behavior).FitFormula);
+        end
+    end
+end
+
+%% Ephys neural-hemo coherence
+cd([rootFolder delim 'Results_Turner'])
+resultsStruct = 'Results_NeuralHemoCoher_Ephys';
 load(resultsStruct);
 cd(rootFolder)
 % loop parameters
 groups = {'Naive','Blank_SAP','SSP_SAP'};
-dataTypes = {'HbT','gammaBandPower','deltaBandPower'};
+hemispheres = {'LH','RH'};
+dataTypes = {'gammaBandPower','deltaBandPower'};
 behaviors = {'Rest','NREM','REM','Alert','Asleep','All'};
 variables = {'C','f','binC','binf','group','animalID'};
 % extract analysis results
 for aa = 1:length(groups)
     group = groups{1,aa};
-    animalIDs = fieldnames(Results_BilatCoher_Ephys.(group));
+    animalIDs = fieldnames(Results_NeuralHemoCoher_Ephys.(group));
     for bb = 1:length(animalIDs)
         animalID = animalIDs{bb,1};
-        for cc = 1:length(dataTypes)
-            dataType = dataTypes{1,cc};
-            ephysBilatCoherData.(group).(dataType).dummCheck = 1;
-            for dd = 1:length(behaviors)
-                behavior = behaviors{1,dd};
-                if isfield(ephysBilatCoherData.(group).(dataType),behavior) == false
-                    for ee = 1:length(variables)
-                        variable = variables{1,ee};
-                        if any(strcmp(variable,{'group','animalID','binf'})) == true
-                            ephysBilatCoherData.(group).(dataType).(behavior).(variable) = {};
-                        else
-                            ephysBilatCoherData.(group).(dataType).(behavior).(variable) = [];
+        for cc = 1:length(hemispheres)
+            hemisphere = hemispheres{1,cc};
+            for dd = 1:length(dataTypes)
+                dataType = dataTypes{1,dd};
+                ephysNHCoherData.(group).(hemisphere).(dataType).dummCheck = 1;
+                for ee = 1:length(behaviors)
+                    behavior = behaviors{1,ee};
+                    if isfield(ephysNHCoherData.(group).(hemisphere).(dataType),behavior) == false
+                        for ff = 1:length(variables)
+                            variable = variables{1,ff};
+                            if any(strcmp(variable,{'animalID','group','binf'})) == true
+                                ephysNHCoherData.(group).(hemisphere).(dataType).(behavior).(variable) = {};
+                            else
+                                ephysNHCoherData.(group).(hemisphere).(dataType).(behavior).(variable) = [];
+                            end
                         end
                     end
-                end
-                if isempty(Results_BilatCoher_Ephys.(group).(animalID).(dataType).(behavior).C) == false
-                    ephysBilatCoherData.(group).(dataType).(behavior).C = cat(1,ephysBilatCoherData.(group).(dataType).(behavior).C,Results_BilatCoher_Ephys.(group).(animalID).(dataType).(behavior).C');
-                    ephysBilatCoherData.(group).(dataType).(behavior).f = cat(1,ephysBilatCoherData.(group).(dataType).(behavior).f,Results_BilatCoher_Ephys.(group).(animalID).(dataType).(behavior).f);
-                    freqBand = round(Results_BilatCoher_Ephys.(group).(animalID).(dataType).(behavior).f,2);
-                    frequencyList = unique(freqBand);
-                    for qq = 1:length(frequencyList)/2
-                        freqIdx = find(freqBand == frequencyList(1,qq));
-                        ephysBilatCoherData.(group).(dataType).(behavior).binC = cat(1,ephysBilatCoherData.(group).(dataType).(behavior).binC,mean(Results_BilatCoher_Ephys.(group).(animalID).(dataType).(behavior).C(freqIdx)));
-                        ephysBilatCoherData.(group).(dataType).(behavior).binf = cat(1,ephysBilatCoherData.(group).(dataType).(behavior).binf,num2str(mean(freqBand(freqIdx))));
-                        ephysBilatCoherData.(group).(dataType).(behavior).group = cat(1,ephysBilatCoherData.(group).(dataType).(behavior).group,group);
-                        ephysBilatCoherData.(group).(dataType).(behavior).animalID = cat(1,ephysBilatCoherData.(group).(dataType).(behavior).animalID,animalID);
+                    if isempty(Results_NeuralHemoCoher_Ephys.(group).(animalID).(hemisphere).(dataType).(behavior).C) == false
+                        ephysNHCoherData.(group).(hemisphere).(dataType).(behavior).C = cat(1,ephysNHCoherData.(group).(hemisphere).(dataType).(behavior).C,Results_NeuralHemoCoher_Ephys.(group).(animalID).(hemisphere).(dataType).(behavior).C');
+                        ephysNHCoherData.(group).(hemisphere).(dataType).(behavior).f = cat(1,ephysNHCoherData.(group).(hemisphere).(dataType).(behavior).f,Results_NeuralHemoCoher_Ephys.(group).(animalID).(hemisphere).(dataType).(behavior).f);
+                        freqBand = round(Results_NeuralHemoCoher_Ephys.(group).(animalID).(hemisphere).(dataType).(behavior).f,2);
+                        frequencyList = unique(freqBand);
+                        for qq = 1:length(frequencyList)/2
+                            freqIdx = find(freqBand == frequencyList(1,qq));
+                            ephysNHCoherData.(group).(hemisphere).(dataType).(behavior).binC = cat(1,ephysNHCoherData.(group).(hemisphere).(dataType).(behavior).binC,mean(Results_NeuralHemoCoher_Ephys.(group).(animalID).(hemisphere).(dataType).(behavior).C(freqIdx)));
+                            ephysNHCoherData.(group).(hemisphere).(dataType).(behavior).binf = cat(1,ephysNHCoherData.(group).(hemisphere).(dataType).(behavior).binf,num2str(mean(freqBand(freqIdx))));
+                            ephysNHCoherData.(group).(hemisphere).(dataType).(behavior).group = cat(1,ephysNHCoherData.(group).(hemisphere).(dataType).(behavior).group,group);
+                            ephysNHCoherData.(group).(hemisphere).(dataType).(behavior).animalID = cat(1,ephysNHCoherData.(group).(hemisphere).(dataType).(behavior).animalID,animalID);
+                        end
                     end
                 end
             end
@@ -56,78 +144,169 @@ end
 % mean/std
 for aa = 1:length(groups)
     group = groups{1,aa};
-    for bb = 1:length(behaviors)
-        behavior = behaviors{1,bb};
-        for cc = 1:length(dataTypes)
-            dataType = dataTypes{1,cc};
-            for dd = 1:length(variables)
-                variable = variables{1,dd};
-                if any(strcmp(variable,{'C','f'})) == true
-                    ephysBilatCoherData.(group).(dataType).(behavior).(['mean_' variable]) = mean(ephysBilatCoherData.(group).(dataType).(behavior).(variable),1);
-                    ephysBilatCoherData.(group).(dataType).(behavior).(['stdErr_' variable]) = std(ephysBilatCoherData.(group).(dataType).(behavior).(variable),0,1)./sqrt(size(ephysBilatCoherData.(group).(dataType).(behavior).(variable),1));
+    for bb = 1:length(hemispheres)
+        hemisphere = hemispheres{1,bb};
+        for cc = 1:length(behaviors)
+            behavior = behaviors{1,cc};
+            for dd = 1:length(dataTypes)
+                dataType = dataTypes{1,dd};
+                for ee = 1:length(variables)
+                    variable = variables{1,ee};
+                    if any(strcmp(variable,{'C','f'})) == true
+                        ephysNHCoherData.(group).(hemisphere).(dataType).(behavior).(['mean_' variable]) = mean(ephysNHCoherData.(group).(hemisphere).(dataType).(behavior).(variable),1);
+                        ephysNHCoherData.(group).(hemisphere).(dataType).(behavior).(['stdErr_' variable]) = std(ephysNHCoherData.(group).(hemisphere).(dataType).(behavior).(variable),0,1)./sqrt(size(ephysNHCoherData.(group).(hemisphere).(dataType).(behavior).(variable),1));
+                    end
                 end
             end
         end
     end
 end
-% GLME comparing coherence at all frequencies
-for aa = 1:length(dataTypes)
-    dataType = dataTypes{1,aa};
-    for bb = 1:length(behaviors)
-        behavior = behaviors{1,bb};
-        ephysBilatCoherStats.(dataType).(behavior).tableSize = cat(1,ephysBilatCoherData.Blank_SAP.(dataType).(behavior).binC,ephysBilatCoherData.SSP_SAP.(dataType).(behavior).binC);
-        ephysBilatCoherStats.(dataType).(behavior).Table = table('Size',[size(ephysBilatCoherStats.(dataType).(behavior).tableSize,1),4],'VariableTypes',{'string','string','string','double'},'VariableNames',{'AnimalID','Treatment','Frequency','Coherence'});
-        ephysBilatCoherStats.(dataType).(behavior).Table.AnimalID = cat(1,ephysBilatCoherData.Blank_SAP.(dataType).(behavior).animalID,ephysBilatCoherData.SSP_SAP.(dataType).(behavior).animalID);
-        ephysBilatCoherStats.(dataType).(behavior).Table.Treatment = cat(1,ephysBilatCoherData.Blank_SAP.(dataType).(behavior).group,ephysBilatCoherData.SSP_SAP.(dataType).(behavior).group);
-        ephysBilatCoherStats.(dataType).(behavior).Table.Frequency = cat(1,ephysBilatCoherData.Blank_SAP.(dataType).(behavior).binf,ephysBilatCoherData.SSP_SAP.(dataType).(behavior).binf);
-        ephysBilatCoherStats.(dataType).(behavior).Table.Coherence = cat(1,ephysBilatCoherData.Blank_SAP.(dataType).(behavior).binC,ephysBilatCoherData.SSP_SAP.(dataType).(behavior).binC);
-        ephysBilatCoherStats.(dataType).(behavior).FitFormula = 'Coherence ~ 1 + Treatment + (1|Frequency) + (1|AnimalID)';
-        ephysBilatCoherStats.(dataType).(behavior).Stats = fitglme(ephysBilatCoherStats.(dataType).(behavior).Table,ephysBilatCoherStats.(dataType).(behavior).FitFormula);
+% GLME comparing peak correlation
+for cc = 1:length(hemispheres)
+    hemisphere = hemispheres{1,cc};
+    for aa = 1:length(dataTypes)
+        dataType = dataTypes{1,aa};
+        for bb = 1:length(behaviors)
+            behavior = behaviors{1,bb};
+            ephysNHCoherStats.(hemisphere).(dataType).(behavior).tableSize = cat(1,ephysNHCoherData.Blank_SAP.(hemisphere).(dataType).(behavior).binC,ephysNHCoherData.SSP_SAP.(hemisphere).(dataType).(behavior).binC);
+            ephysNHCoherStats.(hemisphere).(dataType).(behavior).Table = table('Size',[size(ephysNHCoherStats.(hemisphere).(dataType).(behavior).tableSize,1),4],'VariableTypes',{'string','string','string','double'},'VariableNames',{'AnimalID','Treatment','Frequency','Coherence'});
+            ephysNHCoherStats.(hemisphere).(dataType).(behavior).Table.AnimalID = cat(1,ephysNHCoherData.Blank_SAP.(hemisphere).(dataType).(behavior).animalID,ephysNHCoherData.SSP_SAP.(hemisphere).(dataType).(behavior).animalID);
+            ephysNHCoherStats.(hemisphere).(dataType).(behavior).Table.Treatment = cat(1,ephysNHCoherData.Blank_SAP.(hemisphere).(dataType).(behavior).group,ephysNHCoherData.SSP_SAP.(hemisphere).(dataType).(behavior).group);
+            ephysNHCoherStats.(hemisphere).(dataType).(behavior).Table.Frequency = cat(1,ephysNHCoherData.Blank_SAP.(hemisphere).(dataType).(behavior).binf,ephysNHCoherData.SSP_SAP.(hemisphere).(dataType).(behavior).binf);
+            ephysNHCoherStats.(hemisphere).(dataType).(behavior).Table.Coherence = cat(1,ephysNHCoherData.Blank_SAP.(hemisphere).(dataType).(behavior).binC,ephysNHCoherData.SSP_SAP.(hemisphere).(dataType).(behavior).binC);
+            ephysNHCoherStats.(hemisphere).(dataType).(behavior).FitFormula = 'Coherence ~ 1 + Treatment + (1|Frequency) + (1|AnimalID)';
+            ephysNHCoherStats.(hemisphere).(dataType).(behavior).Stats = fitglme(ephysNHCoherStats.(hemisphere).(dataType).(behavior).Table,ephysNHCoherStats.(hemisphere).(dataType).(behavior).FitFormula);
+        end
     end
 end
 
-%% GCaMP bilateral coherence
+%% GCaMP cross correlation
 cd([rootFolder delim 'Results_Turner'])
-resultsStruct = 'Results_BilatCoher_GCaMP';
+resultsStruct = 'Results_CrossCorr_GCaMP';
+load(resultsStruct);
+cd(rootFolder)
+% loop variables
+groups = {'Blank_SAP','SSP_SAP'};
+hemispheres = {'LH','RH'};
+dataTypes = {'HbT','HbO','HbR'};
+behaviors = {'Rest','NREM','REM','Alert','Asleep','All'};
+samplingRate = 10;
+% extract the analysis results
+for aa = 1:length(groups)
+    group = groups{1,aa};
+    animalIDs = fieldnames(Results_CrossCorr_GCaMP.(group));
+    for bb = 1:length(animalIDs)
+        animalID = animalIDs{bb,1};
+        for cc = 1:length(hemispheres)
+            hemisphere = hemispheres{1,cc};
+            for dd = 1:length(dataTypes)
+                dataType = dataTypes{1,dd};
+                for ee = 1:length(behaviors)
+                    behavior = behaviors{1,ee};
+                    gcampXCorrData.(group).(hemisphere).(dataType).dummyCheck = 1;
+                    if isfield(gcampXCorrData.(group).(hemisphere).(dataType),(behavior)) == false
+                        gcampXCorrData.(group).(hemisphere).(dataType).(behavior).lags = [];
+                        gcampXCorrData.(group).(hemisphere).(dataType).(behavior).xcVals = [];
+                        gcampXCorrData.(group).(hemisphere).(dataType).(behavior).peak = [];
+                        gcampXCorrData.(group).(hemisphere).(dataType).(behavior).ttp = [];
+                        gcampXCorrData.(group).(hemisphere).(dataType).(behavior).group = {};
+                        gcampXCorrData.(group).(hemisphere).(dataType).(behavior).animalID = {};
+                    end
+                    if isempty(Results_CrossCorr_GCaMP.(group).(animalID).(hemisphere).(dataType).(behavior).xcVals) == false
+                        gcampXCorrData.(group).(hemisphere).(dataType).(behavior).lags = cat(1,gcampXCorrData.(group).(hemisphere).(dataType).(behavior).lags,Results_CrossCorr_GCaMP.(group).(animalID).(hemisphere).(dataType).(behavior).lags/samplingRate);
+                        gcampXCorrData.(group).(hemisphere).(dataType).(behavior).xcVals = cat(1,gcampXCorrData.(group).(hemisphere).(dataType).(behavior).xcVals,Results_CrossCorr_GCaMP.(group).(animalID).(hemisphere).(dataType).(behavior).xcVals);
+                        halfIdx = ceil(length(Results_CrossCorr_GCaMP.(group).(animalID).(hemisphere).(dataType).(behavior).xcVals)/2);
+                        [peak,ttp] = max(Results_CrossCorr_GCaMP.(group).(animalID).(hemisphere).(dataType).(behavior).xcVals(halfIdx:end));
+                        gcampXCorrData.(group).(hemisphere).(dataType).(behavior).peak = cat(1,gcampXCorrData.(group).(hemisphere).(dataType).(behavior).peak,peak);
+                        gcampXCorrData.(group).(hemisphere).(dataType).(behavior).ttp = cat(1,gcampXCorrData.(group).(hemisphere).(dataType).(behavior).ttp,ttp/samplingRate);
+                        gcampXCorrData.(group).(hemisphere).(dataType).(behavior).group = cat(1,gcampXCorrData.(group).(hemisphere).(dataType).(behavior).group,group);
+                        gcampXCorrData.(group).(hemisphere).(dataType).(behavior).animalID = cat(1,gcampXCorrData.(group).(hemisphere).(dataType).(behavior).animalID,animalID);
+                    end
+                end
+            end
+        end
+    end
+end
+% mean/std
+for aa = 1:length(groups)
+    group = groups{1,aa};
+    for bb = 1:length(hemispheres)
+        hemisphere = hemispheres{1,bb};
+        for cc = 1:length(dataTypes)
+            dataType = dataTypes{1,cc};
+            for dd = 1:length(behaviors)
+                behavior = behaviors{1,dd};
+                gcampXCorrData.(group).(hemisphere).(dataType).(behavior).mean_xcVals = mean(gcampXCorrData.(group).(hemisphere).(dataType).(behavior).xcVals,1);
+                gcampXCorrData.(group).(hemisphere).(dataType).(behavior).stdErr_xcVals = std(gcampXCorrData.(group).(hemisphere).(dataType).(behavior).xcVals,0,1)./sqrt(size(gcampXCorrData.(group).(hemisphere).(dataType).(behavior).xcVals,1));
+                gcampXCorrData.(group).(hemisphere).(dataType).(behavior).mean_lags = mean(gcampXCorrData.(group).(hemisphere).(dataType).(behavior).lags,1);
+            end
+        end
+    end
+end
+% GLME comparing peak correlation
+for cc = 1:length(hemispheres)
+    hemisphere = hemispheres{1,cc};
+    for aa = 1:length(dataTypes)
+        dataType = dataTypes{1,aa};
+        for bb = 1:length(behaviors)
+            behavior = behaviors{1,bb};
+            gcampXCorrStats.(hemisphere).(dataType).(behavior).tableSize = cat(1,gcampXCorrData.Blank_SAP.(hemisphere).(dataType).(behavior).peak,gcampXCorrData.SSP_SAP.(hemisphere).(dataType).(behavior).peak);
+            gcampXCorrStats.(hemisphere).(dataType).(behavior).Table = table('Size',[size(gcampXCorrStats.(hemisphere).(dataType).(behavior).tableSize,1),3],'VariableTypes',{'string','string','double'},'VariableNames',{'AnimalID','Treatment','Correlation'});
+            gcampXCorrStats.(hemisphere).(dataType).(behavior).Table.AnimalID = cat(1,gcampXCorrData.Blank_SAP.(hemisphere).(dataType).(behavior).animalID,gcampXCorrData.SSP_SAP.(hemisphere).(dataType).(behavior).animalID);
+            gcampXCorrStats.(hemisphere).(dataType).(behavior).Table.Treatment = cat(1,gcampXCorrData.Blank_SAP.(hemisphere).(dataType).(behavior).group,gcampXCorrData.SSP_SAP.(hemisphere).(dataType).(behavior).group);
+            gcampXCorrStats.(hemisphere).(dataType).(behavior).Table.Correlation = cat(1,gcampXCorrData.Blank_SAP.(hemisphere).(dataType).(behavior).peak,gcampXCorrData.SSP_SAP.(hemisphere).(dataType).(behavior).peak);
+            gcampXCorrStats.(hemisphere).(dataType).(behavior).FitFormula = 'Correlation ~ 1 + Treatment + (1|AnimalID)';
+            gcampXCorrStats.(hemisphere).(dataType).(behavior).Stats = fitglme(gcampXCorrStats.(hemisphere).(dataType).(behavior).Table,gcampXCorrStats.(hemisphere).(dataType).(behavior).FitFormula);
+        end
+    end
+end
+
+%% GCaMP neural-hemo coherence
+cd([rootFolder delim 'Results_Turner'])
+resultsStruct = 'Results_NeuralHemoCoher_GCaMP';
 load(resultsStruct);
 cd(rootFolder)
 % loop parameters
 groups = {'Blank_SAP','SSP_SAP'};
-dataTypes = {'HbT','HbO','HbR','GCaMP'};
+hemispheres = {'LH','RH'};
+dataTypes = {'HbT','HbO','HbR'};
 behaviors = {'Rest','NREM','REM','Alert','Asleep','All'};
 variables = {'C','f','binC','binf','group','animalID'};
 % extract analysis results
 for aa = 1:length(groups)
     group = groups{1,aa};
-    animalIDs = fieldnames(Results_BilatCoher_GCaMP.(group));
+    animalIDs = fieldnames(Results_NeuralHemoCoher_GCaMP.(group));
     for bb = 1:length(animalIDs)
         animalID = animalIDs{bb,1};
-        for cc = 1:length(dataTypes)
-            dataType = dataTypes{1,cc};
-            gcampBilatCoherData.(group).(dataType).dummCheck = 1;
-            for dd = 1:length(behaviors)
-                behavior = behaviors{1,dd};
-                if isfield(gcampBilatCoherData.(group).(dataType),behavior) == false
-                    for ee = 1:length(variables)
-                        variable = variables{1,ee};
-                        if any(strcmp(variable,{'group','animalID','binf'})) == true
-                            gcampBilatCoherData.(group).(dataType).(behavior).(variable) = {};
-                        else
-                            gcampBilatCoherData.(group).(dataType).(behavior).(variable) = [];
+        for cc = 1:length(hemispheres)
+            hemisphere = hemispheres{1,cc};
+            for dd = 1:length(dataTypes)
+                dataType = dataTypes{1,dd};
+                gcampNHCoherData.(group).(hemisphere).(dataType).dummCheck = 1;
+                for ee = 1:length(behaviors)
+                    behavior = behaviors{1,ee};
+                    if isfield(gcampNHCoherData.(group).(hemisphere).(dataType),behavior) == false
+                        for ff = 1:length(variables)
+                            variable = variables{1,ff};
+                            if any(strcmp(variable,{'animalID','group','binf'})) == true
+                                gcampNHCoherData.(group).(hemisphere).(dataType).(behavior).(variable) = {};
+                            else
+                                gcampNHCoherData.(group).(hemisphere).(dataType).(behavior).(variable) = [];
+                            end
                         end
                     end
-                end
-                if isempty(Results_BilatCoher_GCaMP.(group).(animalID).(dataType).(behavior).C) == false
-                    gcampBilatCoherData.(group).(dataType).(behavior).C = cat(1,gcampBilatCoherData.(group).(dataType).(behavior).C,Results_BilatCoher_GCaMP.(group).(animalID).(dataType).(behavior).C');
-                    gcampBilatCoherData.(group).(dataType).(behavior).f = cat(1,gcampBilatCoherData.(group).(dataType).(behavior).f,Results_BilatCoher_GCaMP.(group).(animalID).(dataType).(behavior).f);
-                    freqBand = round(Results_BilatCoher_GCaMP.(group).(animalID).(dataType).(behavior).f,2);
-                    frequencyList = unique(freqBand);
-                    for qq = 1:length(frequencyList)/2
-                        freqIdx = find(freqBand == frequencyList(1,qq));
-                        gcampBilatCoherData.(group).(dataType).(behavior).binC = cat(1,gcampBilatCoherData.(group).(dataType).(behavior).binC,mean(Results_BilatCoher_GCaMP.(group).(animalID).(dataType).(behavior).C(freqIdx)));
-                        gcampBilatCoherData.(group).(dataType).(behavior).binf = cat(1,gcampBilatCoherData.(group).(dataType).(behavior).binf,num2str(mean(freqBand(freqIdx))));
-                        gcampBilatCoherData.(group).(dataType).(behavior).group = cat(1,gcampBilatCoherData.(group).(dataType).(behavior).group,group);
-                        gcampBilatCoherData.(group).(dataType).(behavior).animalID = cat(1,gcampBilatCoherData.(group).(dataType).(behavior).animalID,animalID);
+                    if isempty(Results_NeuralHemoCoher_GCaMP.(group).(animalID).(hemisphere).(dataType).(behavior).C) == false
+                        gcampNHCoherData.(group).(hemisphere).(dataType).(behavior).C = cat(1,gcampNHCoherData.(group).(hemisphere).(dataType).(behavior).C,Results_NeuralHemoCoher_GCaMP.(group).(animalID).(hemisphere).(dataType).(behavior).C');
+                        gcampNHCoherData.(group).(hemisphere).(dataType).(behavior).f = cat(1,gcampNHCoherData.(group).(hemisphere).(dataType).(behavior).f,Results_NeuralHemoCoher_GCaMP.(group).(animalID).(hemisphere).(dataType).(behavior).f);
+                        freqBand = round(Results_NeuralHemoCoher_GCaMP.(group).(animalID).(hemisphere).(dataType).(behavior).f,2);
+                        frequencyList = unique(freqBand);
+                        for qq = 1:length(frequencyList)/2
+                            freqIdx = find(freqBand == frequencyList(1,qq));
+                            gcampNHCoherData.(group).(hemisphere).(dataType).(behavior).binC = cat(1,gcampNHCoherData.(group).(hemisphere).(dataType).(behavior).binC,mean(Results_NeuralHemoCoher_GCaMP.(group).(animalID).(hemisphere).(dataType).(behavior).C(freqIdx)));
+                            gcampNHCoherData.(group).(hemisphere).(dataType).(behavior).binf = cat(1,gcampNHCoherData.(group).(hemisphere).(dataType).(behavior).binf,num2str(mean(freqBand(freqIdx))));
+                            gcampNHCoherData.(group).(hemisphere).(dataType).(behavior).group = cat(1,gcampNHCoherData.(group).(hemisphere).(dataType).(behavior).group,group);
+                            gcampNHCoherData.(group).(hemisphere).(dataType).(behavior).animalID = cat(1,gcampNHCoherData.(group).(hemisphere).(dataType).(behavior).animalID,animalID);
+                        end
                     end
                 end
             end
@@ -137,241 +316,237 @@ end
 % mean/std
 for aa = 1:length(groups)
     group = groups{1,aa};
-    for bb = 1:length(behaviors)
-        behavior = behaviors{1,bb};
-        for cc = 1:length(dataTypes)
-            dataType = dataTypes{1,cc};
-            for dd = 1:length(variables)
-                variable = variables{1,dd};
-                if any(strcmp(variable,{'C','f'})) == true
-                    gcampBilatCoherData.(group).(dataType).(behavior).(['mean_' variable]) = mean(gcampBilatCoherData.(group).(dataType).(behavior).(variable),1);
-                    gcampBilatCoherData.(group).(dataType).(behavior).(['stdErr_' variable]) = std(gcampBilatCoherData.(group).(dataType).(behavior).(variable),0,1)./sqrt(size(gcampBilatCoherData.(group).(dataType).(behavior).(variable),1));
+    for bb = 1:length(hemispheres)
+        hemisphere = hemispheres{1,bb};
+        for cc = 1:length(behaviors)
+            behavior = behaviors{1,cc};
+            for dd = 1:length(dataTypes)
+                dataType = dataTypes{1,dd};
+                for ee = 1:length(variables)
+                    variable = variables{1,ee};
+                    if any(strcmp(variable,{'C','f'})) == true
+                        gcampNHCoherData.(group).(hemisphere).(dataType).(behavior).(['mean_' variable]) = mean(gcampNHCoherData.(group).(hemisphere).(dataType).(behavior).(variable),1);
+                        gcampNHCoherData.(group).(hemisphere).(dataType).(behavior).(['stdErr_' variable]) = std(gcampNHCoherData.(group).(hemisphere).(dataType).(behavior).(variable),0,1)./sqrt(size(gcampNHCoherData.(group).(hemisphere).(dataType).(behavior).(variable),1));
+                    end
                 end
             end
         end
     end
 end
-% GLME comparing coherence at all frequencies
-for aa = 1:length(dataTypes)
-    dataType = dataTypes{1,aa};
-    for bb = 1:length(behaviors)
-        behavior = behaviors{1,bb};
-        gcampBilatCoherStats.(dataType).(behavior).tableSize = cat(1,gcampBilatCoherData.Blank_SAP.(dataType).(behavior).binC,gcampBilatCoherData.SSP_SAP.(dataType).(behavior).binC);
-        gcampBilatCoherStats.(dataType).(behavior).Table = table('Size',[size(gcampBilatCoherStats.(dataType).(behavior).tableSize,1),4],'VariableTypes',{'string','string','string','double'},'VariableNames',{'AnimalID','Treatment','Frequency','Coherence'});
-        gcampBilatCoherStats.(dataType).(behavior).Table.AnimalID = cat(1,gcampBilatCoherData.Blank_SAP.(dataType).(behavior).animalID,gcampBilatCoherData.SSP_SAP.(dataType).(behavior).animalID);
-        gcampBilatCoherStats.(dataType).(behavior).Table.Treatment = cat(1,gcampBilatCoherData.Blank_SAP.(dataType).(behavior).group,gcampBilatCoherData.SSP_SAP.(dataType).(behavior).group);
-        gcampBilatCoherStats.(dataType).(behavior).Table.Frequency = cat(1,gcampBilatCoherData.Blank_SAP.(dataType).(behavior).binf,gcampBilatCoherData.SSP_SAP.(dataType).(behavior).binf);
-        gcampBilatCoherStats.(dataType).(behavior).Table.Coherence = cat(1,gcampBilatCoherData.Blank_SAP.(dataType).(behavior).binC,gcampBilatCoherData.SSP_SAP.(dataType).(behavior).binC);
-        gcampBilatCoherStats.(dataType).(behavior).FitFormula = 'Coherence ~ 1 + Treatment + (1|Frequency) + (1|AnimalID)';
-        gcampBilatCoherStats.(dataType).(behavior).Stats = fitglme(gcampBilatCoherStats.(dataType).(behavior).Table,gcampBilatCoherStats.(dataType).(behavior).FitFormula);
+% GLME comparing peak correlation
+for cc = 1:length(hemispheres)
+    hemisphere = hemispheres{1,cc};
+    for aa = 1:length(dataTypes)
+        dataType = dataTypes{1,aa};
+        for bb = 1:length(behaviors)
+            behavior = behaviors{1,bb};
+            gcampNHCoherStats.(hemisphere).(dataType).(behavior).tableSize = cat(1,gcampNHCoherData.Blank_SAP.(hemisphere).(dataType).(behavior).binC,gcampNHCoherData.SSP_SAP.(hemisphere).(dataType).(behavior).binC);
+            gcampNHCoherStats.(hemisphere).(dataType).(behavior).Table = table('Size',[size(gcampNHCoherStats.(hemisphere).(dataType).(behavior).tableSize,1),4],'VariableTypes',{'string','string','string','double'},'VariableNames',{'AnimalID','Treatment','Frequency','Coherence'});
+            gcampNHCoherStats.(hemisphere).(dataType).(behavior).Table.AnimalID = cat(1,gcampNHCoherData.Blank_SAP.(hemisphere).(dataType).(behavior).animalID,gcampNHCoherData.SSP_SAP.(hemisphere).(dataType).(behavior).animalID);
+            gcampNHCoherStats.(hemisphere).(dataType).(behavior).Table.Treatment = cat(1,gcampNHCoherData.Blank_SAP.(hemisphere).(dataType).(behavior).group,gcampNHCoherData.SSP_SAP.(hemisphere).(dataType).(behavior).group);
+            gcampNHCoherStats.(hemisphere).(dataType).(behavior).Table.Frequency = cat(1,gcampNHCoherData.Blank_SAP.(hemisphere).(dataType).(behavior).binf,gcampNHCoherData.SSP_SAP.(hemisphere).(dataType).(behavior).binf);
+            gcampNHCoherStats.(hemisphere).(dataType).(behavior).Table.Coherence = cat(1,gcampNHCoherData.Blank_SAP.(hemisphere).(dataType).(behavior).binC,gcampNHCoherData.SSP_SAP.(hemisphere).(dataType).(behavior).binC);
+            gcampNHCoherStats.(hemisphere).(dataType).(behavior).FitFormula = 'Coherence ~ 1 + Treatment + (1|Frequency) + (1|AnimalID)';
+            gcampNHCoherStats.(hemisphere).(dataType).(behavior).Stats = fitglme(gcampNHCoherStats.(hemisphere).(dataType).(behavior).Table,gcampNHCoherStats.(hemisphere).(dataType).(behavior).FitFormula);
+        end
     end
 end
 
-%% figure
-Fig5 = figure('Name','Figure 5','units','normalized','outerposition',[0 0 1 1]);
-
-% Ephys bilateral HbT - Rest
+%% figure panel 4
+Fig4 = figure('Name','Figure 4','units','normalized','outerposition',[0 0 1 1]);
+% Ephys cross correlation - Rest
 subplot(4,3,1);
-p1 = semilogx(ephysBilatCoherData.Blank_SAP.HbT.Rest.mean_f,ephysBilatCoherData.Blank_SAP.HbT.Rest.mean_C,'color',colors('north texas green'),'LineWidth',2);
+p1 = plot(ephysXCorrData.Blank_SAP.RH.gammaBandPower.Rest.mean_lags,ephysXCorrData.Blank_SAP.RH.gammaBandPower.Rest.mean_xcVals,'color',colors('north texas green'),'LineWidth',2);
 hold on
-semilogx(ephysBilatCoherData.Blank_SAP.HbT.Rest.mean_f,ephysBilatCoherData.Blank_SAP.HbT.Rest.mean_C + ephysBilatCoherData.Blank_SAP.HbT.Rest.stdErr_C,'color',colors('north texas green'),'LineWidth',0.25);
-semilogx(ephysBilatCoherData.Blank_SAP.HbT.Rest.mean_f,ephysBilatCoherData.Blank_SAP.HbT.Rest.mean_C - ephysBilatCoherData.Blank_SAP.HbT.Rest.stdErr_C,'color',colors('north texas green'),'LineWidth',0.25);
-p2 = semilogx(ephysBilatCoherData.SSP_SAP.HbT.Rest.mean_f,ephysBilatCoherData.SSP_SAP.HbT.Rest.mean_C,'color',colors('electric purple'),'LineWidth',2);
-semilogx(ephysBilatCoherData.SSP_SAP.HbT.Rest.mean_f,ephysBilatCoherData.SSP_SAP.HbT.Rest.mean_C + ephysBilatCoherData.SSP_SAP.HbT.Rest.stdErr_C,'color',colors('electric purple'),'LineWidth',0.25);
-semilogx(ephysBilatCoherData.SSP_SAP.HbT.Rest.mean_f,ephysBilatCoherData.SSP_SAP.HbT.Rest.mean_C - ephysBilatCoherData.SSP_SAP.HbT.Rest.stdErr_C,'color',colors('electric purple'),'LineWidth',0.25);
-title('bilat HbT Rest')
-xlabel('Freq (Hz)')
-ylabel('Coherence')
+plot(ephysXCorrData.Blank_SAP.RH.gammaBandPower.Rest.mean_lags,ephysXCorrData.Blank_SAP.RH.gammaBandPower.Rest.mean_xcVals + ephysXCorrData.Blank_SAP.RH.gammaBandPower.Rest.stdErr_xcVals,'color',colors('north texas green'),'LineWidth',0.25);
+plot(ephysXCorrData.Blank_SAP.RH.gammaBandPower.Rest.mean_lags,ephysXCorrData.Blank_SAP.RH.gammaBandPower.Rest.mean_xcVals - ephysXCorrData.Blank_SAP.RH.gammaBandPower.Rest.stdErr_xcVals,'color',colors('north texas green'),'LineWidth',0.25);
+p2 = plot(ephysXCorrData.SSP_SAP.RH.gammaBandPower.Rest.mean_lags,ephysXCorrData.SSP_SAP.RH.gammaBandPower.Rest.mean_xcVals,'color',colors('electric purple'),'LineWidth',2);
+plot(ephysXCorrData.SSP_SAP.RH.gammaBandPower.Rest.mean_lags,ephysXCorrData.SSP_SAP.RH.gammaBandPower.Rest.mean_xcVals + ephysXCorrData.SSP_SAP.RH.gammaBandPower.Rest.stdErr_xcVals,'color',colors('electric purple'),'LineWidth',0.25);
+plot(ephysXCorrData.SSP_SAP.RH.gammaBandPower.Rest.mean_lags,ephysXCorrData.SSP_SAP.RH.gammaBandPower.Rest.mean_xcVals - ephysXCorrData.SSP_SAP.RH.gammaBandPower.Rest.stdErr_xcVals,'color',colors('electric purple'),'LineWidth',0.25);
+title('Gamma-HbT Rest')
+ylabel('Corr Coef')
+xlabel('Lags (s)')
+xlim([-5,5])
+ylim([-0.05,0.45])
 legend([p1,p2],'Blank-SAP','SSP-SAP')
-xlim([0.1,0.5])
-ylim([0.6,1])
 set(gca,'box','off')
 axis square
-
-% Ephys bilateral HbT - Alert
-subplot(4,3,2);
-semilogx(ephysBilatCoherData.Blank_SAP.HbT.Alert.mean_f,ephysBilatCoherData.Blank_SAP.HbT.Alert.mean_C,'color',colors('north texas green'),'LineWidth',2);
+% Ephys cross correlation - Alert
+subplot(4,3,2)
+plot(ephysXCorrData.Blank_SAP.RH.gammaBandPower.Alert.mean_lags,ephysXCorrData.Blank_SAP.RH.gammaBandPower.Alert.mean_xcVals,'color',colors('north texas green'),'LineWidth',2);
 hold on
-semilogx(ephysBilatCoherData.Blank_SAP.HbT.Alert.mean_f,ephysBilatCoherData.Blank_SAP.HbT.Alert.mean_C + ephysBilatCoherData.Blank_SAP.HbT.Alert.stdErr_C,'color',colors('north texas green'),'LineWidth',0.25);
-semilogx(ephysBilatCoherData.Blank_SAP.HbT.Alert.mean_f,ephysBilatCoherData.Blank_SAP.HbT.Alert.mean_C - ephysBilatCoherData.Blank_SAP.HbT.Alert.stdErr_C,'color',colors('north texas green'),'LineWidth',0.25);
-semilogx(ephysBilatCoherData.SSP_SAP.HbT.Alert.mean_f,ephysBilatCoherData.SSP_SAP.HbT.Alert.mean_C,'color',colors('electric purple'),'LineWidth',2);
-semilogx(ephysBilatCoherData.SSP_SAP.HbT.Alert.mean_f,ephysBilatCoherData.SSP_SAP.HbT.Alert.mean_C + ephysBilatCoherData.SSP_SAP.HbT.Alert.stdErr_C,'color',colors('electric purple'),'LineWidth',0.25);
-semilogx(ephysBilatCoherData.SSP_SAP.HbT.Alert.mean_f,ephysBilatCoherData.SSP_SAP.HbT.Alert.mean_C - ephysBilatCoherData.SSP_SAP.HbT.Alert.stdErr_C,'color',colors('electric purple'),'LineWidth',0.25);
-title('bilat HbT Alert')
-xlabel('Freq (Hz)')
-ylabel('Coherence')
-xlim([0.01,0.5])
-ylim([0.6,1])
+plot(ephysXCorrData.Blank_SAP.RH.gammaBandPower.Alert.mean_lags,ephysXCorrData.Blank_SAP.RH.gammaBandPower.Alert.mean_xcVals + ephysXCorrData.Blank_SAP.RH.gammaBandPower.Alert.stdErr_xcVals,'color',colors('north texas green'),'LineWidth',0.25);
+plot(ephysXCorrData.Blank_SAP.RH.gammaBandPower.Alert.mean_lags,ephysXCorrData.Blank_SAP.RH.gammaBandPower.Alert.mean_xcVals - ephysXCorrData.Blank_SAP.RH.gammaBandPower.Alert.stdErr_xcVals,'color',colors('north texas green'),'LineWidth',0.25);
+plot(ephysXCorrData.SSP_SAP.RH.gammaBandPower.Alert.mean_lags,ephysXCorrData.SSP_SAP.RH.gammaBandPower.Alert.mean_xcVals,'color',colors('electric purple'),'LineWidth',2);
+plot(ephysXCorrData.SSP_SAP.RH.gammaBandPower.Alert.mean_lags,ephysXCorrData.SSP_SAP.RH.gammaBandPower.Alert.mean_xcVals + ephysXCorrData.SSP_SAP.RH.gammaBandPower.Alert.stdErr_xcVals,'color',colors('electric purple'),'LineWidth',0.25);
+plot(ephysXCorrData.SSP_SAP.RH.gammaBandPower.Alert.mean_lags,ephysXCorrData.SSP_SAP.RH.gammaBandPower.Alert.mean_xcVals - ephysXCorrData.SSP_SAP.RH.gammaBandPower.Alert.stdErr_xcVals,'color',colors('electric purple'),'LineWidth',0.25);
+title('Gamma-HbT Alert')
+ylabel('Corr Coef')
+xlabel('Lags (s)')
+xlim([-5,5])
+ylim([-0.05,0.45])
+legend([p1,p2],'Blank-SAP','SSP-SAP')
 set(gca,'box','off')
 axis square
-
-% Ephys bilateral HbT - Asleep
-subplot(4,3,3);
-semilogx(ephysBilatCoherData.Blank_SAP.HbT.Asleep.mean_f,ephysBilatCoherData.Blank_SAP.HbT.Asleep.mean_C,'color',colors('north texas green'),'LineWidth',2);
+% Ephys cross correlation - Asleep
+subplot(4,3,3)
+plot(ephysXCorrData.Blank_SAP.RH.gammaBandPower.Asleep.mean_lags,ephysXCorrData.Blank_SAP.RH.gammaBandPower.Asleep.mean_xcVals,'color',colors('north texas green'),'LineWidth',2);
 hold on
-semilogx(ephysBilatCoherData.Blank_SAP.HbT.Asleep.mean_f,ephysBilatCoherData.Blank_SAP.HbT.Asleep.mean_C + ephysBilatCoherData.Blank_SAP.HbT.Asleep.stdErr_C,'color',colors('north texas green'),'LineWidth',0.25);
-semilogx(ephysBilatCoherData.Blank_SAP.HbT.Asleep.mean_f,ephysBilatCoherData.Blank_SAP.HbT.Asleep.mean_C - ephysBilatCoherData.Blank_SAP.HbT.Asleep.stdErr_C,'color',colors('north texas green'),'LineWidth',0.25);
-semilogx(ephysBilatCoherData.SSP_SAP.HbT.Asleep.mean_f,ephysBilatCoherData.SSP_SAP.HbT.Asleep.mean_C,'color',colors('electric purple'),'LineWidth',2);
-semilogx(ephysBilatCoherData.SSP_SAP.HbT.Asleep.mean_f,ephysBilatCoherData.SSP_SAP.HbT.Asleep.mean_C + ephysBilatCoherData.SSP_SAP.HbT.Asleep.stdErr_C,'color',colors('electric purple'),'LineWidth',0.25);
-semilogx(ephysBilatCoherData.SSP_SAP.HbT.Asleep.mean_f,ephysBilatCoherData.SSP_SAP.HbT.Asleep.mean_C - ephysBilatCoherData.SSP_SAP.HbT.Asleep.stdErr_C,'color',colors('electric purple'),'LineWidth',0.25);
-title('bilat HbT Asleep')
-xlabel('Freq (Hz)')
-ylabel('Coherence')
-xlim([0.01,0.5])
-ylim([0.6,1])
+plot(ephysXCorrData.Blank_SAP.RH.gammaBandPower.Asleep.mean_lags,ephysXCorrData.Blank_SAP.RH.gammaBandPower.Asleep.mean_xcVals + ephysXCorrData.Blank_SAP.RH.gammaBandPower.Asleep.stdErr_xcVals,'color',colors('north texas green'),'LineWidth',0.25);
+plot(ephysXCorrData.Blank_SAP.RH.gammaBandPower.Asleep.mean_lags,ephysXCorrData.Blank_SAP.RH.gammaBandPower.Asleep.mean_xcVals - ephysXCorrData.Blank_SAP.RH.gammaBandPower.Asleep.stdErr_xcVals,'color',colors('north texas green'),'LineWidth',0.25);
+plot(ephysXCorrData.SSP_SAP.RH.gammaBandPower.Asleep.mean_lags,ephysXCorrData.SSP_SAP.RH.gammaBandPower.Asleep.mean_xcVals,'color',colors('electric purple'),'LineWidth',2);
+plot(ephysXCorrData.SSP_SAP.RH.gammaBandPower.Asleep.mean_lags,ephysXCorrData.SSP_SAP.RH.gammaBandPower.Asleep.mean_xcVals + ephysXCorrData.SSP_SAP.RH.gammaBandPower.Asleep.stdErr_xcVals,'color',colors('electric purple'),'LineWidth',0.25);
+plot(ephysXCorrData.SSP_SAP.RH.gammaBandPower.Asleep.mean_lags,ephysXCorrData.SSP_SAP.RH.gammaBandPower.Asleep.mean_xcVals - ephysXCorrData.SSP_SAP.RH.gammaBandPower.Asleep.stdErr_xcVals,'color',colors('electric purple'),'LineWidth',0.25);
+title('Gamma-HbT Asleep')
+ylabel('Corr Coef')
+xlabel('Lags (s)')
+xlim([-5,5])
+ylim([-0.05,0.45])
 set(gca,'box','off')
 axis square
-
-% Ephys bilateral gammaBandPower - Rest
+% Ephys neural-hemo coherence - Rest
 subplot(4,3,4);
-semilogx(ephysBilatCoherData.Blank_SAP.gammaBandPower.Rest.mean_f,ephysBilatCoherData.Blank_SAP.gammaBandPower.Rest.mean_C,'color',colors('north texas green'),'LineWidth',2);
+semilogx(ephysNHCoherData.Blank_SAP.RH.gammaBandPower.Rest.mean_f,ephysNHCoherData.Blank_SAP.RH.gammaBandPower.Rest.mean_C,'color',colors('north texas green'),'LineWidth',2);
 hold on
-semilogx(ephysBilatCoherData.Blank_SAP.gammaBandPower.Rest.mean_f,ephysBilatCoherData.Blank_SAP.gammaBandPower.Rest.mean_C + ephysBilatCoherData.Blank_SAP.gammaBandPower.Rest.stdErr_C,'color',colors('north texas green'),'LineWidth',0.25);
-semilogx(ephysBilatCoherData.Blank_SAP.gammaBandPower.Rest.mean_f,ephysBilatCoherData.Blank_SAP.gammaBandPower.Rest.mean_C - ephysBilatCoherData.Blank_SAP.gammaBandPower.Rest.stdErr_C,'color',colors('north texas green'),'LineWidth',0.25);
-semilogx(ephysBilatCoherData.SSP_SAP.gammaBandPower.Rest.mean_f,ephysBilatCoherData.SSP_SAP.gammaBandPower.Rest.mean_C,'color',colors('electric purple'),'LineWidth',2);
-semilogx(ephysBilatCoherData.SSP_SAP.gammaBandPower.Rest.mean_f,ephysBilatCoherData.SSP_SAP.gammaBandPower.Rest.mean_C + ephysBilatCoherData.SSP_SAP.gammaBandPower.Rest.stdErr_C,'color',colors('electric purple'),'LineWidth',0.25);
-semilogx(ephysBilatCoherData.SSP_SAP.gammaBandPower.Rest.mean_f,ephysBilatCoherData.SSP_SAP.gammaBandPower.Rest.mean_C - ephysBilatCoherData.SSP_SAP.gammaBandPower.Rest.stdErr_C,'color',colors('electric purple'),'LineWidth',0.25);
-title('bilat gammaBandPower Rest')
-xlabel('Freq (Hz)')
+semilogx(ephysNHCoherData.Blank_SAP.RH.gammaBandPower.Rest.mean_f,ephysNHCoherData.Blank_SAP.RH.gammaBandPower.Rest.mean_C + ephysNHCoherData.Blank_SAP.RH.gammaBandPower.Rest.stdErr_C,'color',colors('north texas green'),'LineWidth',0.25);
+semilogx(ephysNHCoherData.Blank_SAP.RH.gammaBandPower.Rest.mean_f,ephysNHCoherData.Blank_SAP.RH.gammaBandPower.Rest.mean_C - ephysNHCoherData.Blank_SAP.RH.gammaBandPower.Rest.stdErr_C,'color',colors('north texas green'),'LineWidth',0.25);
+semilogx(ephysNHCoherData.SSP_SAP.RH.gammaBandPower.Rest.mean_f,ephysNHCoherData.SSP_SAP.RH.gammaBandPower.Rest.mean_C,'color',colors('electric purple'),'LineWidth',2);
+semilogx(ephysNHCoherData.SSP_SAP.RH.gammaBandPower.Rest.mean_f,ephysNHCoherData.SSP_SAP.RH.gammaBandPower.Rest.mean_C + ephysNHCoherData.SSP_SAP.RH.gammaBandPower.Rest.stdErr_C,'color',colors('electric purple'),'LineWidth',0.5);
+semilogx(ephysNHCoherData.SSP_SAP.RH.gammaBandPower.Rest.mean_f,ephysNHCoherData.SSP_SAP.RH.gammaBandPower.Rest.mean_C - ephysNHCoherData.SSP_SAP.RH.gammaBandPower.Rest.stdErr_C,'color',colors('electric purple'),'LineWidth',0.25);
+title('Gamma-HbT Rest')
 ylabel('Coherence')
+xlabel('Freq (Hz)')
 xlim([0.1,0.5])
-ylim([0,1])
+ylim([0.1,0.8])
 set(gca,'box','off')
 axis square
-
-% Ephys bilateral gammaBandPower - Alert
+% Ephys neural-hemo coherence - Alert
 subplot(4,3,5);
-semilogx(ephysBilatCoherData.Blank_SAP.gammaBandPower.Alert.mean_f,ephysBilatCoherData.Blank_SAP.gammaBandPower.Alert.mean_C,'color',colors('north texas green'),'LineWidth',2);
+semilogx(ephysNHCoherData.Blank_SAP.RH.gammaBandPower.Alert.mean_f,ephysNHCoherData.Blank_SAP.RH.gammaBandPower.Alert.mean_C,'color',colors('north texas green'),'LineWidth',2);
 hold on
-semilogx(ephysBilatCoherData.Blank_SAP.gammaBandPower.Alert.mean_f,ephysBilatCoherData.Blank_SAP.gammaBandPower.Alert.mean_C + ephysBilatCoherData.Blank_SAP.gammaBandPower.Alert.stdErr_C,'color',colors('north texas green'),'LineWidth',0.25);
-semilogx(ephysBilatCoherData.Blank_SAP.gammaBandPower.Alert.mean_f,ephysBilatCoherData.Blank_SAP.gammaBandPower.Alert.mean_C - ephysBilatCoherData.Blank_SAP.gammaBandPower.Alert.stdErr_C,'color',colors('north texas green'),'LineWidth',0.25);
-semilogx(ephysBilatCoherData.SSP_SAP.gammaBandPower.Alert.mean_f,ephysBilatCoherData.SSP_SAP.gammaBandPower.Alert.mean_C,'color',colors('electric purple'),'LineWidth',2);
-semilogx(ephysBilatCoherData.SSP_SAP.gammaBandPower.Alert.mean_f,ephysBilatCoherData.SSP_SAP.gammaBandPower.Alert.mean_C + ephysBilatCoherData.SSP_SAP.gammaBandPower.Alert.stdErr_C,'color',colors('electric purple'),'LineWidth',0.25);
-semilogx(ephysBilatCoherData.SSP_SAP.gammaBandPower.Alert.mean_f,ephysBilatCoherData.SSP_SAP.gammaBandPower.Alert.mean_C - ephysBilatCoherData.SSP_SAP.gammaBandPower.Alert.stdErr_C,'color',colors('electric purple'),'LineWidth',0.25);
-title('bilat gammaBandPower Alert')
-xlabel('Freq (Hz)')
+semilogx(ephysNHCoherData.Blank_SAP.RH.gammaBandPower.Alert.mean_f,ephysNHCoherData.Blank_SAP.RH.gammaBandPower.Alert.mean_C + ephysNHCoherData.Blank_SAP.RH.gammaBandPower.Alert.stdErr_C,'color',colors('north texas green'),'LineWidth',0.25);
+semilogx(ephysNHCoherData.Blank_SAP.RH.gammaBandPower.Alert.mean_f,ephysNHCoherData.Blank_SAP.RH.gammaBandPower.Alert.mean_C - ephysNHCoherData.Blank_SAP.RH.gammaBandPower.Alert.stdErr_C,'color',colors('north texas green'),'LineWidth',0.25);
+semilogx(ephysNHCoherData.SSP_SAP.RH.gammaBandPower.Alert.mean_f,ephysNHCoherData.SSP_SAP.RH.gammaBandPower.Alert.mean_C,'color',colors('electric purple'),'LineWidth',2);
+semilogx(ephysNHCoherData.SSP_SAP.RH.gammaBandPower.Alert.mean_f,ephysNHCoherData.SSP_SAP.RH.gammaBandPower.Alert.mean_C + ephysNHCoherData.SSP_SAP.RH.gammaBandPower.Alert.stdErr_C,'color',colors('electric purple'),'LineWidth',0.5);
+semilogx(ephysNHCoherData.SSP_SAP.RH.gammaBandPower.Alert.mean_f,ephysNHCoherData.SSP_SAP.RH.gammaBandPower.Alert.mean_C - ephysNHCoherData.SSP_SAP.RH.gammaBandPower.Alert.stdErr_C,'color',colors('electric purple'),'LineWidth',0.25);
+title('Gamma-HbT Alert')
 ylabel('Coherence')
+xlabel('Freq (Hz)')
 xlim([0.01,0.5])
-ylim([0,1])
+ylim([0.1,0.8])
 set(gca,'box','off')
 axis square
-
-% Ephys bilateral gammaBandPower - Asleep
+% Ephys neural-hemo coherence - Asleep
 subplot(4,3,6);
-semilogx(ephysBilatCoherData.Blank_SAP.gammaBandPower.Asleep.mean_f,ephysBilatCoherData.Blank_SAP.gammaBandPower.Asleep.mean_C,'color',colors('north texas green'),'LineWidth',2);
+semilogx(ephysNHCoherData.Blank_SAP.RH.gammaBandPower.Asleep.mean_f,ephysNHCoherData.Blank_SAP.RH.gammaBandPower.Asleep.mean_C,'color',colors('north texas green'),'LineWidth',2);
 hold on
-semilogx(ephysBilatCoherData.Blank_SAP.gammaBandPower.Asleep.mean_f,ephysBilatCoherData.Blank_SAP.gammaBandPower.Asleep.mean_C + ephysBilatCoherData.Blank_SAP.gammaBandPower.Asleep.stdErr_C,'color',colors('north texas green'),'LineWidth',0.25);
-semilogx(ephysBilatCoherData.Blank_SAP.gammaBandPower.Asleep.mean_f,ephysBilatCoherData.Blank_SAP.gammaBandPower.Asleep.mean_C - ephysBilatCoherData.Blank_SAP.gammaBandPower.Asleep.stdErr_C,'color',colors('north texas green'),'LineWidth',0.25);
-semilogx(ephysBilatCoherData.SSP_SAP.gammaBandPower.Asleep.mean_f,ephysBilatCoherData.SSP_SAP.gammaBandPower.Asleep.mean_C,'color',colors('electric purple'),'LineWidth',2);
-semilogx(ephysBilatCoherData.SSP_SAP.gammaBandPower.Asleep.mean_f,ephysBilatCoherData.SSP_SAP.gammaBandPower.Asleep.mean_C + ephysBilatCoherData.SSP_SAP.gammaBandPower.Asleep.stdErr_C,'color',colors('electric purple'),'LineWidth',0.25);
-semilogx(ephysBilatCoherData.SSP_SAP.gammaBandPower.Asleep.mean_f,ephysBilatCoherData.SSP_SAP.gammaBandPower.Asleep.mean_C - ephysBilatCoherData.SSP_SAP.gammaBandPower.Asleep.stdErr_C,'color',colors('electric purple'),'LineWidth',0.25);
-title('bilat gammaBandPower Asleep')
-xlabel('Freq (Hz)')
+semilogx(ephysNHCoherData.Blank_SAP.RH.gammaBandPower.Asleep.mean_f,ephysNHCoherData.Blank_SAP.RH.gammaBandPower.Asleep.mean_C + ephysNHCoherData.Blank_SAP.RH.gammaBandPower.Asleep.stdErr_C,'color',colors('north texas green'),'LineWidth',0.25);
+semilogx(ephysNHCoherData.Blank_SAP.RH.gammaBandPower.Asleep.mean_f,ephysNHCoherData.Blank_SAP.RH.gammaBandPower.Asleep.mean_C - ephysNHCoherData.Blank_SAP.RH.gammaBandPower.Asleep.stdErr_C,'color',colors('north texas green'),'LineWidth',0.25);
+semilogx(ephysNHCoherData.SSP_SAP.RH.gammaBandPower.Asleep.mean_f,ephysNHCoherData.SSP_SAP.RH.gammaBandPower.Asleep.mean_C,'color',colors('electric purple'),'LineWidth',2);
+semilogx(ephysNHCoherData.SSP_SAP.RH.gammaBandPower.Asleep.mean_f,ephysNHCoherData.SSP_SAP.RH.gammaBandPower.Asleep.mean_C + ephysNHCoherData.SSP_SAP.RH.gammaBandPower.Asleep.stdErr_C,'color',colors('electric purple'),'LineWidth',0.5);
+semilogx(ephysNHCoherData.SSP_SAP.RH.gammaBandPower.Asleep.mean_f,ephysNHCoherData.SSP_SAP.RH.gammaBandPower.Asleep.mean_C - ephysNHCoherData.SSP_SAP.RH.gammaBandPower.Asleep.stdErr_C,'color',colors('electric purple'),'LineWidth',0.25);
+title('Gamma-HbT Asleep')
 ylabel('Coherence')
+xlabel('Freq (Hz)')
 xlim([0.01,0.5])
-ylim([0,1])
+ylim([0.1,0.8])
 set(gca,'box','off')
 axis square
-
-%
+% GCaMP cross correlation - Rest
 subplot(4,3,7);
-semilogx(gcampBilatCoherData.Blank_SAP.HbT.Rest.mean_f,gcampBilatCoherData.Blank_SAP.HbT.Rest.mean_C,'color',colors('north texas green'),'LineWidth',2);
+plot(gcampXCorrData.Blank_SAP.RH.HbT.Rest.mean_lags,gcampXCorrData.Blank_SAP.RH.HbT.Rest.mean_xcVals,'color',colors('north texas green'),'LineWidth',2);
 hold on
-semilogx(gcampBilatCoherData.Blank_SAP.HbT.Rest.mean_f,gcampBilatCoherData.Blank_SAP.HbT.Rest.mean_C + gcampBilatCoherData.Blank_SAP.HbT.Rest.stdErr_C,'color',colors('north texas green'),'LineWidth',0.25);
-semilogx(gcampBilatCoherData.Blank_SAP.HbT.Rest.mean_f,gcampBilatCoherData.Blank_SAP.HbT.Rest.mean_C - gcampBilatCoherData.Blank_SAP.HbT.Rest.stdErr_C,'color',colors('north texas green'),'LineWidth',0.25);
-semilogx(gcampBilatCoherData.SSP_SAP.HbT.Rest.mean_f,gcampBilatCoherData.SSP_SAP.HbT.Rest.mean_C,'color',colors('electric purple'),'LineWidth',2);
-semilogx(gcampBilatCoherData.SSP_SAP.HbT.Rest.mean_f,gcampBilatCoherData.SSP_SAP.HbT.Rest.mean_C + gcampBilatCoherData.SSP_SAP.HbT.Rest.stdErr_C,'color',colors('electric purple'),'LineWidth',0.25);
-semilogx(gcampBilatCoherData.SSP_SAP.HbT.Rest.mean_f,gcampBilatCoherData.SSP_SAP.HbT.Rest.mean_C - gcampBilatCoherData.SSP_SAP.HbT.Rest.stdErr_C,'color',colors('electric purple'),'LineWidth',0.25);
-title('bilat HbT Rest')
-xlabel('Freq (Hz)')
-ylabel('Coherence')
-xlim([0.1,0.5])
-ylim([0.7,1])
+plot(gcampXCorrData.Blank_SAP.RH.HbT.Rest.mean_lags,gcampXCorrData.Blank_SAP.RH.HbT.Rest.mean_xcVals + gcampXCorrData.Blank_SAP.RH.HbT.Rest.stdErr_xcVals,'color',colors('north texas green'),'LineWidth',0.25);
+plot(gcampXCorrData.Blank_SAP.RH.HbT.Rest.mean_lags,gcampXCorrData.Blank_SAP.RH.HbT.Rest.mean_xcVals - gcampXCorrData.Blank_SAP.RH.HbT.Rest.stdErr_xcVals,'color',colors('north texas green'),'LineWidth',0.25);
+plot(gcampXCorrData.SSP_SAP.RH.HbT.Rest.mean_lags,gcampXCorrData.SSP_SAP.RH.HbT.Rest.mean_xcVals,'color',colors('electric purple'),'LineWidth',2);
+plot(gcampXCorrData.SSP_SAP.RH.HbT.Rest.mean_lags,gcampXCorrData.SSP_SAP.RH.HbT.Rest.mean_xcVals + gcampXCorrData.SSP_SAP.RH.HbT.Rest.stdErr_xcVals,'color',colors('electric purple'),'LineWidth',0.25);
+plot(gcampXCorrData.SSP_SAP.RH.HbT.Rest.mean_lags,gcampXCorrData.SSP_SAP.RH.HbT.Rest.mean_xcVals - gcampXCorrData.SSP_SAP.RH.HbT.Rest.stdErr_xcVals,'color',colors('electric purple'),'LineWidth',0.25);
+title('GCaMP-HbT Rest')
+ylabel('Corr Coef')
+xlabel('Lags (s)')
+xlim([-5,5])
+ylim([-0.1,0.9])
 set(gca,'box','off')
 axis square
-
-% GCaMP bilateral HbT - Alert
-subplot(4,3,8);
-semilogx(gcampBilatCoherData.Blank_SAP.HbT.Alert.mean_f,gcampBilatCoherData.Blank_SAP.HbT.Alert.mean_C,'color',colors('north texas green'),'LineWidth',2);
+% GCaMP cross correlation - Alert
+subplot(4,3,8)
+plot(gcampXCorrData.Blank_SAP.RH.HbT.Alert.mean_lags,gcampXCorrData.Blank_SAP.RH.HbT.Alert.mean_xcVals,'color',colors('north texas green'),'LineWidth',2);
 hold on
-semilogx(gcampBilatCoherData.Blank_SAP.HbT.Alert.mean_f,gcampBilatCoherData.Blank_SAP.HbT.Alert.mean_C + gcampBilatCoherData.Blank_SAP.HbT.Alert.stdErr_C,'color',colors('north texas green'),'LineWidth',0.25);
-semilogx(gcampBilatCoherData.Blank_SAP.HbT.Alert.mean_f,gcampBilatCoherData.Blank_SAP.HbT.Alert.mean_C - gcampBilatCoherData.Blank_SAP.HbT.Alert.stdErr_C,'color',colors('north texas green'),'LineWidth',0.25);
-semilogx(gcampBilatCoherData.SSP_SAP.HbT.Alert.mean_f,gcampBilatCoherData.SSP_SAP.HbT.Alert.mean_C,'color',colors('electric purple'),'LineWidth',2);
-semilogx(gcampBilatCoherData.SSP_SAP.HbT.Alert.mean_f,gcampBilatCoherData.SSP_SAP.HbT.Alert.mean_C + gcampBilatCoherData.SSP_SAP.HbT.Alert.stdErr_C,'color',colors('electric purple'),'LineWidth',0.25);
-semilogx(gcampBilatCoherData.SSP_SAP.HbT.Alert.mean_f,gcampBilatCoherData.SSP_SAP.HbT.Alert.mean_C - gcampBilatCoherData.SSP_SAP.HbT.Alert.stdErr_C,'color',colors('electric purple'),'LineWidth',0.25);
-title('bilat HbT Alert')
-xlabel('Freq (Hz)')
-ylabel('Coherence')
-xlim([0.01,0.5])
-ylim([0.7,1])
+plot(gcampXCorrData.Blank_SAP.RH.HbT.Alert.mean_lags,gcampXCorrData.Blank_SAP.RH.HbT.Alert.mean_xcVals + gcampXCorrData.Blank_SAP.RH.HbT.Alert.stdErr_xcVals,'color',colors('north texas green'),'LineWidth',0.25);
+plot(gcampXCorrData.Blank_SAP.RH.HbT.Alert.mean_lags,gcampXCorrData.Blank_SAP.RH.HbT.Alert.mean_xcVals - gcampXCorrData.Blank_SAP.RH.HbT.Alert.stdErr_xcVals,'color',colors('north texas green'),'LineWidth',0.25);
+plot(gcampXCorrData.SSP_SAP.RH.HbT.Alert.mean_lags,gcampXCorrData.SSP_SAP.RH.HbT.Alert.mean_xcVals,'color',colors('electric purple'),'LineWidth',2);
+plot(gcampXCorrData.SSP_SAP.RH.HbT.Alert.mean_lags,gcampXCorrData.SSP_SAP.RH.HbT.Alert.mean_xcVals + gcampXCorrData.SSP_SAP.RH.HbT.Alert.stdErr_xcVals,'color',colors('electric purple'),'LineWidth',0.25);
+plot(gcampXCorrData.SSP_SAP.RH.HbT.Alert.mean_lags,gcampXCorrData.SSP_SAP.RH.HbT.Alert.mean_xcVals - gcampXCorrData.SSP_SAP.RH.HbT.Alert.stdErr_xcVals,'color',colors('electric purple'),'LineWidth',0.25);
+title('GCaMP-HbT Alert')
+ylabel('Corr Coef')
+xlabel('Lags (s)')
+xlim([-5,5])
+ylim([-0.1,0.9])
+legend([p1,p2],'Blank-SAP','SSP-SAP')
 set(gca,'box','off')
 axis square
-
-% GCaMP bilateral HbT - Asleep
-subplot(4,3,9);
-semilogx(gcampBilatCoherData.Blank_SAP.HbT.Asleep.mean_f,gcampBilatCoherData.Blank_SAP.HbT.Asleep.mean_C,'color',colors('north texas green'),'LineWidth',2);
+% GCaMP cross correlation - Asleep
+subplot(4,3,9)
+plot(gcampXCorrData.Blank_SAP.RH.HbT.Asleep.mean_lags,gcampXCorrData.Blank_SAP.RH.HbT.Asleep.mean_xcVals,'color',colors('north texas green'),'LineWidth',2);
 hold on
-semilogx(gcampBilatCoherData.Blank_SAP.HbT.Asleep.mean_f,gcampBilatCoherData.Blank_SAP.HbT.Asleep.mean_C + gcampBilatCoherData.Blank_SAP.HbT.Asleep.stdErr_C,'color',colors('north texas green'),'LineWidth',0.25);
-semilogx(gcampBilatCoherData.Blank_SAP.HbT.Asleep.mean_f,gcampBilatCoherData.Blank_SAP.HbT.Asleep.mean_C - gcampBilatCoherData.Blank_SAP.HbT.Asleep.stdErr_C,'color',colors('north texas green'),'LineWidth',0.25);
-semilogx(gcampBilatCoherData.SSP_SAP.HbT.Asleep.mean_f,gcampBilatCoherData.SSP_SAP.HbT.Asleep.mean_C,'color',colors('electric purple'),'LineWidth',2);
-semilogx(gcampBilatCoherData.SSP_SAP.HbT.Asleep.mean_f,gcampBilatCoherData.SSP_SAP.HbT.Asleep.mean_C + gcampBilatCoherData.SSP_SAP.HbT.Asleep.stdErr_C,'color',colors('electric purple'),'LineWidth',0.25);
-semilogx(gcampBilatCoherData.SSP_SAP.HbT.Asleep.mean_f,gcampBilatCoherData.SSP_SAP.HbT.Asleep.mean_C - gcampBilatCoherData.SSP_SAP.HbT.Asleep.stdErr_C,'color',colors('electric purple'),'LineWidth',0.25);
-title('bilat HbT Asleep')
-xlabel('Freq (Hz)')
-ylabel('Coherence')
-xlim([0.01,0.5])
-ylim([0.7,1])
+plot(gcampXCorrData.Blank_SAP.RH.HbT.Asleep.mean_lags,gcampXCorrData.Blank_SAP.RH.HbT.Asleep.mean_xcVals + gcampXCorrData.Blank_SAP.RH.HbT.Asleep.stdErr_xcVals,'color',colors('north texas green'),'LineWidth',0.25);
+plot(gcampXCorrData.Blank_SAP.RH.HbT.Asleep.mean_lags,gcampXCorrData.Blank_SAP.RH.HbT.Asleep.mean_xcVals - gcampXCorrData.Blank_SAP.RH.HbT.Asleep.stdErr_xcVals,'color',colors('north texas green'),'LineWidth',0.25);
+plot(gcampXCorrData.SSP_SAP.RH.HbT.Asleep.mean_lags,gcampXCorrData.SSP_SAP.RH.HbT.Asleep.mean_xcVals,'color',colors('electric purple'),'LineWidth',2);
+plot(gcampXCorrData.SSP_SAP.RH.HbT.Asleep.mean_lags,gcampXCorrData.SSP_SAP.RH.HbT.Asleep.mean_xcVals + gcampXCorrData.SSP_SAP.RH.HbT.Asleep.stdErr_xcVals,'color',colors('electric purple'),'LineWidth',0.25);
+plot(gcampXCorrData.SSP_SAP.RH.HbT.Asleep.mean_lags,gcampXCorrData.SSP_SAP.RH.HbT.Asleep.mean_xcVals - gcampXCorrData.SSP_SAP.RH.HbT.Asleep.stdErr_xcVals,'color',colors('electric purple'),'LineWidth',0.25);
+title('GCaMP-HbT Asleep')
+ylabel('Corr Coef')
+xlabel('Lags (s)')
+xlim([-5,5])
+ylim([-0.1,0.9])
 set(gca,'box','off')
 axis square
-
-% GCaMP bilateral GCaMP - Rest
+% GCaMP neural-hemo coherence - Rest
 subplot(4,3,10);
-semilogx(gcampBilatCoherData.Blank_SAP.GCaMP.Rest.mean_f,gcampBilatCoherData.Blank_SAP.GCaMP.Rest.mean_C,'color',colors('north texas green'),'LineWidth',2);
+semilogx(gcampNHCoherData.Blank_SAP.RH.HbT.Rest.mean_f,gcampNHCoherData.Blank_SAP.RH.HbT.Rest.mean_C,'color',colors('north texas green'),'LineWidth',2);
 hold on
-semilogx(gcampBilatCoherData.Blank_SAP.GCaMP.Rest.mean_f,gcampBilatCoherData.Blank_SAP.GCaMP.Rest.mean_C + gcampBilatCoherData.Blank_SAP.GCaMP.Rest.stdErr_C,'color',colors('north texas green'),'LineWidth',0.25);
-semilogx(gcampBilatCoherData.Blank_SAP.GCaMP.Rest.mean_f,gcampBilatCoherData.Blank_SAP.GCaMP.Rest.mean_C - gcampBilatCoherData.Blank_SAP.GCaMP.Rest.stdErr_C,'color',colors('north texas green'),'LineWidth',0.25);
-semilogx(gcampBilatCoherData.SSP_SAP.GCaMP.Rest.mean_f,gcampBilatCoherData.SSP_SAP.GCaMP.Rest.mean_C,'color',colors('electric purple'),'LineWidth',2);
-semilogx(gcampBilatCoherData.SSP_SAP.GCaMP.Rest.mean_f,gcampBilatCoherData.SSP_SAP.GCaMP.Rest.mean_C + gcampBilatCoherData.SSP_SAP.GCaMP.Rest.stdErr_C,'color',colors('electric purple'),'LineWidth',0.25);
-semilogx(gcampBilatCoherData.SSP_SAP.GCaMP.Rest.mean_f,gcampBilatCoherData.SSP_SAP.GCaMP.Rest.mean_C - gcampBilatCoherData.SSP_SAP.GCaMP.Rest.stdErr_C,'color',colors('electric purple'),'LineWidth',0.25);
-title('bilat GCaMP Rest')
-xlabel('Freq (Hz)')
+semilogx(gcampNHCoherData.Blank_SAP.RH.HbT.Rest.mean_f,gcampNHCoherData.Blank_SAP.RH.HbT.Rest.mean_C + gcampNHCoherData.Blank_SAP.RH.HbT.Rest.stdErr_C,'color',colors('north texas green'),'LineWidth',0.25);
+semilogx(gcampNHCoherData.Blank_SAP.RH.HbT.Rest.mean_f,gcampNHCoherData.Blank_SAP.RH.HbT.Rest.mean_C - gcampNHCoherData.Blank_SAP.RH.HbT.Rest.stdErr_C,'color',colors('north texas green'),'LineWidth',0.25);
+semilogx(gcampNHCoherData.SSP_SAP.RH.HbT.Rest.mean_f,gcampNHCoherData.SSP_SAP.RH.HbT.Rest.mean_C,'color',colors('electric purple'),'LineWidth',2);
+semilogx(gcampNHCoherData.SSP_SAP.RH.HbT.Rest.mean_f,gcampNHCoherData.SSP_SAP.RH.HbT.Rest.mean_C + gcampNHCoherData.SSP_SAP.RH.HbT.Rest.stdErr_C,'color',colors('electric purple'),'LineWidth',0.5);
+semilogx(gcampNHCoherData.SSP_SAP.RH.HbT.Rest.mean_f,gcampNHCoherData.SSP_SAP.RH.HbT.Rest.mean_C - gcampNHCoherData.SSP_SAP.RH.HbT.Rest.stdErr_C,'color',colors('electric purple'),'LineWidth',0.25);
+title('GCaMP-HbT Rest')
 ylabel('Coherence')
+xlabel('Freq (Hz)')
 xlim([0.1,0.5])
-ylim([0.6,1])
+ylim([0.2,1])
 set(gca,'box','off')
 axis square
-
-% GCaMP bilateral GCaMP - Alert
+% GCaMP neural-hemo coherence - Alert
 subplot(4,3,11);
-semilogx(gcampBilatCoherData.Blank_SAP.GCaMP.Alert.mean_f,gcampBilatCoherData.Blank_SAP.GCaMP.Alert.mean_C,'color',colors('north texas green'),'LineWidth',2);
+semilogx(gcampNHCoherData.Blank_SAP.RH.HbT.Alert.mean_f,gcampNHCoherData.Blank_SAP.RH.HbT.Alert.mean_C,'color',colors('north texas green'),'LineWidth',2);
 hold on
-semilogx(gcampBilatCoherData.Blank_SAP.GCaMP.Alert.mean_f,gcampBilatCoherData.Blank_SAP.GCaMP.Alert.mean_C + gcampBilatCoherData.Blank_SAP.GCaMP.Alert.stdErr_C,'color',colors('north texas green'),'LineWidth',0.25);
-semilogx(gcampBilatCoherData.Blank_SAP.GCaMP.Alert.mean_f,gcampBilatCoherData.Blank_SAP.GCaMP.Alert.mean_C - gcampBilatCoherData.Blank_SAP.GCaMP.Alert.stdErr_C,'color',colors('north texas green'),'LineWidth',0.25);
-semilogx(gcampBilatCoherData.SSP_SAP.GCaMP.Alert.mean_f,gcampBilatCoherData.SSP_SAP.GCaMP.Alert.mean_C,'color',colors('electric purple'),'LineWidth',2);
-semilogx(gcampBilatCoherData.SSP_SAP.GCaMP.Alert.mean_f,gcampBilatCoherData.SSP_SAP.GCaMP.Alert.mean_C + gcampBilatCoherData.SSP_SAP.GCaMP.Alert.stdErr_C,'color',colors('electric purple'),'LineWidth',0.25);
-semilogx(gcampBilatCoherData.SSP_SAP.GCaMP.Alert.mean_f,gcampBilatCoherData.SSP_SAP.GCaMP.Alert.mean_C - gcampBilatCoherData.SSP_SAP.GCaMP.Alert.stdErr_C,'color',colors('electric purple'),'LineWidth',0.25);
-title('bilat GCaMP Alert')
-xlabel('Freq (Hz)')
+semilogx(gcampNHCoherData.Blank_SAP.RH.HbT.Alert.mean_f,gcampNHCoherData.Blank_SAP.RH.HbT.Alert.mean_C + gcampNHCoherData.Blank_SAP.RH.HbT.Alert.stdErr_C,'color',colors('north texas green'),'LineWidth',0.25);
+semilogx(gcampNHCoherData.Blank_SAP.RH.HbT.Alert.mean_f,gcampNHCoherData.Blank_SAP.RH.HbT.Alert.mean_C - gcampNHCoherData.Blank_SAP.RH.HbT.Alert.stdErr_C,'color',colors('north texas green'),'LineWidth',0.25);
+semilogx(gcampNHCoherData.SSP_SAP.RH.HbT.Alert.mean_f,gcampNHCoherData.SSP_SAP.RH.HbT.Alert.mean_C,'color',colors('electric purple'),'LineWidth',2);
+semilogx(gcampNHCoherData.SSP_SAP.RH.HbT.Alert.mean_f,gcampNHCoherData.SSP_SAP.RH.HbT.Alert.mean_C + gcampNHCoherData.SSP_SAP.RH.HbT.Alert.stdErr_C,'color',colors('electric purple'),'LineWidth',0.5);
+semilogx(gcampNHCoherData.SSP_SAP.RH.HbT.Alert.mean_f,gcampNHCoherData.SSP_SAP.RH.HbT.Alert.mean_C - gcampNHCoherData.SSP_SAP.RH.HbT.Alert.stdErr_C,'color',colors('electric purple'),'LineWidth',0.25);
+title('GCaMP-HbT Alert')
 ylabel('Coherence')
+xlabel('Freq (Hz)')
 xlim([0.01,0.5])
-ylim([0.6,1])
+ylim([0.2,1])
 set(gca,'box','off')
 axis square
-
-% GCaMP bilateral GCaMP - Asleep
+% GCaMP neural-hemo coherence - Asleep
 subplot(4,3,12);
-semilogx(gcampBilatCoherData.Blank_SAP.GCaMP.Asleep.mean_f,gcampBilatCoherData.Blank_SAP.GCaMP.Asleep.mean_C,'color',colors('north texas green'),'LineWidth',2);
+semilogx(gcampNHCoherData.Blank_SAP.RH.HbT.Asleep.mean_f,gcampNHCoherData.Blank_SAP.RH.HbT.Asleep.mean_C,'color',colors('north texas green'),'LineWidth',2);
 hold on
-semilogx(gcampBilatCoherData.Blank_SAP.GCaMP.Asleep.mean_f,gcampBilatCoherData.Blank_SAP.GCaMP.Asleep.mean_C + gcampBilatCoherData.Blank_SAP.GCaMP.Asleep.stdErr_C,'color',colors('north texas green'),'LineWidth',0.25);
-semilogx(gcampBilatCoherData.Blank_SAP.GCaMP.Asleep.mean_f,gcampBilatCoherData.Blank_SAP.GCaMP.Asleep.mean_C - gcampBilatCoherData.Blank_SAP.GCaMP.Asleep.stdErr_C,'color',colors('north texas green'),'LineWidth',0.25);
-semilogx(gcampBilatCoherData.SSP_SAP.GCaMP.Asleep.mean_f,gcampBilatCoherData.SSP_SAP.GCaMP.Asleep.mean_C,'color',colors('electric purple'),'LineWidth',2);
-semilogx(gcampBilatCoherData.SSP_SAP.GCaMP.Asleep.mean_f,gcampBilatCoherData.SSP_SAP.GCaMP.Asleep.mean_C + gcampBilatCoherData.SSP_SAP.GCaMP.Asleep.stdErr_C,'color',colors('electric purple'),'LineWidth',0.25);
-semilogx(gcampBilatCoherData.SSP_SAP.GCaMP.Asleep.mean_f,gcampBilatCoherData.SSP_SAP.GCaMP.Asleep.mean_C - gcampBilatCoherData.SSP_SAP.GCaMP.Asleep.stdErr_C,'color',colors('electric purple'),'LineWidth',0.25);
-title('bilat GCaMP Asleep')
-xlabel('Freq (Hz)')
+semilogx(gcampNHCoherData.Blank_SAP.RH.HbT.Asleep.mean_f,gcampNHCoherData.Blank_SAP.RH.HbT.Asleep.mean_C + gcampNHCoherData.Blank_SAP.RH.HbT.Asleep.stdErr_C,'color',colors('north texas green'),'LineWidth',0.25);
+semilogx(gcampNHCoherData.Blank_SAP.RH.HbT.Asleep.mean_f,gcampNHCoherData.Blank_SAP.RH.HbT.Asleep.mean_C - gcampNHCoherData.Blank_SAP.RH.HbT.Asleep.stdErr_C,'color',colors('north texas green'),'LineWidth',0.25);
+semilogx(gcampNHCoherData.SSP_SAP.RH.HbT.Asleep.mean_f,gcampNHCoherData.SSP_SAP.RH.HbT.Asleep.mean_C,'color',colors('electric purple'),'LineWidth',2);
+semilogx(gcampNHCoherData.SSP_SAP.RH.HbT.Asleep.mean_f,gcampNHCoherData.SSP_SAP.RH.HbT.Asleep.mean_C + gcampNHCoherData.SSP_SAP.RH.HbT.Asleep.stdErr_C,'color',colors('electric purple'),'LineWidth',0.5);
+semilogx(gcampNHCoherData.SSP_SAP.RH.HbT.Asleep.mean_f,gcampNHCoherData.SSP_SAP.RH.HbT.Asleep.mean_C - gcampNHCoherData.SSP_SAP.RH.HbT.Asleep.stdErr_C,'color',colors('electric purple'),'LineWidth',0.25);
+title('GCaMP-HbT Asleep')
 ylabel('Coherence')
+xlabel('Freq (Hz)')
 xlim([0.01,0.5])
-ylim([0.6,1])
+ylim([0.2,1])
 set(gca,'box','off')
 axis square
 
@@ -381,10 +556,10 @@ if saveFigs == true
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
-    savefig(Fig5,[dirpath 'Fig5']);
-    set(Fig5,'PaperPositionMode','auto');
-    print('-vector','-dpdf','-fillpage',[dirpath 'Fig5'])
-    diaryFile = [dirpath 'Fig5_Readout.txt'];
+    savefig(Fig4,[dirpath 'Fig4']);
+    set(Fig4,'PaperPositionMode','auto');
+    print('-vector','-dpdf','-fillpage',[dirpath 'Fig4'])
+    diaryFile = [dirpath 'Fig4_Readout.txt'];
     if exist(diaryFile,'file') == 2
         delete(diaryFile)
     end
@@ -392,113 +567,113 @@ if saveFigs == true
     diary(diaryFile)
     diary on
 
-    % HbT coherence (Rest)
-    disp('HbT coherence (Rest), n = 9 mice per group, mean +/- SEM'); disp(' ')
-    disp(['Blank-SAP ' num2str(mean(ephysBilatCoherData.Blank_SAP.HbT.Rest.binC)) ' +/- ' num2str(std(ephysBilatCoherData.Blank_SAP.HbT.Rest.binC,0,1)./sqrt(size(ephysBilatCoherData.Blank_SAP.HbT.Rest.binC,1)))]); disp(' ')
-    disp(['SSP-SAP ' num2str(mean(ephysBilatCoherData.SSP_SAP.HbT.Rest.binC)) ' +/- ' num2str(std(ephysBilatCoherData.SSP_SAP.HbT.Rest.binC,0,1)./sqrt(size(ephysBilatCoherData.SSP_SAP.HbT.Rest.binC,1)))]); disp(' ')
+    % Gamma-HbT XCorr (Rest)
+    disp('gamma-HbT XCorr (Rest), n = 9 mice per group, mean +/- SEM'); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(ephysXCorrData.Blank_SAP.RH.gammaBandPower.Rest.peak)) ' +/- ' num2str(std(ephysXCorrData.Blank_SAP.RH.gammaBandPower.Rest.peak,0,1)./sqrt(size(ephysXCorrData.Blank_SAP.RH.gammaBandPower.Rest.peak,1)))]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(ephysXCorrData.SSP_SAP.RH.gammaBandPower.Rest.peak)) ' +/- ' num2str(std(ephysXCorrData.SSP_SAP.RH.gammaBandPower.Rest.peak,0,1)./sqrt(size(ephysXCorrData.SSP_SAP.RH.gammaBandPower.Rest.peak,1)))]); disp(' ')
     disp('======================================================================================================================')
-    disp('GLME statistics for Rest HbT [Ephys]')
+    disp('GLME statistics for gamma-HbT XCorr during Rest [Ephys]')
     disp('======================================================================================================================')
-    disp(ephysBilatCoherStats.HbT.Rest.Stats)
+    disp(ephysXCorrStats.RH.gammaBandPower.Rest.Stats)
 
-    % HbT coherence (Alert)
-    disp('HbT coherence (Alert), n = 9 mice per group, mean +/- SEM'); disp(' ')
-    disp(['Blank-SAP ' num2str(mean(ephysBilatCoherData.Blank_SAP.HbT.Alert.binC)) ' +/- ' num2str(std(ephysBilatCoherData.Blank_SAP.HbT.Alert.binC,0,1)./sqrt(size(ephysBilatCoherData.Blank_SAP.HbT.Alert.binC,1)))]); disp(' ')
-    disp(['SSP-SAP ' num2str(mean(ephysBilatCoherData.SSP_SAP.HbT.Alert.binC)) ' +/- ' num2str(std(ephysBilatCoherData.SSP_SAP.HbT.Alert.binC,0,1)./sqrt(size(ephysBilatCoherData.SSP_SAP.HbT.Alert.binC,1)))]); disp(' ')
+    % Gamma-HbT XCorr (Alert)
+    disp('gamma-HbT XCorr (Alert), n = 9 mice per group, mean +/- SEM'); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(ephysXCorrData.Blank_SAP.RH.gammaBandPower.Alert.peak)) ' +/- ' num2str(std(ephysXCorrData.Blank_SAP.RH.gammaBandPower.Alert.peak,0,1)./sqrt(size(ephysXCorrData.Blank_SAP.RH.gammaBandPower.Alert.peak,1)))]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(ephysXCorrData.SSP_SAP.RH.gammaBandPower.Alert.peak)) ' +/- ' num2str(std(ephysXCorrData.SSP_SAP.RH.gammaBandPower.Alert.peak,0,1)./sqrt(size(ephysXCorrData.SSP_SAP.RH.gammaBandPower.Alert.peak,1)))]); disp(' ')
     disp('======================================================================================================================')
-    disp('GLME statistics for Alert HbT [Ephys]')
+    disp('GLME statistics for gamma-HbT XCorr during Alert [Ephys]')
     disp('======================================================================================================================')
-    disp(ephysBilatCoherStats.HbT.Alert.Stats)
+    disp(ephysXCorrStats.RH.gammaBandPower.Alert.Stats)
 
-    % HbT coherence (Asleep)
-    disp('HbT coherence (Asleep), n = 9 mice per group, mean +/- SEM'); disp(' ')
-    disp(['Blank-SAP ' num2str(mean(ephysBilatCoherData.Blank_SAP.HbT.Asleep.binC)) ' +/- ' num2str(std(ephysBilatCoherData.Blank_SAP.HbT.Asleep.binC,0,1)./sqrt(size(ephysBilatCoherData.Blank_SAP.HbT.Asleep.binC,1)))]); disp(' ')
-    disp(['SSP-SAP ' num2str(mean(ephysBilatCoherData.SSP_SAP.HbT.Asleep.binC)) ' +/- ' num2str(std(ephysBilatCoherData.SSP_SAP.HbT.Asleep.binC,0,1)./sqrt(size(ephysBilatCoherData.SSP_SAP.HbT.Asleep.binC,1)))]); disp(' ')
+    % Gamma-HbT XCorr (Asleep)
+    disp('gamma-HbT XCorr (Asleep), n = 9 mice per group, mean +/- SEM'); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(ephysXCorrData.Blank_SAP.RH.gammaBandPower.Asleep.peak)) ' +/- ' num2str(std(ephysXCorrData.Blank_SAP.RH.gammaBandPower.Asleep.peak,0,1)./sqrt(size(ephysXCorrData.Blank_SAP.RH.gammaBandPower.Asleep.peak,1)))]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(ephysXCorrData.SSP_SAP.RH.gammaBandPower.Asleep.peak)) ' +/- ' num2str(std(ephysXCorrData.SSP_SAP.RH.gammaBandPower.Asleep.peak,0,1)./sqrt(size(ephysXCorrData.SSP_SAP.RH.gammaBandPower.Asleep.peak,1)))]); disp(' ')
     disp('======================================================================================================================')
-    disp('GLME statistics for Asleep HbT [Ephys]')
+    disp('GLME statistics for gamma-HbT XCorr during Asleep [Ephys]')
     disp('======================================================================================================================')
-    disp(ephysBilatCoherStats.HbT.Asleep.Stats)
+    disp(ephysXCorrStats.RH.gammaBandPower.Asleep.Stats)
 
-    % Gamma coherence (Rest)
-    disp('Gamma coherence (Rest), n = 9 mice per group, mean +/- SEM'); disp(' ')
-    disp(['Blank-SAP ' num2str(mean(ephysBilatCoherData.Blank_SAP.gammaBandPower.Rest.binC)) ' +/- ' num2str(std(ephysBilatCoherData.Blank_SAP.gammaBandPower.Rest.binC,0,1)./sqrt(size(ephysBilatCoherData.Blank_SAP.gammaBandPower.Rest.binC,1)))]); disp(' ')
-    disp(['SSP-SAP ' num2str(mean(ephysBilatCoherData.SSP_SAP.gammaBandPower.Rest.binC)) ' +/- ' num2str(std(ephysBilatCoherData.SSP_SAP.gammaBandPower.Rest.binC,0,1)./sqrt(size(ephysBilatCoherData.SSP_SAP.gammaBandPower.Rest.binC,1)))]); disp(' ')
+    % Gamma-HbT coherence(Rest)
+    disp('gamma-HbT coherence (Rest), n = 9 mice per group, mean +/- SEM'); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(ephysNHCoherData.Blank_SAP.RH.gammaBandPower.Rest.binC)) ' +/- ' num2str(std(ephysNHCoherData.Blank_SAP.RH.gammaBandPower.Rest.binC,0,1)./sqrt(size(ephysNHCoherData.Blank_SAP.RH.gammaBandPower.Rest.binC,1)))]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(ephysNHCoherData.SSP_SAP.RH.gammaBandPower.Rest.binC)) ' +/- ' num2str(std(ephysNHCoherData.SSP_SAP.RH.gammaBandPower.Rest.binC,0,1)./sqrt(size(ephysNHCoherData.SSP_SAP.RH.gammaBandPower.Rest.binC,1)))]); disp(' ')
     disp('======================================================================================================================')
-    disp('GLME statistics for Rest gamma [Ephys]')
+    disp('GLME statistics for gamma-HbT Coherence during Rest [Ephys]')
     disp('======================================================================================================================')
-    disp(ephysBilatCoherStats.gammaBandPower.Rest.Stats)
+    disp(ephysNHCoherStats.RH.gammaBandPower.Rest.Stats)
 
-    % Gamma coherence (Alert)
-    disp('HbT coherence (Alert), n = 9 mice per group, mean +/- SEM'); disp(' ')
-    disp(['Blank-SAP ' num2str(mean(ephysBilatCoherData.Blank_SAP.gammaBandPower.Alert.binC)) ' +/- ' num2str(std(ephysBilatCoherData.Blank_SAP.gammaBandPower.Alert.binC,0,1)./sqrt(size(ephysBilatCoherData.Blank_SAP.gammaBandPower.Alert.binC,1)))]); disp(' ')
-    disp(['SSP-SAP ' num2str(mean(ephysBilatCoherData.SSP_SAP.gammaBandPower.Alert.binC)) ' +/- ' num2str(std(ephysBilatCoherData.SSP_SAP.gammaBandPower.Alert.binC,0,1)./sqrt(size(ephysBilatCoherData.SSP_SAP.gammaBandPower.Alert.binC,1)))]); disp(' ')
+    % Gamma-HbT coherence (Alert)
+    disp('gamma-HbT coherence (Alert), n = 9 mice per group, mean +/- SEM'); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(ephysNHCoherData.Blank_SAP.RH.gammaBandPower.Alert.binC)) ' +/- ' num2str(std(ephysNHCoherData.Blank_SAP.RH.gammaBandPower.Alert.binC,0,1)./sqrt(size(ephysNHCoherData.Blank_SAP.RH.gammaBandPower.Alert.binC,1)))]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(ephysNHCoherData.SSP_SAP.RH.gammaBandPower.Alert.binC)) ' +/- ' num2str(std(ephysNHCoherData.SSP_SAP.RH.gammaBandPower.Alert.binC,0,1)./sqrt(size(ephysNHCoherData.SSP_SAP.RH.gammaBandPower.Alert.binC,1)))]); disp(' ')
     disp('======================================================================================================================')
-    disp('GLME statistics for Alert gamma [Ephys]')
+    disp('GLME statistics for gamma-HbT Coherence during Alert [Ephys]')
     disp('======================================================================================================================')
-    disp(ephysBilatCoherStats.gammaBandPower.Alert.Stats)
+    disp(ephysNHCoherStats.RH.gammaBandPower.Alert.Stats)
 
-    % Gamma coherence (Asleep)
-    disp('HbT coherence (Asleep), n = 9 mice per group, mean +/- SEM'); disp(' ')
-    disp(['Blank-SAP ' num2str(mean(ephysBilatCoherData.Blank_SAP.gammaBandPower.Asleep.binC)) ' +/- ' num2str(std(ephysBilatCoherData.Blank_SAP.gammaBandPower.Asleep.binC,0,1)./sqrt(size(ephysBilatCoherData.Blank_SAP.gammaBandPower.Asleep.binC,1)))]); disp(' ')
-    disp(['SSP-SAP ' num2str(mean(ephysBilatCoherData.SSP_SAP.gammaBandPower.Asleep.binC)) ' +/- ' num2str(std(ephysBilatCoherData.SSP_SAP.gammaBandPower.Asleep.binC,0,1)./sqrt(size(ephysBilatCoherData.SSP_SAP.gammaBandPower.Asleep.binC,1)))]); disp(' ')
+    % Gamma-HbT coherence (Asleep)
+    disp('gamma-HbT coherence (Asleep), n = 9 mice per group, mean +/- SEM'); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(ephysNHCoherData.Blank_SAP.RH.gammaBandPower.Asleep.binC)) ' +/- ' num2str(std(ephysNHCoherData.Blank_SAP.RH.gammaBandPower.Asleep.binC,0,1)./sqrt(size(ephysNHCoherData.Blank_SAP.RH.gammaBandPower.Asleep.binC,1)))]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(ephysNHCoherData.SSP_SAP.RH.gammaBandPower.Asleep.binC)) ' +/- ' num2str(std(ephysNHCoherData.SSP_SAP.RH.gammaBandPower.Asleep.binC,0,1)./sqrt(size(ephysNHCoherData.SSP_SAP.RH.gammaBandPower.Asleep.binC,1)))]); disp(' ')
     disp('======================================================================================================================')
-    disp('GLME statistics for Asleep gamma [Ephys]')
+    disp('GLME statistics for gamma-HbT Coherence during Asleep [Ephys]')
     disp('======================================================================================================================')
-    disp(ephysBilatCoherStats.gammaBandPower.Asleep.Stats)
+    disp(ephysNHCoherStats.RH.gammaBandPower.Asleep.Stats)
 
-    % HbT coherence (Rest)
-    disp('HbT coherence (Rest), n = 9 mice per group, mean +/- SEM'); disp(' ')
-    disp(['Blank-SAP ' num2str(mean(gcampBilatCoherData.Blank_SAP.HbT.Rest.binC)) ' +/- ' num2str(std(gcampBilatCoherData.Blank_SAP.HbT.Rest.binC,0,1)./sqrt(size(gcampBilatCoherData.Blank_SAP.HbT.Rest.binC,1)))]); disp(' ')
-    disp(['SSP-SAP ' num2str(mean(gcampBilatCoherData.SSP_SAP.HbT.Rest.binC)) ' +/- ' num2str(std(gcampBilatCoherData.SSP_SAP.HbT.Rest.binC,0,1)./sqrt(size(gcampBilatCoherData.SSP_SAP.HbT.Rest.binC,1)))]); disp(' ')
+    % GCaMP-HbT XCorr (Rest)
+    disp('GCaMP-HbT XCorr (Rest), n = 7-8 mice per group, mean +/- SEM'); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(gcampXCorrData.Blank_SAP.RH.HbT.Rest.peak)) ' +/- ' num2str(std(gcampXCorrData.Blank_SAP.RH.HbT.Rest.peak,0,1)./sqrt(size(gcampXCorrData.Blank_SAP.RH.HbT.Rest.peak,1)))]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(gcampXCorrData.SSP_SAP.RH.HbT.Rest.peak)) ' +/- ' num2str(std(gcampXCorrData.SSP_SAP.RH.HbT.Rest.peak,0,1)./sqrt(size(gcampXCorrData.SSP_SAP.RH.HbT.Rest.peak,1)))]); disp(' ')
     disp('======================================================================================================================')
-    disp('GLME statistics for Rest HbT [GCaMP]')
+    disp('GLME statistics for GCaMP-HbT XCorr during Rest [GCaMP]')
     disp('======================================================================================================================')
-    disp(gcampBilatCoherStats.HbT.Rest.Stats)
+    disp(gcampXCorrStats.RH.HbT.Rest.Stats)
 
-    % HbT coherence (Alert)
-    disp('HbT coherence (Alert), n = 9 mice per group, mean +/- SEM'); disp(' ')
-    disp(['Blank-SAP ' num2str(mean(gcampBilatCoherData.Blank_SAP.HbT.Alert.binC)) ' +/- ' num2str(std(gcampBilatCoherData.Blank_SAP.HbT.Alert.binC,0,1)./sqrt(size(gcampBilatCoherData.Blank_SAP.HbT.Alert.binC,1)))]); disp(' ')
-    disp(['SSP-SAP ' num2str(mean(gcampBilatCoherData.SSP_SAP.HbT.Alert.binC)) ' +/- ' num2str(std(gcampBilatCoherData.SSP_SAP.HbT.Alert.binC,0,1)./sqrt(size(gcampBilatCoherData.SSP_SAP.HbT.Alert.binC,1)))]); disp(' ')
+    % GCaMP-HbT XCorr (Alert)
+    disp('GCaMP-HbT XCorr (Alert), n = 7-8 mice per group, mean +/- SEM'); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(gcampXCorrData.Blank_SAP.RH.HbT.Alert.peak)) ' +/- ' num2str(std(gcampXCorrData.Blank_SAP.RH.HbT.Alert.peak,0,1)./sqrt(size(gcampXCorrData.Blank_SAP.RH.HbT.Alert.peak,1)))]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(gcampXCorrData.SSP_SAP.RH.HbT.Alert.peak)) ' +/- ' num2str(std(gcampXCorrData.SSP_SAP.RH.HbT.Alert.peak,0,1)./sqrt(size(gcampXCorrData.SSP_SAP.RH.HbT.Alert.peak,1)))]); disp(' ')
     disp('======================================================================================================================')
-    disp('GLME statistics for Alert HbT [GCaMP]')
+    disp('GLME statistics for GCaMP-HbT XCorr during Alert [GCaMP]')
     disp('======================================================================================================================')
-    disp(gcampBilatCoherStats.HbT.Alert.Stats)
+    disp(gcampXCorrStats.RH.HbT.Alert.Stats)
 
-    % HbT coherence (Asleep)
-    disp('HbT coherence (Asleep), n = 9 mice per group, mean +/- SEM'); disp(' ')
-    disp(['Blank-SAP ' num2str(mean(gcampBilatCoherData.Blank_SAP.HbT.Asleep.binC)) ' +/- ' num2str(std(gcampBilatCoherData.Blank_SAP.HbT.Asleep.binC,0,1)./sqrt(size(gcampBilatCoherData.Blank_SAP.HbT.Asleep.binC,1)))]); disp(' ')
-    disp(['SSP-SAP ' num2str(mean(gcampBilatCoherData.SSP_SAP.HbT.Asleep.binC)) ' +/- ' num2str(std(gcampBilatCoherData.SSP_SAP.HbT.Asleep.binC,0,1)./sqrt(size(gcampBilatCoherData.SSP_SAP.HbT.Asleep.binC,1)))]); disp(' ')
+    % GCaMP-HbT XCorr (Asleep)
+    disp('GCaMP-HbT XCorr (Asleep), n = 7-8 mice per group, mean +/- SEM'); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(gcampXCorrData.Blank_SAP.RH.HbT.Asleep.peak)) ' +/- ' num2str(std(gcampXCorrData.Blank_SAP.RH.HbT.Asleep.peak,0,1)./sqrt(size(gcampXCorrData.Blank_SAP.RH.HbT.Asleep.peak,1)))]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(gcampXCorrData.SSP_SAP.RH.HbT.Asleep.peak)) ' +/- ' num2str(std(gcampXCorrData.SSP_SAP.RH.HbT.Asleep.peak,0,1)./sqrt(size(gcampXCorrData.SSP_SAP.RH.HbT.Asleep.peak,1)))]); disp(' ')
     disp('======================================================================================================================')
-    disp('GLME statistics for Asleep HbT [GCaMP]')
+    disp('GLME statistics for GCaMP-HbT XCorr during Asleep [GCaMP]')
     disp('======================================================================================================================')
-    disp(gcampBilatCoherStats.HbT.Asleep.Stats)
+    disp(gcampXCorrStats.RH.HbT.Asleep.Stats)
 
-    % GCaMP coherence (Rest)
-    disp('HbT coherence (Rest), n = 9 mice per group, mean +/- SEM'); disp(' ')
-    disp(['Blank-SAP ' num2str(mean(gcampBilatCoherData.Blank_SAP.GCaMP.Rest.binC)) ' +/- ' num2str(std(gcampBilatCoherData.Blank_SAP.GCaMP.Rest.binC,0,1)./sqrt(size(gcampBilatCoherData.Blank_SAP.GCaMP.Rest.binC,1)))]); disp(' ')
-    disp(['SSP-SAP ' num2str(mean(gcampBilatCoherData.SSP_SAP.GCaMP.Rest.binC)) ' +/- ' num2str(std(gcampBilatCoherData.SSP_SAP.GCaMP.Rest.binC,0,1)./sqrt(size(gcampBilatCoherData.SSP_SAP.GCaMP.Rest.binC,1)))]); disp(' ')
+    % GCaMP-HbT coherence (Rest)
+    disp('GCaMP-HbT coherence (Rest), n = 7-8 mice per group, mean +/- SEM'); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(gcampNHCoherData.Blank_SAP.RH.HbT.Rest.binC)) ' +/- ' num2str(std(gcampNHCoherData.Blank_SAP.RH.HbT.Rest.binC,0,1)./sqrt(size(gcampNHCoherData.Blank_SAP.RH.HbT.Rest.binC,1)))]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(gcampNHCoherData.SSP_SAP.RH.HbT.Rest.binC)) ' +/- ' num2str(std(gcampNHCoherData.SSP_SAP.RH.HbT.Rest.binC,0,1)./sqrt(size(gcampNHCoherData.SSP_SAP.RH.HbT.Rest.binC,1)))]); disp(' ')
     disp('======================================================================================================================')
-    disp('GLME statistics for Rest F/F [GCaMP]')
+    disp('GLME statistics for GCaMP-HbT Coherence during Rest [GCaMP]')
     disp('======================================================================================================================')
-    disp(gcampBilatCoherStats.GCaMP.Rest.Stats)
+    disp(gcampNHCoherStats.RH.HbT.Rest.Stats)
 
-    % GCaMP coherence (Alert)
-    disp('HbT coherence (Alert), n = 9 mice per group, mean +/- SEM'); disp(' ')
-    disp(['Blank-SAP ' num2str(mean(gcampBilatCoherData.Blank_SAP.GCaMP.Alert.binC)) ' +/- ' num2str(std(gcampBilatCoherData.Blank_SAP.GCaMP.Alert.binC,0,1)./sqrt(size(gcampBilatCoherData.Blank_SAP.GCaMP.Alert.binC,1)))]); disp(' ')
-    disp(['SSP-SAP ' num2str(mean(gcampBilatCoherData.SSP_SAP.GCaMP.Alert.binC)) ' +/- ' num2str(std(gcampBilatCoherData.SSP_SAP.GCaMP.Alert.binC,0,1)./sqrt(size(gcampBilatCoherData.SSP_SAP.GCaMP.Alert.binC,1)))]); disp(' ')
+    % GCaMP-HbT coherence (Alert)
+    disp('GCaMP-HbT coherence (Alert), n = 7-8 mice per group, mean +/- SEM'); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(gcampNHCoherData.Blank_SAP.RH.HbT.Alert.binC)) ' +/- ' num2str(std(gcampNHCoherData.Blank_SAP.RH.HbT.Alert.binC,0,1)./sqrt(size(gcampNHCoherData.Blank_SAP.RH.HbT.Alert.binC,1)))]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(gcampNHCoherData.SSP_SAP.RH.HbT.Alert.binC)) ' +/- ' num2str(std(gcampNHCoherData.SSP_SAP.RH.HbT.Alert.binC,0,1)./sqrt(size(gcampNHCoherData.SSP_SAP.RH.HbT.Alert.binC,1)))]); disp(' ')
     disp('======================================================================================================================')
-    disp('GLME statistics for Alert F/F [GCaMP]')
+    disp('GLME statistics for GCaMP-HbT Coherence during Alert [GCaMP]')
     disp('======================================================================================================================')
-    disp(gcampBilatCoherStats.GCaMP.Alert.Stats)
+    disp(gcampNHCoherStats.RH.HbT.Alert.Stats)
 
-    % GCaMP coherence (Asleep)
-    disp('HbT coherence (Asleep), n = 9 mice per group, mean +/- SEM'); disp(' ')
-    disp(['Blank-SAP ' num2str(mean(gcampBilatCoherData.Blank_SAP.GCaMP.Asleep.binC)) ' +/- ' num2str(std(gcampBilatCoherData.Blank_SAP.GCaMP.Asleep.binC,0,1)./sqrt(size(gcampBilatCoherData.Blank_SAP.GCaMP.Asleep.binC,1)))]); disp(' ')
-    disp(['SSP-SAP ' num2str(mean(gcampBilatCoherData.SSP_SAP.GCaMP.Asleep.binC)) ' +/- ' num2str(std(gcampBilatCoherData.SSP_SAP.GCaMP.Asleep.binC,0,1)./sqrt(size(gcampBilatCoherData.SSP_SAP.GCaMP.Asleep.binC,1)))]); disp(' ')
+    % GCaMP-HbT coherence (Asleep)
+    disp('GCaMP-HbT coherence (Asleep), n = 7-8 mice per group, mean +/- SEM'); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(gcampNHCoherData.Blank_SAP.RH.HbT.Asleep.binC)) ' +/- ' num2str(std(gcampNHCoherData.Blank_SAP.RH.HbT.Asleep.binC,0,1)./sqrt(size(gcampNHCoherData.Blank_SAP.RH.HbT.Asleep.binC,1)))]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(gcampNHCoherData.SSP_SAP.RH.HbT.Asleep.binC)) ' +/- ' num2str(std(gcampNHCoherData.SSP_SAP.RH.HbT.Asleep.binC,0,1)./sqrt(size(gcampNHCoherData.SSP_SAP.RH.HbT.Asleep.binC,1)))]); disp(' ')
     disp('======================================================================================================================')
-    disp('GLME statistics for Asleep F/F [GCaMP]')
+    disp('GLME statistics for GCaMP-HbT Coherence during Asleep [GCaMP]')
     disp('======================================================================================================================')
-    disp(gcampBilatCoherStats.GCaMP.Asleep.Stats)
+    disp(gcampNHCoherStats.RH.HbT.Asleep.Stats)
 
     diary off
 end
