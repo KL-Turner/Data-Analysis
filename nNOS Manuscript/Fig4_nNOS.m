@@ -1012,125 +1012,10 @@ restVarStats.FitFormula = 'Variance ~ 1 + Group + (1|Mouse)';
 restVarStats.Stats = fitglme(restVarStats.Table,restVarStats.FitFormula);
 
 %% figure
-Fig3 = figure('Name','Figure 3','units','normalized','outerposition',[0 0 1 1]);
-
-% ephys stimulation
-ax1 = subplot(3,2,1);
-loglog(data.Blank_SAP.LH.Alert.mean_f,data.Blank_SAP.LH.Alert.mean_S,'color',colors('north texas green'),'LineWidth',2);
-hold on
-loglog(data.Blank_SAP.LH.Alert.mean_f,data.Blank_SAP.LH.Alert.mean_S + data.Blank_SAP.LH.Alert.stdErr_S,'color',colors('north texas green'),'LineWidth',0.25);
-loglog(data.Blank_SAP.LH.Alert.mean_f,data.Blank_SAP.LH.Alert.mean_S - data.Blank_SAP.LH.Alert.stdErr_S,'color',colors('north texas green'),'LineWidth',0.25);
-loglog(data.SSP_SAP.LH.Alert.mean_f,data.SSP_SAP.LH.Alert.mean_S,'color',colors('electric purple'),'LineWidth',2);
-loglog(data.SSP_SAP.LH.Alert.mean_f,data.SSP_SAP.LH.Alert.mean_S + data.SSP_SAP.LH.Alert.stdErr_S,'color',colors('electric purple'),'LineWidth',0.25);
-loglog(data.SSP_SAP.LH.Alert.mean_f,data.SSP_SAP.LH.Alert.mean_S - data.SSP_SAP.LH.Alert.stdErr_S,'color',colors('electric purple'),'LineWidth',0.25);
-ylabel('Power (a.u.)')
-xlabel('Freq (Hz)')
-set(gca,'box','off')
-axis square
-axis tight
-xlim([1,100]);
-
-% ephys stimulation
-ax2 = subplot(3,2,2);
-loglog(data.Blank_SAP.RH.Alert.mean_f,data.Blank_SAP.RH.Alert.mean_S,'color',colors('north texas green'),'LineWidth',2);
-hold on
-loglog(data.Blank_SAP.RH.Alert.mean_f,data.Blank_SAP.RH.Alert.mean_S + data.Blank_SAP.RH.Alert.stdErr_S,'color',colors('north texas green'),'LineWidth',0.25);
-loglog(data.Blank_SAP.RH.Alert.mean_f,data.Blank_SAP.RH.Alert.mean_S - data.Blank_SAP.RH.Alert.stdErr_S,'color',colors('north texas green'),'LineWidth',0.25);
-loglog(data.SSP_SAP.RH.Alert.mean_f,data.SSP_SAP.RH.Alert.mean_S,'color',colors('electric purple'),'LineWidth',2);
-loglog(data.SSP_SAP.RH.Alert.mean_f,data.SSP_SAP.RH.Alert.mean_S + data.SSP_SAP.RH.Alert.stdErr_S,'color',colors('electric purple'),'LineWidth',0.25);
-loglog(data.SSP_SAP.RH.Alert.mean_f,data.SSP_SAP.RH.Alert.mean_S - data.SSP_SAP.RH.Alert.stdErr_S,'color',colors('electric purple'),'LineWidth',0.25);
-ylabel('Power (a.u.)')
-xlabel('Freq (Hz)')
-set(gca,'box','off')
-axis square
-axis tight
-xlim([1,100]);
-
-% ephys stimulation
-ax3 = subplot(3,2,3);
-loglog(data.Blank_SAP.LH.Asleep.mean_f,data.Blank_SAP.LH.Asleep.mean_S,'color',colors('north texas green'),'LineWidth',2);
-hold on
-loglog(data.Blank_SAP.LH.Asleep.mean_f,data.Blank_SAP.LH.Asleep.mean_S + data.Blank_SAP.LH.Asleep.stdErr_S,'color',colors('north texas green'),'LineWidth',0.25);
-loglog(data.Blank_SAP.LH.Asleep.mean_f,data.Blank_SAP.LH.Asleep.mean_S - data.Blank_SAP.LH.Asleep.stdErr_S,'color',colors('north texas green'),'LineWidth',0.25);
-loglog(data.SSP_SAP.LH.Asleep.mean_f,data.SSP_SAP.LH.Asleep.mean_S,'color',colors('electric purple'),'LineWidth',2);
-loglog(data.SSP_SAP.LH.Asleep.mean_f,data.SSP_SAP.LH.Asleep.mean_S + data.SSP_SAP.LH.Asleep.stdErr_S,'color',colors('electric purple'),'LineWidth',0.25);
-loglog(data.SSP_SAP.LH.Asleep.mean_f,data.SSP_SAP.LH.Asleep.mean_S - data.SSP_SAP.LH.Asleep.stdErr_S,'color',colors('electric purple'),'LineWidth',0.25);
-ylabel('Power (a.u.)')
-xlabel('Freq (Hz)')
-set(gca,'box','off')
-axis square
-axis tight
-xlim([1,100]);
-
-% ephys stimulation
-ax4 = subplot(3,2,4);
-loglog(data.Blank_SAP.RH.Asleep.mean_f,data.Blank_SAP.RH.Asleep.mean_S,'color',colors('north texas green'),'LineWidth',2);
-hold on
-loglog(data.Blank_SAP.RH.Asleep.mean_f,data.Blank_SAP.RH.Asleep.mean_S + data.Blank_SAP.RH.Asleep.stdErr_S,'color',colors('north texas green'),'LineWidth',0.25);
-loglog(data.Blank_SAP.RH.Asleep.mean_f,data.Blank_SAP.RH.Asleep.mean_S - data.Blank_SAP.RH.Asleep.stdErr_S,'color',colors('north texas green'),'LineWidth',0.25);
-loglog(data.SSP_SAP.RH.Asleep.mean_f,data.SSP_SAP.RH.Asleep.mean_S,'color',colors('electric purple'),'LineWidth',2);
-loglog(data.SSP_SAP.RH.Asleep.mean_f,data.SSP_SAP.RH.Asleep.mean_S + data.SSP_SAP.RH.Asleep.stdErr_S,'color',colors('electric purple'),'LineWidth',0.25);
-loglog(data.SSP_SAP.RH.Asleep.mean_f,data.SSP_SAP.RH.Asleep.mean_S - data.SSP_SAP.RH.Asleep.stdErr_S,'color',colors('electric purple'),'LineWidth',0.25);
-ylabel('Power (a.u.)')
-xlabel('Freq (Hz)')
-set(gca,'box','off')
-axis square
-axis tight
-xlim([1,100]);
-
-% ephys stimulation
-ax5 = subplot(3,2,5);
-loglog(data.Blank_SAP.LH.All.mean_f,data.Blank_SAP.LH.All.mean_S,'color',colors('north texas green'),'LineWidth',2);
-hold on
-loglog(data.Blank_SAP.LH.All.mean_f,data.Blank_SAP.LH.All.mean_S + data.Blank_SAP.LH.All.stdErr_S,'color',colors('north texas green'),'LineWidth',0.25);
-loglog(data.Blank_SAP.LH.All.mean_f,data.Blank_SAP.LH.All.mean_S - data.Blank_SAP.LH.All.stdErr_S,'color',colors('north texas green'),'LineWidth',0.25);
-loglog(data.SSP_SAP.LH.All.mean_f,data.SSP_SAP.LH.All.mean_S,'color',colors('electric purple'),'LineWidth',2);
-loglog(data.SSP_SAP.LH.All.mean_f,data.SSP_SAP.LH.All.mean_S + data.SSP_SAP.LH.All.stdErr_S,'color',colors('electric purple'),'LineWidth',0.25);
-loglog(data.SSP_SAP.LH.All.mean_f,data.SSP_SAP.LH.All.mean_S - data.SSP_SAP.LH.All.stdErr_S,'color',colors('electric purple'),'LineWidth',0.25);
-ylabel('Power (a.u.)')
-xlabel('Freq (Hz)')
-set(gca,'box','off')
-axis square
-axis tight
-xlim([1,100]);
-
-% ephys stimulation
-ax6 = subplot(3,2,6);
-loglog(data.Blank_SAP.RH.All.mean_f,data.Blank_SAP.RH.All.mean_S,'color',colors('north texas green'),'LineWidth',2);
-hold on
-loglog(data.Blank_SAP.RH.All.mean_f,data.Blank_SAP.RH.All.mean_S + data.Blank_SAP.RH.All.stdErr_S,'color',colors('north texas green'),'LineWidth',0.25);
-loglog(data.Blank_SAP.RH.All.mean_f,data.Blank_SAP.RH.All.mean_S - data.Blank_SAP.RH.All.stdErr_S,'color',colors('north texas green'),'LineWidth',0.25);
-loglog(data.SSP_SAP.RH.All.mean_f,data.SSP_SAP.RH.All.mean_S,'color',colors('electric purple'),'LineWidth',2);
-loglog(data.SSP_SAP.RH.All.mean_f,data.SSP_SAP.RH.All.mean_S + data.SSP_SAP.RH.All.stdErr_S,'color',colors('electric purple'),'LineWidth',0.25);
-loglog(data.SSP_SAP.RH.All.mean_f,data.SSP_SAP.RH.All.mean_S - data.SSP_SAP.RH.All.stdErr_S,'color',colors('electric purple'),'LineWidth',0.25);
-ylabel('Power (a.u.)')
-xlabel('Freq (Hz)')
-set(gca,'box','off')
-axis square
-axis tight
-xlim([1,100]);
-
-linkaxes([ax1,ax2,ax3,ax4,ax5,ax6],'xy')
-
-%% figure
-figure
-subplot(3,3,2)
-loglog(data.Blank_SAP.RH.All.mean_f,data.Blank_SAP.RH.All.mean_S,'color',colors('north texas green'),'LineWidth',2);
-hold on
-loglog(data.Blank_SAP.RH.All.mean_f,data.Blank_SAP.RH.All.mean_S + data.Blank_SAP.RH.All.stdErr_S,'color',colors('north texas green'),'LineWidth',0.25);
-loglog(data.Blank_SAP.RH.All.mean_f,data.Blank_SAP.RH.All.mean_S - data.Blank_SAP.RH.All.stdErr_S,'color',colors('north texas green'),'LineWidth',0.25);
-loglog(data.SSP_SAP.RH.All.mean_f,data.SSP_SAP.RH.All.mean_S,'color',colors('electric purple'),'LineWidth',2);
-loglog(data.SSP_SAP.RH.All.mean_f,data.SSP_SAP.RH.All.mean_S + data.SSP_SAP.RH.All.stdErr_S,'color',colors('electric purple'),'LineWidth',0.25);
-loglog(data.SSP_SAP.RH.All.mean_f,data.SSP_SAP.RH.All.mean_S - data.SSP_SAP.RH.All.stdErr_S,'color',colors('electric purple'),'LineWidth',0.25);
-ylabel('Power (a.u.)')
-xlabel('Freq (Hz)')
-set(gca,'box','off')
-axis square
-axis tight
-xlim([1,100]);
+Fig4 = figure('Name','Figure 4','units','normalized','outerposition',[0 0 1 1]);
 
 % ephys rest variance
-subplot(3,3,3)
+subplot(1,4,1)
 xInds = ones(1,length(blankVarData));
 scatter(xInds*1,blankVarData,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('north texas green'),'jitter','off','jitterAmount',0.25);
 hold on
@@ -1150,6 +1035,56 @@ set(gca,'xtick',[])
 axis square
 axis tight
 xlim([0,3]);
+
+% ephys stimulation
+ax2 = subplot(1,4,2);
+loglog(data.Blank_SAP.RH.Alert.mean_f,data.Blank_SAP.RH.Alert.mean_S,'color',colors('north texas green'),'LineWidth',2);
+hold on
+loglog(data.Blank_SAP.RH.Alert.mean_f,data.Blank_SAP.RH.Alert.mean_S + data.Blank_SAP.RH.Alert.stdErr_S,'color',colors('north texas green'),'LineWidth',0.25);
+loglog(data.Blank_SAP.RH.Alert.mean_f,data.Blank_SAP.RH.Alert.mean_S - data.Blank_SAP.RH.Alert.stdErr_S,'color',colors('north texas green'),'LineWidth',0.25);
+loglog(data.SSP_SAP.RH.Alert.mean_f,data.SSP_SAP.RH.Alert.mean_S,'color',colors('electric purple'),'LineWidth',2);
+loglog(data.SSP_SAP.RH.Alert.mean_f,data.SSP_SAP.RH.Alert.mean_S + data.SSP_SAP.RH.Alert.stdErr_S,'color',colors('electric purple'),'LineWidth',0.25);
+loglog(data.SSP_SAP.RH.Alert.mean_f,data.SSP_SAP.RH.Alert.mean_S - data.SSP_SAP.RH.Alert.stdErr_S,'color',colors('electric purple'),'LineWidth',0.25);
+ylabel('Power (a.u.)')
+xlabel('Freq (Hz)')
+set(gca,'box','off')
+axis square
+axis tight
+xlim([1,100]);
+
+% ephys stimulation
+ax3 = subplot(1,4,3);
+loglog(data.Blank_SAP.RH.Asleep.mean_f,data.Blank_SAP.RH.Asleep.mean_S,'color',colors('north texas green'),'LineWidth',2);
+hold on
+loglog(data.Blank_SAP.RH.Asleep.mean_f,data.Blank_SAP.RH.Asleep.mean_S + data.Blank_SAP.RH.Asleep.stdErr_S,'color',colors('north texas green'),'LineWidth',0.25);
+loglog(data.Blank_SAP.RH.Asleep.mean_f,data.Blank_SAP.RH.Asleep.mean_S - data.Blank_SAP.RH.Asleep.stdErr_S,'color',colors('north texas green'),'LineWidth',0.25);
+loglog(data.SSP_SAP.RH.Asleep.mean_f,data.SSP_SAP.RH.Asleep.mean_S,'color',colors('electric purple'),'LineWidth',2);
+loglog(data.SSP_SAP.RH.Asleep.mean_f,data.SSP_SAP.RH.Asleep.mean_S + data.SSP_SAP.RH.Asleep.stdErr_S,'color',colors('electric purple'),'LineWidth',0.25);
+loglog(data.SSP_SAP.RH.Asleep.mean_f,data.SSP_SAP.RH.Asleep.mean_S - data.SSP_SAP.RH.Asleep.stdErr_S,'color',colors('electric purple'),'LineWidth',0.25);
+ylabel('Power (a.u.)')
+xlabel('Freq (Hz)')
+set(gca,'box','off')
+axis square
+axis tight
+xlim([1,100]);
+
+% ephys stimulation
+ax4 = subplot(1,4,4);
+loglog(data.Blank_SAP.RH.All.mean_f,data.Blank_SAP.RH.All.mean_S,'color',colors('north texas green'),'LineWidth',2);
+hold on
+loglog(data.Blank_SAP.RH.All.mean_f,data.Blank_SAP.RH.All.mean_S + data.Blank_SAP.RH.All.stdErr_S,'color',colors('north texas green'),'LineWidth',0.25);
+loglog(data.Blank_SAP.RH.All.mean_f,data.Blank_SAP.RH.All.mean_S - data.Blank_SAP.RH.All.stdErr_S,'color',colors('north texas green'),'LineWidth',0.25);
+loglog(data.SSP_SAP.RH.All.mean_f,data.SSP_SAP.RH.All.mean_S,'color',colors('electric purple'),'LineWidth',2);
+loglog(data.SSP_SAP.RH.All.mean_f,data.SSP_SAP.RH.All.mean_S + data.SSP_SAP.RH.All.stdErr_S,'color',colors('electric purple'),'LineWidth',0.25);
+loglog(data.SSP_SAP.RH.All.mean_f,data.SSP_SAP.RH.All.mean_S - data.SSP_SAP.RH.All.stdErr_S,'color',colors('electric purple'),'LineWidth',0.25);
+ylabel('Power (a.u.)')
+xlabel('Freq (Hz)')
+set(gca,'box','off')
+axis square
+axis tight
+xlim([1,100]);
+
+linkaxes([ax2,ax3,ax4],'xy')
 
 %% save figure(s)
 if saveFigs == true
