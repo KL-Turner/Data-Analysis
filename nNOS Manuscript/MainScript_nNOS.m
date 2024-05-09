@@ -30,8 +30,8 @@ end
 disp('Loading analysis results and generating figures...'); disp(' ')
 
 % main figure panels
-Fig1_nNOS(rootFolder,saveFigs,delim)
-Fig2_nNOS(rootFolder,saveFigs,delim)
+% Fig1_nNOS(rootFolder,saveFigs,delim)
+% Fig2_nNOS(rootFolder,saveFigs,delim)
 Fig3_nNOS(rootFolder,saveFigs,delim)
 % Fig4_nNOS(rootFolder,saveFigs,delim)
 % Fig5_nNOS(rootFolder,saveFigs,delim)
