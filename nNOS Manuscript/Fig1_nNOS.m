@@ -83,16 +83,18 @@ groups = {'Naive','SSP_SAP','Blank_SAP'};
 for aa = 1:length(groups)
     group = groups{1,aa};
     DAPIdata.(group).AnimalID = {};
+    DAPIdata.(group).Sex = {};
     DAPIdata.(group).Group = {};
     DAPIdata.(group).Count = [];
 end
 % conversion from circular ROI to cubic mm
 % concatenate data for each group/hemishpere
 for aa = 2:size(allDAPIdata,1)
-    group = allDAPIdata{aa,2};
+    group = allDAPIdata{aa,3};
     DAPIdata.(group).AnimalID = cat(1,DAPIdata.(group).AnimalID,allDAPIdata{aa,1});
-    DAPIdata.(group).Group = cat(1,DAPIdata.(group).Group,allDAPIdata{aa,2});
-    DAPIdata.(group).Count = cat(1,DAPIdata.(group).Count,allDAPIdata{aa,6}*(1/(.650*.650)));
+    DAPIdata.(group).Sex = cat(1,DAPIdata.(group).Sex,allDAPIdata{aa,2});
+    DAPIdata.(group).Group = cat(1,DAPIdata.(group).Group,allDAPIdata{aa,3});
+    DAPIdata.(group).Count = cat(1,DAPIdata.(group).Count,allDAPIdata{aa,7}*(1/(.650*.650)));
 end
 % mean/std of each hemisphere
 for aa = 1:length(groups)
@@ -101,19 +103,19 @@ for aa = 1:length(groups)
     DAPIdata.(group).StD = std(DAPIdata.(group).Count,0,1);
 end
 % Naive vs blank RH
-DAPIstats.NaiveBlank.tableSize = cat(1,DAPIdata.Naive.Count,DAPIdata.Blank_SAP.Count);
-DAPIstats.NaiveBlank.Table = table('Size',[size(DAPIstats.NaiveBlank.tableSize,1),2],'VariableTypes',{'string','double'},'VariableNames',{'Group','Count'});
-DAPIstats.NaiveBlank.Table.Group = cat(1,DAPIdata.Naive.Group,DAPIdata.Blank_SAP.Group);
-DAPIstats.NaiveBlank.Table.Count = cat(1,DAPIdata.Naive.Count,DAPIdata.Blank_SAP.Count);
-DAPIstats.NaiveBlank.FitFormula = 'Count ~ 1 + Group';
-DAPIstats.NaiveBlank.Stats = fitglme(DAPIstats.NaiveBlank.Table,DAPIstats.NaiveBlank.FitFormula);
+DAPIstats2.NaiveBlank.tableSize = cat(1,DAPIdata.Naive.Count,DAPIdata.Blank_SAP.Count);
+DAPIstats2.NaiveBlank.Table = table('Size',[size(DAPIstats2.NaiveBlank.tableSize,1),2],'VariableTypes',{'string','double'},'VariableNames',{'Group','Count'});
+DAPIstats2.NaiveBlank.Table.Group = cat(1,DAPIdata.Naive.Group,DAPIdata.Blank_SAP.Group);
+DAPIstats2.NaiveBlank.Table.Count = cat(1,DAPIdata.Naive.Count,DAPIdata.Blank_SAP.Count);
+DAPIstats2.NaiveBlank.FitFormula = 'Count ~ 1 + Group';
+DAPIstats2.NaiveBlank.Stats = fitglme(DAPIstats2.NaiveBlank.Table,DAPIstats2.NaiveBlank.FitFormula);
 % Blank vs SSP RH
-DAPIstats.BlankSSP.tableSize = cat(1,DAPIdata.Blank_SAP.Count,DAPIdata.SSP_SAP.Count);
-DAPIstats.BlankSSP.Table = table('Size',[size(DAPIstats.BlankSSP.tableSize,1),2],'VariableTypes',{'string','double'},'VariableNames',{'Group','Count'});
-DAPIstats.BlankSSP.Table.Group = cat(1,DAPIdata.Blank_SAP.Group,DAPIdata.SSP_SAP.Group);
-DAPIstats.BlankSSP.Table.Count = cat(1,DAPIdata.Blank_SAP.Count,DAPIdata.SSP_SAP.Count);
-DAPIstats.BlankSSP.FitFormula = 'Count ~ 1 + Group';
-DAPIstats.BlankSSP.Stats = fitglme(DAPIstats.BlankSSP.Table,DAPIstats.BlankSSP.FitFormula);
+DAPIstats2.BlankSSP.tableSize = cat(1,DAPIdata.Blank_SAP.Count,DAPIdata.SSP_SAP.Count);
+DAPIstats2.BlankSSP.Table = table('Size',[size(DAPIstats2.BlankSSP.tableSize,1),2],'VariableTypes',{'string','double'},'VariableNames',{'Group','Count'});
+DAPIstats2.BlankSSP.Table.Group = cat(1,DAPIdata.Blank_SAP.Group,DAPIdata.SSP_SAP.Group);
+DAPIstats2.BlankSSP.Table.Count = cat(1,DAPIdata.Blank_SAP.Count,DAPIdata.SSP_SAP.Count);
+DAPIstats2.BlankSSP.FitFormula = 'Count ~ 1 + Group';
+DAPIstats2.BlankSSP.Stats = fitglme(DAPIstats2.BlankSSP.Table,DAPIstats2.BlankSSP.FitFormula);
 
 %% IBA1 IHC counts
 % setup and pull data from excel sheet
@@ -388,8 +390,119 @@ NeuNstats.BlankSSP.Stats = fitglme(NeuNstats.BlankSSP.Table,NeuNstats.BlankSSP.F
 %% Figure 1
 Fig1 = figure('Name','Figure 1','units','normalized','outerposition',[0 0 1 1]);
 
+% nNOS IHC count
+subplot(1,7,1)
+xInds = ones(1,length(nNOSdata.Blank_SAP.RH));
+s1 = scatter(xInds*1,nNOSdata.Blank_SAP.RH,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('north texas green'),'jitter','off','jitterAmount',0.25);
+hold on
+e1 = errorbar(1,nNOSdata.Blank_SAP.RH_Mean,nNOSdata.Blank_SAP.RH_StD,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e1.Color = 'black';
+e1.MarkerSize = 10;
+e1.CapSize = 10;
+xInds = ones(1,length(nNOSdata.SSP_SAP.RH));
+s2 = scatter(xInds*2,nNOSdata.SSP_SAP.RH,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('electric purple'),'jitter','off','jitterAmount',0.25);
+e2 = errorbar(2,nNOSdata.SSP_SAP.RH_Mean,nNOSdata.SSP_SAP.RH_StD,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e2.Color = 'black';
+e2.MarkerSize = 10;
+e2.CapSize = 10;
+ylabel('nNOS Cells/mm^2 ')
+legend([s1,s2],'Blank-SAP','SSP-SAP')
+set(gca,'box','off')
+set(gca,'xtick',[])
+axis square
+xlim([0,3]);
+ylim([0,15])
+
+% IBA1 count
+subplot(1,7,2)
+xInds = ones(1,length(IBA1data.Blank_SAP.RH));
+scatter(xInds*1,IBA1data.Blank_SAP.RH,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('north texas green'),'jitter','off','jitterAmount',0.25);
+hold on
+e1 = errorbar(1,IBA1data.Blank_SAP.RH_Mean,IBA1data.Blank_SAP.RH_StD,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e1.Color = 'black';
+e1.MarkerSize = 10;
+e1.CapSize = 10;
+xInds = ones(1,length(IBA1data.SSP_SAP.RH));
+scatter(xInds*2,IBA1data.SSP_SAP.RH,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('electric purple'),'jitter','off','jitterAmount',0.25);
+e2 = errorbar(2,IBA1data.SSP_SAP.RH_Mean,IBA1data.SSP_SAP.RH_StD,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e2.Color = 'black';
+e2.MarkerSize = 10;
+e2.CapSize = 10;
+ylabel('IBA1 Cells/mm^2 ')
+set(gca,'box','off')
+set(gca,'xtick',[])
+axis square
+xlim([0,3]);
+ylim([0,500])
+
+% GFAP fluorescence
+subplot(1,7,3)
+xInds = ones(1,length(GFAPdata.Blank_SAP.RH));
+scatter(xInds*1,GFAPdata.Blank_SAP.RH,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('north texas green'),'jitter','off','jitterAmount',0.25);
+hold on
+e1 = errorbar(1,GFAPdata.Blank_SAP.RH_Mean,GFAPdata.Blank_SAP.RH_StD,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e1.Color = 'black';
+e1.MarkerSize = 10;
+e1.CapSize = 10;
+xInds = ones(1,length(GFAPdata.SSP_SAP.RH));
+scatter(xInds*2,GFAPdata.SSP_SAP.RH,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('electric purple'),'jitter','off','jitterAmount',0.25);
+e2 = errorbar(2,GFAPdata.SSP_SAP.RH_Mean,GFAPdata.SSP_SAP.RH_StD,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e2.Color = 'black';
+e2.MarkerSize = 10;
+e2.CapSize = 10;
+ylabel('GFAP Fluor/mm^2 (a.u.)')
+set(gca,'box','off')
+set(gca,'xtick',[])
+axis square
+xlim([0,3]);
+ylim([0,2000])
+
+% DAPI fluorescence
+subplot(1,7,4)
+xInds = ones(1,length(DAPIFluordata.Blank_SAP.RH));
+scatter(xInds*1,DAPIFluordata.Blank_SAP.RH,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('north texas green'),'jitter','off','jitterAmount',0.25);
+hold on
+e1 = errorbar(1,DAPIFluordata.Blank_SAP.RH_Mean,DAPIFluordata.Blank_SAP.RH_StD,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e1.Color = 'black';
+e1.MarkerSize = 10;
+e1.CapSize = 10;
+xInds = ones(1,length(DAPIFluordata.SSP_SAP.RH));
+scatter(xInds*2,DAPIFluordata.SSP_SAP.RH,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('electric purple'),'jitter','off','jitterAmount',0.25);
+e2 = errorbar(2,DAPIFluordata.SSP_SAP.RH_Mean,DAPIFluordata.SSP_SAP.RH_StD,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e2.Color = 'black';
+e2.MarkerSize = 10;
+e2.CapSize = 10;
+ylabel('DAPI Fluor/mm^2 (a.u.)')
+set(gca,'box','off')
+set(gca,'xtick',[])
+axis square
+xlim([0,3]);
+ylim([0,10000])
+
+% NeuN fluorescence
+subplot(1,7,5)
+xInds = ones(1,length(NeuNdata.Blank_SAP.RH));
+scatter(xInds*1,NeuNdata.Blank_SAP.RH,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('north texas green'),'jitter','off','jitterAmount',0.25);
+hold on
+e1 = errorbar(1,NeuNdata.Blank_SAP.RH_Mean,NeuNdata.Blank_SAP.RH_StD,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e1.Color = 'black';
+e1.MarkerSize = 10;
+e1.CapSize = 10;
+xInds = ones(1,length(NeuNdata.SSP_SAP.RH));
+scatter(xInds*2,NeuNdata.SSP_SAP.RH,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('electric purple'),'jitter','off','jitterAmount',0.25);
+e2 = errorbar(2,NeuNdata.SSP_SAP.RH_Mean,NeuNdata.SSP_SAP.RH_StD,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e2.Color = 'black';
+e2.MarkerSize = 10;
+e2.CapSize = 10;
+ylabel('NeuN Fluor/mm^2 (a.u.)')
+set(gca,'box','off')
+set(gca,'xtick',[])
+axis square
+xlim([0,3]);
+ylim([0,5000])
+
 % NADPH diaphorase count
-subplot(2,4,1)
+subplot(1,7,6)
 xInds = ones(1,length(NADPHdata.Naive.RH));
 s1 = scatter(xInds*1,NADPHdata.Naive.RH,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('sapphire'),'jitter','off','jitterAmount',0.25);
 hold on
@@ -418,7 +531,7 @@ xlim([0,4]);
 ylim([0,30])
 
 % DAPI IHC count
-subplot(2,4,2)
+subplot(1,7,7)
 xInds = ones(1,length(DAPIdata.Naive.Count));
 scatter(xInds*1,DAPIdata.Naive.Count,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('sapphire'),'jitter','off','jitterAmount',0.25);
 hold on
@@ -438,129 +551,14 @@ e3 = errorbar(3,DAPIdata.SSP_SAP.Mean,DAPIdata.SSP_SAP.StD,'d','MarkerEdgeColor'
 e3.Color = 'black';
 e3.MarkerSize = 10;
 e3.CapSize = 10;
-ylabel('DAPI labeled Cells/mm^2')
+ylabel('DAPI Cells/mm^2')
 set(gca,'box','off')
 set(gca,'xtick',[])
 axis square
 xlim([0,4]);
 ylim([0,3000])
 
-% nNOS IHC count
-subplot(2,4,3)
-xInds = ones(1,length(nNOSdata.Blank_SAP.RH));
-s1 = scatter(xInds*1,nNOSdata.Blank_SAP.RH,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('north texas green'),'jitter','off','jitterAmount',0.25);
-hold on
-e1 = errorbar(1,nNOSdata.Blank_SAP.RH_Mean,nNOSdata.Blank_SAP.RH_StD,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-e1.Color = 'black';
-e1.MarkerSize = 10;
-e1.CapSize = 10;
-xInds = ones(1,length(nNOSdata.SSP_SAP.RH));
-s2 = scatter(xInds*2,nNOSdata.SSP_SAP.RH,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('electric purple'),'jitter','off','jitterAmount',0.25);
-e2 = errorbar(2,nNOSdata.SSP_SAP.RH_Mean,nNOSdata.SSP_SAP.RH_StD,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-e2.Color = 'black';
-e2.MarkerSize = 10;
-e2.CapSize = 10;
-ylabel('nNOS Cells/mm^2 ')
-legend([s1,s2],'Blank-SAP','SSP-SAP')
-set(gca,'box','off')
-set(gca,'xtick',[])
-axis square
-xlim([0,3]);
-ylim([0,15])
-
-% IBA1 count
-subplot(2,4,4)
-xInds = ones(1,length(IBA1data.Blank_SAP.RH));
-s1 = scatter(xInds*1,IBA1data.Blank_SAP.RH,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('north texas green'),'jitter','off','jitterAmount',0.25);
-hold on
-e1 = errorbar(1,IBA1data.Blank_SAP.RH_Mean,IBA1data.Blank_SAP.RH_StD,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-e1.Color = 'black';
-e1.MarkerSize = 10;
-e1.CapSize = 10;
-xInds = ones(1,length(IBA1data.SSP_SAP.RH));
-s2 = scatter(xInds*2,IBA1data.SSP_SAP.RH,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('electric purple'),'jitter','off','jitterAmount',0.25);
-e2 = errorbar(2,IBA1data.SSP_SAP.RH_Mean,IBA1data.SSP_SAP.RH_StD,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-e2.Color = 'black';
-e2.MarkerSize = 10;
-e2.CapSize = 10;
-ylabel('IBA1 Cells/mm^2 ')
-legend([s1,s2],'Blank-SAP','SSP-SAP')
-set(gca,'box','off')
-set(gca,'xtick',[])
-axis square
-xlim([0,3]);
-ylim([0,500])
-
-% GFAP fluorescence
-subplot(2,4,5)
-xInds = ones(1,length(GFAPdata.Blank_SAP.RH));
-s1 = scatter(xInds*1,GFAPdata.Blank_SAP.RH,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('north texas green'),'jitter','off','jitterAmount',0.25);
-hold on
-e1 = errorbar(1,GFAPdata.Blank_SAP.RH_Mean,GFAPdata.Blank_SAP.RH_StD,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-e1.Color = 'black';
-e1.MarkerSize = 10;
-e1.CapSize = 10;
-xInds = ones(1,length(GFAPdata.SSP_SAP.RH));
-s2 = scatter(xInds*2,GFAPdata.SSP_SAP.RH,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('electric purple'),'jitter','off','jitterAmount',0.25);
-e2 = errorbar(2,GFAPdata.SSP_SAP.RH_Mean,GFAPdata.SSP_SAP.RH_StD,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-e2.Color = 'black';
-e2.MarkerSize = 10;
-e2.CapSize = 10;
-ylabel('GFAP Fluor/mm^2 (a.u.)')
-legend([s1,s2],'Blank-SAP','SSP-SAP')
-set(gca,'box','off')
-set(gca,'xtick',[])
-axis square
-xlim([0,3]);
-ylim([0,2000])
-
-% DAPI fluorescence
-subplot(2,4,6)
-xInds = ones(1,length(DAPIFluordata.Blank_SAP.RH));
-s1 = scatter(xInds*1,DAPIFluordata.Blank_SAP.RH,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('north texas green'),'jitter','off','jitterAmount',0.25);
-hold on
-e1 = errorbar(1,DAPIFluordata.Blank_SAP.RH_Mean,DAPIFluordata.Blank_SAP.RH_StD,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-e1.Color = 'black';
-e1.MarkerSize = 10;
-e1.CapSize = 10;
-xInds = ones(1,length(DAPIFluordata.SSP_SAP.RH));
-s2 = scatter(xInds*2,DAPIFluordata.SSP_SAP.RH,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('electric purple'),'jitter','off','jitterAmount',0.25);
-e2 = errorbar(2,DAPIFluordata.SSP_SAP.RH_Mean,DAPIFluordata.SSP_SAP.RH_StD,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-e2.Color = 'black';
-e2.MarkerSize = 10;
-e2.CapSize = 10;
-ylabel('DAPI Fluor/mm^2 (a.u.)')
-legend([s1,s2],'Blank-SAP','SSP-SAP')
-set(gca,'box','off')
-set(gca,'xtick',[])
-axis square
-xlim([0,3]);
-ylim([0,10000])
-
-% NeuN fluorescence
-subplot(2,4,7)
-xInds = ones(1,length(NeuNdata.Blank_SAP.RH));
-s1 = scatter(xInds*1,NeuNdata.Blank_SAP.RH,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('north texas green'),'jitter','off','jitterAmount',0.25);
-hold on
-e1 = errorbar(1,NeuNdata.Blank_SAP.RH_Mean,NeuNdata.Blank_SAP.RH_StD,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-e1.Color = 'black';
-e1.MarkerSize = 10;
-e1.CapSize = 10;
-xInds = ones(1,length(NeuNdata.SSP_SAP.RH));
-s2 = scatter(xInds*2,NeuNdata.SSP_SAP.RH,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('electric purple'),'jitter','off','jitterAmount',0.25);
-e2 = errorbar(2,NeuNdata.SSP_SAP.RH_Mean,NeuNdata.SSP_SAP.RH_StD,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-e2.Color = 'black';
-e2.MarkerSize = 10;
-e2.CapSize = 10;
-ylabel('NeuN Fluor/mm^2 (a.u.)')
-legend([s1,s2],'Blank-SAP','SSP-SAP')
-set(gca,'box','off')
-set(gca,'xtick',[])
-axis square
-xlim([0,3]);
-ylim([0,5000])
-
-%% save figure(s)
+%% Save figure(s)
 if saveFigs == true
     dirpath = [rootFolder delim 'MATLAB Figure Panels' delim];
     if ~exist(dirpath,'dir')
@@ -576,33 +574,85 @@ if saveFigs == true
     diary(diaryFile)
     diary on
 
+    % bonferroni adjusted alphas
+    comparisons = 5;
+    alphaA = 0.05/comparisons;
+    alphaB = 0.01/comparisons;
+    alphaC = 0.001/comparisons;
+
+    comparisons = 1;
+    alphaD = 0.05/comparisons;
+    alphaE = 0.01/comparisons;
+    alphaF = 0.001/comparisons;
+
+    % nNOS IHC quantification
+    disp('======================================================================================================================')
+    disp('nNOS IHC counts: Blank (N = 8, 4M/4F); SSP (N = 5, 3M/2F); mean +/- std'); disp(' ')
+    disp(['Blank: ' num2str(nNOSdata.Blank_SAP.RH_Mean) ' +/- ' num2str(nNOSdata.Blank_SAP.RH_StD)]); disp(' ')
+    disp(['SSP: ' num2str(nNOSdata.SSP_SAP.RH_Mean) ' +/- ' num2str(nNOSdata.SSP_SAP.RH_StD)]); disp(' ')
+    disp('GLME statistics Blank vs. SSP')
+    disp(nNOSstats.BlankSSP.Stats)
+    disp(['*p < ' num2str(alphaA) ' **p < ' num2str(alphaB) ' ***p < ' num2str(alphaC)]);
+
+    % IBA1 IHC quantification
+    disp('======================================================================================================================')
+    disp('IBA1 IHC counts: Blank (N = 8, 4M/4F); SSP (N = 5, 3M/2F); mean +/- std'); disp(' ')
+    disp(['Blank: ' num2str(IBA1data.Blank_SAP.RH_Mean) ' +/- ' num2str(IBA1data.Blank_SAP.RH_StD)]); disp(' ')
+    disp(['SSP: ' num2str(IBA1data.SSP_SAP.RH_Mean) ' +/- ' num2str(IBA1data.SSP_SAP.RH_StD)]); disp(' ')
+    disp('GLME statistics Blank vs. SSP')
+    disp(IBA1stats.BlankSSP.Stats)
+    disp(['*p < ' num2str(alphaA) ' **p < ' num2str(alphaB) ' ***p < ' num2str(alphaC)]);
+
+    % GFAP IHC quantification
+    disp('======================================================================================================================')
+    disp('GFAP IHC fluorescence: Blank (N = 8, 4M/4F); SSP (N = 5, 3M/2F); mean +/- std'); disp(' ')
+    disp(['Blank: ' num2str(GFAPdata.Blank_SAP.RH_Mean) ' +/- ' num2str(GFAPdata.Blank_SAP.RH_StD)]); disp(' ')
+    disp(['SSP: ' num2str(GFAPdata.SSP_SAP.RH_Mean) ' +/- ' num2str(GFAPdata.SSP_SAP.RH_StD)]); disp(' ')
+    disp('GLME statistics Blank vs. SSP')
+    disp(GFAPstats.BlankSSP.Stats)
+    disp(['*p < ' num2str(alphaA) ' **p < ' num2str(alphaB) ' ***p < ' num2str(alphaC)]);
+
+    % DAPI IHC fluorescence
+    disp('======================================================================================================================')
+    disp('DAPI IHC fluorescence: Blank (N = 8, 4M/4F); SSP (N = 5, 3M/2F); mean +/- std'); disp(' ')
+    disp(['Blank: ' num2str(DAPIFluordata.Blank_SAP.RH_Mean) ' +/- ' num2str(DAPIFluordata.Blank_SAP.RH_StD)]); disp(' ')
+    disp(['SSP: ' num2str(DAPIFluordata.SSP_SAP.RH_Mean) ' +/- ' num2str(DAPIFluordata.SSP_SAP.RH_StD)]); disp(' ')
+    disp('GLME statistics Blank vs. SSP')
+    disp(DAPIstats.BlankSSP.Stats)
+    disp(['*p < ' num2str(alphaA) ' **p < ' num2str(alphaB) ' ***p < ' num2str(alphaC)]);
+
+    % NeuN IHC fluorescence
+    disp('======================================================================================================================')
+    disp('NeuN IHC fluorescence: Blank (N = 8, 4M/4F); SSP (N = 5, 3M/2F); mean +/- std'); disp(' ')
+    disp(['Blank: ' num2str(NeuNdata.Blank_SAP.RH_Mean) ' +/- ' num2str(NeuNdata.Blank_SAP.RH_StD)]); disp(' ')
+    disp(['SSP: ' num2str(NeuNdata.SSP_SAP.RH_Mean) ' +/- ' num2str(NeuNdata.SSP_SAP.RH_StD)]); disp(' ')
+    disp('GLME statistics Blank vs. SSP')
+    disp(NeuNstats.BlankSSP.Stats)
+    disp(['*p < ' num2str(alphaA) ' **p < ' num2str(alphaB) ' ***p < ' num2str(alphaC)]);
+
     % NADPH diaphorase quantification
-    disp('NADPH diaphorase counts (RH) 9 mice per group, mean +/- std'); disp(' ')
+    disp('======================================================================================================================')
+    disp('NADPH diaphorase counts: Naive (N = 9, 4M/5F); Blank (N = 9, 4M/5F); SSP (N = 9, 5M/4F); mean +/- std'); disp(' ')
     disp(['Naive: ' num2str(NADPHdata.Naive.RH_Mean) ' +/- ' num2str(NADPHdata.Naive.RH_StD)]); disp(' ')
     disp(['Blank: ' num2str(NADPHdata.Blank_SAP.RH_Mean) ' +/- ' num2str(NADPHdata.Blank_SAP.RH_StD)]); disp(' ')
     disp(['SSP: ' num2str(NADPHdata.SSP_SAP.RH_Mean) ' +/- ' num2str(NADPHdata.SSP_SAP.RH_StD)]); disp(' ')
-    disp('======================================================================================================================')
-    disp('GLME statistics for R/R Naive vs. Blank cell counts')
-    disp('======================================================================================================================')
+    disp('GLME statistics for Naive vs. Blank')
     disp(NADPHstats.NaiveBlank.Stats)
-    disp('======================================================================================================================')
-    disp('GLME statistics for R/R Blank vs. SSP cell counts')
-    disp('======================================================================================================================')
+    disp('GLME statistics Blank vs. SSP')
     disp(NADPHstats.BlankSSP.Stats)
-    
+    disp(['*p < ' num2str(alphaD) ' **p < ' num2str(alphaE) ' ***p < ' num2str(alphaF)]);
+
     % DAPI quantification
-    disp('DAPI counts (RH) 5-8 mice per group, mean +/- std'); disp(' ')
+    disp('======================================================================================================================')
+    disp('DAPI counts: Naive (N = 6, TBD); Blank (N = 5, 5F); SSP (N = 8, 4M/4F); mean +/- std'); disp(' ')
     disp(['Naive: ' num2str(DAPIdata.Naive.Mean) ' +/- ' num2str(DAPIdata.Naive.StD)]); disp(' ')
     disp(['Blank: ' num2str(DAPIdata.Blank_SAP.Mean) ' +/- ' num2str(DAPIdata.Blank_SAP.StD)]); disp(' ')
     disp(['SSP: ' num2str(DAPIdata.SSP_SAP.Mean) ' +/- ' num2str(DAPIdata.SSP_SAP.StD)]); disp(' ')
-    disp('======================================================================================================================')
-    disp('GLME statistics for R/R Naive vs. Blank cell counts')
-    disp('======================================================================================================================')
-    disp(DAPIstats.NaiveBlank.Stats)
-    disp('======================================================================================================================')
-    disp('GLME statistics for R/R Blank vs. SSP cell counts')
-    disp('======================================================================================================================')
-    disp(DAPIstats.BlankSSP.Stats)
-    
+    disp('GLME statistics for Naive vs. Blank')
+    disp(DAPIstats2.NaiveBlank.Stats)
+    disp('GLME statistics Blank vs. SSP')
+    disp(DAPIstats2.BlankSSP.Stats)
+    disp(['*p < ' num2str(alphaD) ' **p < ' num2str(alphaE) ' ***p < ' num2str(alphaF)]);
+
     diary off
 end

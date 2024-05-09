@@ -485,8 +485,8 @@ if saveFigs == true
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
-    savefig(Fig3,[dirpath 'Fig3']);
-    set(Fig3,'PaperPositionMode','auto');
+    savefig(Fig4,[dirpath 'Fig4']);
+    set(Fig4,'PaperPositionMode','auto');
     print('-vector','-dpdf','-fillpage',[dirpath 'Fig3'])
     diaryFile = [dirpath 'Fig3_Readout.txt'];
     if exist(diaryFile,'file') == 2
@@ -495,6 +495,15 @@ if saveFigs == true
     % statistical diary
     diary(diaryFile)
     diary on
+
+    % IOS [HbT] resting variance
+    disp('IOS resting variance, n = 24 mice per group, mean +/- SEM'); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(blankHbTVarData)) ' +/- ' num2str(std(blankHbTVarData,0,1)./sqrt(size(blankHbTVarData,1)))]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(sspHbTVarData)) ' +/- ' num2str(std(sspHbTVarData,0,1)./sqrt(size(sspHbTVarData,1)))]); disp(' ')
+    disp('======================================================================================================================')
+    disp('GLME statistics for resting HbT variance')
+    disp('======================================================================================================================')
+    disp(restHbTVarStats.Stats)
 
     % IOS [HbT] resting variance
     disp('IOS resting variance, n = 24 mice per group, mean +/- SEM'); disp(' ')

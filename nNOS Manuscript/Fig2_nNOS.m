@@ -9,7 +9,7 @@ cd(path)
 Ephys_Fs = 30;
 GCaMP_Fs = 10;
 
-%% awake ephys example
+%% Awake ephys example
 exampleProcFile_AwakeEphys = 'T165_210222_12_45_38_ProcData.mat';
 load(exampleProcFile_AwakeEphys)
 exampleSpecFile_AwakeEphys = 'T165_210222_12_45_38_SpecDataA.mat';
@@ -40,7 +40,7 @@ for x = 1:length(whiskInds_AwakeEphys)
     end
 end
 
-%% sleep ephys example
+%% Sleep ephys example
 exampleProcFile_AsleepEphys = 'T165_210223_12_37_03_ProcData.mat';
 load(exampleProcFile_AsleepEphys)
 exampleSpecFile_AsleepEphys = 'T165_210223_12_37_03_SpecDataA.mat';
@@ -68,7 +68,7 @@ for x = 1:length(whiskInds_AsleepEphys)
     end
 end
 
-%% awake GCaMP example
+%% Awake GCaMP example
 exampleProcFile_AwakeGCaMP = 'T233_220206_13_07_08_ProcData.mat';
 load(exampleProcFile_AwakeGCaMP)
 exampleSpecFile_AwakeGCaMP = 'T233_220206_13_07_08_SpecDataA.mat';
@@ -98,7 +98,7 @@ for x = 1:length(whiskInds_AwakeGCaMP)
     end
 end
 
-%% sleep GCaMP example
+%% Sleep GCaMP example
 exampleProcFile_AsleepGCaMP = 'T233_220206_14_10_44_ProcData.mat';
 load(exampleProcFile_AsleepGCaMP)
 exampleSpecFile_AsleepGCaMP = 'T233_220206_14_10_44_SpecDataA.mat';
@@ -126,10 +126,11 @@ for x = 1:length(whiskInds_AsleepGCaMP)
     end
 end
 
-%% figure
+%% Figure 2
 Fig2 = figure('Name','Figure 2','units','normalized','outerposition',[0 0 1 1]);
+
+% Hemodynamic and behavioral indeces
 ax1 = subplot(4,3,1);
-% hemodynamic and behavioral indeces
 s1 = scatter((1:length(binWhiskers_AwakeEphys))/ProcData.notes.dsFs,whiskInds_AwakeEphys,'.','MarkerEdgeColor',colors('black'));
 hold on;
 p1 = plot((1:length(HbT_AwakeEphys))/Ephys_Fs,HbT_AwakeEphys,'color',colors('black'),'LineWidth',1);
@@ -148,7 +149,8 @@ title('RH SIBF')
 xlim([310,490])
 ax1.YAxis(1).Color = colors('black');
 ax1.YAxis(2).Color = colors('magenta');
-% cortical electrode spectrogram
+
+% Cortical electrode spectrogram
 ax2 = subplot(4,3,4);
 Semilog_ImageSC(T_AwakeEphys,F_AwakeEphys,cortNormS_AwakeEphys,'y')
 c1 = colorbar;
@@ -166,8 +168,9 @@ ax1Pos = get(ax1,'position');
 ax2Pos = get(ax2,'position');
 ax2Pos(3) = ax1Pos(3);
 set(ax2,'position',ax2Pos);
+
+% Hemodynamic and behavioral indeces
 ax3 = subplot(4,3,[2,3]);
-% hemodynamic and behavioral indeces
 s1 = scatter((1:length(binWhiskers_AsleepEphys))/ProcData.notes.dsFs,whiskInds_AsleepEphys,'.','MarkerEdgeColor',colors('black'));
 hold on;
 p1 = plot((1:length(HbT_AsleepEphys))/Ephys_Fs,HbT_AsleepEphys,'color',colors('black'),'LineWidth',1);
@@ -184,7 +187,8 @@ title('RH SIBF')
 xlim([450,810])
 ax3.YAxis(1).Color = colors('black');
 ax3.YAxis(2).Color = colors('magenta');
-% hippocampal electrode spectrogram
+
+% Hippocampal electrode spectrogram
 ax4 = subplot(4,3,[5,6]);
 Semilog_ImageSC(T_AsleepEphys,F_AsleepEphys,hipNormS_AsleepEphys,'y')
 c2 = colorbar;
@@ -202,8 +206,9 @@ ax3Pos = get(ax3,'position');
 ax4Pos = get(ax4,'position');
 ax4Pos(3) = ax3Pos(3);
 set(ax4,'position',ax4Pos);
+
+% Hemodynamic and behavioral indeces
 ax5 = subplot(4,3,7);
-% hemodynamic and behavioral indeces
 s1 = scatter((1:length(binWhiskers_AwakeGCaMP))/ProcData.notes.dsFs,whiskInds_AwakeGCaMP,'.','MarkerEdgeColor',colors('black'));
 hold on;
 p1 = plot((1:length(HbO_AwakeGCaMP))/GCaMP_Fs,HbO_AwakeGCaMP,'color',colors('blue grotto'),'LineWidth',1);
@@ -225,7 +230,8 @@ title('RH SIBF')
 xlim([260,440])
 ax5.YAxis(1).Color = colors('black');
 ax5.YAxis(2).Color = colors('fluorescent green');
-% cortical electrode spectrogram
+
+% Cortical electrode spectrogram
 ax6 = subplot(4,3,10);
 Semilog_ImageSC(T_AwakeGCaMP,F_AwakeGCaMP,cortNormS_AwakeGCaMP,'y')
 c1 = colorbar;
@@ -243,8 +249,9 @@ ax5Pos = get(ax5,'position');
 ax6Pos = get(ax6,'position');
 ax6Pos(3) = ax5Pos(3);
 set(ax6,'position',ax6Pos);
+
+% Hemodynamic and behavioral indeces
 ax7 = subplot(4,3,[8,9]);
-% hemodynamic and behavioral indeces
 s1 = scatter((1:length(binWhiskers_AsleepGCaMP))/ProcData.notes.dsFs,whiskInds_AsleepGCaMP,'.','MarkerEdgeColor',colors('black'));
 hold on;
 p1 = plot((1:length(HbO_AsleepGCaMP))/GCaMP_Fs,HbO_AsleepGCaMP,'color',colors('blue grotto'),'LineWidth',1);
@@ -264,7 +271,8 @@ title('RH SIBF')
 xlim([215,575])
 ax7.YAxis(1).Color = colors('black');
 ax7.YAxis(2).Color = colors('fluorescent green');
-% hippocampal electrode spectrogram
+
+% Hippocampal electrode spectrogram
 ax8 = subplot(4,3,[11,12]);
 Semilog_ImageSC(T_AsleepGCaMP,F_AsleepGCaMP,hipNormS_AsleepGCaMP,'y')
 c2 = colorbar;
@@ -282,7 +290,8 @@ ax7Pos = get(ax7,'position');
 ax8Pos = get(ax8,'position');
 ax8Pos(3) = ax7Pos(3);
 set(ax8,'position',ax8Pos);
-% save figure(s)
+
+%% Save figure(s)
 if saveFigs == true
     dirpath = [rootFolder delim 'MATLAB Figure Panels' delim];
     if ~exist(dirpath,'dir')
