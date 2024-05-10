@@ -381,7 +381,7 @@ for aa = 1:length(hemispheres)
     end
 end
 
-%% figure
+%% Figure 4
 Fig4 = figure('Name','Figure 4','units','normalized','outerposition',[0 0 1 1]);
 
 % HbT rest variance
@@ -479,7 +479,7 @@ axis tight
 xlim([1,100]);
 linkaxes([ax1,ax2,ax3],'xy')
 
-%% save figure(s)
+%% Save figure(s)
 if saveFigs == true
     dirpath = [rootFolder delim 'MATLAB Figure Panels' delim];
     if ~exist(dirpath,'dir')
@@ -487,8 +487,8 @@ if saveFigs == true
     end
     savefig(Fig4,[dirpath 'Fig4']);
     set(Fig4,'PaperPositionMode','auto');
-    print('-vector','-dpdf','-fillpage',[dirpath 'Fig3'])
-    diaryFile = [dirpath 'Fig3_Readout.txt'];
+    print('-vector','-dpdf','-fillpage',[dirpath 'Fig4'])
+    diaryFile = [dirpath 'Fig4_Readout.txt'];
     if exist(diaryFile,'file') == 2
         delete(diaryFile)
     end
@@ -496,32 +496,55 @@ if saveFigs == true
     diary(diaryFile)
     diary on
 
-    % IOS [HbT] resting variance
-    disp('IOS resting variance, n = 24 mice per group, mean +/- SEM'); disp(' ')
-    disp(['Blank-SAP ' num2str(mean(blankHbTVarData)) ' +/- ' num2str(std(blankHbTVarData,0,1)./sqrt(size(blankHbTVarData,1)))]); disp(' ')
-    disp(['SSP-SAP ' num2str(mean(sspHbTVarData)) ' +/- ' num2str(std(sspHbTVarData,0,1)./sqrt(size(sspHbTVarData,1)))]); disp(' ')
-    disp('======================================================================================================================')
-    disp('GLME statistics for resting HbT variance')
-    disp('======================================================================================================================')
-    disp(restHbTVarStats.Stats)
+    comparisons = 1;
+    alphaA = 0.05/comparisons;
+    alphaB = 0.01/comparisons;
+    alphaC = 0.001/comparisons;
 
     % IOS [HbT] resting variance
-    disp('IOS resting variance, n = 24 mice per group, mean +/- SEM'); disp(' ')
+    disp('======================================================================================================================')
+    disp('IOS resting variance: Blank (N = 24, 12M/12F); SSP (N = 24, 11M/13F); mean +/- SEM'); disp(' ')
     disp(['Blank-SAP ' num2str(mean(blankHbTVarData)) ' +/- ' num2str(std(blankHbTVarData,0,1)./sqrt(size(blankHbTVarData,1)))]); disp(' ')
     disp(['SSP-SAP ' num2str(mean(sspHbTVarData)) ' +/- ' num2str(std(sspHbTVarData,0,1)./sqrt(size(sspHbTVarData,1)))]); disp(' ')
-    disp('======================================================================================================================')
     disp('GLME statistics for resting HbT variance')
-    disp('======================================================================================================================')
     disp(restHbTVarStats.Stats)
+    disp(['*p < ' num2str(alphaA) ' **p < ' num2str(alphaB) ' ***p < ' num2str(alphaC)]);
 
-    % LFP delta power
-    disp('LFP delta power, n = 9 mice per group, mean +/- SEM'); disp(' ')
+    % Diameter resting variance
+    disp('======================================================================================================================')
+    disp('Diameter resting variance: Blank (N = 9, 5M/4F, n = 70); SSP (N = 7, 2M/5F, n = 65); mean +/- SEM'); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(blankHbTVarData)) ' +/- ' num2str(std(blankHbTVarData,0,1)./sqrt(size(blankHbTVarData,1)))]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(sspHbTVarData)) ' +/- ' num2str(std(sspHbTVarData,0,1)./sqrt(size(sspHbTVarData,1)))]); disp(' ')
+    disp('GLME statistics for resting HbT variance')
+    disp(restDiameterVarStats.Stats)
+    disp(['*p < ' num2str(alphaA) ' **p < ' num2str(alphaB) ' ***p < ' num2str(alphaC)]);
+
+    % LFP delta power (alert)
+    disp('======================================================================================================================')
+    disp('LFP Alert delta power: Blank (N = 9, 4M/5F); SSP (N = 9, 5M/4F); mean +/- SEM'); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(data.Blank_SAP.RH.Alert.deltaS)) ' +/- ' num2str(std(data.Blank_SAP.RH.Alert.deltaS,0,1)./sqrt(size(data.Blank_SAP.RH.Alert.deltaS,1)))]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(data.SSP_SAP.RH.Alert.deltaS)) ' +/- ' num2str(std(data.SSP_SAP.RH.Alert.deltaS,0,1)./sqrt(size(data.SSP_SAP.RH.Alert.deltaS,1)))]); disp(' ')
+    disp('GLME statistics for LFP delta (1:4 Hz)')
+    disp(lfpStats.RH.Alert.Stats)
+    disp(['*p < ' num2str(alphaA) ' **p < ' num2str(alphaB) ' ***p < ' num2str(alphaC)]);
+
+    % LFP delta power (asleep)
+    disp('======================================================================================================================')
+    disp('LFP Asleep delta power: Blank (N = 7, 3M/4F); SSP (N = 7, 4M/3F); mean +/- SEM'); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(data.Blank_SAP.RH.Asleep.deltaS)) ' +/- ' num2str(std(data.Blank_SAP.RH.Asleep.deltaS,0,1)./sqrt(size(data.Blank_SAP.RH.Asleep.deltaS,1)))]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(data.SSP_SAP.RH.Asleep.deltaS)) ' +/- ' num2str(std(data.SSP_SAP.RH.Asleep.deltaS,0,1)./sqrt(size(data.SSP_SAP.RH.Asleep.deltaS,1)))]); disp(' ')
+    disp('GLME statistics for LFP delta (1:4 Hz)')
+    disp(lfpStats.RH.Asleep.Stats)
+    disp(['*p < ' num2str(alphaA) ' **p < ' num2str(alphaB) ' ***p < ' num2str(alphaC)]);
+
+    % LFP delta power (all)
+    disp('======================================================================================================================')
+    disp('LFP All delta power: Blank (N = 9, 4M/5F); SSP (N = 9, 5M/4F); mean +/- SEM'); disp(' ')
     disp(['Blank-SAP ' num2str(mean(data.Blank_SAP.RH.All.deltaS)) ' +/- ' num2str(std(data.Blank_SAP.RH.All.deltaS,0,1)./sqrt(size(data.Blank_SAP.RH.All.deltaS,1)))]); disp(' ')
     disp(['SSP-SAP ' num2str(mean(data.SSP_SAP.RH.All.deltaS)) ' +/- ' num2str(std(data.SSP_SAP.RH.All.deltaS,0,1)./sqrt(size(data.SSP_SAP.RH.All.deltaS,1)))]); disp(' ')
-    disp('======================================================================================================================')
     disp('GLME statistics for LFP delta (1:4 Hz)')
-    disp('======================================================================================================================')
     disp(lfpStats.RH.All.Stats)
+    disp(['*p < ' num2str(alphaA) ' **p < ' num2str(alphaB) ' ***p < ' num2str(alphaC)]);
 
     diary off
 end

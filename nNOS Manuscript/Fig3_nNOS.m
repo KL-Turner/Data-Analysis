@@ -530,7 +530,7 @@ if saveFigs == true
    
     % IOS brief stim AUC
     disp('======================================================================================================================')
-    disp('AUC 0.1 s stim, n = 9 mice per group, mean +/- SEM'); disp(' ')
+    disp('AUC 0.1 s stim: Blank (N = 9, 4M/5F); SSP (N = 9, 5M/4F); mean +/- SEM'); disp(' ')
     disp(['Blank-SAP ' num2str(mean(iosEphysData.Blank_SAP.RH.contra.AUC)) ' +/- ' num2str(std(iosEphysData.Blank_SAP.RH.contra.AUC,0,1)./sqrt(size(iosEphysData.Blank_SAP.RH.contra.AUC,1)))]); disp(' ')
     disp(['SSP-SAP ' num2str(mean(iosEphysData.SSP_SAP.RH.contra.AUC)) ' +/- ' num2str(std(iosEphysData.SSP_SAP.RH.contra.AUC,0,1)./sqrt(size(iosEphysData.SSP_SAP.RH.contra.AUC,1)))]); disp(' ')
     disp('GLME statistics for IOS AUC (t = 2:4 sec)')
@@ -539,7 +539,7 @@ if saveFigs == true
 
     % IOS long stim HbT
     disp('======================================================================================================================')
-    disp('IOS 5s stim HbT, n = 7-8 mice per group, mean +/- SEM'); disp(' ')
+    disp('IOS 5s stim HbT: Blank (N = 7, 3M/4F); SSP (N = 8, 4M/4F); mean +/- SEM'); disp(' ')
     disp(['Blank-SAP ' num2str(mean(gcampdata.Blank_SAP.RH.contra.AUC_HbT)) ' +/- ' num2str(std(gcampdata.Blank_SAP.RH.contra.AUC_HbT,0,1)./sqrt(size(gcampdata.Blank_SAP.RH.contra.AUC_HbT,1)))]); disp(' ')
     disp(['SSP-SAP ' num2str(mean(gcampdata.SSP_SAP.RH.contra.AUC_HbT)) ' +/- ' num2str(std(gcampdata.SSP_SAP.RH.contra.AUC_HbT,0,1)./sqrt(size(gcampdata.SSP_SAP.RH.contra.AUC_HbT,1)))]); disp(' ')
     disp('GLME statistics for GCaMP (HbT) (t = 1.5:6.5 sec)')
@@ -548,7 +548,7 @@ if saveFigs == true
 
     % IOS long stim GCaMP
     disp('======================================================================================================================')
-    disp('IOS 5s stim GCaMP, n = 7-8 mice per group, mean +/- SEM'); disp(' ')
+    disp('IOS 5s stim GCaMP: Blank (N = 7, 3M/4F); SSP (N = 8, 4M/4F); mean +/- SEM'); disp(' ')
     disp(['Blank-SAP ' num2str(mean(gcampdata.Blank_SAP.RH.contra.AUC_GCaMP)) ' +/- ' num2str(std(gcampdata.Blank_SAP.RH.contra.AUC_GCaMP,0,1)./sqrt(size(gcampdata.Blank_SAP.RH.contra.AUC_GCaMP,1)))]); disp(' ')
     disp(['SSP-SAP ' num2str(mean(gcampdata.SSP_SAP.RH.contra.AUC_GCaMP)) ' +/- ' num2str(std(gcampdata.SSP_SAP.RH.contra.AUC_GCaMP,0,1)./sqrt(size(gcampdata.SSP_SAP.RH.contra.AUC_GCaMP,1)))]); disp(' ')
     disp('GLME statistics for GCaMP (GCaMP) (t = 2:5 sec)')
@@ -557,7 +557,7 @@ if saveFigs == true
 
     % IOS long stim HbO
     disp('======================================================================================================================')
-    disp('IOS 5s stim HbO, n = 7-8 mice per group, mean +/- SEM'); disp(' ')
+    disp('IOS 5s stim HbO: Blank (N = 7, 3M/4F); SSP (N = 8, 4M/4F); mean +/- SEM'); disp(' ')
     disp(['Blank-SAP ' num2str(mean(gcampdata.Blank_SAP.RH.contra.AUC_HbO)) ' +/- ' num2str(std(gcampdata.Blank_SAP.RH.contra.AUC_HbO,0,1)./sqrt(size(gcampdata.Blank_SAP.RH.contra.AUC_HbO,1)))]); disp(' ')
     disp(['SSP-SAP ' num2str(mean(gcampdata.SSP_SAP.RH.contra.AUC_HbO)) ' +/- ' num2str(std(gcampdata.SSP_SAP.RH.contra.AUC_HbO,0,1)./sqrt(size(gcampdata.SSP_SAP.RH.contra.AUC_HbO,1)))]); disp(' ')
     disp('GLME statistics for GCaMP (HbO) (t = 1.5:6.5 sec)')
@@ -566,16 +566,16 @@ if saveFigs == true
 
     % IOS long stim HbR
     disp('======================================================================================================================')
-    disp('IOS 5s stim HbR, n = 7-8 mice per group, mean +/- SEM'); disp(' ')
+    disp('IOS 5s stim HbR: Blank (N = 7, 3M/4F); SSP (N = 8, 4M/4F); mean +/- SEM'); disp(' ')
     disp(['Blank-SAP ' num2str(mean(gcampdata.Blank_SAP.RH.contra.AUC_HbR)) ' +/- ' num2str(std(gcampdata.Blank_SAP.RH.contra.AUC_HbR,0,1)./sqrt(size(gcampdata.Blank_SAP.RH.contra.AUC_HbR,1)))]); disp(' ')
     disp(['SSP-SAP ' num2str(mean(gcampdata.SSP_SAP.RH.contra.AUC_HbR)) ' +/- ' num2str(std(gcampdata.SSP_SAP.RH.contra.AUC_HbR,0,1)./sqrt(size(gcampdata.SSP_SAP.RH.contra.AUC_HbR,1)))]); disp(' ')
     disp('GLME statistics for GCaMP (HbR) (t = 1.5:6.5 sec)')
     disp(gcampStats.HbR.Stats)
     disp(['*p < ' num2str(alphaA) ' **p < ' num2str(alphaB) ' ***p < ' num2str(alphaC)]);
 
-    % IOS long stim
+    % IOS long stim (pulse non-GCaMP)
     disp('======================================================================================================================')
-    disp('IOS 5s stim AUC, n = 7-8 mice per group, mean +/- SEM'); disp(' ')
+    disp('IOS 5s stim AUC: Blank (N = 8, 5M/3F); SSP (N = 7, 2M/5F); mean +/- SEM'); disp(' ')
     disp(['Blank-SAP ' num2str(mean(pulseData.Blank_SAP.contra.AUC)) ' +/- ' num2str(std(pulseData.Blank_SAP.contra.AUC,0,1)./sqrt(size(pulseData.Blank_SAP.contra.AUC,1)))]); disp(' ')
     disp(['SSP-SAP ' num2str(mean(pulseData.SSP_SAP.contra.AUC)) ' +/- ' num2str(std(pulseData.SSP_SAP.contra.AUC,0,1)./sqrt(size(pulseData.SSP_SAP.contra.AUC,1)))]); disp(' ')
     disp('GLME statistics for IOS pulse AUC (t = 1.5:6.5 sec)')
@@ -584,7 +584,7 @@ if saveFigs == true
 
     % IOS running
     disp('======================================================================================================================')
-    disp('Running AUC, n = 7 mice per group, mean +/- SEM'); disp(' ')
+    disp('Running AUC: Blank (N = 7, 5M/2F); SSP (N = 7, 2M/5F); mean +/- SEM'); disp(' ')
     disp(['Blank-SAP ' num2str(mean(runningStats.Blank.AUC)) ' +/- ' num2str(std(runningStats.Blank.AUC,0,1)./sqrt(size(runningStats.Blank.AUC,1)))]); disp(' ')
     disp(['SSP-SAP ' num2str(mean(runningStats.SSP.AUC)) ' +/- ' num2str(std(runningStats.SSP.AUC,0,1)./sqrt(size(runningStats.SSP.AUC,1)))]); disp(' ')
     disp('GLME statistics for running AUC (t = 1.5:2.5 sec)')
@@ -593,7 +593,7 @@ if saveFigs == true
 
     % 2P long stim
     disp('======================================================================================================================')
-    disp('2P 5s stim AUC, n = 7-9 mice per group, mean +/- SEM'); disp(' ')
+    disp('2P 5s stim AUC: Blank (N = 9,  5M/4F, n = 81); SSP (N = 7, 2M/5F, n = 70); mean +/- SEM'); disp(' ')
     disp(['Blank-SAP ' num2str(mean(twoPdata.Blank_SAP.contra.AUC)) ' +/- ' num2str(std(twoPdata.Blank_SAP.contra.AUC,0,1)./sqrt(size(twoPdata.Blank_SAP.contra.AUC,1)))]); disp(' ')
     disp(['SSP-SAP ' num2str(mean(twoPdata.SSP_SAP.contra.AUC)) ' +/- ' num2str(std(twoPdata.SSP_SAP.contra.AUC,0,1)./sqrt(size(twoPdata.SSP_SAP.contra.AUC,1)))]); disp(' ')
     disp('GLME statistics for two photon AUC (t = 3:7 sec)')
