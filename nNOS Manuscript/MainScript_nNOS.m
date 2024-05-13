@@ -5,7 +5,7 @@ function [] = MainScript_nNOS()
 % https://github.com/KL-Turner
 %----------------------------------------------------------------------------------------------------------
 zap;
-cd('F:\NO Project\')
+% cd('F:\NO Project\')
 saveFigs = true; 
 runAnalysis = false;
 
@@ -38,11 +38,11 @@ Fig5_nNOS(rootFolder,saveFigs,delim)
 Fig6_nNOS(rootFolder,saveFigs,delim)
 
 % supplemental figure panels
-% FigS1_nNOS(rootFolder,saveFigs,delim)
-% FigS2_nNOS(rootFolder,saveFigs,delim)
-% FigS3_nNOS(rootFolder,saveFigs,delim)
-% FigS4_nNOS(rootFolder,saveFigs,delim)
-% FigS5_nNOS(rootFolder,saveFigs,delim)
+FigS1_nNOS(rootFolder,saveFigs,delim)
+FigS2_nNOS(rootFolder,saveFigs,delim)
+FigS3_nNOS(rootFolder,saveFigs,delim)
+FigS4_nNOS(rootFolder,saveFigs,delim)
+FigS5_nNOS(rootFolder,saveFigs,delim)
 
 function [] = RunAnalysis_nNOS(rootFolder,delim)
 % Ephys exp are bilateral windows/stereotrodes SIBF @ 568 nm, sleep included
