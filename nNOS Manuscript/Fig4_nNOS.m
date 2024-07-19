@@ -71,8 +71,8 @@ for aa = 1:length(groups)
                 behavior = behaviors{1,dd};
                 for ee = 1:length(variables)
                     variable = variables{1,ee};
-                    iosSigData.(group).(hemisphere).(dataType).(behavior).(['mean_' variable]) = mean(iosSigData.(group).(hemisphere).(dataType).(behavior).(variable),1);
-                    iosSigData.(group).(hemisphere).(dataType).(behavior).(['std_' variable]) = std(iosSigData.(group).(hemisphere).(dataType).(behavior).(variable),1);
+                    iosSigData.(group).(hemisphere).(dataType).(behavior).(['mean_' variable]) = mean(iosSigData.(group).(hemisphere).(dataType).(behavior).(variable),1,'omitnan');
+                    iosSigData.(group).(hemisphere).(dataType).(behavior).(['std_' variable]) = std(iosSigData.(group).(hemisphere).(dataType).(behavior).(variable),1,'omitnan');
                 end
             end
         end
@@ -123,8 +123,8 @@ for aa = 1:length(groups)
     group = groups{1,aa};
     for ee = 1:length(variables)
         variable = variables{1,ee};
-        pulseSigData.(group).(['mean_' variable]) = mean(pulseSigData.(group).(variable),1);
-        pulseSigData.(group).(['std_' variable]) = std(pulseSigData.(group).(variable),1);
+        pulseSigData.(group).(['mean_' variable]) = mean(pulseSigData.(group).(variable),1,'omitnan');
+        pulseSigData.(group).(['std_' variable]) = std(pulseSigData.(group).(variable),1,'omitnan');
     end
 end
 
@@ -201,8 +201,8 @@ for aa = 1:length(groups)
                 behavior = behaviors{1,dd};
                 for ee = 1:length(variables)
                     variable = variables{1,ee};
-                    gcampSigdata.(group).(hemisphere).(dataType).(behavior).(['mean_' variable]) = mean(gcampSigdata.(group).(hemisphere).(dataType).(behavior).(variable),1);
-                    gcampSigdata.(group).(hemisphere).(dataType).(behavior).(['std_' variable]) = std(gcampSigdata.(group).(hemisphere).(dataType).(behavior).(variable),1);
+                    gcampSigdata.(group).(hemisphere).(dataType).(behavior).(['mean_' variable]) = mean(gcampSigdata.(group).(hemisphere).(dataType).(behavior).(variable),1,'omitnan');
+                    gcampSigdata.(group).(hemisphere).(dataType).(behavior).(['std_' variable]) = std(gcampSigdata.(group).(hemisphere).(dataType).(behavior).(variable),1,'omitnan');
                 end
             end
         end
@@ -257,8 +257,8 @@ for aa = 1:length(groups)
     group = groups{1,aa};
     for ee = 1:length(variables)
         variable = variables{1,ee};
-        diameterData.(group).(['mean_' variable]) = mean(diameterData.(group).(variable),1);
-        diameterData.(group).(['std_' variable]) = std(diameterData.(group).(variable),1);
+        diameterData.(group).(['mean_' variable]) = mean(diameterData.(group).(variable),1,'omitnan');
+        diameterData.(group).(['std_' variable]) = std(diameterData.(group).(variable),1,'omitnan');
     end
 end
 
@@ -358,8 +358,8 @@ for aa = 1:length(groups)
             for dd = 1:length(variables)
                 variable = variables{1,dd};
                 dimension = dimensions(dd);
-                data.(group).(hemisphere).(behavior).(['mean_' variable]) = mean(data.(group).(hemisphere).(behavior).(variable),dimension);
-                data.(group).(hemisphere).(behavior).(['stdErr_' variable]) = std(data.(group).(hemisphere).(behavior).(variable),0,dimension)./sqrt(size(data.(group).(hemisphere).(behavior).(variable),dimension));
+                data.(group).(hemisphere).(behavior).(['mean_' variable]) = mean(data.(group).(hemisphere).(behavior).(variable),dimension,'omitnan');
+                data.(group).(hemisphere).(behavior).(['stdErr_' variable]) = std(data.(group).(hemisphere).(behavior).(variable),0,dimension,'omitnan')./sqrt(size(data.(group).(hemisphere).(behavior).(variable),dimension));
             end
         end
     end
@@ -504,8 +504,8 @@ if saveFigs == true
     % IOS [HbT] resting variance
     disp('======================================================================================================================')
     disp('IOS resting variance: Blank (N = 24, 12M/12F); SSP (N = 24, 11M/13F); mean +/- SEM'); disp(' ')
-    disp(['Blank-SAP ' num2str(mean(blankHbTVarData)) ' +/- ' num2str(std(blankHbTVarData,0,1)./sqrt(size(blankHbTVarData,1)))]); disp(' ')
-    disp(['SSP-SAP ' num2str(mean(sspHbTVarData)) ' +/- ' num2str(std(sspHbTVarData,0,1)./sqrt(size(sspHbTVarData,1)))]); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(blankHbTVarData,'omitnan')) ' +/- ' num2str(std(blankHbTVarData,0,1,'omitnan')./sqrt(size(blankHbTVarData,1)))]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(sspHbTVarData,'omitnan')) ' +/- ' num2str(std(sspHbTVarData,0,1,'omitnan')./sqrt(size(sspHbTVarData,1)))]); disp(' ')
     disp('GLME statistics for resting HbT variance')
     disp(restHbTVarStats.Stats)
     disp(['*p < ' num2str(alphaA) ' **p < ' num2str(alphaB) ' ***p < ' num2str(alphaC)]);
@@ -513,8 +513,8 @@ if saveFigs == true
     % Diameter resting variance
     disp('======================================================================================================================')
     disp('Diameter resting variance: Blank (N = 9, 5M/4F, n = 70); SSP (N = 7, 2M/5F, n = 65); mean +/- SEM'); disp(' ')
-    disp(['Blank-SAP ' num2str(mean(blankHbTVarData)) ' +/- ' num2str(std(blankHbTVarData,0,1)./sqrt(size(blankHbTVarData,1)))]); disp(' ')
-    disp(['SSP-SAP ' num2str(mean(sspHbTVarData)) ' +/- ' num2str(std(sspHbTVarData,0,1)./sqrt(size(sspHbTVarData,1)))]); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(blankDiameterVarData,'omitnan')) ' +/- ' num2str(std(blankDiameterVarData,0,1,'omitnan')./sqrt(size(blankDiameterVarData,1)))]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(sspDiameterVarData,'omitnan')) ' +/- ' num2str(std(sspDiameterVarData,0,1,'omitnan')./sqrt(size(sspDiameterVarData,1)))]); disp(' ')
     disp('GLME statistics for resting HbT variance')
     disp(restDiameterVarStats.Stats)
     disp(['*p < ' num2str(alphaA) ' **p < ' num2str(alphaB) ' ***p < ' num2str(alphaC)]);
@@ -522,8 +522,8 @@ if saveFigs == true
     % LFP delta power (alert)
     disp('======================================================================================================================')
     disp('LFP Alert delta power: Blank (N = 9, 4M/5F); SSP (N = 9, 5M/4F); mean +/- SEM'); disp(' ')
-    disp(['Blank-SAP ' num2str(mean(data.Blank_SAP.RH.Alert.deltaS)) ' +/- ' num2str(std(data.Blank_SAP.RH.Alert.deltaS,0,1)./sqrt(size(data.Blank_SAP.RH.Alert.deltaS,1)))]); disp(' ')
-    disp(['SSP-SAP ' num2str(mean(data.SSP_SAP.RH.Alert.deltaS)) ' +/- ' num2str(std(data.SSP_SAP.RH.Alert.deltaS,0,1)./sqrt(size(data.SSP_SAP.RH.Alert.deltaS,1)))]); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(data.Blank_SAP.RH.Alert.deltaS,'omitnan')) ' +/- ' num2str(std(data.Blank_SAP.RH.Alert.deltaS,0,1,'omitnan')./sqrt(size(data.Blank_SAP.RH.Alert.deltaS,1)))]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(data.SSP_SAP.RH.Alert.deltaS,'omitnan')) ' +/- ' num2str(std(data.SSP_SAP.RH.Alert.deltaS,0,1,'omitnan')./sqrt(size(data.SSP_SAP.RH.Alert.deltaS,1)))]); disp(' ')
     disp('GLME statistics for LFP delta (1:4 Hz)')
     disp(lfpStats.RH.Alert.Stats)
     disp(['*p < ' num2str(alphaA) ' **p < ' num2str(alphaB) ' ***p < ' num2str(alphaC)]);
@@ -531,8 +531,8 @@ if saveFigs == true
     % LFP delta power (asleep)
     disp('======================================================================================================================')
     disp('LFP Asleep delta power: Blank (N = 7, 3M/4F); SSP (N = 7, 4M/3F); mean +/- SEM'); disp(' ')
-    disp(['Blank-SAP ' num2str(mean(data.Blank_SAP.RH.Asleep.deltaS)) ' +/- ' num2str(std(data.Blank_SAP.RH.Asleep.deltaS,0,1)./sqrt(size(data.Blank_SAP.RH.Asleep.deltaS,1)))]); disp(' ')
-    disp(['SSP-SAP ' num2str(mean(data.SSP_SAP.RH.Asleep.deltaS)) ' +/- ' num2str(std(data.SSP_SAP.RH.Asleep.deltaS,0,1)./sqrt(size(data.SSP_SAP.RH.Asleep.deltaS,1)))]); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(data.Blank_SAP.RH.Asleep.deltaS,'omitnan')) ' +/- ' num2str(std(data.Blank_SAP.RH.Asleep.deltaS,0,1,'omitnan')./sqrt(size(data.Blank_SAP.RH.Asleep.deltaS,1)))]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(data.SSP_SAP.RH.Asleep.deltaS,'omitnan')) ' +/- ' num2str(std(data.SSP_SAP.RH.Asleep.deltaS,0,1,'omitnan')./sqrt(size(data.SSP_SAP.RH.Asleep.deltaS,1)))]); disp(' ')
     disp('GLME statistics for LFP delta (1:4 Hz)')
     disp(lfpStats.RH.Asleep.Stats)
     disp(['*p < ' num2str(alphaA) ' **p < ' num2str(alphaB) ' ***p < ' num2str(alphaC)]);
@@ -540,8 +540,8 @@ if saveFigs == true
     % LFP delta power (all)
     disp('======================================================================================================================')
     disp('LFP All delta power: Blank (N = 9, 4M/5F); SSP (N = 9, 5M/4F); mean +/- SEM'); disp(' ')
-    disp(['Blank-SAP ' num2str(mean(data.Blank_SAP.RH.All.deltaS)) ' +/- ' num2str(std(data.Blank_SAP.RH.All.deltaS,0,1)./sqrt(size(data.Blank_SAP.RH.All.deltaS,1)))]); disp(' ')
-    disp(['SSP-SAP ' num2str(mean(data.SSP_SAP.RH.All.deltaS)) ' +/- ' num2str(std(data.SSP_SAP.RH.All.deltaS,0,1)./sqrt(size(data.SSP_SAP.RH.All.deltaS,1)))]); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(data.Blank_SAP.RH.All.deltaS,'omitnan')) ' +/- ' num2str(std(data.Blank_SAP.RH.All.deltaS,0,1,'omitnan')./sqrt(size(data.Blank_SAP.RH.All.deltaS,1)))]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(data.SSP_SAP.RH.All.deltaS,'omitnan')) ' +/- ' num2str(std(data.SSP_SAP.RH.All.deltaS,0,1,'omitnan')./sqrt(size(data.SSP_SAP.RH.All.deltaS,1)))]); disp(' ')
     disp('GLME statistics for LFP delta (1:4 Hz)')
     disp(lfpStats.RH.All.Stats)
     disp(['*p < ' num2str(alphaA) ' **p < ' num2str(alphaB) ' ***p < ' num2str(alphaC)]);

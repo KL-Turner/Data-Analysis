@@ -98,7 +98,6 @@ end
 [z1,p1,k1] = butter(4,10/(ProcData.notes.analogSamplingRate/2),'low');
 [sos1,g1] = zp2sos(z1,p1,k1);
 forceSensor = abs(filtfilt(sos1,g1,RawData.data.forceSensor.^2));
-respiration = abs(filtfilt(sos1,g1,RawData.data.hippocampus.^2));
 threshold = 0.015;
 figure;
 plot(forceSensor)

@@ -14,7 +14,7 @@ load(resultsStruct);
 groups = {'Naive','Blank_SAP','SSP_SAP'};
 solenoids = {'LPadSol','RPadSol','AudSol'};
 hemispheres = {'LH','RH'};
-dataTypes = {'HbT','cortMUA','cortGam','cortS','T','F','timeVector','group','animalID'};
+dataTypes = {'HbT','cortMUA','cortGam','cortS','T','F','timeVector','group','animalID','snipHbT','snipGam'}; % temporary
 % extract the analysis results
 for aa = 1:length(groups)
     group = groups{1,aa};
@@ -45,6 +45,9 @@ for aa = 1:length(groups)
                 iosEphysData.(group).(hemisphere).(solenoid).timeVector = cat(1,iosEphysData.(group).(hemisphere).(solenoid).timeVector,Results_Evoked_Ephys.(group).(animalID).(hemisphere).Stim.(solenoid).timeVector);
                 iosEphysData.(group).(hemisphere).(solenoid).group = cat(1,iosEphysData.(group).(hemisphere).(solenoid).group,group);
                 iosEphysData.(group).(hemisphere).(solenoid).animalID = cat(1,iosEphysData.(group).(hemisphere).(solenoid).animalID,animalID);
+                % temporary
+                iosEphysData.(group).(hemisphere).(solenoid).snipHbT = cat(1,iosEphysData.(group).(hemisphere).(solenoid).snipHbT,max(Results_Evoked_Ephys.(group).(animalID).(hemisphere).Stim.(solenoid).HbT(60:150)));
+                iosEphysData.(group).(hemisphere).(solenoid).snipGam = cat(1,iosEphysData.(group).(hemisphere).(solenoid).snipGam,max(Results_Evoked_Ephys.(group).(animalID).(hemisphere).Stim.(solenoid).cortGam(60:150)));
             end
         end
     end
@@ -303,7 +306,7 @@ load(resultsStruct);
 groups = {'Blank_SAP','SSP_SAP'};
 solenoids = {'LPadSol','RPadSol','AudSol'};
 hemispheres = {'LH','RH'};
-dataTypes = {'HbT','HbO','HbR','GCaMP','timeVector','group','animalID'};
+dataTypes = {'HbT','HbO','HbR','GCaMP','timeVector','group','animalID','snipHbT','snipGCaMP'};
 % extract the analysis results
 for aa = 1:length(groups)
     group = groups{1,aa};
@@ -332,6 +335,9 @@ for aa = 1:length(groups)
                 gcampdata.(group).(hemisphere).(solenoid).timeVector = cat(1,gcampdata.(group).(hemisphere).(solenoid).timeVector,Results_Evoked_GCaMP.(group).(animalID).(hemisphere).Stim.(solenoid).HbT.timeVector);
                 gcampdata.(group).(hemisphere).(solenoid).group = cat(1,gcampdata.(group).(hemisphere).(solenoid).group,group);
                 gcampdata.(group).(hemisphere).(solenoid).animalID = cat(1,gcampdata.(group).(hemisphere).(solenoid).animalID,animalID);
+                % temporary
+                gcampdata.(group).(hemisphere).(solenoid).snipHbT = cat(1,gcampdata.(group).(hemisphere).(solenoid).snipHbT,mean(Results_Evoked_GCaMP.(group).(animalID).(hemisphere).Stim.(solenoid).HbT.mean(40:70)));
+                gcampdata.(group).(hemisphere).(solenoid).snipGCaMP = cat(1,gcampdata.(group).(hemisphere).(solenoid).snipGCaMP,mean(Results_Evoked_GCaMP.(group).(animalID).(hemisphere).Stim.(solenoid).GCaMP.mean(35:85)));
             end
         end
     end
@@ -354,7 +360,7 @@ for aa = 1:length(groups)
                     gcampdata.(group).(hemisphere).(comparison).(dataType) = gcampdata.(group).(hemisphere).(solenoid).(dataType);
                     gcampdata.(group).(hemisphere).(comparison).(['mean_' dataType]) = mean(gcampdata.(group).(hemisphere).(solenoid).(dataType),1);
                     gcampdata.(group).(hemisphere).(comparison).(['stdErr_' dataType]) = std(gcampdata.(group).(hemisphere).(solenoid).(dataType),1)./sqrt(size(gcampdata.(group).(hemisphere).(solenoid).(dataType),1));
-                    if strcmp(dataType,'timeVector') == false
+                    if strcmp(dataType,{'timeVector','snipHbT','snipGCaMP'}') == false
                         for ee = 1:size(gcampdata.(group).(hemisphere).(comparison).(dataType),1)
                             if strcmp(dataType,'GCaMP') == true
                                 startIdx = find(gcampdata.(group).(hemisphere).(solenoid).timeVector(ee,:) == 2);
@@ -602,3 +608,69 @@ if saveFigs == true
 
     diary off
 end
+
+
+%% temporary neural-hbt comparison
+figure;
+subplot(1,2,1)
+s1 = scatter(iosEphysData.Blank_SAP.RH.contra.snipGam,iosEphysData.Blank_SAP.RH.contra.snipHbT,'filled','MarkerFaceColor',colors('north texas green'));
+hold on;
+% [fitresult,gofa] = fit( iosEphysData.Blank_SAP.RH.contra.snipGam,iosEphysData.Blank_SAP.RH.contra.snipHbT,'poly1','Normalize','on');
+% p1 = plot(fitresult);
+p = iosEphysData.Blank_SAP.RH.contra.snipGam(:)\iosEphysData.Blank_SAP.RH.contra.snipHbT(:);
+pp = p*iosEphysData.Blank_SAP.RH.contra.snipGam;
+plot(iosEphysData.Blank_SAP.RH.contra.snipGam,pp,'color',colors('north texas green'));
+
+s2 = scatter(iosEphysData.SSP_SAP.RH.contra.snipGam,iosEphysData.SSP_SAP.RH.contra.snipHbT,'filled','MarkerFaceColor',colors('electric purple'));
+p = iosEphysData.SSP_SAP.RH.contra.snipGam(:)\iosEphysData.SSP_SAP.RH.contra.snipHbT(:);
+pp = p*iosEphysData.SSP_SAP.RH.contra.snipGam;
+plot(iosEphysData.SSP_SAP.RH.contra.snipGam,pp,'color',colors('electric purple'));
+
+xlabel('Gamma (%)')
+ylabel('\DeltaHbT (\muM)')
+legend([s1,s2],'Blank-SAP','SSP-SAP')
+set(gca,'box','off')
+
+axis square
+
+subplot(1,2,2)
+s1 = scatter(gcampdata.Blank_SAP.RH.contra.snipGCaMP*100,gcampdata.Blank_SAP.RH.contra.snipHbT,'filled','MarkerFaceColor',colors('north texas green'));
+hold on;
+% [fitresult,gofc] = fit(gcampdata.Blank_SAP.RH.contra.snipGCaMP*100,gcampdata.Blank_SAP.RH.contra.snipHbT,'poly1');
+% p1 = plot(fitresult);
+p = gcampdata.Blank_SAP.RH.contra.snipGCaMP(:)*100\gcampdata.Blank_SAP.RH.contra.snipHbT(:);
+pp = p*gcampdata.Blank_SAP.RH.contra.snipGCaMP*100;
+plot(gcampdata.Blank_SAP.RH.contra.snipGCaMP*100,pp,'color',colors('north texas green'));
+
+s2 = scatter(gcampdata.SSP_SAP.RH.contra.snipGCaMP*100,gcampdata.SSP_SAP.RH.contra.snipHbT,'filled','MarkerFaceColor',colors('electric purple'));
+% [fitresult,gofd] = fit(gcampdata.SSP_SAP.RH.contra.snipGCaMP*100,gcampdata.SSP_SAP.RH.contra.snipHbT,'poly1');
+% p2 = plot(fitresult);
+p = gcampdata.SSP_SAP.RH.contra.snipGCaMP(:)*100\gcampdata.SSP_SAP.RH.contra.snipHbT(:);
+pp = p*gcampdata.SSP_SAP.RH.contra.snipGCaMP*100;
+plot(gcampdata.SSP_SAP.RH.contra.snipGCaMP*100,pp,'color',colors('electric purple'));
+
+xlabel('GCaMP (%)')
+ylabel('\DeltaHbT (\muM)')
+legend([s1,s2],'Blank-SAP','SSP-SAP')
+set(gca,'box','off')
+xlim([0,16])
+ylim([0,40])
+axis square
+
+%%
+x = [iosEphysData.Blank_SAP.RH.contra.snipGam; iosEphysData.SSP_SAP.RH.contra.snipGam];
+y = [iosEphysData.Blank_SAP.RH.contra.snipHbT; iosEphysData.SSP_SAP.RH.contra.snipHbT];
+group = [ones(size(iosEphysData.Blank_SAP.RH.contra.snipGam)); 2 * ones(size(iosEphysData.SSP_SAP.RH.contra.snipGam))]; % 1 for first dataset, 2 for second
+tbl = table(x, y, group);
+tbl.group = categorical(tbl.group); % Convert group to categorical variable
+mdl = fitlm(tbl, 'y ~ x*group - 1');
+disp(mdl.Coefficients)
+
+%%
+x = [gcampdata.Blank_SAP.RH.contra.snipGCaMP; gcampdata.SSP_SAP.RH.contra.snipGCaMP];
+y = [gcampdata.Blank_SAP.RH.contra.snipHbT; gcampdata.SSP_SAP.RH.contra.snipHbT];
+group = [ones(size(gcampdata.Blank_SAP.RH.contra.snipGCaMP)); 2 * ones(size(gcampdata.SSP_SAP.RH.contra.snipGCaMP))]; % 1 for first dataset, 2 for second
+tbl = table(x, y, group);
+tbl.group = categorical(tbl.group); % Convert group to categorical variable
+mdl = fitlm(tbl, 'y ~ x*group - 1');
+disp(mdl.Coefficients)
