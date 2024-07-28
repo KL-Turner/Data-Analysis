@@ -5,8 +5,7 @@ function [] = MainScript_nNOS()
 % https://github.com/KL-Turner
 %----------------------------------------------------------------------------------------------------------
 zap;
-cd('F:\NO Project\')
-saveFigs = true; 
+saveFigs = false; 
 runAnalysis = false;
 
 % verify code repository and data are in the current directory/added path
@@ -36,8 +35,8 @@ disp('Loading analysis results and generating figures...'); disp(' ')
 % Fig4_nNOS(rootFolder,saveFigs,delim)
 % Fig5_nNOS(rootFolder,saveFigs,delim)
 % Fig6_nNOS(rootFolder,saveFigs,delim)
-% 
-% % supplemental figure panels
+
+% supplemental figure panels
 % FigS1_nNOS(rootFolder,saveFigs,delim)
 % FigS2_nNOS(rootFolder,saveFigs,delim)
 % FigS3_nNOS(rootFolder,saveFigs,delim)

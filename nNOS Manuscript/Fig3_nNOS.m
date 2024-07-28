@@ -665,6 +665,8 @@ tbl = table(x, y, group);
 tbl.group = categorical(tbl.group); % Convert group to categorical variable
 mdl = fitlm(tbl, 'y ~ x*group - 1');
 disp(mdl.Coefficients)
+disp(['Blank slope: ' num2str(mean(iosEphysData.Blank_SAP.RH.contra.snipHbT./iosEphysData.Blank_SAP.RH.contra.snipGam,1)) ' +/- ' num2str(std((iosEphysData.Blank_SAP.RH.contra.snipHbT./iosEphysData.Blank_SAP.RH.contra.snipGam),0,1))])
+disp(['SP slope: ' num2str(mean(iosEphysData.SSP_SAP.RH.contra.snipHbT./iosEphysData.SSP_SAP.RH.contra.snipGam,1)) ' +/ ' num2str(std((iosEphysData.SSP_SAP.RH.contra.snipHbT./iosEphysData.SSP_SAP.RH.contra.snipGam),0,1))])
 
 %%
 x = [gcampdata.Blank_SAP.RH.contra.snipGCaMP; gcampdata.SSP_SAP.RH.contra.snipGCaMP];
@@ -674,3 +676,5 @@ tbl = table(x, y, group);
 tbl.group = categorical(tbl.group); % Convert group to categorical variable
 mdl = fitlm(tbl, 'y ~ x*group - 1');
 disp(mdl.Coefficients)
+disp(['Blank slope: ' num2str(mean(gcampdata.Blank_SAP.RH.contra.snipHbT./gcampdata.Blank_SAP.RH.contra.snipGCaMP,1)) ' +/- ' num2str(std((gcampdata.Blank_SAP.RH.contra.snipHbT./gcampdata.Blank_SAP.RH.contra.snipGCaMP),0,1))])
+disp(['SP slope: ' num2str(mean(gcampdata.SSP_SAP.RH.contra.snipHbT./gcampdata.SSP_SAP.RH.contra.snipGCaMP,1)) ' +/ ' num2str(std((gcampdata.SSP_SAP.RH.contra.snipHbT./gcampdata.SSP_SAP.RH.contra.snipGCaMP),0,1))])
