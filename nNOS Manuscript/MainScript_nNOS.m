@@ -5,7 +5,7 @@ function [] = MainScript_nNOS()
 % https://github.com/KL-Turner
 %----------------------------------------------------------------------------------------------------------
 zap;
-saveFigs = false; 
+saveFigs = true; 
 runAnalysis = false;
 
 % verify code repository and data are in the current directory/added path

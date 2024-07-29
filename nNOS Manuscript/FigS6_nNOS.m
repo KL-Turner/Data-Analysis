@@ -63,7 +63,7 @@ for bb = 1:length(transitions)
 end
 %% Arousal-state transitions
 T1 = -30 + (1/30):(1/30):30;
-figure;
+FigS7 = figure;
 for aa = 1:length(transitions)
     transition = transitions{1,aa};
     subplot(2,2,aa);
@@ -80,8 +80,51 @@ for aa = 1:length(transitions)
     xlim([-30,30])
 end
 
-disp(transitionStats.AWAKEtoNREM.Stats)
-disp(transitionStats.NREMtoAWAKE.Stats)
-disp(transitionStats.NREMtoREM.Stats)
-disp(transitionStats.REMtoAWAKE.Stats)
+%% save figure
+if saveFigs == true
+    dirpath = [rootFolder delim 'MATLAB Figure Panels' delim];
+    if ~exist(dirpath,'dir')
+        mkdir(dirpath);
+    end
+    savefig(FigS7,[dirpath 'FigS7']);
+    set(FigS7,'PaperPositionMode','auto');
+    print('-vector','-dpdf','-fillpage',[dirpath 'FigS7'])
+    % statistical diary
+    diaryFile = [dirpath 'FigS7_Statistics.txt'];
+    if exist(diaryFile,'file') == 2
+        delete(diaryFile)
+    end
+    diary(diaryFile)
+    diary on
+
+    % Awake to NREM
+    disp('======================================================================================================================')
+    disp('Awake to NREM transition, n = 9 mice per group, mean +/- SEM'); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(transitionData.Blank_SAP.AWAKEtoNREM.meanDifference)) ' +/- ' num2str(transitionData.Blank_SAP.AWAKEtoNREM.stdDifference)]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(transitionData.SSP_SAP.AWAKEtoNREM.meanDifference)) ' +/- ' num2str(transitionData.SSP_SAP.AWAKEtoNREM.stdDifference)]); disp(' ')
+    disp(transitionStats.AWAKEtoNREM.Stats)
+
+    % NREM to Awake
+    disp('======================================================================================================================')
+    disp('NREM to Awake transition, n = 9 mice per group, mean +/- SEM'); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(transitionData.Blank_SAP.NREMtoAWAKE.meanDifference)) ' +/- ' num2str(transitionData.Blank_SAP.NREMtoAWAKE.stdDifference)]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(transitionData.SSP_SAP.NREMtoAWAKE.meanDifference)) ' +/- ' num2str(transitionData.SSP_SAP.NREMtoAWAKE.stdDifference)]); disp(' ')
+    disp(transitionStats.NREMtoAWAKE.Stats)
+
+    % NREM to REM
+    disp('======================================================================================================================')
+    disp('NREM to REM transition, n = 9 mice per group, mean +/- SEM'); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(transitionData.Blank_SAP.NREMtoREM.meanDifference)) ' +/- ' num2str(transitionData.Blank_SAP.NREMtoREM.stdDifference)]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(transitionData.SSP_SAP.NREMtoREM.meanDifference)) ' +/- ' num2str(transitionData.SSP_SAP.NREMtoREM.stdDifference)]); disp(' ')
+    disp(transitionStats.NREMtoREM.Stats)
+
+    % REM to Awake
+    disp('======================================================================================================================')
+    disp('REM to Awake transition, n = 9 mice per group, mean +/- SEM'); disp(' ')
+    disp(['Blank-SAP ' num2str(mean(transitionData.Blank_SAP.REMtoAWAKE.meanDifference)) ' +/- ' num2str(transitionData.Blank_SAP.REMtoAWAKE.stdDifference)]); disp(' ')
+    disp(['SSP-SAP ' num2str(mean(transitionData.SSP_SAP.REMtoAWAKE.meanDifference)) ' +/- ' num2str(transitionData.SSP_SAP.REMtoAWAKE.stdDifference)]); disp(' ')
+    disp(transitionStats.REMtoAWAKE.Stats)
+
+end
+
 
